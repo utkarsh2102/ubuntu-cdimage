@@ -95,7 +95,13 @@ EOF
 installations of $CAPPROJECT. It provides for the following situations:</p>
 
 <ul>
+EOF
+			if [ "$PROJECT" != kubuntu ]; then
+				cat <<EOF
 <li>creating pre-configured OEM systems;
+EOF
+			fi
+			cat <<EOF
 <li>setting up automated deployments;
 <li>upgrading from older installations without network access;
 <li>LVM and/or RAID partitioning;
