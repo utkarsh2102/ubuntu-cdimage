@@ -8,8 +8,8 @@ export CDIMAGE_ROOT=/srv/cdimage.no-name-yet.com
 GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
 
 case $DIST in
-	warty)
-		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security}"
+	warty|hoary|breezy|dapper)
+		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
 		;;
 	*)
 		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST}"
