@@ -161,7 +161,7 @@ if $PUBLISH_POOL; then
 fi
 if $PUBLISH_DIST; then
 	mkdir -p "$RELEASE_SIMPLE_DIST"
-	find "$RELEASE_SIMPLE_DIST/" -name "$CDPREFIX-$TYPE-*" -type l -print0 | xargs -0r rm -f
+	[ -z "$CDIMAGE_NO_PURGE" ] && find "$RELEASE_SIMPLE_DIST/" -name "$CDPREFIX-$TYPE-*" -type l -print0 | xargs -0r rm -f
 fi
 if $PUBLISH_FULL; then
 	mkdir -p "$RELEASE_FULL"
@@ -280,7 +280,7 @@ if [ "$TYPE" != src ]; then
 	# Create and publish torrents.
 	if $PUBLISH_DIST; then
 		TORRENTS="$CDIMAGE_ROOT/www/$TORRENT_TREE/simple/$DIST/$TYPE"
-		mkemptydir "$TORRENTS"
+		[ -z "$CDIMAGE_NO_PURGE" ] && mkemptydir "$TORRENTS"
 		make-torrents "$RELEASE_SIMPLE_DIST" \
 			"$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE" releases.ubuntu.com
 	fi
