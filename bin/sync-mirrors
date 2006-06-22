@@ -10,7 +10,7 @@ fi
 
 trigger () {
 	echo "$2:"
-	ssh -i "$SECRET/auckland" -o 'StrictHostKeyChecking no' "$1@$2" sleep 1
+	ssh -i "$SECRET/auckland" -o 'StrictHostKeyChecking no' -o 'BatchMode yes' "$1@$2" sleep 1
 }
 
 trigger archvsync syncproxy.ubuntu.com
