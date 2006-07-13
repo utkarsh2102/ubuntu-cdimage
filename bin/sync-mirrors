@@ -20,7 +20,5 @@ trigger archvsync durville.ubuntu.com
 trigger archvsync mcmurdo.ubuntu.com
 trigger archvsync magellanic.ubuntu.com &
 trigger archvsync neumayer.ubuntu.com
-trigger archvsync carbon.ubuntu.com
-trigger archvsync boron.ubuntu.com
 trigger archvsync leningradskaya.ubuntu.com
 trigger archvsync beryllium.ubuntu.com
