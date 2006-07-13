@@ -113,7 +113,7 @@ EOF
 		server)
 			cat <<EOF
 <p>The server install CD allows you to install $CAPPROJECT permanently on a
-computer.</p>
+computer for use as a server.</p>
 EOF
 			;;
 		dvd)
