@@ -57,7 +57,8 @@ if [ "$CDIMAGE_INSTALL" ]; then
 fi
 
 if [ -z "$DEBUG" ]; then
-	exec >"$CDIMAGE_ROOT/log/$PROJECT-$IMAGE_TYPE-$CDIMAGE_DATE.log" 2>&1
+	mkdir -p "$CDIMAGE_ROOT/log/$PROJECT/$DIST"
+	exec >"$CDIMAGE_ROOT/log/$PROJECT/$DIST/$IMAGE_TYPE-$CDIMAGE_DATE.log" 2>&1
 	# Since we now know we aren't going to be spamming the terminal,
 	# it's safe to crank up the verbosity so that the logs are most
 	# useful.
