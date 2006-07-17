@@ -38,6 +38,17 @@ titlecase () {
 	perl -ne 'print "\u$_"'
 }
 
+cssincludes () {
+	case $PROJECT in
+		kubuntu)
+			echo 'http://www.kubuntu.org/ubuntu.css'
+			;;
+		*)
+			echo 'http://www.ubuntu.com/include/plone.css http://www.ubuntu.com/include/ubuntu.css'
+			;;
+	esac
+}
+
 cdtypestr () {
 	case $1 in
 		live|desktop)
@@ -305,8 +316,12 @@ cat <<EOF > "$HEADER"
   <title>$CAPPROJECT $distversion ($distfullname)$distextra</title>
   <!-- Main style sheets for CSS2 capable browsers -->
   <style type="text/css" media="screen">
-  @import url(http://www.ubuntu.com/include/plone.css);
-  @import url(http://www.ubuntu.com/include/ubuntu.css);
+EOF
+for css in $(cssincludes); do
+	cat <<EOF >> "$HEADER"
+  @import url($css);
+EOF
+cat <<EOF >> "$HEADER"
   pre { background: none; }
   body { margin: 2em; }
   </style>
