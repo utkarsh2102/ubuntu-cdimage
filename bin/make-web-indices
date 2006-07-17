@@ -321,6 +321,7 @@ for css in $(cssincludes); do
 	cat <<EOF >> "$HEADER"
   @import url($css);
 EOF
+done
 cat <<EOF >> "$HEADER"
   pre { background: none; }
   body { margin: 2em; }
