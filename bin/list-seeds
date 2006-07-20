@@ -29,10 +29,10 @@ case $MODE in
 			ubuntu-server)
 				case $DIST in
 					warty|hoary|breezy|dapper)
-						echo 'server-ship'
+						echo 'server'
 						;;
 					*)
-						echo 'server'
+						echo 'server-ship'
 						;;
 				esac
 				;;
