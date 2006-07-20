@@ -6,6 +6,10 @@ export CDIMAGE_ROOT=/srv/cdimage.no-name-yet.com
 . "$CDIMAGE_ROOT/bin/functions.sh"
 
 GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
+SEED_SOURCE=http://people.ubuntu.com/~cjwatson/seeds/
+if [ "$LOCAL_SEEDS" ]; then
+	SEED_SOURCE="$LOCAL_SEEDS"
+fi
 
 case $DIST in
 	warty|hoary|breezy|dapper)
@@ -75,7 +79,7 @@ for arch in $CPUARCHES; do
 	if [ "$GERMINATE_HINTS" ] && [ -f "$GERMINATE_HINTS" ]; then
 		cp -a "$GERMINATE_HINTS" hints
 	fi
-	"$CDIMAGE_ROOT/germinate/germinate.py" ${LOCAL_SEEDS:+--seed-source "$LOCAL_SEEDS"} --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$arch" --components main --no-rdepends
+	"$CDIMAGE_ROOT/germinate/germinate.py" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$arch" --components main --no-rdepends
 
 	if [ "$DIST" = breezy ]; then
 		# Unfortunately, we now need a second germinate run to
@@ -88,6 +92,13 @@ for arch in $CPUARCHES; do
 			EXTRAS="${EXTRAS:+$EXTRAS,}desktop/$pkg"
 			echo "$pkg" >> ship.acsets
 		done
-		"$CDIMAGE_ROOT/germinate/germinate.py" ${LOCAL_SEEDS:+--seed-source "$LOCAL_SEEDS"} --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$arch" --components main --no-rdepends ${EXTRAS:+--seed-packages "$EXTRAS"}
+		"$CDIMAGE_ROOT/germinate/germinate.py" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$arch" --components main --no-rdepends ${EXTRAS:+--seed-packages "$EXTRAS"}
 	fi
 done
+
+case $DIST in
+	warty)	;;
+	*)
+		wget -O "$GERMINATE_OUT/$DIST/STRUCTURE" "${SEED_SOURCE%/}/$GERMINATE_SEED_DIST/STRUCTURE"
+		;;
+esac
