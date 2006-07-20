@@ -12,7 +12,7 @@ set -e
 # Don't forget:
 # chmod 744 anonftpsync
 
-export CDIMAGE_ROOT=/srv/cdimage.no-name-yet.com
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 # TO is the destination for the base of the Debian mirror directory

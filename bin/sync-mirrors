@@ -1,6 +1,6 @@
 #! /bin/sh
 
-export CDIMAGE_ROOT=/srv/cdimage.no-name-yet.com
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 SECRET="$CDIMAGE_ROOT/secret"

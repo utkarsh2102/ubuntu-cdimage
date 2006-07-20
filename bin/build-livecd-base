@@ -3,7 +3,7 @@ set -e
 
 export ARCHES="${ARCHES:-amd64 hppa i386 ia64 powerpc sparc}"
 
-export CDIMAGE_ROOT=/srv/cdimage.no-name-yet.com
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 PATH="$CDIMAGE_ROOT/bin:${PATH:+:$PATH}"
