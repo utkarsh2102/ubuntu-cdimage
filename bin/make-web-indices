@@ -86,7 +86,13 @@ cdtypedesc () {
 	esac
 
 	case $1 in
-		live|desktop)
+		live)
+			cat <<EOF
+<p>The live CD allows you to try $CAPPROJECT without changing your computer
+at all, and at your option to install it permanently later.</p>
+EOF
+			;;
+		desktop)
 			cat <<EOF
 <p>The desktop CD allows you to try $CAPPROJECT without changing your
 computer at all, and at your option to install it permanently later. This
