@@ -45,9 +45,9 @@ for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
 done
 
 # Help debian-cd to regenerate Task headers, to make sure that we don't
-# accidentally end up out of sync with the archive and break the
-# second-stage install. Also generate Archive-Copier-Set headers for sets of
-# packages that archive-copier needs to know to copy but that shouldn't
+# accidentally end up out of sync with the archive and break the package
+# installation step. In breezy, also generate Archive-Copier-Set headers for
+# sets of packages that archive-copier needs to know to copy but that shouldn't
 # appear as tasks in aptitude et al.
 for arch in $CPUARCHES; do
 	exec >"$TASKS_OUT/$DIST/tasks.$arch"
