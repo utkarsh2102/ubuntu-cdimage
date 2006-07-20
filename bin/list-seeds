@@ -17,38 +17,31 @@ case $MODE in
 		grep -v '^#' "$STRUCTURE" | cut -d: -f1
 		;;
 	tasks)
-		case $DIST in
-			warty|hoary)
-				echo 'base'
-				;;
-			*)
-				echo 'minimal standard'
-				;;
-		esac
+		SHIP=ship
 		case $PROJECT in
 			ubuntu-server)
 				case $DIST in
 					warty|hoary|breezy)
-						echo 'server'
+						;;
+					dapper)
+						SHIP=server
+						;;
+					*)
+						SHIP=server-ship
 						;;
 				esac
 				;;
-			*)
-				echo 'desktop'
-				;;
 		esac
-		if [ "$CDIMAGE_INSTALL" ]; then
-			case $PROJECT in
-				edubuntu)
-					echo 'server'
+		for seed in $(grep "^$SHIP:" "$STRUCTURE" | cut -d' ' -f2-); do
+			case $seed in
+				boot)
+					;;
+				*)
+					echo "$seed"
 					;;
 			esac
-			case $DIST in
-				warty|hoary|breezy)
-					echo 'ship'
-					;;
-			esac
-		fi
+		done
+		echo "$SHIP"
 		;;
 	installer)
 		if [ "$CDIMAGE_INSTALL_BASE" ]; then
