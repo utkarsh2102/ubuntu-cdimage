@@ -96,9 +96,4 @@ for arch in $CPUARCHES; do
 	fi
 done
 
-case $DIST in
-	warty)	;;
-	*)
-		wget -O "$GERMINATE_OUT/$DIST/STRUCTURE" "${SEED_SOURCE%/}/$GERMINATE_SEED_DIST/STRUCTURE"
-		;;
-esac
+wget -O "$GERMINATE_OUT/$DIST/STRUCTURE" "${SEED_SOURCE%/}/$GERMINATE_SEED_DIST/STRUCTURE"
