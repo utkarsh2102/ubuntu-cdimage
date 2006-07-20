@@ -70,8 +70,8 @@ for arch in $CPUARCHES; do
 	done
 	IFS="$IFS_SAVE"
 
-	mkemptydir "$GERMINATE_OUT/$DIST-$arch"
-	cd "$GERMINATE_OUT/$DIST-$arch"
+	mkemptydir "$GERMINATE_OUT/$DIST/$arch"
+	cd "$GERMINATE_OUT/$DIST/$arch"
 	if [ "$GERMINATE_HINTS" ] && [ -f "$GERMINATE_HINTS" ]; then
 		cp -a "$GERMINATE_HINTS" hints
 	fi

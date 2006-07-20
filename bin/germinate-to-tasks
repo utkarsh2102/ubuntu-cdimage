@@ -27,8 +27,8 @@ for seed in $(list-seeds all); do
 	fi
 	for arch in $CPUARCHES; do
 		echo "#ifdef ARCH_$arch"
-		if [ -e "$GERMINATE_OUT/$DIST-$arch/$seedsource" ]; then
-			< "$GERMINATE_OUT/$DIST-$arch/$seedsource" \
+		if [ -e "$GERMINATE_OUT/$DIST/$arch/$seedsource" ]; then
+			< "$GERMINATE_OUT/$DIST/$arch/$seedsource" \
 				tail -n +3 | head -n -2 | cut -d' ' -f1
 		fi
 		echo "#endif /* ARCH_$arch */"
@@ -52,15 +52,15 @@ done
 for arch in $CPUARCHES; do
 	exec >"$TASKS_OUT/$DIST/tasks.$arch"
 	for seed in $(list-seeds tasks); do
-		< "$GERMINATE_OUT/$DIST-$arch/$seed" \
+		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
 			tail -n +3 | head -n -2 | cut -d' ' -f1 | \
 			sed "s/\$/ ${PROJECT%%-*}-$seed/"
 	done
 	if [ "$DIST" = breezy ]; then
 		exec >"$TASKS_OUT/$DIST/acsets.$arch"
-		if [ -e "$GERMINATE_OUT/$DIST-$arch/ship.acsets" ]; then
-			for acset in $(< "$GERMINATE_OUT/$DIST-$arch/ship.acsets"); do
-				< "$GERMINATE_OUT/$DIST-$arch/$acset" \
+		if [ -e "$GERMINATE_OUT/$DIST/$arch/ship.acsets" ]; then
+			for acset in $(< "$GERMINATE_OUT/$DIST/$arch/ship.acsets"); do
+				< "$GERMINATE_OUT/$DIST/$arch/$acset" \
 					tail -n +3 | head -n -2 | cut -d' ' -f1 | \
 					sed "s/\$/ $acset/"
 			done
@@ -91,7 +91,7 @@ done
 for arch in $CPUARCHES; do
 	exec >"$TASKS_OUT/$DIST/important.$arch"
 	for seed in $(list-seeds debootstrap); do
-		< "$GERMINATE_OUT/$DIST-$arch/$seed" \
+		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
 			tail -n +3 | head -n -2 | cut -d' ' -f1 | \
 			egrep -v '^(linux-(image|restricted|amd64|386|686|k7|power|itanium|mckinley|sparc|hppa).*|nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$' || true
 	done
