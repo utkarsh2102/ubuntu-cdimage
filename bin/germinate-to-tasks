@@ -18,7 +18,7 @@ IMAGE_TYPE="$1"
 
 mkemptydir "$TASKS_OUT/$DIST"
 
-for seed in $(list-seeds all); do
+for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
 	exec >"$TASKS_OUT/$DIST/$seed"
 	if [ "$seed" = supported ]; then
 		seedsource="$seed+build-depends"
@@ -38,7 +38,7 @@ done
 # Hackily exclude kernel-image-* from the installer and casper tasks. Those
 # udebs only exist to satisfy dependencies when building the
 # debian-installer package.
-for seed in $(list-seeds installer); do
+for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
 	grep -v ^kernel-image- "$TASKS_OUT/$DIST/$seed" \
 		> "$TASKS_OUT/$DIST/$seed.new"
 	mv "$TASKS_OUT/$DIST/$seed.new" "$TASKS_OUT/$DIST/$seed"
@@ -51,7 +51,7 @@ done
 # appear as tasks in aptitude et al.
 for arch in $CPUARCHES; do
 	exec >"$TASKS_OUT/$DIST/tasks.$arch"
-	for seed in $(list-seeds tasks); do
+	for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" tasks); do
 		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
 			tail -n +3 | head -n -2 | cut -d' ' -f1 | \
 			sed "s/\$/ ${PROJECT%%-*}-$seed/"
@@ -90,7 +90,7 @@ done
 # to install.
 for arch in $CPUARCHES; do
 	exec >"$TASKS_OUT/$DIST/important.$arch"
-	for seed in $(list-seeds debootstrap); do
+	for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" debootstrap); do
 		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
 			tail -n +3 | head -n -2 | cut -d' ' -f1 | \
 			egrep -v '^(linux-(image|restricted|amd64|386|686|k7|power|itanium|mckinley|sparc|hppa).*|nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$' || true

@@ -4,76 +4,17 @@ set -e
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
-if [ -z "$1" ]; then
-	echo 'Usage: list-seeds all|tasks|installer' >&2
+if [ -z "$1" ] || [ -z "$2" ]; then
+	echo 'Usage: list-seeds structure all|tasks|installer' >&2
 	exit 1
 fi
 
-case $1 in
+STRUCTURE="$1"
+MODE="$2"
+
+case $MODE in
 	all)
-		case $DIST in
-			warty|hoary)
-				echo 'base'
-				;;
-			breezy)
-				echo 'minimal standard'
-				;;
-			*)
-				echo 'boot minimal standard'
-				;;
-		esac
-		case $PROJECT in
-			ubuntu-server)
-				case $DIST in
-					warty|hoary|breezy|dapper)
-						echo 'server'
-						;;
-					*)
-						echo 'server-ship'
-						;;
-				esac
-				;;
-			*)
-				echo 'desktop'
-				;;
-		esac
-		if [ "$CDIMAGE_INSTALL" ]; then
-			case $PROJECT in
-				edubuntu)
-					echo 'server'
-					;;
-			esac
-			if [ "$PROJECT" != ubuntu-server ] || [ "$DIST" = breezy ]; then
-				echo 'ship'
-			fi
-		fi
-		if [ "$CDIMAGE_INSTALL_BASE" ]; then
-			echo 'installer'
-		fi
-		if [ "$CDIMAGE_LIVE" ] || [ "$CDIMAGE_DVD" ]; then
-			case $DIST in
-				warty)
-					;;
-				hoary|breezy)
-					echo 'casper'
-					;;
-				*)
-					echo 'ship-live'
-					;;
-			esac
-		fi
-		if [ "$CDIMAGE_DVD" ]; then
-			case $PROJECT in
-				ubuntu-server)
-					# already included above
-					;;
-				*)
-					echo 'server-ship'
-					;;
-			esac
-			echo 'live'
-		fi
-		echo 'supported'
+		grep -v '^#' "$STRUCTURE" | cut -d: -f1
 		;;
 	tasks)
 		case $DIST in
