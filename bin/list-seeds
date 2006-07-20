@@ -28,11 +28,8 @@ case $MODE in
 		case $PROJECT in
 			ubuntu-server)
 				case $DIST in
-					warty|hoary|breezy|dapper)
+					warty|hoary|breezy)
 						echo 'server'
-						;;
-					*)
-						echo 'server-ship'
 						;;
 				esac
 				;;
@@ -46,9 +43,11 @@ case $MODE in
 					echo 'server'
 					;;
 			esac
-			if [ "$PROJECT" != ubuntu-server ] || [ "$DIST" = breezy ]; then
-				echo 'ship'
-			fi
+			case $DIST in
+				warty|hoary|breezy)
+					echo 'ship'
+					;;
+			esac
 		fi
 		;;
 	installer)
