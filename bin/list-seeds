@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: list-seeds structure all|tasks|installer' >&2
+	echo 'Usage: list-seeds structure all|tasks|installer|debootstrap' >&2
 	exit 1
 fi
 
