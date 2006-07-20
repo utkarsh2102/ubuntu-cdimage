@@ -24,7 +24,14 @@ case $1 in
 		esac
 		case $PROJECT in
 			ubuntu-server)
-				echo 'server'
+				case $DIST in
+					warty|hoary|breezy|dapper)
+						echo 'server'
+						;;
+					*)
+						echo 'server-ship'
+						;;
+				esac
 				;;
 			*)
 				echo 'desktop'
@@ -57,11 +64,11 @@ case $1 in
 		fi
 		if [ "$CDIMAGE_DVD" ]; then
 			case $PROJECT in
-				edubuntu|ubuntu-server)
+				ubuntu-server)
 					# already included above
 					;;
 				*)
-					echo 'server'
+					echo 'server-ship'
 					;;
 			esac
 			echo 'live'
@@ -79,7 +86,14 @@ case $1 in
 		esac
 		case $PROJECT in
 			ubuntu-server)
-				echo 'server'
+				case $DIST in
+					warty|hoary|breezy|dapper)
+						echo 'server-ship'
+						;;
+					*)
+						echo 'server'
+						;;
+				esac
 				;;
 			*)
 				echo 'desktop'
