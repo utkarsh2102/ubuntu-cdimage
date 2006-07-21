@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: list-seeds structure all|tasks|installer|debootstrap' >&2
+	echo 'Usage: list-seeds structure all|tasks|installer|debootstrap|base|ship-live' >&2
 	exit 1
 fi
 
@@ -32,15 +32,7 @@ case $MODE in
 				esac
 				;;
 		esac
-		for seed in $(grep "^$SHIP:" "$STRUCTURE" | cut -d' ' -f2-); do
-			case $seed in
-				boot)
-					;;
-				*)
-					echo "$seed"
-					;;
-			esac
-		done
+		grep "^$SHIP:" "$STRUCTURE" | cut -d' ' -f2-
 		echo "$SHIP"
 		;;
 	installer)
@@ -62,6 +54,28 @@ case $MODE in
 				;;
 			*)
 				echo 'minimal'
+				;;
+		esac
+		;;
+	base)
+		case $DIST in
+			warty|hoary)
+				echo 'base'
+				;;
+			breezy)
+				echo 'minimal standard'
+				;;
+			*)
+				echo 'boot minimal standard'
+				;;
+		esac
+		;;
+	ship-live)
+		case $DIST in
+			warty|hoary|breezy)
+				;;
+			*)
+				echo 'ship-live'
 				;;
 		esac
 		;;

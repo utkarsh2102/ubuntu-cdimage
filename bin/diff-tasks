@@ -14,6 +14,6 @@ GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
 SCRATCH="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tasks"
 PREVIOUS="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tasks-previous"
 
-for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
+for seed in MASTER $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
 	diff -u "$PREVIOUS/$DIST/$seed" "$SCRATCH/$DIST/$seed" || true
 done
