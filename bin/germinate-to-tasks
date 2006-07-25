@@ -56,6 +56,15 @@ for arch in $CPUARCHES; do
 			boot|server|server-ship)
 				continue
 				;;
+			ship)
+				case $DIST in
+					warty|hoary|breezy)
+						;;
+					*)
+						continue
+						;;
+				esac
+				;;
 		esac
 		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
 			tail -n +3 | head -n -2 | cut -d' ' -f1 | \
