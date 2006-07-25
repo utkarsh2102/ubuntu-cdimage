@@ -75,9 +75,17 @@ for arch in $CPUARCHES; do
 				esac
 				;;
 		esac
+		case $seed in
+			base|minimal|standard|desktop|server|ship)
+				task="${PROJECT%%-*}-$seed"
+				;;
+			*)
+				task="$seed"
+				;;
+		esac
 		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
 			tail -n +3 | head -n -2 | cut -d' ' -f1 | \
-			sed "s/\$/ ${PROJECT%%-*}-$seed/"
+			sed "s/\$/ $task/"
 	done
 	if [ "$DIST" = breezy ]; then
 		exec >"$TASKS_OUT/$DIST/acsets.$arch"
