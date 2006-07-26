@@ -15,7 +15,8 @@ FILE="$1"
 
 if [ ! -f "$GNUPG_DIR/secring.gpg" ] || [ ! -f "$GNUPG_DIR/pubring.gpg" ] || \
    [ ! -f "$GNUPG_DIR/trustdb.gpg" ]; then
-	return
+	echo 'No keys found; not signing images.' >&2
+	exit
 fi
 gpg --no-default-keyring \
 	--secret-keyring "$GNUPG_DIR/secring.gpg" \
