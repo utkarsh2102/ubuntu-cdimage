@@ -222,8 +222,7 @@ EOF
 		sparc)
 			cat <<EOF
 For Sun UltraSPARC computers, including those based on the multicore
-UltraSPARC T1 ("Niagara") processors. This is an unofficial release, but
-testing and feedback are encouraged.
+UltraSPARC T1 ("Niagara") processors.
 EOF
 			;;
 		*)
