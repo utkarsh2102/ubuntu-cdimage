@@ -95,7 +95,8 @@ esac
 
 # Start with copy of previous published tree so that single-architecture
 # rebuilds can carry over other architectures from previous builds.
-if [ -d "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current/" ]; then
+if [ -z "$CDIMAGE_NOCOPY" ] && \
+   [ -d "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current/" ]; then
 	cp -alL "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current" \
 	        "$PUBLISH"
 else
