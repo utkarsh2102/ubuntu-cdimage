@@ -20,6 +20,10 @@ case $1 in
 		export PROJECT=xubuntu
 		export CAPPROJECT=Xubuntu
 		;;
+	foobuntu)
+		export PROJECT=foobuntu
+		export CAPPROJECT=Foobuntu
+		;;
 	ubuntu-server)
 		export PROJECT=ubuntu-server
 		export CAPPROJECT=Ubuntu-Server
@@ -40,6 +44,7 @@ Recognised projects:
   kubuntu
   edubuntu
   xubuntu
+  foobuntu
   ubuntu-server
   tocd3
   tocd3.1

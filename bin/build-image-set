@@ -52,6 +52,12 @@ export CDIMAGE_DATE="$(next-build-date "$IMAGE_TYPE")"
 
 export PROJECT CAPPROJECT DIST ARCHES
 
+case $PROJECT in
+	foobuntu)
+		export CDIMAGE_ONLYFREE=1
+		;;
+esac
+
 if [ "$CDIMAGE_INSTALL" ]; then
 	export CDIMAGE_INSTALL_BASE=1
 fi

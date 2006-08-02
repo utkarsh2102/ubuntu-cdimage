@@ -17,7 +17,7 @@ find -name .pool -prune -o \( -type f -o -type l \) -name \*.iso \
 	-printf '%P\n' | \
 while read file; do
 	case $file in
-		kubuntu/*|edubuntu/*|xubuntu/*|ubuntu-server/*)
+		kubuntu/*|edubuntu/*|xubuntu/*|foobuntu/*|ubuntu-server/*)
 			project="${file%%/*}"
 			cdr="${file#*/}"
 			;;
