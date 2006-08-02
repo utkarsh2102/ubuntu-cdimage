@@ -20,9 +20,9 @@ case $1 in
 		export PROJECT=xubuntu
 		export CAPPROJECT=Xubuntu
 		;;
-	foobuntu)
-		export PROJECT=foobuntu
-		export CAPPROJECT=Foobuntu
+	gnubuntu)
+		export PROJECT=gnubuntu
+		export CAPPROJECT=GNUbuntu
 		;;
 	ubuntu-server)
 		export PROJECT=ubuntu-server

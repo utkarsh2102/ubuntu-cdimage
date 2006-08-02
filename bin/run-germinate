@@ -32,8 +32,8 @@ case $PROJECT in
 			GERMINATE_SEED_DIST="$DIST"
 		fi
 		;;
-	foobuntu)
-		# Foobuntu uses Ubuntu seeds.
+	gnubuntu)
+		# GNUbuntu uses Ubuntu seeds.
 		GERMINATE_SEED_DIST="$DIST"
 		;;
 	*)

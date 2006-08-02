@@ -53,7 +53,7 @@ export CDIMAGE_DATE="$(next-build-date "$IMAGE_TYPE")"
 export PROJECT CAPPROJECT DIST ARCHES
 
 case $PROJECT in
-	foobuntu)
+	gnubuntu)
 		export CDIMAGE_ONLYFREE=1
 		;;
 esac
