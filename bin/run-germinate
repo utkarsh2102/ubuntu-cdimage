@@ -70,7 +70,7 @@ for arch in $CPUARCHES; do
 			${LOCAL:+$LOCALDEBS/dists/$germinate_dist/local/binary-$arch/Packages.gz}
 		mkindex "dists/$germinate_dist/main/source/Sources.gz" \
 			"dists/$germinate_dist/restricted/source/Sources.gz" \
-			${LOCAL:+$LOCALDEBS/dists/$germinate_dist/local/binary-$arch/Sources.gz}
+			${LOCAL:+$LOCALDEBS/dists/$germinate_dist/local/source/Sources.gz}
 		mkindex "dists/$germinate_dist/main/debian-installer/binary-$arch/Packages.gz" \
 			"dists/$germinate_dist/restricted/debian-installer/binary-$arch/Packages.gz" \
 			${LOCAL:+$LOCALDEBS/dists/$germinate_dist/local/debian-installer/binary-$arch/Packages.gz}
