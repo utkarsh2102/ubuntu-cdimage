@@ -161,7 +161,7 @@ if [ "$CDIMAGE_INSTALL_BASE" ]; then
 	check-installable
 fi
 
-if [ -z "$DEBUG" ]; then
+if [ -z "$DEBUG" ] && [ -z "$CDIMAGE_NOPUBLISH" ]; then
 	echo "===== Publishing ====="
 	date
 	publish-daily "$CDIMAGE_DATE" "$IMAGE_TYPE"
