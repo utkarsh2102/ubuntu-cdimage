@@ -66,9 +66,14 @@ for arch in $CPUARCHES; do
 	for germinate_dist in $GERMINATE_DISTS; do
 		IFS="$IFS_SAVE"
 		for suffix in "binary-$arch/Packages.gz" "source/Sources.gz" "debian-installer/binary-$arch/Packages.gz"; do
-			mkindex "dists/$germinate_dist/main/$suffix" \
-				"dists/$germinate_dist/restricted/$suffix" \
-				${LOCAL:+$LOCALDEBS/dists/$germinate_dist/local/$suffix}
+			files="dists/$germinate_dist/main/$suffix"
+			if [ -z "$CDIMAGE_ONLYFREE" ]; then
+				files="$files dists/$germinate_dist/restricted/$suffix"
+			fi
+			if [ "$LOCAL" ]; then
+				files="$files $LOCALDEBS/dists/$germinate_dist/local/$suffix"
+			fi
+			mkindex $files
 		done
 		IFS=,
 	done
