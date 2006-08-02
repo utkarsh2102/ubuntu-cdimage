@@ -102,9 +102,11 @@ if [ -z "$CDIMAGE_NOSYNC" ]; then
 	fi
 fi
 
-echo "===== Updating archive of local packages ====="
-date
-update-local-indices
+if [ "$LOCAL" ]; then
+	echo "===== Updating archive of local packages ====="
+	date
+	update-local-indices
+fi
 
 echo "===== Extracting debootstrap scripts ====="
 date
