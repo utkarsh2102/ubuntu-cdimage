@@ -278,7 +278,7 @@ case $DIST in
 		distfullname='Breezy Badger'
 		;;
 	dapper)
-		distversion=6.06
+		distversion=6.06.1
 		distfullname='Dapper Drake'
 		case $PROJECT in
 			ubuntu|kubuntu|edubuntu|ubuntu-server)
