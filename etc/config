@@ -13,4 +13,16 @@ CPUARCHES="$(echo "$ARCHES" | xargs -n1 | sed 's/+.*//' | sort -u | xargs)"
 GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
 SIGNING_KEYID=FBB75451
 
+# Additional rsync options when synchronizing our local Ubuntu mirror before the
+# build.  Use this to exclude architectures, file types etc. that you don't need
+# synchronized.
+#RSYNC_EXCLUDE="--exclude 
+
+# Hosts that need to be notified when the build is done.  Third-party users
+# will want to keep this variable empty.
+# The "async" mirrors will be notified asynchronously, i.e. we won't wait for
+# them to respond.
+TRIGGER_MIRRORS="syncproxy.ubuntu.com mirnyy.ubuntu.com frei.ubuntu.com durville.ubuntu.com mcmurdo.ubuntu.com neumayer.ubuntu.com leningradskaya.ubuntu.com beryllium.ubunutu.com"
+TRIGGER_MIRRORS_ASYNC="magellanic.ubuntu.com"
+
 umask 002
