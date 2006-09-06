@@ -62,8 +62,8 @@ fi
 
 # With a blank EXCLUDE you will mirror the entire archive.
 
-EXCLUDE="--exclude **/universe --exclude **/universe/** \
-         --exclude **/multiverse --exclude **/multiverse/**"
+EXCLUDE=${RSYNC_EXCLUDE:-"--exclude **/universe --exclude **/universe/** \
+         --exclude **/multiverse --exclude **/multiverse/**"}
 
 # There should be no need to edit anything below this point, unless there
 # are problems.
