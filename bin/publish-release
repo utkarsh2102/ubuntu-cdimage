@@ -84,7 +84,14 @@ esac
 
 # "beta-2" should end up in directories named "beta-2", but with filenames
 # including "beta2" (otherwise we get hyphen overload).
-FILESTATUS="$(echo "$STATUS" | sed 's/-//g')"
+case $STATUS in
+	release*)
+		FILESTATUS=
+		;;
+	*)
+		FILESTATUS="$(echo "$STATUS" | sed 's/-//g')"
+		;;
+esac
 
 CDPREFIX="$PROJECT-$VERSION"
 
