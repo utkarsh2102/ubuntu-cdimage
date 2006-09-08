@@ -47,7 +47,10 @@ case $PROJECT in
 		;;
 esac
 
-cd "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR"
+if ! cd "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR"; then
+	echo "No old images to purge"
+	exit 0
+fi
 
 for dir in *; do
 	# Directory?
