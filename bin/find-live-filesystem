@@ -26,7 +26,7 @@ case $ARCH in
 			warty|hoary|breezy|dapper)
 				SUBARCHES=386 ;;
 			*)
-				SUBARCHES=686 ;;
+				SUBARCHES=generic ;;
 		esac
 		;;
 	ia64)
