@@ -34,6 +34,9 @@ STATUS="$5"
 
 # Publish ports/daily to ports/releases/..., etc.
 case $SOURCE in
+	ubuntu-server/*)
+		TREE_SUFFIX=
+		;;
 	*/*)
 		TREE_SUFFIX="/${SOURCE%%/*}"
 		;;
@@ -119,6 +122,9 @@ fi
 case $DIST in
 	warty|hoary|breezy|dapper)
 		SOURCE="$DIST/$SOURCE"
+		if [ "$SOURCE" = "$DIST/ubuntu-server/daily" ]; then
+			SOURCE="ubuntu-server/$DIST/daily"
+		fi
 		;;
 esac
 
