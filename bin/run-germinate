@@ -12,8 +12,12 @@ if [ "$LOCAL_SEEDS" ]; then
 fi
 
 case $DIST in
-	warty|hoary|breezy|dapper)
+	warty|hoary|breezy)
 		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
+		;;
+	dapper)
+		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
+		#GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates,$DIST-proposed}"
 		;;
 	*)
 		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST}"
