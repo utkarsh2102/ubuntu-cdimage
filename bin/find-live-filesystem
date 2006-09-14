@@ -14,7 +14,12 @@ ITEM="$2"
 case $ARCH in
 	amd64)
 		LIVECD=http://king.buildd/~buildd/LiveCD
-		SUBARCHES=amd64-generic
+		case $DIST in
+			warty|hoary|breezy|dapper)
+				SUBARCHES=amd64-generic ;;
+			*)
+				SUBARCHES=generic ;;
+		esac
 		;;
 	hppa)
 		LIVECD=http://castilla.buildd/~buildd/LiveCD
