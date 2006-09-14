@@ -22,7 +22,7 @@ case $ARCH in
 		;;
 	i386)
 		LIVECD=http://terranova.buildd/~buildd/LiveCD
-		case "$DIST" in
+		case $DIST in
 			warty|hoary|breezy|dapper)
 				SUBARCHES=386 ;;
 			*)
