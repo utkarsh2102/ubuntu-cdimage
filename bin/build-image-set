@@ -108,11 +108,12 @@ if [ "$LOCAL" ]; then
 	update-local-indices
 fi
 
-echo "===== Building britney ====="
-date
-pushd "$CDIMAGE_ROOT/britney/update_out" >/dev/null
-make
-popd >/dev/null
+if pushd "$CDIMAGE_ROOT/britney/update_out" >/dev/null ; then
+	echo "===== Building britney ====="
+	date
+	make || ! [ -f Makefile ]
+	popd >/dev/null
+fi
 
 echo "===== Extracting debootstrap scripts ====="
 date
