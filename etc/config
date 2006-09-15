@@ -16,7 +16,7 @@ SIGNING_KEYID=FBB75451
 # Additional rsync options when synchronizing our local Ubuntu mirror before the
 # build.  Use this to exclude architectures, file types etc. that you don't need
 # synchronized.
-#RSYNC_EXCLUDE="--exclude 
+#RSYNC_EXCLUDE="--exclude **/universe --exclude **/universe/** --exclude **/multiverse --exclude **/multiverse/**"
 
 # Hosts that need to be notified when the build is done.  Third-party users
 # will want to keep this variable empty.
