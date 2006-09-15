@@ -24,19 +24,17 @@ TO="$CDIMAGE_ROOT/ftp"
 # limits.
 . "${ANONFTPSYNC_CONF:-$CDIMAGE_ROOT/etc/anonftpsync}" || true
 
-# RSYNC_HOST is the site you have chosen from the mirrors file.
-# (http://www.debian.org/mirror/list-full)
-
-if [ -z "$RSYNC_HOST" ]; then
-    RSYNC_HOST=mirnyy.ubuntu.com
-fi
-
-# RSYNC_DIR is the directory given in the "Packages over rsync:" line of
-# the mirrors file for the site you have chosen to mirror.
-
-if [ -z "$RSYNC_DIR" ]; then
-    RSYNC_DIR=ftp
-fi
+# RSYNC_SRC is the full source location of an Ubuntu mirror that we can rsync
+# from.  This can be any source string that rsync will accept, e.g.
+# "somebody@internalserver:/srv/ftp/ubuntu" (for a mirror at /srv/ftp/ubuntu on
+# a machine called internalserver, to be approached using ssh under the account
+# name "somebody"); or "192.168.1.200:ubuntu" (for the directory "ubuntu" in
+# your home directory on a machine 192.168.1.200); or "/usr/src/ubuntu-archive"
+# (for a location on the local machine); or
+# "rsync.arcticnetwork.ca::ubuntu-releases" (for directory "ubuntu-releases" on
+# an rsync server rsync.arcticnetwork.ca).
+# See here for a list of public mirrors: https://wiki.ubuntu.com/Archive
+RSYNC_SRC="mirnyy.ubuntu.com::ftp"
 
 # EXCLUDE is a list of parameters listing patterns that rsync will exclude.
 # The following example would exclude mostly everything:
