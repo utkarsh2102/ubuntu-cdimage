@@ -25,4 +25,6 @@ SIGNING_KEYID=FBB75451
 TRIGGER_MIRRORS="syncproxy.ubuntu.com mirnyy.ubuntu.com frei.ubuntu.com durville.ubuntu.com mcmurdo.ubuntu.com neumayer.ubuntu.com leningradskaya.ubuntu.com beryllium.ubunutu.com"
 TRIGGER_MIRRORS_ASYNC="magellanic.ubuntu.com"
 
+export PATH="$PATH:$CDIMAGE_ROOT/bin:$CDIMAGE_ROOT/britney"
+
 umask 002
