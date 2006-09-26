@@ -118,10 +118,18 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					dapper|edgy)
+					dapper)
 						case $ARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/dapper/ubuntu/current/ubuntu-winfoss-6.06.tar.gz
+								;;
+							*)	exit 1 ;;
+						esac
+						;;
+					edgy)
+						case $ARCH in
+							i386|amd64)
+								echo http://people.ubuntu.com/~henrik/winfoss/edgy/ubuntu/current/ubuntu-winfoss-6.10.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -149,10 +157,18 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					dapper|edgy)
+					dapper)
 						case $ARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/dapper/kubuntu/current/kubuntu-winfoss-6.06.tar.gz
+								;;
+							*)	exit 1 ;;
+						esac
+						;;
+					edgy)
+						case $ARCH in
+							i386|amd64)
+								echo http://people.ubuntu.com/~henrik/winfoss/edgy/kubuntu/current/kubuntu-winfoss-6.10.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
