@@ -234,10 +234,11 @@ for arch in $ARCHES; do
 				done
 			fi
 			if $PUBLISH_FULL; then
-				for ext in template jigdo; do
-					cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
-						"$RELEASE_FULL/$baseplain.$ext"
-				done
+				cp -a "$DAILY/$DIST-$TYPE-$arch.template" \
+					"$RELEASE_FULL/$baseplain.template"
+				sed "s/=$DIST-$TYPE-$arch/=$baseplain/g" \
+					< "$DAILY/$DIST-$TYPE-$arch.jigdo" \
+					> "$RELEASE_FULL/$baseplain.jigdo"
 			fi
 		else
 			for ext in jigdo template; do
