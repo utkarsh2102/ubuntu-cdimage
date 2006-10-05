@@ -1,3 +1,0 @@
-RSYNC_HOST=ports.ubuntu.com
-RSYNC_DIR=ubuntu-ports
-TO="$CDIMAGE_ROOT/ftp-ports"
