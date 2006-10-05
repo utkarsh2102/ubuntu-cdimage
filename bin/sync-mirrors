@@ -13,11 +13,11 @@ trigger () {
 	ssh -i "$SECRET/auckland" -o 'StrictHostKeyChecking no' -o 'BatchMode yes' "$1@$2" sleep 1
 }
 
-trigger archvsync syncproxy.ubuntu.com
-trigger archvsync mirnyy.ubuntu.com
-trigger archvsync frei.ubuntu.com
-trigger archvsync durville.ubuntu.com
-trigger archvsync magellanic.ubuntu.com &
-trigger archvsync neumayer.ubuntu.com
-trigger archvsync leningradskaya.ubuntu.com
-trigger archvsync beryllium.ubuntu.com
+for host in $TRIGGER_MIRRORS ; do
+	trigger archvsync $host
+done
+
+for host in $TRIGGER_MIRRORS_ASYNC ; do
+	trigger archvsync $host &
+done
+
