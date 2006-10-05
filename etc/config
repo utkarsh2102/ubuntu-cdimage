@@ -21,8 +21,8 @@ SIGNING_KEYID=FBB75451
 # will want to keep this variable empty.
 # The "async" mirrors will be notified asynchronously, i.e. we won't wait for
 # them to respond.
-TRIGGER_MIRRORS="syncproxy.ubuntu.com mirnyy.ubuntu.com frei.ubuntu.com durville.ubuntu.com neumayer.ubuntu.com leningradskaya.ubuntu.com beryllium.ubuntu.com"
-TRIGGER_MIRRORS_ASYNC="magellanic.ubuntu.com"
+TRIGGER_MIRRORS=
+TRIGGER_MIRRORS_ASYNC=
 
 export TRIGGER_MIRRORS
 export TRIGGER_MIRRORS_ASYNC
