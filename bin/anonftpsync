@@ -116,6 +116,7 @@ find $TO/ -type l -xtype l | xargs -r rm
 find "$TO" -type d -print0 | xargs -0r chmod g+s 2>/dev/null || true
 chmod -R g+rwX "$TO" 2>/dev/null || true
 
+mkdir -p "${TO}/project/trace"
 date -u > "${TO}/project/trace/${HOSTNAME}"
 
 # Note: if you don't have savelog, use any other log rotation facility, or
