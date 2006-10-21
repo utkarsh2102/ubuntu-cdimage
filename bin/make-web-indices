@@ -176,7 +176,7 @@ archstr () {
 			echo 'IA-64'
 			;;
 		powerpc)
-			echo 'Mac (PowerPC)'
+			echo 'Mac (PowerPC) and IBM-PPC (POWER5)'
 			;;
 		sparc)
 			echo 'SPARC'
@@ -216,7 +216,7 @@ EOF
 		powerpc)
 			cat <<EOF
 For Apple Macintosh G3, G4, and G5 computers, including iBooks and
-PowerBooks.
+PowerBooks as well as IBM OpenPower machines.
 EOF
 			;;
 		sparc)
