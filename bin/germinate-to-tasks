@@ -3,7 +3,7 @@
 # Outputs debian-cd task lists to
 # $CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tasks/.
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 . "$CDIMAGE_ROOT/bin/functions.sh"
 

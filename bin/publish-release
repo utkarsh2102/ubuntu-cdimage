@@ -15,7 +15,7 @@ set -e
 # Releases are always published based on a daily build. Nominate the version
 # number.
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 . "$CDIMAGE_ROOT/bin/functions.sh"
 

@@ -10,7 +10,7 @@ case $DIST in
 		;;
 esac
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 PATH="$CDIMAGE_ROOT/bin:${PATH:+:$PATH}"

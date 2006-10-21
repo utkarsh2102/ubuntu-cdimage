@@ -3,7 +3,7 @@ set -e
 
 # Build a manifest of the simple release tree.
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.no-name-yet.com}"
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ]; then
