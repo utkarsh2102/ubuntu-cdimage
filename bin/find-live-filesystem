@@ -126,7 +126,7 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					edgy)
+					edgy|feisty)
 						case $ARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/edgy/ubuntu/current/ubuntu-winfoss-6.10.tar.gz
@@ -165,7 +165,7 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					edgy)
+					edgy|feisty)
 						case $ARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/edgy/kubuntu/current/kubuntu-winfoss-6.10.tar.gz
