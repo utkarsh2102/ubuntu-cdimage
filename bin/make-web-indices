@@ -51,7 +51,10 @@ cssincludes () {
 
 cdtypestr () {
 	case $1 in
-		live|desktop)
+		live)
+			echo 'live CD'
+			;;
+		desktop)
 			echo 'desktop CD'
 			;;
 		install)
