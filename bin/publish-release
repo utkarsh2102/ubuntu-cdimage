@@ -274,13 +274,6 @@ for arch in $ARCHES; do
 			      "$RELEASE_FULL/$baseplain.manifest"
 		fi
 	fi
-
-	if $PUBLISH_DIST; then
-		make-web-indices "$RELEASE_SIMPLE_DIST" "$CDPREFIX${FILESTATUS:+-$FILESTATUS}"
-	fi
-	if $PUBLISH_FULL; then
-		make-web-indices "$RELEASE_FULL" "$CDPREFIX"
-	fi
 done
 
 # There can only be one set of images per release in the per-release tree,
@@ -340,6 +333,13 @@ if [ "$TYPE" != src ]; then
 			      "$TORRENTS/$baseplain.iso.torrent"
 		fi
 	done
+fi
+
+if $PUBLISH_DIST; then
+	make-web-indices "$RELEASE_SIMPLE_DIST" "$CDPREFIX${FILESTATUS:+-$FILESTATUS}"
+fi
+if $PUBLISH_FULL; then
+	make-web-indices "$RELEASE_FULL" "$CDPREFIX"
 fi
 
 md5sum_directory () {
