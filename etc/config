@@ -6,7 +6,7 @@
 
 PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
-DIST="${DIST:-edgy}"
+DIST="${DIST:-feisty}"
 case $DIST in
 	warty|hoary|breezy|dapper|edgy|feisty)
 		ARCHES="${ARCHES:-amd64 i386 powerpc}"
