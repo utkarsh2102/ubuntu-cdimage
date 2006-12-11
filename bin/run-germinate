@@ -6,7 +6,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/bin/functions.sh"
 
 GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
-SEED_SOURCE=http://people.ubuntu.com/~cjwatson/seeds/
+SEED_SOURCE=http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 if [ "$LOCAL_SEEDS" ]; then
 	SEED_SOURCE="$LOCAL_SEEDS"
 fi
@@ -25,23 +25,19 @@ case $DIST in
 esac
 
 case $PROJECT in
-	ubuntu)
-		# for legacy purposes
-		GERMINATE_SEED_DIST="$DIST"
-		;;
 	ubuntu-server)
 		if [ "$DIST" = breezy ]; then
-			GERMINATE_SEED_DIST="$PROJECT-$DIST"
+			GERMINATE_SEED_DIST="$PROJECT.$DIST"
 		else
-			GERMINATE_SEED_DIST="$DIST"
+			GERMINATE_SEED_DIST="ubuntu.$DIST"
 		fi
 		;;
 	gnubuntu)
 		# GNUbuntu uses Ubuntu seeds.
-		GERMINATE_SEED_DIST="$DIST"
+		GERMINATE_SEED_DIST="ubuntu.$DIST"
 		;;
 	*)
-		GERMINATE_SEED_DIST="$PROJECT-$DIST"
+		GERMINATE_SEED_DIST="$PROJECT.$DIST"
 		;;
 esac
 
