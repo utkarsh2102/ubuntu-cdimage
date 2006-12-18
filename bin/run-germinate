@@ -64,6 +64,8 @@ mkindex () {
 	done | gzip -c > "$GERMINATE_OUT/$target"
 }
 
+mkemptydir "$GERMINATE_OUT/$DIST"
+
 for arch in $CPUARCHES; do
 	echo "Germinating for $DIST/$arch ..."
 
