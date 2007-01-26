@@ -18,6 +18,9 @@ case $MODE in
 		;;
 	tasks)
 		SHIP=ship
+		if grep -q "^ship-addon:" "$STRUCTURE"; then
+			SHIP=ship-addon
+		fi
 		case $PROJECT in
 			ubuntu-server)
 				case $DIST in
