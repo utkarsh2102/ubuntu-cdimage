@@ -220,7 +220,8 @@ for arch in $ARCHES; do
 	done
 
 	if [ "$TYPE" = install ] || [ "$TYPE" = alternate ] || \
-	   [ "$TYPE" = server ] || [ "$TYPE" = src ]; then
+	   [ "$TYPE" = server ] || [ "$TYPE" = serveraddon ] || \
+	   [ "$TYPE" = src ]; then
 		if [ -e "$DAILY/$DIST-$TYPE-$arch.jigdo" ] && \
 		   [ -e "$DAILY/$DIST-$TYPE-$arch.template" ]; then
 			if $PUBLISH_POOL; then
