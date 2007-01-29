@@ -38,7 +38,17 @@ PUBLISH="$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/$DATE"
 case $IMAGE_TYPE in
 	*-live)
 		case $PROJECT in
-			edubuntu|ubuntu-server)
+			edubuntu)
+				case $DIST in
+					warty|hoary|breezy|dapper|edgy)
+						TYPE=live
+						;;
+					*)
+						TYPE=desktop
+						;;
+				esac
+				;;
+			ubuntu-server)
 				TYPE=live
 				;;
 			*)
@@ -59,7 +69,14 @@ case $IMAGE_TYPE in
 	*)
 		case $PROJECT in
 			edubuntu)
-				TYPE=install
+				case $DIST in
+					warty|hoary|breezy|dapper|edgy)
+						TYPE=install
+						;;
+					*)
+						TYPE=server
+						;;
+				esac
 				;;
 			ubuntu-server)
 				case $DIST in

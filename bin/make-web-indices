@@ -64,7 +64,14 @@ cdtypestr () {
 			echo 'alternate install CD'
 			;;
 		server)
-			echo 'server install CD'
+			case $PROJECT in
+				edubuntu)
+					echo 'classroom server CD'
+					;;
+				*)
+					echo 'server install CD'
+					;;
+			esac
 			;;
 		dvd)
 			echo 'install/live DVD'
@@ -131,11 +138,22 @@ EOF
 EOF
 			;;
 		server)
-			cat <<EOF
+			case $PROJECT in
+				edubuntu)
+					cat <<EOF
+<p>The classroom server CD allows you to install $CAPPROJECT permanently on
+a computer. It includes LTSP (Linux Terminal Server Project) support,
+providing out-of-the-box thin client support.</p>
+EOF
+					;;
+				*)
+					cat <<EOF
 <p>The server install CD allows you to install $CAPPROJECT permanently on a
 computer for use as a server. It will not install a graphical user
 interface.</p>
 EOF
+					;;
+			esac
 			;;
 		dvd)
 			case $PROJECT in
