@@ -26,6 +26,10 @@ else
 fi
 
 for seed in $SEEDS; do
+	# https://blueprints.launchpad.net/ubuntu/+spec/edubuntu-on-two-cds
+	if [ "$seed" = ship-addon ]; then
+		echo FORCE-CD-BREAK
+	fi
 	echo "#include <$PROJECT/$DIST/$seed>"
 done
 
