@@ -193,7 +193,7 @@ publish_binary () {
 			rm -f "$PUBLISH/$DIST-$TYPE-$arch.OVERSIZED"
 		fi
 	else
-		echo "No CD for $arch!" >&2
+		echo "No $TYPE CD for $arch!" >&2
 		rm -f "$PUBLISH/$DIST-$TYPE-$arch".*
 	fi
 
@@ -212,6 +212,11 @@ publish_binary () {
 for arch in $ARCHES; do
 	publish_binary "$TYPE" "$arch"
 done
+if [ "$PROJECT" = edubuntu ] && [ "$TYPE" = server ]; then
+	for arch in $ARCHES; do
+		publish_binary serveraddon "$arch"
+	done
+fi
 
 i=1
 while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
