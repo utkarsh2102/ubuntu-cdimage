@@ -23,7 +23,7 @@ fi
 
 make_torrent () {
 	image="$1"
-	[ -f "$image" ] || return
+	[ -f "$image" ] || return 0
 	echo "Creating torrent for $image ..."
 	rm -f "$image.torrent"
 	btmakemetafile "$TRACKER" --comment "$CAPPROJECT CD $TARGET_HOSTNAME" \
