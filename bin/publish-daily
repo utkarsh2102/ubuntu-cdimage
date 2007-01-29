@@ -102,22 +102,6 @@ case $IMAGE_TYPE in
 		;;
 esac
 
-case $TYPE in
-	dvd)
-		# http://en.wikipedia.org/wiki/DVD_plus_RW
-		SIZELIMIT=4700372992
-		;;
-	*)
-		# http://en.wikipedia.org/wiki/CD-ROM says 737280000;
-		# Media Motion say 736051200 for our pressed CDs, so we'll
-		# use the smaller value.
-		#SIZELIMIT=736051200
-		# ... except apparently some software/media has problems
-		# with anything over 700 (binary) MB. Argh.
-		SIZELIMIT="$((700 * 1024 * 1024))"
-		;;
-esac
-
 # Start with copy of previous published tree so that single-architecture
 # rebuilds can carry over other architectures from previous builds.
 if [ -z "$CDIMAGE_NOCOPY" ] && \
@@ -137,7 +121,32 @@ if [ -d "$PUBLISH/source" ]; then
 	> "$PUBLISH/source/MD5SUMS"
 fi
 
-for arch in $ARCHES; do
+if [ "$PUBLISH" ]; then
+	mkemptydir "$CDIMAGE_ROOT/www/$TORRENT_TREE/$IMAGE_TYPE_DIR"
+	TORRENTS="$CDIMAGE_ROOT/www/$TORRENT_TREE/$IMAGE_TYPE_DIR/$DATE"
+	mkemptydir "$TORRENTS"
+fi
+
+publish_binary () {
+	local TYPE="$1"
+	local arch="$2"
+
+	case $TYPE in
+		dvd)
+			# http://en.wikipedia.org/wiki/DVD_plus_RW
+			SIZELIMIT=4700372992
+			;;
+		*)
+			# http://en.wikipedia.org/wiki/CD-ROM says
+			# 737280000; Media Motion say 736051200 for our
+			# pressed CDs, so we'll use the smaller value.
+			#SIZELIMIT=736051200
+			# ... except apparently some software/media has
+			# problems with anything over 700 (binary) MB. Argh.
+			SIZELIMIT="$((700 * 1024 * 1024))"
+			;;
+	esac
+
 	if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.raw" ]; then
 		echo "Publishing $arch ..."
 		mkdir -p "$PUBLISH"
@@ -187,6 +196,21 @@ for arch in $ARCHES; do
 		echo "No CD for $arch!" >&2
 		rm -f "$PUBLISH/$DIST-$TYPE-$arch".*
 	fi
+
+	if [ -d "$PUBLISH" ]; then
+		# Create and publish torrents.
+		make-torrents "$PUBLISH" "$DIST-$TYPE-$arch" cdimage.ubuntu.com
+		if [ -e "$PUBLISH/$DIST-$TYPE-$arch.iso" ]; then
+			ln -f "$PUBLISH/$DIST-$TYPE-$arch.iso" \
+				"$TORRENTS/$DIST-$TYPE-$arch.iso"
+			ln -f "$PUBLISH/$DIST-$TYPE-$arch.iso.torrent" \
+				"$TORRENTS/$DIST-$TYPE-$arch.iso.torrent"
+		fi
+	fi
+}
+
+for arch in $ARCHES; do
+	publish_binary "$TYPE" "$arch"
 done
 
 i=1
@@ -228,20 +252,6 @@ if [ "$i" != 1 ]; then
 fi
 
 if [ -d "$PUBLISH" ]; then
-	# Create and publish torrents.
-	mkemptydir "$CDIMAGE_ROOT/www/$TORRENT_TREE/$IMAGE_TYPE_DIR"
-	TORRENTS="$CDIMAGE_ROOT/www/$TORRENT_TREE/$IMAGE_TYPE_DIR/$DATE"
-	mkemptydir "$TORRENTS"
-	make-torrents "$PUBLISH" "$DIST-$TYPE" cdimage.ubuntu.com
-	for arch in $ARCHES; do
-		if [ -e "$PUBLISH/$DIST-$TYPE-$arch.iso" ]; then
-			ln -f "$PUBLISH/$DIST-$TYPE-$arch.iso" \
-				"$TORRENTS/$DIST-$TYPE-$arch.iso"
-			ln -f "$PUBLISH/$DIST-$TYPE-$arch.iso.torrent" \
-				"$TORRENTS/$DIST-$TYPE-$arch.iso.torrent"
-		fi
-	done
-
 	rm -f "$PUBLISH/report.html"
 	if [ "$CDIMAGE_INSTALL_BASE" ] && [ -e "$BRITNEY_REPORT/${DIST}_probs.html" ]; then
 		cp -a "$BRITNEY_REPORT/${DIST}_probs.html" "$PUBLISH/report.html"
