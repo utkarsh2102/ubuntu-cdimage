@@ -285,7 +285,7 @@ if $PUBLISH_DIST && [ -z "$CDIMAGE_NO_PURGE" ]; then
 		find "$dir" -maxdepth 1 -name "$CDPREFIX-*" ! -regex ".*/$CDPREFIX${FILESTATUS:+-$FILESTATUS}-[^-]*-[^-]*" | while read file; do
 			echo "Purging $file"
 			rm -f "$file"
-			grep -v "  ${file##*/}\$" "$dir/MD5SUMS" \
+			grep -v " [ *]${file##*/}\$" "$dir/MD5SUMS" \
 				> "$dir/MD5SUMS.new"
 			mv "$dir/MD5SUMS.new" "$dir/MD5SUMS"
 		done
@@ -346,8 +346,8 @@ fi
 md5sum_directory () {
 	echo "MD5summing $1 ..."
 	(cd "$2"
-	 if [ -f MD5SUMS ]; then grep -v "  $3-" MD5SUMS || true; fi
-	 md5sum "$3"-*.iso) | sort -k2 > "$2/MD5SUMS.new"
+	 if [ -f MD5SUMS ]; then grep -v " [ *]$3-" MD5SUMS || true; fi
+	 md5sum -b "$3"-*.iso) | sort -k2 > "$2/MD5SUMS.new"
 	mv "$2/MD5SUMS.new" "$2/MD5SUMS"
 	sign-cdimage "$2/MD5SUMS"
 }

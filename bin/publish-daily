@@ -154,14 +154,14 @@ publish_binary () {
 		   "$PUBLISH/$DIST-$TYPE-$arch.iso"
 		mv "$CDOUT/$arch/$DIST-$TYPE-$arch.list" \
 		   "$PUBLISH/$DIST-$TYPE-$arch.list"
-		md5sum="$(grep -qs " $DIST-$TYPE-$arch\.raw\$" \
+		md5sum="$(grep -qs "[ *]$DIST-$TYPE-$arch\.raw\$" \
 				   "$CDOUT/$arch/MD5SUMS" | cut -d' ' -f1)" \
 			|| true
 		if [ "$md5sum" ]; then
-			echo "$md5sum  $DIST-$TYPE-$arch.iso" \
+			echo "$md5sum *$DIST-$TYPE-$arch.iso" \
 				>> "$PUBLISH/MD5SUMS"
 		else
-			(cd "$PUBLISH" && md5sum "$DIST-$TYPE-$arch.iso" \
+			(cd "$PUBLISH" && md5sum -b "$DIST-$TYPE-$arch.iso" \
 				>> MD5SUMS)
 		fi
 
@@ -224,12 +224,13 @@ while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
 	mkdir -p "$PUBLISH/source"
 	mv "$CDOUT/src/$DIST-src-$i.raw" "$PUBLISH/source/$DIST-src-$i.iso"
 	mv "$CDOUT/src/$DIST-src-$i.list" "$PUBLISH/source/$DIST-src-$i.list"
-	md5sum="$(grep -qs " $DIST-src-$i\.raw\$" "$CDOUT/src/MD5SUMS" \
+	md5sum="$(grep -qs "[ *]$DIST-src-$i\.raw\$" "$CDOUT/src/MD5SUMS" \
 			| cut -d' ' -f1)" || true
 	if [ "$md5sum" ]; then
-		echo "$md5sum  $DIST-src-$i.iso" >> "$PUBLISH/source/MD5SUMS"
+		echo "$md5sum *$DIST-src-$i.iso" >> "$PUBLISH/source/MD5SUMS"
 	else
-		(cd "$PUBLISH/source" && md5sum "$DIST-src-$i.iso" >> MD5SUMS)
+		(cd "$PUBLISH/source" && md5sum -b "$DIST-src-$i.iso" \
+			>> MD5SUMS)
 	fi
 
 	# Jigdo integration

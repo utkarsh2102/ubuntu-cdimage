@@ -47,7 +47,7 @@ done
 if [ -d "$PUBLISH" ]; then
 	(cd "$PUBLISH" && \
 		find \( -name \*.cloop -o -name \*.squashfs \) \
-		     -printf '%P\n' | xargs md5sum > MD5SUMS)
+		     -printf '%P\n' | xargs md5sum -b > MD5SUMS)
 	sign-cdimage "$PUBLISH/MD5SUMS"
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/full/$IMAGE_TYPE/current"
 else
