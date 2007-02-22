@@ -3,7 +3,14 @@ set -e
 
 case $PROJECT in
 	ubuntu-server)
-		export ARCHES="${ARCHES:-amd64 i386 powerpc sparc}"
+		case $DIST in
+			warty|hoary|breezy|dapper|edgy)
+				export ARCHES="${ARCHES:-amd64 i386 powerpc sparc}"
+				;;
+			*)
+				export ARCHES="${ARCHES:-amd64 i386 sparc}"
+				;;
+		esac
 		;;
 esac
 

@@ -7,8 +7,11 @@ case $PROJECT in
 			warty|hoary|breezy|dapper)
 				export ARCHES="${ARCHES:-hppa ia64}"
 				;;
-			*)
+			edgy)
 				export ARCHES="${ARCHES:-ia64}"
+				;;
+			*)
+				export ARCHES="${ARCHES:-ia64 powerpc}"
 				;;
 		esac
 		;;
@@ -17,8 +20,11 @@ case $PROJECT in
 			warty|hoary|breezy|dapper)
 				export ARCHES="${ARCHES:-hppa ia64 sparc}"
 				;;
-			*)
+			edgy)
 				export ARCHES="${ARCHES:-ia64 sparc}"
+				;;
+			*)
+				export ARCHES="${ARCHES:-ia64 powerpc sparc}"
 				;;
 		esac
 		;;

@@ -10,8 +10,11 @@ PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
 DIST="${DIST:-feisty}"
 case $DIST in
-	warty|hoary|breezy|dapper|edgy|feisty)
+	warty|hoary|breezy|dapper|edgy)
 		ARCHES="${ARCHES:-amd64 i386 powerpc}"
+		;;
+	feisty)
+		ARCHES="${ARCHES:-amd64 i386}"
 		;;
 esac
 CPUARCHES="$(echo "$ARCHES" | xargs -n1 | sed 's/+.*//' | sort -u | xargs)"

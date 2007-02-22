@@ -89,6 +89,15 @@ if [ -z "$CDIMAGE_NOSYNC" ]; then
 			*:hppa:*|*:ia64:*)
 				ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
 				;;
+			*:powerpc:*)
+				case $DIST in
+					warty|hoary|breezy|dapper|edgy)
+						;;
+					*)
+						ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
+						;;
+				esac
+				;;
 		esac
 		pop_cleanup
 	else
