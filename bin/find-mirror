@@ -11,18 +11,8 @@ fi
 ARCH="$1"
 
 case ${ARCH%%+*} in
-	amd64|i386|sparc)
+	amd64|i386|powerpc|sparc)
 		echo "$CDIMAGE_ROOT/ftp"
-		;;
-	powerpc)
-		case $DIST in
-			warty|hoary|breezy|dapper|edgy)
-				echo "$CDIMAGE_ROOT/ftp"
-				;;
-			*)
-				echo "$CDIMAGE_ROOT/ftp-ports"
-				;;
-		esac
 		;;
 	hppa|ia64)
 		echo "$CDIMAGE_ROOT/ftp-ports"
