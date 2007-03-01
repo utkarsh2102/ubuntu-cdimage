@@ -137,6 +137,13 @@ if [ "$CDIMAGE_LIVE" ]; then
 	download-live-filesystems
 fi
 
+if ([ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_INSTALL" ]) || \
+   ([ "$PROJECT" != edubuntu ] && [ "$CDIMAGE_LIVE" ]); then
+	echo "===== Downloading WinFOSS ====="
+	date
+	download-winfoss
+fi
+
 if [ -z "$SPLASHRLE" ]; then
 	if [ -e "$CDIMAGE_ROOT/debian-cd/data/$DIST/$PROJECT.rle" ]; then
 		export SPLASHRLE="$CDIMAGE_ROOT/debian-cd/data/$DIST/$PROJECT.rle"

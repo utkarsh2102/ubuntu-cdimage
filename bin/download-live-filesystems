@@ -52,10 +52,3 @@ for arch in $CPUARCHES; do
 	fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
 		"$LIVE_OUT/$arch.manifest-desktop" || true
 done
-
-# TheOpenCD goes on the amd64/i386 live CDs.
-for arch in $CPUARCHES; do
-	if winfoss="$(find-live-filesystem "$arch" winfoss)"; then
-		fetch "$winfoss" "$LIVE_OUT/$arch.winfoss.tgz"
-	fi
-done

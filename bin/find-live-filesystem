@@ -191,6 +191,18 @@ case $ITEM in
 						;;
 				esac
 				;;
+			edubuntu)
+				case $DIST in
+					feisty)
+						case $ARCH in
+							i386|amd64)
+								echo http://people.ubuntu.com/~henrik/winfoss/feisty/edubuntu/current/edubuntu-winfoss-7.04.tar.gz
+								;;
+							*)	exit 1 ;;
+						esac
+						;;
+				esac
+				;;
 			tocd3)
 				case $ARCH in
 					i386)
