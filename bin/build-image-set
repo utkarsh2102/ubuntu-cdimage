@@ -131,17 +131,10 @@ echo "===== Checking for other task changes ====="
 date
 update-tasks "$CDIMAGE_DATE" "$IMAGE_TYPE"
 
-if [ "$CDIMAGE_LIVE" ]; then
+if [ "$CDIMAGE_LIVE" ] || [ "$PROJECT" = edubuntu ]; then
 	echo "===== Downloading live filesystem images ====="
 	date
 	download-live-filesystems
-fi
-
-if ([ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_INSTALL" ]) || \
-   ([ "$PROJECT" != edubuntu ] && [ "$CDIMAGE_LIVE" ]); then
-	echo "===== Downloading WinFOSS ====="
-	date
-	download-winfoss
 fi
 
 if [ -z "$SPLASHRLE" ]; then

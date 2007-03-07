@@ -24,31 +24,44 @@ fetch () {
 }
 
 mkemptydir "$LIVE_OUT"
-for arch in $CPUARCHES; do
-	if fetch "$(find-live-filesystem "$arch" cloop)" \
-			"$LIVE_OUT/$arch.cloop"; then
-		:
-	elif fetch "$(find-live-filesystem "$arch" squashfs)" \
-			"$LIVE_OUT/$arch.squashfs"; then
-		:
-	else
-		continue
-	fi
-	case $DIST in
-		warty|hoary|breezy)
-			;;
-		*)
-			for item in kernel initrd; do
-				for url in $(find-live-filesystem "$arch" "$item"); do
-					subarch="${url##*/}"
-					subarch="${subarch#*.*.*-}"
-					fetch "$url" "$LIVE_OUT/$arch.$item-$subarch" || true
+
+if [ "$CDIMAGE_LIVE" ]; then
+	for arch in $CPUARCHES; do
+		if fetch "$(find-live-filesystem "$arch" cloop)" \
+				"$LIVE_OUT/$arch.cloop"; then
+			:
+		elif fetch "$(find-live-filesystem "$arch" squashfs)" \
+				"$LIVE_OUT/$arch.squashfs"; then
+			:
+		else
+			continue
+		fi
+		case $DIST in
+			warty|hoary|breezy)
+				;;
+			*)
+				for item in kernel initrd; do
+					for url in $(find-live-filesystem "$arch" "$item"); do
+						subarch="${url##*/}"
+						subarch="${subarch#*.*.*-}"
+						fetch "$url" "$LIVE_OUT/$arch.$item-$subarch" || true
+					done
 				done
-			done
-			;;
-	esac
-	fetch "$(find-live-filesystem "$arch" manifest)" \
-		"$LIVE_OUT/$arch.manifest" || true
-	fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
-		"$LIVE_OUT/$arch.manifest-desktop" || true
-done
+				;;
+		esac
+		fetch "$(find-live-filesystem "$arch" manifest)" \
+			"$LIVE_OUT/$arch.manifest" || true
+		fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
+			"$LIVE_OUT/$arch.manifest-desktop" || true
+	done
+fi
+
+# TheOpenCD goes on the amd64/i386 live CDs, and on the Edubuntu add-on CDs.
+if ([ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_INSTALL" ]) || \
+   ([ "$PROJECT" != edubuntu ] && [ "$CDIMAGE_LIVE" ]); then
+	for arch in $CPUARCHES; do
+		if winfoss="$(find-live-filesystem "$arch" winfoss)"; then
+			fetch "$winfoss" "$LIVE_OUT/$arch.winfoss.tgz"
+		fi
+	done
+fi
