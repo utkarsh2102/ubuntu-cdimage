@@ -42,9 +42,9 @@ if [ "$CDIMAGE_LIVE" ]; then
 			*)
 				for item in kernel initrd; do
 					for url in $(find-live-filesystem "$arch" "$item"); do
-						subarch="${url##*/}"
-						subarch="${subarch#*.*.*-}"
-						fetch "$url" "$LIVE_OUT/$arch.$item-$subarch" || true
+						flavour="${url##*/}"
+						flavour="${flavour#*.*.*-}"
+						fetch "$url" "$LIVE_OUT/$arch.$item-$flavour" || true
 					done
 				done
 				;;

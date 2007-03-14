@@ -17,35 +17,35 @@ case $CPUARCH in
 		LIVECD=http://king.buildd/~buildd/LiveCD
 		case $DIST in
 			warty|hoary|breezy|dapper)
-				SUBARCHES=amd64-generic ;;
+				FLAVOURS=amd64-generic ;;
 			*)
-				SUBARCHES=generic ;;
+				FLAVOURS=generic ;;
 		esac
 		;;
 	hppa)
 		LIVECD=http://castilla.buildd/~buildd/LiveCD
-		SUBARCHES='hppa32 hppa64'
+		FLAVOURS='hppa32 hppa64'
 		;;
 	i386)
 		LIVECD=http://terranova.buildd/~buildd/LiveCD
 		case $DIST in
 			warty|hoary|breezy|dapper)
-				SUBARCHES=386 ;;
+				FLAVOURS=386 ;;
 			*)
-				SUBARCHES=generic ;;
+				FLAVOURS=generic ;;
 		esac
 		;;
 	ia64)
 		LIVECD=http://weddell.buildd/~buildd/LiveCD
-		SUBARCHES='itanium-smp mckinley-smp'
+		FLAVOURS='itanium-smp mckinley-smp'
 		;;
 	powerpc)
 		LIVECD=http://royal.buildd/~buildd/LiveCD
-		SUBARCHES='powerpc powerpc64-smp'
+		FLAVOURS='powerpc powerpc64-smp'
 		;;
 	sparc)
 		LIVECD=http://vivies.buildd/~buildd/LiveCD
-		SUBARCHES=sparc64
+		FLAVOURS=sparc64
 		;;
 	*)
 		echo "No live filesystem source known for $ARCH" >&2
@@ -94,8 +94,8 @@ case $ITEM in
 		esac
 		;;
 	kernel|initrd)
-		for subarch in $SUBARCHES; do
-			echo "$LIVECD/$DIST/$LIVEPROJECT/current/livecd.$LIVEPROJECT.$ITEM-$subarch"
+		for flavour in $FLAVOURS; do
+			echo "$LIVECD/$DIST/$LIVEPROJECT/current/livecd.$LIVEPROJECT.$ITEM-$flavour"
 		done
 		;;
 	winfoss)
