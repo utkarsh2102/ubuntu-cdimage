@@ -10,8 +10,9 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 fi
 ARCH="$1"
 ITEM="$2"
+CPUARCH="${ARCH%%+*}"
 
-case $ARCH in
+case $CPUARCH in
 	amd64)
 		LIVECD=http://king.buildd/~buildd/LiveCD
 		case $DIST in
@@ -63,6 +64,11 @@ case $PROJECT in
 		LIVEPROJECT="$PROJECT"
 		;;
 esac
+case $ARCH in
+	*+*)
+		LIVEPROJECT="$LIVEPROJECT-${ARCH#*+}"
+		;;
+esac
 
 case $ITEM in
 	cloop|squashfs|manifest|manifest-desktop)
@@ -100,7 +106,7 @@ case $ITEM in
 			ubuntu)
 				case $DIST in
 					hoary)
-						case $ARCH in
+						case $CPUARCH in
 							i386)
 								echo http://maitri.ubuntu.com/theopencd/ubuntu/winfoss/latest/Hoary-WinFOSS.tgz
 								;;
@@ -111,7 +117,7 @@ case $ITEM in
 						esac
 						;;
 					breezy)
-						case $ARCH in
+						case $CPUARCH in
 							i386|amd64)
 								echo http://maitri.ubuntu.com/theopencd/winfoss/ubuntu/current/Ubuntu-WinFOSS-5.10.tgz
 								;;
@@ -119,7 +125,7 @@ case $ITEM in
 						esac
 						;;
 					dapper)
-						case $ARCH in
+						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/dapper/ubuntu/current/ubuntu-winfoss-6.06.tar.gz
 								;;
@@ -127,7 +133,7 @@ case $ITEM in
 						esac
 						;;
 					edgy)
-						case $ARCH in
+						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/edgy/ubuntu/current/ubuntu-winfoss-6.10.tar.gz
 								;;
@@ -135,7 +141,7 @@ case $ITEM in
 						esac
 						;;
 					feisty)
-						case $ARCH in
+						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/feisty/ubuntu/current/ubuntu-winfoss-7.04.tar.gz
 								;;
@@ -147,7 +153,7 @@ case $ITEM in
 			kubuntu)
 				case $DIST in
 					hoary)
-						case $ARCH in
+						case $CPUARCH in
 							i386)
 								echo http://maitri.ubuntu.com/theopencd/kubuntu/winfoss/latest/Kubuntu-WinFOSS-i386.tgz
 								;;
@@ -155,7 +161,7 @@ case $ITEM in
 						esac
 						;;
 					breezy)
-						case $ARCH in
+						case $CPUARCH in
 							i386)
 								echo http://maitri.ubuntu.com/theopencd/winfoss/kubuntu/current/Kubuntu-WinFOSS-5.10.tgz
 								;;
@@ -166,7 +172,7 @@ case $ITEM in
 						esac
 						;;
 					dapper)
-						case $ARCH in
+						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/dapper/kubuntu/current/kubuntu-winfoss-6.06.tar.gz
 								;;
@@ -174,7 +180,7 @@ case $ITEM in
 						esac
 						;;
 					edgy)
-						case $ARCH in
+						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/edgy/kubuntu/current/kubuntu-winfoss-6.10.tar.gz
 								;;
@@ -182,7 +188,7 @@ case $ITEM in
 						esac
 						;;
 					feisty)
-						case $ARCH in
+						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/feisty/kubuntu/current/kubuntu-winfoss-7.04.tar.gz
 								;;
@@ -194,7 +200,7 @@ case $ITEM in
 			edubuntu)
 				case $DIST in
 					feisty)
-						case $ARCH in
+						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/feisty/edubuntu/current/edubuntu-winfoss-7.04.tar.gz
 								;;
@@ -204,7 +210,7 @@ case $ITEM in
 				esac
 				;;
 			tocd3)
-				case $ARCH in
+				case $CPUARCH in
 					i386)
 						echo http://maitri.ubuntu.com/theopencd/tocd3/fsm/TOCD3.tgz
 						;;
@@ -212,7 +218,7 @@ case $ITEM in
 				esac
 				;;
 			tocd3.1)
-				case $ARCH in
+				case $CPUARCH in
 					i386)
 						echo http://maitri.ubuntu.com/theopencd/winfoss/tocd3.1/current/TOCD-31.tgz
 						;;
