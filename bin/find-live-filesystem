@@ -11,6 +11,7 @@ fi
 ARCH="$1"
 ITEM="$2"
 CPUARCH="${ARCH%%+*}"
+SUBARCH="${ARCH#*+}"
 
 case $CPUARCH in
 	amd64)
@@ -41,7 +42,12 @@ case $CPUARCH in
 		;;
 	powerpc)
 		LIVECD=http://royal.buildd/~buildd/LiveCD
-		FLAVOURS='powerpc powerpc64-smp'
+		case $SUBARCH in
+			ps3)
+				FLAVOURS=ps3 ;;
+			*)
+				FLAVOURS='powerpc powerpc64-smp' ;;
+		esac
 		;;
 	sparc)
 		LIVECD=http://vivies.buildd/~buildd/LiveCD
