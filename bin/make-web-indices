@@ -210,6 +210,9 @@ archstr () {
 		powerpc)
 			echo 'Mac (PowerPC) and IBM-PPC (POWER5)'
 			;;
+		powerpc+ps3)
+			echo 'PlayStation 3'
+			;;
 		sparc)
 			echo 'SPARC'
 			;;
@@ -251,6 +254,10 @@ For Apple Macintosh G3, G4, and G5 computers, including iBooks and
 PowerBooks as well as IBM OpenPower machines.
 EOF
 			;;
+		powerpc+ps3)
+			cat <<EOF
+For Sony PlayStation 3 systems.
+EOF
 		sparc)
 			cat <<EOF
 For Sun UltraSPARC computers, including those based on the multicore
@@ -404,7 +411,7 @@ for cdtype in live desktop server install alternate serveraddon dvd src; do
 				  sed "s/$CDPREFIX-$cdtype-\\(.*\\)\\.iso/\\1/")"
 			;;
 		*)
-			arches='i386 powerpc amd64 hppa ia64 sparc'
+			arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3'
 			;;
 	esac
 
