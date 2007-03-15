@@ -258,6 +258,7 @@ EOF
 			cat <<EOF
 For Sony PlayStation 3 systems.
 EOF
+			;;
 		sparc)
 			cat <<EOF
 For Sun UltraSPARC computers, including those based on the multicore
