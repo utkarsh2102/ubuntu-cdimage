@@ -366,7 +366,9 @@ fi
 
 if $PUBLISH_DIST || $PUBLISH_POOL; then
 	site-manifest "$CDIMAGE_ROOT/www/simple" \
-		> "$CDIMAGE_ROOT/www/simple/.manifest"
+		> "$CDIMAGE_ROOT/www/simple/.manifest.new"
+	mv "$CDIMAGE_ROOT/www/simple/.manifest.new" \
+	   "$CDIMAGE_ROOT/www/simple/.manifest"
 fi
 
 echo "Done! Remember to sync-mirrors after checking that everything is OK."
