@@ -18,14 +18,26 @@ while read file; do
 	case $file in
 		kubuntu/*|edubuntu/*|xubuntu/*|gnubuntu/*|ubuntu-server/*)
 			project="${file%%/*}"
-			cdr="${file#*/}"
 			;;
 		*)
 			project='ubuntu'
-			cdr="$file"
 			;;
 	esac
-	dist="${cdr%%/*}"
+	base="${file##*/}"
+	version="${base#*-}"
+	version="${version%%-*}"
+	case $version in
+		4.10*)	dist=warty ;;
+		5.04*)	dist=hoary ;;
+		5.10*)	dist=breezy ;;
+		6.06*)	dist=dapper ;;
+		6.10*)	dist=edgy ;;
+		7.04*)	dist=feisty ;;
+		*)
+			echo "Unknown version: $version" >&2
+			continue
+			;;
+	esac
 	size="$(stat -c %s -L "$file")"
 	printf '%s\t%s\t%s\t%d\n' "$project" "$dist" "/$file" "$size"
 done | sort
