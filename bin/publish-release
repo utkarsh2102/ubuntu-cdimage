@@ -364,7 +364,7 @@ if $PUBLISH_FULL; then
 	md5sum_directory 'full tree' "$RELEASE_FULL" "$CDPREFIX-$TYPE"
 fi
 
-if $PUBLISH_DIST; then
+if $PUBLISH_DIST || $PUBLISH_POOL; then
 	site-manifest "$CDIMAGE_ROOT/www/simple" \
 		> "$CDIMAGE_ROOT/www/simple/.manifest"
 fi

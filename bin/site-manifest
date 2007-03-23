@@ -13,8 +13,7 @@ fi
 
 cd "$1"
 
-find -name .pool -prune -o \( -type f -o -type l \) -name \*.iso \
-	-printf '%P\n' | \
+find \( -type f -o -type l \) -name \*.iso -printf '%P\n' | \
 while read file; do
 	case $file in
 		kubuntu/*|edubuntu/*|xubuntu/*|gnubuntu/*|ubuntu-server/*)
