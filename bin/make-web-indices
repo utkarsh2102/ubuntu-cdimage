@@ -226,9 +226,10 @@ archdesc () {
 	case $1 in
 		amd64)
 			cat <<EOF
-For computers based on the AMD64 or EM64T architecture (e.g., Athlon64,
-Opteron, EM64T Xeon). It is not necessary for all (even most) processors
-made by AMD -- only their 64 bit chips.
+Choose this to take full advantage of computers based on the AMD64 or EM64T
+architecture (e.g., Athlon64, Opteron, EM64T Xeon). If you have a non-64-bit
+processor made by AMD, or if you need full support for 32-bit code, use the
+Intel x86 images instead.
 EOF
 			;;
 		hppa)
