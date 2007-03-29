@@ -126,19 +126,20 @@ EOF
 installations of $CAPPROJECT. It provides for the following situations:</p>
 
 <ul>
-EOF
-			if [ "$PROJECT" != kubuntu ]; then
-				cat <<EOF
 <li>creating pre-configured OEM systems;
-EOF
-			fi
-			cat <<EOF
 <li>setting up automated deployments;
 <li>upgrading from older installations without network access;
 <li>LVM and/or RAID partitioning;
 <li>installing GRUB to a location other than the Master Boot Record;
 <li>installs on systems with less than about ${DESKTOP_RAM}MB of RAM.
 </ul>
+
+<p>
+In the event that you encounter a bug using the alternate installer,
+please file a bug on the
+<a href="https://bugs.launchpad.net/ubuntu/+source/debian-installer/+filebug">debian-installer</a>
+package.
+</p>
 EOF
 			;;
 		server)
