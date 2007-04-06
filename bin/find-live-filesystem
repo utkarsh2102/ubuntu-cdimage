@@ -42,12 +42,7 @@ case $CPUARCH in
 		;;
 	powerpc)
 		LIVECD=http://royal.buildd/~buildd/LiveCD
-		case $SUBARCH in
-			ps3)
-				FLAVOURS=ps3 ;;
-			*)
-				FLAVOURS='powerpc powerpc64-smp' ;;
-		esac
+		FLAVOURS='powerpc powerpc64-smp'
 		;;
 	sparc)
 		LIVECD=http://vivies.buildd/~buildd/LiveCD
