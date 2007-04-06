@@ -65,11 +65,13 @@ case $PROJECT in
 		LIVEPROJECT="$PROJECT"
 		;;
 esac
-case $ARCH in
-	*+*)
-		LIVEPROJECT="$LIVEPROJECT-${ARCH#*+}"
-		;;
-esac
+# Was needed for powerpc+ps3; no longer needed, but may be useful for some
+# other subarchitecture in the future.
+#case $ARCH in
+#	*+*)
+#		LIVEPROJECT="$LIVEPROJECT-$SUBARCH"
+#		;;
+#esac
 
 case $ITEM in
 	cloop|squashfs|manifest|manifest-desktop)
