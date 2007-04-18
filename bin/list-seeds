@@ -37,6 +37,18 @@ case $MODE in
 		esac
 		grep "^$SHIP:" "$STRUCTURE" | cut -d' ' -f2-
 		echo "$SHIP"
+		if [ "$CDIMAGE_DVD" ]; then
+			case $DIST in
+				warty|hoary|breezy|dapper)
+					;;
+				*)
+					# TODO cjwatson 2007-04-18: hideous
+					# hack to fix DVD tasks
+					echo dns-server
+					echo lamp-server
+					;;
+			esac
+		fi
 		;;
 	installer)
 		if [ "$CDIMAGE_INSTALL_BASE" ]; then
