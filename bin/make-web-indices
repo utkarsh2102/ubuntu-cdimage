@@ -95,7 +95,7 @@ cdtypedesc () {
 			DESKTOP_RAM=128
 			;;
 		*)
-			DESKTOP_RAM=192
+			DESKTOP_RAM=256
 			;;
 	esac
 
@@ -130,8 +130,9 @@ installations of $CAPPROJECT. It provides for the following situations:</p>
 <li>setting up automated deployments;
 <li>upgrading from older installations without network access;
 <li>LVM and/or RAID partitioning;
-<li>installing GRUB to a location other than the Master Boot Record;
-<li>installs on systems with less than about ${DESKTOP_RAM}MB of RAM.
+<li>installs on systems with less than about ${DESKTOP_RAM}MB of RAM
+(although note that low-memory systems may not be able to run a full desktop
+environment reasonably).
 </ul>
 
 <p>
