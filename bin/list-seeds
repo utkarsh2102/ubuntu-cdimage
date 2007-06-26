@@ -67,8 +67,11 @@ case $MODE in
 			warty|hoary)
 				echo 'base'
 				;;
-			*)
+			breezy|dapper|edgy|feisty)
 				echo 'minimal'
+				;;
+			*)
+				echo 'required minimal'
 				;;
 		esac
 		;;
@@ -80,8 +83,11 @@ case $MODE in
 			breezy)
 				echo 'minimal standard'
 				;;
-			*)
+			dapper|edgy|feisty)
 				echo 'boot minimal standard'
+				;;
+			*)
+				echo 'boot required minimal standard'
 				;;
 		esac
 		;;
