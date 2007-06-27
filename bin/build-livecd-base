@@ -6,7 +6,7 @@ export ARCHES="${ARCHES:-amd64 hppa i386 ia64 powerpc sparc}"
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
-PATH="$CDIMAGE_ROOT/bin:${PATH:+:$PATH}"
+PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
 
 # This is a special case; don't use for-project.
 export PROJECT=livecd-base
