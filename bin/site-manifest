@@ -17,7 +17,7 @@ main_manifest=
 
 file_to_manifest () {
 	case $file in
-		kubuntu/*|edubuntu/*|xubuntu/*|gnubuntu/*|ubuntu-server/*)
+		kubuntu/*|edubuntu/*|xubuntu/*|gobuntu/*|ubuntu-server/*)
 			project="${file%%/*}"
 			;;
 		*)
