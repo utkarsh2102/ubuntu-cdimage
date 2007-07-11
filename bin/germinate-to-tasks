@@ -76,8 +76,18 @@ for arch in $CPUARCHES; do
 				;;
 		esac
 		case $seed in
-			base|minimal|standard|desktop|server|ship)
+			base|desktop|server|ship)
 				task="${PROJECT%%-*}-$seed"
+				;;
+			minimal|standard)
+				case $DIST in
+					warty|hoary|breezy|dapper)
+						task="${PROJECT%%-*}-$seed"
+						;;
+					*)
+						task="$seed"
+						;;
+				esac
 				;;
 			*)
 				task="$seed"
