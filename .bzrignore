@@ -1,4 +1,6 @@
+./backups
 ./britney
+./bzr
 ./debian-cd
 ./ftp*
 ./germinate
