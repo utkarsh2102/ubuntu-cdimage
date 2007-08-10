@@ -71,7 +71,7 @@ case $DIST in
 		VERSION=5.10
 		;;
 	dapper)
-		VERSION=6.06.1
+		VERSION=6.06.2
 		;;
 	edgy)
 		VERSION=6.10
