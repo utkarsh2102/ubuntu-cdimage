@@ -41,10 +41,10 @@ titlecase () {
 cssincludes () {
 	case $PROJECT in
 		kubuntu)
-			echo 'http://www.kubuntu.org/ubuntu.css'
+			echo 'http://releases.ubuntu.com/include/kubuntu.css'
 			;;
 		*)
-			echo 'http://www.ubuntu.com/include/plone.css http://www.ubuntu.com/include/ubuntu.css'
+			echo 'http://releases.ubuntu.com/include/plone.css http://releases.ubuntu.com/include/ubuntu.css'
 			;;
 	esac
 }
