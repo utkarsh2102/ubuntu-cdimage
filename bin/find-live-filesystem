@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|winfoss' >&2
+	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|winfoss|wubi' >&2
 	exit 1
 fi
 ARCH="$1"
@@ -253,6 +253,23 @@ case $ITEM in
 				esac
 				;;
 			*)	exit 1 ;;
+		esac
+		;;
+	wubi)
+		case $ARCH in
+			amd64|i386)
+				;;
+			*)
+				exit 1
+				;;
+		esac
+		case $DIST in
+			warty|hoary|breezy|dapper|edgy|feisty)
+				exit 1
+				;;
+			*)
+				echo http://wubi-installer.org/devel/minefields/Wubi-7.10-minefield-0.2.exe
+				;;
 		esac
 		;;
 	*)

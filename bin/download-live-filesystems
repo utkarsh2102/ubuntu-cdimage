@@ -9,6 +9,9 @@ LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live"
 
 fetch () {
 	case $1 in
+		'')
+			return 1
+			;;
 		/*)
 			ln "$1" "$2"
 			;;
@@ -54,6 +57,9 @@ if [ "$CDIMAGE_LIVE" ]; then
 		fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
 			"$LIVE_OUT/$arch.manifest-desktop" || true
 	done
+
+	fetch "$(find-live-filesystem "$arch" wubi)" \
+		"$LIVE_OUT/$arch.wubi.exe" || true
 fi
 
 # TheOpenCD goes on the amd64/i386 live CDs, and on the Edubuntu add-on CDs.
