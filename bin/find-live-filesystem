@@ -268,7 +268,7 @@ case $ITEM in
 				exit 1
 				;;
 			*)
-				echo http://wubi-installer.org/devel/minefields/Wubi-7.10-minefield-0.2.exe
+				echo http://wubi-installer.org/devel/minefields/Wubi-7.10-minefield-0.4.exe
 				;;
 		esac
 		;;
