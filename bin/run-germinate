@@ -11,7 +11,7 @@ GERMINATE_BZR=--bzr
 if [ "$GERMINATE_BZR" ]; then
 	SEED_SOURCE=http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 else
-	SEED_SOURCE=http://people.ubuntu.com/~cjwatson/seeds/
+	SEED_SOURCE=http://people.ubuntu.com/~ubuntu-archive/seeds/
 fi
 if [ "$LOCAL_SEEDS" ]; then
 	SEED_SOURCE="$LOCAL_SEEDS"
