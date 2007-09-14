@@ -85,16 +85,35 @@ if [ -z "$CDIMAGE_NOSYNC" ]; then
 		push_cleanup "rm -f $SYNC_LOCK"
 		anonftpsync
 		ARCHES_COLONS="$(echo "$CPUARCHES" | tr ' ' ':')"
-		case :$ARCHES_COLONS: in
-			*:hppa:*|*:ia64:*)
-				ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
+		case $PROJECT in
+			ubuntustudio)
+				ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.universe" anonftpsync
+				for component in main restricted; do
+					for distdir in "$CDIMAGE_ROOT/ftp/dists"/*; do
+						[ -d "$distdir" ] || continue
+						newdistdir="$(echo "$distdir" | sed 's/ftp/ftp-universe/')"
+						if [ -d "$distdir/$component" ] && [ -d "$newdistdir" ]; then
+							ln -nsf "$distdir/$component" "$newdistdir/$component"
+						fi
+					done
+					if [ -d "$CDIMAGE_ROOT/ftp/pool/$component" ] && [ -d "$CDIMAGE_ROOT/ftp-universe/pool" ]; then
+						ln -nsf "$CDIMAGE_ROOT/ftp/pool/$component" "$CDIMAGE_ROOT/ftp-universe/pool/$component"
+					fi
+				done
 				;;
-			*:powerpc:*)
-				case $DIST in
-					warty|hoary|breezy|dapper|edgy|feisty)
-						;;
-					*)
+			*)
+				case :$ARCHES_COLONS: in
+					*:hppa:*|*:ia64:*)
 						ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
+						;;
+					*:powerpc:*)
+						case $DIST in
+							warty|hoary|breezy|dapper|edgy|feisty)
+								;;
+							*)
+								ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
+								;;
+						esac
 						;;
 				esac
 				;;

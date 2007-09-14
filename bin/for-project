@@ -28,6 +28,10 @@ case $1 in
 		export PROJECT=ubuntu-server
 		export CAPPROJECT=Ubuntu-Server
 		;;
+	ubuntustudio)
+		export PROJECT=ubuntustudio
+		export CAPPROJECT=Ubuntu-Studio
+		;;
 	tocd3)
 		export PROJECT=tocd3
 		export CAPPROJECT=TheOpenCDv3
@@ -46,6 +50,7 @@ Recognised projects:
   xubuntu
   foobuntu
   ubuntu-server
+  ubuntustudio
   tocd3
   tocd3.1
 EOF
