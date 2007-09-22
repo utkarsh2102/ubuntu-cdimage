@@ -10,6 +10,11 @@ if [ -z "$1" ]; then
 fi
 ARCH="$1"
 
+if [ "$PROJECT" = ubuntustudio ]; then
+	echo "$CDIMAGE_ROOT/ftp-universe"
+	exit 0
+fi
+
 case ${ARCH%%+*} in
 	amd64|i386|powerpc|sparc)
 		echo "$CDIMAGE_ROOT/ftp"
