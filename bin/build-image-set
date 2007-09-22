@@ -56,6 +56,9 @@ case $PROJECT in
 	gobuntu)
 		export CDIMAGE_ONLYFREE=1
 		;;
+	ubuntustudio)
+		export CDIMAGE_UNSUPPORTED=1
+		;;
 esac
 
 if [ "$CDIMAGE_INSTALL" ]; then

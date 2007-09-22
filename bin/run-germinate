@@ -85,6 +85,12 @@ for arch in $CPUARCHES; do
 			if [ -z "$CDIMAGE_ONLYFREE" ]; then
 				files="$files dists/$germinate_dist/restricted/$suffix"
 			fi
+			if [ "$CDIMAGE_UNSUPPORTED" ]; then
+				files="$files dists/$germinate_dist/universe/$suffix"
+				if [ -z "$CDIMAGE_ONLYFREE" ]; then
+					files="$files dists/$germinate_dist/multiverse/$suffix"
+				fi
+			fi
 			if [ "$LOCAL" ]; then
 				files="$files $LOCALDEBS/dists/$germinate_dist/local/$suffix"
 			fi

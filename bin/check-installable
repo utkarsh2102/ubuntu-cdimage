@@ -12,7 +12,7 @@ IMAGETOP="${IMAGETOP:-$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tmp}"
 mkemptydir "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST"
 for fullarch in $ARCHES; do
 	arch="${fullarch%%+*}"
-	for component in main restricted; do
+	for component in main restricted universe multiverse; do
 		packages="$IMAGETOP/$DIST-$fullarch/CD1/dists/$DIST/$component/binary-$arch/Packages.gz"
 		if [ -e "$packages" ]; then
 			zcat "$packages" >> "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST/Packages_$arch"
