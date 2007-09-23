@@ -73,14 +73,15 @@ mkindex () {
 
 mkemptydir "$GERMINATE_OUT/$DIST"
 
-for arch in $CPUARCHES; do
+for arch in $ARCHES; do
 	echo "Germinating for $DIST/$arch ..."
+	cpuarch="${arch%%+*}"
 
 	IFS_SAVE="$IFS"
 	IFS=,
 	for germinate_dist in $GERMINATE_DISTS; do
 		IFS="$IFS_SAVE"
-		for suffix in "binary-$arch/Packages.gz" "source/Sources.gz" "debian-installer/binary-$arch/Packages.gz"; do
+		for suffix in "binary-$cpuarch/Packages.gz" "source/Sources.gz" "debian-installer/binary-$cpuarch/Packages.gz"; do
 			files="dists/$germinate_dist/main/$suffix"
 			if [ -z "$CDIMAGE_ONLYFREE" ]; then
 				files="$files dists/$germinate_dist/restricted/$suffix"
@@ -105,7 +106,7 @@ for arch in $CPUARCHES; do
 	if [ "$GERMINATE_HINTS" ] && [ -f "$GERMINATE_HINTS" ]; then
 		cp -a "$GERMINATE_HINTS" hints
 	fi
-	"$CDIMAGE_ROOT/germinate/germinate.py" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$arch" --components main --no-rdepends $GERMINATE_BZR
+	"$CDIMAGE_ROOT/germinate/germinate.py" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$cpuarch" --components main --no-rdepends $GERMINATE_BZR
 	cp -a structure ../STRUCTURE
 
 	if [ "$DIST" = breezy ]; then
@@ -119,6 +120,6 @@ for arch in $CPUARCHES; do
 			EXTRAS="${EXTRAS:+$EXTRAS,}desktop/$pkg"
 			echo "$pkg" >> ship.acsets
 		done
-		"$CDIMAGE_ROOT/germinate/germinate.py" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$arch" --components main --no-rdepends ${EXTRAS:+--seed-packages "$EXTRAS"} $GERMINATE_BZR
+		"$CDIMAGE_ROOT/germinate/germinate.py" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$cpuarch" --components main --no-rdepends ${EXTRAS:+--seed-packages "$EXTRAS"} $GERMINATE_BZR
 	fi
 done
