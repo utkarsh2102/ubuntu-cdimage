@@ -31,17 +31,19 @@ for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
 done
 
 # germinate doesn't yet support subarchitecture specifications, so we need
-# to hack the installer seed a bit for powerpc+ps3.
+# to hack the boot and installer seeds a bit for powerpc+ps3.
 case $DIST in
 	warty|hoary|breezy|dapper|edgy|feisty)
 		;;
 	*)
-		for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
-			for arch in $ARCHES; do
-				[ "$arch" = powerpc+ps3 ] || continue
+		for arch in $ARCHES; do
+			[ "$arch" = powerpc+ps3 ] || continue
+			for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
 				sed -i '/-powerpc-di/d; s/-powerpc64-smp-di/-cell-di/g' \
 					"$GERMINATE_OUT/$DIST/$arch/$seed"
 			done
+			sed -i '/^linux-\(restricted\|ubuntu\)-modules/d; /^[^ ]*-powerpc /d; s/-powerpc64-smp/-cell/g' \
+				"$GERMINATE_OUT/$DIST/$arch/boot"
 		done
 		;;
 esac
