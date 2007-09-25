@@ -532,15 +532,21 @@ cat <<EOF > "$FOOTER"
 </div></body></html>
 EOF
 
+if [ "$PROJECT" = kubuntu ]; then
+	CDICONS=/cdicons/kubuntu-
+else
+	CDICONS=/cdicons/
+fi
+
 cat <<EOF >> "$HTACCESS"
 
 HeaderName HEADER.html
 ReadmeName FOOTER.html
 IndexIgnore .htaccess HEADER.html FOOTER.html
 IndexOptions NameWidth=* DescriptionWidth=* SuppressHTMLPreamble FancyIndexing IconHeight=22 IconWidth=22
-AddIcon /cdicons/folder.png ^^DIRECTORY^^
-AddIcon /cdicons/iso.png .iso
-AddIcon /cdicons/jigdo.png .jigdo .template
-AddIcon /cdicons/list.png .list .manifest .html MD5SUMS MD5SUMS.gpg
-AddIcon /cdicons/torrent.png .torrent
+AddIcon ${CDICONS}folder.png ^^DIRECTORY^^
+AddIcon ${CDICONS}iso.png .iso
+AddIcon ${CDICONS}jigdo.png .jigdo .template
+AddIcon ${CDICONS}list.png .list .manifest .html MD5SUMS MD5SUMS.gpg
+AddIcon ${CDICONS}torrent.png .torrent
 EOF
