@@ -372,6 +372,7 @@ if $PUBLISH_DIST || $PUBLISH_POOL; then
 		> "$CDIMAGE_ROOT/www/simple/.manifest.new"
 	mv "$CDIMAGE_ROOT/www/simple/.manifest.new" \
 	   "$CDIMAGE_ROOT/www/simple/.manifest"
+	chmod g+w "$CDIMAGE_ROOT/www/simple/.manifest"
 fi
 
 echo "Done! Remember to sync-mirrors after checking that everything is OK."
