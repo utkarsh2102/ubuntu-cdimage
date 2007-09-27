@@ -95,7 +95,14 @@ cdtypedesc () {
 			DESKTOP_RAM=128
 			;;
 		*)
-			DESKTOP_RAM=256
+			case $DIST in
+				warty|hoary|breezy|dapper|edgy|feisty)
+					DESKTOP_RAM=256
+					;;
+				*)
+					DESKTOP_RAM=320
+					;;
+			esac
 			;;
 	esac
 
