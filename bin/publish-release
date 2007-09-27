@@ -32,6 +32,9 @@ TYPE="$3"
 OFFICIAL="$4"
 STATUS="$5"
 
+# Do what I mean.
+SOURCE="${SOURCE%/source}"
+
 # Publish ports/daily to ports/releases/..., etc.
 case $SOURCE in
 	ubuntu-server/*)
