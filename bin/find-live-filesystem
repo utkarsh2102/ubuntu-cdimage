@@ -38,7 +38,14 @@ case $CPUARCH in
 		;;
 	ia64)
 		LIVECD=http://weddell.buildd/~buildd/LiveCD
-		FLAVOURS='itanium-smp mckinley-smp'
+		case $DIST in
+			warty|hoary|breezy|dapper)
+				FLAVOURS='itanium-smp mckinley-smp'
+				;;
+			*)
+				FLAVOURS='itanium mckinley'
+				;;
+		esac
 		;;
 	powerpc)
 		LIVECD=http://royal.buildd/~buildd/LiveCD
