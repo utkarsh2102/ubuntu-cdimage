@@ -98,7 +98,10 @@ for arch in $ARCHES; do
 				;;
 		esac
 		case $seed in
-			base|desktop|server|ship)
+			# All possible per-derivative tasks should be listed
+			# here. TODO: this is a hack; we should look in the
+			# seeds for the Task-Per-Derivative flag instead.
+			base|desktop|server|ship|audio|audio-plugins|graphics|video)
 				task="${PROJECT%%-*}-$seed"
 				;;
 			minimal|standard)
