@@ -147,6 +147,11 @@ publish_binary () {
 			;;
 	esac
 
+	# Ubuntu Studio is always DVD-sized for now.
+	if [ "$PROJECT" = ubuntustudio ]; then
+		SIZELIMIT=4700372992
+	fi
+
 	if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.raw" ]; then
 		echo "Publishing $arch ..."
 		mkdir -p "$PUBLISH"

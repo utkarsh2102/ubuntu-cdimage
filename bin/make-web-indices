@@ -106,30 +106,40 @@ cdtypedesc () {
 			;;
 	esac
 
+	# Ubuntu Studio is expected to be oversized in Gutsy; sigh.
+	case $PROJECT in
+		ubuntustudio)
+			CD=DVD
+			;;
+		*)
+			CD=CD
+			;;
+	esac
+
 	case $1 in
 		live)
 			cat <<EOF
-<p>The live CD allows you to try $CAPPROJECT without changing your computer
+<p>The live $CD allows you to try $CAPPROJECT without changing your computer
 at all, and at your option to install it permanently later.</p>
 EOF
 			;;
 		desktop)
 			cat <<EOF
-<p>The desktop CD allows you to try $CAPPROJECT without changing your
+<p>The desktop $CD allows you to try $CAPPROJECT without changing your
 computer at all, and at your option to install it permanently later. This
-type of CD is what most people will want to use. You will need at least
-${DESKTOP_RAM}MB of RAM to install from this CD.</p>
+type of $CD is what most people will want to use. You will need at least
+${DESKTOP_RAM}MB of RAM to install from this $CD.</p>
 EOF
 			;;
 		install)
 			cat <<EOF
-<p>The install CD allows you to install $CAPPROJECT permanently on a
+<p>The install $CD allows you to install $CAPPROJECT permanently on a
 computer.</p>
 EOF
 			;;
 		alternate)
 			cat <<EOF
-<p>The alternate install CD allows you to perform certain specialist
+<p>The alternate install $CD allows you to perform certain specialist
 installations of $CAPPROJECT. It provides for the following situations:</p>
 
 <ul>
@@ -154,14 +164,14 @@ EOF
 			case $PROJECT in
 				edubuntu)
 					cat <<EOF
-<p>The classroom server CD allows you to install $CAPPROJECT permanently on
+<p>The classroom server $CD allows you to install $CAPPROJECT permanently on
 a computer. It includes LTSP (Linux Terminal Server Project) support,
 providing out-of-the-box thin client support.</p>
 EOF
 					;;
 				*)
 					cat <<EOF
-<p>The server install CD allows you to install $CAPPROJECT permanently on a
+<p>The server install $CD allows you to install $CAPPROJECT permanently on a
 computer for use as a server. It will not install a graphical user
 interface.</p>
 EOF
@@ -171,8 +181,8 @@ EOF
 		serveraddon)
 			# Edubuntu only
 			cat <<EOF
-<p>The classroom server add-on CD contains additional packages that may be
-useful in conjunction with the classroom server CD.</p>
+<p>The classroom server add-on $CD contains additional packages that may be
+useful in conjunction with the classroom server $CD.</p>
 EOF
 			;;
 		dvd)
@@ -193,7 +203,7 @@ EOF
 			;;
 		src)
 			cat <<EOF
-The source CDs contain the source code used to build $CAPPROJECT.
+The source ${CD}s contain the source code used to build $CAPPROJECT.
 EOF
 			;;
 		*)
