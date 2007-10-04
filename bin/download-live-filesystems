@@ -58,8 +58,8 @@ if [ "$CDIMAGE_LIVE" ]; then
 			"$LIVE_OUT/$arch.manifest-desktop" || true
 
 		if [ "$PROJECT" != livecd-base ]; then
-			fetch "$(find-live-filesystem "$arch" wubi)" \
-				"$LIVE_OUT/$arch.wubi.exe" || true
+			fetch "$(find-live-filesystem "$arch" wubi-cdboot)" \
+				"$LIVE_OUT/$arch.wubi-cdboot.exe" || true
 		fi
 	done
 fi
