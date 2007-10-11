@@ -298,7 +298,7 @@ extensionstr () {
 			echo 'standard download'
 			;;
 		iso.torrent)
-			echo '<a href=\"http://bittorrent.com/introduction.html\">BitTorrent</a> download'
+			echo '<a href=\"https://help.ubuntu.com/community/BitTorrent\">BitTorrent</a> download'
 			;;
 		jigdo)
 			echo '<a href=\"http://atterer.net/jigdo/\">jigdo</a> download'
@@ -492,7 +492,7 @@ EOF
 EOF
 		elif [ -e "$DIR/$CDPREFIX-$cdtype-$arch.iso.torrent" ]; then
 			cat <<EOF >> "$HEADER"
-<dt><a href="$CDPREFIX-$cdtype-$arch.iso.torrent">$imagestr (<a href="http://bittorrent.com/introduction.html">BitTorrent</a> only)</a>
+<dt><a href="$CDPREFIX-$cdtype-$arch.iso.torrent">$imagestr (<a href="https://help.ubuntu.com/community/BitTorrent">BitTorrent</a> only)</a>
 EOF
 		else
 			continue
@@ -528,7 +528,7 @@ done
 if [ "$foundtorrent" = 1 ]; then
 	cat <<EOF >> "$HEADER"
 <p>A full list of available files, including <a
-href="http://bittorrent.com/introduction.html">BitTorrent</a> files,
+href="https://help.ubuntu.com/community/BitTorrent">BitTorrent</a> files,
 can be found below.</p>
 
 EOF
