@@ -124,12 +124,25 @@ at all, and at your option to install it permanently later.</p>
 EOF
 			;;
 		desktop)
-			cat <<EOF
+			case $PROJECT in
+				edubuntu)
+					cat <<EOF
+<p>The desktop $CD allows you to try $CAPPROJECT without changing your
+computer at all, and at your option to install it permanently later. You
+will need at least ${DESKTOP_RAM}MB of RAM to install from this $CD. You can
+install additional educational programs using the classroom server add-on
+$CD.</p>
+EOF
+					;;
+				*)
+					cat <<EOF
 <p>The desktop $CD allows you to try $CAPPROJECT without changing your
 computer at all, and at your option to install it permanently later. This
 type of $CD is what most people will want to use. You will need at least
 ${DESKTOP_RAM}MB of RAM to install from this $CD.</p>
 EOF
+					;;
+			esac
 			;;
 		install)
 			cat <<EOF
@@ -166,7 +179,9 @@ EOF
 					cat <<EOF
 <p>The classroom server $CD allows you to install $CAPPROJECT permanently on
 a computer. It includes LTSP (Linux Terminal Server Project) support,
-providing out-of-the-box thin client support.</p>
+providing out-of-the-box thin client support. After installation you can
+install additional educational programs using the classroom server add-on
+$CD.</p>
 EOF
 					;;
 				*)
@@ -181,8 +196,9 @@ EOF
 		serveraddon)
 			# Edubuntu only
 			cat <<EOF
-<p>The classroom server add-on $CD contains additional packages that may be
-useful in conjunction with the classroom server $CD.</p>
+<p>The classroom server add-on $CD contains additional useful packages,
+including many educational programs and all available language packs. It
+requires that an $CAPPROJECT desktop be installed on the machine.</p>
 EOF
 			;;
 		dvd)
