@@ -189,12 +189,18 @@ if $PUBLISH_POOL; then
 fi
 if $PUBLISH_DIST; then
 	mkdir -p "$RELEASE_SIMPLE_DIST"
+	if [ ! -h "$RELEASE_SIMPLE_DIST/../$VERSION" ]; then
+		ln -ns "$DIST" "$RELEASE_SIMPLE_DIST/../$VERSION"
+	fi
 	if [ -z "$CDIMAGE_NO_PURGE" ]; then
 		find "$RELEASE_SIMPLE_DIST/" -name "$CDPREFIX-$TYPE-*" -type l -print0 | xargs -0r rm -f
 	fi
 fi
 if $PUBLISH_FULL; then
 	mkdir -p "$RELEASE_FULL"
+	if [ ! -h "$RELEASE_FULL/../../$VERSION" ]; then
+		ln -ns "$DIST" "$RELEASE_FULL/../../$VERSION"
+	fi
 fi
 
 echo "Constructing release trees ..."
