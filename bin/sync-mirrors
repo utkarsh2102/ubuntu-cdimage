@@ -1,16 +1,15 @@
 #! /bin/sh
 
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
+. "$CDIMAGE_ROOT/etc/config"
+
 # check for nonexisting files in .manifest
-cd /srv/cdimage.ubuntu.com/www/simple/
-for i in $(awk '{print $3}' ./.manifest ); do 
-    [ -f ./$i ] || { 
+for i in $(awk '{print $3}' "$CDIMAGE_ROOT/www/simple/.manifest"); do 
+    [ -f "$CDIMAGE_ROOT/www/simple/$i" ] || { 
 	echo ".manifest has nonexisting $i"
 	exit 1
     }
 done
-
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
 
 SECRET="$CDIMAGE_ROOT/secret"
 if [ -d "$HOME/secret" ]; then
