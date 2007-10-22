@@ -50,38 +50,48 @@ cssincludes () {
 }
 
 cdtypestr () {
+	# Ubuntu Studio is expected to be oversized in Gutsy; sigh.
+	case $PROJECT in
+		ubuntustudio)
+			CD=DVD
+			;;
+		*)
+			CD=CD
+			;;
+	esac
+
 	case $1 in
 		live)
-			echo 'live CD'
+			echo "live $CD"
 			;;
 		desktop)
-			echo 'desktop CD'
+			echo "desktop $CD"
 			;;
 		install)
-			echo 'install CD'
+			echo "install $CD"
 			;;
 		alternate)
-			echo 'alternate install CD'
+			echo "alternate install $CD"
 			;;
 		server)
 			case $PROJECT in
 				edubuntu)
-					echo 'classroom server CD'
+					echo "classroom server $CD"
 					;;
 				*)
-					echo 'server install CD'
+					echo "server install $CD"
 					;;
 			esac
 			;;
 		serveraddon)
 			# Edubuntu only
-			echo 'classroom server add-on CD'
+			echo "classroom server add-on $CD"
 			;;
 		dvd)
 			echo 'install/live DVD'
 			;;
 		src)
-			echo 'source CD'
+			echo "source $CD"
 			;;
 		*)
 			echo "Unknown CD type $1!" >&2
