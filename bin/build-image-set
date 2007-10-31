@@ -59,6 +59,9 @@ case $PROJECT in
 	ubuntustudio)
 		export CDIMAGE_UNSUPPORTED=1
 		;;
+	mythbuntu)
+		export CDIMAGE_UNSUPPORTED=1
+		;;
 esac
 
 if [ "$CDIMAGE_INSTALL" ]; then
@@ -89,7 +92,7 @@ if [ -z "$CDIMAGE_NOSYNC" ]; then
 		anonftpsync
 		ARCHES_COLONS="$(echo "$CPUARCHES" | tr ' ' ':')"
 		case $PROJECT in
-			ubuntustudio)
+			ubuntustudio|mythbuntu)
 				ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.universe" anonftpsync
 				for component in main restricted; do
 					for distdir in "$CDIMAGE_ROOT/ftp/dists"/*; do

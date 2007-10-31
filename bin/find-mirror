@@ -15,6 +15,11 @@ if [ "$PROJECT" = ubuntustudio ]; then
 	exit 0
 fi
 
+if [ "$PROJECT" = mythbuntu ]; then
+	echo "$CDIMAGE_ROOT/ftp-universe"
+	exit 0
+fi
+
 case ${ARCH%%+*} in
 	amd64|i386|powerpc|sparc)
 		echo "$CDIMAGE_ROOT/ftp"

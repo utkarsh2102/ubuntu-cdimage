@@ -13,6 +13,9 @@ if [ "$GERMINATE_BZR" ]; then
 		ubuntustudio)
 			SEED_SOURCE=http://bazaar.launchpad.net/~ubuntustudio-dev/ubuntu-seeds/
 			;;
+		mythbuntu)
+			SEED_SOURCE=http://bazaar.launchpad.net/~mythbuntu/ubuntu-seeds/
+			;;
 		*)
 			SEED_SOURCE=http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 			;;
