@@ -305,6 +305,20 @@ EOF
 			cat <<EOF
 For Sony PlayStation 3 systems.
 EOF
+			if [ "$2" = desktop ]; then
+				case $DIST in
+					warty|hoary|breezy|dapper|edgy|feisty)
+						;;
+					*)
+						cat <<EOF
+(This defaults to installing $CAPPROJECT permanently, since there is usually
+not enough memory to try out the full desktop system and run the installer
+at the same time. An alternative boot option to try $CAPPROJECT without
+changing your computer is available.)
+EOF
+						;;
+				esac
+			fi
 			;;
 		sparc)
 			cat <<EOF
@@ -535,7 +549,7 @@ EOF
 		if [ "$cdtype" != src ]; then
 			cat <<EOF >> "$HEADER"
 
-<dd>$(archdesc "$arch")</dd>
+<dd>$(archdesc "$arch" "$cdtype")</dd>
 
 EOF
 		fi
