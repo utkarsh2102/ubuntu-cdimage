@@ -12,6 +12,29 @@ fi
 STRUCTURE="$1"
 MODE="$2"
 
+add_inheritance () {
+	case " $inherit " in
+		*" $1 "*)
+			;;
+		*)
+			inherit="${inherit:+$inherit }$1"
+			;;
+	esac
+}
+
+expand_inheritance () {
+	for seed in $(grep "^$1:" "$STRUCTURE" | cut -d: -f2); do
+		expand_inheritance "$seed"
+	done
+	add_inheritance "$1"
+}
+
+inheritance () {
+	inherit=
+	expand_inheritance "$1"
+	echo "$inherit"
+}
+
 case $MODE in
 	all)
 		grep -v '^#' "$STRUCTURE" | cut -d: -f1
@@ -35,8 +58,7 @@ case $MODE in
 				esac
 				;;
 		esac
-		grep "^$SHIP:" "$STRUCTURE" | cut -d' ' -f2-
-		echo "$SHIP"
+		inheritance "$SHIP"
 		if [ "$CDIMAGE_DVD" ]; then
 			case $DIST in
 				warty|hoary|breezy|dapper)
