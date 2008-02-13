@@ -10,22 +10,10 @@ if [ -z "$1" ]; then
 fi
 ARCH="$1"
 
-case $PROJECT in
-	xubuntu)
-		case $DIST in
-			warty|hoary|breezy|dapper|edgy|feisty|gutsy)
-				;;
-			*)
-				echo "$CDIMAGE_ROOT/ftp-universe"
-				exit 0
-				;;
-		esac
-		;;
-	ubuntustudio)
-		echo "$CDIMAGE_ROOT/ftp-universe"
-		exit 0
-		;;
-esac
+if [ "$CDIMAGE_UNSUPPORTED" ]; then
+	echo "$CDIMAGE_ROOT/ftp-universe"
+	exit 0
+fi
 
 case ${ARCH%%+*} in
 	amd64|i386|powerpc|sparc)
