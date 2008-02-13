@@ -12,6 +12,10 @@ case $1 in
 		export PROJECT=kubuntu
 		export CAPPROJECT=Kubuntu
 		;;
+	kubuntu-kde4)
+		export PROJECT=kubuntu-kde4
+		export CAPPROJECT=Kubuntu-KDE4
+		;;
 	edubuntu)
 		export PROJECT=edubuntu
 		export CAPPROJECT=Edubuntu
@@ -46,9 +50,10 @@ Usage: for-project PROJECT [COMMAND ARGS...]
 Recognised projects:
   ubuntu
   kubuntu
+  kubuntu-kde4
   edubuntu
   xubuntu
-  foobuntu
+  gobuntu
   ubuntu-server
   ubuntustudio
   tocd3

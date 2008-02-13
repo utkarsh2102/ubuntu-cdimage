@@ -43,6 +43,9 @@ cssincludes () {
 		kubuntu)
 			echo 'http://releases.ubuntu.com/include/kubuntu.css'
 			;;
+		kubuntu-kde4)
+			echo 'http://releases.ubuntu.com/include/kubuntu.css'
+			;;
 		*)
 			echo 'http://releases.ubuntu.com/include/plone.css http://releases.ubuntu.com/include/ubuntu.css'
 			;;
@@ -594,6 +597,8 @@ cat <<EOF > "$FOOTER"
 EOF
 
 if [ "$PROJECT" = kubuntu ]; then
+	CDICONS=/cdicons/kubuntu-
+else if [ "$PROJECT" = kubuntu-kde4 ]; then
 	CDICONS=/cdicons/kubuntu-
 else
 	CDICONS=/cdicons/
