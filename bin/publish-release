@@ -139,7 +139,7 @@ if $PUBLISH_DIST; then
 fi
 
 case $DIST in
-	warty|hoary|breezy|dapper)
+	warty|hoary|breezy|dapper|edgy|feisty|gutsy)
 		SOURCE="$DIST/$SOURCE"
 		if [ "$SOURCE" = "$DIST/ubuntu-server/daily" ]; then
 			SOURCE="ubuntu-server/$DIST/daily"
@@ -192,8 +192,8 @@ if $PUBLISH_POOL; then
 fi
 if $PUBLISH_DIST; then
 	mkdir -p "$RELEASE_SIMPLE_DIST"
-	if [ ! -h "$RELEASE_SIMPLE_DIST/../$VERSION" ]; then
-		ln -ns "$DIST" "$RELEASE_SIMPLE_DIST/../$VERSION"
+	if [ ! -h "$CDIMAGE_ROOT/www/$SIMPLE_TREE/$VERSION" ]; then
+		ln -ns "$DIST" "$CDIMAGE_ROOT/www/$SIMPLE_TREE/$VERSION"
 	fi
 	if [ -z "$CDIMAGE_NO_PURGE" ]; then
 		find "$RELEASE_SIMPLE_DIST/" -name "$CDPREFIX-$TYPE-*" -type l -print0 | xargs -0r rm -f
@@ -201,8 +201,8 @@ if $PUBLISH_DIST; then
 fi
 if $PUBLISH_FULL; then
 	mkdir -p "$RELEASE_FULL"
-	if [ ! -h "$RELEASE_FULL/../../$VERSION" ]; then
-		ln -ns "$DIST" "$RELEASE_FULL/../../$VERSION"
+	if [ ! -h "$CDIMAGE_ROOT/www/$FULL_TREE/releases/$VERSION" ]; then
+		ln -ns "$DIST" "$CDIMAGE_ROOT/www/$FULL_TREE/releases/$VERSION"
 	fi
 fi
 

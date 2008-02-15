@@ -11,23 +11,28 @@ fi
 
 STRUCTURE="$1"
 
-SEEDS="$(list-seeds "$STRUCTURE" installer)"
-if [ "$CDIMAGE_DVD" ]; then
-	SEEDS="$SEEDS $(list-seeds "$STRUCTURE" all | egrep -v '^(installer|casper)$' || true)"
-elif [ "$CDIMAGE_INSTALL" ]; then
-	SEEDS="$SEEDS $(list-seeds "$STRUCTURE" tasks)"
+if [ "$CDIMAGE_ADDON" ]; then
+	SEEDS="$(list-seeds "$STRUCTURE" addon)"
 else
-	if [ "$CDIMAGE_INSTALL_BASE" = 1 ]; then
-		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" base)"
-	fi
-	if [ "$CDIMAGE_LIVE" = 1 ]; then
-		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" ship-live)"
+	SEEDS="$(list-seeds "$STRUCTURE" installer)"
+	if [ "$CDIMAGE_DVD" ]; then
+		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" all | egrep -v '^(installer|casper)$' || true)"
+	elif [ "$CDIMAGE_INSTALL" ]; then
+		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" tasks)"
+	else
+		if [ "$CDIMAGE_INSTALL_BASE" = 1 ]; then
+			SEEDS="$SEEDS $(list-seeds "$STRUCTURE" base)"
+		fi
+		if [ "$CDIMAGE_LIVE" = 1 ]; then
+			SEEDS="$SEEDS $(list-seeds "$STRUCTURE" ship-live)"
+		fi
 	fi
 fi
 
 for seed in $SEEDS; do
 	# https://blueprints.launchpad.net/ubuntu/+spec/edubuntu-on-two-cds
-	if [ "$CDIMAGE_DVD" != 1 ] && [ "$seed" = ship-addon ]; then
+	if [ "$CDIMAGE_DVD" != 1 ] && [ "$CDIMAGE_ADDON" != 1 ] && \
+	   [ "$seed" = ship-addon ]; then
 		echo FORCE-CD-BREAK
 	fi
 	echo "#include <$PROJECT/$DIST/$seed>"

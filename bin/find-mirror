@@ -10,7 +10,7 @@ if [ -z "$1" ]; then
 fi
 ARCH="$1"
 
-if [ "$PROJECT" = ubuntustudio ]; then
+if [ "$CDIMAGE_UNSUPPORTED" ]; then
 	echo "$CDIMAGE_ROOT/ftp-universe"
 	exit 0
 fi
