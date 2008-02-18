@@ -73,8 +73,11 @@ case $IMAGE_TYPE in
 					warty|hoary|breezy|dapper|edgy)
 						TYPE=install
 						;;
-					*)
+					feisty|gutsy)
 						TYPE=server
+						;;
+					*)
+						TYPE=addon
 						;;
 				esac
 				;;

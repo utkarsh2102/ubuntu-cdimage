@@ -90,6 +90,10 @@ cdtypestr () {
 			# Edubuntu only
 			echo "classroom server add-on $CD"
 			;;
+		addon)
+			# Edubuntu only
+			echo "add-on $CD"
+			;;
 		dvd)
 			echo 'install/live DVD'
 			;;
@@ -212,6 +216,14 @@ EOF
 <p>The classroom server add-on $CD contains additional useful packages,
 including many educational programs and all available language packs. It
 requires that an $CAPPROJECT desktop be installed on the machine.</p>
+EOF
+			;;
+		addon)
+			# Edubuntu only
+			cat <<EOF
+<p>The add-on $CD contains additional useful packages, including many
+educational programs and all available language packs. It requires that an
+Ubuntu desktop system already be installed.</p>
 EOF
 			;;
 		dvd)
@@ -457,7 +469,7 @@ cat <<EOF >> "$HEADER"
 EOF
 
 cdtypecount=0
-for cdtype in live desktop server install alternate serveraddon dvd src; do
+for cdtype in live desktop server install alternate serveraddon addon dvd src; do
 	if find "$DIR/" -follow -maxdepth 1 -type f -name "$CDPREFIX-$cdtype-*.list" | grep . >/dev/null; then
 		cdtypecount="$(($cdtypecount + 1))"
 	fi
@@ -472,7 +484,7 @@ fi
 
 foundtorrent=0
 
-for cdtype in live desktop server install alternate serveraddon dvd src; do
+for cdtype in live desktop server install alternate serveraddon addon dvd src; do
 	if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$CDPREFIX-$cdtype-*.list" | grep . >/dev/null; then
 		continue
 	fi

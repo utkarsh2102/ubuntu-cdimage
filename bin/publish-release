@@ -236,6 +236,7 @@ for arch in $ARCHES; do
 
 	if [ "$TYPE" = install ] || [ "$TYPE" = alternate ] || \
 	   [ "$TYPE" = server ] || [ "$TYPE" = serveraddon ] || \
+	   [ "$TYPE" = addon ] || \
 	   [ "$TYPE" = src ]; then
 		if [ -e "$DAILY/$DIST-$TYPE-$arch.jigdo" ] && \
 		   [ -e "$DAILY/$DIST-$TYPE-$arch.template" ]; then
