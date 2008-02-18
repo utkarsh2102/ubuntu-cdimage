@@ -97,16 +97,10 @@ for arch in $ARCHES; do
 				esac
 				;;
 		esac
-		case $seed in
-			# All possible per-derivative tasks should be listed
-			# here. TODO: this is a hack; we should look in the
-			# seeds for the Task-Per-Derivative flag instead.
-			base|desktop|server|ship|audio|audio-plugins|graphics|video)
-				task="${PROJECT%%-*}-$seed"
-				;;
-			minimal|standard)
-				case $DIST in
-					warty|hoary|breezy|dapper)
+		case $DIST in
+			warty|hoary|breezy|dapper)
+				case $seed in
+					base|minimal|standard|desktop|server|ship)
 						task="${PROJECT%%-*}-$seed"
 						;;
 					*)
@@ -115,7 +109,11 @@ for arch in $ARCHES; do
 				esac
 				;;
 			*)
-				task="$seed"
+				if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$seed.seedtext"; then
+					task="${PROJECT%%-*}-$seed"
+				else
+					task="$seed"
+				fi
 				;;
 		esac
 		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
