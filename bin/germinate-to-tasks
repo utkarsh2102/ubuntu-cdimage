@@ -109,6 +109,16 @@ for arch in $ARCHES; do
 				esac
 				;;
 			*)
+				# TODO: hack around lack of proper seed/task
+				# mapping
+				case $seed in
+					required)
+						task=minimal
+						;;
+					desktop-common|desktop-kubuntu-common)
+						task=desktop
+						;;
+				esac
 				if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$seed.seedtext"; then
 					task="${PROJECT%%-*}-$seed"
 				else
