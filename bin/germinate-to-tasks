@@ -118,11 +118,12 @@ for arch in $ARCHES; do
 					desktop-common|desktop-kubuntu-common)
 						task=desktop
 						;;
+					*)
+						task="$seed"
+						;;
 				esac
-				if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$seed.seedtext"; then
-					task="${PROJECT%%-*}-$seed"
-				else
-					task="$seed"
+				if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext"; then
+					task="${PROJECT%%-*}-$task"
 				fi
 				;;
 		esac
