@@ -18,6 +18,16 @@ IMAGE_TYPE="$1"
 
 mkemptydir "$TASKS_OUT/$DIST"
 
+# ubuntu-server really wants ubuntu-* tasks.
+case $PROJECT in
+	ubuntu-server)
+		TASKPROJECT=ubuntu
+		;;
+	*)
+		TASKPROJECT="$PROJECT"
+		;;
+esac
+
 # Hackily exclude kernel-image-* from the installer and casper tasks. Those
 # udebs only exist to satisfy dependencies when building the
 # debian-installer package.
@@ -101,7 +111,7 @@ for arch in $ARCHES; do
 			warty|hoary|breezy|dapper)
 				case $seed in
 					base|minimal|standard|desktop|server|ship)
-						task="${PROJECT%%-*}-$seed"
+						task="$TASKPROJECT-$seed"
 						;;
 					*)
 						task="$seed"
@@ -123,7 +133,7 @@ for arch in $ARCHES; do
 						;;
 				esac
 				if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext"; then
-					task="${PROJECT%%-*}-$task"
+					task="$TASKPROJECT-$task"
 				fi
 				;;
 		esac
