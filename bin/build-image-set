@@ -71,6 +71,9 @@ case $PROJECT in
 	ubuntustudio)
 		export CDIMAGE_UNSUPPORTED=1
 		;;
+	mythbuntu)
+		export CDIMAGE_UNSUPPORTED=1
+		;;
 esac
 
 if [ "$CDIMAGE_INSTALL" ]; then
