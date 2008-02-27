@@ -41,11 +41,9 @@ for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
 done
 
 # germinate doesn't yet support subarchitecture specifications, so we need
-# to hack the boot and installer seeds a bit for powerpc+ps3.
+# to hack the boot and installer seeds a bit for powerpc+ps3 (only gutsy).
 case $DIST in
-	warty|hoary|breezy|dapper|edgy|feisty)
-		;;
-	*)
+	gutsy)
 		for arch in $ARCHES; do
 			[ "$arch" = powerpc+ps3 ] || continue
 			for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do

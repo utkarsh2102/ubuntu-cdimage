@@ -52,11 +52,11 @@ case $CPUARCH in
 		case $SUBARCH in
 			ps3)
 				case $DIST in
-					warty|hoary|breezy|dapper|edgy|feisty)
-						FLAVOURS='powerpc powerpc64-smp'
+					gutsy)
+						FLAVOURS=cell
 						;;
 					*)
-						FLAVOURS=cell
+						FLAVOURS='powerpc powerpc64-smp'
 						;;
 				esac
 				;;
