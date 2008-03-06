@@ -116,8 +116,11 @@ cdtypedesc () {
 				warty|hoary|breezy|dapper|edgy|feisty)
 					DESKTOP_RAM=256
 					;;
-				*)
+				gutsy)
 					DESKTOP_RAM=320
+					;;
+				*)
+					DESKTOP_RAM=384
 					;;
 			esac
 			;;
