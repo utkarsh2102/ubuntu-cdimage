@@ -91,6 +91,15 @@ case $ARCH in
 		LIVEPROJECT="$LIVEPROJECT-$SUBARCH"
 		;;
 esac
+if [ "$CDIMAGE_DVD" ]; then
+	case $DIST in
+		warty|hoary|breezy|dapper|edgy|feisty|gutsy)
+			;;
+		*)
+			LIVEPROJECT="$LIVEPROJECT-dvd"
+			;;
+	esac
+fi
 
 case $ITEM in
 	cloop|squashfs|manifest|manifest-desktop)
