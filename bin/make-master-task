@@ -16,7 +16,7 @@ if [ "$CDIMAGE_ADDON" ]; then
 else
 	SEEDS="$(list-seeds "$STRUCTURE" installer)"
 	if [ "$CDIMAGE_DVD" ]; then
-		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" all | egrep -v '^(installer|casper)$' || true)"
+		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" dvd | egrep -v '^(installer|casper)$' || true)"
 	elif [ "$CDIMAGE_INSTALL" ]; then
 		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" tasks)"
 	else
