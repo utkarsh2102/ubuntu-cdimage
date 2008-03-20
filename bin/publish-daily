@@ -25,11 +25,9 @@ BRITNEY_REPORT="$CDIMAGE_ROOT/britney/report/$PROJECT/$IMAGE_TYPE"
 case $PROJECT in
 	ubuntu)
 		FULL_TREE=full
-		TORRENT_TREE=torrent
 		;;
 	*)
 		FULL_TREE="full/$PROJECT"
-		TORRENT_TREE="torrent/$PROJECT"
 		;;
 esac
 
@@ -124,12 +122,6 @@ if [ -d "$PUBLISH/source" ]; then
 	> "$PUBLISH/source/MD5SUMS"
 fi
 
-if [ "$PUBLISH" ]; then
-	mkemptydir "$CDIMAGE_ROOT/www/$TORRENT_TREE/$IMAGE_TYPE_DIR"
-	TORRENTS="$CDIMAGE_ROOT/www/$TORRENT_TREE/$IMAGE_TYPE_DIR/$DATE"
-	mkemptydir "$TORRENTS"
-fi
-
 publish_binary () {
 	local TYPE="$1"
 	local arch="$2"
@@ -205,16 +197,6 @@ publish_binary () {
 		rm -f "$PUBLISH/$DIST-$TYPE-$arch".*
 	fi
 
-	if [ -d "$PUBLISH" ]; then
-		# Create and publish torrents.
-		make-torrents "$PUBLISH" "$DIST-$TYPE-$arch" cdimage.ubuntu.com
-		if [ -e "$PUBLISH/$DIST-$TYPE-$arch.iso" ]; then
-			ln -f "$PUBLISH/$DIST-$TYPE-$arch.iso" \
-				"$TORRENTS/$DIST-$TYPE-$arch.iso"
-			ln -f "$PUBLISH/$DIST-$TYPE-$arch.iso.torrent" \
-				"$TORRENTS/$DIST-$TYPE-$arch.iso.torrent"
-		fi
-	fi
 }
 
 for arch in $ARCHES; do
