@@ -69,6 +69,7 @@ if [ "$CDIMAGE_LIVE" ]; then
 					cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
 [autorun]
 open=umenu.exe
+icon=umenu.exe
 EOF
 				fi
 			fi
