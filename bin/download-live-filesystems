@@ -58,15 +58,27 @@ if [ "$CDIMAGE_LIVE" ]; then
 			"$LIVE_OUT/$arch.manifest-desktop" || true
 
 		if [ "$PROJECT" != livecd-base ]; then
-			fetch "$(find-live-filesystem "$arch" wubi-cdboot)" \
-				"$LIVE_OUT/$arch.wubi-cdboot.exe" || true
+			(export http_proxy=http://squid.internal:3128/;
+			fetch "$(find-live-filesystem "$arch" wubi)" \
+				"$LIVE_OUT/$arch.wubi.exe" || true)
+			if [ "$PROJECT" != edubuntu ]; then
+				(export http_proxy=http://squid.internal:3128/;
+				fetch "$(find-live-filesystem "$arch" umenu)" \
+					"$LIVE_OUT/$arch.umenu.exe" || true)
+				if [ -f "$LIVE_OUT/$arch.umenu.exe" ]; then
+					cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
+[autorun]
+open=umenu.exe
+EOF
+				fi
+			fi
 		fi
 	done
 fi
 
-# TheOpenCD goes on the amd64/i386 live CDs, and on the Edubuntu add-on CDs.
-if ([ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_INSTALL" ]) || \
-   ([ "$PROJECT" != edubuntu ] && [ "$CDIMAGE_LIVE" ]); then
+# TODO evand 2008-02-15: TheOpenCD goes on the Edubuntu add-on CDs until I can
+# confirm that Oliver wants umenu.
+if ([ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_INSTALL" ]); then
 	for arch in $CPUARCHES; do
 		if winfoss="$(find-live-filesystem "$arch" winfoss)"; then
 			fetch "$winfoss" "$LIVE_OUT/$arch.winfoss.tgz"
