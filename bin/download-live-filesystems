@@ -57,7 +57,7 @@ if [ "$CDIMAGE_LIVE" ]; then
 		fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
 			"$LIVE_OUT/$arch.manifest-desktop" || true
 
-		if [ "$PROJECT" != livecd-base ]; then
+		if [ "$PROJECT" != livecd-base ] && [ "$CDIMAGE_DVD" != 1 ]; then
 			(export http_proxy=http://squid.internal:3128/;
 			fetch "$(find-live-filesystem "$arch" wubi)" \
 				"$LIVE_OUT/$arch.wubi.exe" || true)
