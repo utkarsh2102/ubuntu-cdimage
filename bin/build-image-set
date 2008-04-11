@@ -26,10 +26,30 @@ pop_cleanup () {
 	esac
 }
 
+get_notify_addresses () {
+	[ -e "$CDIMAGE_ROOT/etc/notify-addresses" ] || return
+	while read project addresses; do
+		if [ "$project" = "$1" ]; then
+			echo "$addresses"
+			return
+		fi
+	done < "$CDIMAGE_ROOT/etc/notify-addresses"
+}
+
 cleanup () {
+	EXITCODE="$?"
 	while [ "$CLEANUP" != : ]; do
 		pop_cleanup
 	done
+	if [ -z "$DEBUG" ] && [ "$EXITCODE" != 0 ]; then
+		ADDRESSES="$(get_notify_addresses "$PROJECT")"
+		if [ "$ADDRESSES" ]; then
+			mail -s "CD image $PROJECT/$DIST/$IMAGE_TYPE failed to build on $CDIMAGE_DATE" \
+				-a 'X-Generated-By: build-image-set' \
+				$ADDRESSES \
+				<"$CDIMAGE_ROOT/log/$PROJECT/$DIST/$IMAGE_TYPE-$CDIMAGE_DATE.log"
+		fi
+	fi
 }
 
 trap cleanup EXIT HUP INT QUIT TERM
