@@ -41,7 +41,7 @@ case ${ARCH%%+*} in
 				;;
 		esac
 		;;
-	hppa|ia64)
+	hppa|ia64|lpia)
 		echo "$CDIMAGE_ROOT/ftp-ports"
 		;;
 	*)

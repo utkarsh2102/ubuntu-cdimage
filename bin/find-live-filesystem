@@ -27,7 +27,7 @@ case $CPUARCH in
 		LIVECD=http://castilla.buildd/~buildd/LiveCD
 		FLAVOURS='hppa32 hppa64'
 		;;
-	i386)
+	i386|lpia)
 		LIVECD=http://terranova.buildd/~buildd/LiveCD
 		case $DIST in
 			warty|hoary|breezy|dapper)
