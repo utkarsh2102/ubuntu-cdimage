@@ -152,6 +152,15 @@ if [ -z "$CDIMAGE_NOSYNC" ]; then
 							;;
 					esac
 					;;
+				*:sparc:*)
+					case $DIST in
+						dapper|edgy|feisty|gutsy)
+							;;
+						*)
+							ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
+							;;
+					esac
+					;;
 			esac
 		fi
 		pop_cleanup
