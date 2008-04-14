@@ -91,7 +91,7 @@ case $ARCH in
 		LIVEPROJECT="$LIVEPROJECT-$SUBARCH"
 		;;
 esac
-if [ "$CDIMAGE_DVD" ] && [ "$PROJECT" = ubuntu ]; then
+if [ "$CDIMAGE_DVD" ] && ([ "$PROJECT" = ubuntu ] || [ "$PROJECT" = kubuntu ]); then
 	case $DIST in
 		warty|hoary|breezy|dapper|edgy|feisty|gutsy)
 			;;
