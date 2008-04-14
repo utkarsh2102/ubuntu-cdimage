@@ -7,8 +7,11 @@ case $PROJECT in
 			warty|hoary|breezy|dapper|edgy)
 				export ARCHES="${ARCHES:-amd64 i386 powerpc sparc}"
 				;;
-			*)
+			feisty|gutsy)
 				export ARCHES="${ARCHES:-amd64 i386 sparc}"
+				;;
+			*)
+				export ARCHES="${ARCHES:-amd64 i386}"
 				;;
 		esac
 		;;
