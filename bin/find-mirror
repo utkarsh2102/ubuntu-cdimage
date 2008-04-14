@@ -16,8 +16,30 @@ if [ "$CDIMAGE_UNSUPPORTED" ]; then
 fi
 
 case ${ARCH%%+*} in
-	amd64|i386|powerpc|sparc)
+	amd64|i386)
 		echo "$CDIMAGE_ROOT/ftp"
+		;;
+	powerpc)
+		# https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/000098.html
+		case $DIST in
+			warty|hoary|breezy|dapper|edgy)
+				echo "$CDIMAGE_ROOT/ftp"
+				;;
+			*)
+				echo "$CDIMAGE_ROOT/ftp-ports"
+				;;
+		esac
+		;;
+	sparc)
+		# https://lists.ubuntu.com/archives/ubuntu-devel-announce/2008-March/000400.html
+		case $DIST in
+			dapper|edgy|feisty|gutsy)
+				echo "$CDIMAGE_ROOT/ftp"
+				;;
+			*)
+				echo "$CDIMAGE_ROOT/ftp-ports"
+				;;
+		esac
 		;;
 	hppa|ia64)
 		echo "$CDIMAGE_ROOT/ftp-ports"
