@@ -122,6 +122,8 @@ if [ -d "$PUBLISH/source" ]; then
 	> "$PUBLISH/source/MD5SUMS"
 fi
 
+IMAGES_PUBLISHED=false
+
 publish_binary () {
 	local TYPE="$1"
 	local arch="$2"
@@ -192,6 +194,8 @@ publish_binary () {
 		else
 			rm -f "$PUBLISH/$DIST-$TYPE-$arch.OVERSIZED"
 		fi
+
+		IMAGES_PUBLISHED=:
 	else
 		echo "No $TYPE CD for $arch!" >&2
 		rm -f "$PUBLISH/$DIST-$TYPE-$arch".*
@@ -236,6 +240,8 @@ while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
 		      "$PUBLISH/source/$DIST-src-$i.template"
 	fi
 
+	IMAGES_PUBLISHED=:
+
 	i="$(($i + 1))"
 done
 # If the number of source CDs has decreased since the last build, make sure
@@ -247,7 +253,7 @@ if [ "$i" != 1 ]; then
 	done
 fi
 
-if [ -d "$PUBLISH" ]; then
+if $IMAGES_PUBLISHED; then
 	rm -f "$PUBLISH/report.html"
 	if [ "$CDIMAGE_INSTALL_BASE" ] && [ -e "$BRITNEY_REPORT/${DIST}_probs.html" ]; then
 		cp -a "$BRITNEY_REPORT/${DIST}_probs.html" "$PUBLISH/report.html"
