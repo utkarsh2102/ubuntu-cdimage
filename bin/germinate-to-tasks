@@ -130,7 +130,8 @@ for arch in $ARCHES; do
 						task="$seed"
 						;;
 				esac
-				if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext"; then
+				if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext" || \
+				   ! grep -iq '^Task-.*:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext"; then
 					task="$TASKPROJECT-$task"
 				fi
 				;;
