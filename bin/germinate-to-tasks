@@ -7,14 +7,14 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 . "$CDIMAGE_ROOT/bin/functions.sh"
 
-GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
-TASKS_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tasks"
-
 if [ -z "$1" ]; then
 	echo 'Usage: germinate-to-tasks IMAGE_TYPE' >&2
 	exit 1
 fi
 IMAGE_TYPE="$1"
+
+GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
+TASKS_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tasks"
 
 mkemptydir "$TASKS_OUT/$DIST"
 

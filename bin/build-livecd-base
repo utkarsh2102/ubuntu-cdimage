@@ -12,6 +12,7 @@ export CDIMAGE_LIVE=1
 
 # This is a special case; don't use for-project.
 export PROJECT=livecd-base
+export IMAGE_TYPE=livecd-base
 
 if ! lockfile -l 7200 -r 0 "$CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IMAGE_TYPE"; then
 	echo "Another image set is already building!" >&2
@@ -19,7 +20,6 @@ if ! lockfile -l 7200 -r 0 "$CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IM
 fi
 trap "rm -f $CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IMAGE_TYPE" EXIT HUP INT QUIT TERM
 
-export IMAGE_TYPE=livecd-base
 export CDIMAGE_DATE="$(next-build-date "$IMAGE_TYPE")"
 
 if [ -z "$DEBUG" ]; then

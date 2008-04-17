@@ -5,8 +5,6 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 . "$CDIMAGE_ROOT/bin/functions.sh"
 
-LIVE="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live"
-
 if [ -z "$1" ]; then
 	echo 'Usage: publish-livecd-base DATE [IMAGE_TYPE]' >&2
 	exit 1
@@ -14,6 +12,8 @@ fi
 
 DATE="$1"
 IMAGE_TYPE="${2:-livecd-base}"
+
+LIVE="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live"
 
 PUBLISH="$CDIMAGE_ROOT/www/full/$IMAGE_TYPE/$DATE"
 
