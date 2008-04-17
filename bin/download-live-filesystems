@@ -57,21 +57,21 @@ if [ "$CDIMAGE_LIVE" ]; then
 		fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
 			"$LIVE_OUT/$arch.manifest-desktop" || true
 
-		if [ "$PROJECT" != livecd-base ] && [ "$CDIMAGE_DVD" != 1 ]; then
-			(export http_proxy=http://squid.internal:3128/;
-			fetch "$(find-live-filesystem "$arch" wubi)" \
-				"$LIVE_OUT/$arch.wubi.exe" || true)
-			if [ "$PROJECT" != edubuntu ]; then
+		if [ "$PROJECT" != livecd-base ] && [ "$PROJECT" != edubuntu ]; then
+			if [ "$CDIMAGE_DVD" != 1 ]; then
 				(export http_proxy=http://squid.internal:3128/;
-				fetch "$(find-live-filesystem "$arch" umenu)" \
-					"$LIVE_OUT/$arch.umenu.exe" || true)
-				if [ -f "$LIVE_OUT/$arch.umenu.exe" ]; then
-					cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
+				fetch "$(find-live-filesystem "$arch" wubi)" \
+					"$LIVE_OUT/$arch.wubi.exe" || true)
+			fi
+			(export http_proxy=http://squid.internal:3128/;
+			fetch "$(find-live-filesystem "$arch" umenu)" \
+				"$LIVE_OUT/$arch.umenu.exe" || true)
+			if [ -f "$LIVE_OUT/$arch.umenu.exe" ]; then
+				cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
 [autorun]
 open=umenu.exe
 icon=umenu.exe
 EOF
-				fi
 			fi
 		fi
 	done
