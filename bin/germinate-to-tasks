@@ -136,9 +136,23 @@ for arch in $ARCHES; do
 				fi
 				;;
 		esac
-		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
-			tail -n +3 | head -n -2 | cut -d' ' -f1 | \
-			sed "s/\$/ $task/"
+		tasks="$task"
+		case $PROJECT in
+			mythbuntu)
+				# TODO cjwatson 2008-04-17: nasty workaround
+				# for lack of proper task inheritance
+				case $seed in
+					desktop)
+						tasks="$tasks mythbuntu-backend-master mythbuntu-backend-slave mythbuntu-frontend"
+						;;
+				esac
+				;;
+		esac
+		for output_task in $tasks; do
+			< "$GERMINATE_OUT/$DIST/$arch/$seed" \
+				tail -n +3 | head -n -2 | cut -d' ' -f1 | \
+				sed "s/\$/ $output_task/"
+		done
 	done
 	if [ "$DIST" = breezy ]; then
 		exec >"$TASKS_OUT/$DIST/acsets.$arch"
