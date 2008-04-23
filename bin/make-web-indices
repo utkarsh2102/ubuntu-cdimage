@@ -420,6 +420,11 @@ case $DIST in
 	hardy)
 		distversion=8.04
 		distfullname='Hardy Heron'
+		case $PROJECT in
+			ubuntu|edubuntu|ubuntu-server)
+				distversion="$distversion LTS"
+				;;
+		esac
 		;;
 esac
 
