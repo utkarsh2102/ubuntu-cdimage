@@ -37,6 +37,10 @@ SOURCE="${SOURCE%/source}"
 
 # Publish ports/daily to ports/releases/..., etc.
 case $SOURCE in
+	ubuntu-server/*/*)
+		source_tail="${SOURCE#ubuntu-server/}"
+		TREE_SUFFIX="/${source_tail%%/*}"
+		;;
 	ubuntu-server/*)
 		TREE_SUFFIX=
 		;;
