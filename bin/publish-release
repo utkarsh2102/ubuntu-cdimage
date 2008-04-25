@@ -92,6 +92,9 @@ case $DIST in
 	hardy)
 		VERSION=8.04
 		;;
+	intrepid)
+		VERSION=8.10
+		;;
 	*)
 		echo "Unknown distribution: $DIST" >&2
 		exit 1

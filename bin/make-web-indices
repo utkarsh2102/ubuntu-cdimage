@@ -426,6 +426,10 @@ case $DIST in
 				;;
 		esac
 		;;
+	intrepid)
+		distversion=8.10
+		distfullname='Intrepid Ibex'
+		;;
 esac
 
 case $CDPREFIX in
