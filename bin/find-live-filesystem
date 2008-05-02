@@ -56,7 +56,7 @@ case $CPUARCH in
 				LIVECD=http://concordia.buildd/~buildd/LiveCD
 				;;
 		esac
-		FLAVOURS=generic
+		FLAVOURS=lpia
 		;;
 	powerpc)
 		LIVECD=http://royal.buildd/~buildd/LiveCD
