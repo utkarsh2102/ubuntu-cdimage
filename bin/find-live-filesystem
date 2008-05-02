@@ -27,7 +27,7 @@ case $CPUARCH in
 		LIVECD=http://castilla.buildd/~buildd/LiveCD
 		FLAVOURS='hppa32 hppa64'
 		;;
-	i386|lpia)
+	i386)
 		LIVECD=http://terranova.buildd/~buildd/LiveCD
 		case $DIST in
 			warty|hoary|breezy|dapper)
@@ -46,6 +46,17 @@ case $CPUARCH in
 				FLAVOURS='itanium mckinley'
 				;;
 		esac
+		;;
+	lpia)
+		case $DIST in
+			gutsy|hardy)
+				LIVECD=http://terranova.buildd/~buildd/LiveCD
+				;;
+			*)
+				LIVECD=http://concordia.buildd/~buildd/LiveCD
+				;;
+		esac
+		FLAVOURS=generic
 		;;
 	powerpc)
 		LIVECD=http://royal.buildd/~buildd/LiveCD
