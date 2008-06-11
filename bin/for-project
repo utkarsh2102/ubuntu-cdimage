@@ -38,7 +38,7 @@ case $1 in
 		;;
 	mythbuntu)
 		export PROJECT=mythbuntu
-		export CAPPROJECT=MythBuntu
+		export CAPPROJECT=Mythbuntu
 		;;
 	tocd3)
 		export PROJECT=tocd3
