@@ -47,6 +47,12 @@ case $PROJECT in
 		;;
 esac
 
+case $DIST in
+	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy)
+		FULL_TREE="$FULL_TREE/$DIST"
+		;;
+esac
+
 if ! cd "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR"; then
 	echo "No old images to purge"
 	exit 0
