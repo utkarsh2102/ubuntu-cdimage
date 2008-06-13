@@ -23,6 +23,8 @@ else
 fi
 if [ "$LOCAL_SEEDS" ]; then
 	SEED_SOURCE="$LOCAL_SEEDS"
+	# more likely to be useful in case local changes aren't committed
+	GERMINATE_BZR=
 fi
 
 case $DIST in
