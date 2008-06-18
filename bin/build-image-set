@@ -224,6 +224,13 @@ if [ -z "$GFXSPLASH" ]; then
 		export GFXSPLASH="$CDIMAGE_ROOT/debian-cd/data/$DIST/splash.pcx"
 	fi
 fi
+if [ -z "$SPLASHPNG" ]; then
+	if [ -e "$CDIMAGE_ROOT/debian-cd/data/$DIST/$PROJECT.png" ]; then
+		export SPLASHPNG="$CDIMAGE_ROOT/debian-cd/data/$DIST/$PROJECT.png"
+	else
+		export SPLASHPNG="$CDIMAGE_ROOT/debian-cd/data/$DIST/splash.png"
+	fi
+fi
 
 echo "===== Building $CAPPROJECT daily CDs ====="
 date
