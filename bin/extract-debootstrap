@@ -13,12 +13,12 @@ for fullarch in $ARCHES; do
 	mirror="$(find-mirror "$arch")"
 	udeb="$(zcat "$mirror/dists/$DIST/main/debian-installer/binary-$arch/Packages.gz" | grep-dctrl -nsFilename -PX debootstrap-udeb)"
 	case "$DIST" in
-	hardy)
-		debootstrap_script="./usr/share/debootstrap/scripts/$DIST"
-		;;
-	*)
-		debootstrap_script="./usr/lib/debootstrap/scripts/$DIST"
-		;;
+		warty|hoary|breezy|dapper|edgy|feisty|gutsy)
+			debootstrap_script="./usr/lib/debootstrap/scripts/$DIST"
+			;;
+		*)
+			debootstrap_script="./usr/share/debootstrap/scripts/$DIST"
+			;;
 	esac
 	if [ -f "$mirror/$udeb" ]; then
 		dpkg --fsys-tarfile "$mirror/$udeb" | \
