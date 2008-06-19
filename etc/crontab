@@ -3,7 +3,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/bin:/bin
 # CD image cron jobs, run out of cdimage's crontab.
 31 7 * * *	for-project ubuntu cron.daily; for-project ubuntu cron.daily-live
 17 12 * * 2,6	for-project ubuntu cron.dvd
-25 3 * * *	for-project kubuntu-kde4 cron.daily; for-project kubuntu-kde4 cron.daily-live
 14 5 * * *	for-project kubuntu cron.daily; for-project kubuntu cron.daily-live
 47 20 * * 1,5	for-project kubuntu cron.dvd
 32 2 * * *	for-project ubuntu cron.ports_daily; for-project ubuntu cron.ports_daily-live
