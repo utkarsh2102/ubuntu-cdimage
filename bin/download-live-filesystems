@@ -75,7 +75,7 @@ EOF
 		fi
 	done
 	if [ "$GOT_IMAGE" = 0 ]; then
-		echo "No filesystem images found."
+		echo "No filesystem images found." >&2
 		exit 1
 	fi
 fi
