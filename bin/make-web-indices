@@ -270,6 +270,9 @@ archstr () {
 		ia64)
 			echo 'IA-64'
 			;;
+		lpia)
+			echo 'Low-Power Intel Architecture'
+			;;
 		powerpc)
 			echo 'Mac (PowerPC) and IBM-PPC (POWER5)'
 			;;
@@ -311,6 +314,11 @@ EOF
 		ia64)
 			cat <<EOF
 For Intel Itanium and Itanium 2 computers.
+EOF
+			;;
+		lpia)
+			cat <<EOF
+For Low-Power Intel Architecture computers, as used in Ubuntu Mobile systems.
 EOF
 			;;
 		powerpc)
@@ -508,7 +516,7 @@ for cdtype in live desktop server install alternate serveraddon addon dvd src; d
 				  sed "s/$CDPREFIX-$cdtype-\\(.*\\)\\.iso/\\1/")"
 			;;
 		*)
-			arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3'
+			arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3 lpia'
 			;;
 	esac
 
