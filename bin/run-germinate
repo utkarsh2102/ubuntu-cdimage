@@ -17,6 +17,15 @@ if [ "$GERMINATE_BZR" ]; then
 		mythbuntu)
 			SEED_SOURCE="http://bazaar.launchpad.net/~mythbuntu/ubuntu-seeds/,$SEED_SOURCE"
 			;;
+		xubuntu)
+			case $DIST in
+				dapper|edgy|feisty|gutsy|hardy)
+					;;
+				*)
+					SEED_SOURCE="http://bazaar.launchpad.net/~xubuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
+					;;
+			esac
+			;;
 	esac
 else
 	SEED_SOURCE=http://people.ubuntu.com/~ubuntu-archive/seeds/
