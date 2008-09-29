@@ -14,16 +14,17 @@ for fullarch in $ARCHES; do
 	udeb="$(zcat "$mirror/dists/$DIST/main/debian-installer/binary-$arch/Packages.gz" | grep-dctrl -nsFilename -PX debootstrap-udeb)"
 	case "$DIST" in
 		warty|hoary|breezy|dapper|edgy|feisty|gutsy)
-			debootstrap_script="./usr/lib/debootstrap/scripts/$DIST"
+			debootstrap_script="usr/lib/debootstrap/scripts/$DIST"
 			;;
 		*)
-			debootstrap_script="./usr/share/debootstrap/scripts/$DIST"
+			debootstrap_script="usr/share/debootstrap/scripts/$DIST"
 			;;
 	esac
 	if [ -f "$mirror/$udeb" ]; then
-		dpkg --fsys-tarfile "$mirror/$udeb" | \
-			tar -xOf - "$debootstrap_script" \
-			> "$DEBOOTSTRAP_OUT/$DIST-$fullarch"
+		rm -rf "$DEBOOTSTRAP_OUT/unpack-$fullarch"
+		dpkg -x "$mirror/$udeb" "$DEBOOTSTRAP_OUT/unpack-$fullarch"
+		cp -p "$DEBOOTSTRAP_OUT/unpack-$fullarch/$debootstrap_script" \
+			"$DEBOOTSTRAP_OUT/$DIST-$fullarch"
 	else
 		echo "No debootstrap-udeb for $DIST/$arch!" >&2
 	fi
