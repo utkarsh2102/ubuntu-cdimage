@@ -5,12 +5,15 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: make-web-indices DIR CDPREFIX' >&2
+	echo 'Usage: make-web-indices DIR CDPREFIX [STATUS]' >&2
+	echo 'STATUS=daily for daily builds, release for release builds;' >&2
+	echo 'default is release.' >&2
 	exit 1
 fi
 
 DIR="$1"
 CDPREFIX="$2"
+STATUS="${3:-release}"
 
 HEADER="$DIR/HEADER.html"
 FOOTER="$DIR/FOOTER.html"
@@ -358,6 +361,17 @@ EOF
 	esac
 }
 
+maybe_oversized () {
+	if [ "$STATUS" = daily ] && [ -e "$1" ]; then
+		cat <<EOF
+<br>
+<span class="urgent">Warning: This image is oversized (which is a bug) and
+will not fit onto a standard 700MB CD. However, you may still test it using
+a DVD or a virtual machine.</span>
+EOF
+	fi
+}
+
 extensionstr () {
 	case $1 in
 		iso)
@@ -584,7 +598,7 @@ EOF
 		if [ "$cdtype" != src ]; then
 			cat <<EOF >> "$HEADER"
 
-<dd>$(archdesc "$arch" "$cdtype")</dd>
+<dd>$(archdesc "$arch" "$cdtype")$(maybe_oversized "$DIR/$CDPREFIX-$cdtype-$arch.OVERSIZED")</dd>
 
 EOF
 		fi

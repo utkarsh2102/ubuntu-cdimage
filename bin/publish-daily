@@ -270,7 +270,7 @@ if $IMAGES_PUBLISHED; then
 	if [ -d "$PUBLISH/source" ]; then
 		sign-cdimage "$PUBLISH/source/MD5SUMS"
 	fi
-	make-web-indices "$PUBLISH" "$DIST"
+	make-web-indices "$PUBLISH" "$DIST" daily
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
 else
 	echo "No CDs produced!" >&2
