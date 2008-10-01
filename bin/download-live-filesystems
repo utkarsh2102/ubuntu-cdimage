@@ -80,12 +80,14 @@ EOF
 	fi
 fi
 
-# TODO evand 2008-02-15: TheOpenCD goes on the Edubuntu add-on CDs until I can
-# confirm that Oliver wants umenu.
 if ([ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_INSTALL" ]); then
-	for arch in $CPUARCHES; do
-		if winfoss="$(find-live-filesystem "$arch" winfoss)"; then
-			fetch "$winfoss" "$LIVE_OUT/$arch.winfoss.tgz"
-		fi
-	done
+	case $DIST in
+		warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy)
+			for arch in $CPUARCHES; do
+				if winfoss="$(find-live-filesystem "$arch" winfoss)"; then
+					fetch "$winfoss" "$LIVE_OUT/$arch.winfoss.tgz"
+				fi
+			done
+			;;
+	esac
 fi
