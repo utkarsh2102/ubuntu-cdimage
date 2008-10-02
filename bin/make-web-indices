@@ -119,8 +119,11 @@ cdtypedesc () {
 				gutsy)
 					DESKTOP_RAM=320
 					;;
-				*)
+				hardy)
 					DESKTOP_RAM=384
+					;;					
+				*)
+					DESKTOP_RAM=256
 					;;
 			esac
 			;;
