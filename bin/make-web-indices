@@ -623,13 +623,29 @@ cat <<EOF > "$FOOTER"
 </div></body></html>
 EOF
 
-if [ "$PROJECT" = kubuntu ]; then
-	CDICONS=/cdicons/kubuntu-
-elif [ "$PROJECT" = kubuntu-kde4 ]; then
-	CDICONS=/cdicons/kubuntu-
-else
-	CDICONS=/cdicons/
-fi
+# we may not be mirrored to the webserver root, so calculate a relative
+# path for the icons
+CDICONS=cdicons/
+RELDIR="$(readlink -f "$DIR")"
+while [ -n "$RELDIR" ]; do
+	DIRPART=${RELDIR##*/}
+	RELDIR=${RELDIR%/*}
+	if [ -z "$DIRPART" ]; then
+		continue
+	fi
+	if [ "$DIRPART" = "full" ] || [ "$DIRPART" = "simple" ]; then
+		break
+	fi
+	CDICONS="../$CDICONS"
+done
+
+case "$PROJECT" in
+	kubuntu*)
+		CDICONS="${CDICONS}kubuntu-"
+		;;
+	*)
+		;;
+esac
 
 cat <<EOF >> "$HTACCESS"
 
