@@ -27,4 +27,4 @@ done
 mkemptydir "$BRITNEY/report/$PROJECT/$IMAGE_TYPE"
 # Sometimes this inexplicably hangs on a futex. We'll give it thirty seconds
 # and then kill it.
-kill-after 30 "$BRITNEY/rptprobs.sh" "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST" "$BRITNEY/report/$PROJECT/$IMAGE_TYPE/${DIST}_probs.html" "$CAPPROJECT $DIST"
+kill-after 30 "$BRITNEY/rptprobs.sh" "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST" "$BRITNEY/report/$PROJECT/$IMAGE_TYPE/${DIST}_probs.html" "$CAPPROJECT $DIST" || true
