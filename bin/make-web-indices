@@ -383,7 +383,7 @@ mimetypestr () {
 extensionstr () {
 	case $1 in
 		img)
-			echo 'installable USB image'
+			echo 'USB image'
 			;;
 		iso)
 			echo 'standard download'
