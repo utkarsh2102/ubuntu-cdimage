@@ -371,8 +371,20 @@ EOF
 	fi
 }
 
+# Some MIME types aren't configured by default.
+mimetypestr () {
+	case $1 in
+		img)
+			echo application/octet-stream
+			;;
+	esac
+}
+
 extensionstr () {
 	case $1 in
+		img)
+			echo 'installable USB image'
+			;;
 		iso)
 			echo 'standard download'
 			;;
@@ -602,7 +614,7 @@ EOF
 EOF
 		fi
 
-		for extension in iso.torrent iso jigdo list manifest manifest-desktop template; do
+		for extension in img iso.torrent iso jigdo list manifest manifest-desktop template; do
 			if ! [ -e "$DIR/$CDPREFIX-$cdtype-$arch.$extension" ]; then
 				continue
 			fi
@@ -661,3 +673,11 @@ AddIcon ${CDICONS}jigdo.png .jigdo .template
 AddIcon ${CDICONS}list.png .list .manifest .html MD5SUMS MD5SUMS.gpg
 AddIcon ${CDICONS}torrent.png .torrent
 EOF
+
+for extension in img iso.torrent iso jigdo list manifest manifest-desktop template; do
+	mimetype="$(mimetypestr "$extension")"
+	if [ "$mimetype" ] && \
+	   find "$DIR/" -follow -maxdepth 1 -type f -name "*.$extension" | grep . >/dev/null; then
+		echo "AddType $mimetype .$extension" >> "$HTACCESS"
+	fi
+done
