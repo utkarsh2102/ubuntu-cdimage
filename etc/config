@@ -13,7 +13,7 @@ case $DIST in
 	warty|hoary|breezy|dapper|edgy)
 		ARCHES="${ARCHES:-amd64 i386 powerpc}"
 		;;
-	feisty|gutsy|hardy|intrepid)
+	feisty|gutsy|hardy|intrepid|jaunty)
 		ARCHES="${ARCHES:-amd64 i386}"
 		;;
 esac

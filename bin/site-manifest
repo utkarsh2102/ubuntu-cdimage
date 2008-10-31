@@ -41,6 +41,7 @@ file_to_manifest () {
 		7.10*)	dist=gutsy ;;
 		8.04*)	dist=hardy ;;
 		8.10*)	dist=intrepid ;;
+		9.04*)	dist=jaunty ;;
 		*)
 			echo "Unknown version: $version" >&2
 			return

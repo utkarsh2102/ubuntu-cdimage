@@ -190,7 +190,7 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					gutsy|hardy|intrepid)
+					gutsy|hardy|intrepid|jaunty)
 						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/ubuntu/current/ubuntu-winfoss-7.10.tar.gz
@@ -245,7 +245,7 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					gutsy|hardy|intrepid)
+					gutsy|hardy|intrepid|jaunty)
 						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/kubuntu/current/kubuntu-winfoss-7.10.tar.gz
@@ -265,7 +265,7 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					gutsy|hardy|intrepid)
+					gutsy|hardy|intrepid|jaunty)
 						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/edubuntu/current/edubuntu-winfoss-7.10.tar.gz
