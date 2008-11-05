@@ -5,12 +5,15 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: make-web-indices DIR CDPREFIX' >&2
+	echo 'Usage: make-web-indices DIR CDPREFIX [STATUS]' >&2
+	echo 'STATUS=daily for daily builds, release for release builds;' >&2
+	echo 'default is release.' >&2
 	exit 1
 fi
 
 DIR="$1"
 CDPREFIX="$2"
+STATUS="${3:-release}"
 
 HEADER="$DIR/HEADER.html"
 FOOTER="$DIR/FOOTER.html"
@@ -179,7 +182,6 @@ EOF
 installations of $CAPPROJECT. It provides for the following situations:</p>
 
 <ul>
-<li>creating pre-configured OEM systems;
 <li>setting up automated deployments;
 <li>upgrading from older installations without network access;
 <li>LVM and/or RAID partitioning;
@@ -273,6 +275,9 @@ archstr () {
 		ia64)
 			echo 'IA-64'
 			;;
+		lpia)
+			echo 'Low-Power Intel Architecture'
+			;;
 		powerpc)
 			echo 'Mac (PowerPC) and IBM-PPC (POWER5)'
 			;;
@@ -316,6 +321,11 @@ EOF
 For Intel Itanium and Itanium 2 computers.
 EOF
 			;;
+		lpia)
+			cat <<EOF
+For Low-Power Intel Architecture computers, as used in Ubuntu Mobile systems.
+EOF
+			;;
 		powerpc)
 			cat <<EOF
 For Apple Macintosh G3, G4, and G5 computers, including iBooks and
@@ -353,8 +363,31 @@ EOF
 	esac
 }
 
+maybe_oversized () {
+	if [ "$STATUS" = daily ] && [ -e "$1" ]; then
+		cat <<EOF
+<br>
+<span class="urgent">Warning: This image is oversized (which is a bug) and
+will not fit onto a standard 700MB CD. However, you may still test it using
+a DVD, a USB drive, or a virtual machine.</span>
+EOF
+	fi
+}
+
+# Some MIME types aren't configured by default.
+mimetypestr () {
+	case $1 in
+		img)
+			echo application/octet-stream
+			;;
+	esac
+}
+
 extensionstr () {
 	case $1 in
+		img)
+			echo 'USB image'
+			;;
 		iso)
 			echo 'standard download'
 			;;
@@ -432,6 +465,10 @@ case $DIST in
 	intrepid)
 		distversion=8.10
 		distfullname='Intrepid Ibex'
+		;;
+	jaunty)
+		distversion=9.04
+		distfullname='Jaunty Jackalope'
 		;;
 esac
 
@@ -511,7 +548,7 @@ for cdtype in live desktop server install alternate serveraddon addon dvd src; d
 				  sed "s/$CDPREFIX-$cdtype-\\(.*\\)\\.iso/\\1/")"
 			;;
 		*)
-			arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3'
+			arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3 lpia'
 			;;
 	esac
 
@@ -579,12 +616,12 @@ EOF
 		if [ "$cdtype" != src ]; then
 			cat <<EOF >> "$HEADER"
 
-<dd>$(archdesc "$arch" "$cdtype")</dd>
+<dd>$(archdesc "$arch" "$cdtype")$(maybe_oversized "$DIR/$CDPREFIX-$cdtype-$arch.OVERSIZED")</dd>
 
 EOF
 		fi
 
-		for extension in iso.torrent iso jigdo list manifest manifest-desktop template; do
+		for extension in img iso.torrent iso jigdo list manifest manifest-desktop template; do
 			if ! [ -e "$DIR/$CDPREFIX-$cdtype-$arch.$extension" ]; then
 				continue
 			fi
@@ -614,8 +651,8 @@ EOF
 fi
 
 cat <<EOF >> "$HEADER"
-<p>If you need help burning these images to disk, see
-<a href="http://wiki.ubuntu.com/BurningIsoHowto">this guide</a>.</p>
+<p>If you need help burning these images to disk, see the
+<a href="https://help.ubuntu.com/community/BurningIsoHowto">CD Burning Guide</a>.</p>
 
 EOF
 
@@ -659,3 +696,11 @@ AddIcon ${CDICONS}jigdo.png .jigdo .template
 AddIcon ${CDICONS}list.png .list .manifest .html MD5SUMS MD5SUMS.gpg
 AddIcon ${CDICONS}torrent.png .torrent
 EOF
+
+for extension in img iso.torrent iso jigdo list manifest manifest-desktop template; do
+	mimetype="$(mimetypestr "$extension")"
+	if [ "$mimetype" ] && \
+	   find "$DIR/" -follow -maxdepth 1 -type f -name "*.$extension" | grep . >/dev/null; then
+		echo "AddType $mimetype .$extension" >> "$HTACCESS"
+	fi
+done

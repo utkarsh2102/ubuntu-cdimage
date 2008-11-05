@@ -42,7 +42,7 @@ cleanup () {
 	while [ "$CLEANUP" != : ]; do
 		pop_cleanup
 	done
-	if [ -z "$DEBUG" ] && [ "$EXITCODE" != 0 ]; then
+	if [ "$CDIMAGE_DATE" ] && [ -z "$DEBUG" ] && [ "$EXITCODE" != 0 ]; then
 		ADDRESSES="$(get_notify_addresses "$PROJECT")"
 		if [ "$ADDRESSES" ]; then
 			mail -s "CD image $PROJECT/$DIST/$IMAGE_TYPE failed to build on $CDIMAGE_DATE" \
