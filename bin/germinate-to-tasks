@@ -28,15 +28,29 @@ case $PROJECT in
 		;;
 esac
 
+for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
+	if [ "$seed" = supported ]; then
+		seedsource="$seed+build-depends"
+	else
+		seedsource="$seed"
+	fi
+	for arch in $ARCHES; do
+		[ -e "$GERMINATE_OUT/$DIST/$arch/$seedsource" ] || continue
+		< "$GERMINATE_OUT/$DIST/$arch/$seedsource" \
+			tail -n +3 | head -n -2 | cut -d' ' -f1 \
+			> "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages"
+	done
+done
+
 # Hackily exclude kernel-image-* from the installer and casper tasks. Those
 # udebs only exist to satisfy dependencies when building the
 # debian-installer package.
 for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
 	for arch in $ARCHES; do
-		grep -v ^kernel-image- "$GERMINATE_OUT/$DIST/$arch/$seed" \
-			> "$GERMINATE_OUT/$DIST/$arch/$seed.new"
-		mv "$GERMINATE_OUT/$DIST/$arch/$seed.new" \
-			"$GERMINATE_OUT/$DIST/$arch/$seed"
+		grep -v ^kernel-image- "$GERMINATE_OUT/$DIST/$arch/$seed.packages" \
+			> "$GERMINATE_OUT/$DIST/$arch/$seed.packages.new"
+		mv "$GERMINATE_OUT/$DIST/$arch/$seed.packages.new" \
+			"$GERMINATE_OUT/$DIST/$arch/$seed.packages"
 	done
 done
 
@@ -48,10 +62,75 @@ case $DIST in
 			[ "$arch" = powerpc+ps3 ] || continue
 			for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
 				sed -i '/-powerpc-di/d; s/-powerpc64-smp-di/-cell-di/g' \
-					"$GERMINATE_OUT/$DIST/$arch/$seed"
+					"$GERMINATE_OUT/$DIST/$arch/$seed.packages"
 			done
 			sed -i '/^linux-\(restricted\|ubuntu\)-modules/d; /^[^ ]*-powerpc /d; s/-powerpc64-smp/-cell/g' \
-				"$GERMINATE_OUT/$DIST/$arch/boot"
+				"$GERMINATE_OUT/$DIST/$arch/boot.packages"
+		done
+		;;
+esac
+
+initrd_packages () {
+	manifest="$(find-mirror $2)/dists/$DIST/main/installer-$2/current/images/MANIFEST.udebs"
+	[ "$manifest" ] || return
+	case $1 in
+		./*)
+			initrd="${1#./}"
+			;;
+		*)
+			initrd="$1"
+			;;
+	esac
+	INITRD="$initrd" perl -ne 'if (m[^$ENV{INITRD}].../^[^\s]/ and /^\s/) {
+		print((split)[0], "\n")
+	}' "$manifest" | sort -u
+}
+
+case $DIST in
+	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid)
+		;;
+	*)
+		# Remove installer packages that are in both the cdrom and
+		# netboot initrds; there's no point duplicating these.
+		for arch in $ARCHES; do
+			cpuarch="${arch%%+*}"
+			cdrom=
+			netboot=
+			subarches=.
+			case $cpuarch in
+				amd64|i386|lpia)
+					cdrom=cdrom/initrd.gz
+					netboot=netboot/netboot.tar.gz
+					;;
+				hppa)
+					cdrom=cdrom/2.6/initrd.gz
+					netboot=netboot/2.6/boot.img
+					;;
+				ia64)
+					cdrom=cdrom/boot.img
+					netboot=netboot/netboot.tar.gz
+					;;
+				powerpc)
+					cdrom=cdrom/initrd.gz
+					netboot=netboot/initrd.gz
+					subarches='powerpc powerpc64'
+					;;
+				sparc)
+					cdrom=cdrom/initrd.gz
+					netboot=netboot/initrd.gz
+					;;
+			esac
+			if [ "$cdrom" ] && [ "$netboot" ]; then
+				for subarch in $subarches; do
+					initrd_packages "$subarch/$cdrom" "$cpuarch" > "$GERMINATE_OUT/$DIST/$arch/installer.packages.cdrom"
+					initrd_packages "$subarch/$netboot" "$cpuarch" > "$GERMINATE_OUT/$DIST/$arch/installer.packages.netboot"
+					join "$GERMINATE_OUT/$DIST/$arch/installer.packages.cdrom" "$GERMINATE_OUT/$DIST/$arch/installer.packages.netboot" | \
+						join -v1 "$GERMINATE_OUT/$DIST/$arch/installer.packages" - \
+						> "$GERMINATE_OUT/$DIST/$arch/installer.packages.new"
+					mv "$GERMINATE_OUT/$DIST/$arch/installer.packages.new" \
+						"$GERMINATE_OUT/$DIST/$arch/installer.packages"
+				done
+			fi
 		done
 		;;
 esac
@@ -65,12 +144,11 @@ for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
 	fi
 	for arch in $ARCHES; do
 		cpparch="$(echo "$arch" | sed 's/+/_/g')"
-		echo "#ifdef ARCH_$cpparch"
-		if [ -e "$GERMINATE_OUT/$DIST/$arch/$seedsource" ]; then
-			< "$GERMINATE_OUT/$DIST/$arch/$seedsource" \
-				tail -n +3 | head -n -2 | cut -d' ' -f1
+		if [ -e "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages" ]; then
+			echo "#ifdef ARCH_$cpparch"
+			cat "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages"
+			echo "#endif /* ARCH_$cpparch */"
 		fi
-		echo "#endif /* ARCH_$cpparch */"
 	done
 done
 
@@ -154,9 +232,7 @@ for arch in $ARCHES; do
 				;;
 		esac
 		for input_seed in $input_seeds; do
-			< "$GERMINATE_OUT/$DIST/$arch/$input_seed" \
-				tail -n +3 | head -n -2 | cut -d' ' -f1 | \
-				sed "s/\$/ $task/"
+			sed "s/\$/ $task/" "$GERMINATE_OUT/$DIST/$arch/$input_seed.packages"
 		done
 	done
 	if [ "$DIST" = breezy ]; then
@@ -194,9 +270,8 @@ done
 for arch in $ARCHES; do
 	exec >"$TASKS_OUT/$DIST/important.$arch"
 	for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" debootstrap); do
-		< "$GERMINATE_OUT/$DIST/$arch/$seed" \
-			tail -n +3 | head -n -2 | cut -d' ' -f1 | \
-			egrep -v '^(linux-(image|restricted|amd64|386|686|k7|power|itanium|mckinley|sparc|hppa).*|nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$' || true
+		egrep -v '^(linux-(image|restricted|amd64|386|686|k7|power|itanium|mckinley|sparc|hppa).*|nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$' \
+			"$GERMINATE_OUT/$DIST/$arch/$seed.packages" || true
 	done
 done
 
