@@ -473,6 +473,9 @@ case $DIST in
 esac
 
 case $CDPREFIX in
+	*-alpha-*)
+		distextra=" Alpha ${CDPREFIX#*-alpha-}"
+		;;
 	*-preview)
 		distextra=' Preview'
 		;;
