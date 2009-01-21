@@ -347,6 +347,9 @@ case $ITEM in
 			warty|hoary|breezy|dapper|edgy|feisty|gutsy)
 				exit 1
 				;;
+			hardy)
+				echo http://people.ubuntu.com/~evand/umenu/umenu-8.04.2-rev32.exe
+				;;
 			*)
 				echo http://people.ubuntu.com/~evand/umenu/stable
 				;;
