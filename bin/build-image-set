@@ -140,7 +140,7 @@ if [ -z "$CDIMAGE_NOSYNC" ]; then
 			done
 		else
 			case :$ARCHES_COLONS: in
-				*:hppa:*|*:ia64:*)
+				*:hppa:*|*:ia64:*|*:lpia:*)
 					ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
 					;;
 				*:powerpc:*)

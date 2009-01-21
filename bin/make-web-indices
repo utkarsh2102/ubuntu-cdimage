@@ -323,7 +323,7 @@ EOF
 			;;
 		lpia)
 			cat <<EOF
-For Low-Power Intel Architecture computers, as used in Ubuntu Mobile systems.
+For devices using the Low-Power Intel Architecture, including the A1xx and Atom processors.
 EOF
 			;;
 		powerpc)
