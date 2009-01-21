@@ -23,6 +23,10 @@ case $CPUARCH in
 				FLAVOURS=generic ;;
 		esac
 		;;
+	armel)
+		LIVECD=http://manoao.buildd/~buildd/LiveCD
+		FLAVOURS=
+		;;
 	hppa)
 		LIVECD=http://castilla.buildd/~buildd/LiveCD
 		FLAVOURS='hppa32 hppa64'
