@@ -48,7 +48,7 @@ case $PROJECT in
 esac
 
 case $DIST in
-	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy)
+	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid)
 		FULL_TREE="$FULL_TREE/$DIST"
 		;;
 esac
