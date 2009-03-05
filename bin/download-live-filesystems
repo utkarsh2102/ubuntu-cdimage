@@ -59,19 +59,51 @@ if [ "$CDIMAGE_LIVE" ]; then
 			"$LIVE_OUT/$arch.manifest-desktop" || true
 
 		if [ "$PROJECT" != livecd-base ] && [ "$PROJECT" != edubuntu ]; then
-			if [ "$CDIMAGE_DVD" != 1 ]; then
-				(fetch "$(find-live-filesystem "$arch" wubi)" \
-					"$LIVE_OUT/$arch.wubi.exe" || true)
-			fi
-			(fetch "$(find-live-filesystem "$arch" umenu)" \
-				"$LIVE_OUT/$arch.umenu.exe" || true)
-			if [ -f "$LIVE_OUT/$arch.umenu.exe" ]; then
-				cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
-[autorun]
-open=umenu.exe
-icon=umenu.exe
+			case $DIST in
+				gutsy|hardy|intrepid)
+					if [ "$CDIMAGE_DVD" != 1 ]; then
+						(fetch "$(find-live-filesystem "$arch" wubi)" \
+						"$LIVE_OUT/$arch.wubi.exe" || true)
+					fi
+					(fetch "$(find-live-filesystem "$arch" umenu)" \
+					"$LIVE_OUT/$arch.umenu.exe" || true)
+					if [ -f "$LIVE_OUT/$arch.umenu.exe" ]; then
+						cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
+[autorun]\r
+open=umenu.exe\r
+icon=umenu.exe,0\r
+label=Install\r
+\r
+[Content]\r
+MusicFiles=false\r
+PictureFiles=false\r
+VideoFiles=false\r
 EOF
-			fi
+					fi
+					;;
+				*)
+					# TODO: We still have to do something
+					# about not including Wubi on the DVDs.
+					(fetch "$(find-live-filesystem "$arch" wubi)" \
+						"$LIVE_OUT/$arch.wubi.exe" || true)
+					if [ -f "$LIVE_OUT/$arch.wubi.exe" ]; then
+						# Nicely format the distribution name.
+						PROJ=$(echo "$PROJECT" | tr '-' ' ' | \
+							sed 's/\(\b[a-z]\)/\U\1/g' || echo "PROJECT")
+						cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
+[autorun]\r
+open=wubi.exe --cdmenu\r
+icon=wubi.exe,0\r
+label=Install $PROJ\r
+\r
+[Content]\r
+MusicFiles=false\r
+PictureFiles=false\r
+VideoFiles=false\r
+EOF
+					fi
+					;;
+			esac
 		fi
 	done
 	if [ "$GOT_IMAGE" = 0 ]; then

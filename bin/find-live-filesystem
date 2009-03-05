@@ -310,11 +310,8 @@ case $ITEM in
 			warty|hoary|breezy|dapper|edgy|feisty)
 				exit 1
 				;;
-			hardy)
-				echo http://people.ubuntu.com/~evand/wubi/Wubi-8.04.2.exe
-				;;
 			*)
-				echo http://people.ubuntu.com/~evand/wubi/stable
+				echo http://people.ubuntu.com/~evand/wubi/$DIST/stable
 				;;
 		esac
 		;;
