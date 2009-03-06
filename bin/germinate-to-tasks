@@ -124,11 +124,18 @@ case $DIST in
 				for subarch in $subarches; do
 					initrd_packages "$subarch/$cdrom" "$cpuarch" > "$GERMINATE_OUT/$DIST/$arch/installer.packages.cdrom"
 					initrd_packages "$subarch/$netboot" "$cpuarch" > "$GERMINATE_OUT/$DIST/$arch/installer.packages.netboot"
-					join "$GERMINATE_OUT/$DIST/$arch/installer.packages.cdrom" "$GERMINATE_OUT/$DIST/$arch/installer.packages.netboot" | \
-						join -v1 "$GERMINATE_OUT/$DIST/$arch/installer.packages" - \
-						> "$GERMINATE_OUT/$DIST/$arch/installer.packages.new"
-					mv "$GERMINATE_OUT/$DIST/$arch/installer.packages.new" \
-						"$GERMINATE_OUT/$DIST/$arch/installer.packages"
+					for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
+						if [ "$seed" = supported ]; then
+							seedsource="$seed+build-depends"
+						else
+							seedsource="$seed"
+						fi
+						join "$GERMINATE_OUT/$DIST/$arch/installer.packages.cdrom" "$GERMINATE_OUT/$DIST/$arch/installer.packages.netboot" | \
+							join -v1 "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages" - \
+							> "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages.new"
+						mv "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages.new" \
+							"$GERMINATE_OUT/$DIST/$arch/$seedsource.packages"
+					done
 				done
 			fi
 		done
