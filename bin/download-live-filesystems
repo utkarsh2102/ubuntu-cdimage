@@ -68,16 +68,17 @@ if [ "$CDIMAGE_LIVE" ]; then
 					(fetch "$(find-live-filesystem "$arch" umenu)" \
 					"$LIVE_OUT/$arch.umenu.exe" || true)
 					if [ -f "$LIVE_OUT/$arch.umenu.exe" ]; then
+						# This is Windows, so use CRLF.
 						cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
-[autorun]\r
-open=umenu.exe\r
-icon=umenu.exe,0\r
-label=Install\r
-\r
-[Content]\r
-MusicFiles=false\r
-PictureFiles=false\r
-VideoFiles=false\r
+[autorun]
+open=umenu.exe
+icon=umenu.exe,0
+label=Install
+
+[Content]
+MusicFiles=false
+PictureFiles=false
+VideoFiles=false
 EOF
 					fi
 					;;
