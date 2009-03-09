@@ -80,6 +80,7 @@ MusicFiles=false
 PictureFiles=false
 VideoFiles=false
 EOF
+						todos "$LIVE_OUT/$arch.autorun.inf"
 					fi
 					;;
 				*)
