@@ -18,13 +18,13 @@ else
 	if [ "$CDIMAGE_DVD" ]; then
 		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" dvd | egrep -v '^(installer|casper)$' || true)"
 	elif [ "$CDIMAGE_INSTALL" ]; then
-		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" tasks)"
+		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" tasks | egrep -v '^(installer|casper)$' || true)"
 	else
 		if [ "$CDIMAGE_INSTALL_BASE" = 1 ]; then
-			SEEDS="$SEEDS $(list-seeds "$STRUCTURE" base)"
+			SEEDS="$SEEDS $(list-seeds "$STRUCTURE" base | egrep -v '^(installer|casper)$' || true)"
 		fi
 		if [ "$CDIMAGE_LIVE" = 1 ]; then
-			SEEDS="$SEEDS $(list-seeds "$STRUCTURE" ship-live)"
+			SEEDS="$SEEDS $(list-seeds "$STRUCTURE" ship-live | egrep -v '^(installer|casper)$' || true)"
 		fi
 	fi
 fi
