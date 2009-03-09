@@ -93,16 +93,17 @@ EOF
 						PROJ=$(echo "$PROJECT" | tr '-' ' ' | \
 							sed 's/\(\b[a-z]\)/\U\1/g' || echo "PROJECT")
 						cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
-[autorun]\r
-open=wubi.exe --cdmenu\r
-icon=wubi.exe,0\r
-label=Install $PROJ\r
-\r
-[Content]\r
-MusicFiles=false\r
-PictureFiles=false\r
-VideoFiles=false\r
+[autorun]
+open=wubi.exe --cdmenu
+icon=wubi.exe,0
+label=Install $PROJ
+
+[Content]
+MusicFiles=false
+PictureFiles=false
+VideoFiles=false
 EOF
+						todos "$LIVE_OUT/$arch.autorun.inf"
 					fi
 					;;
 			esac
