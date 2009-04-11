@@ -705,7 +705,7 @@ AddIcon ${CDICONS}folder.png ^^DIRECTORY^^
 AddIcon ${CDICONS}iso.png .iso
 AddIcon ${CDICONS}jigdo.png .jigdo .template
 AddIcon ${CDICONS}list.png .list .manifest .html MD5SUMS MD5SUMS.gpg
-AddIcon ${CDICONS}torrent.png .torrent
+AddIcon ${CDICONS}torrent.png .torrent .metalink
 EOF
 
 for extension in img iso.torrent iso jigdo list manifest manifest-desktop template; do
