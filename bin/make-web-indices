@@ -704,7 +704,7 @@ IndexOptions NameWidth=* DescriptionWidth=* SuppressHTMLPreamble FancyIndexing I
 AddIcon ${CDICONS}folder.png ^^DIRECTORY^^
 AddIcon ${CDICONS}iso.png .iso
 AddIcon ${CDICONS}jigdo.png .jigdo .template
-AddIcon ${CDICONS}list.png .list .manifest .html MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg
+AddIcon ${CDICONS}list.png .list .manifest .html MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg SHA1SUMS SHA1SUMS.gpg
 AddIcon ${CDICONS}torrent.png .torrent .metalink
 EOF
 

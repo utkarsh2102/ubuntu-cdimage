@@ -18,12 +18,14 @@ fi
 DIR="$1"
 FILE="$2"
 
-[ -e "$DIR/MD5SUMS" ] || exit 0
-
-grep -v "[ *]$FILE\$" "$DIR/MD5SUMS" > "$DIR/MD5SUMS.new" || true
-mv "$DIR/MD5SUMS.new" "$DIR/MD5SUMS"
-if $SIGN; then
-	sign-cdimage "$DIR/MD5SUMS"
-fi
+for checksum_file in MD5SUMS SHA1SUMS; do
+	[ -e "$DIR/$checksum_file" ] || continue
+	grep -v "[ *]$FILE\$" "$DIR/$checksum_file" \
+		> "$DIR/$checksum_file.new" || true
+	mv "$DIR/$checksum_file.new" "$DIR/$checksum_file"
+	if $SIGN; then
+		sign-cdimage "$DIR/$checksum_file"
+	fi
+done
 
 exit 0
