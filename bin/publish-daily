@@ -244,7 +244,9 @@ if $IMAGES_PUBLISHED; then
 		cp -a "$BRITNEY_REPORT/${DIST}_probs.html" "$PUBLISH/report.html"
 	fi
 	checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH" $CHECKSUM_DIRS
-	checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH/source" "$CDOUT/src"
+	if [ -d "$PUBLISH/source" ]; then
+		checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH/source" "$CDOUT/src"
+	fi
 	make-web-indices "$PUBLISH" "$DIST" daily
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
 else
