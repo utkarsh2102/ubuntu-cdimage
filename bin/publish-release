@@ -233,14 +233,20 @@ for arch in $ARCHES; do
 		if $PUBLISH_POOL; then
 			cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
 			      "$RELEASE_SIMPLE_POOL/$basestatus.$ext"
+			checksum-remove --no-sign \
+				"$RELEASE_SIMPLE_POOL" "$basestatus.$ext"
 		fi
 		if $PUBLISH_DIST; then
 			ln -sf "$DIST_TO_POOL/$basestatus.$ext" \
 			       "$RELEASE_SIMPLE_DIST/$basestatus.$ext"
+			checksum-remove --no-sign \
+				"$RELEASE_SIMPLE_DIST" "$basestatus.$ext"
 		fi
 		if $PUBLISH_FULL; then
 			cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
 			      "$RELEASE_FULL/$baseplain.$ext"
+			checksum-remove --no-sign \
+				"$RELEASE_FULL" "$baseplain.$ext"
 		fi
 	done
 
@@ -311,13 +317,7 @@ if $PUBLISH_DIST && [ -z "$CDIMAGE_NO_PURGE" ]; then
 		find "$dir" -maxdepth 1 -name "$CDPREFIX-*" ! -regex ".*/$CDPREFIX${FILESTATUS:+-$FILESTATUS}-[^-]*-[^-]*" | while read file; do
 			echo "Purging $file"
 			rm -f "$file"
-			grep -v " [ *]${file##*/}\$" "$dir/MD5SUMS" \
-				> "$dir/MD5SUMS.new"
-			mv "$dir/MD5SUMS.new" "$dir/MD5SUMS"
 		done
-		if [ -e "$dir/MD5SUMS" ]; then
-			sign-cdimage "$dir/MD5SUMS"
-		fi
 	done
 fi
 
@@ -369,25 +369,23 @@ if $PUBLISH_FULL; then
 	make-web-indices "$RELEASE_FULL" "$CDPREFIX"
 fi
 
-md5sum_directory () {
-	echo "MD5summing $1 ..."
-	(cd "$2"
-	 if [ -f MD5SUMS ]; then grep -v " [ *]$3-" MD5SUMS || true; fi
-	 md5sum -b "$3"-*.iso) | sort -k2 > "$2/MD5SUMS.new"
-	mv "$2/MD5SUMS.new" "$2/MD5SUMS"
-	sign-cdimage "$2/MD5SUMS"
-}
-
 if $PUBLISH_POOL; then
-	md5sum_directory 'simple tree (pool)' "$RELEASE_SIMPLE_POOL" \
-		"$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE"
+	echo 'Checksumming simple tree (pool) ...'
+	checksum-directory \
+		--map "s/^$CDPREFIX-${FILESTATUS:+$FILESTATUS-}/$DIST-/" \
+		"$RELEASE_SIMPLE_POOL" "$DAILY"
 fi
 if $PUBLISH_DIST; then
-	md5sum_directory "simple tree ($DIST)" "$RELEASE_SIMPLE_DIST" \
-		"$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE"
+	echo "Checksumming simple tree ($DIST) ..."
+	checksum-directory \
+		--map "s/^$CDPREFIX-${FILESTATUS:+$FILESTATUS-}/$DIST-/" \
+		"$RELEASE_SIMPLE_DIST" "$DAILY"
 fi
 if $PUBLISH_FULL; then
-	md5sum_directory 'full tree' "$RELEASE_FULL" "$CDPREFIX-$TYPE"
+	echo 'Checksumming full tree ...'
+	checksum-directory \
+		--map "s/^$CDPREFIX-/$DIST-/" \
+		"$RELEASE_FULL" "$DAILY"
 fi
 
 if $PUBLISH_DIST || $PUBLISH_POOL; then

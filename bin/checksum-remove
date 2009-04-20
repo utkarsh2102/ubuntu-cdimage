@@ -1,0 +1,29 @@
+#! /bin/sh
+set -e
+
+export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
+. "$CDIMAGE_ROOT/etc/config"
+
+SIGN=:
+if [ "x$1" = "x--no-sign" ]; then
+	SIGN=false
+	shift
+fi
+
+if [ -z "$1" ] || [ -z "$2" ]; then
+	echo 'Usage: checksum-remove [--no-sign] DIR FILE' >&2
+	exit 1
+fi
+
+DIR="$1"
+FILE="$2"
+
+[ -e "$DIR/MD5SUMS" ] || exit 0
+
+grep -v "[ *]$FILE\$" "$DIR/MD5SUMS" > "$DIR/MD5SUMS.new" || true
+mv "$DIR/MD5SUMS.new" "$DIR/MD5SUMS"
+if $SIGN; then
+	sign-cdimage "$DIR/MD5SUMS"
+fi
+
+exit 0

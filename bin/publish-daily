@@ -113,16 +113,8 @@ else
 	mkdir -p "$PUBLISH"
 fi
 
-# TODO: emptying the file should be unnecessary; we need to carry over
-# md5sums from previous builds if we carried over the images.
-rm -f "$PUBLISH/MD5SUMS" "$PUBLISH/MD5SUMS.gpg"
-> "$PUBLISH/MD5SUMS"
-if [ -d "$PUBLISH/source" ]; then
-	rm -f "$PUBLISH/source/MD5SUMS" "$PUBLISH/source/MD5SUMS.gpg"
-	> "$PUBLISH/source/MD5SUMS"
-fi
-
 IMAGES_PUBLISHED=false
+CHECKSUM_DIRS=
 
 publish_binary () {
 	local TYPE="$1"
@@ -156,16 +148,8 @@ publish_binary () {
 		   "$PUBLISH/$DIST-$TYPE-$arch.iso"
 		mv "$CDOUT/$arch/$DIST-$TYPE-$arch.list" \
 		   "$PUBLISH/$DIST-$TYPE-$arch.list"
-		md5sum="$(grep -qs "[ *]$DIST-$TYPE-$arch\.raw\$" \
-				   "$CDOUT/$arch/MD5SUMS" | cut -d' ' -f1)" \
-			|| true
-		if [ "$md5sum" ]; then
-			echo "$md5sum *$DIST-$TYPE-$arch.iso" \
-				>> "$PUBLISH/MD5SUMS"
-		else
-			(cd "$PUBLISH" && md5sum -b "$DIST-$TYPE-$arch.iso" \
-				>> MD5SUMS)
-		fi
+		CHECKSUM_DIRS="${CHECKSUM_DIRS:+$CHECKSUM_DIRS }$CDOUT/$arch/$DIST-$TYPE-$arch.raw"
+		checksum-remove --no-sign "$PUBLISH" "$DIST-$TYPE-$arch.iso"
 
 		# Jigdo integration
 		if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.jigdo" ]; then
@@ -226,14 +210,7 @@ while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
 	mkdir -p "$PUBLISH/source"
 	mv "$CDOUT/src/$DIST-src-$i.raw" "$PUBLISH/source/$DIST-src-$i.iso"
 	mv "$CDOUT/src/$DIST-src-$i.list" "$PUBLISH/source/$DIST-src-$i.list"
-	md5sum="$(grep -qs "[ *]$DIST-src-$i\.raw\$" "$CDOUT/src/MD5SUMS" \
-			| cut -d' ' -f1)" || true
-	if [ "$md5sum" ]; then
-		echo "$md5sum *$DIST-src-$i.iso" >> "$PUBLISH/source/MD5SUMS"
-	else
-		(cd "$PUBLISH/source" && md5sum -b "$DIST-src-$i.iso" \
-			>> MD5SUMS)
-	fi
+	checksum-remove --no-sign "$PUBLISH/source" "$DIST-src-$i.iso"
 
 	# Jigdo integration
 	if [ -e "$CDOUT/src/$DIST-src-$i.jigdo" ]; then
@@ -266,10 +243,8 @@ if $IMAGES_PUBLISHED; then
 	if [ "$CDIMAGE_INSTALL_BASE" ] && [ -e "$BRITNEY_REPORT/${DIST}_probs.html" ]; then
 		cp -a "$BRITNEY_REPORT/${DIST}_probs.html" "$PUBLISH/report.html"
 	fi
-	sign-cdimage "$PUBLISH/MD5SUMS"
-	if [ -d "$PUBLISH/source" ]; then
-		sign-cdimage "$PUBLISH/source/MD5SUMS"
-	fi
+	checksum-directory --map 's/\.iso$/.raw/' "$PUBLISH" $CHECKSUM_DIRS
+	checksum-directory --map 's/\.iso$/.raw/' "$PUBLISH/source" "$CDOUT/src"
 	make-web-indices "$PUBLISH" "$DIST" daily
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
 else
