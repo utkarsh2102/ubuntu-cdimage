@@ -243,8 +243,8 @@ if $IMAGES_PUBLISHED; then
 	if [ "$CDIMAGE_INSTALL_BASE" ] && [ -e "$BRITNEY_REPORT/${DIST}_probs.html" ]; then
 		cp -a "$BRITNEY_REPORT/${DIST}_probs.html" "$PUBLISH/report.html"
 	fi
-	checksum-directory --map 's/\.iso$/.raw/' "$PUBLISH" $CHECKSUM_DIRS
-	checksum-directory --map 's/\.iso$/.raw/' "$PUBLISH/source" "$CDOUT/src"
+	checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH" $CHECKSUM_DIRS
+	checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH/source" "$CDOUT/src"
 	make-web-indices "$PUBLISH" "$DIST" daily
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
 else
