@@ -112,7 +112,14 @@ cdtypestr () {
 cdtypedesc () {
 	case $PROJECT in
 		xubuntu)
-			DESKTOP_RAM=128
+			case $DIST in
+				dapper|edgy|feisty|gutsy|hardy|intrepid)
+					DESKTOP_RAM=128
+					;;
+				*)
+					DESKTOP_RAM=192
+					;;
+			esac			
 			;;
 		*)
 			case $DIST in
