@@ -98,6 +98,9 @@ case $DIST in
 	jaunty)
 		VERSION=9.04
 		;;
+	karmic)
+		VERSION=9.10
+		;;
 	*)
 		echo "Unknown distribution: $DIST" >&2
 		exit 1
