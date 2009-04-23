@@ -52,12 +52,12 @@ file_to_manifest () {
 }
 
 main_manifest="$(
-	find -name .pool -prune -o \( -type f -o -type l \) -name \*.iso -printf '%P\n' | \
+	find -name .pool -prune -o \( -type f -o -type l \) \( -name \*.iso -o -name \*.img \) -printf '%P\n' | \
 	while read file; do file_to_manifest; done | sort)"
 
 echo "$main_manifest"
 
-find \( -type f -o -type l \) -path '*/.pool/*.iso' -printf '%P\n' | \
+find \( -type f -o -type l \) \( -path '*/.pool/*.iso' -o -path '*/.pool/*.img' \) -printf '%P\n' | \
 while read file; do file_to_manifest; done | sort
 
 exit 0
