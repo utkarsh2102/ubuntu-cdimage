@@ -46,8 +46,11 @@ case $CPUARCH in
 			warty|hoary|breezy|dapper)
 				FLAVOURS='itanium-smp mckinley-smp'
 				;;
-			*)
+			edgy|feisty|gutsy|hardy|intrepid|jaunty)
 				FLAVOURS='itanium mckinley'
+				;;
+			*)
+				FLAVOURS=ia64
 				;;
 		esac
 		;;
