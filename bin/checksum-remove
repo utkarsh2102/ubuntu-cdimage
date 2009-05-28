@@ -18,7 +18,7 @@ fi
 DIR="$1"
 FILE="$2"
 
-for checksum_file in MD5SUMS SHA1SUMS; do
+for checksum_file in MD5SUMS SHA1SUMS SHA256SUMS; do
 	[ -e "$DIR/$checksum_file" ] || continue
 	grep -v "[ *]$FILE\$" "$DIR/$checksum_file" \
 		> "$DIR/$checksum_file.new" || true
