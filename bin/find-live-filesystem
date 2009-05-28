@@ -15,7 +15,7 @@ SUBARCH="${ARCH#*+}"
 
 case $CPUARCH in
 	amd64)
-		LIVECD=http://king.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://king.buildd/~buildd/LiveCD}"
 		case $DIST in
 			warty|hoary|breezy|dapper)
 				FLAVOURS=amd64-generic ;;
@@ -24,15 +24,15 @@ case $CPUARCH in
 		esac
 		;;
 	armel)
-		LIVECD=http://manoao.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://manoao.buildd/~buildd/LiveCD}"
 		FLAVOURS=
 		;;
 	hppa)
-		LIVECD=http://castilla.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://castilla.buildd/~buildd/LiveCD}"
 		FLAVOURS='hppa32 hppa64'
 		;;
 	i386)
-		LIVECD=http://terranova.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://terranova.buildd/~buildd/LiveCD}"
 		case $DIST in
 			warty|hoary|breezy|dapper)
 				FLAVOURS=386 ;;
@@ -41,7 +41,7 @@ case $CPUARCH in
 		esac
 		;;
 	ia64)
-		LIVECD=http://weddell.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://weddell.buildd/~buildd/LiveCD}"
 		case $DIST in
 			warty|hoary|breezy|dapper)
 				FLAVOURS='itanium-smp mckinley-smp'
@@ -57,16 +57,16 @@ case $CPUARCH in
 	lpia)
 		case $DIST in
 			gutsy|hardy)
-				LIVECD=http://terranova.buildd/~buildd/LiveCD
+				LIVECD="${LIVECD:-http://terranova.buildd/~buildd/LiveCD}"
 				;;
 			*)
-				LIVECD=http://concordia.buildd/~buildd/LiveCD
+				LIVECD="${LIVECD:-http://concordia.buildd/~buildd/LiveCD}"
 				;;
 		esac
 		FLAVOURS=lpia
 		;;
 	powerpc)
-		LIVECD=http://royal.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://royal.buildd/~buildd/LiveCD}"
 		case $SUBARCH in
 			ps3)
 				case $DIST in
@@ -84,7 +84,7 @@ case $CPUARCH in
 		esac
 		;;
 	sparc)
-		LIVECD=http://vivies.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://vivies.buildd/~buildd/LiveCD}"
 		FLAVOURS=sparc64
 		;;
 	*)
