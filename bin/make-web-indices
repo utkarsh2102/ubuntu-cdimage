@@ -469,7 +469,7 @@ case $DIST in
 		distfullname='Gutsy Gibbon'
 		;;
 	hardy)
-		distversion=8.04.2
+		distversion=8.04.3
 		distfullname='Hardy Heron'
 		case $PROJECT in
 			ubuntu|ubuntu-server)
