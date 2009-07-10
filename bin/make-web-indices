@@ -43,10 +43,7 @@ titlecase () {
 
 cssincludes () {
 	case $PROJECT in
-		kubuntu)
-			echo 'http://releases.ubuntu.com/include/kubuntu.css'
-			;;
-		kubuntu-kde4)
+		kubuntu*)
 			echo 'http://releases.ubuntu.com/include/kubuntu.css'
 			;;
 		*)
