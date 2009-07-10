@@ -114,11 +114,18 @@ case $MODE in
 		esac
 		;;
 	ship-live)
-		case $DIST in
-			warty|hoary|breezy)
+		case $PROJECT in
+			kubuntu-netbook)
+				echo 'ship-netbook-live'
 				;;
 			*)
-				echo 'ship-live'
+				case $DIST in
+					warty|hoary|breezy)
+						;;
+					*)
+						echo 'ship-live'
+						;;
+				esac
 				;;
 		esac
 		;;
