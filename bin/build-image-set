@@ -77,6 +77,15 @@ case $PROJECT in
 	gobuntu)
 		export CDIMAGE_ONLYFREE=1
 		;;
+	edubuntu)
+		case $DIST in
+			warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty)
+				;;
+			*)
+				export CDIMAGE_UNSUPPORTED=1
+				;;
+		esac
+		;;
 	xubuntu)
 		case $DIST in
 			warty|hoary|breezy|dapper|edgy|feisty|gutsy)
