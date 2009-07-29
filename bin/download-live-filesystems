@@ -108,6 +108,10 @@ EOF
 					;;
 			esac
 		fi
+		if [ "$PROJECT" == "kubuntu-netbook" ]; then
+			fetch "$(find-live-filesystem "$arch" usb-creator)" \
+				"$LIVE_OUT/$arch.usb-creator.exe" || true
+		fi
 	done
 	if [ "$GOT_IMAGE" = 0 ]; then
 		echo "No filesystem images found." >&2

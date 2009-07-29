@@ -359,6 +359,16 @@ case $ITEM in
 		echo "Unknown live filesystem item '$ITEM'" >&2
 		exit 1
 		;;
+	usb-creator)
+		case $ARCH in
+			amd64|i386)
+				;;
+			*)
+				exit 1
+				;;
+		esac
+		echo http://people.ubuntu.com/~evand/usb-creator/$DIST/stable
+		;;
 esac
 
 exit 0
