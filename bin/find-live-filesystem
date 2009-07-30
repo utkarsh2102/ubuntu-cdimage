@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|winfoss|wubi|wubi-cdboot|umenu' >&2
+	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|winfoss|wubi|wubi-cdboot|umenu|usb-creator' >&2
 	exit 1
 fi
 ARCH="$1"
@@ -355,10 +355,6 @@ case $ITEM in
 				;;
 		esac
 		;;
-	*)
-		echo "Unknown live filesystem item '$ITEM'" >&2
-		exit 1
-		;;
 	usb-creator)
 		case $ARCH in
 			amd64|i386)
@@ -368,6 +364,10 @@ case $ITEM in
 				;;
 		esac
 		echo http://people.ubuntu.com/~evand/usb-creator/$DIST/stable
+		;;
+	*)
+		echo "Unknown live filesystem item '$ITEM'" >&2
+		exit 1
 		;;
 esac
 
