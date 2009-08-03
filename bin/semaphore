@@ -24,7 +24,7 @@ if ! lockfile -r 4 "$SEMAPHORE.lock"; then
 	echo "Cannot acquire lock on semaphore $SEMAPHORE!" >&2
 	exit 1
 fi
-trap "rm -f $SEMAPHORE.lock" EXIT HUP INT QUIT TERM
+trap "code=\$?; rm -f $SEMAPHORE.lock; exit \$code" EXIT HUP INT QUIT TERM
 
 if ! [ -e "$SEMAPHORE" ]; then
 	echo 0 > "$SEMAPHORE"

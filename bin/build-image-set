@@ -51,6 +51,7 @@ cleanup () {
 				<"$CDIMAGE_ROOT/log/$PROJECT/$DIST/$IMAGE_TYPE-$CDIMAGE_DATE.log"
 		fi
 	fi
+	exit "$EXITCODE"
 }
 
 trap cleanup EXIT HUP INT QUIT TERM

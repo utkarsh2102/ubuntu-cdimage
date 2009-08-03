@@ -18,7 +18,7 @@ if ! lockfile -l 7200 -r 0 "$CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IM
 	echo "Another image set is already building!" >&2
 	exit 1
 fi
-trap "rm -f $CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IMAGE_TYPE" EXIT HUP INT QUIT TERM
+trap "code=\$?; rm -f $CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IMAGE_TYPE; exit \$code" EXIT HUP INT QUIT TERM
 
 export CDIMAGE_DATE="$(next-build-date "$IMAGE_TYPE")"
 
