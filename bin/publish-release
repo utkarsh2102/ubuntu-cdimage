@@ -310,6 +310,22 @@ for arch in $ARCHES; do
 			      "$RELEASE_FULL/$baseplain.manifest"
 		fi
 	fi
+
+	if [ -e "$DAILY/$DIST-$TYPE-$arch.zsync" ]; then
+		# Copy, to make sure we have a canonical version of this.
+		if $PUBLISH_POOL; then
+			cp -a "$DAILY/$DIST-$TYPE-$arch.zsync" \
+			      "$RELEASE_SIMPLE_POOL/$basestatus.zsync"
+		fi
+		if $PUBLISH_DIST; then
+			ln -sf "$DIST_TO_POOL/$basestatus.zsync" \
+			       "$RELEASE_SIMPLE_DIST/$basestatus.zsync"
+		fi
+		if $PUBLISH_FULL; then
+			cp -a "$DAILY/$DIST-$TYPE-$arch.zsync" \
+			      "$RELEASE_FULL/$baseplain.zsync"
+		fi
+	fi
 done
 
 # There can only be one set of images per release in the per-release tree,
