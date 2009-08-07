@@ -311,19 +311,19 @@ for arch in $ARCHES; do
 		fi
 	fi
 
-	if [ -e "$DAILY/$DIST-$TYPE-$arch.zsync" ]; then
+	if [ -e "$DAILY/$DIST-$TYPE-$arch.iso.zsync" ]; then
 		# Copy, to make sure we have a canonical version of this.
 		if $PUBLISH_POOL; then
-			cp -a "$DAILY/$DIST-$TYPE-$arch.zsync" \
-			      "$RELEASE_SIMPLE_POOL/$basestatus.zsync"
+			cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
+			      "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
 		fi
 		if $PUBLISH_DIST; then
-			ln -sf "$DIST_TO_POOL/$basestatus.zsync" \
-			       "$RELEASE_SIMPLE_DIST/$basestatus.zsync"
+			ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
+			       "$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
 		fi
 		if $PUBLISH_FULL; then
-			cp -a "$DAILY/$DIST-$TYPE-$arch.zsync" \
-			      "$RELEASE_FULL/$baseplain.zsync"
+			cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
+			      "$RELEASE_FULL/$baseplain.iso.zsync"
 		fi
 	fi
 done
