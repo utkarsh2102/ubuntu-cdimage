@@ -183,7 +183,8 @@ publish_binary () {
 		# zsync metafiles
 		if which zsyncmake >/dev/null 2>&1; then
 			echo "Making $arch zsync metafile ..."
-			zsyncmake -u "$DIST-$TYPE-$arch.iso" \
+			zsyncmake -o "$PUBLISH/$DIST-$TYPE-$arch.iso.zsync" \
+				  -u "$DIST-$TYPE-$arch.iso" \
 				  "$PUBLISH/$DIST-$TYPE-$arch.iso"
 		fi
 
@@ -234,7 +235,7 @@ while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
 
 	if which zsyncmake >/dev/null 2>&1; then
 		echo "Making source $i zsync metafile ..."
-		zsyncmake -u "$DIST-src-$i.iso" \
+		zsyncmake -o "$PUBLISH/source/$DIST-src-$i.iso.zsync" -u "$DIST-src-$i.iso" \
 			  "$PUBLISH/source/$DIST-src-$i.iso"
 	fi
 
