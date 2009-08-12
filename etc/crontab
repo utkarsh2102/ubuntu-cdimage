@@ -7,7 +7,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/bin:/bin
 47 20 * * 1,5	for-project kubuntu cron.dvd
 32 2 * * *	for-project ubuntu cron.ports_daily; for-project ubuntu cron.ports_daily-live
 1 15 * * *	for-project kubuntu cron.ports_daily; for-project kubuntu cron.ports_daily-live
-44 0 * * *	for-project edubuntu cron.daily
+44 0 * * *	for-project edubuntu cron.dvd
 55 9 * * *	for-project xubuntu cron.daily; for-project xubuntu cron.daily-live
 29 10 * * *	for-project ubuntu-server cron.daily; for-project ubuntu-server cron.ports_daily
 17 6 * * *	for-project ubuntustudio cron.daily

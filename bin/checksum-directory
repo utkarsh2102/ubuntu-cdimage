@@ -66,5 +66,6 @@ checksum () {
 
 checksum 'md5sum -b' 'MD5SUMS'
 checksum 'sha1sum -b' 'SHA1SUMS'
+checksum 'sha256sum -b' 'SHA256SUMS'
 
 exit 0

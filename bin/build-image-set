@@ -51,6 +51,7 @@ cleanup () {
 				<"$CDIMAGE_ROOT/log/$PROJECT/$DIST/$IMAGE_TYPE-$CDIMAGE_DATE.log"
 		fi
 	fi
+	exit "$EXITCODE"
 }
 
 trap cleanup EXIT HUP INT QUIT TERM
@@ -77,6 +78,15 @@ case $PROJECT in
 	gobuntu)
 		export CDIMAGE_ONLYFREE=1
 		;;
+	edubuntu)
+		case $DIST in
+			warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty)
+				;;
+			*)
+				export CDIMAGE_UNSUPPORTED=1
+				;;
+		esac
+		;;
 	xubuntu)
 		case $DIST in
 			warty|hoary|breezy|dapper|edgy|feisty|gutsy)
@@ -86,7 +96,7 @@ case $PROJECT in
 				;;
 		esac
 		;;
-	kubuntu-kde4)
+	kubuntu-kde4|kubuntu-netbook)
 		export CDIMAGE_UNSUPPORTED=1
 		;;
 	ubuntustudio)

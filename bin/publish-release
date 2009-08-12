@@ -98,6 +98,9 @@ case $DIST in
 	jaunty)
 		VERSION=9.04
 		;;
+	karmic)
+		VERSION=9.10
+		;;
 	*)
 		echo "Unknown distribution: $DIST" >&2
 		exit 1
@@ -305,6 +308,22 @@ for arch in $ARCHES; do
 		if $PUBLISH_FULL; then
 			cp -a "$DAILY/$DIST-$TYPE-$arch.manifest" \
 			      "$RELEASE_FULL/$baseplain.manifest"
+		fi
+	fi
+
+	if [ -e "$DAILY/$DIST-$TYPE-$arch.iso.zsync" ]; then
+		# Copy, to make sure we have a canonical version of this.
+		if $PUBLISH_POOL; then
+			cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
+			      "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
+		fi
+		if $PUBLISH_DIST; then
+			ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
+			       "$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
+		fi
+		if $PUBLISH_FULL; then
+			cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
+			      "$RELEASE_FULL/$baseplain.iso.zsync"
 		fi
 	fi
 done

@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|winfoss|wubi|wubi-cdboot|umenu' >&2
+	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|winfoss|wubi|wubi-cdboot|umenu|usb-creator' >&2
 	exit 1
 fi
 ARCH="$1"
@@ -15,7 +15,7 @@ SUBARCH="${ARCH#*+}"
 
 case $CPUARCH in
 	amd64)
-		LIVECD=http://king.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://king.buildd/~buildd/LiveCD}"
 		case $DIST in
 			warty|hoary|breezy|dapper)
 				FLAVOURS=amd64-generic ;;
@@ -24,15 +24,15 @@ case $CPUARCH in
 		esac
 		;;
 	armel)
-		LIVECD=http://manoao.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://manoao.buildd/~buildd/LiveCD}"
 		FLAVOURS=
 		;;
 	hppa)
-		LIVECD=http://castilla.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://castilla.buildd/~buildd/LiveCD}"
 		FLAVOURS='hppa32 hppa64'
 		;;
 	i386)
-		LIVECD=http://terranova.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://terranova.buildd/~buildd/LiveCD}"
 		case $DIST in
 			warty|hoary|breezy|dapper)
 				FLAVOURS=386 ;;
@@ -41,29 +41,32 @@ case $CPUARCH in
 		esac
 		;;
 	ia64)
-		LIVECD=http://weddell.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://weddell.buildd/~buildd/LiveCD}"
 		case $DIST in
 			warty|hoary|breezy|dapper)
 				FLAVOURS='itanium-smp mckinley-smp'
 				;;
-			*)
+			edgy|feisty|gutsy|hardy|intrepid|jaunty)
 				FLAVOURS='itanium mckinley'
+				;;
+			*)
+				FLAVOURS=ia64
 				;;
 		esac
 		;;
 	lpia)
 		case $DIST in
 			gutsy|hardy)
-				LIVECD=http://terranova.buildd/~buildd/LiveCD
+				LIVECD="${LIVECD:-http://terranova.buildd/~buildd/LiveCD}"
 				;;
 			*)
-				LIVECD=http://concordia.buildd/~buildd/LiveCD
+				LIVECD="${LIVECD:-http://concordia.buildd/~buildd/LiveCD}"
 				;;
 		esac
 		FLAVOURS=lpia
 		;;
 	powerpc)
-		LIVECD=http://royal.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://royal.buildd/~buildd/LiveCD}"
 		case $SUBARCH in
 			ps3)
 				case $DIST in
@@ -81,7 +84,7 @@ case $CPUARCH in
 		esac
 		;;
 	sparc)
-		LIVECD=http://vivies.buildd/~buildd/LiveCD
+		LIVECD="${LIVECD:-http://vivies.buildd/~buildd/LiveCD}"
 		FLAVOURS=sparc64
 		;;
 	*)
@@ -194,7 +197,7 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					gutsy|hardy|intrepid|jaunty)
+					gutsy|hardy|intrepid|jaunty|karmic)
 						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/ubuntu/current/ubuntu-winfoss-7.10.tar.gz
@@ -249,7 +252,7 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					gutsy|hardy|intrepid|jaunty)
+					gutsy|hardy|intrepid|jaunty|karmic)
 						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/kubuntu/current/kubuntu-winfoss-7.10.tar.gz
@@ -269,7 +272,7 @@ case $ITEM in
 							*)	exit 1 ;;
 						esac
 						;;
-					gutsy|hardy|intrepid|jaunty)
+					gutsy|hardy|intrepid|jaunty|karmic)
 						case $CPUARCH in
 							i386|amd64)
 								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/edubuntu/current/edubuntu-winfoss-7.10.tar.gz
@@ -345,12 +348,22 @@ case $ITEM in
 				exit 1
 				;;
 			hardy)
-				echo http://people.ubuntu.com/~evand/umenu/umenu-8.04.2-rev32.exe
+				echo http://people.ubuntu.com/~evand/umenu/umenu-8.04.3-rev33.exe
 				;;
 			*)
 				echo http://people.ubuntu.com/~evand/umenu/stable
 				;;
 		esac
+		;;
+	usb-creator)
+		case $ARCH in
+			amd64|i386)
+				;;
+			*)
+				exit 1
+				;;
+		esac
+		echo http://people.ubuntu.com/~evand/usb-creator/$DIST/stable
 		;;
 	*)
 		echo "Unknown live filesystem item '$ITEM'" >&2

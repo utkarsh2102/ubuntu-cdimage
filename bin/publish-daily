@@ -180,6 +180,14 @@ publish_binary () {
 			rm -f "$PUBLISH/$DIST-$TYPE-$arch.manifest"
 		fi
 
+		# zsync metafiles
+		if which zsyncmake >/dev/null 2>&1; then
+			echo "Making $arch zsync metafile ..."
+			zsyncmake -o "$PUBLISH/$DIST-$TYPE-$arch.iso.zsync" \
+				  -u "$DIST-$TYPE-$arch.iso" \
+				  "$PUBLISH/$DIST-$TYPE-$arch.iso"
+		fi
+
 		SIZE="$(stat -c %s "$PUBLISH/$DIST-$TYPE-$arch.iso")"
 		if [ "$SIZE" -gt "$SIZELIMIT" ]; then
 			touch "$PUBLISH/$DIST-$TYPE-$arch.OVERSIZED"
@@ -223,6 +231,12 @@ while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
 		echo "No jigdo for source $i!" >&2
 		rm -f "$PUBLISH/source/$DIST-src-$i.jigdo" \
 		      "$PUBLISH/source/$DIST-src-$i.template"
+	fi
+
+	if which zsyncmake >/dev/null 2>&1; then
+		echo "Making source $i zsync metafile ..."
+		zsyncmake -o "$PUBLISH/source/$DIST-src-$i.iso.zsync" -u "$DIST-src-$i.iso" \
+			  "$PUBLISH/source/$DIST-src-$i.iso"
 	fi
 
 	IMAGES_PUBLISHED=:
