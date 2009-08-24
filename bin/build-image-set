@@ -105,6 +105,9 @@ case $PROJECT in
 	mythbuntu)
 		export CDIMAGE_UNSUPPORTED=1
 		;;
+	ubuntu-moblin-remix)
+		export CDIMAGE_UNSUPPORTED=1
+		;;
 esac
 
 if [ "$CDIMAGE_INSTALL" ]; then

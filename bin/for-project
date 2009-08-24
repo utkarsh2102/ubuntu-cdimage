@@ -44,6 +44,10 @@ case $1 in
 		export PROJECT=mythbuntu
 		export CAPPROJECT=Mythbuntu
 		;;
+	ubuntu-moblin-remix)
+		export PROJECT=ubuntu-moblin-remix
+		export CAPPROJECT=Ubuntu-Moblin-Remix
+		;;
 	tocd3)
 		export PROJECT=tocd3
 		export CAPPROJECT=TheOpenCDv3
@@ -66,6 +70,7 @@ Recognised projects:
   ubuntu-server
   ubuntustudio
   mythbuntu
+  ubuntu-moblin-remix
   tocd3
   tocd3.1
 EOF
