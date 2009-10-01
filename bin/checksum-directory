@@ -30,7 +30,7 @@ checksum () {
 	program="$1"
 	file="$2"
 
-	find "$DIR/" -maxdepth 1 \( -name \*.img -o -name \*.iso -o -name \*.exe -o -name \*.img.gz \) -printf '%P\n' | \
+	find "$DIR/" -maxdepth 1 \( -name \*.img -o -name \*.iso -o -name \*.exe -o -name \*.img.gz -o -name \*vmlinuz \) -printf '%P\n' | \
 	while read image; do
 		found=false
 		for dir in $DIR $OLD_DIRS; do
