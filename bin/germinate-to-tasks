@@ -234,7 +234,20 @@ for arch in $ARCHES; do
 					input_seeds="$seed"
 				fi
 				if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext"; then
-					task="$TASKPROJECT-$task"
+					# Edubuntu is odd; it's structured
+					# as an add-on to Ubuntu, so
+					# sometimes we need to create
+					# ubuntu-* tasks. At the moment I
+					# don't see a better approach than
+					# hardcoding the task names.
+					case $PROJECT/$task in
+						edubuntu/desktop|edubuntu/live)
+							task="ubuntu-$task"
+							;;
+						*)
+							task="$TASKPROJECT-$task"
+							;;
+					esac
 				fi
 				;;
 		esac
