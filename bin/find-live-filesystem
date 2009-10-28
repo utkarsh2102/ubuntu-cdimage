@@ -118,6 +118,15 @@ if [ "$CDIMAGE_DVD" ] && ([ "$PROJECT" = ubuntu ] || [ "$PROJECT" = kubuntu ]); 
 			;;
 	esac
 fi
+if [ "$CDIMAGE_DVD" ] && [ "$PROJECT" = edubuntu ]; then
+	case $DIST in
+		warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty)
+			;;
+		*)
+			LIVEPROJECT="$LIVEPROJECT-dvd"
+			;;
+	esac
+fi
 
 case $ITEM in
 	cloop|squashfs|manifest|manifest-desktop)
