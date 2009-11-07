@@ -16,6 +16,9 @@ case $DIST in
 	feisty|gutsy|hardy|intrepid|jaunty|karmic)
 		ARCHES="${ARCHES:-amd64 i386}"
 		;;
+	lucid)
+		ARCHES="${ARCHES:-amd64 i386 armel+imx51 armel+dove}"
+		;;
 esac
 CPUARCHES="$(echo "$ARCHES" | xargs -n1 | sed 's/+.*//' | sort -u | xargs)"
 

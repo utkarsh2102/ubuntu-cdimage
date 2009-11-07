@@ -507,6 +507,15 @@ case $DIST in
 		distversion=9.10
 		distfullname='Karmic Koala'
 		;;
+	lucid)
+		distversion=10.04
+		distfullname='Lucid Lynx'
+		case $PROJECT in
+			ubuntu|kubuntu|ubuntu-server|ubuntu-netbook-remix)
+				distversion="$distversion LTS"
+				;;
+		esac
+		;;
 esac
 
 case $CDPREFIX in
