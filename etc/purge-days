@@ -8,3 +8,4 @@ ports_dvd 2
 # Only purge TheOpenCDv3 images manually.
 tocd3/daily-live 0
 livecd-base 2
+ubuntu-netbook 3
