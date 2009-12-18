@@ -48,6 +48,9 @@ case $IMAGE_TYPE in
 			ubuntu-server)
 				TYPE=live
 				;;
+			ubuntu-netbook)
+				TYPE=netbook
+				;;
 			*)
 				case $DIST in
 					warty|hoary|breezy)

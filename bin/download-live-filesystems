@@ -111,7 +111,7 @@ EOF
 			esac
 		fi
 		case "$PROJECT" in
-			kubuntu-netbook|ubuntu-netbook-remix|ubuntu-moblin-remix)
+			kubuntu-netbook|ubuntu-netbook|ubuntu-moblin-remix)
 				fetch "$(find-live-filesystem "$arch" usb-creator)" \
 					"$LIVE_OUT/$arch.usb-creator.exe" || true
 			;;

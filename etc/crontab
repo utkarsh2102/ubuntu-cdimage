@@ -12,4 +12,5 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/bin:/bin
 29 10 * * *	for-project ubuntu-server cron.daily; for-project ubuntu-server cron.ports_daily
 17 6 * * *	for-project ubuntustudio cron.daily
 19 6 * * *	buildlive mythbuntu; for-project mythbuntu cron.daily-live
+45 2 * * *	buildlive ubuntu-netbook && for-project ubuntu-netbook cron.daily-live
 46 4 * * *	build-livecd-base
