@@ -4,6 +4,10 @@
 # syncing a local Ubuntu mirror; see etc/anonftpsync for settings affecting what
 # is mirrored and where.
 
+if [ "$DEBUG" ] && [ "$DEBUG" -gt 1 ]; then
+	set -x
+fi
+
 export LC_ALL=C
 
 PROJECT="${PROJECT:-ubuntu}"
