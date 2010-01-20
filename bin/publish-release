@@ -90,7 +90,7 @@ case $DIST in
 		VERSION=7.10
 		;;
 	hardy)
-		VERSION=8.04.3
+		VERSION=8.04.4
 		;;
 	intrepid)
 		VERSION=8.10
