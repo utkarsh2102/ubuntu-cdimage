@@ -357,9 +357,6 @@ case $ITEM in
 				exit 1
 				;;
 			hardy)
-				echo http://people.ubuntu.com/~evand/umenu/umenu-8.04.3-rev33.exe
-				;;
-			*)
 				echo http://people.ubuntu.com/~evand/umenu/stable
 				;;
 		esac
