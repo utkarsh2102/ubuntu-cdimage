@@ -27,10 +27,10 @@ make_torrent () {
 	[ -f "$image" ] || return 0
 	echo "Creating torrent for $image ..."
 	rm -f "$image.torrent"
-    # NB: Only the bittornado version of btmakemetafile has the --announce_list
-    # flag.
+	# NB: Only the bittornado version of btmakemetafile has the
+	# --announce_list flag.
 	btmakemetafile "$TRACKER" --announce_list "$TRACKER,$IP6TRACKER" \
-        --comment "$CAPPROJECT CD $TARGET_HOSTNAME" \
+		--comment "$CAPPROJECT CD $TARGET_HOSTNAME" \
 		"$image" >/dev/null
 }
 
