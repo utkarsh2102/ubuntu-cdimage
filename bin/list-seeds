@@ -147,8 +147,17 @@ case $MODE in
 			warty|hoary|breezy|dapper|edgy|feisty|gutsy)
 				inheritance supported
 				;;
-			*)
+			hardy|intrepid|jaunty|karmic)
 				inheritance dvd
+				;;
+			*)
+				if [ "$PROJECT" = edubuntu ]; then
+					# no inheritance; most of this goes
+					# on the live filesystem
+					echo 'dvd'
+				else
+					inheritance dvd
+				fi
 				;;
 		esac
 		;;
