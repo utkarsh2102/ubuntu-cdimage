@@ -267,6 +267,10 @@ if $IMAGES_PUBLISHED; then
 	fi
 	make-web-indices "$PUBLISH" "$DIST" daily
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
+	
+	# Create timestamps for this run.
+	mkdir "$CDIMAGE_ROOT/www/$FULL_TREE/.trace"
+	date -u > "$CDIMAGE_ROOT/www/$FULL_TREE/.trace/$(hostname --fqdn)"
 else
 	echo "No CDs produced!" >&2
 fi

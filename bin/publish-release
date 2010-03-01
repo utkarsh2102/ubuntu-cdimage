@@ -436,6 +436,10 @@ if $PUBLISH_DIST || $PUBLISH_POOL; then
 	mv "$CDIMAGE_ROOT/www/simple/.manifest.new" \
 	   "$CDIMAGE_ROOT/www/simple/.manifest"
 	chmod g+w "$CDIMAGE_ROOT/www/simple/.manifest"
+
+	# Create timestamps for this run.
+	mkdir "$CDIMAGE_ROOT/www/simple/.trace"
+	date -u > "$CDIMAGE_ROOT/www/simple/.trace/$(hostname --fqdn)"
 fi
 
 echo "Done! Remember to sync-mirrors after checking that everything is OK."
