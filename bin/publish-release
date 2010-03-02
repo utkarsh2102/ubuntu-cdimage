@@ -438,7 +438,7 @@ if $PUBLISH_DIST || $PUBLISH_POOL; then
 	chmod g+w "$CDIMAGE_ROOT/www/simple/.manifest"
 
 	# Create timestamps for this run.
-	mkdir "$CDIMAGE_ROOT/www/simple/.trace"
+	mkdir -p "$CDIMAGE_ROOT/www/simple/.trace"
 	date -u > "$CDIMAGE_ROOT/www/simple/.trace/$(hostname --fqdn)"
 fi
 
