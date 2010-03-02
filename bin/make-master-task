@@ -29,6 +29,11 @@ else
 	fi
 fi
 
+if [ -z "$SEEDS" ]; then
+       echo 'Error! SEEDS is empty' >&2
+       exit 1
+fi
+
 for seed in $SEEDS; do
 	# https://blueprints.launchpad.net/ubuntu/+spec/edubuntu-on-two-cds
 	if [ "$CDIMAGE_DVD" != 1 ] && [ "$CDIMAGE_ADDON" != 1 ] && \

@@ -6,7 +6,16 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 
 PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
 
-export CDIMAGE_INSTALL=1
+if [ "$PROJECT" = edubuntu ]; then
+	# Edubuntu lucid and onwards: DVD is live-only
+	case $DIST in
+		warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic)
+			export CDIMAGE_INSTALL=1
+			;;
+	esac
+else
+	export CDIMAGE_INSTALL=1
+fi
 export CDIMAGE_LIVE=1
 export CDIMAGE_DVD=1
 

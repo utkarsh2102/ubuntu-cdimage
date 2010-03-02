@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|winfoss|wubi|wubi-cdboot|umenu|usb-creator' >&2
+	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|size|winfoss|wubi|wubi-cdboot|umenu|usb-creator' >&2
 	exit 1
 fi
 ARCH="$1"
@@ -129,7 +129,7 @@ if [ "$CDIMAGE_DVD" ] && [ "$PROJECT" = edubuntu ]; then
 fi
 
 case $ITEM in
-	cloop|squashfs|manifest|manifest-desktop)
+	cloop|squashfs|manifest|manifest-desktop|size)
 		case $PROJECT in
 			tocd3)
 				# auto-purged - reverting to plan B
@@ -357,9 +357,6 @@ case $ITEM in
 				exit 1
 				;;
 			hardy)
-				echo http://people.ubuntu.com/~evand/umenu/umenu-8.04.3-rev33.exe
-				;;
-			*)
 				echo http://people.ubuntu.com/~evand/umenu/stable
 				;;
 		esac

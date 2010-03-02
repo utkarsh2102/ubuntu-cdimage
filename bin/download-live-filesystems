@@ -57,6 +57,8 @@ if [ "$CDIMAGE_LIVE" ]; then
 			"$LIVE_OUT/$arch.manifest" || true
 		fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
 			"$LIVE_OUT/$arch.manifest-desktop" || true
+		fetch "$(find-live-filesystem "$arch" size)" \
+			"$LIVE_OUT/$arch.size" || true
 
 		if [ "$PROJECT" != livecd-base ] && [ "$PROJECT" != edubuntu ]; then
 			case $DIST in
@@ -109,9 +111,15 @@ EOF
 			esac
 		fi
 		case "$PROJECT" in
-			kubuntu-netbook|ubuntu-netbook-remix|ubuntu-moblin-remix)
+			kubuntu-netbook|ubuntu-netbook|ubuntu-moblin-remix)
 				fetch "$(find-live-filesystem "$arch" usb-creator)" \
 					"$LIVE_OUT/$arch.usb-creator.exe" || true
+			;;
+			*)
+				if [ "$CDIMAGE_DVD" ]; then
+				fetch "$(find-live-filesystem "$arch" usb-creator)" \
+					"$LIVE_OUT/$arch.usb-creator.exe" || true
+				fi
 			;;
 		esac
 	done

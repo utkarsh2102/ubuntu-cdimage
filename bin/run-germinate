@@ -57,6 +57,9 @@ case $PROJECT in
 			GERMINATE_SEED_DIST="ubuntu.$DIST"
 		fi
 		;;
+	ubuntu-netbook)
+		GERMINATE_SEED_DIST="netbook.$DIST"
+		;;
 	kubuntu-netbook)
 		GERMINATE_SEED_DIST="kubuntu.$DIST"
 		;;

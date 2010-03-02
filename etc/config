@@ -4,11 +4,26 @@
 # syncing a local Ubuntu mirror; see etc/anonftpsync for settings affecting what
 # is mirrored and where.
 
+if [ "$DEBUG" ] && [ "$DEBUG" -gt 1 ]; then
+	set -x
+fi
+
 export LC_ALL=C
 
 PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
 DIST="${DIST:-lucid}"
+
+case $PROJECT in
+        ubuntu-netbook)
+                ARCHES="${ARCHES:-i386}"
+                ;;
+esac
+
+# If you want to build image for one or more architectures comment out the
+# following line
+#ARCHES=i386
+
 case $DIST in
 	warty|hoary|breezy|dapper|edgy)
 		ARCHES="${ARCHES:-amd64 i386 powerpc}"
@@ -21,6 +36,22 @@ CPUARCHES="$(echo "$ARCHES" | xargs -n1 | sed 's/+.*//' | sort -u | xargs)"
 
 GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
 SIGNING_KEYID=FBB75451
+
+BRITNEY="$CDIMAGE_ROOT/britney"
+
+#export LOCAL_SEEDS=file:///path/to/local_seeds
+
+# Do not update the local mirror
+#export CDIMAGE_NOSYNC=1 
+
+# Create alternate iso
+#export CDIMAGE_INSTALL=1
+
+# Do not create source iso
+#export CDIMAGE_NOSOURCE=1
+
+# Create desktop iso
+#export CDIMAGE_LIVE=1
 
 # Hosts that need to be notified when the build is done.  Third-party users
 # will want to keep this variable empty.

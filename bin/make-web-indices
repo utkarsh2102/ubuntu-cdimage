@@ -100,6 +100,9 @@ cdtypestr () {
 		src)
 			echo "source $CD"
 			;;
+		netbook)
+			echo "netbook live CD"
+			;;
 		*)
 			echo "Unknown CD type $1!" >&2
 			;;
@@ -221,6 +224,14 @@ interface.</p>
 EOF
 					;;
 			esac
+			;;
+		netbook)
+			cat <<EOF
+<p>The live $CD allows you to try ${CAPPROJECT%-Netbook} Netbook Edition without changing
+your computer at all, and at your option to install it permanently later.
+This live $CD is optimized for netbooks with screens up to 10". You will need
+at least ${DESKTOP_RAM}MB of RAM to install from this $CD.</p>
+EOF
 			;;
 		serveraddon)
 			# Edubuntu only
@@ -511,7 +522,7 @@ case $DIST in
 		distversion=10.04
 		distfullname='Lucid Lynx'
 		case $PROJECT in
-			ubuntu|kubuntu|ubuntu-server|ubuntu-netbook-remix)
+			ubuntu|kubuntu|ubuntu-server)
 				distversion="$distversion LTS"
 				;;
 		esac

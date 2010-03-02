@@ -11,7 +11,7 @@ mkemptydir "$DEBOOTSTRAP_OUT"
 for fullarch in $ARCHES; do
 	arch="${fullarch%%+*}"
 	mirror="$(find-mirror "$arch")"
-	udeb="$(zcat "$mirror/dists/$DIST/main/debian-installer/binary-$arch/Packages.gz" | grep-dctrl -nsFilename -PX debootstrap-udeb)"
+	udeb="$(zcat "$mirror/dists/$DIST/main/debian-installer/binary-$arch/Packages.gz" | grep-dctrl -nsFilename -PX debootstrap-udeb)" || true
 	case "$DIST" in
 		warty|hoary|breezy|dapper|edgy|feisty|gutsy)
 			debootstrap_script="usr/lib/debootstrap/scripts/$DIST"
@@ -20,7 +20,7 @@ for fullarch in $ARCHES; do
 			debootstrap_script="usr/share/debootstrap/scripts/$DIST"
 			;;
 	esac
-	if [ -f "$mirror/$udeb" ]; then
+	if [ "$udeb" ] && [ -f "$mirror/$udeb" ]; then
 		rm -rf "$DEBOOTSTRAP_OUT/unpack-$fullarch"
 		dpkg -x "$mirror/$udeb" "$DEBOOTSTRAP_OUT/unpack-$fullarch"
 		cp -p "$DEBOOTSTRAP_OUT/unpack-$fullarch/$debootstrap_script" \
