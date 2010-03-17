@@ -101,7 +101,7 @@ cdtypestr () {
 			echo "source $CD"
 			;;
 		netbook)
-			echo "netbook live CD"
+			echo "netbook live $CD"
 			;;
 		*)
 			echo "Unknown CD type $1!" >&2
