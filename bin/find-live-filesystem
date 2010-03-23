@@ -378,7 +378,7 @@ case $ITEM in
 				exec "$0" i386 ltsp-squashfs
 				;;
 			i386)
-				echo "$LIVECD/$DIST/$LIVEPROJECT/current/livecd.$LIVEPROJECT.$ITEM"
+				echo "$LIVECD/$DIST/$LIVEPROJECT/current/livecd.$LIVEPROJECT-ltsp.squashfs"
 				;;
 			*)
 				exit 1
