@@ -146,12 +146,14 @@ if [ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_DVD" ]; then
 		warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic)
 			;;
 		*)
-			case $CPUARCH in
-				amd64|i386)
-					fetch "$(find-live-filesystem "$arch" ltsp-squashfs)" \
-						"$LIVE_OUT/$arch.ltsp-squashfs"
-					;;
-			esac
+			for arch in $ARCHES; do
+				case $arch in
+					amd64|i386)
+						fetch "$(find-live-filesystem "$arch" ltsp-squashfs)" \
+							"$LIVE_OUT/$arch.ltsp-squashfs"
+						;;
+				esac
+			done
 			;;
 	esac
 fi
