@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|size|winfoss|wubi|wubi-cdboot|umenu|usb-creator' >&2
+	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|size|winfoss|wubi|wubi-cdboot|umenu|usb-creator|ltsp-squashfs' >&2
 	exit 1
 fi
 ARCH="$1"
@@ -370,6 +370,20 @@ case $ITEM in
 				;;
 		esac
 		echo http://people.ubuntu.com/~evand/usb-creator/$DIST/stable
+		;;
+	ltsp-squashfs)
+		case $CPUARCH in
+			amd64)
+				# use i386 LTSP image on amd64 too
+				exec "$0" i386 ltsp-squashfs
+				;;
+			i386)
+				echo "$LIVECD/$DIST/$LIVEPROJECT/current/livecd.$LIVEPROJECT.$ITEM"
+				;;
+			*)
+				exit 1
+				;;
+		esac
 		;;
 	*)
 		echo "Unknown live filesystem item '$ITEM'" >&2
