@@ -290,7 +290,7 @@ done
 for arch in $ARCHES; do
 	exec >"$TASKS_OUT/$DIST/important.$arch"
 	for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" debootstrap); do
-		egrep -v '^(linux-(image|restricted|amd64|386|686|k7|power|ia64|itanium|mckinley|sparc|hppa|imx51|dove).*|nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$' \
+		egrep -v '^(linux-(image|restricted|amd64|386|686|k7|power|ia64|itanium|mckinley|sparc|hppa|imx51|dove|omap).*|nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$' \
 			"$GERMINATE_OUT/$DIST/$arch/$seed.packages" || true
 	done
 done
