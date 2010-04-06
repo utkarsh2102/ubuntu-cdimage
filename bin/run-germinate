@@ -15,7 +15,7 @@ if [ "$GERMINATE_BZR" ]; then
 			SEED_SOURCE="http://bazaar.launchpad.net/~ubuntustudio-dev/ubuntu-seeds/,$SEED_SOURCE"
 			;;
 		mythbuntu)
-			SEED_SOURCE="http://bazaar.launchpad.net/~mythbuntu/ubuntu-seeds/,$SEED_SOURCE"
+			SEED_SOURCE="http://bazaar.launchpad.net/~mythbuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
 			;;
 		xubuntu)
 			case $DIST in
