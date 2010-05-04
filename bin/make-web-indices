@@ -527,6 +527,10 @@ case $DIST in
 				;;
 		esac
 		;;
+	maverick)
+		distversion=10.10
+		distfullname='Maverick Meerkat'
+		;;
 esac
 
 case $CDPREFIX in

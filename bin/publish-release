@@ -104,6 +104,9 @@ case $DIST in
 	lucid)
 		VERSION=10.04
 		;;
+	maverick)
+		VERSION=10.10
+		;;
 	*)
 		echo "Unknown distribution: $DIST" >&2
 		exit 1
