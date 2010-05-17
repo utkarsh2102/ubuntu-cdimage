@@ -6,19 +6,25 @@ set -e
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
-if [ -z "$1" ]; then
-	echo 'Usage: site-manifest DIRECTORY' >&2
+if [ -z "$1" ] || [ -z "$2" ]; then
+	echo 'Usage: site-manifest {simple|daily} DIRECTORY' >&2
 	exit 1
 fi
 
-cd "$1"
+TYPE="$1"
+DIRECTORY="$2"
+
+cd "$DIRECTORY"
 
 main_manifest=
 
 file_to_manifest () {
 	case $file in
-		kubuntu/*|edubuntu/*|xubuntu/*|gobuntu/*|ubuntu-server/*)
+		kubuntu/*|edubuntu/*|xubuntu/*|gobuntu/*|ubuntu-server/*|jeos/*|ubuntu-netbook/*|kubuntu-netbook/*|mythbuntu/*|ubuntustudio/*)
 			project="${file%%/*}"
+			;;
+		tocd*)
+			return
 			;;
 		*)
 			project='ubuntu'
@@ -31,6 +37,27 @@ file_to_manifest () {
 	fi
 	version="${base#*-}"
 	version="${version%%-*}"
+	dist="$DIST"
+	case $base in
+		warty-*)	dist=warty ;;
+		hoary-*)	dist=hoary ;;
+		breezy-*)	dist=breezy ;;
+		dapper-*)	dist=dapper ;;
+		edgy-*)		dist=edgy ;;
+		feisty-*)	dist=feisty ;;
+		gutsy-*)	dist=gutsy ;;
+		hardy-*)	dist=hardy ;;
+		intrepid-*)	dist=intrepid ;;
+		jaunty-*)	dist=jaunty ;;
+		karmic-*)	dist=karmic ;;
+		lucid-*)	dist=lucid ;;
+		maverick-*)	dist=maverick ;;
+		*)
+			if [ "$TYPE" = daily ]; then
+				return
+			fi
+			;;
+	esac
 	case $version in
 		4.10*)	dist=warty ;;
 		5.04*)	dist=hoary ;;
@@ -46,21 +73,28 @@ file_to_manifest () {
 		10.04*)	dist=lucid ;;
 		10.10*)	dist=maverick ;;
 		*)
-			echo "Unknown version: $version" >&2
-			return
+			if [ "$TYPE" = simple ]; then
+				echo "Unknown version: $version" >&2
+				return
+			fi
 			;;
 	esac
 	size="$(stat -c %s -L "$file")"
 	printf '%s\t%s\t%s\t%d\n' "$project" "$dist" "/$file" "$size"
 }
 
-main_manifest="$(
-	find -name .pool -prune -o \( -type f -o -type l \) \( -name \*.iso -o -name \*.img \) -printf '%P\n' | \
-	while read file; do file_to_manifest; done | sort)"
+if [ "$TYPE" = simple ]; then
+	main_manifest="$(
+		find -name .pool -prune -o \( -type f -o -type l \) \( -name \*.iso -o -name \*.img \) -printf '%P\n' | \
+		while read file; do file_to_manifest; done | sort)"
 
-echo "$main_manifest"
+	echo "$main_manifest"
 
-find \( -type f -o -type l \) \( -path '*/.pool/*.iso' -o -path '*/.pool/*.img' \) -printf '%P\n' | \
-while read file; do file_to_manifest; done | sort
+	find \( -type f -o -type l \) \( -path '*/.pool/*.iso' -o -path '*/.pool/*.img' \) -printf '%P\n' | \
+	while read file; do file_to_manifest; done | sort
+elif [ "$TYPE" = daily ]; then
+	find -L \( -type f -o -type l \) -path '*/current/*' \( -name \*.iso -o -name \*.img \) -printf '%P\n' 2>/dev/null | \
+	while read file; do file_to_manifest; done | sort
+fi
 
 exit 0

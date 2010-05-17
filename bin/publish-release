@@ -434,7 +434,7 @@ if $PUBLISH_FULL; then
 fi
 
 if $PUBLISH_DIST || $PUBLISH_POOL; then
-	site-manifest "$CDIMAGE_ROOT/www/simple" \
+	site-manifest simple "$CDIMAGE_ROOT/www/simple" \
 		> "$CDIMAGE_ROOT/www/simple/.manifest.new"
 	mv "$CDIMAGE_ROOT/www/simple/.manifest.new" \
 	   "$CDIMAGE_ROOT/www/simple/.manifest"
