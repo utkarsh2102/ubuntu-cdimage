@@ -7,7 +7,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ]; then
-	echo 'Usage: build-manifest DIRECTORY' >&2
+	echo 'Usage: site-manifest DIRECTORY' >&2
 	exit 1
 fi
 
