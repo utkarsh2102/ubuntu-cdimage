@@ -12,7 +12,7 @@ export LC_ALL=C
 
 PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
-DIST="${DIST:-lucid}"
+DIST="${DIST:-maverick}"
 
 case $PROJECT in
         ubuntu-netbook)
