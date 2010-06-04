@@ -114,13 +114,24 @@ EOF
 			kubuntu-netbook|ubuntu-netbook|ubuntu-moblin-remix)
 				fetch "$(find-live-filesystem "$arch" usb-creator)" \
 					"$LIVE_OUT/$arch.usb-creator.exe" || true
-			;;
+				;;
+			livecd-base|edubuntu)
+				;;
 			*)
 				if [ "$CDIMAGE_DVD" ]; then
 				fetch "$(find-live-filesystem "$arch" usb-creator)" \
 					"$LIVE_OUT/$arch.usb-creator.exe" || true
 				fi
-			;;
+				case $DIST in
+					warty|hoary|breezy|dapper|edgy|feisty|\
+					gutsy|hardy|intrepid|jaunty|karmic|lucid)
+						;;
+					*)
+						fetch "$(find-live-filesystem "$arch" usb-creator)" \
+							"$LIVE_OUT/$arch.usb-creator.exe" || true
+						;;
+				esac
+				;;
 		esac
 	done
 	if [ "$GOT_IMAGE" = 0 ]; then
