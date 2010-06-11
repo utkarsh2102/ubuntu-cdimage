@@ -267,7 +267,7 @@ if $IMAGES_PUBLISHED; then
 	fi
 	make-web-indices "$PUBLISH" "$DIST" daily
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
-	site-manifest daily "$CDIMAGE_ROOT/www/$FULL_TREE" \
+	site-manifest daily "$CDIMAGE_ROOT/www/full" \
 		> "$CDIMAGE_ROOT/www/full/.manifest-daily.new"
 	mv "$CDIMAGE_ROOT/www/full/.manifest-daily.new" \
 	   "$CDIMAGE_ROOT/www/full/.manifest-daily"
