@@ -14,7 +14,7 @@ fi
 FILE="$1"
 
 if [ ! -f "$GNUPG_DIR/secring.gpg" ] || [ ! -f "$GNUPG_DIR/pubring.gpg" ] || \
-   [ ! -f "$GNUPG_DIR/trustdb.gpg" ]; then
+   [ ! -f "$GNUPG_DIR/trustdb.gpg" ] || [ -z "$SIGNING_KEYID" ]; then
 	echo 'No keys found; not signing images.' >&2
 	exit
 fi
