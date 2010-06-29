@@ -685,7 +685,7 @@ EOF
 EOF
 		fi
 
-		for extension in iso.zsync img.zsync img iso.torrent iso jigdo list manifest manifest-desktop template; do
+		for extension in img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop template; do
 			if ! [ -e "$DIR/$CDPREFIX-$cdtype-$arch.$extension" ]; then
 				continue
 			fi
