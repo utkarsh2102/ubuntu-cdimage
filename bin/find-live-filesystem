@@ -12,6 +12,9 @@ ARCH="$1"
 ITEM="$2"
 CPUARCH="${ARCH%%+*}"
 SUBARCH="${ARCH#*+}"
+if [ "$SUBARCH" = "$ARCH" ]; then
+	SUBARCH=
+fi
 
 case $CPUARCH in
 	amd64)
@@ -104,11 +107,6 @@ case $PROJECT in
 		LIVEPROJECT="$PROJECT"
 		;;
 esac
-case $ARCH in
-	*+*)
-		LIVEPROJECT="$LIVEPROJECT-$SUBARCH"
-		;;
-esac
 if [ "$CDIMAGE_DVD" ] && ([ "$PROJECT" = ubuntu ] || [ "$PROJECT" = kubuntu ]); then
 	case $DIST in
 		warty|hoary|breezy|dapper|edgy|feisty|gutsy)
@@ -142,12 +140,12 @@ case $ITEM in
 						echo "/home/cjwatson/breezy-live/ubuntu/livecd.$ARCH.$ITEM"
 						;;
 					*)
-						echo "$LIVECD/$DIST/$LIVEPROJECT/current/livecd.$LIVEPROJECT.$ITEM"
+						echo "$LIVECD/$DIST/$LIVEPROJECT${SUBARCH:+-$SUBARCH}/current/livecd.$LIVEPROJECT.$ITEM"
 						;;
 				esac
 				;;
 			*)
-				echo "$LIVECD/$DIST/$LIVEPROJECT/current/livecd.$LIVEPROJECT.$ITEM"
+				echo "$LIVECD/$DIST/$LIVEPROJECT${SUBARCH:+-$SUBARCH}/current/livecd.$LIVEPROJECT.$ITEM"
 				;;
 		esac
 		;;
