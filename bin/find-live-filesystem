@@ -140,18 +140,18 @@ case $ITEM in
 						echo "/home/cjwatson/breezy-live/ubuntu/livecd.$ARCH.$ITEM"
 						;;
 					*)
-						echo "$LIVECD/$DIST/$LIVEPROJECT${SUBARCH:+-$SUBARCH}/current/livecd.$LIVEPROJECT.$ITEM"
+						echo "$LIVECD/$DIST/$LIVEPROJECT${SUBARCH:+-$SUBARCH}/current/livecd.$LIVEPROJECT${SUBARCH:+-$SUBARCH}.$ITEM"
 						;;
 				esac
 				;;
 			*)
-				echo "$LIVECD/$DIST/$LIVEPROJECT${SUBARCH:+-$SUBARCH}/current/livecd.$LIVEPROJECT.$ITEM"
+				echo "$LIVECD/$DIST/$LIVEPROJECT${SUBARCH:+-$SUBARCH}/current/livecd.$LIVEPROJECT${SUBARCH:+-$SUBARCH}.$ITEM"
 				;;
 		esac
 		;;
 	kernel|initrd)
 		for flavour in $FLAVOURS; do
-			echo "$LIVECD/$DIST/$LIVEPROJECT/current/livecd.$LIVEPROJECT.$ITEM-$flavour"
+			echo "$LIVECD/$DIST/$LIVEPROJECT${SUBARCH:+-$SUBARCH}/current/livecd.$LIVEPROJECT${SUBARCH:+-$SUBARCH}.$ITEM-$flavour"
 		done
 		;;
 	winfoss)
