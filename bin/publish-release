@@ -158,7 +158,7 @@ if $PUBLISH_DIST; then
 fi
 
 case $DIST in
-	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid)
+	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic|lucid)
 		SOURCE="$DIST/$SOURCE"
 		if [ "$SOURCE" = "$DIST/ubuntu-server/daily" ]; then
 			SOURCE="ubuntu-server/$DIST/daily"

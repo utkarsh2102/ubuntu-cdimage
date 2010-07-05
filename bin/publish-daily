@@ -13,7 +13,7 @@ DATE="$1"
 IMAGE_TYPE="${2:-daily}"
 IMAGE_TYPE_DIR="$(echo "$IMAGE_TYPE" | sed 's,_,/,g')"
 case $DIST in
-	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid)
+	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic|lucid)
 		IMAGE_TYPE_DIR="$DIST/$IMAGE_TYPE_DIR"
 		;;
 esac
