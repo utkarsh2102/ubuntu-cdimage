@@ -102,7 +102,7 @@ case $DIST in
 		VERSION=9.10
 		;;
 	lucid)
-		VERSION=10.04
+		VERSION=10.04.1
 		;;
 	maverick)
 		VERSION=10.10
