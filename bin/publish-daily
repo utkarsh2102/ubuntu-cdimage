@@ -267,15 +267,26 @@ if $IMAGES_PUBLISHED; then
 	fi
 	make-web-indices "$PUBLISH" "$DIST" daily
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
+
+	MANIFEST_LOCK="$CDIMAGE_ROOT/etc/.lock-manifest-daily"
+	if ! lockfile -r 4 "$MANIFEST_LOCK"; then
+		echo "Couldn't acquire manifest-daily lock!" >&2
+		exit 1
+	fi
+	trap "rm -f $MANIFEST_LOCK >/dev/null 2>&1" exit
+
 	site-manifest daily "$CDIMAGE_ROOT/www/full" \
 		> "$CDIMAGE_ROOT/www/full/.manifest-daily.new"
 	mv "$CDIMAGE_ROOT/www/full/.manifest-daily.new" \
 	   "$CDIMAGE_ROOT/www/full/.manifest-daily"
 	chmod g+w "$CDIMAGE_ROOT/www/full/.manifest-daily"
-	
+
 	# Create timestamps for this run.
 	mkdir -p "$CDIMAGE_ROOT/www/$FULL_TREE/.trace"
 	date -u > "$CDIMAGE_ROOT/www/$FULL_TREE/.trace/$(hostname --fqdn)"
+
+	rm -f "$MANIFEST_LOCK"
+	trap - exit
 else
 	echo "No CDs produced!" >&2
 fi
