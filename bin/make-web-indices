@@ -552,6 +552,12 @@ case $CDPREFIX in
 	$DIST)
 		distextra=' Daily Build'
 		;;
+	*.*.*)
+		# point release - need the base version too
+		CDPREFIX="$CDPREFIX ${CDPREFIX%.*}"
+		distextra=
+		important=:
+		;;
 	*)
 		distextra=
 		;;
@@ -585,10 +591,14 @@ cat <<EOF >> "$HEADER"
 EOF
 
 cdtypecount=0
-for cdtype in live desktop server install alternate serveraddon addon dvd src; do
-	if find "$DIR/" -follow -maxdepth 1 -type f -name "$CDPREFIX-$cdtype-*.list" | grep . >/dev/null; then
-		cdtypecount="$(($cdtypecount + 1))"
-	fi
+for prefix in $CDPREFIX; do
+	for cdtype in live desktop server install alternate serveraddon \
+	    addon dvd src
+	do
+		if find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" | grep . >/dev/null; then
+			cdtypecount="$(($cdtypecount + 1))"
+		fi
+	done
 done
 
 if [ "$cdtypecount" -gt 1 ]; then
@@ -600,104 +610,108 @@ fi
 
 foundtorrent=0
 
-for cdtype in live desktop server install alternate serveraddon addon dvd src; do
-	if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$CDPREFIX-$cdtype-*.list" | grep . >/dev/null; then
-		continue
-	fi
+for prefix in $CDPREFIX; do
+	for cdtype in live desktop server install alternate serveraddon addon \
+	    dvd src
+	do
+		if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" | grep . >/dev/null; then
+			continue
+		fi
 
-	case $cdtype in
-		src)
-			# Perverse, but works.
-			arches="$(find "$DIR/" -follow -maxdepth 1 -type f -name "$CDPREFIX-$cdtype-*.iso" -printf '%P\n' | \
-				  sed "s/$CDPREFIX-$cdtype-\\(.*\\)\\.iso/\\1/")"
-			;;
-		*)
-			arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3 lpia armel'
-			;;
-	esac
+		case $cdtype in
+			src)
+				# Perverse, but works.
+				arches="$(find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.iso" -printf '%P\n' | \
+					  sed "s/$prefix-$cdtype-\\(.*\\)\\.iso/\\1/")"
+				;;
+			*)
+				arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3 lpia armel'
+				;;
+		esac
 
-	cat <<EOF >> "$HEADER"
+		cat <<EOF >> "$HEADER"
 <h3>$(cdtypestr "$cdtype" | titlecase)</h3>
 
 $(cdtypedesc "$cdtype")
 
 EOF
 
-	archcount=0
-	for arch in $arches; do
-		if [ -e "$DIR/$CDPREFIX-$cdtype-$arch.list" ]; then
-			archcount="$(($archcount + 1))"
-		fi
-	done
+		archcount=0
+		for arch in $arches; do
+			if [ -e "$DIR/$prefix-$cdtype-$arch.list" ]; then
+				archcount="$(($archcount + 1))"
+			fi
+		done
 
-	if [ "$archcount" -eq 1 ]; then
-		cat <<EOF >> "$HEADER"
+		if [ "$archcount" -eq 1 ]; then
+			cat <<EOF >> "$HEADER"
 <p>There is one image available:</p>
 EOF
-	elif [ "$cdtype" = src ]; then
-		cat <<EOF >> "$HEADER"
+		elif [ "$cdtype" = src ]; then
+			cat <<EOF >> "$HEADER"
 <p>There are $(count "$archcount") images available:</p>
 EOF
-	else
-		cat <<EOF >> "$HEADER"
+		else
+			cat <<EOF >> "$HEADER"
 <p>There are $(count "$archcount") images available, each for a different type of computer:</p>
 EOF
-	fi
+		fi
 
-	cat <<EOF >> "$HEADER"
+		cat <<EOF >> "$HEADER"
 
 <dl>
 EOF
 
-	for arch in $arches; do
-		case $cdtype in
-			src)
-				imagestr="$(cdtypestr "$cdtype" | titlecase) $arch"
-				htaccessimagestr="$imagestr"
-				;;
-			*)
-				imagestr="$(archstr "$arch") $(cdtypestr "$cdtype")"
-				htaccessimagestr="$(cdtypestr "$cdtype" | titlecase) for $(archstr "$arch") computers"
-				;;
-		esac
+		for arch in $arches; do
+			case $cdtype in
+				src)
+					imagestr="$(cdtypestr "$cdtype" | titlecase) $arch"
+					htaccessimagestr="$imagestr"
+					;;
+				*)
+					imagestr="$(archstr "$arch") $(cdtypestr "$cdtype")"
+					htaccessimagestr="$(cdtypestr "$cdtype" | titlecase) for $(archstr "$arch") computers"
+					;;
+			esac
 
-		if [ -e "$DIR/$CDPREFIX-$cdtype-$arch.iso" ]; then
-			cat <<EOF >> "$HEADER"
-<dt><a href="$CDPREFIX-$cdtype-$arch.iso">$imagestr</a>
+			if [ -e "$DIR/$prefix-$cdtype-$arch.iso" ]; then
+				cat <<EOF >> "$HEADER"
+<dt><a href="$prefix-$cdtype-$arch.iso">$imagestr</a>
 EOF
-		elif [ -e "$DIR/$CDPREFIX-$cdtype-$arch.iso.torrent" ]; then
-			cat <<EOF >> "$HEADER"
-<dt><a href="$CDPREFIX-$cdtype-$arch.iso.torrent">$imagestr (<a href="https://help.ubuntu.com/community/BitTorrent">BitTorrent</a> only)</a>
+			elif [ -e "$DIR/$prefix-$cdtype-$arch.iso.torrent" ]; then
+				cat <<EOF >> "$HEADER"
+<dt><a href="$prefix-$cdtype-$arch.iso.torrent">$imagestr (<a href="https://help.ubuntu.com/community/BitTorrent">BitTorrent</a> only)</a>
 EOF
-		else
-			continue
-		fi
-
-		if [ -e "$DIR/$CDPREFIX-$cdtype-$arch.iso.torrent" ]; then
-			foundtorrent=1
-		fi
-
-		if [ "$cdtype" != src ]; then
-			cat <<EOF >> "$HEADER"
-
-<dd>$(archdesc "$arch" "$cdtype")$(maybe_oversized "$DIR/$CDPREFIX-$cdtype-$arch.OVERSIZED" "$cdtype")</dd>
-
-EOF
-		fi
-
-		for extension in img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop template; do
-			if ! [ -e "$DIR/$CDPREFIX-$cdtype-$arch.$extension" ]; then
+			else
 				continue
 			fi
 
-			echo "AddDescription \"$htaccessimagestr ($(extensionstr "$extension"))\" $CDPREFIX-$cdtype-$arch.$extension" >> "$HTACCESS"
-		done
-	done
+			if [ -e "$DIR/$prefix-$cdtype-$arch.iso.torrent" ]; then
+				foundtorrent=1
+			fi
 
-	cat <<EOF >> "$HEADER"
+			if [ "$cdtype" != src ]; then
+				cat <<EOF >> "$HEADER"
+
+<dd>$(archdesc "$arch" "$cdtype")$(maybe_oversized "$DIR/$prefix-$cdtype-$arch.OVERSIZED" "$cdtype")</dd>
+
+EOF
+			fi
+
+			for extension in img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop template; do
+				if ! [ -e "$DIR/$prefix-$cdtype-$arch.$extension" ]; then
+					continue
+				fi
+
+				echo "AddDescription \"$htaccessimagestr ($(extensionstr "$extension"))\" $prefix-$cdtype-$arch.$extension" >> "$HTACCESS"
+			done
+		done
+
+		cat <<EOF >> "$HEADER"
 </dl>
 
 EOF
+	done
 done
 
 if [ "$foundtorrent" = 1 ]; then
