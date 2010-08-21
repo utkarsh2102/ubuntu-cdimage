@@ -19,8 +19,11 @@ case $PROJECT in
 			hardy|intrepid|jaunty)
 				export ARCHES="${ARCHES:-hppa ia64 powerpc powerpc+ps3 sparc}"
 				;;
-			*)
+			karmic|lucid)
 				export ARCHES="${ARCHES:-ia64 powerpc powerpc+ps3 sparc}"
+				;;
+			*)
+				export ARCHES="${ARCHES:-powerpc powerpc+ps3}"
 				;;
 		esac
 		;;
@@ -44,8 +47,11 @@ case $PROJECT in
 			karmic)
 				export ARCHES="${ARCHES:-ia64 lpia powerpc powerpc+ps3 sparc}"
 				;;
-			*)
+			lucid)
 				export ARCHES="${ARCHES:-ia64 powerpc powerpc+ps3 sparc}"
+				;;
+			*)
+				export ARCHES="${ARCHES:-powerpc powerpc+ps3}"
 				;;
 		esac
 		;;
