@@ -20,6 +20,9 @@ case $1 in
 		export PROJECT=kubuntu-netbook
 		export CAPPROJECT=Kubuntu-Netbook
 		;;
+	kubuntu-mobile)
+		export PROJECT=kubuntu-mobile
+		export CAPPROJECT=Kubuntu-Mobile
 	edubuntu)
 		export PROJECT=edubuntu
 		export CAPPROJECT=Edubuntu

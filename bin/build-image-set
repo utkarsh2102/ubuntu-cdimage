@@ -86,7 +86,7 @@ case $PROJECT in
 				;;
 		esac
 		;;
-	kubuntu-kde4|kubuntu-netbook)
+	kubuntu-kde4|kubuntu-netbook|kubuntu-mobile)
 		export CDIMAGE_UNSUPPORTED=1
 		;;
 	ubuntustudio)
