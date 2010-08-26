@@ -60,7 +60,7 @@ case $PROJECT in
 	ubuntu-netbook)
 		GERMINATE_SEED_DIST="netbook.$DIST"
 		;;
-	kubuntu-netbook)
+	kubuntu-netbook|kubuntu-mobile)
 		GERMINATE_SEED_DIST="kubuntu.$DIST"
 		;;
 	*)

@@ -57,6 +57,9 @@ case $MODE in
 						;;
 				esac
 				;;
+			kubuntu-mobile)
+				SHIP=mobile-ship
+				;;
 		esac
 		inheritance "$SHIP"
 		if [ "$CDIMAGE_DVD" ]; then
@@ -117,6 +120,9 @@ case $MODE in
 		case $PROJECT in
 			kubuntu-netbook)
 				echo 'ship-netbook-live'
+				;;
+			kubuntu-mobile)
+				echo 'ship-mobile-live'
 				;;
 			*)
 				case $DIST in
