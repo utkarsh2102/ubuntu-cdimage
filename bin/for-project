@@ -23,6 +23,7 @@ case $1 in
 	kubuntu-mobile)
 		export PROJECT=kubuntu-mobile
 		export CAPPROJECT=Kubuntu-Mobile
+		;;
 	edubuntu)
 		export PROJECT=edubuntu
 		export CAPPROJECT=Edubuntu
