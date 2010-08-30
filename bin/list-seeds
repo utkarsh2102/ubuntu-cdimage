@@ -160,7 +160,7 @@ case $MODE in
 				if [ "$PROJECT" = edubuntu ]; then
 					# no inheritance; most of this goes
 					# on the live filesystem
-					echo 'dvd'
+					echo 'dvd ship-live'
 				else
 					inheritance dvd
 				fi
