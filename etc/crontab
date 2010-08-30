@@ -1,4 +1,4 @@
-PATH=/srv/cdimage.ubuntu.com/bin:/usr/bin:/bin
+PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # CD image cron jobs, run out of cdimage's crontab.
 31 7 * * *	for-project ubuntu cron.daily; for-project ubuntu cron.daily-live
