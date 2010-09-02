@@ -239,7 +239,7 @@ EOF
 		mobile)
 			# Kubuntu only
 			cat <<EOF
-<p>The Mobile image offers a preview of the Plasma Mobile workspace to try or
+<p>The Mobile Image offers a preview of the Plasma Mobile workspace to try or
 install.</p>
 EOF
 			;;
