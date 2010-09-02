@@ -167,6 +167,11 @@ case $DIST in
 esac
 
 DAILY="$CDIMAGE_ROOT/www/$DAILY_TREE/$SOURCE/$DATE"
+if [ ! -d "$DAILY" ] && [ "${DATE#*/}" != "$DATE" ]; then
+	if [ -d "$CDIMAGE_ROOT/www/full/$DATE" ]; then
+		DAILY="$CDIMAGE_ROOT/www/full/$DATE"
+	fi
+fi
 RELEASE_FULL="$CDIMAGE_ROOT/www/$FULL_TREE/releases/$DIST/${STATUS:-release}"
 RELEASE_SIMPLE_POOL="$CDIMAGE_ROOT/www/$SIMPLE_TREE/.pool"
 RELEASE_SIMPLE_DIST="$CDIMAGE_ROOT/www/$SIMPLE_TREE/$DIST"
