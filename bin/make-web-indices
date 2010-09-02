@@ -103,6 +103,9 @@ cdtypestr () {
 		netbook)
 			echo "netbook live $CD"
 			;;
+		mobile)
+			echo "preview mobile $CD"
+			;;
 		*)
 			echo "Unknown CD type $1!" >&2
 			;;
@@ -231,6 +234,13 @@ EOF
 your computer at all, and at your option to install it permanently later.
 This live $CD is optimized for netbooks with screens up to 10". You will need
 at least ${DESKTOP_RAM}MB of RAM to install from this $CD.</p>
+EOF
+			;;
+		mobile)
+			# Kubuntu only
+			cat <<EOF
+<p>The Mobile $CD offers a preview of the Plasma Mobile workspace to try or
+install.</p>
 EOF
 			;;
 		serveraddon)
