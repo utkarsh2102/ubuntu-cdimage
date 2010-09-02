@@ -45,6 +45,9 @@ case $IMAGE_TYPE in
 						;;
 				esac
 				;;
+			kubuntu-mobile)
+				TYPE=mobile
+				;;
 			ubuntu-server)
 				TYPE=live
 				;;
