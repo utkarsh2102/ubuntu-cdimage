@@ -104,7 +104,7 @@ cdtypestr () {
 			echo "netbook live $CD"
 			;;
 		mobile)
-			echo "preview mobile $CD"
+			echo "preview mobile image"
 			;;
 		*)
 			echo "Unknown CD type $1!" >&2
@@ -239,7 +239,7 @@ EOF
 		mobile)
 			# Kubuntu only
 			cat <<EOF
-<p>The Mobile $CD offers a preview of the Plasma Mobile workspace to try or
+<p>The Mobile image offers a preview of the Plasma Mobile workspace to try or
 install.</p>
 EOF
 			;;
