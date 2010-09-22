@@ -20,7 +20,7 @@ main_manifest=
 
 file_to_manifest () {
 	case $file in
-		kubuntu/*|edubuntu/*|xubuntu/*|gobuntu/*|ubuntu-server/*|jeos/*|ubuntu-netbook/*|kubuntu-netbook/*|mythbuntu/*|ubuntustudio/*)
+		kubuntu/*|edubuntu/*|xubuntu/*|gobuntu/*|ubuntu-server/*|jeos/*|ubuntu-netbook/*|kubuntu-netbook/*|kubuntu-mobile/*|mythbuntu/*|ubuntustudio/*)
 			project="${file%%/*}"
 			;;
 		tocd*)
