@@ -47,7 +47,7 @@ cssincludes () {
 			echo 'http://releases.ubuntu.com/include/kubuntu.css'
 			;;
 		*)
-			echo 'http://releases.ubuntu.com/include/plone.css http://releases.ubuntu.com/include/ubuntu.css'
+			echo 'http://releases.ubuntu.com/include/style.css'
 			;;
 	esac
 }
@@ -594,7 +594,11 @@ cat <<EOF >> "$HEADER"
  </head>
  <body><div id="pageWrapper">
 
+<div id="header"><a href="http://www.ubuntu.com/"></a></div>
+
 <h1>$CAPPROJECT $distversion ($distfullname)$distextra</h1>
+
+<div id="main">
 
 <h2>Select an image</h2>
 
@@ -745,7 +749,7 @@ cat <<EOF >> "$HEADER"
 EOF
 
 cat <<EOF > "$FOOTER"
-</div></body></html>
+</div></div></body></html>
 EOF
 
 # we may not be mirrored to the webserver root, so calculate a relative
