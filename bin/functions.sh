@@ -29,3 +29,10 @@ get_notify_addresses () {
 		fi
 	done < "$CDIMAGE_ROOT/etc/notify-addresses"
 }
+
+zsyncmake_wrapper () {
+	if ! zsyncmake "$@"; then
+		echo "Trying again with block size 2048 ..."
+		zsyncmake -b 2048 "$@"
+	fi
+}

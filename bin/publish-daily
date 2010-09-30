@@ -3,6 +3,7 @@ set -e
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
+. "$CDIMAGE_ROOT/bin/functions.sh"
 
 if [ -z "$1" ]; then
 	echo 'Usage: publish-daily DATE [IMAGE_TYPE]' >&2
@@ -189,9 +190,10 @@ publish_binary () {
 		if which zsyncmake >/dev/null 2>&1; then
 			echo "Making $arch zsync metafile ..."
 			rm -f "$PUBLISH/$DIST-$TYPE-$arch.iso.zsync"
-			zsyncmake -o "$PUBLISH/$DIST-$TYPE-$arch.iso.zsync" \
-				  -u "$DIST-$TYPE-$arch.iso" \
-				  "$PUBLISH/$DIST-$TYPE-$arch.iso"
+			zsyncmake_wrapper \
+				-o "$PUBLISH/$DIST-$TYPE-$arch.iso.zsync" \
+				-u "$DIST-$TYPE-$arch.iso" \
+				"$PUBLISH/$DIST-$TYPE-$arch.iso"
 		fi
 
 		SIZE="$(stat -c %s "$PUBLISH/$DIST-$TYPE-$arch.iso")"
@@ -242,8 +244,10 @@ while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
 	if which zsyncmake >/dev/null 2>&1; then
 		echo "Making source $i zsync metafile ..."
 		rm -f "$PUBLISH/$DIST-src-$i.iso.zsync"
-		zsyncmake -o "$PUBLISH/source/$DIST-src-$i.iso.zsync" -u "$DIST-src-$i.iso" \
-			  "$PUBLISH/source/$DIST-src-$i.iso"
+		zsyncmake_wrapper \
+			-o "$PUBLISH/source/$DIST-src-$i.iso.zsync" \
+			-u "$DIST-src-$i.iso" \
+			"$PUBLISH/source/$DIST-src-$i.iso"
 	fi
 
 	IMAGES_PUBLISHED=:

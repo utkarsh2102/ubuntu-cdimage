@@ -326,9 +326,10 @@ for arch in $ARCHES; do
 		if which zsyncmake >/dev/null 2>&1; then
 			echo "Making $arch zsync metafile ..."
 			rm -f "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
-			zsyncmake -o "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync" \
-			          -u "$basestatus.iso" \
-			          "$RELEASE_SIMPLE_POOL/$basestatus.iso"
+			zsyncmake_wrapper \
+				-o "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync" \
+				-u "$basestatus.iso" \
+				"$RELEASE_SIMPLE_POOL/$basestatus.iso"
 			if $PUBLISH_DIST; then
 				ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
 				       "$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
@@ -338,9 +339,10 @@ for arch in $ARCHES; do
 		if which zsyncmake >/dev/null 2>&1; then
 			echo "Making $arch zsync metafile ..."
 			rm -f "$RELEASE_FULL/$baseplain.iso.zsync"
-			zsyncmake -o "$RELEASE_FULL/$baseplain.iso.zsync" \
-			          -u "$baseplain.iso" \
-			          "$RELEASE_FULL/$baseplain.iso"
+			zsyncmake_wrapper \
+				-o "$RELEASE_FULL/$baseplain.iso.zsync" \
+				-u "$baseplain.iso" \
+				"$RELEASE_FULL/$baseplain.iso"
 		fi
 	elif [ -e "$DAILY/$DIST-$TYPE-$arch.iso.zsync" ]; then
 		# Copy, to make sure we have a canonical version of this.
