@@ -291,6 +291,9 @@ archstr () {
 		amd64)
 			echo '64-bit PC (AMD64)'
 			;;
+		amd64+mac)
+			echo '64-bit Mac (AMD64)'
+			;;
 		armel)
 			echo 'ARM EABI'
 			;;
@@ -329,6 +332,15 @@ Choose this to take full advantage of computers based on the AMD64 or EM64T
 architecture (e.g., Athlon64, Opteron, EM64T Xeon). If you have a non-64-bit
 processor made by AMD, or if you need full support for 32-bit code, use the
 Intel x86 images instead.
+EOF
+			;;
+		amd64+mac)
+			cat <<EOF
+Choose this to take full advantage of computers based on the AMD64 or EM64T
+architecture (e.g., Athlon64, Opteron, EM64T Xeon). If you have a non-64-bit
+processor made by AMD, or if you need full support for 32-bit code, use the
+Intel x86 images instead. This image is adjusted to work properly on Mac
+systems.
 EOF
 			;;
 		armel)
@@ -639,7 +651,7 @@ for prefix in $CDPREFIX; do
 					  sed "s/$prefix-$cdtype-\\(.*\\)\\.iso/\\1/")"
 				;;
 			*)
-				arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3 lpia armel'
+				arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3 lpia armel amd64+mac'
 				;;
 		esac
 
