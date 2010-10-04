@@ -25,6 +25,11 @@ case $CPUARCH in
 			*)
 				FLAVOURS=generic ;;
 		esac
+		# Use normal amd64 live image on amd64+mac.
+		case $SUBARCH in
+			mac)
+				SUBARCH= ;;
+		esac
 		;;
 	armel)
 		LIVECD="${LIVECD:-http://manoao.buildd/~buildd/LiveCD}"
