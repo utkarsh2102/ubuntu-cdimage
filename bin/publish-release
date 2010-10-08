@@ -20,10 +20,17 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/bin/functions.sh"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: publish-release DAILY-SOURCE DAILY-DATE TYPE OFFICIAL [STATUS]' >&2
+	echo 'Usage: publish-release [--dry-run] DAILY-SOURCE DAILY-DATE TYPE OFFICIAL [STATUS]' >&2
 	echo 'OFFICIAL=yes to publish to releases.ubuntu.com, poolonly to pre-publish,' >&2
 	echo 'named to publish to cdimage.ubuntu.com as $PROJECT-$VERSION-*, otherwise no.' >&2
 	exit 1
+fi
+
+# TODO: proper option parsing
+if [ "x$1" = x--dry-run ]; then
+	echo=echo
+else
+	echo=
 fi
 
 SOURCE="$1"
@@ -212,21 +219,21 @@ for arch in $ARCHES; do
 done
 
 if $PUBLISH_POOL; then
-	mkdir -p "$RELEASE_SIMPLE_POOL"
+	$echo mkdir -p "$RELEASE_SIMPLE_POOL"
 fi
 if $PUBLISH_DIST; then
-	mkdir -p "$RELEASE_SIMPLE_DIST"
+	$echo mkdir -p "$RELEASE_SIMPLE_DIST"
 	if [ ! -h "$CDIMAGE_ROOT/www/$SIMPLE_TREE/$VERSION" ]; then
-		ln -ns "$DIST" "$CDIMAGE_ROOT/www/$SIMPLE_TREE/$VERSION"
+		$echo ln -ns "$DIST" "$CDIMAGE_ROOT/www/$SIMPLE_TREE/$VERSION"
 	fi
 	if [ -z "$CDIMAGE_NO_PURGE" ]; then
-		find "$RELEASE_SIMPLE_DIST/" -name "$CDPREFIX-$TYPE-*" -type l -print0 | xargs -0r rm -f
+		find "$RELEASE_SIMPLE_DIST/" -name "$CDPREFIX-$TYPE-*" -type l -print0 | xargs -0r $echo rm -f
 	fi
 fi
 if $PUBLISH_FULL; then
-	mkdir -p "$RELEASE_FULL"
+	$echo mkdir -p "$RELEASE_FULL"
 	if [ ! -h "$CDIMAGE_ROOT/www/$FULL_TREE/releases/$VERSION" ]; then
-		ln -ns "$DIST" "$CDIMAGE_ROOT/www/$FULL_TREE/releases/$VERSION"
+		$echo ln -ns "$DIST" "$CDIMAGE_ROOT/www/$FULL_TREE/releases/$VERSION"
 	fi
 fi
 
@@ -245,21 +252,21 @@ for arch in $ARCHES; do
 	# Copy, to make sure we have a canonical version of this.
 	for ext in iso list; do
 		if $PUBLISH_POOL; then
-			cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
-			      "$RELEASE_SIMPLE_POOL/$basestatus.$ext"
-			checksum-remove --no-sign \
+			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
+				"$RELEASE_SIMPLE_POOL/$basestatus.$ext"
+			$echo checksum-remove --no-sign \
 				"$RELEASE_SIMPLE_POOL" "$basestatus.$ext"
 		fi
 		if $PUBLISH_DIST; then
-			ln -sf "$DIST_TO_POOL/$basestatus.$ext" \
-			       "$RELEASE_SIMPLE_DIST/$basestatus.$ext"
-			checksum-remove --no-sign \
+			$echo ln -sf "$DIST_TO_POOL/$basestatus.$ext" \
+				"$RELEASE_SIMPLE_DIST/$basestatus.$ext"
+			$echo checksum-remove --no-sign \
 				"$RELEASE_SIMPLE_DIST" "$basestatus.$ext"
 		fi
 		if $PUBLISH_FULL; then
-			cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
-			      "$RELEASE_FULL/$baseplain.$ext"
-			checksum-remove --no-sign \
+			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
+				"$RELEASE_FULL/$baseplain.$ext"
+			$echo checksum-remove --no-sign \
 				"$RELEASE_FULL" "$baseplain.$ext"
 		fi
 	done
@@ -271,35 +278,43 @@ for arch in $ARCHES; do
 		if [ -e "$DAILY/$DIST-$TYPE-$arch.jigdo" ] && \
 		   [ -e "$DAILY/$DIST-$TYPE-$arch.template" ]; then
 			if $PUBLISH_POOL; then
-				cp -a "$DAILY/$DIST-$TYPE-$arch.template" \
+				$echo cp -a "$DAILY/$DIST-$TYPE-$arch.template" \
 					"$RELEASE_SIMPLE_POOL/$basestatus.template"
-				sed "s/=$DIST-$TYPE-$arch/=$basestatus/g" \
-					< "$DAILY/$DIST-$TYPE-$arch.jigdo" \
-					> "$RELEASE_SIMPLE_POOL/$basestatus.jigdo"
+				if [ "$echo" ]; then
+					echo "Would fix up jigdo file"
+				else
+					sed "s/=$DIST-$TYPE-$arch/=$basestatus/g" \
+						< "$DAILY/$DIST-$TYPE-$arch.jigdo" \
+						> "$RELEASE_SIMPLE_POOL/$basestatus.jigdo"
+				fi
 			fi
 			if $PUBLISH_DIST; then
 				for ext in template jigdo; do
-					ln -sf "$DIST_TO_POOL/$basestatus.$ext" \
+					$echo ln -sf "$DIST_TO_POOL/$basestatus.$ext" \
 						"$RELEASE_SIMPLE_DIST/$basestatus.$ext"
 				done
 			fi
 			if $PUBLISH_FULL; then
-				cp -a "$DAILY/$DIST-$TYPE-$arch.template" \
+				$echo cp -a "$DAILY/$DIST-$TYPE-$arch.template" \
 					"$RELEASE_FULL/$baseplain.template"
-				sed "s/=$DIST-$TYPE-$arch/=$baseplain/g" \
-					< "$DAILY/$DIST-$TYPE-$arch.jigdo" \
-					> "$RELEASE_FULL/$baseplain.jigdo"
+				if [ "$echo" ]; then
+					echo "Would fix up jigdo file"
+				else
+					sed "s/=$DIST-$TYPE-$arch/=$baseplain/g" \
+						< "$DAILY/$DIST-$TYPE-$arch.jigdo" \
+						> "$RELEASE_FULL/$baseplain.jigdo"
+				fi
 			fi
 		else
 			for ext in jigdo template; do
 				if $PUBLISH_POOL; then
-					rm -f "$RELEASE_SIMPLE_POOL/$basestatus.$ext"
+					$echo rm -f "$RELEASE_SIMPLE_POOL/$basestatus.$ext"
 				fi
 				if $PUBLISH_DIST; then
-					rm -f "$RELEASE_SIMPLE_DIST/$basestatus.$ext"
+					$echo rm -f "$RELEASE_SIMPLE_DIST/$basestatus.$ext"
 				fi
 				if $PUBLISH_FULL; then
-					rm -f "$RELEASE_FULL/$baseplain.$ext"
+					$echo rm -f "$RELEASE_FULL/$baseplain.$ext"
 				fi
 			done
 		fi
@@ -309,37 +324,37 @@ for arch in $ARCHES; do
 	   ([ "$TYPE" = dvd ] && [ -e "$DAILY/$DIST-$TYPE-$arch.manifest" ]); then
 		# Copy, to make sure we have a canonical version of this.
 		if $PUBLISH_POOL; then
-			cp -a "$DAILY/$DIST-$TYPE-$arch.manifest" \
-			      "$RELEASE_SIMPLE_POOL/$basestatus.manifest"
+			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.manifest" \
+				"$RELEASE_SIMPLE_POOL/$basestatus.manifest"
 		fi
 		if $PUBLISH_DIST; then
-			ln -sf "$DIST_TO_POOL/$basestatus.manifest" \
-			       "$RELEASE_SIMPLE_DIST/$basestatus.manifest"
+			$echo ln -sf "$DIST_TO_POOL/$basestatus.manifest" \
+				"$RELEASE_SIMPLE_DIST/$basestatus.manifest"
 		fi
 		if $PUBLISH_FULL; then
-			cp -a "$DAILY/$DIST-$TYPE-$arch.manifest" \
-			      "$RELEASE_FULL/$baseplain.manifest"
+			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.manifest" \
+				"$RELEASE_FULL/$baseplain.manifest"
 		fi
 	fi
 
 	if $PUBLISH_POOL; then
 		if which zsyncmake >/dev/null 2>&1; then
 			echo "Making $arch zsync metafile ..."
-			rm -f "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
-			zsyncmake_wrapper \
+			$echo rm -f "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
+			$echo zsyncmake_wrapper \
 				-o "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync" \
 				-u "$basestatus.iso" \
 				"$RELEASE_SIMPLE_POOL/$basestatus.iso"
 			if $PUBLISH_DIST; then
-				ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
-				       "$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
+				$echo ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
+					"$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
 			fi
 		fi
 	elif $PUBLISH_FULL && [ "$OFFICIAL" = named ]; then
 		if which zsyncmake >/dev/null 2>&1; then
 			echo "Making $arch zsync metafile ..."
-			rm -f "$RELEASE_FULL/$baseplain.iso.zsync"
-			zsyncmake_wrapper \
+			$echo rm -f "$RELEASE_FULL/$baseplain.iso.zsync"
+			$echo zsyncmake_wrapper \
 				-o "$RELEASE_FULL/$baseplain.iso.zsync" \
 				-u "$baseplain.iso" \
 				"$RELEASE_FULL/$baseplain.iso"
@@ -347,16 +362,16 @@ for arch in $ARCHES; do
 	elif [ -e "$DAILY/$DIST-$TYPE-$arch.iso.zsync" ]; then
 		# Copy, to make sure we have a canonical version of this.
 		if $PUBLISH_POOL; then
-			cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
-			      "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
+			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
+				"$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
 		fi
 		if $PUBLISH_DIST; then
-			ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
-			       "$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
+			$echo ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
+				"$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
 		fi
 		if $PUBLISH_FULL; then
-			cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
-			      "$RELEASE_FULL/$baseplain.iso.zsync"
+			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
+				"$RELEASE_FULL/$baseplain.iso.zsync"
 		fi
 	fi
 done
@@ -368,7 +383,7 @@ if $PUBLISH_DIST && [ -z "$CDIMAGE_NO_PURGE" ]; then
 	for dir in "$RELEASE_SIMPLE_DIST" "$RELEASE_SIMPLE_POOL"; do
 		find "$dir" -maxdepth 1 -name "$CDPREFIX-*" ! -regex ".*/$CDPREFIX${FILESTATUS:+-$FILESTATUS}-[^-]*-[^-]*" | while read file; do
 			echo "Purging $file"
-			rm -f "$file"
+			$echo rm -f "$file"
 		done
 	done
 fi
@@ -378,78 +393,86 @@ if [ "$TYPE" != src ]; then
 	if $PUBLISH_DIST; then
 		TORRENTS="$CDIMAGE_ROOT/www/$TORRENT_TREE/simple/$DIST/$TYPE"
 		if [ -z "$CDIMAGE_NO_PURGE" ]; then
-			mkemptydir "$TORRENTS"
+			$echo mkemptydir "$TORRENTS"
 		fi
-		make-torrents "$RELEASE_SIMPLE_DIST" \
+		$echo make-torrents "$RELEASE_SIMPLE_DIST" \
 			"$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE" releases.ubuntu.com
 	fi
 	if $PUBLISH_FULL; then
 		for dir in "$CDIMAGE_ROOT/www/$TORRENT_TREE/releases/$DIST"/*; do
 			[ -d "$dir" ] || continue
 			if [ "${dir##*/}" != "${STATUS:-release}" ]; then
-				rm -rf "$dir"
+				$echo rm -rf "$dir"
 			fi
 		done
 		TORRENTS="$CDIMAGE_ROOT/www/$TORRENT_TREE/releases/$DIST/${STATUS:-release}/$TYPE"
-		mkemptydir "$TORRENTS"
-		make-torrents "$RELEASE_FULL" "$CDPREFIX-$TYPE" cdimage.ubuntu.com
+		$echo mkemptydir "$TORRENTS"
+		$echo make-torrents "$RELEASE_FULL" "$CDPREFIX-$TYPE" cdimage.ubuntu.com
 	fi
 	for arch in $ARCHES; do
 		if $PUBLISH_DIST; then
 			basestatus="$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE-$arch"
 			[ -e "$RELEASE_SIMPLE_POOL/$basestatus.iso" ] || continue
-			ln -f "$RELEASE_SIMPLE_POOL/$basestatus.iso" \
-			      "$TORRENTS/$basestatus.iso"
-			ln -f "$RELEASE_SIMPLE_DIST/$basestatus.iso.torrent" \
-			      "$TORRENTS/$basestatus.iso.torrent"
+			$echo ln -f "$RELEASE_SIMPLE_POOL/$basestatus.iso" \
+				"$TORRENTS/$basestatus.iso"
+			$echo ln -f "$RELEASE_SIMPLE_DIST/$basestatus.iso.torrent" \
+				"$TORRENTS/$basestatus.iso.torrent"
 		fi
 		if $PUBLISH_FULL; then
 			baseplain="$CDPREFIX-$TYPE-$arch"
 			[ -e "$RELEASE_FULL/$baseplain.iso" ] || continue
-			ln -f "$RELEASE_FULL/$baseplain.iso" \
-			      "$TORRENTS/$baseplain.iso"
-			ln -f "$RELEASE_FULL/$baseplain.iso.torrent" \
-			      "$TORRENTS/$baseplain.iso.torrent"
+			$echo ln -f "$RELEASE_FULL/$baseplain.iso" \
+				"$TORRENTS/$baseplain.iso"
+			$echo ln -f "$RELEASE_FULL/$baseplain.iso.torrent" \
+				"$TORRENTS/$baseplain.iso.torrent"
 		fi
 	done
 fi
 
 if $PUBLISH_DIST; then
-	make-web-indices "$RELEASE_SIMPLE_DIST" "$CDPREFIX${FILESTATUS:+-$FILESTATUS}"
+	$echo make-web-indices "$RELEASE_SIMPLE_DIST" "$CDPREFIX${FILESTATUS:+-$FILESTATUS}"
 fi
 if $PUBLISH_FULL; then
-	make-web-indices "$RELEASE_FULL" "$CDPREFIX"
+	$echo make-web-indices "$RELEASE_FULL" "$CDPREFIX"
 fi
 
 if $PUBLISH_POOL; then
 	echo 'Checksumming simple tree (pool) ...'
-	checksum-directory \
+	$echo checksum-directory \
 		--map "s/^$CDPREFIX-${FILESTATUS:+$FILESTATUS-}/$DIST-/" \
 		"$RELEASE_SIMPLE_POOL" "$DAILY"
 fi
 if $PUBLISH_DIST; then
 	echo "Checksumming simple tree ($DIST) ..."
-	checksum-directory \
+	$echo checksum-directory \
 		--map "s/^$CDPREFIX-${FILESTATUS:+$FILESTATUS-}/$DIST-/" \
 		"$RELEASE_SIMPLE_DIST" "$DAILY"
 fi
 if $PUBLISH_FULL; then
 	echo 'Checksumming full tree ...'
-	checksum-directory \
+	$echo checksum-directory \
 		--map "s/^$CDPREFIX-/$DIST-/" \
 		"$RELEASE_FULL" "$DAILY"
 fi
 
 if $PUBLISH_DIST || $PUBLISH_POOL; then
-	site-manifest simple "$CDIMAGE_ROOT/www/simple" \
-		> "$CDIMAGE_ROOT/www/simple/.manifest.new"
-	mv "$CDIMAGE_ROOT/www/simple/.manifest.new" \
-	   "$CDIMAGE_ROOT/www/simple/.manifest"
-	chmod g+w "$CDIMAGE_ROOT/www/simple/.manifest"
+	if [ "$echo" ]; then
+		echo site-manifest simple "$CDIMAGE_ROOT/www/simple"
+	else
+		site-manifest simple "$CDIMAGE_ROOT/www/simple" \
+			> "$CDIMAGE_ROOT/www/simple/.manifest.new"
+		mv "$CDIMAGE_ROOT/www/simple/.manifest.new" \
+		   "$CDIMAGE_ROOT/www/simple/.manifest"
+		chmod g+w "$CDIMAGE_ROOT/www/simple/.manifest"
+	fi
 
 	# Create timestamps for this run.
-	mkdir -p "$CDIMAGE_ROOT/www/simple/.trace"
-	date -u > "$CDIMAGE_ROOT/www/simple/.trace/$(hostname --fqdn)"
+	if [ "$echo" ]; then
+		echo "Would create trace file"
+	else
+		mkdir -p "$CDIMAGE_ROOT/www/simple/.trace"
+		date -u > "$CDIMAGE_ROOT/www/simple/.trace/$(hostname --fqdn)"
+	fi
 fi
 
 echo "Done! Remember to sync-mirrors after checking that everything is OK."
