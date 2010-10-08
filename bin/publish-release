@@ -29,6 +29,7 @@ fi
 # TODO: proper option parsing
 if [ "x$1" = x--dry-run ]; then
 	echo=echo
+	shift
 else
 	echo=
 fi
