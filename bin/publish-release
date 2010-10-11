@@ -115,6 +115,9 @@ case $DIST in
 	maverick)
 		VERSION=10.10
 		;;
+	natty)
+		VERSION=11.04
+		;;
 	*)
 		echo "Unknown distribution: $DIST" >&2
 		exit 1

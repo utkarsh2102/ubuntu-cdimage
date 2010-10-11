@@ -28,7 +28,7 @@ case $DIST in
 	warty|hoary|breezy|dapper|edgy)
 		ARCHES="${ARCHES:-amd64 i386 powerpc}"
 		;;
-	feisty|gutsy|hardy|intrepid|jaunty|karmic|lucid|maverick)
+	feisty|gutsy|hardy|intrepid|jaunty|karmic|lucid|maverick|natty)
 		ARCHES="${ARCHES:-amd64 i386}"
 		;;
 esac

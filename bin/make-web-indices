@@ -553,6 +553,10 @@ case $DIST in
 		distversion=10.10
 		distfullname='Maverick Meerkat'
 		;;
+	natty)
+		distversion=11.04
+		distfullname='Natty Narwhal'
+		;;
 esac
 
 case $CDPREFIX in
