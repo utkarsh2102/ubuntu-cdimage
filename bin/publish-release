@@ -49,7 +49,11 @@ case $SOURCE in
 		source_tail="${SOURCE#ubuntu-server/}"
 		TREE_SUFFIX="/${source_tail%%/*}"
 		;;
-	ubuntu-server/*)
+	ubuntu-netbook/*/*)
+		source_tail="${SOURCE#ubuntu-netbook/}"
+		TREE_SUFFIX="/${source_tail%%/*}"
+		;;
+	ubuntu-server/*|ubuntu-netbook/*)
 		TREE_SUFFIX=
 		;;
 	*/*)
