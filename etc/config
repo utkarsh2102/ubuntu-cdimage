@@ -53,7 +53,9 @@ BRITNEY="$CDIMAGE_ROOT/britney"
 #export CDIMAGE_INSTALL=1
 
 # Do not create source iso
-export CDIMAGE_NOSOURCE=1
+if [ -z "$CDIMAGE_ONLYSOURCE" ]; then
+	export CDIMAGE_NOSOURCE=1
+fi
 
 # Create desktop iso
 #export CDIMAGE_LIVE=1
