@@ -16,7 +16,38 @@ IMAGE_TYPE="$1"
 GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
 TASKS_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tasks"
 
-mkemptydir "$TASKS_OUT/$DIST"
+if [ "$IMAGE_TYPE" = source ]; then
+	if [ "$SOURCE_PROJECT" ]; then
+		GERMINATE_OUT="$GERMINATE_OUT/$SOURCE_PROJECT"
+		PROJECT="$SOURCE_PROJECT"
+	else
+		mkemptydir "$TASKS_OUT/$DIST"
+
+		# Generate task output for all source projects.
+		for project in $ALL_PROJECTS; do
+			SOURCE_PROJECT="$project" germinate-to-tasks "$@"
+			for x in "$TASKS_OUT/$DIST"/*; do
+				base="$(basename "$x")"
+				case $base in
+					*:*)	;;
+					*)
+						mv "$x" "$TASKS_OUT/$DIST/$project:$base"
+						;;
+				esac
+			done
+			sed -i "s,\\(.*<\\)[^/]*\\(.*/\\),\\1$PROJECT\\2$project:," "$TASKS_OUT/$DIST/$project:MASTER"
+		done
+
+		# Make a super-master task file.
+		exec > "$TASKS_OUT/$DIST/MASTER"
+		for project in $ALL_PROJECTS; do
+			echo "#include <$PROJECT/$DIST/$project:MASTER>"
+		done
+		exit 0
+	fi
+else
+	mkemptydir "$TASKS_OUT/$DIST"
+fi
 
 # ubuntu-server really wants ubuntu-* tasks.
 case $PROJECT in
@@ -164,6 +195,8 @@ done
 # installation step. In breezy, also generate Archive-Copier-Set headers for
 # sets of packages that archive-copier needs to know to copy but that shouldn't
 # appear as tasks in aptitude et al.
+# Note that the results of this will be wrong for source images, but that
+# doesn't matter since they won't be used there.
 for arch in $ARCHES; do
 	exec >"$TASKS_OUT/$DIST/tasks.$arch"
 	for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do

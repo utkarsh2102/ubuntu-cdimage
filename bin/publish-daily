@@ -211,13 +211,15 @@ publish_binary () {
 
 }
 
-for arch in $ARCHES; do
-	publish_binary "$TYPE" "$arch"
-done
-if [ "$PROJECT" = edubuntu ] && [ "$TYPE" = server ]; then
+if [ -z "$CDIMAGE_ONLYSOURCE" ]; then
 	for arch in $ARCHES; do
-		publish_binary serveraddon "$arch"
+		publish_binary "$TYPE" "$arch"
 	done
+	if [ "$PROJECT" = edubuntu ] && [ "$TYPE" = server ]; then
+		for arch in $ARCHES; do
+			publish_binary serveraddon "$arch"
+		done
+	fi
 fi
 
 i=1
@@ -268,7 +270,9 @@ if $IMAGES_PUBLISHED; then
 	if [ "$CDIMAGE_INSTALL_BASE" ] && [ -e "$BRITNEY_REPORT/${DIST}_probs.html" ]; then
 		cp -a "$BRITNEY_REPORT/${DIST}_probs.html" "$PUBLISH/report.html"
 	fi
-	checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH" $CHECKSUM_DIRS
+	if [ -z "$CDIMAGE_ONLYSOURCE" ]; then
+		checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH" $CHECKSUM_DIRS
+	fi
 	if [ -d "$PUBLISH/source" ]; then
 		checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH/source" "$CDOUT/src"
 	fi

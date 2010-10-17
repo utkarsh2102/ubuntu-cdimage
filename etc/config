@@ -24,6 +24,11 @@ esac
 # following line
 #ARCHES=i386
 
+# All projects currently being built.  This is used for building source
+# images.  Note that we only need to include projects with their own seed
+# collections, so not kubuntu-mobile or ubuntu-server.
+ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu edubuntu xubuntu ubuntu-netbook ubuntustudio mythbuntu}"
+
 case $DIST in
 	warty|hoary|breezy|dapper|edgy)
 		ARCHES="${ARCHES:-amd64 i386 powerpc}"
