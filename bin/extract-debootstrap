@@ -3,7 +3,6 @@ set -e
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
-. "$CDIMAGE_ROOT/bin/functions.sh"
 
 DEBOOTSTRAP_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/debootstrap"
 

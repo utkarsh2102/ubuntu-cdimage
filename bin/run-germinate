@@ -3,7 +3,6 @@ set -e
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
-. "$CDIMAGE_ROOT/bin/functions.sh"
 
 GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
 # set to the empty string instead to use old-style seed checkouts
@@ -32,13 +31,9 @@ if [ "$GERMINATE_BZR" ]; then
 			SEED_SOURCE="http://bazaar.launchpad.net/~mythbuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
 			;;
 		xubuntu)
-			case $DIST in
-				dapper|edgy|feisty|gutsy|hardy)
-					;;
-				*)
-					SEED_SOURCE="http://bazaar.launchpad.net/~xubuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
-					;;
-			esac
+			if dist_ge intrepid; then
+				SEED_SOURCE="http://bazaar.launchpad.net/~xubuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
+			fi
 			;;
 	esac
 else
@@ -50,18 +45,14 @@ if [ "$LOCAL_SEEDS" ]; then
 	GERMINATE_BZR=
 fi
 
-case $DIST in
-	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic)
-		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
-		;;
-	lucid)
-		#GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
-		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates,$DIST-proposed}"
-		;;
-	*)
-		GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST}"
-		;;
-esac
+if dist_le karmic; then
+	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
+elif dist_le lucid; then
+	#GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
+	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates,$DIST-proposed}"
+else
+	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST}"
+fi
 
 case $PROJECT in
 	ubuntu-server)

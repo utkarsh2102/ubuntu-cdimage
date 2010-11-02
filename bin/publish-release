@@ -17,7 +17,6 @@ set -e
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
-. "$CDIMAGE_ROOT/bin/functions.sh"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
 	echo 'Usage: publish-release [--dry-run] DAILY-SOURCE DAILY-DATE TYPE OFFICIAL [STATUS]' >&2
@@ -172,14 +171,12 @@ if $PUBLISH_DIST; then
 	PUBLISH_POOL=:
 fi
 
-case $DIST in
-	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic|lucid)
-		SOURCE="$DIST/$SOURCE"
-		if [ "$SOURCE" = "$DIST/ubuntu-server/daily" ]; then
-			SOURCE="ubuntu-server/$DIST/daily"
-		fi
-		;;
-esac
+if dist_le lucid; then
+	SOURCE="$DIST/$SOURCE"
+	if [ "$SOURCE" = "$DIST/ubuntu-server/daily" ]; then
+		SOURCE="ubuntu-server/$DIST/daily"
+	fi
+fi
 
 DAILY="$CDIMAGE_ROOT/www/$DAILY_TREE/$SOURCE/$DATE"
 if [ ! -d "$DAILY" ] && [ "${DATE#*/}" != "$DATE" ]; then

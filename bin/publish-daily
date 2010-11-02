@@ -3,7 +3,6 @@ set -e
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
-. "$CDIMAGE_ROOT/bin/functions.sh"
 
 if [ -z "$1" ]; then
 	echo 'Usage: publish-daily DATE [IMAGE_TYPE]' >&2
@@ -13,11 +12,9 @@ fi
 DATE="$1"
 IMAGE_TYPE="${2:-daily}"
 IMAGE_TYPE_DIR="$(echo "$IMAGE_TYPE" | sed 's,_,/,g')"
-case $DIST in
-	warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic|lucid)
-		IMAGE_TYPE_DIR="$DIST/$IMAGE_TYPE_DIR"
-		;;
-esac
+if dist_le lucid; then
+	IMAGE_TYPE_DIR="$DIST/$IMAGE_TYPE_DIR"
+fi
 
 CDOUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/debian-cd"
 BRITNEY_REPORT="$CDIMAGE_ROOT/britney/report/$PROJECT/$IMAGE_TYPE"
@@ -37,14 +34,11 @@ case $IMAGE_TYPE in
 	*-live)
 		case $PROJECT in
 			edubuntu)
-				case $DIST in
-					warty|hoary|breezy|dapper|edgy)
-						TYPE=live
-						;;
-					*)
-						TYPE=desktop
-						;;
-				esac
+				if dist_le edgy; then
+					TYPE=live
+				else
+					TYPE=desktop
+				fi
 				;;
 			kubuntu-mobile)
 				TYPE=mobile
@@ -56,14 +50,11 @@ case $IMAGE_TYPE in
 				TYPE=netbook
 				;;
 			*)
-				case $DIST in
-					warty|hoary|breezy)
-						TYPE=live
-						;;
-					*)
-						TYPE=desktop
-						;;
-				esac
+				if dist_le breezy; then
+					TYPE=live
+				else
+					TYPE=desktop
+				fi
 				;;
 		esac
 		;;
@@ -73,37 +64,27 @@ case $IMAGE_TYPE in
 	*)
 		case $PROJECT in
 			edubuntu)
-				case $DIST in
-					warty|hoary|breezy|dapper|edgy)
-						TYPE=install
-						;;
-					feisty|gutsy)
-						TYPE=server
-						;;
-					*)
-						TYPE=addon
-						;;
-				esac
+				if dist_le edgy; then
+					TYPE=install
+				elif dist_le gutsy; then
+					TYPE=server
+				else
+					TYPE=addon
+				fi
 				;;
 			ubuntu-server)
-				case $DIST in
-					warty|hoary|breezy)
-						TYPE=install
-						;;
-					*)
-						TYPE=server
-						;;
-				esac
+				if dist_le breezy; then
+					TYPE=install
+				else
+					TYPE=server
+				fi
 				;;
 			*)
-				case $DIST in
-					warty|hoary|breezy)
-						TYPE=install
-						;;
-					*)
-						TYPE=alternate
-						;;
-				esac
+				if dist_le breezy; then
+					TYPE=install
+				else
+					TYPE=alternate
+				fi
 				;;
 		esac
 		;;

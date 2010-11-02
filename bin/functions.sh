@@ -36,3 +36,29 @@ zsyncmake_wrapper () {
 		zsyncmake -b 2048 "$@"
 	fi
 }
+
+dist_lt () {
+	case " $ALL_DISTS " in
+		*" $DIST $1 "*|*" $DIST "*" $1 "*)
+			return 0
+			;;
+		*)
+			return 1
+			;;
+	esac
+}
+
+dist_le () {
+	case $DIST in
+		$1)	return 0 ;;
+	esac
+	dist_lt "$1"
+}
+
+dist_ge () {
+	! dist_lt "$1"
+}
+
+dist_gt () {
+	! dist_le "$1"
+}

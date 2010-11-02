@@ -19,12 +19,11 @@ fi
 case $CPUARCH in
 	amd64)
 		LIVECD="${LIVECD:-http://king.buildd/~buildd/LiveCD}"
-		case $DIST in
-			warty|hoary|breezy|dapper)
-				FLAVOURS=amd64-generic ;;
-			*)
-				FLAVOURS=generic ;;
-		esac
+		if dist_le dapper; then
+			FLAVOURS=amd64-generic
+		else
+			FLAVOURS=generic
+		fi
 		# Use normal amd64 live image on amd64+mac.
 		case $SUBARCH in
 			mac)
@@ -41,50 +40,39 @@ case $CPUARCH in
 		;;
 	i386)
 		LIVECD="${LIVECD:-http://terranova.buildd/~buildd/LiveCD}"
-		case $DIST in
-			warty|hoary|breezy|dapper)
-				FLAVOURS=386 ;;
-			*)
-				FLAVOURS=generic ;;
-		esac
+		if dist_le dapper; then
+			FLAVOURS=386
+		else
+			FLAVOURS=generic
+		fi
 		;;
 	ia64)
 		LIVECD="${LIVECD:-http://weddell.buildd/~buildd/LiveCD}"
-		case $DIST in
-			warty|hoary|breezy|dapper)
-				FLAVOURS='itanium-smp mckinley-smp'
-				;;
-			edgy|feisty|gutsy|hardy|intrepid|jaunty)
-				FLAVOURS='itanium mckinley'
-				;;
-			*)
-				FLAVOURS=ia64
-				;;
-		esac
+		if dist_le dapper; then
+			FLAVOURS='itanium-smp mckinley-smp'
+		elif dist_le jaunty; then
+			FLAVOURS='itanium mckinley'
+		else
+			FLAVOURS=ia64
+		fi
 		;;
 	lpia)
-		case $DIST in
-			gutsy|hardy)
-				LIVECD="${LIVECD:-http://terranova.buildd/~buildd/LiveCD}"
-				;;
-			*)
-				LIVECD="${LIVECD:-http://concordia.buildd/~buildd/LiveCD}"
-				;;
-		esac
+		if dist_le hardy; then
+			LIVECD="${LIVECD:-http://terranova.buildd/~buildd/LiveCD}"
+		else
+			LIVECD="${LIVECD:-http://concordia.buildd/~buildd/LiveCD}"
+		fi
 		FLAVOURS=lpia
 		;;
 	powerpc)
 		LIVECD="${LIVECD:-http://royal.buildd/~buildd/LiveCD}"
 		case $SUBARCH in
 			ps3)
-				case $DIST in
-					gutsy)
-						FLAVOURS=cell
-						;;
-					*)
-						FLAVOURS='powerpc powerpc64-smp'
-						;;
-				esac
+				if dist_le gutsy; then
+					FLAVOURS=cell
+				else
+					FLAVOURS='powerpc powerpc64-smp'
+				fi
 				;;
 			*)
 				FLAVOURS='powerpc powerpc64-smp'
@@ -113,22 +101,14 @@ case $PROJECT in
 		;;
 esac
 if [ "$CDIMAGE_DVD" ] && ([ "$PROJECT" = ubuntu ] || [ "$PROJECT" = kubuntu ]); then
-	case $DIST in
-		warty|hoary|breezy|dapper|edgy|feisty|gutsy)
-			;;
-		*)
-			LIVEPROJECT="$LIVEPROJECT-dvd"
-			;;
-	esac
+	if dist_ge hardy; then
+		LIVEPROJECT="$LIVEPROJECT-dvd"
+	fi
 fi
 if [ "$CDIMAGE_DVD" ] && [ "$PROJECT" = edubuntu ]; then
-	case $DIST in
-		warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty)
-			;;
-		*)
-			LIVEPROJECT="$LIVEPROJECT-dvd"
-			;;
-	esac
+	if dist_ge karmic; then
+		LIVEPROJECT="$LIVEPROJECT-dvd"
+	fi
 fi
 
 if [ -z "$LIVECD_BASE" ]; then
@@ -325,14 +305,11 @@ case $ITEM in
 				exit 1
 				;;
 		esac
-		case $DIST in
-			warty|hoary|breezy|dapper|edgy|feisty)
-				exit 1
-				;;
-			*)
-				echo http://people.ubuntu.com/~evand/wubi/$DIST/stable
-				;;
-		esac
+		if dist_le feisty; then
+			exit 1
+		else
+			echo http://people.ubuntu.com/~evand/wubi/$DIST/stable
+		fi
 		;;
 	wubi-cdboot)
 		case $ARCH in
@@ -342,14 +319,11 @@ case $ITEM in
 				exit 1
 				;;
 		esac
-		case $DIST in
-			warty|hoary|breezy|dapper|edgy|feisty)
-				exit 1
-				;;
-			*)
-				#echo http://wubi-installer.org/devel/minefields/Ubuntu-cdboot-7.10-alpha.exe
-				;;
-		esac
+		if dist_le feisty; then
+			exit 1
+		else
+			#echo http://wubi-installer.org/devel/minefields/Ubuntu-cdboot-7.10-alpha.exe
+		fi
 		;;
 	umenu)
 		case $arch in

@@ -115,30 +115,22 @@ cdtypestr () {
 cdtypedesc () {
 	case $PROJECT in
 		xubuntu)
-			case $DIST in
-				dapper|edgy|feisty|gutsy|hardy|intrepid)
-					DESKTOP_RAM=128
-					;;
-				*)
-					DESKTOP_RAM=192
-					;;
-			esac			
+			if dist_le intrepid; then
+				DESKTOP_RAM=128
+			else
+				DESKTOP_RAM=192
+			fi
 			;;
 		*)
-			case $DIST in
-				warty|hoary|breezy|dapper|edgy|feisty)
-					DESKTOP_RAM=256
-					;;
-				gutsy)
-					DESKTOP_RAM=320
-					;;
-				hardy)
-					DESKTOP_RAM=384
-					;;					
-				*)
-					DESKTOP_RAM=256
-					;;
-			esac
+			if dist_le feisty; then
+				DESKTOP_RAM=256
+			elif dist_le gutsy; then
+				DESKTOP_RAM=320
+			elif dist_le hardy; then
+				DESKTOP_RAM=384
+			else
+				DESKTOP_RAM=256
+			fi
 			;;
 	esac
 
@@ -381,19 +373,13 @@ EOF
 			cat <<EOF
 For Sony PlayStation 3 systems.
 EOF
-			if [ "$2" = desktop ]; then
-				case $DIST in
-					warty|hoary|breezy|dapper|edgy|feisty)
-						;;
-					*)
-						cat <<EOF
+			if [ "$2" = desktop ] && dist_ge gutsy; then
+				cat <<EOF
 (This defaults to installing $CAPPROJECT permanently, since there is usually
 not enough memory to try out the full desktop system and run the installer
 at the same time. An alternative boot option to try $CAPPROJECT without
 changing your computer is available.)
 EOF
-						;;
-				esac
 			fi
 			;;
 		sparc)

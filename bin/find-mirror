@@ -21,25 +21,19 @@ case ${ARCH%%+*} in
 		;;
 	powerpc)
 		# https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/000098.html
-		case $DIST in
-			warty|hoary|breezy|dapper|edgy)
-				echo "$CDIMAGE_ROOT/ftp"
-				;;
-			*)
-				echo "$CDIMAGE_ROOT/ftp-ports"
-				;;
-		esac
+		if dist_le edgy; then
+			echo "$CDIMAGE_ROOT/ftp"
+		else
+			echo "$CDIMAGE_ROOT/ftp-ports"
+		fi
 		;;
 	sparc)
 		# https://lists.ubuntu.com/archives/ubuntu-devel-announce/2008-March/000400.html
-		case $DIST in
-			dapper|edgy|feisty|gutsy)
-				echo "$CDIMAGE_ROOT/ftp"
-				;;
-			*)
-				echo "$CDIMAGE_ROOT/ftp-ports"
-				;;
-		esac
+		if dist_ge dapper && dist_le gutsy; then
+			echo "$CDIMAGE_ROOT/ftp"
+		else
+			echo "$CDIMAGE_ROOT/ftp-ports"
+		fi
 		;;
 	armel|hppa|ia64|lpia)
 		echo "$CDIMAGE_ROOT/ftp-ports"

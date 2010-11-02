@@ -10,11 +10,9 @@ PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
 
 if [ "$PROJECT" = edubuntu ]; then
 	# Edubuntu lucid and onwards: DVD is live-only
-	case $DIST in
-		warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty|karmic)
-			export CDIMAGE_INSTALL=1
-			;;
-	esac
+	if dist_le karmic; then
+		export CDIMAGE_INSTALL=1
+	fi
 else
 	export CDIMAGE_INSTALL=1
 fi

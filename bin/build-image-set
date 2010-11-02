@@ -3,7 +3,6 @@ set -e
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
-. "$CDIMAGE_ROOT/bin/functions.sh"
 
 export IMAGE_TYPE="${1:-daily}"
 
@@ -69,22 +68,14 @@ case $PROJECT in
 		export CDIMAGE_ONLYFREE=1
 		;;
 	edubuntu)
-		case $DIST in
-			warty|hoary|breezy|dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty)
-				;;
-			*)
-				export CDIMAGE_UNSUPPORTED=1
-				;;
-		esac
+		if dist_ge karmic; then
+			export CDIMAGE_UNSUPPORTED=1
+		fi
 		;;
 	xubuntu)
-		case $DIST in
-			warty|hoary|breezy|dapper|edgy|feisty|gutsy)
-				;;
-			*)
-				export CDIMAGE_UNSUPPORTED=1
-				;;
-		esac
+		if dist_ge hardy; then
+			export CDIMAGE_UNSUPPORTED=1
+		fi
 		;;
 	kubuntu-kde4|kubuntu-netbook|kubuntu-mobile)
 		export CDIMAGE_UNSUPPORTED=1
@@ -147,22 +138,14 @@ if [ -z "$CDIMAGE_NOSYNC" ]; then
 					ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
 					;;
 				*:powerpc:*)
-					case $DIST in
-						warty|hoary|breezy|dapper|edgy|feisty)
-							;;
-						*)
-							ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
-							;;
-					esac
+					if dist_ge gutsy; then
+						ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
+					fi
 					;;
 				*:sparc:*)
-					case $DIST in
-						dapper|edgy|feisty|gutsy)
-							;;
-						*)
-							ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
-							;;
-					esac
+					if dist_ge hardy; then
+						ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync.ports" anonftpsync
+					fi
 					;;
 			esac
 		fi
