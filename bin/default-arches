@@ -4,16 +4,18 @@ import sys
 import os
 import fnmatch
 
-for var in ('CDIMAGE_ROOT', 'PROJECT', 'IMAGE_TYPE', 'DIST', 'ALL_DISTS'):
+for var in ('CDIMAGE_ROOT', 'ALL_DISTS'):
     if var not in os.environ:
         print >>sys.stderr, "default-arches: %s not in environment!" % var
         sys.exit(1)
 
+if len(sys.argv) < 4:
+    print >>sys.stderr, "usage: default-arches PROJECT IMAGE_TYPE DIST"
+    sys.exit(1)
+
 default_arches = os.path.join(os.environ['CDIMAGE_ROOT'],
                               'etc', 'default-arches')
-want_project = os.environ['PROJECT']
-want_image_type = os.environ['IMAGE_TYPE']
-want_dist = os.environ['DIST']
+want_project, want_image_type, want_dist = sys.argv[1:4]
 all_dists = os.environ['ALL_DISTS'].split()
 
 def match_dist(want_dist, dist, all_dists):

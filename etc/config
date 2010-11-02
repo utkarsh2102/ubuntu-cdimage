@@ -14,7 +14,7 @@ export LC_ALL=C
 
 PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
-ALL_DISTS="${ALL_DISTS:-warty hoary breezy dapper edgy feisty gutsy hardy intrepid jaunty karmic lucid maverick natty}"
+export ALL_DISTS="${ALL_DISTS:-warty hoary breezy dapper edgy feisty gutsy hardy intrepid jaunty karmic lucid maverick natty}"
 DIST="${DIST:-maverick}"
 
 case $PROJECT in
@@ -32,7 +32,9 @@ esac
 # collections, so not kubuntu-mobile or ubuntu-server.
 ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu edubuntu xubuntu ubuntu-netbook ubuntustudio mythbuntu}"
 
-ARCHES="$(default-arches)"
+if [ -z "$ARCHES" ]; then
+	ARCHES="$(default-arches "$PROJECT" "$IMAGE_TYPE" "$DIST")"
+fi
 CPUARCHES="$(echo "$ARCHES" | xargs -n1 | sed 's/+.*//' | sort -u | xargs)"
 
 GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
