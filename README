@@ -16,23 +16,16 @@ the following scripts, which may be called by hand:
 
   * cron.daily
 
-    Build install CDs for the standard Ubuntu-supported architectures
-    (currently amd64, i386, and powerpc).
+    Build install CDs for all relevant Ubuntu architectures.
 
   * cron.daily-live
 
-    Build live CDs for the standard Ubuntu-supported architectures.
+    Build live CDs for all relevant Ubuntu architectures.
 
   * cron.dvd
 
-    Build DVDs for the standard Ubuntu-supported architectures. These are
-    normally combined install/live images.
-
-  * cron.ports_daily
-
-    Build install CDs for Ubuntu "ports", i.e. architectures for which
-    binaries have been built but which aren't officially supported by
-    Ubuntu.
+    Build DVDs for all relevant Ubuntu architectures. These are normally
+    combined install/live images.
 
   * for-project
 
