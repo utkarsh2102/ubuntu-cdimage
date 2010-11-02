@@ -1,61 +1,7 @@
 #! /bin/sh
 set -e
 
-case $PROJECT in
-	ubuntu-server)
-		case $DIST in
-			warty|hoary|breezy|dapper)
-				export ARCHES="${ARCHES:-hppa ia64}"
-				;;
-			edgy)
-				export ARCHES="${ARCHES:-ia64}"
-				;;
-			feisty)
-				export ARCHES="${ARCHES:-ia64 powerpc powerpc+ps3}"
-				;;
-			gutsy)
-				export ARCHES="${ARCHES:-hppa ia64 powerpc powerpc+ps3}"
-				;;
-			hardy|intrepid|jaunty)
-				export ARCHES="${ARCHES:-hppa ia64 powerpc powerpc+ps3 sparc}"
-				;;
-			karmic|lucid)
-				export ARCHES="${ARCHES:-ia64 powerpc powerpc+ps3 sparc}"
-				;;
-			*)
-				export ARCHES="${ARCHES:-amd64+mac powerpc powerpc+ps3}"
-				;;
-		esac
-		;;
-	*)
-		case $DIST in
-			warty|hoary|breezy|dapper)
-				export ARCHES="${ARCHES:-hppa ia64 sparc}"
-				;;
-			edgy)
-				export ARCHES="${ARCHES:-ia64 sparc}"
-				;;
-			feisty)
-				export ARCHES="${ARCHES:-ia64 powerpc powerpc+ps3 sparc}"
-				;;
-			gutsy|hardy)
-				export ARCHES="${ARCHES:-hppa ia64 powerpc powerpc+ps3 sparc}"
-				;;
-			intrepid|jaunty)
-				export ARCHES="${ARCHES:-hppa ia64 lpia powerpc powerpc+ps3 sparc}"
-				;;
-			karmic)
-				export ARCHES="${ARCHES:-ia64 lpia powerpc powerpc+ps3 sparc}"
-				;;
-			lucid)
-				export ARCHES="${ARCHES:-ia64 powerpc powerpc+ps3 sparc}"
-				;;
-			*)
-				export ARCHES="${ARCHES:-amd64+mac powerpc powerpc+ps3}"
-				;;
-		esac
-		;;
-esac
+export IMAGE_TYPE=ports_daily
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
@@ -67,4 +13,4 @@ if [ "$PROJECT" = edubuntu ]; then
 	export CDIMAGE_ADDON=1
 fi
 
-build-image-set ports_daily
+build-image-set "$IMAGE_TYPE"

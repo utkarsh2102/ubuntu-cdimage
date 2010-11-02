@@ -1,6 +1,8 @@
 #! /bin/sh
 set -e
 
+export IMAGE_TYPE=dvd
+
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
@@ -19,4 +21,4 @@ fi
 export CDIMAGE_LIVE=1
 export CDIMAGE_DVD=1
 
-build-image-set dvd
+build-image-set "$IMAGE_TYPE"

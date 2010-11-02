@@ -1,21 +1,7 @@
 #! /bin/sh
 set -e
 
-case $PROJECT in
-	ubuntu-server)
-		case $DIST in
-			warty|hoary|breezy|dapper|edgy)
-				export ARCHES="${ARCHES:-amd64 i386 powerpc sparc}"
-				;;
-			feisty|gutsy)
-				export ARCHES="${ARCHES:-amd64 i386 sparc}"
-				;;
-			*)
-				export ARCHES="${ARCHES:-amd64 i386}"
-				;;
-		esac
-		;;
-esac
+export IMAGE_TYPE=daily
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
@@ -27,4 +13,4 @@ if [ "$PROJECT" = edubuntu ]; then
 	export CDIMAGE_ADDON=1
 fi
 
-build-image-set daily
+build-image-set "$IMAGE_TYPE"

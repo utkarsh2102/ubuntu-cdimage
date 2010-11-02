@@ -1,6 +1,8 @@
 #! /bin/sh
 set -e
 
+export IMAGE_TYPE=source
+
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
@@ -10,10 +12,9 @@ PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
 # source images.
 export CDIMAGE_ONLYSOURCE=1
 unset CDIMAGE_NOSOURCE
-export ARCHES=i386
 
 # We want to build source images from the combination of all projects, which
 # will involve unsupported packages.
 export CDIMAGE_UNSUPPORTED=1
 
-build-image-set source
+build-image-set "$IMAGE_TYPE"
