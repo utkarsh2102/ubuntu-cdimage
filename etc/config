@@ -17,12 +17,6 @@ CAPPROJECT="${CAPPROJECT:-Ubuntu}"
 export ALL_DISTS="${ALL_DISTS:-warty hoary breezy dapper edgy feisty gutsy hardy intrepid jaunty karmic lucid maverick natty}"
 DIST="${DIST:-maverick}"
 
-case $PROJECT in
-        ubuntu-netbook)
-                ARCHES="${ARCHES:-i386}"
-                ;;
-esac
-
 # If you want to build image for one or more architectures comment out the
 # following line
 #ARCHES=i386
