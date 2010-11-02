@@ -24,6 +24,8 @@ def match_dist(want_dist, dist, all_dists):
     elif '-' in dist:
         dist_start, dist_end = dist.split('-', 1)
         in_range = False
+        if not dist_start:
+            in_range = True
         for trydist in all_dists:
             if trydist == dist_start:
                 in_range = True
