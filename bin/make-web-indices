@@ -641,7 +641,7 @@ for prefix in $CDPREFIX; do
 					  sed "s/$prefix-$cdtype-\\(.*\\)\\.iso/\\1/")"
 				;;
 			*)
-				arches='i386 powerpc amd64 hppa ia64 sparc powerpc+ps3 lpia armel amd64+mac'
+				arches='i386 amd64 amd64+mac armel powerpc powerpc+ps3 hppa ia64 lpia sparc'
 				;;
 		esac
 
