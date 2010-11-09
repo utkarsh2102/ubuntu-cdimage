@@ -323,6 +323,7 @@ case $ITEM in
 			exit 1
 		else
 			#echo http://wubi-installer.org/devel/minefields/Ubuntu-cdboot-7.10-alpha.exe
+			:
 		fi
 		;;
 	umenu)
