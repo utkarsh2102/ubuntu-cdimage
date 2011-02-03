@@ -48,8 +48,8 @@ fi
 if dist_le karmic; then
 	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
 elif dist_le lucid; then
-	#GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
-	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates,$DIST-proposed}"
+	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
+	#GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates,$DIST-proposed}"
 else
 	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST}"
 fi
