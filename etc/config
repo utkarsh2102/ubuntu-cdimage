@@ -23,8 +23,8 @@ DIST="${DIST:-natty}"
 
 # All projects currently being built.  This is used for building source
 # images.  Note that we only need to include projects with their own seed
-# collections, so not kubuntu-mobile or ubuntu-server.
-ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu edubuntu xubuntu ubuntu-netbook ubuntustudio mythbuntu}"
+# collections, so not ubuntu-server.
+ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu kubuntu-mobile edubuntu xubuntu ubuntu-netbook ubuntustudio mythbuntu}"
 
 if [ -z "$ARCHES" ]; then
 	ARCHES="$(default-arches "$PROJECT" "$IMAGE_TYPE" "$DIST")"
