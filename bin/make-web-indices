@@ -255,21 +255,22 @@ EOF
 			case $PROJECT in
 				edubuntu)
 					cat <<EOF
-The install DVD allows you to install $CAPPROJECT permanently on a computer.
+<p>The install DVD allows you to install $CAPPROJECT permanently on a
+computer.</p>
 EOF
 					;;
 				*)
 					cat <<EOF
-The combined install/live DVD allows you either to install $CAPPROJECT
+<p>The combined install/live DVD allows you either to install $CAPPROJECT
 permanently on a computer, or (by entering 'live' at the boot prompt) to try
-$CAPPROJECT without changing your computer at all.
+$CAPPROJECT without changing your computer at all.</p>
 EOF
 					;;
 			esac
 			;;
 		src)
 			cat <<EOF
-The source ${CD}s contain the source code used to build $CAPPROJECT.
+<p>The source ${CD}s contain the source code used to build $CAPPROJECT.</p>
 EOF
 			;;
 		*)
