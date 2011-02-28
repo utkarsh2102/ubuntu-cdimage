@@ -253,11 +253,12 @@ if $IMAGES_PUBLISHED; then
 	fi
 	if [ -z "$CDIMAGE_ONLYSOURCE" ]; then
 		checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH" $CHECKSUM_DIRS
+		make-web-indices "$PUBLISH" "$DIST" daily
 	fi
 	if [ -d "$PUBLISH/source" ]; then
 		checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH/source" "$CDOUT/src"
+		make-web-indices "$PUBLISH/source" "$DIST" daily
 	fi
-	make-web-indices "$PUBLISH" "$DIST" daily
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
 
 	MANIFEST_LOCK="$CDIMAGE_ROOT/etc/.lock-manifest-daily"
