@@ -271,6 +271,16 @@ EOF
 		src)
 			cat <<EOF
 <p>The source ${CD}s contain the source code used to build $CAPPROJECT.</p>
+
+<p>Some source package versions on this image may not match related binary
+images, depending on exactly when the images were built.  You can always
+find every version of Ubuntu source packages on Launchpad, using URLs of the
+following form:</p>
+
+<ul>
+ <li><code>https://launchpad.net/ubuntu/+source/SOURCE-PACKAGE-NAME/+publishinghistory</code> (index)</li>
+ <li><code>https://launchpad.net/ubuntu/+source/SOURCE-PACKAGE-NAME/VERSION</code> (specific version)</li>
+</ul>
 EOF
 			;;
 		*)
