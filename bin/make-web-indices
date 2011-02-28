@@ -649,7 +649,7 @@ for prefix in $CDPREFIX; do
 			src)
 				# Perverse, but works.
 				arches="$(find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.iso" -printf '%P\n' | \
-					  sed "s/$prefix-$cdtype-\\(.*\\)\\.iso/\\1/")"
+					  sed "s/$prefix-$cdtype-\\(.*\\)\\.iso/\\1/" | sort -n)"
 				;;
 			*)
 				arches='i386 amd64 amd64+mac armel powerpc powerpc+ps3 hppa ia64 lpia sparc'
