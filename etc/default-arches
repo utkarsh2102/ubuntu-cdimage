@@ -14,6 +14,8 @@ ubuntu-server		*			karmic			amd64 i386 ia64 powerpc powerpc+ps3 sparc
 ubuntustudio		*			warty-edgy		amd64 i386 powerpc
 ubuntustudio		*			*			amd64 i386
 
+xubuntu			*			natty-			amd64 amd64+mac i386
+
 *			daily-live		gutsy-karmic		amd64 i386 ia64 powerpc powerpc+ps3 sparc
 
 *			dvd			warty-edgy		amd64 i386 powerpc
