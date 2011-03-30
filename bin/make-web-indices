@@ -455,7 +455,7 @@ extensionstr () {
 			echo '<a href=\"https://help.ubuntu.com/community/BitTorrent\">BitTorrent</a> download'
 			;;
 		jigdo)
-			echo '<a href=\"http://atterer.net/jigdo/\">jigdo</a> download'
+			echo '<a href=\"http://atterer.org/jigdo/\">jigdo</a> download'
 			;;
 		list)
 			echo 'file listing'
@@ -467,7 +467,7 @@ extensionstr () {
 			echo 'contents of desktop part of live filesystem'
 			;;
 		template)
-			echo '<a href=\"http://atterer.net/jigdo/\">jigdo</a> template'
+			echo '<a href=\"http://atterer.org/jigdo/\">jigdo</a> template'
 			;;
 		iso.zsync|img.zsync)
 			echo '<a href=\"http://zsync.moria.org.uk/\">zsync</a> metafile'
