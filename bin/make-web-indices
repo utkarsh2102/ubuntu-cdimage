@@ -157,9 +157,9 @@ EOF
 					cat <<EOF
 <p>The desktop $CD allows you to try $CAPPROJECT without changing your
 computer at all, and at your option to install it permanently later. You
-will need at least ${DESKTOP_RAM}MB of RAM to install from this $CD. You can
-install additional educational programs using the classroom server add-on
-$CD.</p>
+will need at least ${DESKTOP_RAM}MiB of RAM to install from this $CD. You
+can install additional educational programs using the classroom server
+add-on $CD.</p>
 EOF
 					;;
 				*)
@@ -167,7 +167,7 @@ EOF
 <p>The desktop $CD allows you to try $CAPPROJECT without changing your
 computer at all, and at your option to install it permanently later. This
 type of $CD is what most people will want to use. You will need at least
-${DESKTOP_RAM}MB of RAM to install from this $CD.</p>
+${DESKTOP_RAM}MiB of RAM to install from this $CD.</p>
 EOF
 					;;
 			esac
@@ -187,7 +187,7 @@ installations of $CAPPROJECT. It provides for the following situations:</p>
 <li>setting up automated deployments;
 <li>upgrading from older installations without network access;
 <li>LVM and/or RAID partitioning;
-<li>installs on systems with less than about ${DESKTOP_RAM}MB of RAM
+<li>installs on systems with less than about ${DESKTOP_RAM}MiB of RAM
 (although note that low-memory systems may not be able to run a full desktop
 environment reasonably).
 </ul>
@@ -225,7 +225,7 @@ EOF
 <p>The live $CD allows you to try ${CAPPROJECT%-Netbook} Netbook Edition without changing
 your computer at all, and at your option to install it permanently later.
 This live $CD is optimized for netbooks with screens up to 10". You will need
-at least ${DESKTOP_RAM}MB of RAM to install from this $CD.</p>
+at least ${DESKTOP_RAM}MiB of RAM to install from this $CD.</p>
 EOF
 			;;
 		mobile)
@@ -418,7 +418,7 @@ maybe_oversized () {
 				cat <<EOF
 <br>
 <span class="urgent">Warning: This image is oversized (which is a bug) and
-will not fit onto a standard 700MB CD. However, you may still test it using
+will not fit onto a standard 700MiB CD. However, you may still test it using
 a DVD, a USB drive, or a virtual machine.</span>
 EOF
 				;;

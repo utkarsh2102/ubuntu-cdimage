@@ -118,7 +118,7 @@ publish_binary () {
 			# pressed CDs, so we'll use the smaller value.
 			#SIZELIMIT=736051200
 			# ... except apparently some software/media has
-			# problems with anything over 700 (binary) MB. Argh.
+			# problems with anything over 700MiB. Argh.
 			SIZELIMIT="$((700 * 1024 * 1024))"
 			;;
 	esac
