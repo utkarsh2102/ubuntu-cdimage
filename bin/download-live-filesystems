@@ -55,7 +55,9 @@ if [ "$CDIMAGE_LIVE" ]; then
 		fetch "$(find-live-filesystem "$arch" size)" \
 			"$LIVE_OUT/$arch.size" || true
 
-		if [ "$PROJECT" != livecd-base ] && [ "$PROJECT" != edubuntu ]; then
+		if [ "$PROJECT" != livecd-base ] && \
+		   [ "$PROJECT" != edubuntu ] && \
+		   [ "$PROJECT" != kubuntu-mobile ]; then
 			if dist_le feisty; then
 				:
 			elif dist_le intrepid; then
