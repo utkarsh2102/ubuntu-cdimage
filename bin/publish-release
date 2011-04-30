@@ -121,6 +121,9 @@ case $DIST in
 	natty)
 		VERSION=11.04
 		;;
+	oneiric)
+		VERSION=11.10
+		;;
 	*)
 		echo "Unknown distribution: $DIST" >&2
 		exit 1

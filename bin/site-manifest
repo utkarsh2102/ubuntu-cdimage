@@ -53,6 +53,7 @@ file_to_manifest () {
 		lucid-*)	dist=lucid ;;
 		maverick-*)	dist=maverick ;;
 		natty-*)	dist=natty ;;
+		oneiric-*)	dist=oneiric ;;
 		*)
 			if [ "$TYPE" = daily ]; then
 				return
@@ -74,6 +75,7 @@ file_to_manifest () {
 		10.04*)	dist=lucid ;;
 		10.10*)	dist=maverick ;;
 		11.04*)	dist=natty ;;
+		11.10*)	dist=oneiric ;;
 		*)
 			if [ "$TYPE" = simple ]; then
 				echo "Unknown version: $version" >&2
