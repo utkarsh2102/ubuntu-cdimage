@@ -128,8 +128,10 @@ cdtypedesc () {
 				DESKTOP_RAM=320
 			elif dist_le hardy; then
 				DESKTOP_RAM=384
-			else
+			elif dist le maverick; then
 				DESKTOP_RAM=256
+			else
+				DESKTOP_RAM=384
 			fi
 			;;
 	esac
