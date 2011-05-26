@@ -172,7 +172,7 @@ case $ITEM in
 					dapper)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/dapper/ubuntu/current/ubuntu-winfoss-6.06.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/dapper/ubuntu/current/ubuntu-winfoss-6.06.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -180,7 +180,7 @@ case $ITEM in
 					edgy)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/edgy/ubuntu/current/ubuntu-winfoss-6.10.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/edgy/ubuntu/current/ubuntu-winfoss-6.10.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -188,7 +188,7 @@ case $ITEM in
 					feisty)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/feisty/ubuntu/current/ubuntu-winfoss-7.04.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/feisty/ubuntu/current/ubuntu-winfoss-7.04.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -196,7 +196,7 @@ case $ITEM in
 					gutsy|hardy|intrepid|jaunty|karmic)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/ubuntu/current/ubuntu-winfoss-7.10.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/gutsy/ubuntu/current/ubuntu-winfoss-7.10.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -227,7 +227,7 @@ case $ITEM in
 					dapper)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/dapper/kubuntu/current/kubuntu-winfoss-6.06.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/dapper/kubuntu/current/kubuntu-winfoss-6.06.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -235,7 +235,7 @@ case $ITEM in
 					edgy)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/edgy/kubuntu/current/kubuntu-winfoss-6.10.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/edgy/kubuntu/current/kubuntu-winfoss-6.10.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -243,7 +243,7 @@ case $ITEM in
 					feisty)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/feisty/kubuntu/current/kubuntu-winfoss-7.04.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/feisty/kubuntu/current/kubuntu-winfoss-7.04.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -251,7 +251,7 @@ case $ITEM in
 					gutsy|hardy|intrepid|jaunty|karmic)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/kubuntu/current/kubuntu-winfoss-7.10.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/gutsy/kubuntu/current/kubuntu-winfoss-7.10.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -263,7 +263,7 @@ case $ITEM in
 					feisty)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/feisty/edubuntu/current/edubuntu-winfoss-7.04.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/feisty/edubuntu/current/edubuntu-winfoss-7.04.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -271,7 +271,7 @@ case $ITEM in
 					gutsy|hardy|intrepid|jaunty|karmic)
 						case $CPUARCH in
 							i386|amd64)
-								echo http://people.ubuntu.com/~henrik/winfoss/gutsy/edubuntu/current/edubuntu-winfoss-7.10.tar.gz
+								echo http://people.canonical.com/~henrik/winfoss/gutsy/edubuntu/current/edubuntu-winfoss-7.10.tar.gz
 								;;
 							*)	exit 1 ;;
 						esac
@@ -308,7 +308,7 @@ case $ITEM in
 		if dist_le feisty; then
 			exit 1
 		else
-			echo http://people.ubuntu.com/~evand/wubi/$DIST/stable
+			echo http://people.canonical.com/~evand/wubi/$DIST/stable
 		fi
 		;;
 	wubi-cdboot)
@@ -339,7 +339,7 @@ case $ITEM in
 				exit 1
 				;;
 			hardy)
-				echo http://people.ubuntu.com/~evand/umenu/stable
+				echo http://people.canonical.com/~evand/umenu/stable
 				;;
 		esac
 		;;
@@ -351,7 +351,7 @@ case $ITEM in
 				exit 1
 				;;
 		esac
-		echo http://people.ubuntu.com/~evand/usb-creator/$DIST/stable
+		echo http://people.canonical.com/~evand/usb-creator/$DIST/stable
 		;;
 	ltsp-squashfs)
 		case $CPUARCH in

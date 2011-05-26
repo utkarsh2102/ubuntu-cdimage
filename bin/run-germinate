@@ -37,7 +37,7 @@ if [ "$GERMINATE_BZR" ]; then
 			;;
 	esac
 else
-	SEED_SOURCE=http://people.ubuntu.com/~ubuntu-archive/seeds/
+	SEED_SOURCE=http://people.canonical.com/~ubuntu-archive/seeds/
 fi
 if [ "$LOCAL_SEEDS" ]; then
 	SEED_SOURCE="$LOCAL_SEEDS"
