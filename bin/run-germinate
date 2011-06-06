@@ -24,6 +24,11 @@ fi
 if [ "$GERMINATE_BZR" ]; then
 	SEED_SOURCE=http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 	case $PROJECT in
+		kubuntu|kubuntu-mobile)
+			if dist_ge oneiric; then
+				SEED_SOURCE="http://bazaar.launchpad.net/~kubuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
+			fi
+			;;
 		ubuntustudio)
 			SEED_SOURCE="http://bazaar.launchpad.net/~ubuntustudio-dev/ubuntu-seeds/,$SEED_SOURCE"
 			;;
