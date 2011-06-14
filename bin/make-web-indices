@@ -468,6 +468,9 @@ extensionstr () {
 		manifest-desktop)
 			echo 'contents of desktop part of live filesystem'
 			;;
+		manifest-remove)
+			echo 'packages to remove from live filesystem on installation'
+			;;
 		template)
 			echo '<a href=\"http://atterer.org/jigdo/\">jigdo</a> template'
 			;;
@@ -731,7 +734,7 @@ EOF
 EOF
 			fi
 
-			for extension in img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop template; do
+			for extension in img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop manifest-remove template; do
 				if ! [ -e "$DIR/$prefix-$cdtype-$arch.$extension" ]; then
 					continue
 				fi
@@ -808,7 +811,7 @@ AddIcon ${CDICONS}list.png .list .manifest .html .zsync MD5SUMS MD5SUMS.gpg MD5S
 AddIcon ${CDICONS}torrent.png .torrent .metalink
 EOF
 
-for extension in img iso.torrent iso jigdo list manifest manifest-desktop template; do
+for extension in img iso.torrent iso jigdo list manifest manifest-desktop manifest-remove template; do
 	mimetype="$(mimetypestr "$extension")"
 	if [ "$mimetype" ] && \
 	   find "$DIR/" -follow -maxdepth 1 -type f -name "*.$extension" | grep . >/dev/null; then

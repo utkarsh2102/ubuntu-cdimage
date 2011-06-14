@@ -50,8 +50,10 @@ if [ "$CDIMAGE_LIVE" ]; then
 		fi
 		fetch "$(find-live-filesystem "$arch" manifest)" \
 			"$LIVE_OUT/$arch.manifest" || true
-		fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
-			"$LIVE_OUT/$arch.manifest-desktop" || true
+		fetch "$(find-live-filesystem "$arch" manifest-remove)" \
+			"$LIVE_OUT/$arch.manifest-remove" || \
+			fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
+				"$LIVE_OUT/$arch.manifest-desktop" || true
 		fetch "$(find-live-filesystem "$arch" size)" \
 			"$LIVE_OUT/$arch.size" || true
 

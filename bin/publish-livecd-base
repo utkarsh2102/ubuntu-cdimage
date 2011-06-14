@@ -35,7 +35,9 @@ for arch in $CPUARCHES; do
 			cp -a "$LIVE/$arch.initrd" "$PUBLISH/$arch.initrd"
 		fi
 		cp -a "$LIVE/$arch.manifest" "$PUBLISH/$arch.manifest"
-		if [ -e "$LIVE/$arch.manifest-desktop" ]; then
+		if [ -e "$LIVE/$arch.manifest-remove" ]; then
+			cp -a "$LIVE/$arch.manifest-remove" "$PUBLISH/$arch.manifest-remove"
+		elif [ -e "$LIVE/$arch.manifest-desktop" ]; then
 			cp -a "$LIVE/$arch.manifest-desktop" "$PUBLISH/$arch.manifest-desktop"
 		fi
 	else
