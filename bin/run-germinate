@@ -40,6 +40,9 @@ if [ "$GERMINATE_BZR" ]; then
 				SEED_SOURCE="http://bazaar.launchpad.net/~xubuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
 			fi
 			;;
+		lubuntu)
+			SEED_SOURCE="http://bazaar.launchpad.net/~lubuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
+			;;
 	esac
 else
 	SEED_SOURCE=http://people.canonical.com/~ubuntu-archive/seeds/
