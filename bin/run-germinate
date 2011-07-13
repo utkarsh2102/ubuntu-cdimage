@@ -53,8 +53,11 @@ if [ "$LOCAL_SEEDS" ]; then
 	GERMINATE_BZR=
 fi
 
-GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
-#GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates,$DIST-proposed}"
+if [ "$DIST" = lucid ]; then
+	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates,$DIST-proposed}"
+else
+	GERMINATE_DISTS="${GERMINATE_DISTS:-$DIST,$DIST-security,$DIST-updates}"
+fi
 
 case $PROJECT in
 	ubuntu-server)
