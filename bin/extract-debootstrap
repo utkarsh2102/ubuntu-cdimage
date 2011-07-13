@@ -25,7 +25,7 @@ for fullarch in $ARCHES; do
 		cp -p "$DEBOOTSTRAP_OUT/unpack-$fullarch/$debootstrap_script" \
 			"$DEBOOTSTRAP_OUT/$DIST-$fullarch"
 		# until cdimage's debootstrap is upgraded to >= 1.0.30
-		sed -i '/^keyring /#keyring /' "$DEBOOTSTRAP_OUT/$DIST-$fullarch"
+		sed -i 's/^keyring /#keyring /' "$DEBOOTSTRAP_OUT/$DIST-$fullarch"
 	else
 		echo "No debootstrap-udeb for $DIST/$arch!" >&2
 	fi
