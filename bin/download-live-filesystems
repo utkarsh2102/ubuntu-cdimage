@@ -36,6 +36,9 @@ if [ "$CDIMAGE_LIVE" ]; then
 		elif fetch "$(find-live-filesystem "$arch" squashfs)" \
 				"$LIVE_OUT/$arch.squashfs"; then
 			GOT_IMAGE=1
+		elif fetch "$(find-live-filesystem "$arch" tar.xz)" \
+				"$LIVE_OUT/$arch.tar.xz"; then
+			GOT_IMAGE=1
 		else
 			continue
 		fi

@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|manifest-remove|size|winfoss|wubi|wubi-cdboot|umenu|usb-creator|ltsp-squashfs' >&2
+	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|manifest-remove|size|winfoss|wubi|wubi-cdboot|umenu|usb-creator|ltsp-squashfs|tar.xz' >&2
 	exit 1
 fi
 ARCH="$1"
@@ -116,7 +116,7 @@ if [ -z "$LIVECD_BASE" ]; then
 fi
 
 case $ITEM in
-	cloop|squashfs|manifest|manifest-desktop|manifest-remove|size)
+	cloop|squashfs|manifest|manifest-desktop|manifest-remove|size|tar.xz)
 		case $PROJECT in
 			tocd3)
 				# auto-purged - reverting to plan B
