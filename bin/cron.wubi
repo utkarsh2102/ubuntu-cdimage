@@ -71,3 +71,4 @@ sign-cdimage "$PUBLISH/SHA256SUMS"
 
 ln -nsf "$DATE" "$PUBLISH_ROOT/current"
 purge-old-images "$IMAGE_TYPE"
+sync-mirrors
