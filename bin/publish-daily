@@ -15,9 +15,6 @@ IMAGE_TYPE_DIR="$(echo "$IMAGE_TYPE" | sed 's,_,/,g')"
 if dist_le lucid; then
 	IMAGE_TYPE_DIR="$DIST/$IMAGE_TYPE_DIR"
 fi
-if [ -n "$SUBPROJECT" ]; then
-	IMAGE_TYPE_DIR="$SUBPROJECT/$IMAGE_TYPE_DIR"
-fi
 
 CDOUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/debian-cd"
 BRITNEY_REPORT="$CDIMAGE_ROOT/britney/report/$PROJECT/$IMAGE_TYPE"
