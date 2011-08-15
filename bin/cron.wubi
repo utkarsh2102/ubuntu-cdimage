@@ -5,6 +5,9 @@ unset http_proxy
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
+mkdir -p "$CDIMAGE_ROOT/log/wubi/$PROJECT/$DIST"
+exec >"$CDIMAGE_ROOT/log/wubi/$PROJECT/$DIST/$IMAGE_TYPE-$CDIMAGE_DATE.log" 2>&1
+
 IMAGE_TYPE=wubi
 ARCHES="i386 amd64"
 PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
