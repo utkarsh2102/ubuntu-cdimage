@@ -13,6 +13,11 @@ if [ "$PROJECT" = edubuntu ]; then
 	if dist_le karmic; then
 		export CDIMAGE_INSTALL=1
 	fi
+elif [ "$PROJECT" = ubuntu ]; then
+	# Ubuntu oneiric and onwards: DVD is live-only
+	if dist_le oneiric; then
+		export CDIMAGE_INSTALL=1
+	fi
 else
 	export CDIMAGE_INSTALL=1
 fi
