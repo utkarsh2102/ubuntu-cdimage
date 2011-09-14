@@ -139,7 +139,7 @@ case $MODE in
 			elif [ "$PROJECT" = ubuntu ] && dist_ge oneiric; then
 				# no inheritance; most of this goes on the
 				# live filesystem
-				echo 'usb-langsupport'
+				echo 'usb-langsupport usb-ship-live'
 			else
 				inheritance dvd
 			fi
