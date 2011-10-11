@@ -94,17 +94,17 @@ set +e
 
 rsync --recursive --links --hard-links --times --verbose --stats \
      --compress \
-     --delete-after \
      --exclude "Archive-Update-in-Progress-${HOSTNAME}" \
+     --exclude Packages* --exclude Sources* \
+     --exclude Release* --exclude InRelease \
      --exclude "project/trace/${HOSTNAME}" \
      $EXCLUDE \
      $RSYNC_SRC/ $TO/ > rsync.log 2>&1
 
-# Re-mirror pool with --copy-links to cope with files moving between
-# components. Don't delete on this pass, to avoid losing files referred to
-# by the indices we just downloaded.
-rsync --recursive --copy-links --hard-links --times --verbose --stats \
+# Second pass to update metadata and clean up old files.
+rsync --recursive --links --hard-links --times --verbose --stats \
      --compress \
+     --delay-updates --delete --delete-after \
      $EXCLUDE \
      $RSYNC_SRC/pool/ $TO/pool/ >> rsync.log 2>&1
 
