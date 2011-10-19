@@ -563,6 +563,15 @@ case $DIST in
 		distversion=11.10
 		distfullname='Oneiric Ocelot'
 		;;
+	precise)
+		distversion=12.04
+		distfullname='Precise Pangolin'
+		case $PROJECT in
+			ubuntu|kubuntu|ubuntu-server)
+				distversion="$distversion LTS"
+				;;
+		esac
+		;;
 esac
 
 case $CDPREFIX in

@@ -124,6 +124,9 @@ case $DIST in
 	oneiric)
 		VERSION=11.10
 		;;
+	precise)
+		VERSION=12.04
+		;;
 	*)
 		echo "Unknown distribution: $DIST" >&2
 		exit 1
