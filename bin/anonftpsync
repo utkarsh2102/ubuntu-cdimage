@@ -93,6 +93,7 @@ trap "rm -f $LOCK > /dev/null 2>&1" exit
 set +e
 
 rsync --recursive --links --hard-links --times --verbose --stats \
+     --chmod=Dg+s,g+rwX \
      --compress \
      --exclude "Archive-Update-in-Progress-${HOSTNAME}" \
      --exclude Packages* --exclude Sources* \
@@ -103,6 +104,7 @@ rsync --recursive --links --hard-links --times --verbose --stats \
 
 # Second pass to update metadata and clean up old files.
 rsync --recursive --links --hard-links --times --verbose --stats \
+     --chmod=Dg+s,g+rwX \
      --compress \
      --delay-updates --delete --delete-after \
      $EXCLUDE \
@@ -110,11 +112,6 @@ rsync --recursive --links --hard-links --times --verbose --stats \
 
 # Delete dangling symlinks.
 find $TO/ -type l -xtype l | xargs -r rm 
-
-# Make sure everything is group-writable etc. (the upstream mirror may have
-# too restrictive permissions, so umask doesn't help).
-find "$TO" -type d -print0 | xargs -0r chmod g+s 2>/dev/null || true
-chmod -R g+rwX "$TO" 2>/dev/null || true
 
 mkdir -p "${TO}/project/trace"
 date -u > "${TO}/project/trace/${HOSTNAME}"
