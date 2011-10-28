@@ -4,6 +4,11 @@ set -e
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
+if [ -x "$CDIMAGE_ROOT/germinate/bin/germinate" ]; then
+    GERMINATE_PATH="$CDIMAGE_ROOT/germinate/bin/germinate"
+else
+    GERMINATE_PATH="$CDIMAGE_ROOT/germinate/germinate.py"
+fi
 GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
 # set to the empty string instead to use old-style seed checkouts
 GERMINATE_BZR=--bzr
@@ -127,7 +132,7 @@ for arch in $ARCHES; do
 	if [ "$GERMINATE_HINTS" ] && [ -f "$GERMINATE_HINTS" ]; then
 		cp -a "$GERMINATE_HINTS" hints
 	fi
-	"$CDIMAGE_ROOT/germinate/germinate.py" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$cpuarch" --components main --no-rdepends $GERMINATE_BZR
+	"$GERMINATE_PATH" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$cpuarch" --components main --no-rdepends $GERMINATE_BZR
 	cp -a structure ../STRUCTURE
 
 	if [ "$DIST" = breezy ]; then
@@ -141,6 +146,6 @@ for arch in $ARCHES; do
 			EXTRAS="${EXTRAS:+$EXTRAS,}desktop/$pkg"
 			echo "$pkg" >> ship.acsets
 		done
-		"$CDIMAGE_ROOT/germinate/germinate.py" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$cpuarch" --components main --no-rdepends ${EXTRAS:+--seed-packages "$EXTRAS"} $GERMINATE_BZR
+		"$GERMINATE_PATH" --seed-source "$SEED_SOURCE" --mirror "file://$GERMINATE_OUT/" --seed-dist "$GERMINATE_SEED_DIST" --dist "$GERMINATE_DISTS" --arch "$cpuarch" --components main --no-rdepends ${EXTRAS:+--seed-packages "$EXTRAS"} $GERMINATE_BZR
 	fi
 done
