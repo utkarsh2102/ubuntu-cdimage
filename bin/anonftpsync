@@ -108,7 +108,7 @@ rsync --recursive --links --hard-links --times --verbose --stats \
      --compress \
      --delay-updates --delete --delete-after \
      $EXCLUDE \
-     $RSYNC_SRC/pool/ $TO/pool/ >> rsync.log 2>&1
+     $RSYNC_SRC/ $TO/ >> rsync.log 2>&1
 
 # Delete dangling symlinks.
 find $TO/ -type l -xtype l | xargs -r rm 
