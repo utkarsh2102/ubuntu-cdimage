@@ -42,8 +42,10 @@ case $CPUARCH in
 		LIVECD="${LIVECD:-http://terranova.buildd/~buildd/LiveCD}"
 		if dist_le dapper; then
 			FLAVOURS=386
-		else
+		elif dist_le oneiric; then
 			FLAVOURS=generic
+		else
+			FLAVOURS=generic-pae
 		fi
 		;;
 	ia64)
