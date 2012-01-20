@@ -120,8 +120,8 @@ EOF
 				;;
 			*)
 				if [ "$CDIMAGE_DVD" ]; then
-				fetch "$(find-live-filesystem "$arch" usb-creator)" \
-					"$LIVE_OUT/$arch.usb-creator.exe" || true
+					fetch "$(find-live-filesystem "$arch" usb-creator)" \
+						"$LIVE_OUT/$arch.usb-creator.exe" || true
 				fi
 				if dist_ge maverick; then
 					fetch "$(find-live-filesystem "$arch" usb-creator)" \
