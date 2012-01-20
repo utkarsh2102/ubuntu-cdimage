@@ -102,15 +102,19 @@ case $PROJECT in
 		LIVEPROJECT="$PROJECT"
 		;;
 esac
-if [ "$CDIMAGE_DVD" ] && ([ "$PROJECT" = ubuntu ] || [ "$PROJECT" = kubuntu ]); then
-	if dist_ge hardy; then
-		LIVEPROJECT="$LIVEPROJECT-dvd"
-	fi
-fi
-if [ "$CDIMAGE_DVD" ] && [ "$PROJECT" = edubuntu ]; then
-	if dist_ge karmic; then
-		LIVEPROJECT="$LIVEPROJECT-dvd"
-	fi
+if [ "$CDIMAGE_DVD" ]; then
+	case $PROJECT in
+		ubuntu|kubuntu)
+			if dist_ge hardy; then
+				LIVEPROJECT="$LIVEPROJECT-dvd"
+			fi
+			;;
+		edubuntu)
+			if dist_ge karmic; then
+				LIVEPROJECT="$LIVEPROJECT-dvd"
+			fi
+			;;
+	esac
 fi
 
 if [ -z "$LIVECD_BASE" ]; then
