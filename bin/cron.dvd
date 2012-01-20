@@ -18,6 +18,13 @@ elif [ "$PROJECT" = ubuntu ]; then
 	if dist_le natty; then
 		export CDIMAGE_INSTALL=1
 	fi
+elif [ "$PROJECT" = ubuntustudio ]; then
+	# Ubuntu Studio precise and onwards: DVD is live-only
+	# (Actually, it didn't exist before then anyway, but we check this
+	# just for documentation's sake.)
+	if dist_le precise; then
+		export CDIMAGE_INSTALL=1
+	fi
 else
 	export CDIMAGE_INSTALL=1
 fi

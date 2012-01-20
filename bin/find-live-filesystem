@@ -114,6 +114,11 @@ if [ "$CDIMAGE_DVD" ]; then
 				LIVEPROJECT="$LIVEPROJECT-dvd"
 			fi
 			;;
+		ubuntustudio)
+			if dist_ge precise; then
+				LIVEPROJECT="$LIVEPROJECT-dvd"
+			fi
+			;;
 	esac
 fi
 
