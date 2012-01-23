@@ -140,6 +140,10 @@ case $MODE in
 				# no inheritance; most of this goes on the
 				# live filesystem
 				echo 'usb-langsupport usb-ship-live'
+			elif [ "$PROJECT" = ubuntustudio ] && dist_ge precise; then
+				# no inheritance; most of this goes on the
+				# live filesystem
+				echo 'dvd'
 			else
 				inheritance dvd
 			fi
