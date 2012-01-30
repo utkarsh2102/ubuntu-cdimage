@@ -543,7 +543,7 @@ case $DIST in
 		distfullname='Karmic Koala'
 		;;
 	lucid)
-		distversion=10.04.3
+		distversion=10.04.4
 		distfullname='Lucid Lynx'
 		case $PROJECT in
 			ubuntu|kubuntu|ubuntu-server)
