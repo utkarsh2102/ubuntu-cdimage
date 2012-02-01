@@ -135,7 +135,7 @@ publish_binary () {
 		   "$PUBLISH/$DIST-$TYPE-$arch.iso"
 		mv "$CDOUT/$arch/$DIST-$TYPE-$arch.list" \
 		   "$PUBLISH/$DIST-$TYPE-$arch.list"
-		CHECKSUM_DIRS="${CHECKSUM_DIRS:+$CHECKSUM_DIRS }$CDOUT/$arch/$DIST-$TYPE-$arch.raw"
+		CHECKSUM_DIRS="${CHECKSUM_DIRS:+$CHECKSUM_DIRS }$CDOUT/$arch"
 		checksum-remove --no-sign "$PUBLISH" "$DIST-$TYPE-$arch.iso"
 
 		# Jigdo integration
