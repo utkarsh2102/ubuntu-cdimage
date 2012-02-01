@@ -43,7 +43,8 @@ checksum () {
 			# If we find the image in a previous file, then make
 			# sure to take the last (and thus presumably the
 			# most recent) checksum, just in case.
-			if grep -q "[ *]$image\$" "$dir/$file"; then
+			if [ ! "$DIR/$image" -nt "$dir/$file" ] && \
+			   grep -q "[ *]$image\$" "$dir/$file"; then
 				grep "[ *]$image\$" "$dir/$file" | tail -n1
 				found=:
 				break
