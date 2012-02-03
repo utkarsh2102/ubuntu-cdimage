@@ -350,7 +350,7 @@ EOF
 			;;
 		armel)
 			cat <<EOF
-For ARMv5t processors and above.
+For ARMv7 processors and above.
 EOF
 			;;
 		hppa)
