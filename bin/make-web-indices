@@ -348,7 +348,7 @@ Intel x86 images instead. This image is adjusted to work properly on Mac
 systems.
 EOF
 			;;
-		armel)
+		armel|armhf)
 			cat <<EOF
 For ARMv7 processors and above.
 EOF
