@@ -302,6 +302,9 @@ archstr () {
 		armel)
 			echo 'ARM EABI'
 			;;
+		armhf)
+			echo 'ARM EABI (Hard-Float)'
+			;;
 		hppa)
 			echo 'HP PA-RISC'
 			;;
@@ -348,9 +351,14 @@ Intel x86 images instead. This image is adjusted to work properly on Mac
 systems.
 EOF
 			;;
-		armel|armhf)
+		armel)
 			cat <<EOF
 For ARMv7 processors and above.
+EOF
+			;;
+		armhf)
+			cat <<EOF
+For ARMv7 processors and above (Hard-Float).
 EOF
 			;;
 		hppa)
@@ -670,7 +678,7 @@ for prefix in $CDPREFIX; do
 					  sed "s/$prefix-$cdtype-\\(.*\\)\\.iso/\\1/" | sort -n)"
 				;;
 			*)
-				arches='i386 amd64 amd64+mac armel powerpc powerpc+ps3 hppa ia64 lpia sparc'
+				arches='i386 amd64 amd64+mac armel armhf powerpc powerpc+ps3 hppa ia64 lpia sparc'
 				;;
 		esac
 
