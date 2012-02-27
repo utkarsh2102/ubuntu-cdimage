@@ -113,13 +113,8 @@ publish_binary () {
 			SIZELIMIT=4700372992
 			;;
 		*)
-			# http://en.wikipedia.org/wiki/CD-ROM says
-			# 737280000; Media Motion say 736051200 for our
-			# pressed CDs, so we'll use the smaller value.
-			#SIZELIMIT=736051200
-			# ... except apparently some software/media has
-			# problems with anything over 700MiB. Argh.
-			SIZELIMIT="$((700 * 1024 * 1024))"
+			# http://en.wikipedia.org/wiki/CD-ROM#Capacity
+			SIZELIMIT=737280000
 			;;
 	esac
 
