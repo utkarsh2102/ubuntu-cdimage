@@ -49,6 +49,9 @@ case $CPUARCH in
 				xubuntu)
 					FLAVOURS=generic
 					;;
+				ubuntustudio)
+					FLAVOURS=lowlatency-pae
+					;;
 				*)
 					FLAVOURS=generic-pae
 					;;
