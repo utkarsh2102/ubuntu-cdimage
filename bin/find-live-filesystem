@@ -45,7 +45,14 @@ case $CPUARCH in
 		elif dist_le oneiric; then
 			FLAVOURS=generic
 		else
-			FLAVOURS=generic-pae
+			case $PROJECT in
+				xubuntu)
+					FLAVOURS=generic
+					;;
+				*)
+					FLAVOURS=generic-pae
+					;;
+			esac
 		fi
 		;;
 	ia64)
