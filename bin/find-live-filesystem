@@ -21,8 +21,17 @@ case $CPUARCH in
 		LIVECD="${LIVECD:-http://king.buildd/~buildd/LiveCD}"
 		if dist_le dapper; then
 			FLAVOURS=amd64-generic
-		else
+		elif dist_le oneiric; then
 			FLAVOURS=generic
+		else
+			case $PROJECT in
+				ubuntustudio)
+					FLAVOURS=lowlatency
+					;;
+				*)
+					FLAVOURS=generic
+					;;
+			esac
 		fi
 		# Use normal amd64 live image on amd64+mac.
 		case $SUBARCH in
