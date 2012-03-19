@@ -55,7 +55,7 @@ case $CPUARCH in
 			FLAVOURS=generic
 		else
 			case $PROJECT in
-				xubuntu)
+				xubuntu|lubuntu)
 					FLAVOURS=generic
 					;;
 				ubuntustudio)
