@@ -100,6 +100,23 @@ case $DIST in
 		;;
 esac
 
+# For >= precise, some flavours use a different kernel on i386.  germinate
+# doesn't currently support this without duplicating the entire installer
+# seed, so we hack it instead.
+case $PROJECT in
+	xubuntu|lubuntu)
+		if dist_ge precise; then
+			for arch in $ARCHES; do
+				[ "$arch" = i386 ] || continue
+				for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
+					sed -i 's/-generic-pae-di/-generic-di/g' \
+						"$GERMINATE_OUT/$DIST/$arch/$seed.packages"
+				done
+			done
+		fi
+		;;
+esac
+
 initrd_packages () {
 	manifest="$(find-mirror $2)/dists/$DIST/main/installer-$2/current/images/MANIFEST.udebs"
 	[ "$manifest" ] || return
