@@ -101,8 +101,8 @@ case $DIST in
 esac
 
 # For >= precise, some flavours use a different kernel on i386.  germinate
-# doesn't currently support this without duplicating the entire installer
-# seed, so we hack it instead.
+# doesn't currently support this without duplicating the entire boot and
+# installer seeds, so we hack them instead.
 case $PROJECT in
 	xubuntu|lubuntu)
 		if dist_ge precise; then
@@ -112,6 +112,8 @@ case $PROJECT in
 					sed -i 's/-generic-pae-di/-generic-di/g' \
 						"$GERMINATE_OUT/$DIST/$arch/$seed.packages"
 				done
+				sed -i '/^linux-/s/-generic-pae/-generic/g' \
+					"$GERMINATE_OUT/$DIST/$arch/boot.packages"
 			done
 		fi
 		;;
