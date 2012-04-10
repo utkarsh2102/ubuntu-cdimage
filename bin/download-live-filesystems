@@ -98,7 +98,7 @@ EOF
 						sed 's/\(\b[a-z]\)/\U\1/g' || echo "PROJECT")
 					cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
 [autorun]
-open=wubi.exe --cdmenu
+open=wubi.exe
 icon=wubi.exe,0
 label=Install $PROJ
 
