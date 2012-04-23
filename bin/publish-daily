@@ -114,7 +114,12 @@ publish_binary () {
 			;;
 		*)
 			# http://en.wikipedia.org/wiki/CD-ROM#Capacity
-			SIZELIMIT=737280000
+			# gives a maximum of 737280000; RedBook requires
+			# reserving 300 sectors, so we do the same here
+			# Just In Case.  If we need to surpass this limit
+			# we should rigorously re-test and check again
+			# with ProMese, the CD pressing vendor.
+			SIZELIMIT=736665600
 			;;
 	esac
 
