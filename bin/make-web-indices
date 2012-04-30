@@ -580,6 +580,10 @@ case $DIST in
 				;;
 		esac
 		;;
+	quantal)
+		distversion=12.10
+		distfullname='Quantal Quetzal'
+		;;
 esac
 
 case $CDPREFIX in

@@ -55,6 +55,7 @@ file_to_manifest () {
 		natty-*)	dist=natty ;;
 		oneiric-*)	dist=oneiric ;;
 		precise-*)	dist=precise ;;
+		quantal-*)	dist=quantal ;;
 		*)
 			if [ "$TYPE" = daily ]; then
 				return
@@ -78,6 +79,7 @@ file_to_manifest () {
 		11.04*)	dist=natty ;;
 		11.10*)	dist=oneiric ;;
 		12.04*)	dist=precise ;;
+		12.10*)	dist=quantal ;;
 		*)
 			if [ "$TYPE" = simple ]; then
 				echo "Unknown version: $version" >&2

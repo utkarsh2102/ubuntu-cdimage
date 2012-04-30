@@ -127,6 +127,9 @@ case $DIST in
 	precise)
 		VERSION=12.04
 		;;
+	quantal)
+		VERSION=12.10
+		;;
 	*)
 		echo "Unknown distribution: $DIST" >&2
 		exit 1
