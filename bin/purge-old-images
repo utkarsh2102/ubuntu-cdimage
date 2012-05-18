@@ -72,6 +72,11 @@ for dir in *; do
 		continue
 	fi
 
+	# Pointed to by 'current' symlink?
+	if [ -h current ] && [ "$(readlink current)" = "$dir" ]; then
+		continue
+	fi
+
 	if [ "$DEBUG" ] || [ "$CDIMAGE_NOPURGE" ]; then
 		echo "Would purge $IMAGE_TYPE_DIR/$dir"
 	else
