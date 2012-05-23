@@ -53,7 +53,7 @@ case $CPUARCH in
 			FLAVOURS=386
 		elif dist_le oneiric; then
 			FLAVOURS=generic
-		else
+		elif dist_le precise; then
 			case $PROJECT in
 				xubuntu|lubuntu)
 					FLAVOURS=generic
@@ -63,6 +63,15 @@ case $CPUARCH in
 					;;
 				*)
 					FLAVOURS=generic-pae
+					;;
+			esac
+		else
+			case $PROJECT in
+				ubuntustudio)
+					FLAVOURS=lowlatency-pae
+					;;
+				*)
+					FLAVOURS=generic
 					;;
 			esac
 		fi

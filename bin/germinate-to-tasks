@@ -100,12 +100,12 @@ case $DIST in
 		;;
 esac
 
-# For >= precise, some flavours use a different kernel on i386.  germinate
+# For precise, some flavours use a different kernel on i386.  germinate
 # doesn't currently support this without duplicating the entire boot and
 # installer seeds, so we hack them instead.
 case $PROJECT in
 	xubuntu|lubuntu)
-		if dist_ge precise; then
+		if [ "$DIST" = precise ]; then
 			for arch in $ARCHES; do
 				[ "$arch" = i386 ] || continue
 				for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
