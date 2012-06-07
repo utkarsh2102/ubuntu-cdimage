@@ -337,6 +337,11 @@ case $ITEM in
 		esac
 		;;
 	wubi)
+		case $PROJECT in
+			xubuntu)
+				exit 1
+				;;
+		esac
 		case $ARCH in
 			amd64|i386)
 				;;
