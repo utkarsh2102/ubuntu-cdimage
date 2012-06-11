@@ -5,7 +5,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 31 7 * * *	for-project ubuntu cron.daily; for-project ubuntu cron.daily-live
 17 12 * * 2,6	for-project ubuntu cron.dvd
 14 5 * * *	for-project kubuntu cron.daily; for-project kubuntu cron.daily-live
-47 20 * * 1,5	for-project kubuntu cron.dvd
 44 0 * * *	for-project edubuntu cron.dvd
 55 9 * * *	for-project xubuntu cron.daily; for-project xubuntu cron.daily-live
 29 6 * * *	for-project ubuntu-server cron.daily

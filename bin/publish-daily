@@ -127,6 +127,11 @@ publish_binary () {
 		SIZELIMIT=4700372992
 	fi
 
+	# Kubuntu limit of 1GB [quantal]
+	if [ "$PROJECT" = kubuntu ]; then
+		SIZELIMIT=1000000000
+	fi
+
 	if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.raw" ]; then
 		echo "Publishing $arch ..."
 		mkdir -p "$PUBLISH"
