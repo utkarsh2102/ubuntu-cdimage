@@ -77,6 +77,11 @@ case $PROJECT in
 			export CDIMAGE_UNSUPPORTED=1
 		fi
 		;;
+	kubuntu)
+		if dist_ge quantal; then
+			export CDIMAGE_UNSUPPORTED=1
+		fi
+		;;
 	kubuntu-kde4|kubuntu-netbook|kubuntu-mobile)
 		export CDIMAGE_UNSUPPORTED=1
 		;;
