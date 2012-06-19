@@ -47,7 +47,7 @@ case $PROJECT in
 		;;
 esac
 
-if dist_le lucid; then
+if [ "$DIST" != "${ALL_DISTS##* }" ]; then
 	FULL_TREE="$FULL_TREE/$DIST"
 fi
 
