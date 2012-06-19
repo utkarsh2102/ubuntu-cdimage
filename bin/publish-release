@@ -180,7 +180,7 @@ if $PUBLISH_DIST; then
 	PUBLISH_POOL=:
 fi
 
-if dist_le lucid; then
+if [ "$DIST" != "${ALL_DISTS##* }" ]; then
 	SOURCE="$DIST/$SOURCE"
 	if [ "$SOURCE" = "$DIST/ubuntu-server/daily" ]; then
 		SOURCE="ubuntu-server/$DIST/daily"

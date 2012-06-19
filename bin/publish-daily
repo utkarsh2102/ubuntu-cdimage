@@ -12,7 +12,7 @@ fi
 DATE="$1"
 IMAGE_TYPE="${2:-daily}"
 IMAGE_TYPE_DIR="$(echo "$IMAGE_TYPE" | sed 's,_,/,g')"
-if dist_le lucid; then
+if [ "$DIST" != "${ALL_DISTS##* }" ]; then
 	IMAGE_TYPE_DIR="$DIST/$IMAGE_TYPE_DIR"
 fi
 
