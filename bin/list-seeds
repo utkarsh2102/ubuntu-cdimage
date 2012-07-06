@@ -12,6 +12,21 @@ fi
 STRUCTURE="$1"
 MODE="$2"
 
+tmpdir=
+
+cleanup () {
+	if [ "$tmpdir" ]; then
+		rm -r "$tmpdir"
+	fi
+}
+
+use_temp_dir () {
+	if [ -z "$tmpdir" ]; then
+		tmpdir="$(mktemp -d)"
+		trap cleanup EXIT HUP INT QUIT TERM
+	fi
+}
+
 add_inheritance () {
 	case " $inherit " in
 		*" $1 "*)
@@ -33,6 +48,19 @@ inheritance () {
 	inherit=
 	expand_inheritance "$1"
 	echo "$inherit"
+}
+
+# Subtract the inheritance of seed $1 from the list of seeds in the
+# remaining arguments.
+# TODO: would be nice to sort in STRUCTURE order
+without_inheritance () {
+	subtract="$1"
+	use_temp_dir
+	inheritance "$1" | xargs -n1 | sort -u >"$tmpdir/$subtract.subtract"
+	shift
+	echo "$@" | xargs -n1 | sort -u >"$tmpdir/$subtract.original"
+	join -v2 "$tmpdir/$subtract.subtract" "$tmpdir/$subtract.original" | \
+		xargs
 }
 
 case $MODE in
@@ -105,6 +133,13 @@ case $MODE in
 				;;
 			kubuntu-mobile)
 				echo 'ship-mobile-live'
+				;;
+			ubuntu-server)
+				seeds="$(inheritance server-ship)"
+				for subtract in boot installer d-i-requirements server; do
+					seeds="$(without_inheritance $subtract $seeds)"
+				done
+				echo "$seeds"
 				;;
 			*)
 				if dist_ge dapper; then
