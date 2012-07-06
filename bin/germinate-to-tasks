@@ -119,6 +119,12 @@ case $PROJECT in
 		;;
 esac
 
+for packages in "$GERMINATE_OUT/$DIST"/*/*.packages; do
+	[ -e "$packages" ] || continue
+	sort -u "$packages" > "$packages.new"
+	mv "$packages.new" "$packages"
+done
+
 initrd_packages () {
 	manifest="$(find-mirror $2)/dists/$DIST/main/installer-$2/current/images/MANIFEST.udebs"
 	[ "$manifest" ] || return
