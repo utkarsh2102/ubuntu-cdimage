@@ -10,6 +10,17 @@ IMAGETOP="${IMAGETOP:-$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tmp}"
 
 mkemptydir "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST"
 for fullarch in $ARCHES; do
+	if [ "$CDIMAGE_SQUASHFS_BASE" ]; then
+		manifest="$IMAGETOP/$DIST-$fullarch/CD1/install/filesystem.manifest"
+		if [ -e "$manifest" ]; then
+			while read pkg ver; do
+				echo "Package: ${pkg%:*}"
+				echo "Version: $ver"
+				echo
+			done < "$manifest" >> "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST/Packages_$arch"
+		fi
+	fi
+
 	arch="${fullarch%%+*}"
 	for component in main restricted universe multiverse; do
 		packages="$IMAGETOP/$DIST-$fullarch/CD1/dists/$DIST/$component/binary-$arch/Packages.gz"
