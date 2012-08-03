@@ -4,10 +4,12 @@ import sys
 import os
 import signal
 
+
 def usage(stream, code):
     print >>stream, """\
 Usage: kill-after number-of-seconds command [argument ...]"""
     sys.exit(code)
+
 
 if len(sys.argv) < 3:
     usage(sys.stderr, 1)
@@ -18,9 +20,11 @@ try:
 except ValueError:
     usage(sys.stderr, 1)
 
+
 def sigalrm_handler(signum, frame):
     print >>sys.stderr, "%s took too long, terminating ..." % sys.argv[2]
     os.kill(-pid, signal.SIGTERM)
+
 
 def sigchld_handler(signum, frame):
     _, status = os.waitpid(pid, 0)
@@ -29,6 +33,7 @@ def sigchld_handler(signum, frame):
     else:
         print >>sys.stderr, "child exited with signal %d" % os.WTERMSIG(status)
         os._exit(os.WTERMSIG(status) + 128)
+
 
 old_sigalrm = signal.signal(signal.SIGALRM, sigalrm_handler)
 old_sigchld = signal.signal(signal.SIGCHLD, sigchld_handler)
