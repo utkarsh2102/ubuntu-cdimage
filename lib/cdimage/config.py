@@ -28,6 +28,7 @@ import subprocess
 
 
 _whitelisted_keys = (
+    "CDIMAGE_ROOT",
     "PROJECT",
     "CAPPROJECT",
     "ALL_DISTS",
@@ -79,3 +80,6 @@ class Config(defaultdict):
             commands.append("printf '%%s\\0' \"%s=$%s\"" % (key, key))
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
         self.update(env)
+
+
+config = Config()
