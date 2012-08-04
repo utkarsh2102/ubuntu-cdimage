@@ -1,5 +1,3 @@
-#! /usr/bin/python
-
 # Copyright (C) 2012 Canonical Ltd.
 # Author: Colin Watson <cjwatson@ubuntu.com>
 
@@ -15,19 +13,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Sign a file with the cdimage key."""
+"""Logging for cdimage programs."""
 
-from optparse import OptionParser
+__metaclass__ = type
 
-from cdimage.config import config
-from cdimage.sign import sign_cdimage
+import logging
+import sys
 
 
-def main():
-    parser = OptionParser("%prog FILE")
-    options, args = parser.parse_args()
-    if not args:
-        parser.error("no file name given")
-    for arg in args:
-        if not sign_cdimage(config, arg):
-            break
+class CDImageLogger(logging.Formatter):
+    """Format messages in cdimage's preferred style."""
+
+    def format(self, record):
+        return record.getMessage()
+
+
+logging.basicConfig()
+logger = logging.getLogger("cdimage")
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(CDImageLogger())
+    logger.addHandler(handler)
+    logger.propagate = False

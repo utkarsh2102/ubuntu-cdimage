@@ -15,12 +15,27 @@
 
 """Testing helpers."""
 
+__metaclass__ = type
+
+from logging.handlers import BufferingHandler
 import shutil
 import tempfile
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
+
+from cdimage.log import logger
+
+
+class UnlimitedBufferHandler(BufferingHandler):
+    """A buffering handler that never flushes any records."""
+
+    def __init__(self):
+        BufferingHandler.__init__(self, 0)
+
+    def shouldFlush(self, record):
+        return False
 
 
 class TestCase(unittest.TestCase):
@@ -33,3 +48,18 @@ class TestCase(unittest.TestCase):
             return
         self.temp_dir = tempfile.mkdtemp(prefix="cdimage")
         self.addCleanup(shutil.rmtree, self.temp_dir)
+
+    def capture_logging(self):
+        self.handler = UnlimitedBufferHandler()
+        logger.handlers = []
+        logger.addHandler(self.handler)
+        logger.propagate = False
+
+    def assertLogEqual(self, expected):
+        self.assertEqual(
+            expected, [record.getMessage() for record in self.handler.buffer])
+
+
+def touch(path):
+    with open(path, "a"):
+        pass
