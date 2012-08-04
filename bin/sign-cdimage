@@ -18,7 +18,10 @@
 """Sign a file with the cdimage key."""
 
 from optparse import OptionParser
+import os
+import sys
 
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import config
 from cdimage.sign import sign_cdimage
 
