@@ -52,6 +52,13 @@ def sign_cdimage(config, path):
 
     with open(path, "rb") as infile:
         with open("%s.gpg" % path, "wb") as outfile:
-            subprocess.call(
-                _signing_command(config), stdin=infile, stdout=outfile)
+            try:
+                subprocess.check_call(
+                    _signing_command(config), stdin=infile, stdout=outfile)
+            except subprocess.CalledProcessError:
+                try:
+                    os.unlink("%s.gpg" % path)
+                except OSError:
+                    pass
+                raise
     return True
