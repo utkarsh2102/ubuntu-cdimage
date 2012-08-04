@@ -1,37 +1,38 @@
 #! /usr/bin/python
+
+# Copyright (C) 2012 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """Unit tests for cdimage.config."""
 
 from __future__ import print_function
 
 import os
-import shutil
-import tempfile
 from textwrap import dedent
 try:
     from test.support import EnvironmentVarGuard
 except ImportError:
     from test.test_support import EnvironmentVarGuard
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from cdimage.config import Config
+from cdimage.tests.helpers import TestCase
 
 __metaclass__ = type
 
 
-class TestConfig(unittest.TestCase):
-    def setUp(self):
-        super(TestConfig, self).setUp()
-        self.temp_dir = None
-
-    def use_temp_dir(self):
-        if self.temp_dir is not None:
-            return
-        self.temp_dir = tempfile.mkdtemp(prefix="cdimage")
-        self.addCleanup(shutil.rmtree, self.temp_dir)
-
+class TestConfig(TestCase):
     def test_default_root(self):
         with EnvironmentVarGuard() as env:
             env.pop("CDIMAGE_ROOT", None)
