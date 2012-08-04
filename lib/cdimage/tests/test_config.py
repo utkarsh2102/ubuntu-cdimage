@@ -19,6 +19,8 @@
 
 from __future__ import print_function
 
+__metaclass__ = type
+
 import os
 from textwrap import dedent
 try:
@@ -28,8 +30,6 @@ except ImportError:
 
 from cdimage.config import Config
 from cdimage.tests.helpers import TestCase
-
-__metaclass__ = type
 
 
 class TestConfig(TestCase):
