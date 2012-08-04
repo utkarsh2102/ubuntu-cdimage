@@ -47,12 +47,14 @@ _whitelisted_keys = (
 
 
 class Config(defaultdict):
-    def __init__(self):
+    def __init__(self, read=True):
         super(Config, self).__init__(str)
         if "CDIMAGE_ROOT" not in os.environ:
             os.environ["CDIMAGE_ROOT"] = "/srv/cdimage.ubuntu.com"
         self.root = os.environ["CDIMAGE_ROOT"]
-        self._read()
+        config_path = os.path.join(self.root, "etc", "config")
+        if read and os.path.exists(config_path):
+            self.read(config_path)
 
     def _read_nullsep_output(self, command):
         raw = subprocess.Popen(
@@ -73,9 +75,9 @@ class Config(defaultdict):
         else:
             return "'%s'" % arg.replace("'", "'\\''")
 
-    def _read(self):
-        config_path = os.path.join(self.root, "etc", "config")
-        commands = [". %s" % self._shell_escape(config_path)]
+    def read(self, config_path):
+        commands = []
+        commands.append(". %s" % self._shell_escape(config_path))
         for key in _whitelisted_keys:
             commands.append("printf '%%s\\0' \"%s=$%s\"" % (key, key))
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
