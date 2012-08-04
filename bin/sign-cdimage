@@ -31,3 +31,7 @@ def main():
     for arg in args:
         if not sign_cdimage(config, arg):
             break
+
+
+if __name__ == "__main__":
+    main()
