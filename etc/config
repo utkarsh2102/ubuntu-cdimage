@@ -4,6 +4,11 @@
 # syncing a local Ubuntu mirror; see etc/anonftpsync for settings affecting what
 # is mirrored and where.
 
+# This will eventually become a more declarative configuration file.  In the
+# meantime, do not add new variable settings to this file unless you also
+# update lib/cdimage/config.py, or unless their names start with "CDIMAGE_"
+# and they are exported to the environment.
+
 . "$CDIMAGE_ROOT/bin/functions.sh"
 
 if [ "$DEBUG" ] && [ "$DEBUG" -gt 1 ]; then
