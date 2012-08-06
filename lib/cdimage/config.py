@@ -15,13 +15,14 @@
 
 """Read cdimage configuration.
 
-This is a transitional measure to permit shell and Python programs to
-co-exist until such time as the whole of cdimage is rewritten.
+Most of this is a transitional measure to permit shell and Python programs
+to co-exist until such time as the whole of cdimage is rewritten.
 """
 
 __metaclass__ = type
 
 from collections import defaultdict
+import operator
 import os
 import re
 import subprocess
@@ -44,6 +45,40 @@ _whitelisted_keys = (
     "TRIGGER_MIRRORS_ASYNC",
     "DEBOOTSTRAPROOT",
     )
+
+
+class Series:
+    def __init__(self, name, ordering):
+        self.name = name
+        self.ordering = list(ordering)
+        self.index = ordering.index(name)
+
+    def __str__(self):
+        return self.name
+
+    def _compare(self, other, method):
+        if isinstance(other, Series):
+            return method(self.index, other.index)
+        else:
+            return method(self.index, self.ordering.index(other))
+
+    def __lt__(self, other):
+        return self._compare(other, operator.lt)
+
+    def __le__(self, other):
+        return self._compare(other, operator.le)
+
+    def __eq__(self, other):
+        return self._compare(other, operator.eq)
+
+    def __ne__(self, other):
+        return self._compare(other, operator.ne)
+
+    def __ge__(self, other):
+        return self._compare(other, operator.ge)
+
+    def __gt__(self, other):
+        return self._compare(other, operator.gt)
 
 
 class Config(defaultdict):
@@ -82,6 +117,10 @@ class Config(defaultdict):
             commands.append("printf '%%s\\0' \"%s=$%s\"" % (key, key))
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
         self.update(env)
+
+        # Special entries.
+        if "DIST" in self:
+            self["DIST"] = Series(self["DIST"], self.get("ALL_DISTS", []))
 
 
 config = Config()

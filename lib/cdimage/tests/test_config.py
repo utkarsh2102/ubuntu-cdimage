@@ -28,8 +28,38 @@ try:
 except ImportError:
     from test.test_support import EnvironmentVarGuard
 
-from cdimage.config import Config
+from cdimage.config import Config, Series
 from cdimage.tests.helpers import TestCase
+
+
+class TestSeries(TestCase):
+    def test_str(self):
+        series = Series("warty", ["warty"])
+        self.assertEqual("warty", str(series))
+
+    def test_compare(self):
+        all_series = ["warty", "hoary", "breezy"]
+        series = Series("hoary", all_series)
+
+        self.assertLess(series, "breezy")
+        self.assertLessEqual(series, "hoary")
+        self.assertLessEqual(series, "breezy")
+        self.assertEqual(series, "hoary")
+        self.assertNotEqual(series, "warty")
+        self.assertNotEqual(series, "breezy")
+        self.assertGreaterEqual(series, "warty")
+        self.assertGreaterEqual(series, "hoary")
+        self.assertGreater(series, "warty")
+
+        self.assertLess(series, Series("breezy", all_series))
+        self.assertLessEqual(series, Series("hoary", all_series))
+        self.assertLessEqual(series, Series("breezy", all_series))
+        self.assertEqual(series, Series("hoary", all_series))
+        self.assertNotEqual(series, Series("warty", all_series))
+        self.assertNotEqual(series, Series("breezy", all_series))
+        self.assertGreaterEqual(series, Series("warty", all_series))
+        self.assertGreaterEqual(series, Series("hoary", all_series))
+        self.assertGreater(series, Series("warty", all_series))
 
 
 class TestConfig(TestCase):
