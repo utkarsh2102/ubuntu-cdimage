@@ -119,6 +119,9 @@ _whitelisted_keys = (
     "TRIGGER_MIRRORS",
     "TRIGGER_MIRRORS_ASYNC",
     "DEBOOTSTRAPROOT",
+    "DEBUG",
+    "DATE",
+    "DATE_SUFFIX",
     )
 
 
