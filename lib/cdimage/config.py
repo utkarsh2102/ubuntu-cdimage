@@ -123,7 +123,8 @@ class Config(defaultdict):
 
         # Special entries.
         if "DIST" in self:
-            self["DIST"] = Series(self["DIST"], self.get("ALL_DISTS", []))
+            self["DIST"] = Series(
+                self["DIST"], self.get("ALL_DISTS", "").split())
 
 
 config = Config()
