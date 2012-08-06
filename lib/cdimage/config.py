@@ -29,7 +29,6 @@ import subprocess
 
 
 _whitelisted_keys = (
-    "CDIMAGE_ROOT",
     "PROJECT",
     "CAPPROJECT",
     "ALL_DISTS",
@@ -111,12 +110,16 @@ class Config(defaultdict):
             return "'%s'" % arg.replace("'", "'\\''")
 
     def read(self, config_path):
-        commands = []
-        commands.append(". %s" % self._shell_escape(config_path))
+        commands = [
+            ". %s" % self._shell_escape(config_path),
+            "cat /proc/self/environ",
+            ]
         for key in _whitelisted_keys:
             commands.append("printf '%%s\\0' \"%s=$%s\"" % (key, key))
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
-        self.update(env)
+        for key, value in env.items():
+            if key.startswith("CDIMAGE_") or key in _whitelisted_keys:
+                self[key] = value
 
         # Special entries.
         if "DIST" in self:
