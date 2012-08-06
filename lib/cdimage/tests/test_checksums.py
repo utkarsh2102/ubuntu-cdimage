@@ -23,12 +23,14 @@ __metaclass__ = type
 
 import hashlib
 import os
+import shutil
 import subprocess
+import time
 from textwrap import dedent
 
 from cdimage.checksums import ChecksumFile, ChecksumFileSet
 from cdimage.config import Config
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, touch
 
 
 class TestChecksumFile(TestCase):
@@ -87,12 +89,61 @@ class TestChecksumFile(TestCase):
         self.assertEqual(
             {"entry": hashlib.md5(data).hexdigest()}, checksum_file.entries)
 
+    def test_add_existing(self):
+        # Attempting to add an existing file has no effect.  (Use .remove()
+        # first to overwrite an existing checksum.)
+        entry_path = os.path.join(self.temp_dir, "entry")
+        data = "test\n"
+        with open(entry_path, "w") as entry:
+            print(data, end="", file=entry)
+        checksum_file = ChecksumFile(
+            self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
+        checksum_file.entries["entry"] = ""
+        checksum_file.add("entry")
+        self.assertEqual("", checksum_file.entries["entry"])
+
     def test_remove(self):
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
         checksum_file.entries["entry"] = "checksum"
         checksum_file.remove("entry")
         self.assertEqual({}, checksum_file.entries)
+
+    def test_merge_takes_valid_checksums(self):
+        old_dir = os.path.join(self.temp_dir, "old")
+        os.mkdir(old_dir)
+        touch(os.path.join(self.temp_dir, "entry"))
+        with open(os.path.join(old_dir, "MD5SUMS"), "w") as old_md5sums:
+            print("checksum *entry", file=old_md5sums)
+        checksum_file = ChecksumFile(
+            self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
+        checksum_file.merge([old_dir], "entry", ["entry"])
+        self.assertEqual({"entry": "checksum"}, checksum_file.entries)
+
+    def test_merge_ignores_stale_checksums(self):
+        old_dir = os.path.join(self.temp_dir, "old")
+        os.mkdir(old_dir)
+        with open(os.path.join(old_dir, "MD5SUMS"), "w") as old_md5sums:
+            print("checksum *entry", file=old_md5sums)
+        entry_path = os.path.join(self.temp_dir, "entry")
+        touch(entry_path)
+        next_minute = time.time() + 60
+        os.utime(entry_path, (next_minute, next_minute))
+        checksum_file = ChecksumFile(
+            self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
+        checksum_file.merge([old_dir], "entry", ["entry"])
+        self.assertEqual({}, checksum_file.entries)
+
+    def test_merge_takes_other_names(self):
+        old_dir = os.path.join(self.temp_dir, "old")
+        os.mkdir(old_dir)
+        touch(os.path.join(self.temp_dir, "entry"))
+        with open(os.path.join(old_dir, "MD5SUMS"), "w") as old_md5sums:
+            print("checksum *other-entry", file=old_md5sums)
+        checksum_file = ChecksumFile(
+            self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
+        checksum_file.merge([old_dir], "entry", ["other-entry"])
+        self.assertEqual({"entry": "checksum"}, checksum_file.entries)
 
     def test_write(self):
         checksum_file = ChecksumFile(
@@ -145,11 +196,13 @@ class TestChecksumFileSet(TestCase):
             "SHA256SUMS": "sha256sum",
             }
 
-    def create_checksum_files(self, names):
+    def create_checksum_files(self, names, directory=None):
+        if directory is None:
+            directory = self.temp_dir
         for base, command in self.files_and_commands.items():
-            with open(os.path.join(self.temp_dir, base), "w") as f:
+            with open(os.path.join(directory, base), "w") as f:
                 subprocess.call(
-                    [command, "-b"] + names, stdout=f, cwd=self.temp_dir)
+                    [command, "-b"] + names, stdout=f, cwd=directory)
 
     def assertChecksumsEqual(self, entry_data, checksum_files):
         expected = {
@@ -199,6 +252,18 @@ class TestChecksumFileSet(TestCase):
         checksum_files.read()
         checksum_files.remove("entry")
         self.assertChecksumsEqual({}, checksum_files)
+
+    def test_merge(self):
+        old_dir = os.path.join(self.temp_dir, "old")
+        os.mkdir(old_dir)
+        entry_path = os.path.join(self.temp_dir, "entry")
+        with open(entry_path, "w") as entry:
+            print("data", end="", file=entry)
+        shutil.copy(entry_path, os.path.join(old_dir, "entry"))
+        self.create_checksum_files(["entry"], directory=old_dir)
+        checksum_files = ChecksumFileSet(self.config, self.temp_dir)
+        checksum_files.merge([old_dir], "entry", ["entry"])
+        self.assertChecksumsEqual({"entry": "data"}, checksum_files)
 
     def test_write(self):
         checksum_files = ChecksumFileSet(

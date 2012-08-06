@@ -60,11 +60,36 @@ class ChecksumFile:
             return hash_obj.hexdigest()
 
     def add(self, entry_name):
-        entry_path = os.path.join(self.directory, entry_name)
-        self.entries[entry_name] = self.checksum(entry_path)
+        if entry_name not in self.entries:
+            entry_path = os.path.join(self.directory, entry_name)
+            self.entries[entry_name] = self.checksum(entry_path)
 
     def remove(self, entry_name):
         self.entries.pop(entry_name, None)
+
+    def merge(self, directories, entry_name, possible_entry_names):
+        if entry_name in self.entries:
+            return
+        try:
+            entry_time = os.stat(
+                os.path.join(self.directory, entry_name)).st_mtime
+        except OSError:
+            entry_time = 0
+        for directory in directories:
+            try:
+                dir_time = os.stat(os.path.join(directory, self.name)).st_mtime
+            except OSError:
+                continue
+            if entry_time > dir_time:
+                continue
+            old_checksum_file = ChecksumFile(
+                self.config, directory, self.name, self.hash_method,
+                sign=self.sign)
+            old_checksum_file.read()
+            for name in possible_entry_names:
+                if name in old_checksum_file.entries:
+                    self.entries[entry_name] = old_checksum_file.entries[name]
+                    return
 
     def write(self):
         if self.entries:
@@ -115,6 +140,10 @@ class ChecksumFileSet:
     def remove(self, entry_name):
         for checksum_file in self.checksum_files:
             checksum_file.remove(entry_name)
+
+    def merge(self, directories, entry_name, possible_entry_names):
+        for checksum_file in self.checksum_files:
+            checksum_file.merge(directories, entry_name, possible_entry_names)
 
     def write(self):
         for checksum_file in self.checksum_files:
