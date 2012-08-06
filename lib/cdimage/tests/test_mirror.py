@@ -21,7 +21,7 @@ __metaclass__ = type
 
 import os
 
-from cdimage.mirror import find_mirror, UnknownMirror
+from cdimage.mirror import find_mirror
 from cdimage.config import Config, Series
 from cdimage.tests.helpers import TestCase
 
@@ -42,7 +42,7 @@ all_series = [
 class TestChecksumFile(TestCase):
     def assertMirrorEqual(self, base, arch, series):
         config = Config(read=False)
-        config["DIST"] = Series(series, all_series)
+        config["DIST"] = Series.find(series)
         self.assertEqual(
             os.path.join(config.root, base), find_mirror(config, arch))
 

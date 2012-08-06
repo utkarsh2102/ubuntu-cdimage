@@ -34,12 +34,11 @@ from cdimage.tests.helpers import TestCase
 
 class TestSeries(TestCase):
     def test_str(self):
-        series = Series("warty", ["warty"])
+        series = Series.find("warty")
         self.assertEqual("warty", str(series))
 
     def test_compare(self):
-        all_series = ["warty", "hoary", "breezy"]
-        series = Series("hoary", all_series)
+        series = Series.find("hoary")
 
         self.assertLess(series, "breezy")
         self.assertLessEqual(series, "hoary")
@@ -51,15 +50,15 @@ class TestSeries(TestCase):
         self.assertGreaterEqual(series, "hoary")
         self.assertGreater(series, "warty")
 
-        self.assertLess(series, Series("breezy", all_series))
-        self.assertLessEqual(series, Series("hoary", all_series))
-        self.assertLessEqual(series, Series("breezy", all_series))
-        self.assertEqual(series, Series("hoary", all_series))
-        self.assertNotEqual(series, Series("warty", all_series))
-        self.assertNotEqual(series, Series("breezy", all_series))
-        self.assertGreaterEqual(series, Series("warty", all_series))
-        self.assertGreaterEqual(series, Series("hoary", all_series))
-        self.assertGreater(series, Series("warty", all_series))
+        self.assertLess(series, Series.find("breezy"))
+        self.assertLessEqual(series, Series.find("hoary"))
+        self.assertLessEqual(series, Series.find("breezy"))
+        self.assertEqual(series, Series.find("hoary"))
+        self.assertNotEqual(series, Series.find("warty"))
+        self.assertNotEqual(series, Series.find("breezy"))
+        self.assertGreaterEqual(series, Series.find("warty"))
+        self.assertGreaterEqual(series, Series.find("hoary"))
+        self.assertGreater(series, Series.find("warty"))
 
 
 class TestConfig(TestCase):

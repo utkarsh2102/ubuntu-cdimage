@@ -21,45 +21,47 @@ to co-exist until such time as the whole of cdimage is rewritten.
 
 __metaclass__ = type
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import operator
 import os
 import re
 import subprocess
 
 
-_whitelisted_keys = (
-    "PROJECT",
-    "CAPPROJECT",
-    "ALL_DISTS",
-    "DIST",
-    "ALL_PROJECTS",
-    "ARCHES",
-    "CPUARCHES",
-    "GNUPG_DIR",
-    "SIGNING_KEYID",
-    "BRITNEY",
-    "LOCAL_SEEDS",
-    "TRIGGER_MIRRORS",
-    "TRIGGER_MIRRORS_ASYNC",
-    "DEBOOTSTRAPROOT",
-    )
+class UnknownSeries(Exception):
+    pass
 
 
-class Series:
-    def __init__(self, name, ordering):
-        self.name = name
-        self.ordering = list(ordering)
-        self.index = ordering.index(name)
+BaseSeries = namedtuple("BaseSeries", ["name", "version", "displayname"])
+all_series = []
+
+
+class Series(BaseSeries):
+    def __init__(self, *args, **kwargs):
+        self._index = None
+
+    @classmethod
+    def find(self, name):
+        for series in all_series:
+            if series.name == name:
+                return series
+        else:
+            raise ValueError("No series named %s" % name)
 
     def __str__(self):
         return self.name
 
+    @property
+    def index(self):
+        if self._index is None:
+            self._index = [
+                series.name for series in all_series].index(self.name)
+        return self._index
+
     def _compare(self, other, method):
-        if isinstance(other, Series):
-            return method(self.index, other.index)
-        else:
-            return method(self.index, self.ordering.index(other))
+        if not isinstance(other, Series):
+            other = self.find(other)
+        return method(self.index, other.index)
 
     def __lt__(self, other):
         return self._compare(other, operator.lt)
@@ -78,6 +80,46 @@ class Series:
 
     def __gt__(self, other):
         return self._compare(other, operator.gt)
+
+
+# TODO: This should probably come from a configuration file.
+all_series.extend([
+    Series("warty", "4.10", "Warty Warthog"),
+    Series("hoary", "5.04", "Hoary Hedgehog"),
+    Series("breezy", "5.10", "Breezy Badger"),
+    Series("dapper", "6.06", "Dapper Drake"),
+    Series("edgy", "6.10", "Edgy Eft"),
+    Series("feisty", "7.04", "Feisty Fawn"),
+    Series("gutsy", "7.10", "Gutsy Gibbon"),
+    Series("hardy", "8.04", "Hardy Heron"),
+    Series("intrepid", "8.10", "Intrepid Ibex"),
+    Series("jaunty", "9.04", "Jaunty Jackalope"),
+    Series("karmic", "9.10", "Karmic Koala"),
+    Series("lucid", "10.04", "Lucid Lynx"),
+    Series("maverick", "10.10", "Maverick Meerkat"),
+    Series("natty", "11.04", "Natty Narwhal"),
+    Series("oneiric", "11.10", "Oneiric Ocelot"),
+    Series("precise", "12.04", "Precise Pangolin"),
+    Series("quantal", "12.10", "Quantal Quetzal"),
+    ])
+
+
+_whitelisted_keys = (
+    "PROJECT",
+    "CAPPROJECT",
+    "ALL_DISTS",
+    "DIST",
+    "ALL_PROJECTS",
+    "ARCHES",
+    "CPUARCHES",
+    "GNUPG_DIR",
+    "SIGNING_KEYID",
+    "BRITNEY",
+    "LOCAL_SEEDS",
+    "TRIGGER_MIRRORS",
+    "TRIGGER_MIRRORS_ASYNC",
+    "DEBOOTSTRAPROOT",
+    )
 
 
 class Config(defaultdict):
@@ -122,9 +164,8 @@ class Config(defaultdict):
                 self[key] = value
 
         # Special entries.
-        if "DIST" in self:
-            self["DIST"] = Series(
-                self["DIST"], self.get("ALL_DISTS", "").split())
+        if self["DIST"]:
+            self["DIST"] = Series.find(self["DIST"])
 
 
 config = Config()
