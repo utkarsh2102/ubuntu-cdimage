@@ -33,7 +33,7 @@ def main():
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need architecture")
-    print(find_mirror(args[0]))
+    print(find_mirror(config, args[0]))
 
 
 if __name__ == "__main__":
