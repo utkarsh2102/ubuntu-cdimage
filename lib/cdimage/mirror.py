@@ -15,6 +15,8 @@
 
 """Mirror handling."""
 
+from __future__ import print_function
+
 __metaclass__ = type
 
 import os
@@ -55,7 +57,7 @@ class UnknownManifestFile(Exception):
 
 
 def _trigger_mirror(key, user, host, background=False):
-    print("%s:", host)
+    print("%s:" % host)
     command = [
         "ssh", "-i", key,
         "-o", "StrictHostKeyChecking no",
