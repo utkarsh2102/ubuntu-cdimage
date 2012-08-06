@@ -42,7 +42,7 @@ all_series = [
 class TestChecksumFile(TestCase):
     def assertMirrorEqual(self, base, arch, series):
         config = Config(read=False)
-        config["DIST"] = Series.find(series)
+        config["DIST"] = Series.find_by_name(series)
         self.assertEqual(
             os.path.join(config.root, base), find_mirror(config, arch))
 

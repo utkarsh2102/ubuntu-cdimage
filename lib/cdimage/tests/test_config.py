@@ -33,12 +33,20 @@ from cdimage.tests.helpers import TestCase
 
 
 class TestSeries(TestCase):
+    def test_find_by_name(self):
+        series = Series.find_by_name("hoary")
+        self.assertEqual(("hoary", "5.04", "Hoary Hedgehog"), tuple(series))
+
+    def test_find_by_version(self):
+        series = Series.find_by_version("5.04")
+        self.assertEqual(("hoary", "5.04", "Hoary Hedgehog"), tuple(series))
+
     def test_str(self):
-        series = Series.find("warty")
+        series = Series.find_by_name("warty")
         self.assertEqual("warty", str(series))
 
     def test_compare(self):
-        series = Series.find("hoary")
+        series = Series.find_by_name("hoary")
 
         self.assertLess(series, "breezy")
         self.assertLessEqual(series, "hoary")
@@ -50,15 +58,15 @@ class TestSeries(TestCase):
         self.assertGreaterEqual(series, "hoary")
         self.assertGreater(series, "warty")
 
-        self.assertLess(series, Series.find("breezy"))
-        self.assertLessEqual(series, Series.find("hoary"))
-        self.assertLessEqual(series, Series.find("breezy"))
-        self.assertEqual(series, Series.find("hoary"))
-        self.assertNotEqual(series, Series.find("warty"))
-        self.assertNotEqual(series, Series.find("breezy"))
-        self.assertGreaterEqual(series, Series.find("warty"))
-        self.assertGreaterEqual(series, Series.find("hoary"))
-        self.assertGreater(series, Series.find("warty"))
+        self.assertLess(series, Series.find_by_name("breezy"))
+        self.assertLessEqual(series, Series.find_by_name("hoary"))
+        self.assertLessEqual(series, Series.find_by_name("breezy"))
+        self.assertEqual(series, Series.find_by_name("hoary"))
+        self.assertNotEqual(series, Series.find_by_name("warty"))
+        self.assertNotEqual(series, Series.find_by_name("breezy"))
+        self.assertGreaterEqual(series, Series.find_by_name("warty"))
+        self.assertGreaterEqual(series, Series.find_by_name("hoary"))
+        self.assertGreater(series, Series.find_by_name("warty"))
 
 
 class TestConfig(TestCase):

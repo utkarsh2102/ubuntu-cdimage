@@ -41,12 +41,20 @@ class Series(BaseSeries):
         self._index = None
 
     @classmethod
-    def find(self, name):
+    def find_by_name(self, name):
         for series in all_series:
             if series.name == name:
                 return series
         else:
             raise ValueError("No series named %s" % name)
+
+    @classmethod
+    def find_by_version(self, version):
+        for series in all_series:
+            if series.version == version:
+                return series
+        else:
+            raise ValueError("No series with version %s" % version)
 
     def __str__(self):
         return self.name
@@ -60,7 +68,7 @@ class Series(BaseSeries):
 
     def _compare(self, other, method):
         if not isinstance(other, Series):
-            other = self.find(other)
+            other = self.find_by_name(other)
         return method(self.index, other.index)
 
     def __lt__(self, other):
@@ -168,7 +176,7 @@ class Config(defaultdict):
 
         # Special entries.
         if self["DIST"]:
-            self["DIST"] = Series.find(self["DIST"])
+            self["DIST"] = Series.find_by_name(self["DIST"])
 
 
 config = Config()
