@@ -19,13 +19,11 @@
 
 from optparse import OptionParser
 import os
-import re
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.atomicfile import AtomicFile
+from cdimage.checksums import ChecksumFileSet
 from cdimage.config import config
-from cdimage.sign import sign_cdimage
 
 
 def main():
@@ -38,18 +36,8 @@ def main():
         parser.error("need directory and filename")
 
     directory, filename = args[:2]
-    for tail in "MD5SUMS", "SHA1SUMS", "SHA256SUMS":
-        checksum_file = os.path.join(directory, tail)
-        if not os.path.exists(checksum_file):
-            continue
-        with open(checksum_file) as infile:
-            with AtomicFile(checksum_file) as outfile:
-                for line in infile:
-                    bits = re.split("[ *]+", line.rstrip("\n"), maxsplit=1)
-                    if len(bits) < 2 or bits[1] != filename:
-                        outfile.write(line)
-        if options.sign:
-            sign_cdimage(config, checksum_file)
+    with ChecksumFileSet(config, directory, sign=options.sign) as files:
+        files.remove(filename)
 
 
 if __name__ == "__main__":
