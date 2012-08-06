@@ -64,7 +64,6 @@ def main():
     if len(args) < 1:
         parser.error("need directory")
     directory = args[0]
-    old_directories = args[1:]
 
     # We don't want to read the existing checksum files directly, as they
     # may contain stale checksums; so we don't use the context manager form
