@@ -38,7 +38,7 @@ def _prepare_check_installable(config):
     _, image_top, data = _check_installable_dirs(config)
     mkemptydir(data)
 
-    for fullarch in config["ARCHES"].split():
+    for fullarch in config.arches:
         arch = fullarch.split("+")[0]
 
         packages = os.path.join(data, "Packages_%s" % arch)
