@@ -24,12 +24,49 @@ import subprocess
 from cdimage.log import logger
 
 
+def ensuredir(directory):
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+
+
 def mkemptydir(directory):
     try:
         shutil.rmtree(directory)
     except OSError:
         pass
-    os.makedirs(directory)
+    ensuredir(directory)
+
+
+def listdir_force(directory):
+    try:
+        return os.listdir(directory)
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            return []
+        raise
+
+
+def unlink_force(path):
+    """Unlink path, without worrying about whether it exists."""
+    try:
+        os.unlink(path)
+    except OSError as e:
+        if e.errno != errno.ENOENT:
+            raise
+
+
+def find_on_path(command):
+    """Is command on the executable search path?"""
+    if 'PATH' not in os.environ:
+        return False
+    path = os.environ['PATH']
+    for element in path.split(os.pathsep):
+        if not element:
+            continue
+        filename = os.path.join(element, command)
+        if os.path.isfile(filename) and os.access(filename, os.X_OK):
+            return True
+    return False
 
 
 def waitpid_retry(*args):

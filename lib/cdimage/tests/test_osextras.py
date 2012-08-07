@@ -19,19 +19,34 @@
 
 import errno
 import os
+try:
+    from test.support import EnvironmentVarGuard
+except ImportError:
+    from test.test_support import EnvironmentVarGuard
 
-from cdimage.osextras import mkemptydir, run_bounded, waitpid_retry
+from cdimage import osextras
 from cdimage.tests.helpers import TestCase, touch
 
 
-class TestMkEmptyDir(TestCase):
+class TestOSExtras(TestCase):
     def setUp(self):
-        super(TestMkEmptyDir, self).setUp()
+        super(TestOSExtras, self).setUp()
         self.use_temp_dir()
+
+    def test_ensuredir_previously_missing(self):
+        new_dir = os.path.join(self.temp_dir, "dir")
+        osextras.ensuredir(new_dir)
+        self.assertTrue(os.path.isdir(new_dir))
+
+    def test_ensuredir_previously_present(self):
+        new_dir = os.path.join(self.temp_dir, "dir")
+        os.mkdir(new_dir)
+        osextras.ensuredir(new_dir)
+        self.assertTrue(os.path.isdir(new_dir))
 
     def test_mkemptydir_previously_missing(self):
         new_dir = os.path.join(self.temp_dir, "dir")
-        mkemptydir(new_dir)
+        osextras.mkemptydir(new_dir)
         self.assertTrue(os.path.isdir(new_dir))
         self.assertEqual([], os.listdir(new_dir))
 
@@ -39,12 +54,55 @@ class TestMkEmptyDir(TestCase):
         new_dir = os.path.join(self.temp_dir, "dir")
         os.mkdir(new_dir)
         touch(os.path.join(new_dir, "file"))
-        mkemptydir(new_dir)
+        osextras.mkemptydir(new_dir)
         self.assertTrue(os.path.isdir(new_dir))
         self.assertEqual([], os.listdir(new_dir))
 
+    def test_listdir_directory_present(self):
+        new_dir = os.path.join(self.temp_dir, "dir")
+        os.mkdir(new_dir)
+        touch(os.path.join(new_dir, "file"))
+        self.assertEqual(["file"], osextras.listdir_force(new_dir))
 
-class TestProcess(TestCase):
+    def test_listdir_directory_missing(self):
+        new_dir = os.path.join(self.temp_dir, "dir")
+        self.assertEqual([], osextras.listdir_force(new_dir))
+
+    def test_unlink_file_present(self):
+        path = os.path.join(self.temp_dir, "file")
+        touch(path)
+        osextras.unlink_force(path)
+        self.assertFalse(os.path.exists(path))
+
+    def test_unlink_file_missing(self):
+        path = os.path.join(self.temp_dir, "file")
+        osextras.unlink_force(path)
+        self.assertFalse(os.path.exists(path))
+
+    def test_find_on_path_missing_environment(self):
+        with EnvironmentVarGuard() as env:
+            env.pop("PATH", None)
+            self.assertFalse(osextras.find_on_path("ls"))
+
+    def test_find_on_path_present_executable(self):
+        bin_dir = os.path.join(self.temp_dir, "bin")
+        os.mkdir(bin_dir)
+        program = os.path.join(bin_dir, "program")
+        touch(program)
+        os.chmod(program, 0o755)
+        with EnvironmentVarGuard() as env:
+            env["PATH"] = bin_dir
+            self.assertTrue(osextras.find_on_path("program"))
+
+    def test_find_on_path_present_not_executable(self):
+        bin_dir = os.path.join(self.temp_dir, "bin")
+        os.mkdir(bin_dir)
+        program = os.path.join(bin_dir, "program")
+        touch(program)
+        with EnvironmentVarGuard() as env:
+            env["PATH"] = bin_dir
+            self.assertFalse(osextras.find_on_path("program"))
+
     def test_waitpid_retry(self):
         class Completed(Exception):
             pass
@@ -61,15 +119,15 @@ class TestProcess(TestCase):
         real_waitpid = os.waitpid
         os.waitpid = mock_waitpid
         try:
-            self.assertRaises(Completed, waitpid_retry, -1, 0)
+            self.assertRaises(Completed, osextras.waitpid_retry, -1, 0)
         finally:
             os.waitpid = real_waitpid
 
     def test_run_bounded_runs(self):
         self.use_temp_dir()
         sentinel = os.path.join(self.temp_dir, "foo")
-        run_bounded(3600, ["touch", sentinel])
+        osextras.run_bounded(3600, ["touch", sentinel])
         self.assertTrue(os.path.exists(sentinel))
 
     def test_run_bounded_finite(self):
-        run_bounded(1, ["sh", "-c", "while :; do sleep 3600; done"])
+        osextras.run_bounded(1, ["sh", "-c", "while :; do sleep 3600; done"])
