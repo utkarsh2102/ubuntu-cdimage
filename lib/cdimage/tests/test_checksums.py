@@ -28,9 +28,26 @@ import subprocess
 import time
 from textwrap import dedent
 
-from cdimage.checksums import ChecksumFile, ChecksumFileSet
+from cdimage.checksums import (
+    apply_sed,
+    ChecksumFile,
+    ChecksumFileSet,
+    checksum_directory,
+    want_image,
+    )
 from cdimage.config import Config
 from cdimage.tests.helpers import TestCase, touch
+
+
+class TestWantImage(TestCase):
+    def test_want_image(self):
+        self.assertTrue(want_image("foo.iso"))
+        self.assertFalse(want_image("foo.list"))
+
+
+class TestApplySed(TestCase):
+    def test_apply_sed(self):
+        self.assertEqual("aabce", apply_sed("abcde", "s/bcd/abc/"))
 
 
 class TestChecksumFile(TestCase):
@@ -265,6 +282,33 @@ class TestChecksumFileSet(TestCase):
         checksum_files.merge([old_dir], "entry", ["entry"])
         self.assertChecksumsEqual({"entry": "data"}, checksum_files)
 
+    def test_merge_all(self):
+        old_dir = os.path.join(self.temp_dir, "old")
+        os.mkdir(old_dir)
+        old_iso_hppa_path = os.path.join(self.temp_dir, "old", "foo-hppa.raw")
+        with open(old_iso_hppa_path, "w") as old_iso_hppa:
+            print("foo-hppa.raw", end="", file=old_iso_hppa)
+        old_iso_i386_path = os.path.join(self.temp_dir, "old", "foo-i386.raw")
+        with open(old_iso_i386_path, "w") as old_iso_i386:
+            print("foo-i386.raw", end="", file=old_iso_i386)
+        self.create_checksum_files(
+            ["foo-hppa.raw", "foo-i386.raw"], directory=old_dir)
+        iso_amd64_path = os.path.join(self.temp_dir, "foo-amd64.iso")
+        with open(iso_amd64_path, "w") as iso_amd64:
+            print("foo-amd64.iso", end="", file=iso_amd64)
+        touch(os.path.join(self.temp_dir, "foo-amd64.list"))
+        shutil.copy(
+            old_iso_hppa_path, os.path.join(self.temp_dir, "foo-hppa.iso"))
+        shutil.copy(
+            old_iso_i386_path, os.path.join(self.temp_dir, "foo-i386.iso"))
+        checksum_files = ChecksumFileSet(self.config, self.temp_dir)
+        checksum_files.merge_all([old_dir], map_expr=r"s/\.iso$/.raw/")
+        self.assertChecksumsEqual({
+            "foo-amd64.iso": "foo-amd64.iso",
+            "foo-hppa.iso": "foo-hppa.raw",
+            "foo-i386.iso": "foo-i386.raw",
+            }, checksum_files)
+
     def test_write(self):
         checksum_files = ChecksumFileSet(
             self.config, self.temp_dir, sign=False)
@@ -300,3 +344,37 @@ class TestChecksumFileSet(TestCase):
         with open(os.path.join(self.temp_dir, "SHA256SUMS")) as sha256sums:
             self.assertEqual(
                 "%s *2\n" % hashlib.sha256("2").hexdigest(), sha256sums.read())
+
+    def test_checksum_directory(self):
+        old_dir = os.path.join(self.temp_dir, "old")
+        os.mkdir(old_dir)
+        old_iso_hppa_path = os.path.join(self.temp_dir, "old", "foo-hppa.raw")
+        with open(old_iso_hppa_path, "w") as old_iso_hppa:
+            print("foo-hppa.raw", end="", file=old_iso_hppa)
+        old_iso_i386_path = os.path.join(self.temp_dir, "old", "foo-i386.raw")
+        with open(old_iso_i386_path, "w") as old_iso_i386:
+            print("foo-i386.raw", end="", file=old_iso_i386)
+        self.create_checksum_files(
+            ["foo-hppa.raw", "foo-i386.raw"], directory=old_dir)
+        iso_amd64_path = os.path.join(self.temp_dir, "foo-amd64.iso")
+        with open(iso_amd64_path, "w") as iso_amd64:
+            print("foo-amd64.iso", end="", file=iso_amd64)
+        touch(os.path.join(self.temp_dir, "foo-amd64.list"))
+        shutil.copy(
+            old_iso_hppa_path, os.path.join(self.temp_dir, "foo-hppa.iso"))
+        shutil.copy(
+            old_iso_i386_path, os.path.join(self.temp_dir, "foo-i386.iso"))
+        checksum_directory(
+            self.config, self.temp_dir, old_directories=[old_dir],
+            map_expr=r"s/\.iso$/.raw/")
+        with open(os.path.join(self.temp_dir, "MD5SUMS")) as md5sums:
+            digests = (
+                hashlib.md5("foo-amd64.iso").hexdigest(),
+                hashlib.md5("foo-hppa.raw").hexdigest(),
+                hashlib.md5("foo-i386.raw").hexdigest(),
+                )
+            self.assertEqual(dedent("""\
+                %s *foo-amd64.iso
+                %s *foo-hppa.iso
+                %s *foo-i386.iso
+                """) % digests, md5sums.read())

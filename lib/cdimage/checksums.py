@@ -22,9 +22,39 @@ __metaclass__ = type
 import hashlib
 import os
 import re
+import subprocess
 
 from cdimage.atomicfile import AtomicFile
 from cdimage.sign import sign_cdimage
+
+
+def want_image(image):
+    """Return true if and only if we want to checksum this image."""
+    if (image.endswith(".img") or
+        image.endswith(".iso") or
+        image.endswith(".exe") or
+        image.endswith(".img.gz") or
+        "vmlinuz-" in image):
+        return True
+    else:
+        return False
+
+
+def apply_sed(text, expression):
+    """Run TEXT through EXPRESSION using sed.
+
+    A pure Python approach would be better, but this saves on parsing effort
+    for now.
+    """
+    sed = subprocess.Popen(
+        ["sed", expression], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        universal_newlines=True)
+    try:
+        sed.stdin.write(text)
+        sed.stdin.close()
+        return sed.stdout.read()
+    finally:
+        sed.wait()
 
 
 class ChecksumFile:
@@ -125,6 +155,7 @@ class ChecksumFileSet:
     """Manipulate the standard set of checksums files together."""
 
     def __init__(self, config, directory, sign=True):
+        self.directory = directory
         self.checksum_files = [
             ChecksumFile(config, directory, filename, hash_method, sign=sign)
             for filename, hash_method in _checksum_files.items()]
@@ -145,6 +176,16 @@ class ChecksumFileSet:
         for checksum_file in self.checksum_files:
             checksum_file.merge(directories, entry_name, possible_entry_names)
 
+    def merge_all(self, old_directories, map_expr=None):
+        images = sorted(
+            name for name in os.listdir(self.directory) if want_image(name))
+        for image in images:
+            image_names = [image]
+            if map_expr:
+                image_names.append(apply_sed(image, map_expr))
+            self.merge(old_directories, image, image_names)
+            self.add(image)
+
     def write(self):
         for checksum_file in self.checksum_files:
             checksum_file.write()
@@ -156,3 +197,15 @@ class ChecksumFileSet:
     def __exit__(self, exc_type, unused_exc_value, unused_exc_tb):
         if exc_type is None:
             self.write()
+
+
+def checksum_directory(config, directory, old_directories=None, map_expr=None):
+    if old_directories is None:
+        old_directories = [directory]
+
+    # We don't want to read the existing checksum files directly, as they
+    # may contain stale checksums; so we don't use the context manager form
+    # here.
+    checksum_files = ChecksumFileSet(config, directory)
+    checksum_files.merge_all(old_directories, map_expr=map_expr)
+    checksum_files.write()

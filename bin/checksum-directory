@@ -19,40 +19,11 @@
 
 from optparse import OptionParser
 import os
-import subprocess
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.checksums import ChecksumFileSet
+from cdimage.checksums import checksum_directory
 from cdimage.config import config
-
-
-def want_image(image):
-    """Return true if and only if we want to checksum this image."""
-    if (image.endswith(".img") or
-        image.endswith(".iso") or
-        image.endswith(".exe") or
-        image.endswith(".img.gz") or
-        "vmlinuz-" in image):
-        return True
-    else:
-        return False
-
-
-def apply_sed(text, expression):
-    """Run TEXT through EXPRESSION using sed.
-
-    A pure Python approach would be better, but this saves on parsing effort
-    for now.
-    """
-    sed = subprocess.Popen(
-        ["sed", expression], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-        universal_newlines=True)
-    try:
-        sed.stdin.write(text)
-        return sed.stdout.read()
-    finally:
-        sed.wait()
 
 
 def main():
@@ -63,20 +34,8 @@ def main():
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need directory")
-    directory = args[0]
-
-    # We don't want to read the existing checksum files directly, as they
-    # may contain stale checksums; so we don't use the context manager form
-    # here.
-    checksum_files = ChecksumFileSet(config, directory)
-    images = sorted(name for name in os.listdir(directory) if want_image(name))
-    for image in images:
-        image_names = [image]
-        if options.map:
-            image_names.append(apply_sed(image, options.map))
-        checksum_files.merge(args, image, image_names)
-    checksum_files.add(image)
-    checksum_files.write()
+    checksum_directory(
+        config, args[0], old_directories=args, map_expr=options.map)
 
 
 if __name__ == "__main__":
