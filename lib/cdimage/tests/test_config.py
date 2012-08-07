@@ -100,3 +100,8 @@ class TestConfig(TestCase):
             config = Config()
             self.assertEqual("ubuntu", config["PROJECT"])
             self.assertEqual("Ubuntu", config["CAPPROJECT"])
+
+    def test_series(self):
+        config = Config(read=False)
+        config["DIST"] = Series.find_by_name("warty")
+        self.assertEqual("warty", config.series)

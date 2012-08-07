@@ -1,40 +1,33 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2012 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-BRITNEY="${BRITNEY:-$CDIMAGE_ROOT/britney}"
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-IMAGETOP="${IMAGETOP:-$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tmp}"
+"""Check package installability on images."""
 
-mkemptydir "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST"
-for fullarch in $ARCHES; do
-	arch="${fullarch%%+*}"
-	if [ "$CDIMAGE_SQUASHFS_BASE" ]; then
-		manifest="$IMAGETOP/$DIST-$fullarch/CD1/install/filesystem.manifest"
-		if [ -e "$manifest" ]; then
-			while read pkg ver; do
-				echo "Package: ${pkg%:*}"
-				echo "Version: $ver"
-				echo
-			done < "$manifest" >> "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST/Packages_$arch"
-		fi
-	fi
+import os
+import sys
 
-	for component in main restricted universe multiverse; do
-		packages="$IMAGETOP/$DIST-$fullarch/CD1/dists/$DIST/$component/binary-$arch/Packages.gz"
-		if [ -e "$packages" ]; then
-			zcat "$packages" >> "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST/Packages_$arch"
-		fi
-	done
-	if [ ! -e "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST/Packages_$arch" ]; then
-		echo "No Packages.gz for $DIST/$arch; not checking" >&2
-	fi
-done
-> "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST/Sources"
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.check_installable import check_installable
+from cdimage.config import config
 
-mkemptydir "$BRITNEY/report/$PROJECT/$IMAGE_TYPE"
-# Sometimes this inexplicably hangs on a futex. We'll give it thirty seconds
-# and then kill it.
-kill-after 30 "$BRITNEY/rptprobs.sh" "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST" "$BRITNEY/report/$PROJECT/$IMAGE_TYPE/${DIST}_probs.html" "$CAPPROJECT $DIST" || true
+
+def main():
+    check_installable(config)
+
+
+if __name__ == "__main__":
+    main()

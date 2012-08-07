@@ -130,6 +130,7 @@ _whitelisted_keys = (
     "DEBUG",
     "DATE",
     "DATE_SUFFIX",
+    "IMAGE_TYPE",
     )
 
 
@@ -177,6 +178,10 @@ class Config(defaultdict):
         # Special entries.
         if self["DIST"]:
             self["DIST"] = Series.find_by_name(self["DIST"])
+
+    @property
+    def series(self):
+        return str(self["DIST"])
 
 
 config = Config()
