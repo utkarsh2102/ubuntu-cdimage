@@ -25,7 +25,7 @@ import re
 import subprocess
 
 from cdimage.atomicfile import AtomicFile
-from cdimage.sign import sign_cdimage
+from cdimage.sign import can_sign, sign_cdimage
 
 
 def want_image(image):
@@ -155,7 +155,9 @@ class ChecksumFileSet:
     """Manipulate the standard set of checksums files together."""
 
     def __init__(self, config, directory, sign=True):
+        self.config = config
         self.directory = directory
+        self.sign = sign
         self.checksum_files = [
             ChecksumFile(config, directory, filename, hash_method, sign=sign)
             for filename, hash_method in _checksum_files.items()]
@@ -187,6 +189,10 @@ class ChecksumFileSet:
             self.add(image)
 
     def write(self):
+        if self.sign and not can_sign(self.config):
+            self.sign = False
+            for checksum_file in self.checksum_files:
+                checksum_file.sign = False
         for checksum_file in self.checksum_files:
             checksum_file.write()
 

@@ -15,13 +15,23 @@
 
 """Image publication trees."""
 
+from __future__ import print_function
+
 __metaclass__ = type
 
+from itertools import count
 import os
+import shutil
+import socket
 import stat
+import subprocess
 
+from cdimage.atomicfile import AtomicFile
+from cdimage.checksums import ChecksumFileSet, checksum_directory
 from cdimage.config import Series
 from cdimage.log import logger
+from cdimage.mirror import find_mirror
+from cdimage import osextras
 
 
 # TODO: This should be in a configuration file.  ALL_PROJECTS is not
@@ -45,7 +55,17 @@ projects = [
     ]
 
 
+def zsyncmake(infile, outfile, url):
+    command = ["zsyncmake", "-o", outfile, "-u", url, infile]
+    if subprocess.call(command) != 0:
+        logger.info("Trying again with block size 2048 ...")
+        command[1:1] = ["-b", "2048"]
+        subprocess.check_call(command)
+
+
 class Tree:
+    """A publication tree."""
+
     def __init__(self, config, directory):
         self.config = config
         self.directory = directory
@@ -96,7 +116,24 @@ class Tree:
             (self.path_to_manifest(path) for path in self.manifest_files())))
 
 
+class Publisher:
+    """A object that can publish images to a tree."""
+
+    def __init__(self, tree, image_type):
+        self.tree = tree
+        self.config = tree.config
+        self.project = self.config["PROJECT"]
+        self.image_type = image_type
+
+
 class DailyTree(Tree):
+    """A publication tree containing daily builds."""
+
+    def __init__(self, config, directory=None):
+        if directory is None:
+            directory = os.path.join(config.root, "www", "full")
+        super(DailyTree, self).__init__(config, directory)
+
     def name_to_series(self, name):
         """Return the series for a file basename."""
         dist = name.split("-")[0]
@@ -128,7 +165,320 @@ class DailyTree(Tree):
                 seen_inodes.pop()
 
 
+class DailyTreePublisher(Publisher):
+    """An object that can publish daily builds."""
+
+    def __init__(self, tree, image_type, try_zsyncmake=True):
+        super(DailyTreePublisher, self).__init__(tree, image_type)
+        self.checksum_dirs = []
+        self.try_zsyncmake = try_zsyncmake  # for testing
+
+    @property
+    def image_output(self):
+        return os.path.join(
+            self.config.root, "scratch", self.project, self.image_type,
+            "debian-cd")
+
+    @property
+    def britney_report(self):
+        return os.path.join(
+            self.config.root, "britney", "report", self.project,
+            self.image_type)
+
+    @property
+    def full_tree(self):
+        if self.project == "ubuntu":
+            return self.tree.directory
+        else:
+            return os.path.join(self.tree.directory, self.project)
+
+    @property
+    def publish_base(self):
+        image_type_dir = self.image_type.replace("_", "/")
+        if not self.config["DIST"].is_latest:
+            image_type_dir = os.path.join(self.config.series, image_type_dir)
+        return os.path.join(self.full_tree, image_type_dir)
+
+    @property
+    def publish_type(self):
+        if self.image_type.endswith("-live"):
+            if self.project == "edubuntu":
+                if self.config["DIST"] <= "edgy":
+                    return "live"
+                else:
+                    return "desktop"
+            elif self.project == "kubuntu-mobile":
+                return "mobile"
+            elif self.project == "ubuntu-netbook":
+                return "netbook"
+            elif self.project == "ubuntu-server":
+                return "live"
+            else:
+                if self.config["DIST"] <= "breezy":
+                    return "live"
+                else:
+                    return "desktop"
+        elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
+            return "dvd"
+        else:
+            if self.project == "edubuntu":
+                if self.config["DIST"] <= "edgy":
+                    return "install"
+                elif self.config["DIST"] <= "gutsy":
+                    return "server"
+                else:
+                    return "addon"
+            elif self.project == "ubuntu-server":
+                if self.config["DIST"] <= "breezy":
+                    return "install"
+                else:
+                    return "server"
+            else:
+                if self.config["DIST"] <= "breezy":
+                    return "install"
+                else:
+                    return "alternate"
+
+    @property
+    def size_limit(self):
+        if self.project == "ubuntustudio":
+            # Ubuntu Studio is always DVD-sized for now.
+            return 4700372992
+        elif self.project == "kubuntu":
+            # Kubuntu limit of 1GB [quantal]
+            return 1000000000
+        else:
+            if self.publish_type == "dvd":
+                # http://en.wikipedia.org/wiki/DVD_plus_RW
+                return 4700372992
+            else:
+                # http://en.wikipedia.org/wiki/CD-ROM#Capacity gives a
+                # maximum of 737280000; RedBook requires reserving 300
+                # sectors, so we do the same here Just In Case.  If we need
+                # to surpass this limit we should rigorously re-test and
+                # check again with ProMese, the CD pressing vendor.
+                return 736665600
+
+    def new_publish_dir(self, date):
+        """Copy previous published tree as a starting point for a new one.
+
+        This allows single-architecture rebuilds to carry over other
+        architectures from previous builds.
+        """
+        publish_base = self.publish_base
+        publish_date = os.path.join(publish_base, date)
+        publish_current = os.path.join(publish_base, "current")
+        osextras.ensuredir(publish_date)
+        if not self.config["CDIMAGE_NOCOPY"]:
+            for name in sorted(osextras.listdir_force(publish_current)):
+                if name.startswith("%s-" % self.config.series):
+                    os.link(
+                        os.path.join(publish_current, name),
+                        os.path.join(publish_date, name))
+
+    def replace_jigdo_mirror(self, path, from_mirror, to_mirror):
+        with open(path) as jigdo_in:
+            with AtomicFile(path) as jigdo_out:
+                from_line = "Debian=%s" % from_mirror
+                to_line = "Debian=%s" % to_mirror
+                for line in jigdo_in:
+                    jigdo_out.write(line.replace(from_line, to_line))
+
+    def publish_binary(self, publish_type, arch, date):
+        in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
+        out_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
+        source_dir = os.path.join(self.image_output, arch)
+        source_prefix = os.path.join(source_dir, in_prefix)
+        target_dir = os.path.join(self.publish_base, date)
+        target_prefix = os.path.join(target_dir, out_prefix)
+
+        if not os.path.exists("%s.raw" % source_prefix):
+            logger.warning("No %s image for %s!" % (publish_type, arch))
+            for name in osextras.listdir_force(target_dir):
+                if name.startswith("%s." % out_prefix):
+                    os.unlink(os.path.join(target_dir, name))
+            return False
+
+        logger.info("Publishing %s ..." % arch)
+        osextras.ensuredir(target_dir)
+        shutil.move("%s.raw" % source_prefix, "%s.iso" % target_prefix)
+        shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
+        self.checksum_dirs.append(source_dir)
+        with ChecksumFileSet(
+            self.config, target_dir, sign=False) as checksum_files:
+            checksum_files.remove("%s.iso" % out_prefix)
+
+        # Jigdo integration
+        if os.path.exists("%s.jigdo" % source_prefix):
+            logger.info("Publishing %s jigdo ..." % arch)
+            shutil.move("%s.jigdo" % source_prefix, "%s.jigdo" % target_prefix)
+            shutil.move(
+                "%s.template" % source_prefix, "%s.template" % target_prefix)
+            # TODO: nasty way to figure out whether we're ports
+            if find_mirror(self.config, arch).endswith("-ports"):
+                self.replace_jigdo_mirror(
+                    "%s.jigdo" % target_prefix,
+                    "http://archive.ubuntu.com/ubuntu",
+                    "http://ports.ubuntu.com/ubuntu-ports")
+        else:
+            osextras.unlink_force("%s.jigdo" % target_prefix)
+            osextras.unlink_force("%s.template" % target_prefix)
+
+        # Live filesystem manifests
+        if os.path.exists("%s.manifest" % source_prefix):
+            logger.info("Publishing %s live manifest ..." % arch)
+            shutil.move(
+                "%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
+        else:
+            osextras.unlink_force("%s.manifest" % target_prefix)
+
+        # zsync metafiles
+        if self.try_zsyncmake and osextras.find_on_path("zsyncmake"):
+            logger.info("Making %s zsync metafile ..." % arch)
+            osextras.unlink_force("%s.iso.zsync" % target_prefix)
+            zsyncmake(
+                "%s.iso" % target_prefix, "%s.iso.zsync" % target_prefix,
+                "%s.iso" % out_prefix)
+
+        size = os.stat("%s.iso" % target_prefix).st_size
+        if size > self.size_limit:
+            with open("%s.OVERSIZED" % target_prefix, "a"):
+                pass
+        else:
+            osextras.unlink_force("%s.OVERSIZED" % target_prefix)
+
+        return True
+
+    def publish_source(self, date):
+        for i in count(1):
+            in_prefix = "%s-src-%d" % (self.config.series, i)
+            out_prefix = "%s-src-%d" % (self.config.series, i)
+            source_dir = os.path.join(self.image_output, "src")
+            source_prefix = os.path.join(source_dir, in_prefix)
+            target_dir = os.path.join(self.publish_base, date, "source")
+            target_prefix = os.path.join(target_dir, out_prefix)
+            if not os.path.exists("%s.raw" % source_prefix):
+                break
+
+            logger.info("Publishing source %d ..." % i)
+            osextras.ensuredir(target_dir)
+            shutil.move("%s.raw" % source_prefix, "%s.iso" % target_prefix)
+            shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
+            with ChecksumFileSet(
+                self.config, target_dir, sign=False) as checksum_files:
+                checksum_files.remove("%s.iso" % out_prefix)
+
+            # Jigdo integration
+            if os.path.exists("%s.jigdo" % source_prefix):
+                logger.info("Publishing source %d jigdo ..." % i)
+                shutil.move(
+                    "%s.jigdo" % source_prefix, "%s.jigdo" % target_prefix)
+                shutil.move(
+                    "%s.template" % source_prefix,
+                    "%s.template" % target_prefix)
+            else:
+                logger.warning("No jigdo for source %d!" % i)
+                osextras.unlink_force("%s.jigdo" % target_prefix)
+                osextras.unlink_force("%s.template" % target_prefix)
+
+            # zsync metafiles
+            if self.try_zsyncmake and osextras.find_on_path("zsyncmake"):
+                logger.info("Making source %d zsync metafile ..." % i)
+                osextras.unlink_force("%s.iso.zsync" % target_prefix)
+                zsyncmake(
+                    "%s.iso" % target_prefix, "%s.iso.zsync" % target_prefix,
+                    "%s.iso" % out_prefix)
+
+        return i > 1
+
+    def publish(self, date):
+        self.new_publish_dir(date)
+        published = False
+        self.checksum_dirs = []
+        if not self.config["CDIMAGE_ONLYSOURCE"]:
+            for arch in self.config.arches:
+                if self.publish_binary(self.publish_type, arch, date):
+                    published = True
+            if self.project == "edubuntu" and self.publish_type == "server":
+                for arch in self.config.arches:
+                    if self.publish_binary("serveraddon", arch, date):
+                        published = True
+        if self.publish_source(date):
+            published = True
+
+        if not published:
+            logger.warning("No CDs produced!")
+            return
+
+        target_dir = os.path.join(self.publish_base, date)
+
+        source_report = os.path.join(
+            self.britney_report, "%s_probs.html" % self.config.series)
+        target_report = os.path.join(target_dir, "report.html")
+        if (self.config["CDIMAGE_INSTALL_BASE"] and
+            os.path.exists(source_report)):
+            shutil.copy2(source_report, target_report)
+        else:
+            osextras.unlink_force(target_report)
+
+        if not self.config["CDIMAGE_ONLYSOURCE"]:
+            checksum_directory(
+                self.config, target_dir, old_directories=self.checksum_dirs,
+                map_expr=r"s/\.\(img\|iso\)$/.raw/")
+            subprocess.check_call(
+                [os.path.join(self.config.root, "bin", "make-web-indices"),
+                 target_dir, self.config.series, "daily"])
+
+        target_dir_source = os.path.join(target_dir, "source")
+        if os.path.isdir(target_dir_source):
+            checksum_directory(
+                self.config, target_dir_source,
+                old_directories=[os.path.join(self.image_output, "src")],
+                map_expr=r"s/\.\(img\|iso\)$/.raw/")
+            subprocess.check_call(
+                [os.path.join(self.config.root, "bin", "make-web-indices"),
+                 target_dir_source, self.config.series, "daily"])
+
+        publish_current = os.path.join(self.publish_base, "current")
+        osextras.unlink_force(publish_current)
+        os.symlink(date, publish_current)
+
+        manifest_lock = os.path.join(
+            self.config.root, "etc", ".lock-manifest-daily")
+        try:
+            subprocess.check_call(["lockfile", "-r", "4", manifest_lock])
+        except subprocess.CalledProcessError:
+            logger.error("Couldn't acquire manifest-daily lock!")
+            raise
+        try:
+            manifest_daily = os.path.join(
+                self.tree.directory, ".manifest-daily")
+            with AtomicFile(manifest_daily) as manifest_daily_file:
+                for line in self.tree.manifest():
+                    print(line, file=manifest_daily_file)
+            os.chmod(
+                manifest_daily, os.stat(manifest_daily).st_mode | stat.S_IWGRP)
+
+            # Create timestamps for this run.
+            # TODO cjwatson 20120807: Shouldn't these be in www/full
+            # rather than www/full[/project]?
+            trace_dir = os.path.join(self.full_tree, ".trace")
+            osextras.ensuredir(trace_dir)
+            fqdn = socket.getfqdn()
+            with open(os.path.join(trace_dir, fqdn), "w") as trace_file:
+                subprocess.check_call(["date", "-u"], stdout=trace_file)
+        finally:
+            osextras.unlink_force(manifest_lock)
+
+
 class SimpleTree(Tree):
+    """A publication tree containing a few important releases."""
+
+    def __init__(self, config, directory=None):
+        if directory is None:
+            directory = os.path.join(config.root, "www", "simple")
+        super(SimpleTree, self).__init__(config, directory)
+
     def name_to_series(self, name):
         """Return the series for a file basename."""
         version = name.split("-")[1]

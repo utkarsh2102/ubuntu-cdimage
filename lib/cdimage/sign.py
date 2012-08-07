@@ -29,6 +29,15 @@ def _gnupg_files(config):
     return gpgconf, secring, pubring, trustdb
 
 
+def can_sign(config):
+    gpgconf, secring, pubring, trustdb = _gnupg_files(config)
+    if (not os.path.exists(secring) or not os.path.exists(pubring) or
+        not os.path.exists(trustdb) or not config["SIGNING_KEYID"]):
+        logger.warning("No keys found; not signing images.")
+        return False
+    return True
+
+
 def _signing_command(config):
     gpgconf, secring, pubring, trustdb = _gnupg_files(config)
     return [
@@ -44,10 +53,7 @@ def _signing_command(config):
 
 
 def sign_cdimage(config, path):
-    gpgconf, secring, pubring, trustdb = _gnupg_files(config)
-    if (not os.path.exists(secring) or not os.path.exists(pubring) or
-        not os.path.exists(trustdb) or not config["SIGNING_KEYID"]):
-        logger.warning("No keys found; not signing images.")
+    if not can_sign(config):
         return False
 
     with open(path, "rb") as infile:

@@ -1,289 +1,42 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2012 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-if [ -z "$1" ]; then
-	echo 'Usage: publish-daily DATE [IMAGE_TYPE]' >&2
-	exit 1
-fi
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-DATE="$1"
-IMAGE_TYPE="${2:-daily}"
-IMAGE_TYPE_DIR="$(echo "$IMAGE_TYPE" | sed 's,_,/,g')"
-if [ "$DIST" != "${ALL_DISTS##* }" ]; then
-	IMAGE_TYPE_DIR="$DIST/$IMAGE_TYPE_DIR"
-fi
+"""Publish a daily build."""
 
-CDOUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/debian-cd"
-BRITNEY_REPORT="$CDIMAGE_ROOT/britney/report/$PROJECT/$IMAGE_TYPE"
+from optparse import OptionParser
+import os
+import sys
 
-case $PROJECT in
-	ubuntu)
-		FULL_TREE=full
-		;;
-	*)
-		FULL_TREE="full/$PROJECT"
-		;;
-esac
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+from cdimage.tree import DailyTree, DailyTreePublisher
 
-PUBLISH="$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/$DATE"
 
-case $IMAGE_TYPE in
-	*-live)
-		case $PROJECT in
-			edubuntu)
-				if dist_le edgy; then
-					TYPE=live
-				else
-					TYPE=desktop
-				fi
-				;;
-			kubuntu-mobile)
-				TYPE=mobile
-				;;
-			ubuntu-server)
-				TYPE=live
-				;;
-			ubuntu-netbook)
-				TYPE=netbook
-				;;
-			*)
-				if dist_le breezy; then
-					TYPE=live
-				else
-					TYPE=desktop
-				fi
-				;;
-		esac
-		;;
-	*_dvd|dvd)
-		TYPE=dvd
-		;;
-	*)
-		case $PROJECT in
-			edubuntu)
-				if dist_le edgy; then
-					TYPE=install
-				elif dist_le gutsy; then
-					TYPE=server
-				else
-					TYPE=addon
-				fi
-				;;
-			ubuntu-server)
-				if dist_le breezy; then
-					TYPE=install
-				else
-					TYPE=server
-				fi
-				;;
-			*)
-				if dist_le breezy; then
-					TYPE=install
-				else
-					TYPE=alternate
-				fi
-				;;
-		esac
-		;;
-esac
+def main():
+    parser = OptionParser("%prog DATE [IMAGE_TYPE]")
+    options, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need date")
+    date = args[0]
+    image_type = args[1] if len(args) >= 2 else "daily"
+    tree = DailyTree(config)
+    publisher = DailyTreePublisher(tree, image_type)
+    publisher.publish(date)
 
-# Start with copy of previous published tree so that single-architecture
-# rebuilds can carry over other architectures from previous builds.
-mkdir -p "$PUBLISH"
-if [ -z "$CDIMAGE_NOCOPY" ] && \
-   [ -d "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current/" ]; then
-	cp -alL "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current/$DIST"-* \
-	        "$PUBLISH/" 2>/dev/null || true
-fi
 
-IMAGES_PUBLISHED=false
-CHECKSUM_DIRS=
-
-publish_binary () {
-	local TYPE="$1"
-	local arch="$2"
-
-	case $TYPE in
-		dvd)
-			# http://en.wikipedia.org/wiki/DVD_plus_RW
-			SIZELIMIT=4700372992
-			;;
-		*)
-			# http://en.wikipedia.org/wiki/CD-ROM#Capacity
-			# gives a maximum of 737280000; RedBook requires
-			# reserving 300 sectors, so we do the same here
-			# Just In Case.  If we need to surpass this limit
-			# we should rigorously re-test and check again
-			# with ProMese, the CD pressing vendor.
-			SIZELIMIT=736665600
-			;;
-	esac
-
-	# Ubuntu Studio is always DVD-sized for now.
-	if [ "$PROJECT" = ubuntustudio ]; then
-		SIZELIMIT=4700372992
-	fi
-
-	# Kubuntu limit of 1GB [quantal]
-	if [ "$PROJECT" = kubuntu ]; then
-		SIZELIMIT=1000000000
-	fi
-
-	if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.raw" ]; then
-		echo "Publishing $arch ..."
-		mkdir -p "$PUBLISH"
-		mv "$CDOUT/$arch/$DIST-$TYPE-$arch.raw" \
-		   "$PUBLISH/$DIST-$TYPE-$arch.iso"
-		mv "$CDOUT/$arch/$DIST-$TYPE-$arch.list" \
-		   "$PUBLISH/$DIST-$TYPE-$arch.list"
-		CHECKSUM_DIRS="${CHECKSUM_DIRS:+$CHECKSUM_DIRS }$CDOUT/$arch"
-		checksum-remove --no-sign "$PUBLISH" "$DIST-$TYPE-$arch.iso"
-
-		# Jigdo integration
-		if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.jigdo" ]; then
-			echo "Publishing $arch jigdo ..."
-			mv "$CDOUT/$arch/$DIST-$TYPE-$arch.jigdo" \
-			   "$PUBLISH/$DIST-$TYPE-$arch.jigdo"
-			mv "$CDOUT/$arch/$DIST-$TYPE-$arch.template" \
-			   "$PUBLISH/$DIST-$TYPE-$arch.template"
-			# TODO: nasty way to figure out whether we're ports
-			MIRROR="$(find-mirror $arch)"
-			case $MIRROR in
-				*-ports)
-					sed -i 's,Debian=http://archive.ubuntu.com/ubuntu,Debian=http://ports.ubuntu.com/ubuntu-ports,g' \
-						"$PUBLISH/$DIST-$TYPE-$arch.jigdo"
-					;;
-			esac
-		else
-			rm -f "$PUBLISH/$DIST-$TYPE-$arch.jigdo" \
-			      "$PUBLISH/$DIST-$TYPE-$arch.template"
-		fi
-
-		# Live filesystem manifests
-		if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.manifest" ]; then
-			echo "Publishing $arch live manifest ..."
-			mv "$CDOUT/$arch/$DIST-$TYPE-$arch.manifest" \
-			   "$PUBLISH/$DIST-$TYPE-$arch.manifest"
-		else
-			rm -f "$PUBLISH/$DIST-$TYPE-$arch.manifest"
-		fi
-
-		# zsync metafiles
-		if which zsyncmake >/dev/null 2>&1; then
-			echo "Making $arch zsync metafile ..."
-			rm -f "$PUBLISH/$DIST-$TYPE-$arch.iso.zsync"
-			zsyncmake_wrapper \
-				-o "$PUBLISH/$DIST-$TYPE-$arch.iso.zsync" \
-				-u "$DIST-$TYPE-$arch.iso" \
-				"$PUBLISH/$DIST-$TYPE-$arch.iso"
-		fi
-
-		SIZE="$(stat -c %s "$PUBLISH/$DIST-$TYPE-$arch.iso")"
-		if [ "$SIZE" -gt "$SIZELIMIT" ]; then
-			touch "$PUBLISH/$DIST-$TYPE-$arch.OVERSIZED"
-		else
-			rm -f "$PUBLISH/$DIST-$TYPE-$arch.OVERSIZED"
-		fi
-
-		IMAGES_PUBLISHED=:
-	else
-		echo "No $TYPE CD for $arch!" >&2
-		rm -f "$PUBLISH/$DIST-$TYPE-$arch".*
-	fi
-
-}
-
-if [ -z "$CDIMAGE_ONLYSOURCE" ]; then
-	for arch in $ARCHES; do
-		publish_binary "$TYPE" "$arch"
-	done
-	if [ "$PROJECT" = edubuntu ] && [ "$TYPE" = server ]; then
-		for arch in $ARCHES; do
-			publish_binary serveraddon "$arch"
-		done
-	fi
-fi
-
-i=1
-while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
-	echo "Publishing source $i ..."
-	mkdir -p "$PUBLISH/source"
-	mv "$CDOUT/src/$DIST-src-$i.raw" "$PUBLISH/source/$DIST-src-$i.iso"
-	mv "$CDOUT/src/$DIST-src-$i.list" "$PUBLISH/source/$DIST-src-$i.list"
-	checksum-remove --no-sign "$PUBLISH/source" "$DIST-src-$i.iso"
-
-	# Jigdo integration
-	if [ -e "$CDOUT/src/$DIST-src-$i.jigdo" ]; then
-		echo "Publishing source $i jigdo ..."
-		mv "$CDOUT/src/$DIST-src-$i.jigdo" \
-		   "$PUBLISH/source/$DIST-src-$i.jigdo"
-		mv "$CDOUT/src/$DIST-src-$i.template" \
-		   "$PUBLISH/source/$DIST-src-$i.template"
-	else
-		echo "No jigdo for source $i!" >&2
-		rm -f "$PUBLISH/source/$DIST-src-$i.jigdo" \
-		      "$PUBLISH/source/$DIST-src-$i.template"
-	fi
-
-	if which zsyncmake >/dev/null 2>&1; then
-		echo "Making source $i zsync metafile ..."
-		rm -f "$PUBLISH/$DIST-src-$i.iso.zsync"
-		zsyncmake_wrapper \
-			-o "$PUBLISH/source/$DIST-src-$i.iso.zsync" \
-			-u "$DIST-src-$i.iso" \
-			"$PUBLISH/source/$DIST-src-$i.iso"
-	fi
-
-	IMAGES_PUBLISHED=:
-
-	i="$(($i + 1))"
-done
-# If the number of source CDs has decreased since the last build, make sure
-# to remove the carried-over versions.
-if [ "$i" != 1 ]; then
-	while [ -e "$PUBLISH/source/$DIST-src-$i.iso" ]; do
-		rm -f "$PUBLISH/source/$DIST-src-$i".*
-		i="$(($i + 1))"
-	done
-fi
-
-if $IMAGES_PUBLISHED; then
-	rm -f "$PUBLISH/report.html"
-	if [ "$CDIMAGE_INSTALL_BASE" ] && [ -e "$BRITNEY_REPORT/${DIST}_probs.html" ]; then
-		cp -a "$BRITNEY_REPORT/${DIST}_probs.html" "$PUBLISH/report.html"
-	fi
-	if [ -z "$CDIMAGE_ONLYSOURCE" ]; then
-		checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH" $CHECKSUM_DIRS
-		make-web-indices "$PUBLISH" "$DIST" daily
-	fi
-	if [ -d "$PUBLISH/source" ]; then
-		checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH/source" "$CDOUT/src"
-		make-web-indices "$PUBLISH/source" "$DIST" daily
-	fi
-	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
-
-	MANIFEST_LOCK="$CDIMAGE_ROOT/etc/.lock-manifest-daily"
-	if ! lockfile -r 4 "$MANIFEST_LOCK"; then
-		echo "Couldn't acquire manifest-daily lock!" >&2
-		exit 1
-	fi
-	trap "rm -f $MANIFEST_LOCK >/dev/null 2>&1" exit
-
-	site-manifest daily "$CDIMAGE_ROOT/www/full" \
-		> "$CDIMAGE_ROOT/www/full/.manifest-daily.new"
-	mv "$CDIMAGE_ROOT/www/full/.manifest-daily.new" \
-	   "$CDIMAGE_ROOT/www/full/.manifest-daily"
-	chmod g+w "$CDIMAGE_ROOT/www/full/.manifest-daily"
-
-	# Create timestamps for this run.
-	mkdir -p "$CDIMAGE_ROOT/www/$FULL_TREE/.trace"
-	date -u > "$CDIMAGE_ROOT/www/$FULL_TREE/.trace/$(hostname --fqdn)"
-
-	rm -f "$MANIFEST_LOCK"
-	trap - exit
-else
-	echo "No CDs produced!" >&2
-fi
+if __name__ == "__main__":
+    main()

@@ -17,13 +17,17 @@
 
 """Unit tests for cdimage.tree."""
 
+from __future__ import print_function
+
 __metaclass__ = type
 
 import os
+from textwrap import dedent
 
-from cdimage.config import Config
+from cdimage.config import Config, Series
+from cdimage import osextras
 from cdimage.tests.helpers import TestCase, touch
-from cdimage.tree import DailyTree, SimpleTree, Tree
+from cdimage.tree import DailyTree, DailyTreePublisher, SimpleTree, Tree
 
 
 class TestTree(TestCase):
@@ -67,6 +71,12 @@ class TestDailyTree(TestCase):
         self.config = Config(read=False)
         self.tree = DailyTree(self.config, self.temp_dir)
 
+    def test_default_directory(self):
+        self.config.root = self.temp_dir
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "full"),
+            DailyTree(self.config).directory)
+
     def test_name_to_series(self):
         self.assertEqual(
             "warty", self.tree.name_to_series("warty-install-i386.iso"))
@@ -104,12 +114,250 @@ class TestDailyTree(TestCase):
             ], self.tree.manifest())
 
 
+class TestDailyTreePublisher(TestCase):
+    def setUp(self):
+        super(TestDailyTreePublisher, self).setUp()
+        self.use_temp_dir()
+        self.config = Config(read=False)
+        self.config.root = self.temp_dir
+        self.config["DIST"] = Series.latest()
+
+    def make_publisher(self, project, image_type, **kwargs):
+        self.config["PROJECT"] = project
+        self.tree = DailyTree(self.config)
+        publisher = DailyTreePublisher(self.tree, image_type, **kwargs)
+        osextras.ensuredir(publisher.image_output)
+        osextras.ensuredir(publisher.britney_report)
+        osextras.ensuredir(publisher.full_tree)
+        return publisher
+
+    def test_image_output(self):
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "scratch", "kubuntu", "daily", "debian-cd"),
+            self.make_publisher("kubuntu", "daily").image_output)
+
+    def test_britney_report(self):
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "britney", "report", "kubuntu", "daily"),
+            self.make_publisher("kubuntu", "daily").britney_report)
+
+    def test_full_tree(self):
+        self.assertEqual(
+            os.path.join(self.config.root, "www", "full"),
+            self.make_publisher("ubuntu", "daily").full_tree)
+        self.assertEqual(
+            os.path.join(self.config.root, "www", "full", "kubuntu"),
+            self.make_publisher("kubuntu", "daily").full_tree)
+
+    def test_publish_base(self):
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "www", "full", "kubuntu", "daily-live"),
+            self.make_publisher("kubuntu", "daily-live").publish_base)
+        self.config["DIST"] = Series.find_by_name("hoary")
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "www", "full",
+                "kubuntu", "hoary", "daily-live"),
+            self.make_publisher("kubuntu", "daily-live").publish_base)
+
+    def test_publish_type(self):
+        for image_type, project, dist, publish_type in (
+            ("daily-live", "edubuntu", "edgy", "live"),
+            ("daily-live", "edubuntu", "feisty", "desktop"),
+            ("daily-live", "kubuntu-mobile", "hardy", "mobile"),
+            ("daily-live", "ubuntu-netbook", "hardy", "netbook"),
+            ("daily-live", "ubuntu-server", "hardy", "live"),
+            ("daily-live", "ubuntu", "breezy", "live"),
+            ("daily-live", "ubuntu", "dapper", "desktop"),
+            ("ports_dvd", "ubuntu", "hardy", "dvd"),
+            ("dvd", "kubuntu", "hardy", "dvd"),
+            ("daily", "edubuntu", "edgy", "install"),
+            ("daily", "edubuntu", "feisty", "server"),
+            ("daily", "edubuntu", "gutsy", "server"),
+            ("daily", "edubuntu", "hardy", "addon"),
+            ("daily", "ubuntu-server", "breezy", "install"),
+            ("daily", "ubuntu-server", "dapper", "server"),
+            ("daily", "ubuntu", "breezy", "install"),
+            ("daily", "ubuntu", "dapper", "alternate"),
+            ):
+            self.config["DIST"] = Series.find_by_name(dist)
+            publisher = self.make_publisher(project, image_type)
+            self.assertEqual(publish_type, publisher.publish_type)
+
+    def test_size_limit(self):
+        for project, image_type, size_limit in (
+            ("ubuntustudio", "dvd", 4700372992),
+            ("kubuntu", "daily-live", 1000000000),
+            ("ubuntu", "dvd", 4700372992),
+            ("ubuntu", "daily-live", 736665600),
+            ):
+            publisher = self.make_publisher(project, image_type)
+            self.assertEqual(size_limit, publisher.size_limit)
+
+    def test_new_publish_dir_honours_no_copy(self):
+        self.config["CDIMAGE_NOCOPY"] = "1"
+        publisher = self.make_publisher("ubuntu", "daily")
+        publish_current = os.path.join(publisher.publish_base, "current")
+        osextras.ensuredir(publish_current)
+        touch(os.path.join(
+            publish_current, "%s-alternate-i386.iso" % self.config.series))
+        publisher.new_publish_dir("20120807")
+        self.assertEqual(
+            [], os.listdir(os.path.join(publisher.publish_base, "20120807")))
+
+    def test_new_publish_dir_copies_same_series(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        publish_current = os.path.join(publisher.publish_base, "current")
+        osextras.ensuredir(publish_current)
+        image = "%s-alternate-i386.iso" % self.config.series
+        touch(os.path.join(publish_current, image))
+        publisher.new_publish_dir("20120807")
+        self.assertEqual(
+            [image],
+            os.listdir(os.path.join(publisher.publish_base, "20120807")))
+
+    def test_new_publish_dir_skips_different_series(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        publish_current = os.path.join(publisher.publish_base, "current")
+        osextras.ensuredir(publish_current)
+        image = "warty-alternate-i386.iso"
+        touch(os.path.join(publish_current, image))
+        publisher.new_publish_dir("20120807")
+        self.assertEqual(
+            [], os.listdir(os.path.join(publisher.publish_base, "20120807")))
+
+    def test_replace_jigdo_mirror(self):
+        jigdo_path = os.path.join(self.temp_dir, "jigdo")
+        with open(jigdo_path, "w") as jigdo:
+            print("[Servers]", file=jigdo)
+            print("Debian=http://archive.ubuntu.com/ubuntu/ --try-last",
+                  file=jigdo)
+        publisher = self.make_publisher("ubuntu", "daily")
+        publisher.replace_jigdo_mirror(
+            jigdo_path, "http://archive.ubuntu.com/ubuntu/",
+            "http://ports.ubuntu.com/ubuntu-ports")
+        with open(jigdo_path) as jigdo:
+            self.assertEqual(dedent("""\
+                [Servers]
+                Debian=http://ports.ubuntu.com/ubuntu-ports --try-last
+                """), jigdo.read())
+
+    def test_publish_binary(self):
+        publisher = self.make_publisher(
+            "ubuntu", "daily-live", try_zsyncmake=False)
+        source_dir = os.path.join(publisher.image_output, "i386")
+        os.mkdir(source_dir)
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.raw" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.list" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.manifest" % self.config.series))
+        self.capture_logging()
+        publisher.publish_binary("desktop", "i386", "20120807")
+        self.assertLogEqual([
+            "Publishing i386 ...",
+            "Publishing i386 live manifest ...",
+            ])
+        target_dir = os.path.join(publisher.publish_base, "20120807")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertEqual([
+            "%s-desktop-i386.iso" % self.config.series,
+            "%s-desktop-i386.list" % self.config.series,
+            "%s-desktop-i386.manifest" % self.config.series,
+            ], sorted(os.listdir(target_dir)))
+
+    def test_publish_source(self):
+        publisher = self.make_publisher(
+            "ubuntu", "daily-live", try_zsyncmake=False)
+        source_dir = os.path.join(publisher.image_output, "src")
+        os.mkdir(source_dir)
+        touch(os.path.join(source_dir, "%s-src-1.raw" % self.config.series))
+        touch(os.path.join(source_dir, "%s-src-1.list" % self.config.series))
+        touch(os.path.join(source_dir, "%s-src-1.jigdo" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-src-1.template" % self.config.series))
+        touch(os.path.join(source_dir, "%s-src-2.raw" % self.config.series))
+        touch(os.path.join(source_dir, "%s-src-2.list" % self.config.series))
+        touch(os.path.join(source_dir, "%s-src-2.jigdo" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-src-2.template" % self.config.series))
+        self.capture_logging()
+        publisher.publish_source("20120807")
+        self.assertLogEqual([
+            "Publishing source 1 ...",
+            "Publishing source 1 jigdo ...",
+            "Publishing source 2 ...",
+            "Publishing source 2 jigdo ...",
+            ])
+        target_dir = os.path.join(publisher.publish_base, "20120807", "source")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertEqual([
+            "%s-src-1.iso" % self.config.series,
+            "%s-src-1.jigdo" % self.config.series,
+            "%s-src-1.list" % self.config.series,
+            "%s-src-1.template" % self.config.series,
+            "%s-src-2.iso" % self.config.series,
+            "%s-src-2.jigdo" % self.config.series,
+            "%s-src-2.list" % self.config.series,
+            "%s-src-2.template" % self.config.series,
+            ], sorted(os.listdir(target_dir)))
+
+    def test_publish(self):
+        self.config["ARCHES"] = "i386"
+        self.config["CDIMAGE_INSTALL_BASE"] = "1"
+        publisher = self.make_publisher(
+            "ubuntu", "daily-live", try_zsyncmake=False)
+        source_dir = os.path.join(publisher.image_output, "i386")
+        os.mkdir(source_dir)
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.raw" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.list" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.manifest" % self.config.series))
+        touch(os.path.join(
+            publisher.britney_report, "%s_probs.html" % self.config.series))
+        # TODO: until make-web-indices is converted to Python
+        bin_dir = os.path.join(self.config.root, "bin")
+        os.mkdir(bin_dir)
+        os.symlink("/bin/true", os.path.join(bin_dir, "make-web-indices"))
+        os.mkdir(os.path.join(self.config.root, "etc"))
+        self.capture_logging()
+        publisher.publish("20120807")
+        self.assertLogEqual([
+            "Publishing i386 ...",
+            "Publishing i386 live manifest ...",
+            "No keys found; not signing images.",
+            ])
+        target_dir = os.path.join(publisher.publish_base, "20120807")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertEqual(sorted([
+            "MD5SUMS",
+            "SHA1SUMS",
+            "SHA256SUMS",
+            "%s-desktop-i386.iso" % self.config.series,
+            "%s-desktop-i386.list" % self.config.series,
+            "%s-desktop-i386.manifest" % self.config.series,
+            "report.html",
+            ]), sorted(os.listdir(target_dir)))
+
+
 class TestSimpleTree(TestCase):
     def setUp(self):
         super(TestSimpleTree, self).setUp()
         self.use_temp_dir()
         self.config = Config(read=False)
         self.tree = SimpleTree(self.config, self.temp_dir)
+
+    def test_default_directory(self):
+        self.config.root = self.temp_dir
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "simple"),
+            SimpleTree(self.config).directory)
 
     def test_name_to_series(self):
         self.assertEqual(
