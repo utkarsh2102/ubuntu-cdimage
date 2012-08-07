@@ -41,6 +41,9 @@ class TestSeries(TestCase):
         series = Series.find_by_version("5.04")
         self.assertEqual(("hoary", "5.04", "Hoary Hedgehog"), tuple(series))
 
+    def test_latest(self):
+        self.assertTrue(Series.latest().is_latest)
+
     def test_str(self):
         series = Series.find_by_name("warty")
         self.assertEqual("warty", str(series))

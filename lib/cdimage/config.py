@@ -56,6 +56,10 @@ class Series(BaseSeries):
         else:
             raise ValueError("No series with version %s" % version)
 
+    @classmethod
+    def latest(self):
+        return all_series[-1]
+
     def __str__(self):
         return self.name
 
