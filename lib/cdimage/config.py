@@ -66,6 +66,10 @@ class Series(BaseSeries):
                 series.name for series in all_series].index(self.name)
         return self._index
 
+    @property
+    def is_latest(self):
+        return self == all_series[-1]
+
     def _compare(self, other, method):
         if not isinstance(other, Series):
             other = self.find_by_name(other)
@@ -182,6 +186,10 @@ class Config(defaultdict):
     @property
     def series(self):
         return str(self["DIST"])
+
+    @property
+    def arches(self):
+        return self["ARCHES"].split()
 
 
 config = Config()

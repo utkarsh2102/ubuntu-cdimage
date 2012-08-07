@@ -28,7 +28,7 @@ try:
 except ImportError:
     from test.test_support import EnvironmentVarGuard
 
-from cdimage.config import Config, Series
+from cdimage.config import all_series, Config, Series
 from cdimage.tests.helpers import TestCase
 
 
@@ -44,6 +44,10 @@ class TestSeries(TestCase):
     def test_str(self):
         series = Series.find_by_name("warty")
         self.assertEqual("warty", str(series))
+
+    def test_is_latest(self):
+        self.assertFalse(all_series[0].is_latest)
+        self.assertTrue(all_series[-1].is_latest)
 
     def test_compare(self):
         series = Series.find_by_name("hoary")
@@ -105,3 +109,11 @@ class TestConfig(TestCase):
         config = Config(read=False)
         config["DIST"] = Series.find_by_name("warty")
         self.assertEqual("warty", config.series)
+
+    def test_arches(self):
+        config = Config(read=False)
+        self.assertEqual([], config.arches)
+        config["ARCHES"] = "i386"
+        self.assertEqual(["i386"], config.arches)
+        config["ARCHES"] = "amd64 i386"
+        self.assertEqual(["amd64", "i386"], config.arches)
