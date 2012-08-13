@@ -17,8 +17,12 @@
 
 from __future__ import print_function
 
+import atexit
 import gzip
 import os
+import shutil
+import subprocess
+import tempfile
 
 from cdimage.log import logger
 from cdimage.osextras import mkemptydir, run_bounded
@@ -28,14 +32,27 @@ def _check_installable_dirs(config):
     britney = os.path.join(config.root, "britney")
     image_top = os.path.join(
         config.root, "scratch", config["PROJECT"], config["IMAGE_TYPE"], "tmp")
+    live = os.path.join(
+        config.root, "scratch", config["PROJECT"], config["IMAGE_TYPE"],
+        "live")
     data = os.path.join(
         britney, "data", config["PROJECT"], config["IMAGE_TYPE"],
         config.series)
-    return britney, image_top, data
+    return britney, image_top, live, data
+
+
+_tempdir = None
+
+
+def _ensure_tempdir():
+    global _tempdir
+    if not _tempdir:
+        _tempdir = tempfile.mkdtemp(prefix="cdimage")
+        atexit.register(shutil.rmtree, _tempdir)
 
 
 def _prepare_check_installable(config):
-    _, image_top, data = _check_installable_dirs(config)
+    _, image_top, live, data = _check_installable_dirs(config)
     mkemptydir(data)
 
     for fullarch in config.arches:
@@ -44,17 +61,21 @@ def _prepare_check_installable(config):
         packages = os.path.join(data, "Packages_%s" % arch)
         with open(packages, "w") as packages_file:
             if config["CDIMAGE_SQUASHFS_BASE"]:
-                manifest = os.path.join(
-                    image_top, "%s-%s" % (config.series, fullarch), "CD1",
-                    "install", "filesystem.manifest")
-                if os.path.exists(manifest):
-                    with open(manifest) as manifest_file:
-                        for line in manifest_file:
-                            pkg, ver = line.split()
-                            pkg = pkg.split(":")[0]
-                            print("Package: %s" % pkg, file=packages_file)
-                            print("Version: %s" % ver, file=packages_file)
-                            print(file=packages_file)
+                squashfs = os.path.join(live, "%s.squashfs" % fullarch)
+                if os.path.exists(squashfs):
+                    _ensure_tempdir()
+                    with open("/dev/null", "w") as devnull:
+                        subprocess.check_call([
+                            "unsquashfs",
+                            "-d", os.path.join(_tempdir, fullarch),
+                            squashfs, "/var/lib/dpkg/status",
+                            ], stdout=devnull)
+                    status_path = os.path.join(
+                        _tempdir, fullarch, "var", "lib", "dpkg", "status")
+                    with open(os.path.join(status_path)) as status:
+                        subprocess.call([
+                            "grep-dctrl", "-XFStatus", "install ok installed",
+                            ], stdin=status, stdout=packages_file)
 
             for component in "main", "restricted", "universe", "multiverse":
                 packages_gz = os.path.join(
@@ -79,7 +100,7 @@ def _prepare_check_installable(config):
 
 
 def _check_installable_command(config):
-    britney, _, data = _check_installable_dirs(config)
+    britney, _, _, data = _check_installable_dirs(config)
     report_dir = os.path.join(
         britney, "report", config["PROJECT"], config["IMAGE_TYPE"])
     mkemptydir(report_dir)
