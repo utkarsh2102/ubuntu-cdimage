@@ -7,19 +7,34 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 BRITNEY="${BRITNEY:-$CDIMAGE_ROOT/britney}"
 
 IMAGETOP="${IMAGETOP:-$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tmp}"
+LIVE="${LIVE:-$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live}"
+
+tmpdir=
+
+cleanup () {
+	if [ "$tmpdir" ]; then
+		rm -r "$tmpdir"
+	fi
+}
+
+use_temp_dir () {
+	if [ -z "$tmpdir" ]; then
+		tmpdir="$(mktemp -d)"
+		trap cleanup EXIT HUP INT QUIT TERM
+	fi
+}
 
 mkemptydir "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST"
 for fullarch in $ARCHES; do
 	arch="${fullarch%%+*}"
-	if [ "$CDIMAGE_SQUASHFS_BASE" ]; then
-		manifest="$IMAGETOP/$DIST-$fullarch/CD1/install/filesystem.manifest"
-		if [ -e "$manifest" ]; then
-			while read pkg ver; do
-				echo "Package: ${pkg%:*}"
-				echo "Version: $ver"
-				echo
-			done < "$manifest" >> "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST/Packages_$arch"
-		fi
+	if [ "$CDIMAGE_SQUASHFS_BASE" ] && \
+	   [ -e "$LIVE/$fullarch.squashfs" ]; then
+		use_temp_dir
+		unsquashfs -d "$tmpdir/$fullarch" "$LIVE/$fullarch.squashfs" \
+			/var/lib/dpkg/status >/dev/null
+		grep-dctrl -XFStatus 'install ok installed' \
+			"$tmpdir/$fullarch/var/lib/dpkg/status" \
+			>> "$BRITNEY/data/$PROJECT/$IMAGE_TYPE/$DIST/Packages_$arch"
 	fi
 
 	for component in main restricted universe multiverse; do
