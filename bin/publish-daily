@@ -132,6 +132,11 @@ publish_binary () {
 		SIZELIMIT=1000000000
 	fi
 
+	# quantal onward has an 800MB limit.
+	if [ "$PROJECT" = ubuntu ] && dist_ge quantal; then
+		SIZELIMIT=800000000
+	fi
+
 	if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.raw" ]; then
 		echo "Publishing $arch ..."
 		mkdir -p "$PUBLISH"
