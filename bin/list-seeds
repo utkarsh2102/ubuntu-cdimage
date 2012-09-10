@@ -136,7 +136,7 @@ case $MODE in
 				;;
 			ubuntu-server)
 				seeds="$(inheritance server-ship)"
-				for subtract in boot d-i-requirements; do
+				for subtract in minimal; do
 					seeds="$(without_inheritance $subtract $seeds)"
 				done
 				echo "$seeds"
