@@ -5,7 +5,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|manifest-remove|size|winfoss|wubi|wubi-cdboot|umenu|usb-creator|ltsp-squashfs|tar.xz' >&2
+	echo 'Usage: find-live-filesystem ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|manifest-remove|size|winfoss|wubi|umenu|usb-creator|ltsp-squashfs|tar.xz' >&2
 	exit 1
 fi
 ARCH="$1"
@@ -353,21 +353,6 @@ case $ITEM in
 			exit 1
 		else
 			echo http://people.canonical.com/~evand/wubi/$DIST/stable
-		fi
-		;;
-	wubi-cdboot)
-		case $ARCH in
-			amd64|i386)
-				;;
-			*)
-				exit 1
-				;;
-		esac
-		if dist_le feisty; then
-			exit 1
-		else
-			#echo http://wubi-installer.org/devel/minefields/Ubuntu-cdboot-7.10-alpha.exe
-			:
 		fi
 		;;
 	umenu)
