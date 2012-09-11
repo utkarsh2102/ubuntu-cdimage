@@ -31,7 +31,7 @@ DIST="${DIST:-quantal}"
 # collections, so not ubuntu-server.
 ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu kubuntu-mobile edubuntu xubuntu ubuntustudio mythbuntu}"
 
-if [ -z "$ARCHES" ]; then
+if [ -z "$ARCHES" ] && [ -z "$CDIMAGE_INSIDE_DEFAULT_ARCHES" ]; then
 	ARCHES="$(default-arches "$PROJECT" "$IMAGE_TYPE" "$DIST")"
 fi
 CPUARCHES="$(echo "$ARCHES" | xargs -n1 | sed 's/+.*//' | sort -u | xargs)"
