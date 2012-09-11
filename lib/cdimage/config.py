@@ -149,8 +149,11 @@ class Config(defaultdict):
             os.environ["CDIMAGE_ROOT"] = "/srv/cdimage.ubuntu.com"
         self.root = os.environ["CDIMAGE_ROOT"]
         config_path = os.path.join(self.root, "etc", "config")
-        if read and os.path.exists(config_path):
-            self.read(config_path)
+        if read:
+            if os.path.exists(config_path):
+                self.read(config_path)
+            else:
+                self.read()
 
     def _read_nullsep_output(self, command):
         raw = subprocess.Popen(
@@ -171,11 +174,11 @@ class Config(defaultdict):
         else:
             return "'%s'" % arg.replace("'", "'\\''")
 
-    def read(self, config_path):
-        commands = [
-            ". %s" % self._shell_escape(config_path),
-            "cat /proc/self/environ",
-            ]
+    def read(self, config_path=None):
+        commands = []
+        if config_path is not None:
+            commands.append(". %s" % self._shell_escape(config_path))
+        commands.append("cat /proc/self/environ")
         for key in _whitelisted_keys:
             commands.append("printf '%%s\\0' \"%s=$%s\"" % (key, key))
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])

@@ -108,6 +108,16 @@ class TestConfig(TestCase):
             self.assertEqual("ubuntu", config["PROJECT"])
             self.assertEqual("Ubuntu", config["CAPPROJECT"])
 
+    def test_missing_config(self):
+        # Even if etc/config is missing, Config still reads values from the
+        # environment.  This makes it easier to experiment locally.
+        self.use_temp_dir()
+        with EnvironmentVarGuard() as env:
+            env["CDIMAGE_ROOT"] = self.temp_dir
+            env["PROJECT"] = "kubuntu"
+            config = Config()
+            self.assertEqual("kubuntu", config["PROJECT"])
+
     def test_series(self):
         config = Config(read=False)
         config["DIST"] = Series.find_by_name("warty")
