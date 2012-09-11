@@ -247,6 +247,10 @@ class DailyTreePublisher(Publisher):
         elif self.project == "kubuntu":
             # Kubuntu limit of 1GB [quantal]
             return 1000000000
+        elif (self.project == "ubuntu" and self.publish_type != "dvd" and
+              self.config["DIST"] >= "quantal"):
+            # Ubuntu quantal onward has an 800MB limit.
+            return 800000000
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW

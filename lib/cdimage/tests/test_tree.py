@@ -188,12 +188,15 @@ class TestDailyTreePublisher(TestCase):
             self.assertEqual(publish_type, publisher.publish_type)
 
     def test_size_limit(self):
-        for project, image_type, size_limit in (
-            ("ubuntustudio", "dvd", 4700372992),
-            ("kubuntu", "daily-live", 1000000000),
-            ("ubuntu", "dvd", 4700372992),
-            ("ubuntu", "daily-live", 736665600),
+        for project, dist, image_type, size_limit in (
+            ("ubuntustudio", None, "dvd", 4700372992),
+            ("kubuntu", None, "daily-live", 1000000000),
+            ("ubuntu", None, "dvd", 4700372992),
+            ("ubuntu", "precise", "daily-live", 736665600),
+            ("ubuntu", "quantal", "daily-live", 800000000),
             ):
+            if dist is not None:
+                self.config["DIST"] = Series.find_by_name(dist)
             publisher = self.make_publisher(project, image_type)
             self.assertEqual(size_limit, publisher.size_limit)
 
