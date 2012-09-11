@@ -139,6 +139,8 @@ _whitelisted_keys = (
     "DATE",
     "DATE_SUFFIX",
     "IMAGE_TYPE",
+    "LIVECD",
+    "LIVECD_BASE",
     )
 
 

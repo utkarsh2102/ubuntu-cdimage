@@ -1,0 +1,372 @@
+#! /usr/bin/python
+
+# Copyright (C) 2012 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Unit tests for cdimage.livefs."""
+
+__metaclass__ = type
+
+from cdimage.config import Config, Series
+from cdimage.livefs import (
+    flavours,
+    live_item_paths,
+    live_project,
+    livecd_base,
+    NoLiveItem,
+    split_arch,
+    )
+from cdimage.tests.helpers import TestCase
+
+
+# This only needs to go up as far as the series livecd_base cares about.
+all_series = [
+    "warty",
+    "hoary",
+    "breezy",
+    "dapper",
+    "edgy",
+    "feisty",
+    "gutsy",
+    "hardy",
+    "intrepid",
+    "jaunty",
+    "karmic",
+    "lucid",
+    "maverick",
+    "natty",
+    "oneiric",
+    "precise",
+    "quantal",
+    ]
+
+
+class TestSplitArch(TestCase):
+    def test_amd64(self):
+        self.assertEqual(("amd64", ""), split_arch("amd64"))
+
+    def test_amd64_mac(self):
+        self.assertEqual(("amd64", ""), split_arch("amd64+mac"))
+
+    def test_armhf_omap4(self):
+        self.assertEqual(("armhf", "omap4"), split_arch("armhf+omap4"))
+
+    def test_i386(self):
+        self.assertEqual(("i386", ""), split_arch("i386"))
+
+
+class TestLiveProject(TestCase):
+    def assertProjectEqual(self, expected, project, series, **kwargs):
+        config = Config(read=False)
+        config["PROJECT"] = project
+        config["DIST"] = Series.find_by_name(series)
+        for key, value in kwargs.items():
+            config[key.upper()] = value
+        self.assertEqual(expected, live_project(config))
+
+    def test_project_livecd_base(self):
+        self.assertProjectEqual("base", "livecd-base", "dapper")
+
+    def test_project_tocd3_1(self):
+        self.assertProjectEqual("tocd", "tocd3.1", "breezy")
+
+    def test_ubuntu_dvd(self):
+        for series in all_series[:7]:
+            self.assertProjectEqual(
+                "ubuntu", "ubuntu", series, cdimage_dvd="1")
+        for series in all_series[7:]:
+            self.assertProjectEqual(
+                "ubuntu-dvd", "ubuntu", series, cdimage_dvd="1")
+
+    def test_kubuntu_dvd(self):
+        for series in all_series[:7]:
+            self.assertProjectEqual(
+                "kubuntu", "kubuntu", series, cdimage_dvd="1")
+        for series in all_series[7:]:
+            self.assertProjectEqual(
+                "kubuntu-dvd", "kubuntu", series, cdimage_dvd="1")
+
+    def test_edubuntu_dvd(self):
+        for series in all_series[:10]:
+            self.assertProjectEqual(
+                "edubuntu", "edubuntu", series, cdimage_dvd="1")
+        for series in all_series[10:]:
+            self.assertProjectEqual(
+                "edubuntu-dvd", "edubuntu", series, cdimage_dvd="1")
+
+    def test_ubuntustudio_dvd(self):
+        for series in all_series[:15]:
+            self.assertProjectEqual(
+                "ubuntustudio", "ubuntustudio", series, cdimage_dvd="1")
+        for series in all_series[15:]:
+            self.assertProjectEqual(
+                "ubuntustudio-dvd", "ubuntustudio", series, cdimage_dvd="1")
+
+
+class TestLiveCDBase(TestCase):
+    def assertBaseEqual(self, expected, arch, project, series, **kwargs):
+        config = Config(read=False)
+        config["PROJECT"] = project
+        config["DIST"] = Series.find_by_name(series)
+        for key, value in kwargs.items():
+            config[key.upper()] = value
+        self.assertEqual(expected, livecd_base(config, arch))
+
+    def base(self, builder, project, series):
+        return "http://%s/~buildd/LiveCD/%s/%s/current" % (
+            builder, series, project)
+
+    def test_livecd_base_override(self):
+        self.assertBaseEqual(
+            "ftp://blah", "amd64", "ubuntu", "dapper",
+            livecd_base="ftp://blah")
+
+    def test_livecd_override(self):
+        self.assertBaseEqual(
+            "ftp://blah/quantal/ubuntu/current", "i386", "ubuntu", "quantal",
+            livecd="ftp://blah")
+
+    def test_amd64(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("king.buildd", "ubuntu", series),
+                "amd64", "ubuntu", series)
+
+    def test_armel(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("manoao.buildd", "ubuntu", series),
+                "armel", "ubuntu", series)
+
+    def test_hppa(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("castilla.buildd", "ubuntu", series),
+                "hppa", "ubuntu", series)
+
+    def test_i386(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("terranova.buildd", "ubuntu", series),
+                "i386", "ubuntu", series)
+
+    def test_ia64(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("weddell.buildd", "ubuntu", series),
+                "ia64", "ubuntu", series)
+
+    def test_lpia(self):
+        for series in all_series[:8]:
+            self.assertBaseEqual(
+                self.base("terranova.buildd", "ubuntu", series),
+                "lpia", "ubuntu", series)
+        for series in all_series[8:]:
+            self.assertBaseEqual(
+                self.base("concordia.buildd", "ubuntu", series),
+                "lpia", "ubuntu", series)
+
+    def test_powerpc(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("royal.buildd", "ubuntu", series),
+                "powerpc", "ubuntu", series)
+
+    def test_sparc(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("vivies.buildd", "ubuntu", series),
+                "sparc", "ubuntu", series)
+
+    def test_subarch(self):
+        self.assertBaseEqual(
+            self.base("royal.buildd", "ubuntu-ps3", "gutsy"),
+            "powerpc+ps3", "ubuntu", "gutsy")
+        self.assertBaseEqual(
+            self.base("manoao.buildd", "ubuntu-server-omap", "oneiric"),
+            "armel+omap", "ubuntu-server", "oneiric")
+
+
+class TestFlavours(TestCase):
+    def assertFlavoursEqual(self, expected, arch, project, series):
+        config = Config(read=False)
+        config["PROJECT"] = project
+        config["DIST"] = Series.find_by_name(series)
+        self.assertEqual(expected.split(), flavours(config, arch))
+
+    def test_amd64(self):
+        for series in all_series[:4]:
+            self.assertFlavoursEqual(
+                "amd64-generic", "amd64", "ubuntu", series)
+        for series in all_series[4:]:
+            self.assertFlavoursEqual(
+                "generic", "amd64", "ubuntu", series)
+        for series in all_series[15:]:
+            self.assertFlavoursEqual(
+                "lowlatency", "amd64", "ubuntustudio", series)
+
+    def test_armel(self):
+        for series in all_series:
+            self.assertFlavoursEqual("", "armel", "ubuntu", series)
+
+    def test_hppa(self):
+        for series in all_series:
+            self.assertFlavoursEqual("hppa32 hppa64", "hppa", "ubuntu", series)
+
+    def test_i386(self):
+        for series in all_series[:4]:
+            self.assertFlavoursEqual("i386", "i386", "ubuntu", series)
+        for series in all_series[4:15] + all_series[17:]:
+            self.assertFlavoursEqual("generic", "i386", "ubuntu", series)
+        self.assertFlavoursEqual("generic-pae", "i386", "ubuntu", "precise")
+        for series in all_series[4:]:
+            self.assertFlavoursEqual("generic", "i386", "xubuntu", series)
+            self.assertFlavoursEqual("generic", "i386", "lubuntu", series)
+        for series in all_series[15:]:
+            self.assertFlavoursEqual(
+                "lowlatency-pae", "i386", "ubuntustudio", series)
+
+    def test_ia64(self):
+        for series in all_series[:4]:
+            self.assertFlavoursEqual(
+                "itanium-smp mckinley-smp", "ia64", "ubuntu", series)
+        for series in all_series[4:10]:
+            self.assertFlavoursEqual(
+                "itanium mckinley", "ia64", "ubuntu", series)
+        for series in all_series[10:]:
+            self.assertFlavoursEqual("ia64", "ia64", "ubuntu", series)
+
+    def test_lpia(self):
+        for series in all_series:
+            self.assertFlavoursEqual("lpia", "lpia", "ubuntu", series)
+
+    def test_powerpc(self):
+        for series in all_series:
+            self.assertFlavoursEqual(
+                "powerpc powerpc64-smp", "powerpc", "ubuntu", series)
+        self.assertFlavoursEqual("cell", "powerpc+ps3", "ubuntu", "gutsy")
+        self.assertFlavoursEqual(
+            "powerpc powerpc64-smp", "powerpc+ps3", "ubuntu", "hardy")
+
+    def test_sparc(self):
+        for series in all_series:
+            self.assertFlavoursEqual("sparc64", "sparc", "ubuntu", series)
+
+
+class TestLiveItemPaths(TestCase):
+    def assertPathsEqual(self, expected, arch, item, project, series):
+        config = Config(read=False)
+        config["PROJECT"] = project
+        config["DIST"] = Series.find_by_name(series)
+        self.assertEqual(expected, list(live_item_paths(config, arch, item)))
+
+    def assertNoPaths(self, arch, item, project, series):
+        config = Config(read=False)
+        config["PROJECT"] = project
+        config["DIST"] = Series.find_by_name(series)
+        self.assertRaises(
+            NoLiveItem, next, live_item_paths(config, arch, item))
+
+    def test_tocd3_fallback(self):
+        for item in ("cloop", "manifest"):
+            self.assertPathsEqual(
+                ["/home/cjwatson/tocd3/livecd.tocd3.%s" % item],
+                "i386", item, "tocd3", "hoary")
+
+    def test_ubuntu_breezy_fallback(self):
+        for item in ("cloop", "manifest"):
+            for arch in ("amd64", "i386", "powerpc"):
+                self.assertPathsEqual(
+                    ["/home/cjwatson/breezy-live/ubuntu/livecd.%s.%s" %
+                     (arch, item)],
+                    arch, item, "ubuntu", "breezy")
+
+    def test_desktop_items(self):
+        for item in (
+            "cloop", "squashfs", "manifest", "manifest-desktop",
+            "manifest-remove", "size", "tar.xz",
+            ):
+            self.assertPathsEqual(
+                ["http://king.buildd/~buildd/LiveCD/precise/kubuntu/"
+                 "current/livecd.kubuntu.%s" % item],
+                "amd64", item, "kubuntu", "precise")
+            self.assertPathsEqual(
+                ["http://royal.buildd/~buildd/LiveCD/hardy/ubuntu-ps3/"
+                 "current/livecd.ubuntu-ps3.%s" % item],
+                "powerpc+ps3", item, "ubuntu", "hardy")
+
+    def test_kernel_items(self):
+        for item in ("kernel", "initrd"):
+            root = "http://king.buildd/~buildd/LiveCD/precise/kubuntu/current"
+            self.assertPathsEqual(
+                ["%s/livecd.kubuntu.%s-generic" % (root, item)],
+                "amd64", item, "kubuntu", "precise")
+            root = ("http://royal.buildd/~buildd/LiveCD/hardy/ubuntu-ps3/"
+                    "current")
+            self.assertPathsEqual(
+                ["%s/livecd.ubuntu-ps3.%s-powerpc" % (root, item),
+                 "%s/livecd.ubuntu-ps3.%s-powerpc64-smp" % (root, item)],
+                "powerpc+ps3", item, "ubuntu", "hardy")
+
+    # TODO: Since this is only of historical interest, we only test a small
+    # number of cases at the moment.
+    def test_winfoss(self):
+        self.assertNoPaths("i386", "winfoss", "ubuntu", "warty")
+        self.assertNoPaths("powerpc", "winfoss", "ubuntu", "hardy")
+        self.assertPathsEqual(
+            ["http://people.canonical.com/~henrik/winfoss/gutsy/"
+             "ubuntu/current/ubuntu-winfoss-7.10.tar.gz"],
+            "i386", "winfoss", "ubuntu", "karmic")
+        self.assertNoPaths("i386", "winfoss", "ubuntu", "precise")
+
+    def test_wubi(self):
+        for series in all_series[:6]:
+            self.assertNoPaths("amd64", "wubi", "ubuntu", series)
+            self.assertNoPaths("i386", "wubi", "ubuntu", series)
+        for series in all_series[6:]:
+            path = "http://people.canonical.com/~evand/wubi/%s/stable" % series
+            self.assertPathsEqual([path], "amd64", "wubi", "ubuntu", series)
+            self.assertPathsEqual([path], "i386", "wubi", "ubuntu", series)
+        self.assertNoPaths("i386", "wubi", "xubuntu", "precise")
+        self.assertNoPaths("powerpc", "wubi", "ubuntu", "precise")
+
+    def test_umenu(self):
+        for series in all_series[:7] + all_series[8:]:
+            self.assertNoPaths("amd64", "umenu", "ubuntu", series)
+            self.assertNoPaths("i386", "umenu", "ubuntu", series)
+        path = "http://people.canonical.com/~evand/umenu/stable"
+        self.assertPathsEqual([path], "amd64", "umenu", "ubuntu", "hardy")
+        self.assertPathsEqual([path], "i386", "umenu", "ubuntu", "hardy")
+        self.assertNoPaths("powerpc", "umenu", "ubuntu", "hardy")
+
+    def test_usb_creator(self):
+        for series in all_series:
+            path = ("http://people.canonical.com/~evand/usb-creator/%s/"
+                    "stable" % series)
+            self.assertPathsEqual(
+                [path], "amd64", "usb-creator", "ubuntu", series)
+            self.assertPathsEqual(
+                [path], "i386", "usb-creator", "ubuntu", series)
+        self.assertNoPaths("powerpc", "usb-creator", "ubuntu", "precise")
+
+    def test_ltsp_squashfs(self):
+        for series in all_series:
+            path = ("http://terranova.buildd/~buildd/LiveCD/%s/edubuntu/"
+                    "current/livecd.edubuntu-ltsp.squashfs" % series)
+            self.assertPathsEqual(
+                [path], "amd64", "ltsp-squashfs", "edubuntu", series)
+            self.assertPathsEqual(
+                [path], "i386", "ltsp-squashfs", "edubuntu", series)
+        self.assertNoPaths("powerpc", "ltsp-squashfs", "edubuntu", "precise")
