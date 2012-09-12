@@ -137,6 +137,11 @@ publish_binary () {
 		SIZELIMIT=800000000
 	fi
 
+	# All Edubuntu images are DVD sized (including arm)
+	if [ "$PROJECT" = edubuntu ]; then
+		SIZELIMIT=4700372992
+	fi
+
 	if [ -e "$CDOUT/$arch/$DIST-$TYPE-$arch.raw" ]; then
 		echo "Publishing $arch ..."
 		mkdir -p "$PUBLISH"
