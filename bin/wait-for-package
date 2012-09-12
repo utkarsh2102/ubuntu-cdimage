@@ -9,7 +9,11 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 FTPDIR=ftp
-ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync"
+if [ -f "$CDIMAGE_ROOT/production/anonftpsync" ]; then
+	ANONFTPSYNC_CONF="$CDIMAGE_ROOT/production/anonftpsync"
+else
+	ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync"
+fi
 export ANONFTPSYNC_CONF
 
 ARCH=i386

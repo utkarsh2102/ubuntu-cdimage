@@ -6,11 +6,11 @@
 ./germinate
 ./local
 ./log
+./production
 ./scratch
 ./secret
 ./www
 etc/.lock*
 etc/.next-build-suffix*
 etc/.sem-build-image-set
-etc/anonftpsync
 etc/task-mail
