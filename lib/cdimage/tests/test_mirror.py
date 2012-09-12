@@ -52,11 +52,11 @@ class TestChecksumFile(TestCase):
 
     def test_armel(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp-ports", "armel", series)
+            self.assertMirrorEqual("ftp", "armel", series)
 
     def test_hppa(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp-ports", "hppa", series)
+            self.assertMirrorEqual("ftp", "hppa", series)
 
     def test_i386(self):
         for series in all_series:
@@ -64,18 +64,12 @@ class TestChecksumFile(TestCase):
 
     def test_lpia(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp-ports", "lpia", series)
+            self.assertMirrorEqual("ftp", "lpia", series)
 
     def test_powerpc(self):
-        for series in all_series[:5]:
+        for series in all_series:
             self.assertMirrorEqual("ftp", "powerpc", series)
-        for series in all_series[5:]:
-            self.assertMirrorEqual("ftp-ports", "powerpc", series)
 
     def test_sparc(self):
-        for series in all_series[:3]:
-            self.assertMirrorEqual("ftp-ports", "sparc", series)
-        for series in all_series[3:7]:
+        for series in all_series:
             self.assertMirrorEqual("ftp", "sparc", series)
-        for series in all_series[7:]:
-            self.assertMirrorEqual("ftp-ports", "sparc", series)

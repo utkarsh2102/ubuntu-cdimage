@@ -24,7 +24,7 @@ __metaclass__ = type
 import os
 from textwrap import dedent
 
-from cdimage.config import Config, Series
+from cdimage.config import all_series, Config, Series
 from cdimage import osextras
 from cdimage.tests.helpers import TestCase, touch
 from cdimage.tree import DailyTree, DailyTreePublisher, SimpleTree, Tree
@@ -249,6 +249,31 @@ class TestDailyTreePublisher(TestCase):
         publisher.new_publish_dir("20120807")
         self.assertEqual(
             [], os.listdir(os.path.join(publisher.publish_base, "20120807")))
+
+    def test_jigdo_ports_powerpc(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for series in all_series[:5]:
+            publisher.config["DIST"] = series
+            self.assertFalse(publisher.jigdo_ports("powerpc"))
+        for series in all_series[5:]:
+            publisher.config["DIST"] = series
+            self.assertTrue(publisher.jigdo_ports("powerpc"))
+
+    def test_jigdo_ports_sparc(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for series in all_series[:3] + all_series[7:]:
+            publisher.config["DIST"] = series
+            self.assertTrue(publisher.jigdo_ports("sparc"))
+        for series in all_series[3:7]:
+            publisher.config["DIST"] = series
+            self.assertFalse(publisher.jigdo_ports("sparc"))
+
+    def test_jigdo_ports(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for arch in ("amd64", "i386"):
+            self.assertFalse(publisher.jigdo_ports(arch))
+        for arch in ("armel", "armhf", "hppa", "ia64", "lpia"):
+            self.assertTrue(publisher.jigdo_ports(arch))
 
     def test_replace_jigdo_mirror(self):
         jigdo_path = os.path.join(self.temp_dir, "jigdo")

@@ -303,6 +303,21 @@ class DailyTreePublisher(Publisher):
                         os.path.join(publish_current, name),
                         os.path.join(publish_date, name))
 
+    def jigdo_ports(self, arch):
+        series = self.config["DIST"]
+        cpuarch = arch.split("+")[0]
+        if cpuarch == "powerpc":
+            # https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/000098.html
+            if series > "edgy":
+                return True
+        elif cpuarch == "sparc":
+            # https://lists.ubuntu.com/archives/ubuntu-devel-announce/2008-March/000400.html
+            if series < "dapper" or series > "gutsy":
+                return True
+        elif cpuarch in ("armel", "armhf", "hppa", "ia64", "lpia"):
+            return True
+        return False
+
     def replace_jigdo_mirror(self, path, from_mirror, to_mirror):
         with open(path) as jigdo_in:
             with AtomicFile(path) as jigdo_out:
@@ -341,8 +356,7 @@ class DailyTreePublisher(Publisher):
             shutil.move("%s.jigdo" % source_prefix, "%s.jigdo" % target_prefix)
             shutil.move(
                 "%s.template" % source_prefix, "%s.template" % target_prefix)
-            # TODO: nasty way to figure out whether we're ports
-            if find_mirror(self.config, arch).endswith("-ports"):
+            if self.jigdo_ports(arch):
                 self.replace_jigdo_mirror(
                     "%s.jigdo" % target_prefix,
                     "http://archive.ubuntu.com/ubuntu",

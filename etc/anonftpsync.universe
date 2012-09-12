@@ -1,2 +1,0 @@
-RSYNC_EXCLUDE="--exclude **/main --exclude **/main/** --exclude **/restricted --exclude **/restricted/**"
-TO="$CDIMAGE_ROOT/ftp-universe"

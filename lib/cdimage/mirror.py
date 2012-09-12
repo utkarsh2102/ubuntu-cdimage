@@ -28,28 +28,7 @@ class UnknownMirror(Exception):
 
 
 def find_mirror(config, arch):
-    if config["CDIMAGE_UNSUPPORTED"]:
-        return os.path.join(config.root, "ftp-universe")
-
-    cpuarch = arch.split("+")[0]
-    if cpuarch in ("amd64", "i386"):
-        return os.path.join(config.root, "ftp")
-    elif cpuarch == "powerpc":
-        # https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/000098.html
-        if config["DIST"] <= "edgy":
-            return os.path.join(config.root, "ftp")
-        else:
-            return os.path.join(config.root, "ftp-ports")
-    elif cpuarch == "sparc":
-        # https://lists.ubuntu.com/archives/ubuntu-devel-announce/2008-March/000400.html
-        if config["DIST"] >= "dapper" and config["DIST"] <= "gutsy":
-            return os.path.join(config.root, "ftp")
-        else:
-            return os.path.join(config.root, "ftp-ports")
-    elif cpuarch in ("armel", "hppa", "ia64", "lpia"):
-        return os.path.join(config.root, "ftp-ports")
-    else:
-        raise UnknownMirror("No mirror known for %s" % arch)
+    return os.path.join(config.root, "ftp")
 
 
 class UnknownManifestFile(Exception):
