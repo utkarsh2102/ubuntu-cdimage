@@ -1,8 +1,9 @@
 #! /bin/sh
 
 # Settings for building Ubuntu CD images.  The build procedure also involves
-# syncing a local Ubuntu mirror; see etc/anonftpsync for settings affecting what
-# is mirrored and where.
+# syncing a local Ubuntu mirror; see etc/anonftpsync (or
+# production/anonftpsync if it exists) for settings affecting what is
+# mirrored and where.
 
 . "$CDIMAGE_ROOT/bin/functions.sh"
 
