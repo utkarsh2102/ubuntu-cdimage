@@ -154,14 +154,28 @@ publish_binary () {
 			   "$PUBLISH/$DIST-$TYPE-$arch.jigdo"
 			mv "$CDOUT/$arch/$DIST-$TYPE-$arch.template" \
 			   "$PUBLISH/$DIST-$TYPE-$arch.template"
-			# TODO: nasty way to figure out whether we're ports
-			MIRROR="$(find-mirror $arch)"
-			case $MIRROR in
-				*-ports)
-					sed -i 's,Debian=http://archive.ubuntu.com/ubuntu,Debian=http://ports.ubuntu.com/ubuntu-ports,g' \
-						"$PUBLISH/$DIST-$TYPE-$arch.jigdo"
+			PORTS=false
+			case ${arch%%+*} in
+				powerpc)
+					# https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/000098.html
+					if dist_gt edgy; then
+						PORTS=:
+					fi
+					;;
+				sparc)
+					# https://lists.ubuntu.com/archives/ubuntu-devel-announce/2008-March/000400.html
+					if dist_lt dapper || dist_gt gutsy; then
+						PORTS=:
+					fi
+					;;
+				armel|armhf|hppa|ia64|lpia)
+					PORTS=:
 					;;
 			esac
+			if $PORTS; then
+				sed -i 's,Debian=http://archive.ubuntu.com/ubuntu,Debian=http://ports.ubuntu.com/ubuntu-ports,g' \
+					"$PUBLISH/$DIST-$TYPE-$arch.jigdo"
+			fi
 		else
 			rm -f "$PUBLISH/$DIST-$TYPE-$arch.jigdo" \
 			      "$PUBLISH/$DIST-$TYPE-$arch.template"
