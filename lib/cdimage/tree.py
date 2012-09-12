@@ -44,6 +44,7 @@ projects = [
     "jeos",
     "kubuntu",
     "kubuntu-active",
+    "kubuntu-netbook",
     "lubuntu",
     "mythbuntu",
     "ubuntu",
