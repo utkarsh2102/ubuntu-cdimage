@@ -358,6 +358,12 @@ class DailyTreePublisher(Publisher):
         else:
             osextras.unlink_force("%s.manifest" % target_prefix)
 
+        # Flashable Android boot images
+        if os.path.exists("%s.bootimg" % source_prefix):
+            logger.info("Publishing %s abootimg bootloader images ..." % arch)
+            shutil.move(
+                "%s.bootimg" % source_prefix, "%s.bootimg" % target_prefix)
+
         # zsync metafiles
         if self.try_zsyncmake and osextras.find_on_path("zsyncmake"):
             logger.info("Making %s zsync metafile ..." % arch)
