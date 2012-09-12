@@ -25,7 +25,7 @@ import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import config
-from cdimage.livefs import live_item_paths
+from cdimage.livefs import live_item_paths, NoLiveItem
 
 
 def main():
