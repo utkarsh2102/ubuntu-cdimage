@@ -356,14 +356,14 @@ case $ITEM in
 		fi
 		;;
 	umenu)
-		case $arch in
+		case $ARCH in
 			amd64|i386)
 				;;
 			*)
 				exit 1
 				;;
 		esac
-		case $dist in
+		case $DIST in
 			warty|hoary|breezy|dapper|edgy|feisty|gutsy)
 				exit 1
 				;;
