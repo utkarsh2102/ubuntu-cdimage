@@ -244,7 +244,7 @@ def live_item_paths(config, arch, item):
                 arch, item)
         else:
             yield "%s/livecd.%s.%s" % (root, liveproject_subarch, item)
-    elif item in ("kernel", "initrd"):
+    elif item in ("kernel", "initrd", "bootimg"):
         for flavour in flavours(config, arch):
             yield "%s/livecd.%s.%s-%s" % (
                 root, liveproject_subarch, item, flavour)

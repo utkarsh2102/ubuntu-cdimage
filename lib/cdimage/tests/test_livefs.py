@@ -308,7 +308,7 @@ class TestLiveItemPaths(TestCase):
                 "powerpc+ps3", item, "ubuntu", "hardy")
 
     def test_kernel_items(self):
-        for item in ("kernel", "initrd"):
+        for item in ("kernel", "initrd", "bootimg"):
             root = "http://king.buildd/~buildd/LiveCD/precise/kubuntu/current"
             self.assertPathsEqual(
                 ["%s/livecd.kubuntu.%s-generic" % (root, item)],

@@ -34,7 +34,8 @@ def want_image(image):
         image.endswith(".iso") or
         image.endswith(".exe") or
         image.endswith(".img.gz") or
-        "vmlinuz-" in image):
+        "vmlinuz-" in image or
+        image.endswith(".bootimg")):
         return True
     else:
         return False
