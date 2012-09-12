@@ -82,7 +82,7 @@ case $PROJECT in
 			export CDIMAGE_UNSUPPORTED=1
 		fi
 		;;
-	kubuntu-kde4|kubuntu-netbook|kubuntu-mobile)
+	kubuntu-active)
 		export CDIMAGE_UNSUPPORTED=1
 		;;
 	ubuntustudio)

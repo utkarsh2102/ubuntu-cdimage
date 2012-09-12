@@ -29,7 +29,7 @@ fi
 if [ "$GERMINATE_BZR" ]; then
 	SEED_SOURCE=http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 	case $PROJECT in
-		kubuntu|kubuntu-mobile)
+		kubuntu|kubuntu-active)
 			if dist_ge oneiric; then
 				SEED_SOURCE="http://bazaar.launchpad.net/~kubuntu-dev/ubuntu-seeds/,$SEED_SOURCE"
 			fi
@@ -75,8 +75,8 @@ case $PROJECT in
 	ubuntu-netbook)
 		GERMINATE_SEED_DIST="netbook.$DIST"
 		;;
-	kubuntu-mobile)
-		GERMINATE_SEED_DIST="kubuntu-mobile.$DIST"
+	kubuntu-active)
+		GERMINATE_SEED_DIST="kubuntu-active.$DIST"
 		;;
 	*)
 		GERMINATE_SEED_DIST="$PROJECT.$DIST"

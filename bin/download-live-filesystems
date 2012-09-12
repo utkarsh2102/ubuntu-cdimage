@@ -62,7 +62,7 @@ if [ "$CDIMAGE_LIVE" ]; then
 
 		if [ "$PROJECT" != livecd-base ] && \
 		   ([ "$PROJECT" != edubuntu ] || dist_ge precise) && \
-		   [ "$PROJECT" != kubuntu-mobile ]; then
+		   [ "$PROJECT" != kubuntu-active ]; then
 			if dist_le feisty; then
 				:
 			elif dist_le intrepid; then
@@ -112,7 +112,7 @@ EOF
 			fi
 		fi
 		case "$PROJECT" in
-			kubuntu-netbook|ubuntu-netbook|ubuntu-moblin-remix)
+			kubuntu-active|ubuntu-netbook|ubuntu-moblin-remix)
 				fetch "$(find-live-filesystem "$arch" usb-creator)" \
 					"$LIVE_OUT/$arch.usb-creator.exe" || true
 				;;

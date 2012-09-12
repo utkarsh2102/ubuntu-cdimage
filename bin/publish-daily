@@ -40,8 +40,8 @@ case $IMAGE_TYPE in
 					TYPE=desktop
 				fi
 				;;
-			kubuntu-mobile)
-				TYPE=mobile
+			kubuntu-active)
+				TYPE=active
 				;;
 			ubuntu-server)
 				TYPE=live

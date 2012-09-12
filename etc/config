@@ -24,7 +24,7 @@ DIST="${DIST:-quantal}"
 # All projects currently being built.  This is used for building source
 # images.  Note that we only need to include projects with their own seed
 # collections, so not ubuntu-server.
-ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu kubuntu-mobile edubuntu xubuntu ubuntustudio mythbuntu}"
+ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu kubuntu-active edubuntu xubuntu ubuntustudio mythbuntu}"
 
 if [ -z "$ARCHES" ]; then
 	ARCHES="$(default-arches "$PROJECT" "$IMAGE_TYPE" "$DIST")"
