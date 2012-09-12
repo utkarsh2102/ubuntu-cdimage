@@ -30,7 +30,6 @@ from cdimage.atomicfile import AtomicFile
 from cdimage.checksums import ChecksumFileSet, checksum_directory
 from cdimage.config import Series
 from cdimage.log import logger
-from cdimage.mirror import find_mirror
 from cdimage import osextras
 
 
