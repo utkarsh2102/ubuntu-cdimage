@@ -21,7 +21,13 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 TO="$CDIMAGE_ROOT/ftp"
 
 # This file may override with private rsync locations and options
-SYNC_CONF="${ANONFTPSYNC_CONF:-$CDIMAGE_ROOT/etc/anonftpsync}"
+if [ "$ANONFTPSYNC_CONF" ]; then
+  SYNC_CONF="$ANONFTPSYNC_CONF"
+elif [ -f "$CDIMAGE_ROOT/production/anonftpsync" ]; then
+  SYNC_CONF="$CDIMAGE_ROOT/production/anonftpsync"
+else
+  SYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync"
+fi
 if [ -f "$SYNC_CONF" ] ; then
 . "$SYNC_CONF"
 fi

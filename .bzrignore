@@ -6,6 +6,7 @@
 ./germinate
 ./local
 ./log
+./production
 ./scratch
 ./secret
 ./www
