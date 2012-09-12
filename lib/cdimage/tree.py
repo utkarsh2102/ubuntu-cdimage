@@ -27,7 +27,11 @@ import stat
 import subprocess
 
 from cdimage.atomicfile import AtomicFile
-from cdimage.checksums import ChecksumFileSet, checksum_directory
+from cdimage.checksums import (
+    ChecksumFileSet,
+    checksum_directory,
+    metalink_checksum_directory,
+    )
 from cdimage.config import Series
 from cdimage.log import logger
 from cdimage import osextras
@@ -200,6 +204,16 @@ class DailyTreePublisher(Publisher):
         if not self.config["DIST"].is_latest:
             image_type_dir = os.path.join(self.config.series, image_type_dir)
         return os.path.join(self.full_tree, image_type_dir)
+
+    def metalink_dirs(self, date):
+        image_type_dir = self.image_type.replace("_", "/")
+        if not self.config["DIST"].is_latest:
+            image_type_dir = os.path.join(self.config.series, image_type_dir)
+        if self.project == "ubuntu":
+            reldir = os.path.join(image_type_dir, date)
+        else:
+            reldir = os.path.join(self.project, image_type_dir, date)
+        return self.tree.directory, reldir
 
     @property
     def publish_type(self):
@@ -485,6 +499,25 @@ class DailyTreePublisher(Publisher):
             subprocess.check_call(
                 [os.path.join(self.config.root, "bin", "make-web-indices"),
                  target_dir_source, self.config.series, "daily"])
+
+        if (self.image_type.endswith("-live") or
+            self.image_type.endswith("dvd")):
+            # Create and publish metalink files.
+            md5sums_metalink = os.path.join(target_dir, "MD5SUMS-metalink")
+            md5sums_metalink_gpg = os.path.join(
+                target_dir, "MD5SUMS-metalink.gpg")
+            osextras.unlink_force(md5sums_metalink)
+            osextras.unlink_force(md5sums_metalink_gpg)
+            basedir, reldir = self.metalink_dirs(date)
+            if subprocess.call([
+                os.path.join(self.config.root, "bin", "make-metalink"),
+                basedir, self.config.series, reldir, "cdimage.ubuntu.com",
+                ]) == 0:
+                metalink_checksum_directory(self.config, target_dir)
+            else:
+                for name in os.listdir(target_dir):
+                    if name.endswith(".metalink"):
+                        osextras.unlink_force(os.path.join(target_dir, name))
 
         publish_current = os.path.join(self.publish_base, "current")
         osextras.unlink_force(publish_current)

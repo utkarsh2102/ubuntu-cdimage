@@ -28,19 +28,6 @@ from cdimage.atomicfile import AtomicFile
 from cdimage.sign import can_sign, sign_cdimage
 
 
-def want_image(image):
-    """Return true if and only if we want to checksum this image."""
-    if (image.endswith(".img") or
-        image.endswith(".iso") or
-        image.endswith(".exe") or
-        image.endswith(".img.gz") or
-        "vmlinuz-" in image or
-        image.endswith(".bootimg")):
-        return True
-    else:
-        return False
-
-
 def apply_sed(text, expression):
     """Run TEXT through EXPRESSION using sed.
 
@@ -145,15 +132,14 @@ class ChecksumFile:
             self.write()
 
 
-_checksum_files = {
-    "MD5SUMS": hashlib.md5,
-    "SHA1SUMS": hashlib.sha1,
-    "SHA256SUMS": hashlib.sha256,
-    }
-
-
 class ChecksumFileSet:
     """Manipulate the standard set of checksums files together."""
+
+    checksum_file_methods = {
+        "MD5SUMS": hashlib.md5,
+        "SHA1SUMS": hashlib.sha1,
+        "SHA256SUMS": hashlib.sha256,
+        }
 
     def __init__(self, config, directory, sign=True):
         self.config = config
@@ -161,7 +147,7 @@ class ChecksumFileSet:
         self.sign = sign
         self.checksum_files = [
             ChecksumFile(config, directory, filename, hash_method, sign=sign)
-            for filename, hash_method in _checksum_files.items()]
+            for filename, hash_method in self.checksum_file_methods.items()]
 
     def read(self):
         for checksum_file in self.checksum_files:
@@ -179,9 +165,22 @@ class ChecksumFileSet:
         for checksum_file in self.checksum_files:
             checksum_file.merge(directories, entry_name, possible_entry_names)
 
+    def want_image(self, image):
+        """Return true if and only if we want to checksum this image."""
+        if (image.endswith(".img") or
+            image.endswith(".iso") or
+            image.endswith(".exe") or
+            image.endswith(".img.gz") or
+            "vmlinuz-" in image or
+            image.endswith(".bootimg")):
+            return True
+        else:
+            return False
+
     def merge_all(self, old_directories, map_expr=None):
         images = sorted(
-            name for name in os.listdir(self.directory) if want_image(name))
+            name for name in os.listdir(self.directory)
+            if self.want_image(name))
         for image in images:
             image_names = [image]
             if map_expr:
@@ -206,6 +205,18 @@ class ChecksumFileSet:
             self.write()
 
 
+class MetalinkChecksumFileSet(ChecksumFileSet):
+    """Manipulate the set of checksum files for metalinks together."""
+
+    checksum_file_methods = {
+        "MD5SUMS-metalink": hashlib.md5,
+        }
+
+    def want_image(self, image):
+        """Return true if and only if we want to checksum this image."""
+        return image.endswith(".metalink")
+
+
 def checksum_directory(config, directory, old_directories=None, map_expr=None):
     if old_directories is None:
         old_directories = [directory]
@@ -215,4 +226,15 @@ def checksum_directory(config, directory, old_directories=None, map_expr=None):
     # here.
     checksum_files = ChecksumFileSet(config, directory)
     checksum_files.merge_all(old_directories, map_expr=map_expr)
+    checksum_files.write()
+
+def metalink_checksum_directory(config, directory, old_directories=None):
+    if old_directories is None:
+        old_directories = [directory]
+
+    # We don't want to read the existing checksum files directly, as they
+    # may contain stale checksums; so we don't use the context manager form
+    # here.
+    checksum_files = MetalinkChecksumFileSet(config, directory)
+    checksum_files.merge_all(old_directories)
     checksum_files.write()

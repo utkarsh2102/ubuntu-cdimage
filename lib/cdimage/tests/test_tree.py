@@ -166,6 +166,27 @@ class TestDailyTreePublisher(TestCase):
                 "kubuntu", "hoary", "daily-live"),
             self.make_publisher("kubuntu", "daily-live").publish_base)
 
+    def test_metalink_dirs(self):
+        basedir = os.path.join(self.config.root, "www", "full")
+        date = "20120912"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        self.assertEqual(
+            (basedir, os.path.join("daily-live", date)),
+            publisher.metalink_dirs(date))
+        self.config["DIST"] = Series.find_by_name("hoary")
+        self.assertEqual(
+            (basedir, os.path.join("hoary", "daily-live", date)),
+            publisher.metalink_dirs(date))
+        publisher = self.make_publisher("kubuntu", "daily-live")
+        self.config["DIST"] = Series.latest()
+        self.assertEqual(
+            (basedir, os.path.join("kubuntu", "daily-live", date)),
+            publisher.metalink_dirs(date))
+        self.config["DIST"] = Series.find_by_name("hoary")
+        self.assertEqual(
+            (basedir, os.path.join("kubuntu", "hoary", "daily-live", date)),
+            publisher.metalink_dirs(date))
+
     def test_publish_type(self):
         for image_type, project, dist, publish_type in (
             ("daily-preinstalled", "ubuntu-netbook", "precise",
@@ -373,12 +394,14 @@ class TestDailyTreePublisher(TestCase):
         bin_dir = os.path.join(self.config.root, "bin")
         os.mkdir(bin_dir)
         os.symlink("/bin/true", os.path.join(bin_dir, "make-web-indices"))
+        os.symlink("/bin/true", os.path.join(bin_dir, "make-metalink"))
         os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
         publisher.publish("20120807")
         self.assertLogEqual([
             "Publishing i386 ...",
             "Publishing i386 live manifest ...",
+            "No keys found; not signing images.",
             "No keys found; not signing images.",
             ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
