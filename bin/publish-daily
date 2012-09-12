@@ -287,6 +287,18 @@ if $IMAGES_PUBLISHED; then
 		checksum-directory --map 's/\.\(img\|iso\)$/.raw/' "$PUBLISH/source" "$CDOUT/src"
 		make-web-indices "$PUBLISH/source" "$DIST" daily
 	fi
+	case $IMAGE_TYPE in
+		*-live|*dvd)
+			# Create and publish metalink files.
+			rm -f "$PUBLISH/MD5SUMS-metalink" "$PUBLISH/MD5SUMS-metalink.gpg"
+			if make-metalink "$BASEDIR" "$DIST" "$RELDIR" cdimage.ubuntu.com; then
+				(cd "$PUBLISH" && md5sum *.metalink > MD5SUMS-metalink)
+				sign-cdimage "$PUBLISH/MD5SUMS-metalink"
+			else
+				rm -f "$PUBLISH"/*.metalink
+			fi
+			;;
+	esac
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR/current"
 
 	MANIFEST_LOCK="$CDIMAGE_ROOT/etc/.lock-manifest-daily"
