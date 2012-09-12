@@ -234,9 +234,11 @@ class TestFlavours(TestCase):
         for series in all_series[4:]:
             self.assertFlavoursEqual("generic", "i386", "xubuntu", series)
             self.assertFlavoursEqual("generic", "i386", "lubuntu", series)
-        for series in all_series[15:]:
+        self.assertFlavoursEqual(
+            "lowlatency-pae", "i386", "ubuntustudio", "precise")
+        for series in all_series[16:]:
             self.assertFlavoursEqual(
-                "lowlatency-pae", "i386", "ubuntustudio", series)
+                "lowlatency", "i386", "ubuntustudio", series)
 
     def test_ia64(self):
         for series in all_series[:4]:

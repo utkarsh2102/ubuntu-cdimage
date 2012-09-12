@@ -139,7 +139,7 @@ def flavours(config, arch):
                 return ["generic-pae"]
         else:
             if project == "ubuntustudio":
-                return ["lowlatency-pae"]
+                return ["lowlatency"]
             else:
                 return ["generic"]
     elif cpuarch == "ia64":
