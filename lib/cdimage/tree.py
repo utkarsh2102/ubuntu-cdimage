@@ -199,20 +199,21 @@ class DailyTreePublisher(Publisher):
             return os.path.join(self.tree.directory, self.project)
 
     @property
-    def publish_base(self):
+    def image_type_dir(self):
         image_type_dir = self.image_type.replace("_", "/")
         if not self.config["DIST"].is_latest:
             image_type_dir = os.path.join(self.config.series, image_type_dir)
-        return os.path.join(self.full_tree, image_type_dir)
+        return image_type_dir
+
+    @property
+    def publish_base(self):
+        return os.path.join(self.full_tree, self.image_type_dir)
 
     def metalink_dirs(self, date):
-        image_type_dir = self.image_type.replace("_", "/")
-        if not self.config["DIST"].is_latest:
-            image_type_dir = os.path.join(self.config.series, image_type_dir)
         if self.project == "ubuntu":
-            reldir = os.path.join(image_type_dir, date)
+            reldir = os.path.join(self.image_type_dir, date)
         else:
-            reldir = os.path.join(self.project, image_type_dir, date)
+            reldir = os.path.join(self.project, self.image_type_dir, date)
         return self.tree.directory, reldir
 
     @property
@@ -353,7 +354,7 @@ class DailyTreePublisher(Publisher):
             for name in osextras.listdir_force(target_dir):
                 if name.startswith("%s." % out_prefix):
                     os.unlink(os.path.join(target_dir, name))
-            return False
+            return
 
         logger.info("Publishing %s ..." % arch)
         osextras.ensuredir(target_dir)
@@ -408,7 +409,7 @@ class DailyTreePublisher(Publisher):
         else:
             osextras.unlink_force("%s.OVERSIZED" % target_prefix)
 
-        return True
+        yield os.path.join(self.project, self.image_type_dir, in_prefix)
 
     def publish_source(self, date):
         for i in count(1):
@@ -450,22 +451,22 @@ class DailyTreePublisher(Publisher):
                     "%s.iso" % target_prefix, "%s.iso.zsync" % target_prefix,
                     "%s.iso" % out_prefix)
 
-        return i > 1
+            yield os.path.join(
+                self.project, self.image_type, "%s-src" % self.config.series)
 
     def publish(self, date):
         self.new_publish_dir(date)
-        published = False
+        published = []
         self.checksum_dirs = []
         if not self.config["CDIMAGE_ONLYSOURCE"]:
             for arch in self.config.arches:
-                if self.publish_binary(self.publish_type, arch, date):
-                    published = True
+                published.extend(
+                    list(self.publish_binary(self.publish_type, arch, date)))
             if self.project == "edubuntu" and self.publish_type == "server":
                 for arch in self.config.arches:
-                    if self.publish_binary("serveraddon", arch, date):
-                        published = True
-        if self.publish_source(date):
-            published = True
+                    published.extend(
+                        list(self.publish_binary("serveraddon", arch, date)))
+        published.extend(list(self.publish_source(date)))
 
         if not published:
             logger.warning("No CDs produced!")
@@ -549,6 +550,10 @@ class DailyTreePublisher(Publisher):
                 subprocess.check_call(["date", "-u"], stdout=trace_file)
         finally:
             osextras.unlink_force(manifest_lock)
+
+        subprocess.check_call([
+            os.path.join(self.config.root, "bin", "post-qa"), date,
+            ] + published)
 
 
 class SimpleTree(Tree):

@@ -154,6 +154,13 @@ class TestDailyTreePublisher(TestCase):
             os.path.join(self.config.root, "www", "full", "kubuntu"),
             self.make_publisher("kubuntu", "daily").full_tree)
 
+    def test_image_type_dir(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        self.assertEqual("daily-live", publisher.image_type_dir)
+        self.config["DIST"] = Series.find_by_name("hoary")
+        self.assertEqual(
+            os.path.join("hoary", "daily-live"), publisher.image_type_dir)
+
     def test_publish_base(self):
         self.assertEqual(
             os.path.join(
@@ -326,7 +333,7 @@ class TestDailyTreePublisher(TestCase):
         touch(os.path.join(
             source_dir, "%s-desktop-i386.manifest" % self.config.series))
         self.capture_logging()
-        publisher.publish_binary("desktop", "i386", "20120807")
+        list(publisher.publish_binary("desktop", "i386", "20120807"))
         self.assertLogEqual([
             "Publishing i386 ...",
             "Publishing i386 live manifest ...",
@@ -355,7 +362,7 @@ class TestDailyTreePublisher(TestCase):
         touch(os.path.join(
             source_dir, "%s-src-2.template" % self.config.series))
         self.capture_logging()
-        publisher.publish_source("20120807")
+        list(publisher.publish_source("20120807"))
         self.assertLogEqual([
             "Publishing source 1 ...",
             "Publishing source 1 jigdo ...",
@@ -395,6 +402,7 @@ class TestDailyTreePublisher(TestCase):
         os.mkdir(bin_dir)
         os.symlink("/bin/true", os.path.join(bin_dir, "make-web-indices"))
         os.symlink("/bin/true", os.path.join(bin_dir, "make-metalink"))
+        os.symlink("/bin/true", os.path.join(bin_dir, "post-qa"))
         os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
         publisher.publish("20120807")
