@@ -44,8 +44,6 @@ projects = [
     "jeos",
     "kubuntu",
     "kubuntu-active",
-    "kubuntu-mobile",
-    "kubuntu-netbook",
     "lubuntu",
     "mythbuntu",
     "ubuntu",
@@ -220,8 +218,8 @@ class DailyTreePublisher(Publisher):
                     return "live"
                 else:
                     return "desktop"
-            elif self.project == "kubuntu-mobile":
-                return "mobile"
+            elif self.project == "kubuntu-active":
+                return "active"
             elif self.project == "ubuntu-mid":
                 return "mid"
             elif self.project == "ubuntu-moblin-remix":

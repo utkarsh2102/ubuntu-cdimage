@@ -82,8 +82,8 @@ case $MODE in
 					SHIP=server-ship
 				fi
 				;;
-			kubuntu-mobile)
-				SHIP=mobile-ship
+			kubuntu-active)
+				SHIP=active-ship
 				;;
 		esac
 		inheritance "$SHIP"
@@ -128,11 +128,8 @@ case $MODE in
 		;;
 	ship-live)
 		case $PROJECT in
-			kubuntu-netbook)
-				echo 'ship-netbook-live'
-				;;
-			kubuntu-mobile)
-				echo 'ship-mobile-live'
+			kubuntu-active)
+				echo 'ship-active-live'
 				;;
 			ubuntu-server)
 				seeds="$(inheritance server-ship)"

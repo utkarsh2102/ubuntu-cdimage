@@ -178,7 +178,7 @@ class TestDailyTreePublisher(TestCase):
              "preinstalled-desktop"),
             ("daily-live", "edubuntu", "edgy", "live"),
             ("daily-live", "edubuntu", "feisty", "desktop"),
-            ("daily-live", "kubuntu-mobile", "hardy", "mobile"),
+            ("daily-live", "kubuntu-active", "precise", "active"),
             ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
             ("daily-live", "ubuntu-mid", "lucid", "mid"),
             ("daily-live", "ubuntu-moblin-remix", "lucid", "moblin-remix"),
