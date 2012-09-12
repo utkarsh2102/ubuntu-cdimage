@@ -102,7 +102,7 @@ if [ -z "$CDIMAGE_NOCOPY" ] && \
 	        "$PUBLISH/" 2>/dev/null || true
 fi
 
-IMAGES_PUBLISHED=false
+IMAGES_PUBLISHED=
 CHECKSUM_DIRS=
 
 publish_binary () {
@@ -215,7 +215,7 @@ publish_binary () {
 			rm -f "$PUBLISH/$DIST-$TYPE-$arch.OVERSIZED"
 		fi
 
-		IMAGES_PUBLISHED=:
+		IMAGES_PUBLISHED="${IMAGES_PUBLISHED:+$IMAGES_PUBLISHED }$PROJECT/$IMAGE_TYPE_DIR/$DIST-$TYPE-$arch"
 	else
 		echo "No $TYPE CD for $arch!" >&2
 		rm -f "$PUBLISH/$DIST-$TYPE-$arch".*
@@ -264,7 +264,7 @@ while [ -e "$CDOUT/src/$DIST-src-$i.raw" ]; do
 			"$PUBLISH/source/$DIST-src-$i.iso"
 	fi
 
-	IMAGES_PUBLISHED=:
+	IMAGES_PUBLISHED="${IMAGES_PUBLISHED:+$IMAGES_PUBLISHED }$PROJECT/$IMAGE_TYPE/$DIST-src"
 
 	i="$(($i + 1))"
 done
@@ -277,7 +277,7 @@ if [ "$i" != 1 ]; then
 	done
 fi
 
-if $IMAGES_PUBLISHED; then
+if [ "$IMAGES_PUBLISHED" ]; then
 	rm -f "$PUBLISH/report.html"
 	if [ "$CDIMAGE_INSTALL_BASE" ] && [ -e "$BRITNEY_REPORT/${DIST}_probs.html" ]; then
 		cp -a "$BRITNEY_REPORT/${DIST}_probs.html" "$PUBLISH/report.html"
