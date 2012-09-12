@@ -6,14 +6,14 @@ set -e
 # requested package/version is available.
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
+. "$CDIMAGE_ROOT/etc/config"
 
 FTPDIR=ftp
-ANONFTPSYNC_CONF=$CDIMAGE_ROOT/etc/anonftpsync
+ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync"
 export ANONFTPSYNC_CONF
 
 ARCH=i386
 COMPONENT=main
-DIST=lucid
 
 while [ $# -gt 0 ]; do
 	case $1 in
