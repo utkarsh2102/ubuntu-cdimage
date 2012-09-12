@@ -165,9 +165,20 @@ class TestDailyTreePublisher(TestCase):
 
     def test_publish_type(self):
         for image_type, project, dist, publish_type in (
+            ("daily-preinstalled", "ubuntu-netbook", "precise",
+             "preinstalled-netbook"),
+            ("daily-preinstalled", "ubuntu-headless", "precise",
+             "preinstalled-headless"),
+            ("daily-preinstalled", "ubuntu-server", "precise",
+             "preinstalled-server"),
+            ("daily-preinstalled", "ubuntu", "precise",
+             "preinstalled-desktop"),
             ("daily-live", "edubuntu", "edgy", "live"),
             ("daily-live", "edubuntu", "feisty", "desktop"),
             ("daily-live", "kubuntu-mobile", "hardy", "mobile"),
+            ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
+            ("daily-live", "ubuntu-mid", "lucid", "mid"),
+            ("daily-live", "ubuntu-moblin-remix", "lucid", "moblin-remix"),
             ("daily-live", "ubuntu-netbook", "hardy", "netbook"),
             ("daily-live", "ubuntu-server", "hardy", "live"),
             ("daily-live", "ubuntu", "breezy", "live"),
@@ -178,6 +189,8 @@ class TestDailyTreePublisher(TestCase):
             ("daily", "edubuntu", "feisty", "server"),
             ("daily", "edubuntu", "gutsy", "server"),
             ("daily", "edubuntu", "hardy", "addon"),
+            ("daily", "jeos", "hardy", "jeos"),
+            ("daily", "ubuntu-core", "precise", "core"),
             ("daily", "ubuntu-server", "breezy", "install"),
             ("daily", "ubuntu-server", "dapper", "server"),
             ("daily", "ubuntu", "breezy", "install"),
@@ -190,6 +203,9 @@ class TestDailyTreePublisher(TestCase):
     def test_size_limit(self):
         for project, dist, image_type, size_limit in (
             ("ubuntustudio", None, "dvd", 4700372992),
+            ("ubuntu-mid", None, "daily-live", 1073741824),
+            ("ubuntu-moblin-remix", None, "daily-live", 1073741824),
+            ("kubuntu-active", None, "daily-live", 1073741824),
             ("kubuntu", None, "daily-live", 1000000000),
             ("ubuntu", None, "dvd", 4700372992),
             ("ubuntu", "precise", "daily-live", 736665600),

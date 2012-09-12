@@ -201,7 +201,16 @@ class DailyTreePublisher(Publisher):
 
     @property
     def publish_type(self):
-        if self.image_type.endswith("-live"):
+        if self.image_type.endswith("-preinstalled"):
+            if self.project == "ubuntu-netbook":
+                return "preinstalled-netbook"
+            elif self.project == "ubuntu-headless":
+                return "preinstalled-headless"
+            elif self.project == "ubuntu-server":
+                return "preinstalled-server"
+            else:
+                return "preinstalled-desktop"
+        elif self.image_type.endswith("-live"):
             if self.project == "edubuntu":
                 if self.config["DIST"] <= "edgy":
                     return "live"
@@ -209,7 +218,11 @@ class DailyTreePublisher(Publisher):
                     return "desktop"
             elif self.project == "kubuntu-mobile":
                 return "mobile"
-            elif self.project == "ubuntu-netbook":
+            elif self.project == "ubuntu-mid":
+                return "mid"
+            elif self.project == "ubuntu-moblin-remix":
+                return "moblin-remix"
+            elif self.project in ("ubuntu-netbook", "kubuntu-netbook"):
                 return "netbook"
             elif self.project == "ubuntu-server":
                 return "live"
@@ -233,6 +246,10 @@ class DailyTreePublisher(Publisher):
                     return "install"
                 else:
                     return "server"
+            elif self.project == "jeos":
+                return "jeos"
+            elif self.project == "ubuntu-core":
+                return "core"
             else:
                 if self.config["DIST"] <= "breezy":
                     return "install"
@@ -244,6 +261,11 @@ class DailyTreePublisher(Publisher):
         if self.project == "ubuntustudio":
             # Ubuntu Studio is always DVD-sized for now.
             return 4700372992
+        elif self.project in (
+            "ubuntu-mid", "ubuntu-moblin-remix", "kubuntu-active"):
+            # Mobile images are designed for USB drives; arbitrarily pick
+            # 1GB as a limit.
+            return 1024 * 1024 * 1024
         elif self.project == "kubuntu":
             # Kubuntu limit of 1GB [quantal]
             return 1000000000
