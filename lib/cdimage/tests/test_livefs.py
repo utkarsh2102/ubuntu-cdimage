@@ -255,12 +255,19 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual("lpia", "lpia", "ubuntu", series)
 
     def test_powerpc(self):
-        for series in all_series:
+        for series in all_series[:15]:
             self.assertFlavoursEqual(
                 "powerpc powerpc64-smp", "powerpc", "ubuntu", series)
+        for series in all_series[15:]:
+            self.assertFlavoursEqual(
+                "powerpc-smp powerpc64-smp", "powerpc", "ubuntu", series)
         self.assertFlavoursEqual("cell", "powerpc+ps3", "ubuntu", "gutsy")
-        self.assertFlavoursEqual(
-            "powerpc powerpc64-smp", "powerpc+ps3", "ubuntu", "hardy")
+        for series in all_series[7:15]:
+            self.assertFlavoursEqual(
+                "powerpc powerpc64-smp", "powerpc+ps3", "ubuntu", "hardy")
+        for series in all_series[15:]:
+            self.assertFlavoursEqual(
+                "powerpc-smp powerpc64-smp", "powerpc+ps3", "ubuntu", series)
 
     def test_sparc(self):
         for series in all_series:

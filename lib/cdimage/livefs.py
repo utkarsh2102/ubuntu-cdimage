@@ -154,8 +154,10 @@ def flavours(config, arch):
     elif cpuarch == "powerpc":
         if subarch == "ps3" and series <= "gutsy":
             return ["cell"]
-        else:
+        elif series <= "oneiric":
             return ["powerpc", "powerpc64-smp"]
+        else:
+            return ["powerpc-smp", "powerpc64-smp"]
     elif cpuarch == "sparc":
         return ["sparc64"]
     else:
