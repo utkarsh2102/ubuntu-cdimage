@@ -45,7 +45,10 @@ class TestTree(TestCase):
     def test_manifest_file_allowed_passes_good_extensions(self):
         paths = [
             os.path.join(self.temp_dir, name)
-            for name in ("foo.iso", "foo.img")]
+            for name in (
+                "foo.iso", "foo.img", "foo.img.gz",
+                "foo.tar.gz", "foo.tar.xz",
+                )]
         for path in paths:
             touch(path)
             self.assertTrue(self.tree.manifest_file_allowed(path))
