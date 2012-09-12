@@ -22,6 +22,7 @@ __metaclass__ = type
 from cdimage.config import Config, Series
 from cdimage.livefs import (
     flavours,
+    live_builder,
     live_item_paths,
     live_project,
     livecd_base,
@@ -115,6 +116,47 @@ class TestLiveProject(TestCase):
                 "ubuntustudio-dvd", "ubuntustudio", series, cdimage_dvd="1")
 
 
+class TestLiveBuilder(TestCase):
+    def assertBuilderEqual(self, expected, arch, series):
+        config = Config(read=False)
+        config["DIST"] = Series.find_by_name(series)
+        self.assertEqual(expected, live_builder(config, arch))
+
+    def test_amd64(self):
+        for series in all_series:
+            self.assertBuilderEqual("kapok.buildd", "amd64", series)
+
+    def test_armel(self):
+        for series in all_series:
+            self.assertBuilderEqual("manoao.buildd", "armel", series)
+
+    def test_hppa(self):
+        for series in all_series:
+            self.assertBuilderEqual("castilla.buildd", "hppa", series)
+
+    def test_i386(self):
+        for series in all_series:
+            self.assertBuilderEqual("cardamom.buildd", "i386", series)
+
+    def test_ia64(self):
+        for series in all_series:
+            self.assertBuilderEqual("weddell.buildd", "ia64", series)
+
+    def test_lpia(self):
+        for series in all_series[:8]:
+            self.assertBuilderEqual("cardamom.buildd", "lpia", series)
+        for series in all_series[8:]:
+            self.assertBuilderEqual("concordia.buildd", "lpia", series)
+
+    def test_powerpc(self):
+        for series in all_series:
+            self.assertBuilderEqual("royal.buildd", "powerpc", series)
+
+    def test_sparc(self):
+        for series in all_series:
+            self.assertBuilderEqual("vivies.buildd", "sparc", series)
+
+
 class TestLiveCDBase(TestCase):
     def assertBaseEqual(self, expected, arch, project, series, **kwargs):
         config = Config(read=False)
@@ -138,57 +180,11 @@ class TestLiveCDBase(TestCase):
             "ftp://blah/quantal/ubuntu/current", "i386", "ubuntu", "quantal",
             livecd="ftp://blah")
 
-    def test_amd64(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("kapok.buildd", "ubuntu", series),
-                "amd64", "ubuntu", series)
-
-    def test_armel(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("manoao.buildd", "ubuntu", series),
-                "armel", "ubuntu", series)
-
-    def test_hppa(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("castilla.buildd", "ubuntu", series),
-                "hppa", "ubuntu", series)
-
-    def test_i386(self):
+    def test_no_subarch(self):
         for series in all_series:
             self.assertBaseEqual(
                 self.base("cardamom.buildd", "ubuntu", series),
                 "i386", "ubuntu", series)
-
-    def test_ia64(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("weddell.buildd", "ubuntu", series),
-                "ia64", "ubuntu", series)
-
-    def test_lpia(self):
-        for series in all_series[:8]:
-            self.assertBaseEqual(
-                self.base("cardamom.buildd", "ubuntu", series),
-                "lpia", "ubuntu", series)
-        for series in all_series[8:]:
-            self.assertBaseEqual(
-                self.base("concordia.buildd", "ubuntu", series),
-                "lpia", "ubuntu", series)
-
-    def test_powerpc(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("royal.buildd", "ubuntu", series),
-                "powerpc", "ubuntu", series)
-
-    def test_sparc(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("vivies.buildd", "ubuntu", series),
-                "sparc", "ubuntu", series)
 
     def test_subarch(self):
         self.assertBaseEqual(

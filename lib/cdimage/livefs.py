@@ -45,6 +45,34 @@ def split_arch(arch):
     return cpuarch, subarch
 
 
+def live_builder(config, arch):
+    cpuarch, subarch = split_arch(arch)
+    series = config["DIST"]
+
+    if cpuarch == "amd64":
+        return "kapok.buildd"
+    elif cpuarch == "armel":
+        return "manoao.buildd"
+    elif cpuarch == "hppa":
+        return "castilla.buildd"
+    elif cpuarch == "i386":
+        return "cardamom.buildd"
+    elif cpuarch == "ia64":
+        return "weddell.buildd"
+    elif cpuarch == "lpia":
+        if series <= "hardy":
+            return "cardamom.buildd"
+        else:
+            return "concordia.buildd"
+    elif cpuarch == "powerpc":
+        return "royal.buildd"
+    elif cpuarch == "sparc":
+        return "vivies.buildd"
+    else:
+        raise UnknownArchitecture(
+            "No live filesystem builder known for %s" % arch)
+
+
 def live_project(config):
     project = config["PROJECT"]
     series = config["DIST"]
@@ -71,33 +99,10 @@ def livecd_base(config, arch):
     project = config["PROJECT"]
     series = config["DIST"]
 
-    if cpuarch == "amd64":
-        builder = "kapok.buildd"
-    elif cpuarch == "armel":
-        builder = "manoao.buildd"
-    elif cpuarch == "hppa":
-        builder = "castilla.buildd"
-    elif cpuarch == "i386":
-        builder = "cardamom.buildd"
-    elif cpuarch == "ia64":
-        builder = "weddell.buildd"
-    elif cpuarch == "lpia":
-        if series <= "hardy":
-            builder = "cardamom.buildd"
-        else:
-            builder = "concordia.buildd"
-    elif cpuarch == "powerpc":
-        builder = "royal.buildd"
-    elif cpuarch == "sparc":
-        builder = "vivies.buildd"
-    else:
-        raise UnknownArchitecture(
-            "No live filesystem source known for %s" % arch)
-
     if config["LIVECD"]:
         root = config["LIVECD"]
     else:
-        root = "http://%s/~buildd/LiveCD" % builder
+        root = "http://%s/~buildd/LiveCD" % live_builder(config, arch)
 
     liveproject = live_project(config)
     if subarch:
