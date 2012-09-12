@@ -323,6 +323,8 @@ if $IMAGES_PUBLISHED; then
 
 	rm -f "$MANIFEST_LOCK"
 	trap - exit
+
+	post-qa "$DATE" $IMAGES_PUBLISHED
 else
 	echo "No CDs produced!" >&2
 fi
