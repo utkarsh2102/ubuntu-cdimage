@@ -259,7 +259,8 @@ class DailyTreePublisher(Publisher):
 
     @property
     def size_limit(self):
-        if self.project == "ubuntustudio":
+        if self.project in ("edubuntu", "ubuntustudio"):
+            # All Edubuntu images are DVD sized (including arm).
             # Ubuntu Studio is always DVD-sized for now.
             return 4700372992
         elif self.project in (

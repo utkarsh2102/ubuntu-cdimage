@@ -204,6 +204,8 @@ class TestDailyTreePublisher(TestCase):
 
     def test_size_limit(self):
         for project, dist, image_type, size_limit in (
+            ("edubuntu", None, "daily-preinstalled", 4700372992),
+            ("edubuntu", None, "dvd", 4700372992),
             ("ubuntustudio", None, "dvd", 4700372992),
             ("ubuntu-mid", None, "daily-live", 1073741824),
             ("ubuntu-moblin-remix", None, "daily-live", 1073741824),
