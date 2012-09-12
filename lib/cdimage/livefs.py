@@ -72,18 +72,18 @@ def livecd_base(config, arch):
     series = config["DIST"]
 
     if cpuarch == "amd64":
-        builder = "king.buildd"
+        builder = "kapok.buildd"
     elif cpuarch == "armel":
         builder = "manoao.buildd"
     elif cpuarch == "hppa":
         builder = "castilla.buildd"
     elif cpuarch == "i386":
-        builder = "terranova.buildd"
+        builder = "cardamom.buildd"
     elif cpuarch == "ia64":
         builder = "weddell.buildd"
     elif cpuarch == "lpia":
         if series <= "hardy":
-            builder = "terranova.buildd"
+            builder = "cardamom.buildd"
         else:
             builder = "concordia.buildd"
     elif cpuarch == "powerpc":

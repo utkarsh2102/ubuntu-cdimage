@@ -141,7 +141,7 @@ class TestLiveCDBase(TestCase):
     def test_amd64(self):
         for series in all_series:
             self.assertBaseEqual(
-                self.base("king.buildd", "ubuntu", series),
+                self.base("kapok.buildd", "ubuntu", series),
                 "amd64", "ubuntu", series)
 
     def test_armel(self):
@@ -159,7 +159,7 @@ class TestLiveCDBase(TestCase):
     def test_i386(self):
         for series in all_series:
             self.assertBaseEqual(
-                self.base("terranova.buildd", "ubuntu", series),
+                self.base("cardamom.buildd", "ubuntu", series),
                 "i386", "ubuntu", series)
 
     def test_ia64(self):
@@ -171,7 +171,7 @@ class TestLiveCDBase(TestCase):
     def test_lpia(self):
         for series in all_series[:8]:
             self.assertBaseEqual(
-                self.base("terranova.buildd", "ubuntu", series),
+                self.base("cardamom.buildd", "ubuntu", series),
                 "lpia", "ubuntu", series)
         for series in all_series[8:]:
             self.assertBaseEqual(
@@ -299,7 +299,7 @@ class TestLiveItemPaths(TestCase):
             "manifest-remove", "size", "tar.xz",
             ):
             self.assertPathsEqual(
-                ["http://king.buildd/~buildd/LiveCD/precise/kubuntu/"
+                ["http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/"
                  "current/livecd.kubuntu.%s" % item],
                 "amd64", item, "kubuntu", "precise")
             self.assertPathsEqual(
@@ -309,7 +309,7 @@ class TestLiveItemPaths(TestCase):
 
     def test_kernel_items(self):
         for item in ("kernel", "initrd", "bootimg"):
-            root = "http://king.buildd/~buildd/LiveCD/precise/kubuntu/current"
+            root = "http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/current"
             self.assertPathsEqual(
                 ["%s/livecd.kubuntu.%s-generic" % (root, item)],
                 "amd64", item, "kubuntu", "precise")
@@ -363,7 +363,7 @@ class TestLiveItemPaths(TestCase):
 
     def test_ltsp_squashfs(self):
         for series in all_series:
-            path = ("http://terranova.buildd/~buildd/LiveCD/%s/edubuntu/"
+            path = ("http://cardamom.buildd/~buildd/LiveCD/%s/edubuntu/"
                     "current/livecd.edubuntu-ltsp.squashfs" % series)
             self.assertPathsEqual(
                 [path], "amd64", "ltsp-squashfs", "edubuntu", series)
