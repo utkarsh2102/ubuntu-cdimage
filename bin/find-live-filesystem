@@ -30,9 +30,9 @@ from cdimage.livefs import live_item_paths, NoLiveItem
 
 def main():
     parser = OptionParser(
-        "%prog ARCH cloop|squashfs|kernel|initrd|manifest|manifest-desktop|"
-        "manifest-remove|size|winfoss|wubi|umenu|usb-creator|ltsp-squashfs|"
-        "tar.xz")
+        "%prog ARCH cloop|squashfs|kernel|initrd|bootimg|"
+        "manifest|manifest-desktop|manifest-remove|"
+        "size|winfoss|wubi|umenu|usb-creator|ltsp-squashfs|tar.xz")
     options, args = parser.parse_args()
     if len(args) < 2:
         parser.error("need architecture and item")
