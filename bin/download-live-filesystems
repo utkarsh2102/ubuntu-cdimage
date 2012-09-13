@@ -4,14 +4,21 @@ set -e
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
-LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live"
+LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT${UBUNTU_DEFAULTS_LOCALE:+-$UBUNTU_DEFAULTS_LOCALE}/$IMAGE_TYPE/live"
 
 mkemptydir "$LIVE_OUT"
 
 if [ "$CDIMAGE_LIVE" ]; then
 	GOT_IMAGE=0
 	for arch in $ARCHES; do
-		if fetch "$(find-live-filesystem "$arch" cloop)" \
+		if [ "$UBUNTU_DEFAULTS_LOCALE" ]; then
+			if fetch "$(find-live-filesystem "$arch" iso)" \
+					"$LIVE_OUT/$arch.iso"; then
+				GOT_IMAGE=1
+			else
+				continue
+			fi
+		elif fetch "$(find-live-filesystem "$arch" cloop)" \
 				"$LIVE_OUT/$arch.cloop"; then
 			GOT_IMAGE=1
 		elif fetch "$(find-live-filesystem "$arch" squashfs)" \
@@ -43,6 +50,10 @@ if [ "$CDIMAGE_LIVE" ]; then
 				"$LIVE_OUT/$arch.manifest-desktop" || true
 		fetch "$(find-live-filesystem "$arch" size)" \
 			"$LIVE_OUT/$arch.size" || true
+
+		if [ "$UBUNTU_DEFAULTS_LOCALE" ]; then
+			continue
+		fi
 
 		if [ "$PROJECT" != livecd-base ] && \
 		   [ "$PROJECT" != ubuntu-core ] && \

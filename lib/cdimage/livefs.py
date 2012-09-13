@@ -126,6 +126,8 @@ def livecd_base(config, arch):
         liveproject += "-%s" % config["SUBPROJECT"]
     if subarch:
         liveproject += "-%s" % subarch
+    if config["UBUNTU_DEFAULTS_LOCALE"]:
+        liveproject += "-%s" % config["UBUNTU_DEFAULTS_LOCALE"]
 
     return "%s/%s/%s/current" % (root, series, liveproject)
 
@@ -273,7 +275,7 @@ def live_item_paths(config, arch, item):
 
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
-        "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "tar.xz",
+        "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "tar.xz", "iso",
         ):
         if project == "tocd3":
             # auto-purged - reverting to plan B

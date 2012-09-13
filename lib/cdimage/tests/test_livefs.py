@@ -219,6 +219,12 @@ class TestLiveCDBase(TestCase):
             self.base("annonaceae.buildd", "ubuntu-server-omap", "oneiric"),
             "armel+omap", "ubuntu-server", "oneiric")
 
+    def test_ubuntu_defaults_locale(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("cardamom.buildd", "ubuntu-zh_CN", series),
+                "i386", "ubuntu", series, ubuntu_defaults_locale="zh_CN")
+
 
 class TestFlavours(TestCase):
     def assertFlavoursEqual(self, expected, arch, project, series):
@@ -337,7 +343,7 @@ class TestLiveItemPaths(TestCase):
         for item in (
             "cloop", "squashfs", "manifest", "manifest-desktop",
             "manifest-remove", "size", "ext2", "ext3", "ext4", "rootfs.tar.gz",
-            "tar.xz",
+            "tar.xz", "iso",
             ):
             self.assertPathsEqual(
                 ["http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/"

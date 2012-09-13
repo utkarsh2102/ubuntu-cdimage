@@ -18,6 +18,8 @@ ubuntu-server		*			karmic			amd64 i386 ia64 powerpc powerpc+ps3 sparc
 
 ubuntu-wubi		*			*			amd64 i386
 
+ubuntu-zh_CN		*			*			amd64 i386
+
 ubuntustudio		*			warty-edgy		amd64 i386 powerpc
 ubuntustudio		*			*			amd64 i386
 
