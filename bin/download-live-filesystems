@@ -6,25 +6,6 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 
 LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live"
 
-fetch () {
-	case $1 in
-		'')
-			return 1
-			;;
-		/*)
-			ln "$1" "$2"
-			;;
-		*)
-			ret=0
-			wget -nv "$1" -O "$2" || ret=$?
-			if [ "$ret" -ne 0 ]; then
-				rm -f "$2"
-			fi
-			return $ret
-			;;
-	esac
-}
-
 mkemptydir "$LIVE_OUT"
 
 if [ "$CDIMAGE_LIVE" ]; then
