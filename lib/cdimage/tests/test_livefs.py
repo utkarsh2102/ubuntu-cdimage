@@ -128,7 +128,7 @@ class TestLiveBuilder(TestCase):
 
     def test_armel(self):
         for series in all_series:
-            self.assertBuilderEqual("manoao.buildd", "armel", series)
+            self.assertBuilderEqual("annonaceae.buildd", "armel", series)
 
     def test_hppa(self):
         for series in all_series:
@@ -191,7 +191,7 @@ class TestLiveCDBase(TestCase):
             self.base("royal.buildd", "ubuntu-ps3", "gutsy"),
             "powerpc+ps3", "ubuntu", "gutsy")
         self.assertBaseEqual(
-            self.base("manoao.buildd", "ubuntu-server-omap", "oneiric"),
+            self.base("annonaceae.buildd", "ubuntu-server-omap", "oneiric"),
             "armel+omap", "ubuntu-server", "oneiric")
 
 

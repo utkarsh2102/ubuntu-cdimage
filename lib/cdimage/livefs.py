@@ -52,7 +52,7 @@ def live_builder(config, arch):
     if cpuarch == "amd64":
         return "kapok.buildd"
     elif cpuarch == "armel":
-        return "manoao.buildd"
+        return "annonaceae.buildd"
     elif cpuarch == "hppa":
         return "castilla.buildd"
     elif cpuarch == "i386":
