@@ -271,7 +271,7 @@ def live_item_paths(config, arch, item):
 
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
-        "size", "tar.xz",
+        "size", "ext2", "ext3", "ext4", "tar.xz",
         ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
