@@ -1,9 +1,9 @@
 #! /usr/bin/python
 
-import sys
-import os
 import HTMLParser
+import os
 import subprocess
+import sys
 
 
 root = '/srv/cdimage.ubuntu.com'
