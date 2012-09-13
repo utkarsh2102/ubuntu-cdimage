@@ -1,6 +1,10 @@
 #! /bin/sh
 set -e
 
+DATE="$1"
+PROJECT="${2:-livecd-base}"
+IMAGE_TYPE="${2:-$PROJECT}"
+
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
@@ -8,9 +12,6 @@ if [ -z "$1" ]; then
 	echo 'Usage: publish-livecd-base DATE [IMAGE_TYPE]' >&2
 	exit 1
 fi
-
-DATE="$1"
-IMAGE_TYPE="${2:-livecd-base}"
 
 LIVE="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live"
 
@@ -60,5 +61,5 @@ if [ -d "$PUBLISH" ]; then
 	sign-cdimage "$PUBLISH/SHA256SUMS"
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/full/$IMAGE_TYPE/current"
 else
-	echo "No cloops produced!" >&2
+	echo "No images produced!" >&2
 fi

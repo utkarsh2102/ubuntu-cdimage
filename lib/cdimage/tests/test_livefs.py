@@ -330,7 +330,8 @@ class TestLiveItemPaths(TestCase):
     def test_desktop_items(self):
         for item in (
             "cloop", "squashfs", "manifest", "manifest-desktop",
-            "manifest-remove", "size", "ext2", "ext3", "ext4", "tar.xz",
+            "manifest-remove", "size", "ext2", "ext3", "ext4", "rootfs.tar.gz",
+            "tar.xz",
             ):
             self.assertPathsEqual(
                 ["http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/"

@@ -36,13 +36,16 @@ if [ "$CDIMAGE_LIVE" ]; then
 		elif fetch "$(find-live-filesystem "$arch" squashfs)" \
 				"$LIVE_OUT/$arch.squashfs"; then
 			GOT_IMAGE=1
+		elif fetch "$(find-live-filesystem "$arch" rootfs.tar.gz)" \
+				"$LIVE_OUT/$arch.rootfs.tar.gz"; then
+			GOT_IMAGE=1
 		elif fetch "$(find-live-filesystem "$arch" tar.xz)" \
 				"$LIVE_OUT/$arch.tar.xz"; then
 			GOT_IMAGE=1
 		else
 			continue
 		fi
-		if dist_ge dapper; then
+		if dist_ge dapper && [ "$PROJECT" != ubuntu-core ]; then
 			for item in kernel initrd; do
 				for url in $(find-live-filesystem "$arch" "$item"); do
 					flavour="${url##*/}"
@@ -61,6 +64,7 @@ if [ "$CDIMAGE_LIVE" ]; then
 			"$LIVE_OUT/$arch.size" || true
 
 		if [ "$PROJECT" != livecd-base ] && \
+		   [ "$PROJECT" != ubuntu-core ] && \
 		   ([ "$PROJECT" != edubuntu ] || dist_ge precise) && \
 		   [ "$PROJECT" != kubuntu-active ]; then
 			if dist_le feisty; then
@@ -116,7 +120,7 @@ EOF
 				fetch "$(find-live-filesystem "$arch" usb-creator)" \
 					"$LIVE_OUT/$arch.usb-creator.exe" || true
 				;;
-			livecd-base|edubuntu)
+			livecd-base|ubuntu-core|edubuntu)
 				;;
 			*)
 				if [ "$CDIMAGE_DVD" ]; then
