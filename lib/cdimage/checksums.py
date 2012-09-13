@@ -171,8 +171,12 @@ class ChecksumFileSet:
             image.endswith(".iso") or
             image.endswith(".exe") or
             image.endswith(".img.gz") or
-            "vmlinuz-" in image or
-            image.endswith(".bootimg")):
+            image.endswith(".img.tar.gz") or
+            "-vmlinuz-" in image or
+            "-initrd-" in image or
+            image.endswith(".tar.gz") or
+            image.endswith(".bootimg") or
+            image.endswith(".tar.xz")):
             return True
         else:
             return False
