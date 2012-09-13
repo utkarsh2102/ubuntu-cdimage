@@ -199,6 +199,12 @@ class TestLiveCDBase(TestCase):
             "ftp://blah/quantal/ubuntu/current", "i386", "ubuntu", "quantal",
             livecd="ftp://blah")
 
+    def test_subproject(self):
+        for series in all_series:
+            self.assertBaseEqual(
+                self.base("cardamom.buildd", "ubuntu-wubi", series),
+                "i386", "ubuntu", series, subproject="wubi")
+
     def test_no_subarch(self):
         for series in all_series:
             self.assertBaseEqual(

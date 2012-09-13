@@ -122,6 +122,8 @@ def livecd_base(config, arch):
         root = "http://%s/~buildd/LiveCD" % live_builder(config, arch)
 
     liveproject = live_project(config)
+    if config["SUBPROJECT"]:
+        liveproject += "-%s" % config["SUBPROJECT"]
     if subarch:
         liveproject += "-%s" % subarch
 
