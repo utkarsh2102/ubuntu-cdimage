@@ -117,9 +117,11 @@ class TestLiveProject(TestCase):
 
 
 class TestLiveBuilder(TestCase):
-    def assertBuilderEqual(self, expected, arch, series):
+    def assertBuilderEqual(self, expected, arch, series, project=None):
         config = Config(read=False)
         config["DIST"] = Series.find_by_name(series)
+        if project is not None:
+            config["PROJECT"] = project
         self.assertEqual(expected, live_builder(config, arch))
 
     def test_amd64(self):
@@ -129,6 +131,23 @@ class TestLiveBuilder(TestCase):
     def test_armel(self):
         for series in all_series:
             self.assertBuilderEqual("annonaceae.buildd", "armel", series)
+
+    def test_armhf(self):
+        for series in all_series:
+            self.assertBuilderEqual(
+                "celbalrai.buildd", "armhf+omap4", series, project="ubuntu")
+            self.assertBuilderEqual(
+                "celbalrai.buildd", "armhf+omap", series, project="ubuntu")
+            self.assertBuilderEqual(
+                "celbalrai.buildd", "armhf+mx5", series, project="ubuntu")
+            self.assertBuilderEqual(
+                "celbalrai.buildd", "armhf+omap4", series,
+                project="ubuntu-server")
+            self.assertBuilderEqual(
+                "celbalrai.buildd", "armhf+omap", series,
+                project="ubuntu-server")
+            self.assertBuilderEqual(
+                "celbalrai.buildd", "armhf+somethingelse", series)
 
     def test_hppa(self):
         for series in all_series:
@@ -220,6 +239,12 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual(
                 "linaro-lt-mx5", "armel+mx5", "ubuntu", series)
             self.assertFlavoursEqual("omap", "armel+omap", "ubuntu", series)
+
+    def test_armhf(self):
+        for series in all_series:
+            self.assertFlavoursEqual(
+                "linaro-lt-mx5", "armhf+mx5", "ubuntu", series)
+            self.assertFlavoursEqual("omap4", "armhf+omap4", "ubuntu", series)
 
     def test_hppa(self):
         for series in all_series:

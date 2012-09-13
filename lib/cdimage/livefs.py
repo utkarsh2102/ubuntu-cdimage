@@ -47,12 +47,29 @@ def split_arch(arch):
 
 def live_builder(config, arch):
     cpuarch, subarch = split_arch(arch)
+    project = config["PROJECT"]
     series = config["DIST"]
 
     if cpuarch == "amd64":
         return "kapok.buildd"
     elif cpuarch == "armel":
         return "annonaceae.buildd"
+    elif cpuarch == "armhf":
+        # TODO: These builders should be separated out again; or, better,
+        # moved into the LP build farm.
+        if project == "ubuntu":
+            if subarch == "omap4":
+                return "celbalrai.buildd"
+            elif subarch == "omap":
+                return "celbalrai.buildd"
+            elif subarch == "mx5":
+                return "celbalrai.buildd"
+        elif project == "ubuntu-server":
+            if subarch == "omap4":
+                return "celbalrai.buildd"
+            elif subarch == "omap":
+                return "celbalrai.buildd"
+        return "celbalrai.buildd"
     elif cpuarch == "hppa":
         return "castilla.buildd"
     elif cpuarch == "i386":
@@ -137,6 +154,11 @@ def flavours(config, arch):
                 # Assume one kernel flavour for each subarch named like the
                 # subarch.
                 return [subarch]
+    elif cpuarch == "armhf":
+        if subarch == "mx5":
+            return ["linaro-lt-mx5"]
+        else:
+            return [subarch]
     elif cpuarch == "hppa":
         return ["hppa32", "hppa64"]
     elif cpuarch == "i386":
