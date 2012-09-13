@@ -107,8 +107,11 @@ class TestCheckInstallable(TestCase):
         with open(status_path, "w") as status:
             print(fake_packages, end="", file=status)
         os.makedirs(live)
-        subprocess.check_call(
-            ["mksquashfs", squashfs_dir, os.path.join(live, "i386.squashfs")])
+        with open("/dev/null", "w") as devnull:
+            subprocess.check_call(
+                ["mksquashfs", squashfs_dir,
+                 os.path.join(live, "i386.squashfs")],
+                stdout=devnull)
         self.capture_logging()
         _prepare_check_installable(self.config)
         self.assertLogEqual([])
