@@ -1,5 +1,3 @@
-#! /usr/bin/python
-
 # Copyright (C) 2012 Canonical Ltd.
 # Author: Colin Watson <cjwatson@ubuntu.com>
 
@@ -15,19 +13,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Check package installability on images."""
+"""Logging for cdimage programs."""
 
-import os
+__metaclass__ = type
+
+import logging
 import sys
 
-sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.check_installable import check_installable
-from cdimage.config import config
+
+class CDImageLogger(logging.Formatter):
+    """Format messages in cdimage's preferred style."""
+
+    def format(self, record):
+        return record.getMessage()
 
 
-def main():
-    check_installable(config)
-
-
-if __name__ == "__main__":
-    main()
+logging.basicConfig()
+logger = logging.getLogger("cdimage")
+if not logger.handlers:
+    logger.setLevel(logging.INFO)
+    # TODO: errors (and warnings?) should go to stderr
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(CDImageLogger())
+    logger.addHandler(handler)
+    logger.propagate = False

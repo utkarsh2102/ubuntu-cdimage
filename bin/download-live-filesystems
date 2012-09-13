@@ -4,18 +4,28 @@ set -e
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
-LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live"
+LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT${UBUNTU_DEFAULTS_LOCALE:+-$UBUNTU_DEFAULTS_LOCALE}/$IMAGE_TYPE/live"
 
 mkemptydir "$LIVE_OUT"
 
 if [ "$CDIMAGE_LIVE" ]; then
 	GOT_IMAGE=0
 	for arch in $ARCHES; do
-		if fetch "$(find-live-filesystem "$arch" cloop)" \
+		if [ "$UBUNTU_DEFAULTS_LOCALE" ]; then
+			if fetch "$(find-live-filesystem "$arch" iso)" \
+					"$LIVE_OUT/$arch.iso"; then
+				GOT_IMAGE=1
+			else
+				continue
+			fi
+		elif fetch "$(find-live-filesystem "$arch" cloop)" \
 				"$LIVE_OUT/$arch.cloop"; then
 			GOT_IMAGE=1
 		elif fetch "$(find-live-filesystem "$arch" squashfs)" \
 				"$LIVE_OUT/$arch.squashfs"; then
+			GOT_IMAGE=1
+		elif fetch "$(find-live-filesystem "$arch" rootfs.tar.gz)" \
+				"$LIVE_OUT/$arch.rootfs.tar.gz"; then
 			GOT_IMAGE=1
 		elif fetch "$(find-live-filesystem "$arch" tar.xz)" \
 				"$LIVE_OUT/$arch.tar.xz"; then
@@ -23,7 +33,7 @@ if [ "$CDIMAGE_LIVE" ]; then
 		else
 			continue
 		fi
-		if dist_ge dapper; then
+		if dist_ge dapper && [ "$PROJECT" != ubuntu-core ]; then
 			for item in kernel initrd; do
 				for url in $(find-live-filesystem "$arch" "$item"); do
 					flavour="${url##*/}"
@@ -41,7 +51,12 @@ if [ "$CDIMAGE_LIVE" ]; then
 		fetch "$(find-live-filesystem "$arch" size)" \
 			"$LIVE_OUT/$arch.size" || true
 
+		if [ "$UBUNTU_DEFAULTS_LOCALE" ]; then
+			continue
+		fi
+
 		if [ "$PROJECT" != livecd-base ] && \
+		   [ "$PROJECT" != ubuntu-core ] && \
 		   ([ "$PROJECT" != edubuntu ] || dist_ge precise) && \
 		   [ "$PROJECT" != kubuntu-active ]; then
 			if dist_le feisty; then
@@ -97,7 +112,7 @@ EOF
 				fetch "$(find-live-filesystem "$arch" usb-creator)" \
 					"$LIVE_OUT/$arch.usb-creator.exe" || true
 				;;
-			livecd-base|edubuntu)
+			livecd-base|ubuntu-core|edubuntu)
 				;;
 			*)
 				if [ "$CDIMAGE_DVD" ]; then

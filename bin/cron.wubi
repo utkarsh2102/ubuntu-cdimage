@@ -2,11 +2,12 @@
 set -e
 
 unset http_proxy
+export SUBPROJECT=wubi
+
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 IMAGE_TYPE=wubi
-ARCHES="i386 amd64"
 PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
 LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE"
 

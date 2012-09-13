@@ -1,72 +1,42 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2012 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-usage () {
-	echo 'Usage: checksum-directory [--map SED_COMMAND] DIR [OLD_DIR ...]' >&2
-	exit 1
-}
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-MAP=
-if [ "x$1" = "x--map" ]; then
-	if [ -z "$2" ]; then
-		usage
-	fi
-	MAP="$2"
-	shift 2
-fi
+"""Checksum all the files in a directory."""
 
-if [ -z "$1" ]; then
-	usage
-fi
+from optparse import OptionParser
+import os
+import sys
 
-DIR="$1"
-shift
-OLD_DIRS="$@"
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.checksums import checksum_directory
+from cdimage.config import config
 
-checksum () {
-	program="$1"
-	file="$2"
 
-	find "$DIR/" -maxdepth 1 \( -name \*.img -o -name \*.iso -o -name \*.exe -o -name \*.img.gz -o -name \*vmlinuz-* \) -printf '%P\n' | \
-	while read image; do
-		found=false
-		for dir in $DIR $OLD_DIRS; do
-			if [ "$MAP" ]; then
-				old_image="$(echo "$image" | sed "$MAP")"
-			else
-				old_image="$image"
-			fi
-			[ -e "$dir/$file" ] || continue
-			# If we find the image in a previous file, then make
-			# sure to take the last (and thus presumably the
-			# most recent) checksum, just in case.
-			if [ ! "$DIR/$image" -nt "$dir/$file" ] && \
-			   grep -q "[ *]$image\$" "$dir/$file"; then
-				grep "[ *]$image\$" "$dir/$file" | tail -n1
-				found=:
-				break
-			elif [ "$MAP" ]; then
-				checksum="$(grep -s "[ *]$old_image\$" "$dir/$file" | tail -n1 | cut -d' ' -f1)" || true
-				if [ "$checksum" ]; then
-					echo "$checksum *$image"
-					found=:
-					break
-				fi
-			fi
-		done
-		if ! "$found"; then
-			(cd "$DIR" && $program "$image")
-		fi
-	done | sort -k2 > "$DIR/$file.new"
-	mv "$DIR/$file.new" "$DIR/$file"
-	sign-cdimage "$DIR/$file"
-}
+def main():
+    parser = OptionParser("%prog [options] DIR [OLD_DIR ...]")
+    parser.add_option(
+        "--map", metavar="s/REGEXP/REPLACEMENT/",
+        help="apply s/// expression to old entries to find matching checksum")
+    options, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need directory")
+    checksum_directory(
+        config, args[0], old_directories=args, map_expr=options.map)
 
-checksum 'md5sum -b' 'MD5SUMS'
-checksum 'sha1sum -b' 'SHA1SUMS'
-checksum 'sha256sum -b' 'SHA256SUMS'
 
-exit 0
+if __name__ == "__main__":
+    main()

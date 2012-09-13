@@ -5,6 +5,11 @@
 # production/anonftpsync if it exists) for settings affecting what is
 # mirrored and where.
 
+# This will eventually become a more declarative configuration file.  In the
+# meantime, do not add new variable settings to this file unless you also
+# update lib/cdimage/config.py, or unless their names start with "CDIMAGE_"
+# and they are exported to the environment.
+
 . "$CDIMAGE_ROOT/bin/functions.sh"
 
 if [ "$DEBUG" ] && [ "$DEBUG" -gt 1 ]; then
@@ -27,8 +32,8 @@ DIST="${DIST:-quantal}"
 # collections, so not ubuntu-server.
 ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu kubuntu-active edubuntu xubuntu ubuntustudio mythbuntu}"
 
-if [ -z "$ARCHES" ]; then
-	ARCHES="$(default-arches "$PROJECT" "$IMAGE_TYPE" "$DIST")"
+if [ -z "$ARCHES" ] && [ -z "$CDIMAGE_INSIDE_DEFAULT_ARCHES" ]; then
+	ARCHES="$(default-arches "$PROJECT${SUBPROJECT:+-$SUBPROJECT}${UBUNTU_DEFAULTS_LOCALE:+-$UBUNTU_DEFAULTS_LOCALE}" "$IMAGE_TYPE" "$DIST")"
 fi
 CPUARCHES="$(echo "$ARCHES" | xargs -n1 | sed 's/+.*//' | sort -u | xargs)"
 

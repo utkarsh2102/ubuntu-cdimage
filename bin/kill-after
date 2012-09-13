@@ -1,13 +1,17 @@
 #! /usr/bin/python
 
+from __future__ import print_function
+
 import sys
 import os
 import signal
 
+
 def usage(stream, code):
-    print >>stream, """\
-Usage: kill-after number-of-seconds command [argument ...]"""
+    print("""\
+Usage: kill-after number-of-seconds command [argument ...]""", file=stream)
     sys.exit(code)
+
 
 if len(sys.argv) < 3:
     usage(sys.stderr, 1)
@@ -18,17 +22,21 @@ try:
 except ValueError:
     usage(sys.stderr, 1)
 
+
 def sigalrm_handler(signum, frame):
-    print >>sys.stderr, "%s took too long, terminating ..." % sys.argv[2]
+    print("%s took too long, terminating ..." % sys.argv[2], file=sys.stderr)
     os.kill(-pid, signal.SIGTERM)
+
 
 def sigchld_handler(signum, frame):
     _, status = os.waitpid(pid, 0)
     if os.WIFEXITED(status):
         os._exit(status)
     else:
-        print >>sys.stderr, "child exited with signal %d" % os.WTERMSIG(status)
+        print("child exited with signal %d" % os.WTERMSIG(status),
+              file=sys.stderr)
         os._exit(os.WTERMSIG(status) + 128)
+
 
 old_sigalrm = signal.signal(signal.SIGALRM, sigalrm_handler)
 old_sigchld = signal.signal(signal.SIGCHLD, sigchld_handler)
@@ -39,7 +47,7 @@ if pid == 0:
     signal.signal(signal.SIGALRM, old_sigalrm)
     signal.signal(signal.SIGCHLD, old_sigchld)
     os.setpgid(0, 0)
-    print sys.argv
+    print(sys.argv)
     os.execvp(sys.argv[2], sys.argv[2:])
 
 # prevent race by setting process group on either side; cf. Stevens 1993

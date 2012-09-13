@@ -1,7 +1,8 @@
 #! /bin/sh
 set -e
 
-export ARCHES="${ARCHES:-amd64 hppa i386 ia64 powerpc sparc}"
+export PROJECT="${1:-livecd-base}"
+export IMAGE_TYPE="${2:-$PROJECT}"
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
@@ -9,10 +10,6 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
 
 export CDIMAGE_LIVE=1
-
-# This is a special case; don't use for-project.
-export PROJECT=livecd-base
-export IMAGE_TYPE=livecd-base
 
 if ! lockfile -l 7200 -r 0 "$CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IMAGE_TYPE"; then
 	echo "Another image set is already building!" >&2
@@ -31,10 +28,30 @@ echo "===== Downloading live filesystem images ====="
 date
 download-live-filesystems
 
+if [ "$PROJECT" = "ubuntu-core" ]; then
+	echo "===== Copying images to debian-cd output directory ====="
+	date
+	SCRATCHDIR="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE"
+	for arch in $ARCHES; do
+		if [ -e "$SCRATCHDIR/live/$arch.rootfs.tar.gz" ]; then
+			mkdir -p "$SCRATCHDIR/debian-cd/$arch"
+			cp "$SCRATCHDIR/live/$arch.rootfs.tar.gz" \
+				"$SCRATCHDIR/debian-cd/$arch/$DIST-core-$arch.raw"
+			echo "tar archive" > "$SCRATCHDIR/debian-cd/$arch/$DIST-core-$arch.type"
+			cp "$SCRATCHDIR/live/$arch.manifest" \
+				"$SCRATCHDIR/debian-cd/$arch/$DIST-core-$arch.manifest"
+		fi
+	done
+fi
+
 if [ -z "$DEBUG" ]; then
 	echo "===== Publishing ====="
 	date
-	publish-livecd-base "$CDIMAGE_DATE" "$IMAGE_TYPE"
+	if [ "$PROJECT" = "livecd-base" ]; then
+		publish-livecd-base "$CDIMAGE_DATE" "$IMAGE_TYPE"
+	else
+		publish-daily "$CDIMAGE_DATE" "$IMAGE_TYPE"
+	fi
 
 	echo "===== Purging old images ====="
 	date

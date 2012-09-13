@@ -1,31 +1,44 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2012 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-SIGN=:
-if [ "x$1" = "x--no-sign" ]; then
-	SIGN=false
-	shift
-fi
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: checksum-remove [--no-sign] DIR FILE' >&2
-	exit 1
-fi
+"""Remove an entry from the checksums files in a directory."""
 
-DIR="$1"
-FILE="$2"
+from optparse import OptionParser
+import os
+import sys
 
-for checksum_file in MD5SUMS SHA1SUMS SHA256SUMS; do
-	[ -e "$DIR/$checksum_file" ] || continue
-	grep -v "[ *]$FILE\$" "$DIR/$checksum_file" \
-		> "$DIR/$checksum_file.new" || true
-	mv "$DIR/$checksum_file.new" "$DIR/$checksum_file"
-	if $SIGN; then
-		sign-cdimage "$DIR/$checksum_file"
-	fi
-done
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.checksums import ChecksumFileSet
+from cdimage.config import config
 
-exit 0
+
+def main():
+    parser = OptionParser("%prog [options] DIR FILE")
+    parser.add_option(
+        "--no-sign", dest="sign", default=True, action="store_false",
+        help="don't re-sign checksums files")
+    options, args = parser.parse_args()
+    if len(args) < 2:
+        parser.error("need directory and filename")
+
+    directory, filename = args[:2]
+    with ChecksumFileSet(config, directory, sign=options.sign) as files:
+        files.remove(filename)
+
+
+if __name__ == "__main__":
+    main()

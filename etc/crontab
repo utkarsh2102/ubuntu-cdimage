@@ -10,4 +10,5 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 29 6 * * *	for-project ubuntu-server cron.daily
 17 6 * * *	for-project ubuntustudio cron.daily
 19 10 * * *	buildlive mythbuntu; for-project mythbuntu cron.daily-live
-46 4 * * *	build-livecd-base
+46 4 * * *	build-livecd-base livecd-base
+32 4 * * *	build-livecd-base ubuntu-core daily
