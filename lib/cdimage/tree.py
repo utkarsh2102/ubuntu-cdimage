@@ -60,7 +60,10 @@ projects = [
 
 
 def zsyncmake(infile, outfile, url):
-    command = ["zsyncmake", "-o", outfile, "-u", url, infile]
+    command = ["zsyncmake"]
+    if outfile.endswith(".gz"):
+        command.append("-Z")
+    command.extend(["-o", outfile, "-u", url, infile])
     if subprocess.call(command) != 0:
         logger.info("Trying again with block size 2048 ...")
         command[1:1] = ["-b", "2048"]
@@ -301,6 +304,14 @@ class DailyTreePublisher(Publisher):
                 # check again with ProMese, the CD pressing vendor.
                 return 736665600
 
+    def size_limit_extension(self, extension):
+        """Some output file types have adjusted limits.  Cope with this."""
+        # TODO: Shouldn't this be per-project/publish_type instead?
+        if extension == "img" or extension.endswith(".gz"):
+            return 1024 * 1024 * 1024
+        else:
+            return self.size_limit
+
     def new_publish_dir(self, date):
         """Copy previous published tree as a starting point for a new one.
 
@@ -317,6 +328,36 @@ class DailyTreePublisher(Publisher):
                     os.link(
                         os.path.join(publish_current, name),
                         os.path.join(publish_date, name))
+
+    def detect_image_extension(self, source_prefix):
+        subp = subprocess.Popen(
+            ["file", "-b", "%s.raw" % source_prefix], stdout=subprocess.PIPE,
+            universal_newlines=True)
+        output = subp.communicate()[0].rstrip("\n")
+        if output.startswith("# "):
+            output = output[2:]
+
+        if output.startswith("ISO 9660 CD-ROM filesystem data "):
+            return "iso"
+        elif output.startswith("x86 boot sector"):
+            return "img"
+        elif output.startswith("gzip compressed data"):
+            with open("%s.type" % source_prefix) as compressed_type:
+                real_output = compressed_type.readline().rstrip("\n")
+            if real_output.startswith("ISO 9660 CD-ROM filesystem data "):
+                return "iso.gz"
+            elif real_output.startswith("x86 boot sector"):
+                return "img.gz"
+            elif real_output.startswith("tar archive"):
+                return "tar.gz"
+            else:
+                logger.warning(
+                    "Unknown compressed file type '%s'; assuming .img.gz" %
+                    real_output)
+                return "img.gz"
+        else:
+            logger.warning("Unknown file type '%s'; assuming .iso" % output)
+            return "iso"
 
     def jigdo_ports(self, arch):
         series = self.config["DIST"]
@@ -358,12 +399,15 @@ class DailyTreePublisher(Publisher):
 
         logger.info("Publishing %s ..." % arch)
         osextras.ensuredir(target_dir)
-        shutil.move("%s.raw" % source_prefix, "%s.iso" % target_prefix)
-        shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
+        extension = self.detect_image_extension(source_prefix)
+        shutil.move(
+            "%s.raw" % source_prefix, "%s.%s" % (target_prefix, extension))
+        if os.path.exists("%s.list" % source_prefix):
+            shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
         self.checksum_dirs.append(source_dir)
         with ChecksumFileSet(
             self.config, target_dir, sign=False) as checksum_files:
-            checksum_files.remove("%s.iso" % out_prefix)
+            checksum_files.remove("%s.%s" % (out_prefix, extension))
 
         # Jigdo integration
         if os.path.exists("%s.jigdo" % source_prefix):
@@ -397,13 +441,14 @@ class DailyTreePublisher(Publisher):
         # zsync metafiles
         if self.try_zsyncmake and osextras.find_on_path("zsyncmake"):
             logger.info("Making %s zsync metafile ..." % arch)
-            osextras.unlink_force("%s.iso.zsync" % target_prefix)
+            osextras.unlink_force("%s.%s.zsync" % (target_prefix, extension))
             zsyncmake(
-                "%s.iso" % target_prefix, "%s.iso.zsync" % target_prefix,
-                "%s.iso" % out_prefix)
+                "%s.%s" % (target_prefix, extension),
+                "%s.%s.zsync" % (target_prefix, extension),
+                "%s.%s" % (out_prefix, extension))
 
-        size = os.stat("%s.iso" % target_prefix).st_size
-        if size > self.size_limit:
+        size = os.stat("%s.%s" % (target_prefix, extension)).st_size
+        if size > self.size_limit_extension(extension):
             with open("%s.OVERSIZED" % target_prefix, "a"):
                 pass
         else:
@@ -486,7 +531,7 @@ class DailyTreePublisher(Publisher):
         if not self.config["CDIMAGE_ONLYSOURCE"]:
             checksum_directory(
                 self.config, target_dir, old_directories=self.checksum_dirs,
-                map_expr=r"s/\.\(img\|iso\)$/.raw/")
+                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
             subprocess.check_call(
                 [os.path.join(self.config.root, "bin", "make-web-indices"),
                  target_dir, self.config.series, "daily"])
@@ -496,7 +541,7 @@ class DailyTreePublisher(Publisher):
             checksum_directory(
                 self.config, target_dir_source,
                 old_directories=[os.path.join(self.image_output, "src")],
-                map_expr=r"s/\.\(img\|iso\)$/.raw/")
+                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
             subprocess.check_call(
                 [os.path.join(self.config.root, "bin", "make-web-indices"),
                  target_dir_source, self.config.series, "daily"])

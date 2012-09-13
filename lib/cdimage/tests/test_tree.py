@@ -248,6 +248,15 @@ class TestDailyTreePublisher(TestCase):
             publisher = self.make_publisher(project, image_type)
             self.assertEqual(size_limit, publisher.size_limit)
 
+    def test_size_limit_extension(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        self.assertEqual(
+            1024 * 1024 * 1024, publisher.size_limit_extension("img"))
+        self.assertEqual(
+            1024 * 1024 * 1024, publisher.size_limit_extension("tar.gz"))
+        self.assertEqual(
+            publisher.size_limit, publisher.size_limit_extension("iso"))
+
     def test_new_publish_dir_honours_no_copy(self):
         self.config["CDIMAGE_NOCOPY"] = "1"
         publisher = self.make_publisher("ubuntu", "daily")
@@ -336,6 +345,7 @@ class TestDailyTreePublisher(TestCase):
         list(publisher.publish_binary("desktop", "i386", "20120807"))
         self.assertLogEqual([
             "Publishing i386 ...",
+            "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
             ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
@@ -408,6 +418,7 @@ class TestDailyTreePublisher(TestCase):
         publisher.publish("20120807")
         self.assertLogEqual([
             "Publishing i386 ...",
+            "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
             "No keys found; not signing images.",
             "No keys found; not signing images.",
