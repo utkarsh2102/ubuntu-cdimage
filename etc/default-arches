@@ -16,6 +16,8 @@ ubuntu-netbook		*			*			i386
 ubuntu-server		*			intrepid-jaunty		amd64 hppa i386 ia64 powerpc powerpc+ps3 sparc
 ubuntu-server		*			karmic			amd64 i386 ia64 powerpc powerpc+ps3 sparc
 
+ubuntu-wubi		*			*			amd64 i386
+
 ubuntustudio		*			warty-edgy		amd64 i386 powerpc
 ubuntustudio		*			*			amd64 i386
 
