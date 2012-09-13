@@ -5,12 +5,14 @@ import os
 import HTMLParser
 import subprocess
 
+
 root = '/srv/cdimage.ubuntu.com'
 www = os.path.join(root, 'www', 'full')
 warnings = {}
 send_mail = True
 mailer = None
 mailer_stdin = None
+
 
 class BritneyParser(HTMLParser.HTMLParser):
     STATE_BEGIN = 0
@@ -64,14 +66,17 @@ class BritneyParser(HTMLParser.HTMLParser):
             if data:
                 self.formatted += '  * ' + data.rstrip() + '\n'
 
+
 def project_root(project):
     if project == 'ubuntu':
         return www
     else:
         return os.path.join(www, project)
 
+
 def image_root(project, image):
     return os.path.join(project_root(project), image)
+
 
 def warn(project, image, message):
     if project not in warnings:
@@ -79,6 +84,7 @@ def warn(project, image, message):
     if image not in warnings[project]:
         warnings[project][image] = []
     warnings[project][image].append(message)
+
 
 def project_title(project):
     if project == 'ubuntu-server':
@@ -98,6 +104,7 @@ def project_title(project):
     else:
         return project.title()
 
+
 def get_notify_addresses(project=None):
     path = os.path.join(root, 'production', 'notify-addresses')
     if not os.path.exists(path):
@@ -113,6 +120,7 @@ def get_notify_addresses(project=None):
                 all_addresses.extend(addresses.split())
         return all_addresses
 
+
 def get_warnings(project):
     global warnings
     lines = []
@@ -124,6 +132,7 @@ def get_warnings(project):
                 lines.append("%s/%s: %s" % (project, image, message))
     return '\n'.join(lines)
 
+
 def get_all_warnings(projects):
     texts = []
     for project in projects:
@@ -131,6 +140,7 @@ def get_all_warnings(projects):
         if text:
             texts.append(text)
     return '\n\n\n'.join(texts)
+
 
 def create_mail(subject, recipients, body):
     if send_mail:
@@ -148,6 +158,7 @@ def create_mail(subject, recipients, body):
         print "X-Generated-By: daily-checks.py"
         print
         print body
+
 
 def send_warnings(projects):
     releasers = get_notify_addresses()
@@ -178,6 +189,7 @@ If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
 %s
 """ % (project_title(project), these_warnings))
 
+
 if len(sys.argv) > 1 and sys.argv[1] == '--stdout':
     send_mail = False
 
@@ -194,7 +206,7 @@ for project in projects:
         files.sort()
         if project == 'ubuntustudio':
             sizelimit = 4700372992
-        elif project in ('ubuntu-mid', 'kubuntu-netbook', 
+        elif project in ('ubuntu-mid', 'kubuntu-netbook',
                          'ubuntu-moblin-remix'):
             sizelimit = 1024 * 1024 * 1024
         elif image == 'dvd':
