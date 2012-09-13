@@ -5,9 +5,11 @@ import os
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
 
-root = '/srv/cdimage.ubuntu.com'
-www = os.path.join(root, 'www', 'full')
+
+www = os.path.join(config.root, 'www', 'full')
 warnings = {}
 send_mail = True
 mailer = None
@@ -106,9 +108,9 @@ def project_title(project):
 
 
 def get_notify_addresses(project=None):
-    path = os.path.join(root, 'production', 'notify-addresses')
+    path = os.path.join(config.root, 'production', 'notify-addresses')
     if not os.path.exists(path):
-        path = os.path.join(root, 'etc', 'notify-addresses')
+        path = os.path.join(config.root, 'etc', 'notify-addresses')
     if not os.path.exists(path):
         return []
     with open(path) as fp:
