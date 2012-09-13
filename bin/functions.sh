@@ -39,14 +39,21 @@ fetch () {
 }
 
 get_notify_addresses () {
-	[ -e "$CDIMAGE_ROOT/etc/notify-addresses" ] || return
+	local path
+	if [ -e "$CDIMAGE_ROOT/production/notify-addresses" ]; then
+		path="$CDIMAGE_ROOT/production/notify-addresses"
+	elif [ -e "$CDIMAGE_ROOT/etc/notify-addresses" ]; then
+		path="$CDIMAGE_ROOT/etc/notify-addresses"
+	else
+		return
+	fi
 	while read project addresses; do
 		if [ "$project" = ALL ]; then
 			echo "$addresses"
 		elif [ "$project" = "$1" ]; then
 			echo "$addresses"
 		fi
-	done < "$CDIMAGE_ROOT/etc/notify-addresses"
+	done < "$path"
 }
 
 zsyncmake_wrapper () {
