@@ -214,8 +214,12 @@ class TestFlavours(TestCase):
                 "lowlatency", "amd64", "ubuntustudio", series)
 
     def test_armel(self):
-        for series in all_series:
-            self.assertFlavoursEqual("", "armel", "ubuntu", series)
+        self.assertFlavoursEqual("imx51", "armel+imx51", "ubuntu", "jaunty")
+        self.assertFlavoursEqual("imx51", "armel+omap", "ubuntu", "jaunty")
+        for series in all_series[10:]:
+            self.assertFlavoursEqual(
+                "linaro-lt-mx5", "armel+mx5", "ubuntu", series)
+            self.assertFlavoursEqual("omap", "armel+omap", "ubuntu", series)
 
     def test_hppa(self):
         for series in all_series:
