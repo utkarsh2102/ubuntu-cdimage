@@ -141,6 +141,8 @@ _whitelisted_keys = (
     "IMAGE_TYPE",
     "LIVECD",
     "LIVECD_BASE",
+    "SUBPROJECT",
+    "UBUNTU_DEFAULTS_LOCALE",
     )
 
 
