@@ -257,6 +257,16 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             publisher.size_limit, publisher.size_limit_extension("iso"))
 
+    def test_size_limit_extension_edubuntu(self):
+        # size_limit_extension has special-casing for Edubuntu.
+        publisher = self.make_publisher("edubuntu", "daily")
+        self.assertEqual(
+            publisher.size_limit, publisher.size_limit_extension("img"))
+        self.assertEqual(
+            publisher.size_limit, publisher.size_limit_extension("tar.gz"))
+        self.assertEqual(
+            publisher.size_limit, publisher.size_limit_extension("iso"))
+
     def test_new_publish_dir_honours_no_copy(self):
         self.config["CDIMAGE_NOCOPY"] = "1"
         publisher = self.make_publisher("ubuntu", "daily")

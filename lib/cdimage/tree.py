@@ -307,7 +307,9 @@ class DailyTreePublisher(Publisher):
     def size_limit_extension(self, extension):
         """Some output file types have adjusted limits.  Cope with this."""
         # TODO: Shouldn't this be per-project/publish_type instead?
-        if extension == "img" or extension.endswith(".gz"):
+        if self.project == "edubuntu":
+            return self.size_limit
+        elif extension == "img" or extension.endswith(".gz"):
             return 1024 * 1024 * 1024
         else:
             return self.size_limit
