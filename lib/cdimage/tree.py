@@ -434,6 +434,14 @@ class DailyTreePublisher(Publisher):
         else:
             osextras.unlink_force("%s.manifest" % target_prefix)
 
+        if (self.config["CDIMAGE_SQUASHFS_BASE"] and
+            os.path.exists("%s.squashfs" % source_prefix)):
+            logger.info("Publishing %s squashfs ..." % arch)
+            shutil.move(
+                "%s.squashfs" % source_prefix, "%s.squashfs" % target_prefix)
+        else:
+            osextras.unlink_force("%s.squashfs" % target_prefix)
+
         # Flashable Android boot images
         if os.path.exists("%s.bootimg" % source_prefix):
             logger.info("Publishing %s abootimg bootloader images ..." % arch)
