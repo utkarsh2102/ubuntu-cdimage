@@ -82,6 +82,9 @@ for image; do
 	    lubuntu/daily-live/*-desktop-*|lubuntu/*/daily-live/*-desktop-*)
 		product="Lubuntu Desktop $arch"
 		;;
+	    lubuntu/daily-preinstalled/*-preinstalled-desktop-*|lubuntu/*/daily-preinstalled/*-preinstalled-desktop-*)
+		product="Lubuntu Desktop Preinstalled $arch"
+		;;
 	    ubuntu-core/daily/*-core-*|ubuntu-core/*/daily/*-core-*)
 		product="Ubuntu Core $arch"
 		;;
