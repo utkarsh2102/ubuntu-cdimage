@@ -197,8 +197,7 @@ for project in projects:
         curdir = os.path.join(publisher.publish_base, 'current')
         if not os.path.exists(curdir):
             continue
-        files = os.listdir(curdir)
-        files.sort()
+        files = sorted(os.listdir(curdir))
         sizelimit = publisher.size_limit
         for oversized in filter(lambda x: x.endswith('.OVERSIZED'), files):
             iso = "%s.iso" % oversized[:-10]
