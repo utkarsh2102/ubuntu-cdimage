@@ -7,9 +7,9 @@ import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import config
+from cdimage.tree import DailyTree, DailyTreePublisher
 
 
-www = os.path.join(config.root, 'www', 'full')
 warnings = {}
 send_mail = True
 mailer = None
@@ -67,17 +67,6 @@ class BritneyParser(HTMLParser.HTMLParser):
         elif self.state == self.STATE_UNINST_LIST_ARCH_ITEM:
             if data:
                 self.formatted += '  * ' + data.rstrip() + '\n'
-
-
-def project_root(project):
-    if project == 'ubuntu':
-        return www
-    else:
-        return os.path.join(www, project)
-
-
-def image_root(project, image):
-    return os.path.join(project_root(project), image)
 
 
 def warn(project, image, message):
@@ -199,22 +188,18 @@ projects = ('ubuntu', 'ubuntu-server', 'kubuntu', 'edubuntu', 'xubuntu',
             'ubuntustudio', 'ubuntu-netbook', 'kubuntu-netbook',
             'ubuntu-moblin-remix')
 
+tree = DailyTree(config)
+
 for project in projects:
+    config["PROJECT"] = project
     for image in 'daily-live', 'daily', 'dvd':
-        curdir = os.path.join(image_root(project, image), 'current')
+        publisher = DailyTreePublisher(tree, image)
+        curdir = os.path.join(publisher.publish_base, 'current')
         if not os.path.exists(curdir):
             continue
         files = os.listdir(curdir)
         files.sort()
-        if project == 'ubuntustudio':
-            sizelimit = 4700372992
-        elif project in ('ubuntu-mid', 'kubuntu-netbook',
-                         'ubuntu-moblin-remix'):
-            sizelimit = 1024 * 1024 * 1024
-        elif image == 'dvd':
-            sizelimit = 4700372992
-        else:
-            sizelimit = 700 * 1024 * 1024
+        sizelimit = publisher.size_limit
         for oversized in filter(lambda x: x.endswith('.OVERSIZED'), files):
             iso = "%s.iso" % oversized[:-10]
             try:
@@ -238,7 +223,8 @@ for project in projects:
                              "%s contains openoffice.org-core" % iso)
 
     for image in 'daily-live', 'daily', 'dvd':
-        curdir = os.path.join(image_root(project, image), 'current')
+        publisher = DailyTreePublisher(tree, image)
+        curdir = os.path.join(publisher.publish_base, 'current')
         if os.path.exists(os.path.join(curdir, 'report.html')):
             with open(os.path.join(curdir, 'report.html')) as report:
                 parser = BritneyParser()
