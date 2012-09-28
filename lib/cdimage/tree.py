@@ -61,7 +61,7 @@ projects = [
 
 def zsyncmake(infile, outfile, url):
     command = ["zsyncmake"]
-    if outfile.endswith(".gz"):
+    if infile.endswith(".gz"):
         command.append("-Z")
     command.extend(["-o", outfile, "-u", url, infile])
     if subprocess.call(command) != 0:
