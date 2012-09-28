@@ -490,12 +490,7 @@ if $PUBLISH_DIST; then
 			"$RELEASE_SIMPLE_DIST/MD5SUMS-metalink.gpg"
 		if $echo make-metalink "$RELEASE_SIMPLE_BASEDIR" "$METALINK_VERSION" \
 			"$RELEASE_SIMPLE_RELDIR" releases.ubuntu.com; then
-			if [ "$echo" ]; then
-				echo "(cd \"$RELEASE_SIMPLE_DIST\" && md5sum *.metalink > MD5SUMS-metalink)"
-			else
-				(cd "$RELEASE_SIMPLE_DIST" && md5sum *.metalink > MD5SUMS-metalink)
-			fi
-			$echo sign-cdimage "$RELEASE_SIMPLE_DIST/MD5SUMS-metalink"
+			$echo checksum-directory --metalink "$RELEASE_SIMPLE_DIST"
 		else
 			$echo rm -f "$RELEASE_SIMPLE_DIST"/*.metalink
 		fi
@@ -512,16 +507,7 @@ if $PUBLISH_FULL; then
 			"$RELEASE_FULL/MD5SUMS-metalink.gpg"
 		if $echo make-metalink "$RELEASE_FULL_BASEDIR" "$VERSION" \
 			"$RELEASE_FULL_RELDIR" cdimage.ubuntu.com; then
-			if [ "$echo" ]; then
-				echo "(cd \"$RELEASE_FULL\" && md5sum *.metalink > MD5SUMS-metalink)"
-			else
-				(cd "$RELEASE_FULL" && md5sum *.metalink > MD5SUMS-metalink)
-			fi
-			if [ -s "$RELEASE_FULL/MD5SUMS-metalink" ]; then
-				$echo sign-cdimage "$RELEASE_FULL/MD5SUMS-metalink"
-			else
-				$echo rm "$RELEASE_FULL/MD5SUMS-metalink"
-			fi
+			$echo checksum-directory --metalink "$RELEASE_FULL"
 		else
 			rm -f "$RELEASE_FULL"/*.metalink
 		fi
