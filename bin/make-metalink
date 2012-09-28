@@ -4,8 +4,8 @@ set -e
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
-if [ -e "$CDIMAGE_ROOT/MirrorMetalink/build.sh" ]; then
-	exec "$CDIMAGE_ROOT/MirrorMetalink/build.sh" "$@"
+if [ -e "$CDIMAGE_ROOT/MirrorMetalink/build.py" ]; then
+	exec "$CDIMAGE_ROOT/MirrorMetalink/build.py" "$@"
 else
 	exit 1
 fi
