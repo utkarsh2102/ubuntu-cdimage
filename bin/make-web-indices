@@ -111,7 +111,7 @@ cdtypestr () {
 			echo "preview active image"
 			;;
 		*)
-			echo "Unknown CD type $1!" >&2
+			echo "Unknown image type $1!" >&2
 			;;
 	esac
 }
