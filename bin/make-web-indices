@@ -53,15 +53,19 @@ cssincludes () {
 }
 
 cdtypestr () {
-	# Ubuntu Studio is expected to be oversized in Gutsy; sigh.
-	case $PROJECT in
-		ubuntustudio)
-			CD=DVD
-			;;
-		*)
-			CD=CD
-			;;
-	esac
+	if dist_lt quantal; then
+		# Ubuntu Studio is expected to be oversized in Gutsy; sigh.
+		case $PROJECT in
+			ubuntustudio)
+				CD=DVD
+				;;
+			*)
+				CD=CD
+				;;
+		esac
+	else
+		CD=image
+	fi
 
 	case $1 in
 		live)
@@ -136,15 +140,19 @@ cdtypedesc () {
 			;;
 	esac
 
-	# Ubuntu Studio is expected to be oversized in Gutsy; sigh.
-	case $PROJECT in
-		ubuntustudio)
-			CD=DVD
-			;;
-		*)
-			CD=CD
-			;;
-	esac
+	if dist_lt quantal; then
+		# Ubuntu Studio is expected to be oversized in Gutsy; sigh.
+		case $PROJECT in
+			ubuntustudio)
+				CD=DVD
+				;;
+			*)
+				CD=CD
+				;;
+		esac
+	else
+		CD=image
+	fi
 
 	case $1 in
 		live)
@@ -286,7 +294,7 @@ following form:</p>
 EOF
 			;;
 		*)
-			echo "Unknown CD type $1!" >&2
+			echo "Unknown image type $1!" >&2
 			;;
 	esac
 }
@@ -787,7 +795,7 @@ fi
 
 cat <<EOF >> "$HEADER"
 <p>If you need help burning these images to disk, see the
-<a href="https://help.ubuntu.com/community/BurningIsoHowto">CD Burning Guide</a>.</p>
+<a href="https://help.ubuntu.com/community/BurningIsoHowto">Image Burning Guide</a>.</p>
 
 EOF
 
