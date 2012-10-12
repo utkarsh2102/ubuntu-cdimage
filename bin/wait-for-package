@@ -49,25 +49,6 @@ if [ "$PACKAGE" = "${PACKAGE%%_*}" ]; then
 	exit 1
 fi
 
-case $COMPONENT in
-	universe|multiverse)
-		EXTN=universe
-		;;
-esac
-
-case $ARCH in
-	amd64|i386|source)
-		;;
-	*)
-		EXTN="$EXTN${EXTN+-}ports"
-		;;
-esac
-
-if [ -n "$EXTN" ]; then
-	FTPDIR="$FTPDIR-$EXTN"
-	ANONFTPSYNC_CONF="$ANONFTPSYNC_CONF.$EXTN"
-fi
-
 if [ "$ARCH" = "source" ]; then
 	TARGET="$CDIMAGE_ROOT/$FTPDIR/dists/$DIST/$COMPONENT/source/Sources.gz"
 else
