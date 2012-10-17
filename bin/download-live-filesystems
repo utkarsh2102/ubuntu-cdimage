@@ -34,7 +34,7 @@ if [ "$CDIMAGE_LIVE" ]; then
 			continue
 		fi
 		if dist_ge dapper && [ "$PROJECT" != ubuntu-core ]; then
-			for item in kernel initrd; do
+			for item in kernel kernel-efi-signed initrd; do
 				for url in $(find-live-filesystem "$arch" "$item"); do
 					flavour="${url##*/}"
 					flavour="${flavour#*.*.*-}"

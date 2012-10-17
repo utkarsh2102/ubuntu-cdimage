@@ -367,6 +367,14 @@ class TestLiveItemPaths(TestCase):
                  "%s/livecd.ubuntu-ps3.%s-powerpc64-smp" % (root, item)],
                 "powerpc+ps3", item, "ubuntu", "hardy")
 
+    def test_kernel_efi_signed(self):
+        self.assertNoPaths("i386", "kernel-efi-signed", "ubuntu", "quantal")
+        self.assertNoPaths("amd64", "kernel-efi-signed", "ubuntu", "precise")
+        root = "http://kapok.buildd/~buildd/LiveCD/quantal/ubuntu/current"
+        self.assertPathsEqual(
+            ["%s/livecd.ubuntu.kernel-generic.efi.signed" % root],
+            "amd64", "kernel-efi-signed", "ubuntu", "quantal")
+
     # TODO: Since this is only of historical interest, we only test a small
     # number of cases at the moment.
     def test_winfoss(self):

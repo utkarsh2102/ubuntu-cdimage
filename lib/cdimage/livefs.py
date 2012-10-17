@@ -290,6 +290,13 @@ def live_item_paths(config, arch, item):
         for flavour in flavours(config, arch):
             yield "%s/livecd.%s.%s-%s" % (
                 root, liveproject_subarch, item, flavour)
+    elif item == "kernel-efi-signed":
+        if series >= "quantal" and arch == "amd64":
+            for flavour in flavours(config, arch):
+                yield "%s/livecd.%s.kernel-%s.efi.signed" % (
+                    root, liveproject_subarch, flavour)
+        else:
+            raise NoLiveItem
     elif item == "winfoss":
         yield live_item_path_winfoss(config, arch)
     elif item == "wubi":

@@ -30,7 +30,7 @@ from cdimage.livefs import live_item_paths, NoLiveItem
 
 def main():
     parser = OptionParser(
-        "%prog ARCH cloop|squashfs|kernel|initrd|bootimg|"
+        "%prog ARCH cloop|squashfs|kernel|kernel-efi-signed|initrd|bootimg|"
         "manifest|manifest-desktop|manifest-remove|"
         "size|winfoss|wubi|umenu|usb-creator|ltsp-squashfs|"
         "ext2|ext3|ext4|rootfs.tar.gz|tar.xz|iso")
