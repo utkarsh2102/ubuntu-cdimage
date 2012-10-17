@@ -241,7 +241,7 @@ class TestDailyTreePublisher(TestCase):
             ("kubuntu", None, "daily-live", 1000000000),
             ("ubuntu", None, "dvd", 4700372992),
             ("ubuntu", "precise", "daily-live", 736665600),
-            ("ubuntu", "quantal", "daily-live", 800000000),
+            ("ubuntu", "quantal", "daily-live", 801000000),
             ):
             if dist is not None:
                 self.config["DIST"] = Series.find_by_name(dist)
