@@ -34,12 +34,18 @@ if [ "$CDIMAGE_LIVE" ]; then
 			continue
 		fi
 		if dist_ge dapper && [ "$PROJECT" != ubuntu-core ]; then
-			for item in kernel kernel-efi-signed initrd; do
+			for item in kernel initrd; do
 				for url in $(find-live-filesystem "$arch" "$item"); do
 					flavour="${url##*/}"
 					flavour="${flavour#*.*.*-}"
 					fetch "$url" "$LIVE_OUT/$arch.$item-$flavour" || true
 				done
+			done
+			for url in $(find-live-filesystem "$arch" kernel-efi-signed); do
+				flavour="${url##*/}"
+				flavour="${flavour%.efi.signed}"
+				flavour="${flavour#*.*.*-}"
+				fetch "$url" "$LIVE_OUT/$arch.kernel-$flavour.efi.signed" || true
 			done
 		fi
 		fetch "$(find-live-filesystem "$arch" manifest)" \
