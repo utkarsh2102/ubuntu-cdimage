@@ -61,20 +61,20 @@ def verify_cloudfront(config, root, files):
     opener = build_opener(HTTPHeadRedirectHandler())
     for f in files:
         if f not in md5sums.entries:
-            print("No local checksum for %s; skipping" % f, file=sys.stderr)
-        else:
-            url = urljoin(root, f.replace("+", "%2B"))
-            response = opener.open(HeadRequest(url))
-            try:
-                etag = response.info()["ETag"].strip('"')
-                if md5sums.entries[f] == etag:
-                    print("%s matches %s" % (f, url))
-                else:
-                    print("%s DOES NOT MATCH %s" % (f, url), file=sys.stderr)
-                    print("  Local:  %s" % md5sums.entries[f], file=sys.stderr)
-                    print("  Remote: %s" % etag, file=sys.stderr)
-                    ret = False
-            except KeyError:
-                print("No remote ETag for %s; skipping." % url,
-                      file=sys.stderr)
+            # There are lots of miscellaneous boring files with no local
+            # checksums.  Silently ignore these for convenience.
+            continue
+        url = urljoin(root, f.replace("+", "%2B"))
+        response = opener.open(HeadRequest(url))
+        try:
+            etag = response.info()["ETag"].strip('"')
+            if md5sums.entries[f] == etag:
+                print("%s matches %s" % (f, url))
+            else:
+                print("%s DOES NOT MATCH %s" % (f, url), file=sys.stderr)
+                print("  Local:  %s" % md5sums.entries[f], file=sys.stderr)
+                print("  Remote: %s" % etag, file=sys.stderr)
+                ret = False
+        except KeyError:
+            print("No remote ETag for %s; skipping." % url, file=sys.stderr)
     return ret
