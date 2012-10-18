@@ -65,7 +65,11 @@ def verify_cloudfront(config, root, files):
             # checksums.  Silently ignore these for convenience.
             continue
         url = urljoin(root, f.replace("+", "%2B"))
-        response = opener.open(HeadRequest(url))
+        try:
+            response = opener.open(HeadRequest(url))
+        except HTTPError as e:
+            print("%s: %s" % (url, e), file=sys.stderr)
+            continue
         try:
             etag = response.info()["ETag"].strip('"')
             if md5sums.entries[f] == etag:
