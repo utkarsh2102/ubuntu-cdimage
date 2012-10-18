@@ -63,7 +63,7 @@ def verify_cloudfront(config, root, files):
         if f not in md5sums.entries:
             print("No local checksum for %s; skipping" % f, file=sys.stderr)
         else:
-            url = urljoin(root, f)
+            url = urljoin(root, f.replace("+", "%2B"))
             response = opener.open(HeadRequest(url))
             try:
                 etag = response.info()["ETag"].strip('"')
