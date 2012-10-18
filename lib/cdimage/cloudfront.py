@@ -59,6 +59,8 @@ def verify_cloudfront(config, root, files):
         config, os.path.join(tree.directory, ".pool"), "MD5SUMS", None)
     md5sums.read()
     opener = build_opener(HTTPHeadRedirectHandler())
+    if not root.endswith("/"):
+        root += "/"
     for f in files:
         if f not in md5sums.entries:
             # There are lots of miscellaneous boring files with no local
