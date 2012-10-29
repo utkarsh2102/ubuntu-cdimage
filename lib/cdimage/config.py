@@ -117,6 +117,7 @@ all_series.extend([
     Series("oneiric", "11.10", "Oneiric Ocelot"),
     Series("precise", "12.04", "Precise Pangolin"),
     Series("quantal", "12.10", "Quantal Quetzal"),
+    Series("raring", "13.04", "Raring Ringtail"),
     ])
 
 

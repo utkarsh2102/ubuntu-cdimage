@@ -51,6 +51,7 @@ all_series = [
     "oneiric",
     "precise",
     "quantal",
+    "raring",
     ]
 
 

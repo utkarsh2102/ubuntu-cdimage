@@ -592,6 +592,10 @@ case $DIST in
 		distversion=12.10
 		distfullname='Quantal Quetzal'
 		;;
+	raring)
+		distversion=13.04
+		distfullname='Raring Ringtail'
+		;;
 esac
 
 case $CDPREFIX in
