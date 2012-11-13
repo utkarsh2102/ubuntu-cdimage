@@ -88,6 +88,12 @@ for image; do
 	    ubuntu-core/daily/*-core-*|ubuntu-core/*/daily/*-core-*)
 		product="Ubuntu Core $arch"
 		;;
+
+	    ubuntu-chinese-edition/*/daily-live/*-desktop-*)
+		product="Ubuntu Chinese Desktop $arch"
+		dist="china-$dist"
+		;;
+
 	    *)
 		echo "No iso.qa.ubuntu.com product found for $image; skipping." >&2
 		continue
