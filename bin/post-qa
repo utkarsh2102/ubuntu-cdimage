@@ -108,7 +108,7 @@ for image; do
 	fi
 
 
-	"$POSTER" -s "$dist" -n "$NOTE" "$product" "$DATE" || continue
+	"$POSTER" -t "$dist" -n "$NOTE" "$product" "$DATE" || continue
 done
 
 exit 0
