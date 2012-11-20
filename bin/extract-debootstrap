@@ -4,7 +4,7 @@ set -e
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
-DEBOOTSTRAP_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/debootstrap"
+DEBOOTSTRAP_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE/debootstrap"
 
 mkemptydir "$DEBOOTSTRAP_OUT"
 for fullarch in $ARCHES; do

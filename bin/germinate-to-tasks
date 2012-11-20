@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # Outputs debian-cd task lists to
-# $CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tasks/.
+# $CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE/tasks/.
 
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
@@ -12,40 +12,40 @@ if [ -z "$1" ]; then
 fi
 IMAGE_TYPE="$1"
 
-GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
-TASKS_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/tasks"
+GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE/germinate"
+TASKS_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE/tasks"
 
 if [ "$IMAGE_TYPE" = source ]; then
 	if [ "$SOURCE_PROJECT" ]; then
 		GERMINATE_OUT="$GERMINATE_OUT/$SOURCE_PROJECT"
 		PROJECT="$SOURCE_PROJECT"
 	else
-		mkemptydir "$TASKS_OUT/$DIST"
+		mkemptydir "$TASKS_OUT"
 
 		# Generate task output for all source projects.
 		for project in $ALL_PROJECTS; do
 			SOURCE_PROJECT="$project" germinate-to-tasks "$@"
-			for x in "$TASKS_OUT/$DIST"/*; do
+			for x in "$TASKS_OUT"/*; do
 				base="$(basename "$x")"
 				case $base in
 					*:*)	;;
 					*)
-						mv "$x" "$TASKS_OUT/$DIST/$project:$base"
+						mv "$x" "$TASKS_OUT/$project:$base"
 						;;
 				esac
 			done
-			sed -i "s,\\(.*<\\)[^/]*\\(.*/\\),\\1$PROJECT\\2$project:," "$TASKS_OUT/$DIST/$project:MASTER"
+			sed -i "s,\\(.*<\\)[^/]*\\(.*/\\),\\1$PROJECT\\2$project:," "$TASKS_OUT/$project:MASTER"
 		done
 
 		# Make a super-master task file.
-		exec > "$TASKS_OUT/$DIST/MASTER"
+		exec > "$TASKS_OUT/MASTER"
 		for project in $ALL_PROJECTS; do
 			echo "#include <$PROJECT/$DIST/$project:MASTER>"
 		done
 		exit 0
 	fi
 else
-	mkemptydir "$TASKS_OUT/$DIST"
+	mkemptydir "$TASKS_OUT"
 fi
 
 # ubuntu-server really wants ubuntu-* tasks.
@@ -58,29 +58,29 @@ case $PROJECT in
 		;;
 esac
 
-for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
+for seed in $(list-seeds "$GERMINATE_OUT/STRUCTURE" all); do
 	if [ "$seed" = supported ]; then
 		seedsource="$seed+build-depends"
 	else
 		seedsource="$seed"
 	fi
 	for arch in $ARCHES; do
-		[ -e "$GERMINATE_OUT/$DIST/$arch/$seedsource" ] || continue
-		< "$GERMINATE_OUT/$DIST/$arch/$seedsource" \
+		[ -e "$GERMINATE_OUT/$arch/$seedsource" ] || continue
+		< "$GERMINATE_OUT/$arch/$seedsource" \
 			tail -n +3 | head -n -2 | cut -d' ' -f1 \
-			> "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages"
+			> "$GERMINATE_OUT/$arch/$seedsource.packages"
 	done
 done
 
 # Hackily exclude kernel-image-* from the installer and casper tasks. Those
 # udebs only exist to satisfy dependencies when building the
 # debian-installer package.
-for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
+for seed in $(list-seeds "$GERMINATE_OUT/STRUCTURE" installer); do
 	for arch in $ARCHES; do
-		grep -v ^kernel-image- "$GERMINATE_OUT/$DIST/$arch/$seed.packages" \
-			> "$GERMINATE_OUT/$DIST/$arch/$seed.packages.new"
-		mv "$GERMINATE_OUT/$DIST/$arch/$seed.packages.new" \
-			"$GERMINATE_OUT/$DIST/$arch/$seed.packages"
+		grep -v ^kernel-image- "$GERMINATE_OUT/$arch/$seed.packages" \
+			> "$GERMINATE_OUT/$arch/$seed.packages.new"
+		mv "$GERMINATE_OUT/$arch/$seed.packages.new" \
+			"$GERMINATE_OUT/$arch/$seed.packages"
 	done
 done
 
@@ -90,12 +90,12 @@ case $DIST in
 	gutsy)
 		for arch in $ARCHES; do
 			[ "$arch" = powerpc+ps3 ] || continue
-			for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
+			for seed in $(list-seeds "$GERMINATE_OUT/STRUCTURE" installer); do
 				sed -i '/-powerpc-di/d; s/-powerpc64-smp-di/-cell-di/g' \
-					"$GERMINATE_OUT/$DIST/$arch/$seed.packages"
+					"$GERMINATE_OUT/$arch/$seed.packages"
 			done
 			sed -i '/^linux-\(restricted\|ubuntu\)-modules/d; /^[^ ]*-powerpc /d; s/-powerpc64-smp/-cell/g' \
-				"$GERMINATE_OUT/$DIST/$arch/boot.packages"
+				"$GERMINATE_OUT/$arch/boot.packages"
 		done
 		;;
 esac
@@ -108,18 +108,18 @@ case $PROJECT in
 		if [ "$DIST" = precise ]; then
 			for arch in $ARCHES; do
 				[ "$arch" = i386 ] || continue
-				for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" installer); do
+				for seed in $(list-seeds "$GERMINATE_OUT/STRUCTURE" installer); do
 					sed -i 's/-generic-pae-di/-generic-di/g' \
-						"$GERMINATE_OUT/$DIST/$arch/$seed.packages"
+						"$GERMINATE_OUT/$arch/$seed.packages"
 				done
 				sed -i '/^linux-/s/-generic-pae/-generic/g' \
-					"$GERMINATE_OUT/$DIST/$arch/boot.packages"
+					"$GERMINATE_OUT/$arch/boot.packages"
 			done
 		fi
 		;;
 esac
 
-for packages in "$GERMINATE_OUT/$DIST"/*/*.packages; do
+for packages in "$GERMINATE_OUT"/*/*.packages; do
 	[ -e "$packages" ] || continue
 	sort -u "$packages" > "$packages.new"
 	mv "$packages.new" "$packages"
@@ -174,27 +174,27 @@ if dist_ge jaunty; then
 		esac
 		if [ "$cdrom" ] && [ "$netboot" ]; then
 			for subarch in $subarches; do
-				initrd_packages "$subarch/$cdrom" "$cpuarch" > "$GERMINATE_OUT/$DIST/$arch/installer.packages.cdrom"
-				initrd_packages "$subarch/$netboot" "$cpuarch" > "$GERMINATE_OUT/$DIST/$arch/installer.packages.netboot"
-				for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
+				initrd_packages "$subarch/$cdrom" "$cpuarch" > "$GERMINATE_OUT/$arch/installer.packages.cdrom"
+				initrd_packages "$subarch/$netboot" "$cpuarch" > "$GERMINATE_OUT/$arch/installer.packages.netboot"
+				for seed in $(list-seeds "$GERMINATE_OUT/STRUCTURE" all); do
 					if [ "$seed" = supported ]; then
 						seedsource="$seed+build-depends"
 					else
 						seedsource="$seed"
 					fi
-					join "$GERMINATE_OUT/$DIST/$arch/installer.packages.cdrom" "$GERMINATE_OUT/$DIST/$arch/installer.packages.netboot" | \
-						join -v1 "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages" - \
-						> "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages.new"
-					mv "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages.new" \
-						"$GERMINATE_OUT/$DIST/$arch/$seedsource.packages"
+					join "$GERMINATE_OUT/$arch/installer.packages.cdrom" "$GERMINATE_OUT/$arch/installer.packages.netboot" | \
+						join -v1 "$GERMINATE_OUT/$arch/$seedsource.packages" - \
+						> "$GERMINATE_OUT/$arch/$seedsource.packages.new"
+					mv "$GERMINATE_OUT/$arch/$seedsource.packages.new" \
+						"$GERMINATE_OUT/$arch/$seedsource.packages"
 				done
 			done
 		fi
 	done
 fi
 
-for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
-	exec >"$TASKS_OUT/$DIST/$seed"
+for seed in $(list-seeds "$GERMINATE_OUT/STRUCTURE" all); do
+	exec >"$TASKS_OUT/$seed"
 	if [ "$seed" = supported ]; then
 		seedsource="$seed+build-depends"
 	else
@@ -202,9 +202,9 @@ for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
 	fi
 	for arch in $ARCHES; do
 		cpparch="$(echo "$arch" | sed 's/+/_/g')"
-		if [ -e "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages" ]; then
+		if [ -e "$GERMINATE_OUT/$arch/$seedsource.packages" ]; then
 			echo "#ifdef ARCH_$cpparch"
-			cat "$GERMINATE_OUT/$DIST/$arch/$seedsource.packages"
+			cat "$GERMINATE_OUT/$arch/$seedsource.packages"
 			echo "#endif /* ARCH_$cpparch */"
 		fi
 	done
@@ -218,8 +218,8 @@ done
 # Note that the results of this will be wrong for source images, but that
 # doesn't matter since they won't be used there.
 for arch in $ARCHES; do
-	exec >"$TASKS_OUT/$DIST/tasks.$arch"
-	for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" all); do
+	exec >"$TASKS_OUT/tasks.$arch"
+	for seed in $(list-seeds "$GERMINATE_OUT/STRUCTURE" all); do
 		if dist_le dapper; then
 			# Tasks implemented by hand.
 			case $seed in
@@ -266,9 +266,9 @@ for arch in $ARCHES; do
 					task="$seed"
 					;;
 			esac
-			grep -iq '^Task-.*:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext" || \
+			grep -iq '^Task-.*:' "$GERMINATE_OUT/$arch/$task.seedtext" || \
 				continue
-			if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext"; then
+			if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$arch/$task.seedtext"; then
 				task="$TASKPROJECT-$task"
 			fi
 			input_seeds="$seed"
@@ -276,14 +276,14 @@ for arch in $ARCHES; do
 			# Tasks implemented via tasksel, with
 			# Task-Seeds to indicate task/seed mapping.
 			task="$seed"
-			grep -iq '^Task-.*:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext" || \
+			grep -iq '^Task-.*:' "$GERMINATE_OUT/$arch/$task.seedtext" || \
 				continue
-			if grep -iq '^Task-Seeds:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext"; then
-				input_seeds="$seed $(grep -i '^Task-Seeds:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext" | sed 's/^[^:]*: *//')"
+			if grep -iq '^Task-Seeds:' "$GERMINATE_OUT/$arch/$task.seedtext"; then
+				input_seeds="$seed $(grep -i '^Task-Seeds:' "$GERMINATE_OUT/$arch/$task.seedtext" | sed 's/^[^:]*: *//')"
 			else
 				input_seeds="$seed"
 			fi
-			if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$DIST/$arch/$task.seedtext"; then
+			if grep -iq '^Task-Per-Derivative:' "$GERMINATE_OUT/$arch/$task.seedtext"; then
 				# Edubuntu is odd; it's structured
 				# as an add-on to Ubuntu, so
 				# sometimes we need to create
@@ -301,27 +301,27 @@ for arch in $ARCHES; do
 			fi
 		fi
 		for input_seed in $input_seeds; do
-			sed "s/\$/ $task/" "$GERMINATE_OUT/$DIST/$arch/$input_seed.packages"
+			sed "s/\$/ $task/" "$GERMINATE_OUT/$arch/$input_seed.packages"
 		done
 	done
 	if [ "$DIST" = breezy ]; then
-		exec >"$TASKS_OUT/$DIST/acsets.$arch"
-		if [ -e "$GERMINATE_OUT/$DIST/$arch/ship.acsets" ]; then
-			for acset in $(< "$GERMINATE_OUT/$DIST/$arch/ship.acsets"); do
-				< "$GERMINATE_OUT/$DIST/$arch/$acset" \
+		exec >"$TASKS_OUT/acsets.$arch"
+		if [ -e "$GERMINATE_OUT/$arch/ship.acsets" ]; then
+			for acset in $(< "$GERMINATE_OUT/$arch/ship.acsets"); do
+				< "$GERMINATE_OUT/$arch/$acset" \
 					tail -n +3 | head -n -2 | cut -d' ' -f1 | \
 					sed "s/\$/ $acset/"
 			done
 		fi
 	fi
-	exec >"$TASKS_OUT/$DIST/override.$arch"
+	exec >"$TASKS_OUT/override.$arch"
 	perl -alne '
 		push @{$tasks{$F[0]}}, $F[1];
 		END {
 			for my $pkg (sort keys %tasks) {
 				print "$pkg  Task  ", join(", ", @{$tasks{$pkg}});
 			}
-		}' "$TASKS_OUT/$DIST/tasks.$arch"
+		}' "$TASKS_OUT/tasks.$arch"
 	if [ "$DIST" = breezy ]; then
 		perl -alne '
 			push @{$acsets{$F[0]}}, $F[1];
@@ -329,7 +329,7 @@ for arch in $ARCHES; do
 				for my $pkg (sort keys %acsets) {
 					print "$pkg  Archive-Copier-Set  ", join(", ", @{$acsets{$pkg}});
 				}
-			}' "$TASKS_OUT/$DIST/acsets.$arch"
+			}' "$TASKS_OUT/acsets.$arch"
 	fi
 done
 
@@ -337,12 +337,12 @@ done
 # so that debootstrap >= 0.3.1 can work out the correct set of packages
 # to install.
 for arch in $ARCHES; do
-	exec >"$TASKS_OUT/$DIST/important.$arch"
-	for seed in $(list-seeds "$GERMINATE_OUT/$DIST/STRUCTURE" debootstrap); do
+	exec >"$TASKS_OUT/important.$arch"
+	for seed in $(list-seeds "$GERMINATE_OUT/STRUCTURE" debootstrap); do
 		egrep -v '^(linux-(image|restricted|amd64|386|686|k7|power|ia64|itanium|mckinley|sparc|hppa|imx51|dove|omap).*|nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$' \
-			"$GERMINATE_OUT/$DIST/$arch/$seed.packages" || true
+			"$GERMINATE_OUT/$arch/$seed.packages" || true
 	done
 done
 
 # Make the master task file for debian-cd.
-make-master-task "$GERMINATE_OUT/$DIST/STRUCTURE" > "$TASKS_OUT/$DIST/MASTER"
+make-master-task "$GERMINATE_OUT/STRUCTURE" > "$TASKS_OUT/MASTER"

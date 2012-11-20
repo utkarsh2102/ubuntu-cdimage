@@ -28,7 +28,8 @@ def next_build_id(config, image_type):
         image_type = "daily"
     stamp = os.path.join(
         config.root, "etc",
-        ".next-build-suffix-%s-%s" % (config["PROJECT"], image_type))
+        ".next-build-suffix-%s-%s-%s" % (
+            config["PROJECT"], config.series, image_type))
     date = config["DATE"] or time.strftime("%Y%m%d")
 
     if config["DATE_SUFFIX"]:

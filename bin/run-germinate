@@ -9,7 +9,7 @@ if [ -x "$CDIMAGE_ROOT/germinate/bin/germinate" ]; then
 else
     GERMINATE_PATH="$CDIMAGE_ROOT/germinate/germinate.py"
 fi
-GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/germinate"
+GERMINATE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE/germinate"
 # set to the empty string instead to use old-style seed checkouts
 GERMINATE_BZR=--bzr
 
@@ -100,7 +100,7 @@ mkindex () {
 	done | gzip -c > "$GERMINATE_OUT/$target"
 }
 
-mkemptydir "$GERMINATE_OUT/$DIST"
+mkemptydir "$GERMINATE_OUT"
 
 for arch in $ARCHES; do
 	echo "Germinating for $DIST/$arch ..."
@@ -130,8 +130,8 @@ for arch in $ARCHES; do
 	done
 	IFS="$IFS_SAVE"
 
-	mkemptydir "$GERMINATE_OUT/$DIST/$arch"
-	cd "$GERMINATE_OUT/$DIST/$arch"
+	mkemptydir "$GERMINATE_OUT/$arch"
+	cd "$GERMINATE_OUT/$arch"
 	if [ "$GERMINATE_HINTS" ] && [ -f "$GERMINATE_HINTS" ]; then
 		cp -a "$GERMINATE_HINTS" hints
 	fi

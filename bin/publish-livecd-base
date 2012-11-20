@@ -13,7 +13,7 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-LIVE="$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE/live"
+LIVE="$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE/live"
 
 PUBLISH="$CDIMAGE_ROOT/www/full/$IMAGE_TYPE/$DATE"
 

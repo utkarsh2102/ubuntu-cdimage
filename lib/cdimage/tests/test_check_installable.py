@@ -50,11 +50,13 @@ class TestCheckInstallable(TestCase):
         self.assertEqual(os.path.join(self.config.root, "britney"), britney)
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu", "daily", "tmp"),
+                self.config.root, "scratch", "ubuntu", "warty", "daily",
+                "tmp"),
             image_top)
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu", "daily", "live"),
+                self.config.root, "scratch", "ubuntu", "warty", "daily",
+                "live"),
             live)
         self.assertEqual(
             os.path.join(britney, "data", "ubuntu", "daily", "warty"), data)

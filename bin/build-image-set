@@ -45,11 +45,11 @@ cleanup () {
 
 trap cleanup EXIT HUP INT QUIT TERM
 
-if ! lockfile -l 7200 -r 0 "$CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IMAGE_TYPE"; then
+if ! lockfile -l 7200 -r 0 "$CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$DIST-$IMAGE_TYPE"; then
 	echo "Another image set is already building!" >&2
 	exit 1
 fi
-push_cleanup "rm -f $CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$IMAGE_TYPE"
+push_cleanup "rm -f $CDIMAGE_ROOT/etc/.lock-build-image-set-$PROJECT-$DIST-$IMAGE_TYPE"
 
 SEM="$CDIMAGE_ROOT/etc/.sem-build-image-set"
 # Set up a counting semaphore for parallel builds.
@@ -200,8 +200,8 @@ cd "$CDIMAGE_ROOT/debian-cd"
 ./build_all.sh || true
 
 # Kludge to work around permission-handling problems elsewhere.
-find "$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE" -type d -print0 | xargs -0r chmod g+s 2>/dev/null || true
-chmod -R g+rwX "$CDIMAGE_ROOT/scratch/$PROJECT/$IMAGE_TYPE" 2>/dev/null || true
+find "$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE" -type d -print0 | xargs -0r chmod g+s 2>/dev/null || true
+chmod -R g+rwX "$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE" 2>/dev/null || true
 
 # temporarily turned off for live builds
 if [ "$CDIMAGE_INSTALL_BASE" ]; then

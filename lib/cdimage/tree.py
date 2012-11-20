@@ -185,8 +185,8 @@ class DailyTreePublisher(Publisher):
     @property
     def image_output(self):
         return os.path.join(
-            self.config.root, "scratch", self.project, self.image_type,
-            "debian-cd")
+            self.config.root, "scratch", self.project, self.config.series,
+            self.image_type, "debian-cd")
 
     @property
     def britney_report(self):

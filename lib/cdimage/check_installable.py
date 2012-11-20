@@ -31,10 +31,11 @@ from cdimage.osextras import mkemptydir, run_bounded
 def _check_installable_dirs(config):
     britney = os.path.join(config.root, "britney")
     image_top = os.path.join(
-        config.root, "scratch", config["PROJECT"], config["IMAGE_TYPE"], "tmp")
+        config.root, "scratch", config["PROJECT"], config.series,
+        config["IMAGE_TYPE"], "tmp")
     live = os.path.join(
-        config.root, "scratch", config["PROJECT"], config["IMAGE_TYPE"],
-        "live")
+        config.root, "scratch", config["PROJECT"], config.series,
+        config["IMAGE_TYPE"], "live")
     data = os.path.join(
         britney, "data", config["PROJECT"], config["IMAGE_TYPE"],
         config.series)

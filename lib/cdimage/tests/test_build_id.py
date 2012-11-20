@@ -24,7 +24,7 @@ except ImportError:
     from test.test_support import EnvironmentVarGuard
 
 from cdimage.build_id import next_build_id
-from cdimage.config import Config
+from cdimage.config import Config, Series
 from cdimage.tests.helpers import TestCase
 
 
@@ -36,9 +36,11 @@ class TestNextBuildId(TestCase):
             os.mkdir(os.path.join(self.temp_dir, "etc"))
             config = Config(read=False)
             config["PROJECT"] = "ubuntu"
+            config["DIST"] = Series.find_by_name("warty")
             config["DATE"] = "20120806"
             stamp = os.path.join(
-                config.root, "etc", ".next-build-suffix-ubuntu-daily-live")
+                config.root, "etc",
+                ".next-build-suffix-ubuntu-warty-daily-live")
             self.assertFalse(os.path.exists(stamp))
             self.assertEqual("20120806", next_build_id(config, "daily-live"))
             with open(stamp) as stamp_file:

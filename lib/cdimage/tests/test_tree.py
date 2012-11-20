@@ -135,9 +135,11 @@ class TestDailyTreePublisher(TestCase):
         return publisher
 
     def test_image_output(self):
+        self.config["DIST"] = Series.find_by_name("hoary")
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "kubuntu", "daily", "debian-cd"),
+                self.config.root, "scratch", "kubuntu", "hoary", "daily",
+                "debian-cd"),
             self.make_publisher("kubuntu", "daily").image_output)
 
     def test_britney_report(self):
