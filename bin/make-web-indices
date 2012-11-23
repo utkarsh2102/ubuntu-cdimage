@@ -580,7 +580,7 @@ case $DIST in
 		distfullname='Oneiric Ocelot'
 		;;
 	precise)
-		distversion=12.04.1
+		distversion=12.04.2
 		distfullname='Precise Pangolin'
 		case $PROJECT in
 			ubuntu|kubuntu|ubuntu-server)

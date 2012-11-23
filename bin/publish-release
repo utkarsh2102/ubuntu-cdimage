@@ -135,7 +135,7 @@ case $DIST in
 		VERSION=11.10
 		;;
 	precise)
-		VERSION=12.04.1
+		VERSION=12.04.2
 		;;
 	quantal)
 		VERSION=12.10
