@@ -370,7 +370,11 @@ class TestLiveItemPaths(TestCase):
 
     def test_kernel_efi_signed(self):
         self.assertNoPaths("i386", "kernel-efi-signed", "ubuntu", "quantal")
-        self.assertNoPaths("amd64", "kernel-efi-signed", "ubuntu", "precise")
+        self.assertNoPaths("amd64", "kernel-efi-signed", "ubuntu", "oneiric")
+        root = "http://kapok.buildd/~buildd/LiveCD/precise/ubuntu/current"
+        self.assertPathsEqual(
+            ["%s/livecd.ubuntu.kernel-generic.efi.signed" % root],
+            "amd64", "kernel-efi-signed", "ubuntu", "precise")
         root = "http://kapok.buildd/~buildd/LiveCD/quantal/ubuntu/current"
         self.assertPathsEqual(
             ["%s/livecd.ubuntu.kernel-generic.efi.signed" % root],

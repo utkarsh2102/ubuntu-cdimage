@@ -291,7 +291,7 @@ def live_item_paths(config, arch, item):
             yield "%s/livecd.%s.%s-%s" % (
                 root, liveproject_subarch, item, flavour)
     elif item == "kernel-efi-signed":
-        if series >= "quantal" and arch == "amd64":
+        if series >= "precise" and arch == "amd64":
             for flavour in flavours(config, arch):
                 yield "%s/livecd.%s.kernel-%s.efi.signed" % (
                     root, liveproject_subarch, flavour)
