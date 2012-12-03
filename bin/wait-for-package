@@ -56,10 +56,10 @@ else
 fi
 
 echo -n "Waiting for $PACKAGE."
-anonftpsync
+output=$(anonftpsync 2>&1) || echo $output | grep -q lockfile
 while ! zgrep -q "$PACKAGE" "$TARGET"; do
 	echo -n "."
 	sleep 300
-	anonftpsync
+	output=$(anonftpsync 2>&1) || echo $output | grep -q lockfile
 done
 echo " package found."
