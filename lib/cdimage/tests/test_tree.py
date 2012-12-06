@@ -240,7 +240,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-mid", None, "daily-live", 1073741824),
             ("ubuntu-moblin-remix", None, "daily-live", 1073741824),
             ("kubuntu-active", None, "daily-live", 1073741824),
-            ("kubuntu", None, "daily-live", 1000000000),
+            ("kubuntu", None, "daily-live", 1073741824),
             ("ubuntu", None, "dvd", 4700372992),
             ("ubuntu", "precise", "daily-live", 736665600),
             ("ubuntu", "quantal", "daily-live", 801000000),
