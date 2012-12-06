@@ -281,13 +281,10 @@ class DailyTreePublisher(Publisher):
             # Ubuntu Studio is always DVD-sized for now.
             return 4700372992
         elif self.project in (
-            "ubuntu-mid", "ubuntu-moblin-remix", "kubuntu-active"):
+            "ubuntu-mid", "ubuntu-moblin-remix", "kubuntu-active", "kubuntu"):
             # Mobile images are designed for USB drives; arbitrarily pick
             # 1GB as a limit.
             return 1024 * 1024 * 1024
-        elif self.project == "kubuntu":
-            # Kubuntu limit of 1GB [quantal]
-            return 1000000000
         elif (self.project == "ubuntu" and self.publish_type != "dvd" and
               self.config["DIST"] >= "quantal"):
             # Ubuntu quantal onward has an (arbitrary) 801MB limit.
