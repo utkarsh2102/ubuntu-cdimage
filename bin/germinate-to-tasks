@@ -165,7 +165,7 @@ if dist_ge jaunty; then
 			powerpc)
 				cdrom=cdrom/initrd.gz
 				netboot=netboot/initrd.gz
-				subarches='powerpc powerpc64'
+				subarches='powerpc powerpc64 e500 e500mc'
 				;;
 			sparc)
 				cdrom=cdrom/initrd.gz
