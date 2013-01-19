@@ -170,6 +170,17 @@ def flavours(config, arch):
             return ["i386"]
         elif series <= "oneiric":
             return ["generic"]
+        elif series <= "precise":
+            if project in ("ubuntu", "edubuntu", "mythbuntu"):
+                # lts-quantal
+                return ["generic"]
+            elif project in ("xubuntu", "lubuntu"):
+                # non-PAE
+                return ["generic"]
+            elif project == "ubuntustudio":
+                return ["lowlatency-pae"]
+            else:
+                return ["generic-pae"]
         else:
             if project == "ubuntustudio":
                 return ["lowlatency"]

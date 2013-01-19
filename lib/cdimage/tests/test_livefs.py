@@ -273,7 +273,7 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual("generic", "i386", "xubuntu", series)
             self.assertFlavoursEqual("generic", "i386", "lubuntu", series)
         self.assertFlavoursEqual(
-            "lowlatency", "i386", "ubuntustudio", "precise")
+            "lowlatency-pae", "i386", "ubuntustudio", "precise")
         for series in all_series[16:]:
             self.assertFlavoursEqual(
                 "lowlatency", "i386", "ubuntustudio", series)
