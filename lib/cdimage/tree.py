@@ -289,6 +289,9 @@ class DailyTreePublisher(Publisher):
               self.config["DIST"] >= "quantal"):
             # Ubuntu quantal onward has an (arbitrary) 801MB limit.
             return 801000000
+        elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
+            # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
+            return 1024 * 1024 * 1024
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW
