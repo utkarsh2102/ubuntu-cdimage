@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 import HTMLParser
+from optparse import OptionParser
 import os
 import subprocess
 import sys
@@ -11,7 +12,6 @@ from cdimage.tree import DailyTree, DailyTreePublisher
 
 
 warnings = {}
-send_mail = True
 mailer = None
 mailer_stdin = None
 
@@ -187,8 +187,15 @@ def get_all_warnings(projects):
     return '\n\n\n'.join(texts)
 
 
-def create_mail(subject, recipients, body):
-    if send_mail:
+def create_mail(options, subject, recipients, body):
+    if options.stdout:
+        print "Would send mail to:", ', '.join(recipients)
+        print
+        print "Subject: %s" % subject
+        print "X-Generated-By: daily-checks.py"
+        print
+        print body
+    else:
         mailer_args = ['mail', '-s', subject,
                        '-a', 'X-Generated-By: daily-checks.py']
         mailer_args.extend(recipients)
@@ -196,21 +203,14 @@ def create_mail(subject, recipients, body):
         print >>mailer.stdin, body,
         mailer.stdin.close()
         mailer.wait()
-    else:
-        print "Would send mail to:", ', '.join(recipients)
-        print
-        print "Subject: %s" % subject
-        print "X-Generated-By: daily-checks.py"
-        print
-        print body
 
 
-def send_warnings(projects):
+def send_warnings(options, projects):
     releasers = get_notify_addresses()
     all_warnings = get_all_warnings(projects)
     if all_warnings == '':
         all_warnings = 'No problems found!'
-    create_mail('Daily CD health checks', releasers,
+    create_mail(options, 'Daily CD health checks', releasers,
                 """\
 This is a daily health check report on all CD images.
 If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
@@ -225,7 +225,8 @@ If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
             these_warnings = get_warnings(project)
             if these_warnings == '':
                 continue
-            create_mail('%s daily CD health check' % project_title(project),
+            create_mail(options,
+                        '%s daily CD health check' % project_title(project),
                         owners,
                         """\
 This is a daily health check report on the %s CD images.
@@ -235,20 +236,28 @@ If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
 """ % (project_title(project), these_warnings))
 
 
-if len(sys.argv) > 1 and sys.argv[1] == '--stdout':
-    send_mail = False
+def main():
+    parser = OptionParser("%prog [options]")
+    parser.add_option(
+        "--stdout", default=False, action="store_true",
+        help="write to standard output rather than sending mail")
+    options, _ = parser.parse_args()
 
-projects = ('ubuntu', 'ubuntu-server', 'kubuntu', 'edubuntu', 'xubuntu',
-            'ubuntustudio', 'ubuntu-netbook', 'kubuntu-netbook',
-            'ubuntu-moblin-remix')
-active_series = ('precise', 'raring')
+    projects = ('ubuntu', 'ubuntu-server', 'kubuntu', 'edubuntu', 'xubuntu',
+                'ubuntustudio', 'ubuntu-netbook', 'kubuntu-netbook',
+                'ubuntu-moblin-remix')
+    active_series = ('precise', 'raring')
 
-for project in projects:
-    for series in active_series:
-        for image in 'daily-live', 'daily', 'dvd':
-            check_image(project, series, image)
+    for project in projects:
+        for series in active_series:
+            for image in 'daily-live', 'daily', 'dvd':
+                check_image(project, series, image)
 
-        for image in 'daily-live', 'daily', 'dvd':
-            check_uninstallables(project, series, image)
+            for image in 'daily-live', 'daily', 'dvd':
+                check_uninstallables(project, series, image)
 
-send_warnings(projects)
+    send_warnings(options, projects)
+
+
+if __name__ == "__main__":
+    main()
