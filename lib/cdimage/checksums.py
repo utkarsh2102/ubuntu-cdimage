@@ -42,6 +42,7 @@ def apply_sed(text, expression):
         sed.stdin.close()
         return sed.stdout.read()
     finally:
+        sed.stdout.close()
         sed.wait()
 
 

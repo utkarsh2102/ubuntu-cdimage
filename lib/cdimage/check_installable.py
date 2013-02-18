@@ -60,7 +60,7 @@ def _prepare_check_installable(config):
         arch = fullarch.split("+")[0]
 
         packages = os.path.join(data, "Packages_%s" % arch)
-        with open(packages, "w") as packages_file:
+        with open(packages, "wb") as packages_file:
             if config["CDIMAGE_SQUASHFS_BASE"]:
                 squashfs = os.path.join(live, "%s.squashfs" % fullarch)
                 if os.path.exists(squashfs):

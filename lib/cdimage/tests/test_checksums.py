@@ -72,9 +72,9 @@ class TestChecksumFile(TestCase):
 
     def test_checksum_small_file(self):
         entry_path = os.path.join(self.temp_dir, "entry")
-        data = "test\n"
-        with open(entry_path, "w") as entry:
-            print(data, end="", file=entry)
+        data = b"test\n"
+        with open(entry_path, "wb") as entry:
+            entry.write(data)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
         self.assertEqual(
@@ -82,9 +82,9 @@ class TestChecksumFile(TestCase):
 
     def test_checksum_large_file(self):
         entry_path = os.path.join(self.temp_dir, "entry")
-        data = "a" * 1048576
-        with open(entry_path, "w") as entry:
-            print(data, end="", file=entry)
+        data = b"a" * 1048576
+        with open(entry_path, "wb") as entry:
+            entry.write(data)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "SHA1SUMS", hashlib.sha1)
         self.assertEqual(
@@ -92,9 +92,9 @@ class TestChecksumFile(TestCase):
 
     def test_add(self):
         entry_path = os.path.join(self.temp_dir, "entry")
-        data = "test\n"
-        with open(entry_path, "w") as entry:
-            print(data, end="", file=entry)
+        data = b"test\n"
+        with open(entry_path, "wb") as entry:
+            entry.write(data)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
         checksum_file.add("entry")
@@ -108,7 +108,7 @@ class TestChecksumFile(TestCase):
         entry_path = os.path.join(self.temp_dir, "entry")
         data = "test\n"
         with open(entry_path, "w") as entry:
-            print(data, end="", file=entry)
+            entry.write(data)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
         checksum_file.entries["entry"] = ""
@@ -137,7 +137,7 @@ class TestChecksumFile(TestCase):
             print("mtime", end="", file=entry)
         checksum_file.add("entry")
         self.assertEqual(
-            hashlib.md5("mtime").hexdigest(), checksum_file.entries["entry"])
+            hashlib.md5(b"mtime").hexdigest(), checksum_file.entries["entry"])
 
     def test_add_updated_ctime(self):
         # Adding an existing file with a ctime newer than that of the
@@ -155,7 +155,7 @@ class TestChecksumFile(TestCase):
         self.rewind_mtime(path)
         checksum_file.add("entry")
         self.assertEqual(
-            hashlib.md5("ctime").hexdigest(), checksum_file.entries["entry"])
+            hashlib.md5(b"ctime").hexdigest(), checksum_file.entries["entry"])
 
     def test_remove(self):
         checksum_file = ChecksumFile(
@@ -214,7 +214,7 @@ class TestChecksumFile(TestCase):
                 %s *1
                 %s *2
                 """) % (
-                hashlib.md5("1").hexdigest(), hashlib.md5("2").hexdigest())
+                hashlib.md5(b"1").hexdigest(), hashlib.md5(b"2").hexdigest())
             self.assertEqual(expected, md5sums.read())
         self.assertEqual(
             0,
@@ -237,7 +237,7 @@ class TestChecksumFile(TestCase):
             checksum_file.remove("1")
         with open(md5sums_path) as md5sums:
             self.assertEqual(
-                "%s *2\n" % hashlib.md5("2").hexdigest(), md5sums.read())
+                "%s *2\n" % hashlib.md5(b"2").hexdigest(), md5sums.read())
 
 
 class TestChecksumFileSet(TestCase):
@@ -287,7 +287,7 @@ class TestChecksumFileSet(TestCase):
                     [command, "-b", "entry"], stdout=f, cwd=self.temp_dir)
         checksum_files = self.cls(self.config, self.temp_dir)
         checksum_files.read()
-        self.assertChecksumsEqual({"entry": "data"}, checksum_files)
+        self.assertChecksumsEqual({"entry": b"data"}, checksum_files)
 
     def test_add(self):
         entry_path = os.path.join(self.temp_dir, "entry")
@@ -296,7 +296,7 @@ class TestChecksumFileSet(TestCase):
             print(data, end="", file=entry)
         checksum_files = self.cls(self.config, self.temp_dir)
         checksum_files.add("entry")
-        self.assertChecksumsEqual({"entry": "test\n"}, checksum_files)
+        self.assertChecksumsEqual({"entry": b"test\n"}, checksum_files)
 
     def test_remove(self):
         entry_path = os.path.join(self.temp_dir, "entry")
@@ -319,7 +319,7 @@ class TestChecksumFileSet(TestCase):
         self.create_checksum_files(["entry"], directory=old_dir)
         checksum_files = self.cls(self.config, self.temp_dir)
         checksum_files.merge([old_dir], "entry", ["entry"])
-        self.assertChecksumsEqual({"entry": "data"}, checksum_files)
+        self.assertChecksumsEqual({"entry": b"data"}, checksum_files)
 
     def test_want_image(self):
         checksum_files = self.cls(self.config, self.temp_dir)
@@ -349,9 +349,9 @@ class TestChecksumFileSet(TestCase):
         checksum_files = self.cls(self.config, self.temp_dir)
         checksum_files.merge_all([old_dir], map_expr=r"s/\.iso$/.raw/")
         self.assertChecksumsEqual({
-            "foo-amd64.iso": "foo-amd64.iso",
-            "foo-hppa.iso": "foo-hppa.raw",
-            "foo-i386.iso": "foo-i386.raw",
+            "foo-amd64.iso": b"foo-amd64.iso",
+            "foo-hppa.iso": b"foo-hppa.raw",
+            "foo-i386.iso": b"foo-i386.raw",
         }, checksum_files)
 
     def test_write(self):
@@ -378,17 +378,18 @@ class TestChecksumFileSet(TestCase):
         self.create_checksum_files(["1", "2"])
         with self.cls(
                 self.config, self.temp_dir, sign=False) as checksum_files:
-            self.assertChecksumsEqual({"1": "1", "2": "2"}, checksum_files)
+            self.assertChecksumsEqual({"1": b"1", "2": b"2"}, checksum_files)
             checksum_files.remove("1")
         with open(os.path.join(self.temp_dir, "MD5SUMS")) as md5sums:
             self.assertEqual(
-                "%s *2\n" % hashlib.md5("2").hexdigest(), md5sums.read())
+                "%s *2\n" % hashlib.md5(b"2").hexdigest(), md5sums.read())
         with open(os.path.join(self.temp_dir, "SHA1SUMS")) as sha1sums:
             self.assertEqual(
-                "%s *2\n" % hashlib.sha1("2").hexdigest(), sha1sums.read())
+                "%s *2\n" % hashlib.sha1(b"2").hexdigest(), sha1sums.read())
         with open(os.path.join(self.temp_dir, "SHA256SUMS")) as sha256sums:
             self.assertEqual(
-                "%s *2\n" % hashlib.sha256("2").hexdigest(), sha256sums.read())
+                "%s *2\n" % hashlib.sha256(b"2").hexdigest(),
+                sha256sums.read())
 
     def test_checksum_directory(self):
         old_dir = os.path.join(self.temp_dir, "old")
@@ -414,9 +415,9 @@ class TestChecksumFileSet(TestCase):
             map_expr=r"s/\.iso$/.raw/")
         with open(os.path.join(self.temp_dir, "MD5SUMS")) as md5sums:
             digests = (
-                hashlib.md5("foo-amd64.iso").hexdigest(),
-                hashlib.md5("foo-hppa.raw").hexdigest(),
-                hashlib.md5("foo-i386.raw").hexdigest(),
+                hashlib.md5(b"foo-amd64.iso").hexdigest(),
+                hashlib.md5(b"foo-hppa.raw").hexdigest(),
+                hashlib.md5(b"foo-i386.raw").hexdigest(),
             )
             self.assertEqual(dedent("""\
                 %s *foo-amd64.iso
@@ -470,8 +471,8 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
         checksum_files = self.cls(self.config, self.temp_dir)
         checksum_files.merge_all([old_dir])
         self.assertChecksumsEqual({
-            "foo-amd64.metalink": "foo-amd64.metalink",
-            "foo-i386.metalink": "foo-i386.metalink",
+            "foo-amd64.metalink": b"foo-amd64.metalink",
+            "foo-i386.metalink": b"foo-i386.metalink",
         }, checksum_files)
 
     def test_context_manager(self):
@@ -482,11 +483,11 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
         self.create_checksum_files(["1", "2"])
         with self.cls(
                 self.config, self.temp_dir, sign=False) as checksum_files:
-            self.assertChecksumsEqual({"1": "1", "2": "2"}, checksum_files)
+            self.assertChecksumsEqual({"1": b"1", "2": b"2"}, checksum_files)
             checksum_files.remove("1")
         with open(os.path.join(self.temp_dir, "MD5SUMS-metalink")) as md5sums:
             self.assertEqual(
-                "%s *2\n" % hashlib.md5("2").hexdigest(), md5sums.read())
+                "%s *2\n" % hashlib.md5(b"2").hexdigest(), md5sums.read())
 
     def test_checksum_directory(self):
         old_dir = os.path.join(self.temp_dir, "old")
@@ -511,8 +512,8 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
             self.config, self.temp_dir, old_directories=[old_dir])
         with open(os.path.join(self.temp_dir, "MD5SUMS-metalink")) as md5sums:
             digests = (
-                hashlib.md5("foo-amd64.metalink").hexdigest(),
-                hashlib.md5("foo-i386.metalink").hexdigest(),
+                hashlib.md5(b"foo-amd64.metalink").hexdigest(),
+                hashlib.md5(b"foo-i386.metalink").hexdigest(),
             )
             self.assertEqual(dedent("""\
                 %s *foo-amd64.metalink

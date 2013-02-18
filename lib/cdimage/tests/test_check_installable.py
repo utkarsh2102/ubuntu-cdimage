@@ -77,7 +77,7 @@ class TestCheckInstallable(TestCase):
         os.makedirs(os.path.dirname(packages_gz))
         packages_gz_file = gzip.open(packages_gz, "wb")
         try:
-            packages_gz_file.write("Package: foo\n\n")
+            packages_gz_file.write(b"Package: foo\n\n")
         finally:
             packages_gz_file.close()
         self.capture_logging()

@@ -11,6 +11,7 @@
 ./scratch
 ./secret
 ./www
+__pycache__
 etc/.lock*
 etc/.next-build-suffix*
 etc/.sem-build-image-set
