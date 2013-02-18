@@ -113,7 +113,6 @@ def livecd_base(config, arch):
         return config["LIVECD_BASE"]
 
     cpuarch, subarch = split_arch(arch)
-    project = config["PROJECT"]
     series = config["DIST"]
 
     if config["LIVECD"]:
