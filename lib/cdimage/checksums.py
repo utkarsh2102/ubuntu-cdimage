@@ -78,8 +78,19 @@ class ChecksumFile:
             return hash_obj.hexdigest()
 
     def add(self, entry_name):
-        if entry_name not in self.entries:
-            entry_path = os.path.join(self.directory, entry_name)
+        try:
+            this_time = os.stat(self.path).st_mtime
+        except OSError:
+            this_time = None
+        entry_path = os.path.join(self.directory, entry_name)
+        try:
+            entry_stat = os.stat(entry_path)
+            entry_time = max(entry_stat.st_mtime, entry_stat.st_ctime)
+        except OSError:
+            entry_time = None
+        if (entry_name not in self.entries or
+            (this_time is not None and entry_time is not None and
+             entry_time > this_time)):
             self.entries[entry_name] = self.checksum(entry_path)
 
     def remove(self, entry_name):

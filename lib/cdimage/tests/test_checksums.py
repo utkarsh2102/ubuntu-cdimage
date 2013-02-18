@@ -102,8 +102,9 @@ class TestChecksumFile(TestCase):
             {"entry": hashlib.md5(data).hexdigest()}, checksum_file.entries)
 
     def test_add_existing(self):
-        # Attempting to add an existing file has no effect.  (Use .remove()
-        # first to overwrite an existing checksum.)
+        # Attempting to add an existing file that is not newer than the
+        # checksums file has no effect.  (Use .remove() first to overwrite
+        # an existing checksum.)
         entry_path = os.path.join(self.temp_dir, "entry")
         data = "test\n"
         with open(entry_path, "w") as entry:
@@ -113,6 +114,48 @@ class TestChecksumFile(TestCase):
         checksum_file.entries["entry"] = ""
         checksum_file.add("entry")
         self.assertEqual("", checksum_file.entries["entry"])
+
+    def rewind_mtime(self, path):
+        # Set the mtime of path back one second.  We can use this to create
+        # files with differing timestamps without having to introduce
+        # arbitrary delays.
+        st = os.stat(path)
+        os.utime(path, (st.st_mtime - 1, st.st_mtime - 1))
+
+    def test_add_updated_mtime(self):
+        # Adding an existing file with an mtime newer than that of the
+        # checksums file causes its checksum to be updated.
+        path = os.path.join(self.temp_dir, "entry")
+        with open(path, "w") as entry:
+            pass
+        checksum_file = ChecksumFile(
+            self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
+        checksum_file.add("entry")
+        checksum_file.write()
+        self.rewind_mtime(checksum_file.path)
+        with open(path, "w") as entry:
+            print("mtime", end="", file=entry)
+        checksum_file.add("entry")
+        self.assertEqual(
+            hashlib.md5("mtime").hexdigest(), checksum_file.entries["entry"])
+
+    def test_add_updated_ctime(self):
+        # Adding an existing file with a ctime newer than that of the
+        # checksums file causes its checksum to be updated.
+        path = os.path.join(self.temp_dir, "entry")
+        with open(path, "w") as entry:
+            print("ctime", end="", file=entry)
+        checksum_file = ChecksumFile(
+            self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
+        checksum_file.entries["entry"] = ""
+        checksum_file.write()
+        # We can simulate a ctime change by rewinding the mtime of both
+        # entry and the checksums file.
+        self.rewind_mtime(checksum_file.path)
+        self.rewind_mtime(path)
+        checksum_file.add("entry")
+        self.assertEqual(
+            hashlib.md5("ctime").hexdigest(), checksum_file.entries["entry"])
 
     def test_remove(self):
         checksum_file = ChecksumFile(
