@@ -43,7 +43,7 @@ def _trigger_mirror(key, user, host, background=False):
         "-o", "BatchMode yes",
         "%s@%s" % (user, host),
         "./releases-sync",
-        ]
+    ]
     if background:
         subprocess.Popen(command)
     else:

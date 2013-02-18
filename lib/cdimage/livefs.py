@@ -102,9 +102,9 @@ def live_project(config):
         liveproject = project
     if config["CDIMAGE_DVD"]:
         if ((project in ("ubuntu", "kubuntu") and series >= "hardy") or
-            (project == "edubuntu" and series >= "karmic") or
-            (project == "ubuntustudio" and series >= "precise")):
-                liveproject += "-dvd"
+                (project == "edubuntu" and series >= "karmic") or
+                (project == "ubuntustudio" and series >= "precise")):
+            liveproject += "-dvd"
     return liveproject
 
 
@@ -246,10 +246,10 @@ def live_item_path_winfoss(config, arch):
         elif series == "breezy":
             if cpuarch == "i386":
                 return ("%s/winfoss/kubuntu/current/"
-                       "Kubuntu-WinFOSS-5.10.tgz" % maitri)
+                        "Kubuntu-WinFOSS-5.10.tgz" % maitri)
             elif cpuarch == "amd64":
                 return ("%s/winfoss/kubuntu-AMD/current/"
-                       "Kubuntu-WinFOSS-5.10-AMD.tgz" % maitri)
+                        "Kubuntu-WinFOSS-5.10-AMD.tgz" % maitri)
         elif series >= "dapper" and series <= "karmic":
             if series > "gutsy":
                 series = Series.find_by_name("gutsy")
@@ -283,7 +283,7 @@ def live_item_paths(config, arch, item):
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
         "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "tar.xz", "iso",
-        ):
+    ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
             yield "/home/cjwatson/tocd3/livecd.tocd3.%s" % item
@@ -308,7 +308,7 @@ def live_item_paths(config, arch, item):
         yield live_item_path_winfoss(config, arch)
     elif item == "wubi":
         if (project != "xubuntu" and arch in ("amd64", "i386") and
-            series >= "gutsy"):
+                series >= "gutsy"):
             yield ("http://people.canonical.com/~evand/wubi/%s/stable" %
                    series.name)
         else:

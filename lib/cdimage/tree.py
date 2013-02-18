@@ -31,7 +31,7 @@ from cdimage.checksums import (
     ChecksumFileSet,
     checksum_directory,
     metalink_checksum_directory,
-    )
+)
 from cdimage.config import Series
 from cdimage.log import logger
 from cdimage import osextras
@@ -56,7 +56,7 @@ projects = [
     "ubuntu-server",
     "ubuntustudio",
     "xubuntu",
-    ]
+]
 
 
 def zsyncmake(infile, outfile, url):
@@ -108,8 +108,8 @@ class Tree:
     def manifest_file_allowed(self, path):
         """Return true if a given file is allowed in the manifest."""
         if (path.endswith(".iso") or path.endswith(".img") or
-            path.endswith(".img.gz") or path.endswith(".tar.gz") or
-            path.endswith(".tar.xz")):
+                path.endswith(".img.gz") or path.endswith(".tar.gz") or
+                path.endswith(".tar.xz")):
             if stat.S_ISREG(os.stat(path).st_mode):
                 return True
         return False
@@ -152,7 +152,7 @@ class DailyTree(Tree):
         """Yield all the files to include in a manifest of this tree."""
         seen_inodes = []
         for dirpath, dirnames, filenames in os.walk(
-            self.directory, followlinks=True):
+                self.directory, followlinks=True):
             # Detect loops.
             st = os.stat(dirpath)
             dev_ino = (st.st_dev, st.st_ino)
@@ -281,7 +281,8 @@ class DailyTreePublisher(Publisher):
             # Ubuntu Studio is always DVD-sized for now.
             return 4700372992
         elif self.project in (
-            "ubuntu-mid", "ubuntu-moblin-remix", "kubuntu-active", "kubuntu"):
+                "ubuntu-mid", "ubuntu-moblin-remix",
+                "kubuntu-active", "kubuntu"):
             # Mobile images are designed for USB drives; arbitrarily pick
             # 1GB as a limit.
             return 1024 * 1024 * 1024
@@ -408,7 +409,7 @@ class DailyTreePublisher(Publisher):
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
         self.checksum_dirs.append(source_dir)
         with ChecksumFileSet(
-            self.config, target_dir, sign=False) as checksum_files:
+                self.config, target_dir, sign=False) as checksum_files:
             checksum_files.remove("%s.%s" % (out_prefix, extension))
 
         # Jigdo integration
@@ -435,7 +436,7 @@ class DailyTreePublisher(Publisher):
             osextras.unlink_force("%s.manifest" % target_prefix)
 
         if (self.config["CDIMAGE_SQUASHFS_BASE"] and
-            os.path.exists("%s.squashfs" % source_prefix)):
+                os.path.exists("%s.squashfs" % source_prefix)):
             logger.info("Publishing %s squashfs ..." % arch)
             shutil.move(
                 "%s.squashfs" % source_prefix, "%s.squashfs" % target_prefix)
@@ -482,7 +483,7 @@ class DailyTreePublisher(Publisher):
             shutil.move("%s.raw" % source_prefix, "%s.iso" % target_prefix)
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
             with ChecksumFileSet(
-                self.config, target_dir, sign=False) as checksum_files:
+                    self.config, target_dir, sign=False) as checksum_files:
                 checksum_files.remove("%s.iso" % out_prefix)
 
             # Jigdo integration
@@ -533,7 +534,7 @@ class DailyTreePublisher(Publisher):
             self.britney_report, "%s_probs.html" % self.config.series)
         target_report = os.path.join(target_dir, "report.html")
         if (self.config["CDIMAGE_INSTALL_BASE"] and
-            os.path.exists(source_report)):
+                os.path.exists(source_report)):
             shutil.copy2(source_report, target_report)
         else:
             osextras.unlink_force(target_report)
@@ -557,7 +558,7 @@ class DailyTreePublisher(Publisher):
                  target_dir_source, self.config.series, "daily"])
 
         if (self.image_type.endswith("-live") or
-            self.image_type.endswith("dvd")):
+                self.image_type.endswith("dvd")):
             # Create and publish metalink files.
             md5sums_metalink = os.path.join(target_dir, "MD5SUMS-metalink")
             md5sums_metalink_gpg = os.path.join(
@@ -568,7 +569,7 @@ class DailyTreePublisher(Publisher):
             if subprocess.call([
                 os.path.join(self.config.root, "bin", "make-metalink"),
                 basedir, self.config.series, reldir, "cdimage.ubuntu.com",
-                ]) == 0:
+            ]) == 0:
                 metalink_checksum_directory(self.config, target_dir)
             else:
                 for name in os.listdir(target_dir):
@@ -608,7 +609,7 @@ class DailyTreePublisher(Publisher):
 
         subprocess.check_call([
             os.path.join(self.config.root, "bin", "post-qa"), date,
-            ] + published)
+        ] + published)
 
 
 class SimpleTree(Tree):

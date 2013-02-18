@@ -150,7 +150,7 @@ class ChecksumFileSet:
         "MD5SUMS": hashlib.md5,
         "SHA1SUMS": hashlib.sha1,
         "SHA256SUMS": hashlib.sha256,
-        }
+    }
 
     def __init__(self, config, directory, sign=True):
         self.config = config
@@ -179,16 +179,16 @@ class ChecksumFileSet:
     def want_image(self, image):
         """Return true if and only if we want to checksum this image."""
         if (image.endswith(".img") or
-            image.endswith(".iso") or
-            image.endswith(".exe") or
-            image.endswith(".img.gz") or
-            image.endswith(".img.tar.gz") or
-            "-vmlinuz-" in image or
-            "-initrd-" in image or
-            image.endswith(".tar.gz") or
-            image.endswith(".bootimg") or
-            image.endswith(".tar.xz") or
-            image.endswith(".squashfs")):
+                image.endswith(".iso") or
+                image.endswith(".exe") or
+                image.endswith(".img.gz") or
+                image.endswith(".img.tar.gz") or
+                "-vmlinuz-" in image or
+                "-initrd-" in image or
+                image.endswith(".tar.gz") or
+                image.endswith(".bootimg") or
+                image.endswith(".tar.xz") or
+                image.endswith(".squashfs")):
             return True
         else:
             return False
@@ -226,7 +226,7 @@ class MetalinkChecksumFileSet(ChecksumFileSet):
 
     checksum_file_methods = {
         "MD5SUMS-metalink": hashlib.md5,
-        }
+    }
 
     def want_image(self, image):
         """Return true if and only if we want to checksum this image."""
@@ -243,6 +243,7 @@ def checksum_directory(config, directory, old_directories=None, map_expr=None):
     checksum_files = ChecksumFileSet(config, directory)
     checksum_files.merge_all(old_directories, map_expr=map_expr)
     checksum_files.write()
+
 
 def metalink_checksum_directory(config, directory, old_directories=None):
     if old_directories is None:

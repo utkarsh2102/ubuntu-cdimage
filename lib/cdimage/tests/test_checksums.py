@@ -35,7 +35,7 @@ from cdimage.checksums import (
     checksum_directory,
     MetalinkChecksumFileSet,
     metalink_checksum_directory,
-    )
+)
 from cdimage.config import Config
 from cdimage.tests.helpers import TestCase, touch
 
@@ -210,12 +210,12 @@ class TestChecksumFile(TestCase):
             checksum_file.add(name)
         checksum_file.write()
         with open(checksum_file.path) as md5sums:
-            self.assertEqual(dedent("""\
+            expected = dedent("""\
                 %s *1
                 %s *2
-                """) %
-                (hashlib.md5("1").hexdigest(), hashlib.md5("2").hexdigest()),
-                md5sums.read())
+                """) % (
+                hashlib.md5("1").hexdigest(), hashlib.md5("2").hexdigest())
+            self.assertEqual(expected, md5sums.read())
         self.assertEqual(
             0,
             subprocess.call(
@@ -231,8 +231,8 @@ class TestChecksumFile(TestCase):
             subprocess.call(
                 ["md5sum", "-b", "1", "2"], stdout=md5sums, cwd=self.temp_dir)
         with ChecksumFile(
-            self.config, self.temp_dir, "MD5SUMS", hashlib.md5,
-            sign=False) as checksum_file:
+                self.config, self.temp_dir, "MD5SUMS", hashlib.md5,
+                sign=False) as checksum_file:
             self.assertEqual(["1", "2"], sorted(checksum_file.entries))
             checksum_file.remove("1")
         with open(md5sums_path) as md5sums:
@@ -249,7 +249,7 @@ class TestChecksumFileSet(TestCase):
             "MD5SUMS": "md5sum",
             "SHA1SUMS": "sha1sum",
             "SHA256SUMS": "sha256sum",
-            }
+        }
         self.cls = ChecksumFileSet
 
     def create_checksum_files(self, names, directory=None):
@@ -271,7 +271,7 @@ class TestChecksumFileSet(TestCase):
             "SHA256SUMS": dict(
                 (k, hashlib.sha256(v).hexdigest())
                 for k, v in entry_data.items()),
-            }
+        }
         observed = dict(
             (cf.name, cf.entries) for cf in checksum_files.checksum_files)
         self.assertEqual(expected, observed)
@@ -352,7 +352,7 @@ class TestChecksumFileSet(TestCase):
             "foo-amd64.iso": "foo-amd64.iso",
             "foo-hppa.iso": "foo-hppa.raw",
             "foo-i386.iso": "foo-i386.raw",
-            }, checksum_files)
+        }, checksum_files)
 
     def test_write(self):
         checksum_files = self.cls(
@@ -377,7 +377,7 @@ class TestChecksumFileSet(TestCase):
                 print(name, end="", file=entry)
         self.create_checksum_files(["1", "2"])
         with self.cls(
-            self.config, self.temp_dir, sign=False) as checksum_files:
+                self.config, self.temp_dir, sign=False) as checksum_files:
             self.assertChecksumsEqual({"1": "1", "2": "2"}, checksum_files)
             checksum_files.remove("1")
         with open(os.path.join(self.temp_dir, "MD5SUMS")) as md5sums:
@@ -417,19 +417,20 @@ class TestChecksumFileSet(TestCase):
                 hashlib.md5("foo-amd64.iso").hexdigest(),
                 hashlib.md5("foo-hppa.raw").hexdigest(),
                 hashlib.md5("foo-i386.raw").hexdigest(),
-                )
+            )
             self.assertEqual(dedent("""\
                 %s *foo-amd64.iso
                 %s *foo-hppa.iso
                 %s *foo-i386.iso
                 """) % digests, md5sums.read())
 
+
 class TestMetalinkChecksumFileSet(TestChecksumFileSet):
     def setUp(self):
         super(TestMetalinkChecksumFileSet, self).setUp()
         self.files_and_commands = {
             "MD5SUMS-metalink": "md5sum",
-            }
+        }
         self.cls = MetalinkChecksumFileSet
 
     def assertChecksumsEqual(self, entry_data, checksum_files):
@@ -437,7 +438,7 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
             "MD5SUMS-metalink": dict(
                 (k, hashlib.md5(v).hexdigest())
                 for k, v in entry_data.items()),
-            }
+        }
         observed = dict(
             (cf.name, cf.entries) for cf in checksum_files.checksum_files)
         self.assertEqual(expected, observed)
@@ -471,7 +472,7 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
         self.assertChecksumsEqual({
             "foo-amd64.metalink": "foo-amd64.metalink",
             "foo-i386.metalink": "foo-i386.metalink",
-            }, checksum_files)
+        }, checksum_files)
 
     def test_context_manager(self):
         for name in "1", "2":
@@ -480,7 +481,7 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
                 print(name, end="", file=entry)
         self.create_checksum_files(["1", "2"])
         with self.cls(
-            self.config, self.temp_dir, sign=False) as checksum_files:
+                self.config, self.temp_dir, sign=False) as checksum_files:
             self.assertChecksumsEqual({"1": "1", "2": "2"}, checksum_files)
             checksum_files.remove("1")
         with open(os.path.join(self.temp_dir, "MD5SUMS-metalink")) as md5sums:
@@ -512,7 +513,7 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
             digests = (
                 hashlib.md5("foo-amd64.metalink").hexdigest(),
                 hashlib.md5("foo-i386.metalink").hexdigest(),
-                )
+            )
             self.assertEqual(dedent("""\
                 %s *foo-amd64.metalink
                 %s *foo-i386.metalink

@@ -28,7 +28,7 @@ from cdimage.check_installable import (
     _check_installable_command,
     _check_installable_dirs,
     _prepare_check_installable,
-    )
+)
 from cdimage.config import Config, Series
 from cdimage.tests.helpers import TestCase
 

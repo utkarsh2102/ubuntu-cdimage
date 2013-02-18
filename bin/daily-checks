@@ -119,8 +119,9 @@ def check_image(project, series, image):
                                  (iso, size - sizelimit, size))
 
     if project == 'xubuntu':
-        for manifest in filter(lambda x: x.endswith('.list') or
-                                         x.endswith('.manifest'), files):
+        for manifest in filter(
+                lambda x: x.endswith('.list') or x.endswith('.manifest'),
+                files):
             if manifest.endswith('.list'):
                 iso = manifest[:-5]
             else:
@@ -161,7 +162,7 @@ def get_notify_addresses(project=None):
         for line in fp:
             this_project, addresses = line.split(None, 1)
             if (this_project == 'ALL' or
-                (project is not None and this_project == project)):
+                    (project is not None and this_project == project)):
                 all_addresses.extend(addresses.split())
         return all_addresses
 
@@ -219,8 +220,9 @@ If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
 """ % all_warnings)
 
     for project in projects:
-        owners = [owner for owner in get_notify_addresses(project)
-                        if owner not in releasers]
+        owners = [
+            owner for owner in get_notify_addresses(project)
+            if owner not in releasers]
         if owners:
             these_warnings = get_warnings(project)
             if these_warnings == '':

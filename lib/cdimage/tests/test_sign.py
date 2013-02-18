@@ -48,7 +48,7 @@ class TestSign(TestCase):
             "--default-key", "01234567",
             "--no-options", "--batch", "--no-tty",
             "--armour", "--detach-sign",
-            ], command)
+        ], command)
 
     def test_sign_cdimage_missing_gnupg_files(self):
         config = Config(read=False)

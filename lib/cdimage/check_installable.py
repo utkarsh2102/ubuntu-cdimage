@@ -70,13 +70,13 @@ def _prepare_check_installable(config):
                             "unsquashfs",
                             "-d", os.path.join(_tempdir, fullarch),
                             squashfs, "/var/lib/dpkg/status",
-                            ], stdout=devnull)
+                        ], stdout=devnull)
                     status_path = os.path.join(
                         _tempdir, fullarch, "var", "lib", "dpkg", "status")
                     with open(os.path.join(status_path)) as status:
                         subprocess.call([
                             "grep-dctrl", "-XFStatus", "install ok installed",
-                            ], stdin=status, stdout=packages_file)
+                        ], stdin=status, stdout=packages_file)
 
             for component in "main", "restricted", "universe", "multiverse":
                 packages_gz = os.path.join(
@@ -109,7 +109,7 @@ def _check_installable_command(config):
         os.path.join(britney, "rptprobs.sh"), data,
         os.path.join(report_dir, "%s_probs.html" % config.series),
         "%s %s" % (config["CAPPROJECT"], config.series),
-        ]
+    ]
 
 
 def check_installable(config):

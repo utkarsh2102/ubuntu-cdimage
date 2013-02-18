@@ -118,7 +118,7 @@ all_series.extend([
     Series("precise", "12.04", "Precise Pangolin"),
     Series("quantal", "12.10", "Quantal Quetzal"),
     Series("raring", "13.04", "Raring Ringtail"),
-    ])
+])
 
 
 _whitelisted_keys = (
@@ -144,7 +144,7 @@ _whitelisted_keys = (
     "LIVECD_BASE",
     "SUBPROJECT",
     "UBUNTU_DEFAULTS_LOCALE",
-    )
+)
 
 
 class Config(defaultdict):

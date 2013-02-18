@@ -48,7 +48,7 @@ class TestTree(TestCase):
             for name in (
                 "foo.iso", "foo.img", "foo.img.gz",
                 "foo.tar.gz", "foo.tar.xz",
-                )]
+            )]
         for path in paths:
             touch(path)
             self.assertTrue(self.tree.manifest_file_allowed(path))
@@ -114,7 +114,7 @@ class TestDailyTree(TestCase):
         self.assertEqual([
             "ubuntu\thoary\t/daily-live/current/hoary-live-i386.iso\t0",
             "ubuntu\thoary\t/daily/current/hoary-install-i386.iso\t0",
-            ], self.tree.manifest())
+        ], self.tree.manifest())
 
 
 class TestDailyTreePublisher(TestCase):
@@ -227,7 +227,7 @@ class TestDailyTreePublisher(TestCase):
             ("daily", "ubuntu-server", "dapper", "server"),
             ("daily", "ubuntu", "breezy", "install"),
             ("daily", "ubuntu", "dapper", "alternate"),
-            ):
+        ):
             self.config["DIST"] = Series.find_by_name(dist)
             publisher = self.make_publisher(project, image_type)
             self.assertEqual(publish_type, publisher.publish_type)
@@ -246,7 +246,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "quantal", "daily-live", 801000000),
             ("xubuntu", "quantal", "daily-live", 736665600),
             ("xubuntu", "raring", "daily-live", 1073741824),
-            ):
+        ):
             if dist is not None:
                 self.config["DIST"] = Series.find_by_name(dist)
             publisher = self.make_publisher(project, image_type)
@@ -361,14 +361,14 @@ class TestDailyTreePublisher(TestCase):
             "Publishing i386 ...",
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
-            ])
+        ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
         self.assertEqual([
             "%s-desktop-i386.iso" % self.config.series,
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
-            ], sorted(os.listdir(target_dir)))
+        ], sorted(os.listdir(target_dir)))
 
     def test_publish_source(self):
         publisher = self.make_publisher(
@@ -392,7 +392,7 @@ class TestDailyTreePublisher(TestCase):
             "Publishing source 1 jigdo ...",
             "Publishing source 2 ...",
             "Publishing source 2 jigdo ...",
-            ])
+        ])
         target_dir = os.path.join(publisher.publish_base, "20120807", "source")
         self.assertEqual([], os.listdir(source_dir))
         self.assertEqual([
@@ -404,7 +404,7 @@ class TestDailyTreePublisher(TestCase):
             "%s-src-2.jigdo" % self.config.series,
             "%s-src-2.list" % self.config.series,
             "%s-src-2.template" % self.config.series,
-            ], sorted(os.listdir(target_dir)))
+        ], sorted(os.listdir(target_dir)))
 
     def test_publish(self):
         self.config["ARCHES"] = "i386"
@@ -436,7 +436,7 @@ class TestDailyTreePublisher(TestCase):
             "Publishing i386 live manifest ...",
             "No keys found; not signing images.",
             "No keys found; not signing images.",
-            ])
+        ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
         self.assertEqual(sorted([
@@ -447,7 +447,7 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
             "report.html",
-            ]), sorted(os.listdir(target_dir)))
+        ]), sorted(os.listdir(target_dir)))
 
 
 class TestSimpleTree(TestCase):
@@ -502,7 +502,7 @@ class TestSimpleTree(TestCase):
         self.assertEqual([
             "warty/ubuntu-4.10-install-i386.iso",
             ".pool/ubuntu-4.10-install-amd64.iso",
-            ], list(self.tree.manifest_files()))
+        ], list(self.tree.manifest_files()))
 
     def test_manifest(self):
         pool = os.path.join(self.temp_dir, "kubuntu", ".pool")
@@ -520,4 +520,4 @@ class TestSimpleTree(TestCase):
         self.assertEqual([
             "kubuntu\thoary\t/kubuntu/hoary/kubuntu-5.04-install-i386.iso\t0",
             "kubuntu\thoary\t/kubuntu/hoary/kubuntu-5.04-live-i386.iso\t0",
-            ], self.tree.manifest())
+        ], self.tree.manifest())

@@ -36,7 +36,7 @@ all_series = [
     "feisty",
     "gutsy",
     "hardy",
-    ]
+]
 
 
 class TestChecksumFile(TestCase):

@@ -31,7 +31,7 @@ from cdimage.tree import DailyTree, SimpleTree
 tree_classes = {
     "simple": SimpleTree,
     "daily": DailyTree,
-    }
+}
 
 
 def main():

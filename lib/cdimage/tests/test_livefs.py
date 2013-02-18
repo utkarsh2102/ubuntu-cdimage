@@ -28,7 +28,7 @@ from cdimage.livefs import (
     livecd_base,
     NoLiveItem,
     split_arch,
-    )
+)
 from cdimage.tests.helpers import TestCase
 
 
@@ -52,7 +52,7 @@ all_series = [
     "precise",
     "quantal",
     "raring",
-    ]
+]
 
 
 class TestSplitArch(TestCase):
@@ -353,7 +353,7 @@ class TestLiveItemPaths(TestCase):
             "cloop", "squashfs", "manifest", "manifest-desktop",
             "manifest-remove", "size", "ext2", "ext3", "ext4", "rootfs.tar.gz",
             "tar.xz", "iso",
-            ):
+        ):
             self.assertPathsEqual(
                 ["http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/"
                  "current/livecd.kubuntu.%s" % item],
