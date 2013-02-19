@@ -25,8 +25,8 @@ import hashlib
 import os
 import shutil
 import subprocess
-import time
 from textwrap import dedent
+import time
 
 from cdimage.checksums import (
     apply_sed,

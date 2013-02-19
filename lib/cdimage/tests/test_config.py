@@ -22,11 +22,11 @@ from __future__ import print_function
 __metaclass__ = type
 
 import os
-from textwrap import dedent
 try:
     from test.support import EnvironmentVarGuard
 except ImportError:
     from test.test_support import EnvironmentVarGuard
+from textwrap import dedent
 
 from cdimage.config import all_series, Config, Series
 from cdimage.tests.helpers import TestCase

@@ -21,12 +21,12 @@ __metaclass__ = type
 
 from cdimage.config import Config, Series
 from cdimage.livefs import (
+    NoLiveItem,
     flavours,
     live_builder,
     live_item_paths,
     live_project,
     livecd_base,
-    NoLiveItem,
     split_arch,
 )
 from cdimage.tests.helpers import TestCase

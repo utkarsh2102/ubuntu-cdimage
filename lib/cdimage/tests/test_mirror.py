@@ -21,8 +21,8 @@ __metaclass__ = type
 
 import os
 
-from cdimage.mirror import find_mirror
 from cdimage.config import Config, Series
+from cdimage.mirror import find_mirror
 from cdimage.tests.helpers import TestCase
 
 
