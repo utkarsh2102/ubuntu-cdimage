@@ -518,15 +518,7 @@ if $PUBLISH_FULL; then
 fi
 
 if $PUBLISH_DIST || $PUBLISH_POOL; then
-	if [ "$echo" ]; then
-		echo site-manifest simple "$CDIMAGE_ROOT/www/simple"
-	else
-		site-manifest simple "$CDIMAGE_ROOT/www/simple" \
-			> "$CDIMAGE_ROOT/www/simple/.manifest.new"
-		mv "$CDIMAGE_ROOT/www/simple/.manifest.new" \
-		   "$CDIMAGE_ROOT/www/simple/.manifest"
-		chmod g+w "$CDIMAGE_ROOT/www/simple/.manifest"
-	fi
+	$echo site-manifest simple "$CDIMAGE_ROOT/www/simple" .manifest
 
 	# Create timestamps for this run.
 	if [ "$echo" ]; then

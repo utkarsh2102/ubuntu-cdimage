@@ -21,6 +21,7 @@ from __future__ import print_function
 
 from optparse import OptionParser
 import os
+import stat
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
@@ -35,14 +36,28 @@ tree_classes = {
 
 
 def main():
-    parser = OptionParser("%prog {simple|daily} DIRECTORY")
+    parser = OptionParser("%prog {simple|daily} DIRECTORY [FILE]")
     options, args = parser.parse_args()
     if len(args) < 1 or args[0] not in tree_classes:
         parser.error("need {simple|daily}")
     elif len(args) < 2:
         parser.error("need directory")
-    for line in tree_classes[args[0]](config, args[1]).manifest():
-        print(line)
+    if len(args) >= 3:
+        path = os.path.join(args[1], args[2])
+        output = open("%s.new" % path, "w")
+        output_fd = output.fileno()
+        os.fchmod(output_fd, os.fstat(output_fd).st_mode | stat.S_IWGRP)
+    else:
+        path = None
+        output = sys.stdout
+    try:
+        for line in tree_classes[args[0]](config, args[1]).manifest():
+            print(line, file=output)
+    finally:
+        if path is not None:
+            output.close()
+    if path is not None:
+        os.rename("%s.new" % path, path)
 
 
 if __name__ == "__main__":
