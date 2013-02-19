@@ -1,6 +1,9 @@
 #! /usr/bin/python
 
-import HTMLParser
+try:
+    from html.parser import HTMLParser
+except ImportError:
+    from HTMLParser import HTMLParser
 from optparse import OptionParser
 import os
 import subprocess
@@ -16,7 +19,7 @@ mailer = None
 mailer_stdin = None
 
 
-class BritneyParser(HTMLParser.HTMLParser):
+class BritneyParser(HTMLParser):
     STATE_BEGIN = 0
     STATE_SEEN_INTRO_P = 1
     STATE_SEEN_INTRO_TEXT = 2
@@ -27,7 +30,7 @@ class BritneyParser(HTMLParser.HTMLParser):
     STATE_DONE = 7
 
     def __init__(self):
-        HTMLParser.HTMLParser.__init__(self)
+        HTMLParser.__init__(self)
         self.state = self.STATE_BEGIN
         self.formatted = ''
 
