@@ -30,7 +30,7 @@ from cdimage.config import config
 
 def main():
     parser = OptionParser("%prog [IMAGE_TYPE]")
-    options, args = parser.parse_args()
+    _, args = parser.parse_args()
     image_type = args[0] if args else ""
     print(next_build_id(config, image_type))
 
