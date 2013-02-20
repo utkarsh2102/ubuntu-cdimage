@@ -25,7 +25,7 @@ import os
 from textwrap import dedent
 
 from cdimage import osextras
-from cdimage.config import all_series, Config, Series
+from cdimage.config import Config, Series, all_series
 from cdimage.tests.helpers import TestCase, touch
 from cdimage.tree import DailyTree, DailyTreePublisher, SimpleTree, Tree
 

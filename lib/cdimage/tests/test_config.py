@@ -28,7 +28,7 @@ except ImportError:
     from test.test_support import EnvironmentVarGuard
 from textwrap import dedent
 
-from cdimage.config import all_series, Config, Series
+from cdimage.config import Config, Series, all_series
 from cdimage.tests.helpers import TestCase
 
 
