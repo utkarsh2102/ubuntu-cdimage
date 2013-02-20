@@ -33,9 +33,10 @@ class TestGerminateOutput(TestCase):
         super(TestGerminateOutput, self).setUp()
         self.use_temp_dir()
         self.config = Config(read=False)
+        self.structure = os.path.join(self.temp_dir, "STRUCTURE")
 
     def write_structure(self, seed_inherit):
-        with open(os.path.join(self.temp_dir, "STRUCTURE"), "w") as structure:
+        with open(self.structure, "w") as structure:
             for seed, inherit in seed_inherit:
                 print("%s: %s" % (seed, " ".join(inherit)), file=structure)
 
@@ -158,7 +159,7 @@ class TestGerminateOutput(TestCase):
     def test_inheritance_recurses(self):
         """_inheritance recurses properly."""
         self.write_structure([["a", []], ["b", ["a"]], ["c", ["b"]]])
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.assertEqual(["a"], output._inheritance("a"))
         self.assertEqual(["a", "b"], output._inheritance("b"))
         self.assertEqual(["a", "b", "c"], output._inheritance("c"))
@@ -166,13 +167,13 @@ class TestGerminateOutput(TestCase):
     def test_inheritance_avoids_duplicates(self):
         """_inheritance avoids adding a seed more than once."""
         self.write_structure([["a", []], ["b", ["a"]], ["c", ["a", "b"]]])
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.assertEqual(["a", "b", "c"], output._inheritance("c"))
 
     def test_without_inheritance(self):
         self.write_structure(
             [["a", []], ["b", ["a"]], ["c", ["b"]], ["d", ["a", "c"]]])
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         inheritance = output._inheritance("d")
         self.assertEqual(["a", "b", "c", "d"], inheritance)
         self.assertEqual(
@@ -180,12 +181,12 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_all(self):
         self.write_structure([["a", []], ["b", ["a"]], ["c", []]])
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.assertEqual(["a", "b", "c"], list(output.list_seeds("all")))
 
     def test_list_seeds_tasks_ubuntu(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = Series.find_by_name("raring")
         expected = [
@@ -199,7 +200,7 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_tasks_ubuntu_server(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.config["PROJECT"] = "ubuntu-server"
         expected = [
             "boot", "installer", "required", "minimal", "standard",
@@ -223,7 +224,7 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_tasks_kubuntu_active(self):
         self.write_kubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.config["PROJECT"] = "kubuntu-active"
         self.config["DIST"] = Series.find_by_name("raring")
         expected = [
@@ -236,7 +237,7 @@ class TestGerminateOutput(TestCase):
     def test_list_seeds_installer(self):
         self.write_ubuntu_breezy_structure()
         self.write_structure([["installer", []], ["casper", []]])
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.config["CDIMAGE_INSTALL_BASE"] = 1
         self.assertEqual(["installer"], list(output.list_seeds("installer")))
         del self.config["CDIMAGE_INSTALL_BASE"]
@@ -250,18 +251,18 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_debootstrap(self):
         self.write_ubuntu_hoary_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         for series in all_series[:2]:
             self.config["DIST"] = series
             self.assertEqual(["base"], list(output.list_seeds("debootstrap")))
         self.write_ubuntu_breezy_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         for series in all_series[2:6]:
             self.config["DIST"] = series
             self.assertEqual(
                 ["minimal"], list(output.list_seeds("debootstrap")))
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         for series in all_series[6:]:
             self.config["DIST"] = series
             self.assertEqual(
@@ -270,24 +271,24 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_base(self):
         self.write_ubuntu_hoary_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         for series in all_series[:2]:
             self.config["DIST"] = series
             self.assertEqual(["base"], list(output.list_seeds("base")))
         self.write_ubuntu_breezy_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.config["DIST"] = all_series[2]
         self.assertEqual(
             ["minimal", "standard"], list(output.list_seeds("base")))
         self.write_ubuntu_dapper_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         for series in all_series[3:6]:
             self.config["DIST"] = series
             self.assertEqual(
                 ["boot", "minimal", "standard"],
                 list(output.list_seeds("base")))
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         for series in all_series[6:]:
             self.config["DIST"] = series
             self.assertEqual(
@@ -296,7 +297,7 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_ship_live_ubuntu_server(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
+        output = GerminateOutput(self.config, self.structure)
         self.config["PROJECT"] = "ubuntu-server"
         expected = [
             "boot", "installer", "standard", "dns-server", "lamp-server",

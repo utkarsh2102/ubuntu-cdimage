@@ -19,20 +19,18 @@ from __future__ import print_function
 
 __metaclass__ = type
 
-import os
-
 
 class GerminateOutput:
-    def __init__(self, config, directory):
+    def __init__(self, config, structure):
         self.config = config
-        self.directory = directory
+        self.structure = structure
         self._parse_structure()
 
     def _parse_structure(self):
         self._seeds = {}
         # TODO: move to collections.OrderedDict with 2.7
         self._seed_order = []
-        with open(os.path.join(self.directory, "STRUCTURE")) as structure:
+        with open(self.structure) as structure:
             for line in structure:
                 line = line.strip()
                 if not line or line.startswith("#") or ":" not in line:
