@@ -1,186 +1,46 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-if [ -z "$1" ] || [ -z "$2" ]; then
-	echo 'Usage: list-seeds structure all|tasks|installer|debootstrap|base|ship-live|addon|dvd' >&2
-	exit 1
-fi
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-STRUCTURE="$1"
-MODE="$2"
+"""List seeds required for various purposes."""
 
-tmpdir=
+from __future__ import print_function
 
-cleanup () {
-	if [ "$tmpdir" ]; then
-		rm -r "$tmpdir"
-	fi
-}
+from optparse import OptionParser
+import os
+import sys
 
-use_temp_dir () {
-	if [ -z "$tmpdir" ]; then
-		tmpdir="$(mktemp -d)"
-		trap cleanup EXIT HUP INT QUIT TERM
-	fi
-}
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+from cdimage.germinate import GerminateOutput
 
-add_inheritance () {
-	case " $inherit " in
-		*" $1 "*)
-			;;
-		*)
-			inherit="${inherit:+$inherit }$1"
-			;;
-	esac
-}
 
-expand_inheritance () {
-	for seed in $(grep "^$1:" "$STRUCTURE" | cut -d: -f2); do
-		expand_inheritance "$seed"
-	done
-	add_inheritance "$1"
-}
+def main():
+    parser = OptionParser(
+        "%prog STRUCTURE "
+        "all|tasks|installer|debootstrap|base|ship-live|addon|dvd")
+    _, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need structure file name")
+    if len(args) < 2:
+        parser.error("need mode")
+    germinate_output = GerminateOutput(config, args[0])
+    for seed in germinate_output.list_seeds(args[1]):
+        print(seed)
 
-inheritance () {
-	inherit=
-	expand_inheritance "$1"
-	echo "$inherit"
-}
 
-# Subtract the inheritance of seed $1 from the list of seeds in the
-# remaining arguments.
-# TODO: would be nice to sort in STRUCTURE order
-without_inheritance () {
-	subtract="$1"
-	use_temp_dir
-	inheritance "$1" | xargs -n1 | sort -u >"$tmpdir/$subtract.subtract"
-	shift
-	echo "$@" | xargs -n1 | sort -u >"$tmpdir/$subtract.original"
-	join -v2 "$tmpdir/$subtract.subtract" "$tmpdir/$subtract.original" | \
-		xargs
-}
-
-case $MODE in
-	all)
-		grep -v '^#' "$STRUCTURE" | cut -d: -f1
-		;;
-	tasks)
-		SHIP=ship
-		if grep -q "^ship-addon:" "$STRUCTURE"; then
-			SHIP=ship-addon
-		fi
-		case $PROJECT in
-			ubuntu-server)
-				if dist_le breezy; then
-					:
-				elif dist_le dapper; then
-					SHIP=server
-				else
-					SHIP=server-ship
-				fi
-				;;
-			kubuntu-active)
-				SHIP=active-ship
-				;;
-		esac
-		inheritance "$SHIP"
-		if [ "$CDIMAGE_DVD" ]; then
-			if dist_ge edgy; then
-				# TODO cjwatson 2007-04-18: hideous hack to
-				# fix DVD tasks
-				echo dns-server
-				echo lamp-server
-			fi
-		fi
-		;;
-	installer)
-		if [ "$CDIMAGE_INSTALL_BASE" ]; then
-			echo 'installer'
-		fi
-		if [ "$CDIMAGE_LIVE" ]; then
-			if dist_ge hoary && dist_le breezy; then
-				echo 'casper'
-			fi
-		fi
-		;;
-	debootstrap)
-		if dist_le hoary; then
-			echo 'base'
-		elif dist_le feisty; then
-			echo 'minimal'
-		else
-			echo 'required minimal'
-		fi
-		;;
-	base)
-		if dist_le hoary; then
-			echo 'base'
-		elif dist_le breezy; then
-			echo 'minimal standard'
-		elif dist_le feisty; then
-			echo 'boot minimal standard'
-		else
-			echo 'boot required minimal standard'
-		fi
-		;;
-	ship-live)
-		case $PROJECT in
-			kubuntu-active)
-				echo 'ship-active-live'
-				;;
-			ubuntu-server)
-				seeds="$(inheritance server-ship)"
-				for subtract in minimal; do
-					seeds="$(without_inheritance $subtract $seeds)"
-				done
-				echo "$seeds"
-				;;
-			*)
-				if dist_ge dapper; then
-					echo 'ship-live'
-				fi
-				;;
-		esac
-		;;
-	addon)
-		SHIP="$(inheritance ship)"
-		SHIP_ADDON="$(inheritance ship-addon)"
-		for seed in $SHIP_ADDON; do
-			case " $SHIP " in
-				*" $seed "*)
-					;;
-				*)
-					echo "$seed"
-					;;
-			esac
-		done
-		;;
-	dvd)
-		if dist_le gutsy; then
-			inheritance supported
-		elif dist_le karmic; then
-			inheritance dvd
-		else
-			if [ "$PROJECT" = edubuntu ]; then
-				# no inheritance; most of this goes on the
-				# live filesystem
-				echo 'dvd ship-live'
-			elif [ "$PROJECT" = ubuntu ] && dist_ge oneiric; then
-				# no inheritance; most of this goes on the
-				# live filesystem
-				echo 'usb-langsupport usb-ship-live'
-			elif [ "$PROJECT" = ubuntustudio ] && dist_ge precise; then
-				# no inheritance; most of this goes on the
-				# live filesystem
-				echo 'dvd'
-			else
-				inheritance dvd
-			fi
-		fi
-		;;
-esac
-
-exit 0
+if __name__ == "__main__":
+    main()
