@@ -19,7 +19,7 @@
 
 __metaclass__ = type
 
-from cdimage.config import Config, Series
+from cdimage.config import Config, Series, all_series
 from cdimage.livefs import (
     NoLiveItem,
     flavours,
@@ -30,29 +30,6 @@ from cdimage.livefs import (
     split_arch,
 )
 from cdimage.tests.helpers import TestCase
-
-
-# This only needs to go up as far as the series livecd_base cares about.
-all_series = [
-    "warty",
-    "hoary",
-    "breezy",
-    "dapper",
-    "edgy",
-    "feisty",
-    "gutsy",
-    "hardy",
-    "intrepid",
-    "jaunty",
-    "karmic",
-    "lucid",
-    "maverick",
-    "natty",
-    "oneiric",
-    "precise",
-    "quantal",
-    "raring",
-]
 
 
 class TestSplitArch(TestCase):
@@ -73,7 +50,10 @@ class TestLiveProject(TestCase):
     def assertProjectEqual(self, expected, project, series, **kwargs):
         config = Config(read=False)
         config["PROJECT"] = project
-        config["DIST"] = Series.find_by_name(series)
+        if isinstance(series, Series):
+            config["DIST"] = series
+        else:
+            config["DIST"] = Series.find_by_name(series)
         for key, value in kwargs.items():
             config[key.upper()] = value
         self.assertEqual(expected, live_project(config))
@@ -120,7 +100,10 @@ class TestLiveProject(TestCase):
 class TestLiveBuilder(TestCase):
     def assertBuilderEqual(self, expected, arch, series, project=None):
         config = Config(read=False)
-        config["DIST"] = Series.find_by_name(series)
+        if isinstance(series, Series):
+            config["DIST"] = series
+        else:
+            config["DIST"] = Series.find_by_name(series)
         if project is not None:
             config["PROJECT"] = project
         self.assertEqual(expected, live_builder(config, arch))
@@ -181,7 +164,10 @@ class TestLiveCDBase(TestCase):
     def assertBaseEqual(self, expected, arch, project, series, **kwargs):
         config = Config(read=False)
         config["PROJECT"] = project
-        config["DIST"] = Series.find_by_name(series)
+        if isinstance(series, Series):
+            config["DIST"] = series
+        else:
+            config["DIST"] = Series.find_by_name(series)
         for key, value in kwargs.items():
             config[key.upper()] = value
         self.assertEqual(expected, livecd_base(config, arch))
@@ -231,7 +217,10 @@ class TestFlavours(TestCase):
     def assertFlavoursEqual(self, expected, arch, project, series):
         config = Config(read=False)
         config["PROJECT"] = project
-        config["DIST"] = Series.find_by_name(series)
+        if isinstance(series, Series):
+            config["DIST"] = series
+        else:
+            config["DIST"] = Series.find_by_name(series)
         self.assertEqual(expected.split(), flavours(config, arch))
 
     def test_amd64(self):
@@ -324,13 +313,19 @@ class TestLiveItemPaths(TestCase):
     def assertPathsEqual(self, expected, arch, item, project, series):
         config = Config(read=False)
         config["PROJECT"] = project
-        config["DIST"] = Series.find_by_name(series)
+        if isinstance(series, Series):
+            config["DIST"] = series
+        else:
+            config["DIST"] = Series.find_by_name(series)
         self.assertEqual(expected, list(live_item_paths(config, arch, item)))
 
     def assertNoPaths(self, arch, item, project, series):
         config = Config(read=False)
         config["PROJECT"] = project
-        config["DIST"] = Series.find_by_name(series)
+        if isinstance(series, Series):
+            config["DIST"] = series
+        else:
+            config["DIST"] = Series.find_by_name(series)
         self.assertRaises(
             NoLiveItem, next, live_item_paths(config, arch, item))
 
@@ -404,7 +399,8 @@ class TestLiveItemPaths(TestCase):
             self.assertNoPaths("amd64", "wubi", "ubuntu", series)
             self.assertNoPaths("i386", "wubi", "ubuntu", series)
         for series in all_series[6:]:
-            path = "http://people.canonical.com/~evand/wubi/%s/stable" % series
+            path = ("http://people.canonical.com/~evand/wubi/%s/stable" %
+                    series.name)
             self.assertPathsEqual([path], "amd64", "wubi", "ubuntu", series)
             self.assertPathsEqual([path], "i386", "wubi", "ubuntu", series)
         self.assertNoPaths("i386", "wubi", "xubuntu", "precise")
@@ -422,7 +418,7 @@ class TestLiveItemPaths(TestCase):
     def test_usb_creator(self):
         for series in all_series:
             path = ("http://people.canonical.com/~evand/usb-creator/%s/"
-                    "stable" % series)
+                    "stable" % series.name)
             self.assertPathsEqual(
                 [path], "amd64", "usb-creator", "ubuntu", series)
             self.assertPathsEqual(
@@ -432,7 +428,7 @@ class TestLiveItemPaths(TestCase):
     def test_ltsp_squashfs(self):
         for series in all_series:
             path = ("http://cardamom.buildd/~buildd/LiveCD/%s/edubuntu/"
-                    "current/livecd.edubuntu-ltsp.squashfs" % series)
+                    "current/livecd.edubuntu-ltsp.squashfs" % series.name)
             self.assertPathsEqual(
                 [path], "amd64", "ltsp-squashfs", "edubuntu", series)
             self.assertPathsEqual(
