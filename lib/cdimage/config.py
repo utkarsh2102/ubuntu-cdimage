@@ -210,5 +210,9 @@ class Config(defaultdict):
     def arches(self):
         return self["ARCHES"].split()
 
+    @property
+    def cpuarches(self):
+        return self["CPUARCHES"].split()
+
 
 config = Config()

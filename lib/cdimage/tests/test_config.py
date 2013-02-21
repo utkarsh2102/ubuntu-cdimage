@@ -130,3 +130,11 @@ class TestConfig(TestCase):
         self.assertEqual(["i386"], config.arches)
         config["ARCHES"] = "amd64 i386"
         self.assertEqual(["amd64", "i386"], config.arches)
+
+    def test_cpuarches(self):
+        config = Config(read=False)
+        self.assertEqual([], config.cpuarches)
+        config["CPUARCHES"] = "i386"
+        self.assertEqual(["i386"], config.cpuarches)
+        config["CPUARCHES"] = "amd64 i386"
+        self.assertEqual(["amd64", "i386"], config.cpuarches)

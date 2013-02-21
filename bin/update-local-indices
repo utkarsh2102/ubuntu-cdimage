@@ -1,34 +1,35 @@
-#! /bin/sh
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-[ -d "$CDIMAGE_ROOT/local/packages" ] || exit 0
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cd "$CDIMAGE_ROOT/local/packages"
-mkdir -p ../database/dists ../database/indices
-for arch in $CPUARCHES; do
-	> "../database/dists/${DIST}_local_binary-$arch.list"
-	> "../database/dists/${DIST}_local_debian-installer_binary-$arch.list"
-	> "../database/indices/override.$DIST.local.$arch"
-	> "../database/indices/override.$DIST.local.debian-installer.$arch"
-	for x in $(find pool/local -name "*_$arch.deb" -o -name '*_all.deb'); do
-		echo "$x" >> "../database/dists/${DIST}_local_binary-$arch.list"
-		name="${x##*/}"
-		name="${name%%_*}"
-		section="$(dpkg -f "$x" Section)"
-		section="${section##*/}"
-		priority="$(dpkg -f "$x" Priority)"
-		printf '%s\t%s\t%s\n' "$name" "$priority" "local/$section" >> "../database/indices/override.$DIST.local.$arch"
-	done
-	for x in $(find pool/local -name "*_$arch.udeb" -o -name '*_all.udeb'); do
-		echo "$x" >> "../database/dists/${DIST}_local_debian-installer_binary-$arch.list"
-		name="${x##*/}"
-		name="${name%%_*}"
-		priority="$(dpkg -f "$x" Priority)"
-		printf '%s\t%s\t%s\n' "$name" "$priority" "local/debian-installer" >> "../database/indices/override.$DIST.local.debian-installer.$arch"
-	done
-	mkdir -p "dists/$DIST/local/binary-$arch" \
-	         "dists/$DIST/local/debian-installer/binary-$arch"
-done
-apt-ftparchive generate apt-ftparchive.conf
+"""Update indices for a tree of local packages."""
+
+from optparse import OptionParser
+import os
+import sys
+
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.build import update_local_indices
+
+
+def main():
+    parser = OptionParser("%prog")
+    parser.parse_args()
+    update_local_indices()
+
+
+if __name__ == "__main__":
+    main()

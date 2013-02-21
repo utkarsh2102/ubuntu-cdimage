@@ -59,6 +59,10 @@ class TestCase(unittest.TestCase):
         self.assertEqual(
             expected, [record.getMessage() for record in self.handler.buffer])
 
+    # Monkey-patch for Python 2/3 compatibility.
+    if not hasattr(unittest.TestCase, 'assertCountEqual'):
+        assertCountEqual = unittest.TestCase.assertItemsEqual
+
 
 def touch(path):
     with open(path, "a"):
