@@ -26,6 +26,7 @@ import operator
 import os
 import re
 import subprocess
+import sys
 
 
 class UnknownSeries(Exception):
@@ -159,6 +160,7 @@ class Config(defaultdict):
                 self.read(config_path)
             else:
                 self.read()
+            self.fix_path()
 
     def _read_nullsep_output(self, command):
         raw = subprocess.Popen(
@@ -194,6 +196,11 @@ class Config(defaultdict):
         # Special entries.
         if self["DIST"]:
             self["DIST"] = Series.find_by_name(self["DIST"])
+
+    def fix_path(self):
+        uat_path = os.path.join(self.root, "ubuntu-archive-tools")
+        if os.path.isdir(uat_path):
+            sys.path.insert(0, uat_path)
 
     @property
     def series(self):

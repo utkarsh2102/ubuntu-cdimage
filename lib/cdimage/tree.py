@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Canonical Ltd.
+# Copyright (C) 2012, 2013 Canonical Ltd.
 # Author: Colin Watson <cjwatson@ubuntu.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -21,10 +21,12 @@ __metaclass__ = type
 
 from itertools import count
 import os
+import re
 import shutil
 import socket
 import stat
 import subprocess
+import traceback
 
 from cdimage.atomicfile import AtomicFile
 from cdimage.checksums import (
@@ -510,6 +512,124 @@ class DailyTreePublisher(Publisher):
             yield os.path.join(
                 self.project, self.image_type, "%s-src" % self.config.series)
 
+    def qa_product(self, project, image_type, publish_type, arch):
+        """Return the QA tracker product for an image, or None.
+
+        Any changes here must be coordinated with the tracker
+        (iso.qa.ubuntu.com), since we can only return products that exist
+        there and they are not necessarily consistently named.
+        """
+        if project == "ubuntu":
+            if image_type == "daily" and publish_type == "alternate":
+                return "Ubuntu Alternate %s" % arch
+            elif image_type == "daily-live" and publish_type == "desktop":
+                return "Ubuntu Desktop %s" % arch
+            elif (image_type == "daily-preinstalled" and
+                  publish_type == "preinstalled-desktop"):
+                return "Ubuntu Desktop Preinstalled %s" % arch
+            elif image_type == "dvd" and publish_type == "dvd":
+                return "Ubuntu DVD %s" % arch
+            elif image_type == "wubi" and publish_type == "wubi":
+                return "Ubuntu Wubi %s" % arch
+        elif project == "kubuntu":
+            if image_type == "daily" and publish_type == "alternate":
+                return "Kubuntu Alternate %s" % arch
+            elif image_type == "daily-live" and publish_type == "desktop":
+                return "Kubuntu Desktop %s" % arch
+            elif (image_type == "daily-preinstalled" and
+                  publish_type == "preinstalled-desktop"):
+                return "Kubuntu Desktop %s" % arch
+            elif image_type == "dvd" and publish_type == "dvd":
+                return "Kubuntu DVD %s" % arch
+        elif project == "kubuntu-active":
+            if image_type == "daily-live" and publish_type == "desktop":
+                return "Kubuntu Active %s" % arch
+            elif (image_type == "daily-preinstalled" and
+                  publish_type == "preinstalled-mobile"):
+                return "Kubuntu Active %s" % arch
+        elif project == "edubuntu":
+            if image_type == "dvd" and publish_type == "dvd":
+                return "Edubuntu DVD %s" % arch
+        elif project == "xubuntu":
+            if image_type == "daily" and publish_type == "alternate":
+                return "Xubuntu Alternate %s" % arch
+            elif image_type == "daily-live" and publish_type == "desktop":
+                return "Xubuntu Desktop %s" % arch
+        elif project == "ubuntu-server":
+            if image_type == "daily" and publish_type == "server":
+                return "Ubuntu Server %s" % arch
+            elif (image_type == "daily-preinstalled" and
+                  publish_type == "preinstalled-server"):
+                return "Ubuntu Server %s" % arch
+        elif project == "ubuntustudio":
+            if image_type == "daily" and publish_type == "alternate":
+                return "Ubuntu Studio Alternate %s" % arch
+            elif image_type == "dvd" and publish_type == "dvd":
+                return "Ubuntu Studio DVD %s" % arch
+        elif project == "mythbuntu":
+            if image_type == "daily-live" and publish_type == "desktop":
+                return "Mythbuntu Desktop %s" % arch
+        elif project == "lubuntu":
+            if image_type == "daily" and publish_type == "alternate":
+                return "Lubuntu Alternate %s" % arch
+            elif image_type == "daily-live" and publish_type == "desktop":
+                return "Lubuntu Desktop %s" % arch
+            elif (image_type == "daily-preinstalled" and
+                  publish_type == "preinstalled-desktop"):
+                return "Lubuntu Desktop Preinstalled %s" % arch
+        elif project == "ubuntu-core":
+            if image_type == "daily" and publish_type == "core":
+                return "Ubuntu Core %s" % arch
+        elif project == "ubuntu-chinese-edition":
+            if image_type == "daily-live" and publish_type == "desktop":
+                return "Ubuntu Chinese Desktop %s" % arch
+
+    def post_qa(self, date, images):
+        """Post a list of images to the QA tracker."""
+        from isotracker import ISOTracker
+
+        tracker = None
+
+        for image in images:
+            image_bits = image.split("/")
+            if len(image_bits) == 3:
+                project, image_type, base = image_bits
+                image_series = None
+            else:
+                project, image_series, image_type, base = image_bits
+            base_match = re.match(r"(.*?)-(.*)-(.*)", base)
+            if not base_match:
+                continue
+            dist, publish_type, arch = base_match.groups()
+            product = self.qa_product(project, image_type, publish_type, arch)
+            if product is None:
+                logger.warning(
+                    "No iso.qa.ubuntu.com product found for %s; skipping." %
+                    image)
+                continue
+
+            # Try to figure out the path to the OVERSIZED indicator for the
+            # build.
+            iso_path_bits = [self.full_tree]
+            if project != "ubuntu":
+                iso_path_bits.append(project)
+            if image_series is not None:
+                iso_path_bits.append(image_series)
+            iso_path_bits.extend([image_type, date, base])
+            iso_path = os.path.join(*iso_path_bits)
+            note = ""
+            if os.path.exists("%s.OVERSIZED" % iso_path):
+                note = (
+                    "<strong>WARNING: This image is OVERSIZED. This should "
+                    "never happen during milestone testing.</strong>")
+
+            if tracker is None or tracker.target != dist:
+                tracker = ISOTracker(target=dist)
+            try:
+                tracker.post_build(product, date, note=note)
+            except Exception:
+                traceback.print_exc()
+
     def publish(self, date):
         self.new_publish_dir(date)
         published = []
@@ -607,9 +727,7 @@ class DailyTreePublisher(Publisher):
         finally:
             osextras.unlink_force(manifest_lock)
 
-        subprocess.check_call([
-            os.path.join(self.config.root, "bin", "post-qa"), date,
-        ] + published)
+        self.post_qa(date, published)
 
 
 class SimpleTree(Tree):

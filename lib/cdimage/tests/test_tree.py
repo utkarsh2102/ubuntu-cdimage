@@ -22,10 +22,12 @@ from __future__ import print_function
 __metaclass__ = type
 
 import os
+import sys
 from textwrap import dedent
 
 from cdimage import osextras
 from cdimage.config import Config, Series, all_series
+from cdimage.log import logger
 from cdimage.tests.helpers import TestCase, touch
 from cdimage.tree import DailyTree, DailyTreePublisher, SimpleTree, Tree
 
@@ -406,6 +408,100 @@ class TestDailyTreePublisher(TestCase):
             "%s-src-2.template" % self.config.series,
         ], sorted(os.listdir(target_dir)))
 
+    def test_qa_product(self):
+        for project, image_type, publish_type, product in (
+            ("ubuntu", "daily", "alternate", "Ubuntu Alternate"),
+            ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
+            ("ubuntu", "daily-preinstalled", "preinstalled-desktop",
+             "Ubuntu Desktop Preinstalled"),
+            ("ubuntu", "dvd", "dvd", "Ubuntu DVD"),
+            ("ubuntu", "wubi", "wubi", "Ubuntu Wubi"),
+            ("kubuntu", "daily", "alternate", "Kubuntu Alternate"),
+            ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
+            ("kubuntu", "daily-preinstalled", "preinstalled-desktop",
+             "Kubuntu Desktop"),
+            ("kubuntu", "dvd", "dvd", "Kubuntu DVD"),
+            ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
+            ("kubuntu-active", "daily-preinstalled", "preinstalled-mobile",
+             "Kubuntu Active"),
+            ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
+            ("xubuntu", "daily", "alternate", "Xubuntu Alternate"),
+            ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
+            ("ubuntu-server", "daily", "server", "Ubuntu Server"),
+            ("ubuntu-server", "daily-preinstalled", "preinstalled-server",
+             "Ubuntu Server"),
+            ("ubuntustudio", "daily", "alternate", "Ubuntu Studio Alternate"),
+            ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
+            ("mythbuntu", "daily-live", "desktop", "Mythbuntu Desktop"),
+            ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
+            ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
+            ("lubuntu", "daily-preinstalled", "preinstalled-desktop",
+             "Lubuntu Desktop Preinstalled"),
+            ("ubuntu-core", "daily", "core", "Ubuntu Core"),
+            ("ubuntu-chinese-edition", "daily-live", "desktop",
+             "Ubuntu Chinese Desktop"),
+        ):
+            # Use "daily" here to match bin/post-qa; qa_product shouldn't
+            # use the publisher's image_type at all.
+            publisher = self.make_publisher(project, "daily")
+            self.assertEqual(
+                "%s i386" % product,
+                publisher.qa_product(
+                    project, image_type, publish_type, "i386"))
+
+    def test_post_qa(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+
+        # As well as simply mocking isotracker.ISOTracker, we have to go
+        # through some contortions to avoid needing ubuntu-archive-tools to
+        # be on sys.path while running unit tests.
+        class isotracker_module:
+            tracker = None
+
+        class MockISOTracker:
+            def __init__(self, target):
+                isotracker_module.tracker = self
+                self.target = target
+                self.posted = []
+
+            def post_build(self, product, date, note=""):
+                self.posted.append([product, date, note])
+
+        original_modules = sys.modules.copy()
+        sys.modules["isotracker"] = isotracker_module
+        isotracker_module.ISOTracker = MockISOTracker
+        try:
+            publisher.post_qa(
+                "20130221", [
+                    "ubuntu/daily/raring-alternate-i386",
+                    "ubuntu/daily/raring-alternate-amd64",
+                ])
+            expected = [
+                ["Ubuntu Alternate i386", "20130221", ""],
+                ["Ubuntu Alternate amd64", "20130221", ""],
+            ]
+            self.assertEqual("raring", isotracker_module.tracker.target)
+            self.assertEqual(expected, isotracker_module.tracker.posted)
+
+            publisher.post_qa(
+                "20130221", [
+                    "ubuntu/precise/daily-live/precise-desktop-i386",
+                    "ubuntu/precise/daily-live/precise-desktop-amd64",
+                ])
+            expected = [
+                ["Ubuntu Desktop i386", "20130221", ""],
+                ["Ubuntu Desktop amd64", "20130221", ""],
+            ]
+            self.assertEqual("precise", isotracker_module.tracker.target)
+            self.assertEqual(expected, isotracker_module.tracker.posted)
+
+            # TODO: test oversized indicator
+        finally:
+            if "isotracker" in original_modules:
+                sys.modules["isotracker"] = original_modules["isotracker"]
+            else:
+                del sys.modules["isotracker"]
+
     def test_publish(self):
         self.config["ARCHES"] = "i386"
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
@@ -426,16 +522,26 @@ class TestDailyTreePublisher(TestCase):
         os.mkdir(bin_dir)
         os.symlink("/bin/true", os.path.join(bin_dir, "make-web-indices"))
         os.symlink("/bin/true", os.path.join(bin_dir, "make-metalink"))
-        os.symlink("/bin/true", os.path.join(bin_dir, "post-qa"))
         os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
+
+        def mock_post_qa(date, images):
+            logger.info("Would post %s from %s" % (", ".join(images), date))
+
+        real_post_qa = publisher.post_qa
+        publisher.post_qa = mock_post_qa
+
         publisher.publish("20120807")
+
+        publisher.post_qa = real_post_qa
+
         self.assertLogEqual([
             "Publishing i386 ...",
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
             "No keys found; not signing images.",
             "No keys found; not signing images.",
+            "Would post ubuntu/daily-live/raring-desktop-i386 from 20120807",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
