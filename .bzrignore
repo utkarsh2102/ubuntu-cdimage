@@ -10,6 +10,7 @@
 ./production
 ./scratch
 ./secret
+./ubuntu-archive-tools
 ./www
 __pycache__
 etc/.lock*
