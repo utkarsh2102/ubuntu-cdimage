@@ -26,6 +26,8 @@ import shutil
 import subprocess
 from textwrap import dedent
 
+import mock
+
 from cdimage.build import update_local_indices
 from cdimage.config import Config, Series
 from cdimage.tests.helpers import TestCase
@@ -70,18 +72,12 @@ class TestUpdateLocalIndices(TestCase):
         finally:
             shutil.rmtree(build_dir)
 
-    def test_no_local_packages(self):
+    @mock.patch("subprocess.call")
+    def test_no_local_packages(self, mock_call):
         self.assertFalse(os.path.exists(self.packages))
-
-        def mock_call(*args, **kwargs):
-            self.fail("subprocess.call called when it should not have been")
-
-        real_call = subprocess.call
-        subprocess.call = mock_call
-        try:
-            update_local_indices(self.config)
-        finally:
-            subprocess.call = real_call
+        mock_call.side_effect = Exception(
+            "subprocess.call called when it should not have been")
+        update_local_indices(self.config)
 
     def test_lists_and_overrides(self):
         fake_dir = os.path.join(self.pool, "f", "fake")
@@ -105,15 +101,15 @@ class TestUpdateLocalIndices(TestCase):
         with open(os.path.join(fake_dir, "random-file"), "w"):
             pass
 
-        def mock_call(*args, **kwargs):
-            pass
-
-        real_call = subprocess.call
-        subprocess.call = mock_call
-        try:
+        with mock.patch("subprocess.call") as mock_call:
+            mock_call.return_value = 0
             update_local_indices(self.config)
-        finally:
-            subprocess.call = real_call
+
+            expected_command = [
+                "apt-ftparchive", "generate", "apt-ftparchive.conf"]
+            self.assertEqual(
+                [mock.call(expected_command, cwd=self.packages)],
+                mock_call.call_args_list)
 
         self.assertCountEqual([
             "raring_local_binary-i386.list",

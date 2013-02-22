@@ -25,6 +25,8 @@ import os
 import sys
 from textwrap import dedent
 
+import mock
+
 from cdimage import osextras
 from cdimage.config import Config, Series, all_series
 from cdimage.log import logger
@@ -502,7 +504,8 @@ class TestDailyTreePublisher(TestCase):
             else:
                 del sys.modules["isotracker"]
 
-    def test_publish(self):
+    @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
+    def test_publish(self, mock_post_qa):
         self.config["ARCHES"] = "i386"
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
         publisher = self.make_publisher(
@@ -525,15 +528,7 @@ class TestDailyTreePublisher(TestCase):
         os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
 
-        def mock_post_qa(date, images):
-            logger.info("Would post %s from %s" % (", ".join(images), date))
-
-        real_post_qa = publisher.post_qa
-        publisher.post_qa = mock_post_qa
-
         publisher.publish("20120807")
-
-        publisher.post_qa = real_post_qa
 
         self.assertLogEqual([
             "Publishing i386 ...",
@@ -541,7 +536,6 @@ class TestDailyTreePublisher(TestCase):
             "Publishing i386 live manifest ...",
             "No keys found; not signing images.",
             "No keys found; not signing images.",
-            "Would post ubuntu/daily-live/raring-desktop-i386 from 20120807",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
@@ -554,6 +548,9 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.manifest" % self.config.series,
             "report.html",
         ]), sorted(os.listdir(target_dir)))
+        self.assertEqual(
+            [mock.call("20120807", ["ubuntu/daily-live/raring-desktop-i386"])],
+            mock_post_qa.call_args_list)
 
 
 class TestSimpleTree(TestCase):

@@ -24,6 +24,8 @@ try:
 except ImportError:
     from test.test_support import EnvironmentVarGuard
 
+import mock
+
 from cdimage import osextras
 from cdimage.tests.helpers import TestCase, touch
 
@@ -103,25 +105,22 @@ class TestOSExtras(TestCase):
             env["PATH"] = bin_dir
             self.assertFalse(osextras.find_on_path("program"))
 
-    def test_waitpid_retry(self):
+    @mock.patch("os.waitpid")
+    def test_waitpid_retry(self, mock_waitpid):
         class Completed(Exception):
             pass
 
         waitpid_called = [False]
 
-        def mock_waitpid(*args):
+        def waitpid_side_effect(*args, **kwargs):
             if not waitpid_called[0]:
                 waitpid_called[0] = True
                 raise OSError(errno.EINTR, "")
             else:
                 raise Completed
 
-        real_waitpid = os.waitpid
-        os.waitpid = mock_waitpid
-        try:
-            self.assertRaises(Completed, osextras.waitpid_retry, -1, 0)
-        finally:
-            os.waitpid = real_waitpid
+        mock_waitpid.side_effect = waitpid_side_effect
+        self.assertRaises(Completed, osextras.waitpid_retry, -1, 0)
 
     def test_run_bounded_runs(self):
         self.use_temp_dir()

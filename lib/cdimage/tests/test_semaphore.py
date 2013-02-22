@@ -22,7 +22,8 @@ from __future__ import print_function
 __metaclass__ = type
 
 import os
-import subprocess
+
+import mock
 
 from cdimage.semaphore import Semaphore, SemaphoreError
 from cdimage.tests.helpers import TestCase
@@ -46,17 +47,11 @@ class TestSemaphore(TestCase):
             self.assertTrue(os.path.exists(self.semaphore.lock_path))
         self.assertFalse(os.path.exists(self.semaphore.lock_path))
 
-    def test_lock_failure(self):
+    @mock.patch("subprocess.call")
+    def test_lock_failure(self, mock_call):
         """__enter__ raises SemaphoreError if the lock is already held."""
-        def mock_call(*args, **kwargs):
-            return 1
-
-        real_call = subprocess.call
-        subprocess.call = mock_call
-        try:
-            self.assertRaises(SemaphoreError, self.semaphore.__enter__)
-        finally:
-            subprocess.call = real_call
+        mock_call.return_value = 1
+        self.assertRaises(SemaphoreError, self.semaphore.__enter__)
 
     def test_read_requires_lock(self):
         """_read must be called within the lock."""
