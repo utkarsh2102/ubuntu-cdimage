@@ -21,14 +21,17 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import gzip
 import os
-import shutil
 import subprocess
-from textwrap import dedent
 
 import mock
 
-from cdimage.build import update_local_indices
+from cdimage.build import (
+    _debootstrap_script,
+    extract_debootstrap,
+    update_local_indices,
+)
 from cdimage.config import Config, Series
 from cdimage.tests.helpers import TestCase
 
@@ -46,31 +49,6 @@ class TestUpdateLocalIndices(TestCase):
         self.dists = os.path.join(self.database, "dists")
         self.indices = os.path.join(self.database, "indices")
         self.pool = os.path.join(self.packages, "pool", "local")
-
-    def make_deb(self, path, section, priority):
-        build_dir = os.path.join(self.temp_dir, "make_deb")
-        os.mkdir(build_dir)
-        try:
-            base = os.path.basename(path).split(".", 1)[0]
-            name, version, arch = base.split("_")
-            control_dir = os.path.join(build_dir, "DEBIAN")
-            os.mkdir(control_dir)
-            with open(os.path.join(control_dir, "control"), "w") as control:
-                print(dedent("""\
-                    Package: %s
-                    Version: %s
-                    Architecture: %s
-                    Section: %s
-                    Priority: %s
-                    Maintainer: Fake Maintainer <fake@example.org>
-                    Description: fake package""") %
-                    (name, version, arch, section, priority),
-                    file=control)
-            with open("/dev/null", "w") as devnull:
-                subprocess.check_call(
-                    ["dpkg-deb", "-b", build_dir, path], stdout=devnull)
-        finally:
-            shutil.rmtree(build_dir)
 
     @mock.patch("subprocess.call")
     def test_no_local_packages(self, mock_call):
@@ -152,3 +130,51 @@ class TestUpdateLocalIndices(TestCase):
         self.assertTrue(os.path.exists(os.path.join(
             self.packages, "dists", "raring", "local", "debian-installer",
             "binary-i386")))
+
+
+class TestExtractDebootstrap(TestCase):
+    def setUp(self):
+        super(TestExtractDebootstrap, self).setUp()
+        self.use_temp_dir()
+        self.config = Config(read=False)
+        self.config.root = self.temp_dir
+
+    def test_debootstrap_script(self):
+        for series, script in (
+            ("gutsy", "usr/lib/debootstrap/scripts/gutsy"),
+            ("hardy", "usr/share/debootstrap/scripts/hardy"),
+        ):
+            self.config["DIST"] = Series.find_by_name(series)
+            self.assertEqual(script, _debootstrap_script(self.config))
+
+    def test_extract_debootstrap(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64+mac"
+        mirror_dir = os.path.join(self.temp_dir, "ftp")
+        packages_path = os.path.join(
+            mirror_dir, "dists", "raring", "main", "debian-installer",
+            "binary-amd64", "Packages.gz")
+        udeb_path = os.path.join(
+            mirror_dir, "pool", "main", "d", "debootstrap",
+            "debootstrap-udeb_1_all.udeb")
+        os.makedirs(os.path.dirname(packages_path))
+        os.makedirs(os.path.dirname(udeb_path))
+        self.make_deb(
+            udeb_path, "debian-installer", "extra",
+            files={"/usr/share/debootstrap/scripts/raring": b"sentinel"})
+        with gzip.GzipFile(packages_path, "wb") as packages:
+            ftparchive = subprocess.Popen(
+                ["apt-ftparchive", "packages", "pool"],
+                stdout=subprocess.PIPE, cwd=mirror_dir)
+            data, _ = ftparchive.communicate()
+            packages.write(data)
+            self.assertEqual(0, ftparchive.returncode)
+        extract_debootstrap(self.config)
+        output_path = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily",
+            "debootstrap", "raring-amd64+mac")
+        self.assertTrue(os.path.exists(output_path))
+        with open(output_path, "rb") as output:
+            self.assertEqual(b"sentinel", output.read())

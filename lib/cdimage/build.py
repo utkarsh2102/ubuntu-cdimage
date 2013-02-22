@@ -19,10 +19,14 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import gzip
 import os
+import shutil
 import subprocess
 
 from cdimage import osextras
+from cdimage.log import logger
+from cdimage.mirror import find_mirror
 
 
 def _dpkg_field(path, field):
@@ -97,3 +101,51 @@ def update_local_indices(config):
 
     subprocess.check_call(
         ["apt-ftparchive", "generate", "apt-ftparchive.conf"], cwd=packages)
+
+
+def _debootstrap_script(config):
+    if config["DIST"] <= "gutsy":
+        return "usr/lib/debootstrap/scripts/%s" % config.series
+    else:
+        return "usr/share/debootstrap/scripts/%s" % config.series
+
+
+def extract_debootstrap(config):
+    series = config["DIST"]
+    output_dir = os.path.join(
+        config.root, "scratch", config["PROJECT"], series.name,
+        config["IMAGE_TYPE"], "debootstrap")
+
+    osextras.ensuredir(output_dir)
+
+    for fullarch in config.arches:
+        arch = fullarch.split("+")[0]
+        mirror = find_mirror(config, arch)
+        # TODO: This might be more sensible with python-debian or python-apt.
+        packages_path = os.path.join(
+            mirror, "dists", series.name, "main", "debian-installer",
+            "binary-%s" % arch, "Packages.gz")
+        with gzip.GzipFile(packages_path, "rb") as packages:
+            grep_dctrl = subprocess.Popen(
+                ["grep-dctrl", "-nsFilename", "-PX", "debootstrap-udeb"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            udeb, _ = grep_dctrl.communicate(packages.read())
+        if not isinstance(udeb, str):
+            udeb = udeb.decode()
+        udeb = udeb.rstrip("\n")
+        udeb_path = os.path.join(mirror, udeb)
+        if not udeb or not os.path.exists(udeb_path):
+            logger.warning(
+                "No debootstrap-udeb for %s/%s!" % (config.series, arch))
+            continue
+        # TODO: With python-debian, we could extract the one file we need
+        # directly.
+        unpack_dir = os.path.join(output_dir, "unpack-%s" % fullarch)
+        try:
+            shutil.rmtree(unpack_dir)
+        except OSError:
+            pass
+        subprocess.check_call(["dpkg", "-x", udeb_path, unpack_dir])
+        shutil.copy2(
+            os.path.join(unpack_dir, _debootstrap_script(config)),
+            os.path.join(output_dir, "%s-%s" % (config.series, fullarch)))

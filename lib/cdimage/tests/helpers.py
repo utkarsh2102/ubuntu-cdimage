@@ -15,16 +15,22 @@
 
 """Testing helpers."""
 
+from __future__ import print_function
+
 __metaclass__ = type
 
 from logging.handlers import BufferingHandler
+import os
 import shutil
+import subprocess
 import tempfile
+from textwrap import dedent
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
+from cdimage import osextras
 from cdimage.log import logger
 
 
@@ -58,6 +64,37 @@ class TestCase(unittest.TestCase):
     def assertLogEqual(self, expected):
         self.assertEqual(
             expected, [record.getMessage() for record in self.handler.buffer])
+
+    def make_deb(self, path, section, priority, files={}):
+        build_dir = os.path.join(self.temp_dir, "make_deb")
+        os.mkdir(build_dir)
+        try:
+            base = os.path.basename(path).split(".", 1)[0]
+            name, version, arch = base.split("_")
+            control_dir = os.path.join(build_dir, "DEBIAN")
+            os.mkdir(control_dir)
+            with open(os.path.join(control_dir, "control"), "w") as control:
+                print(dedent("""\
+                    Package: %s
+                    Version: %s
+                    Architecture: %s
+                    Section: %s
+                    Priority: %s
+                    Maintainer: Fake Maintainer <fake@example.org>
+                    Description: fake package""") % (
+                    name, version, arch, section, priority),
+                    file=control)
+            for file_path, file_contents in files.items():
+                rel_path = os.path.join(
+                    build_dir, os.path.relpath(file_path, "/"))
+                osextras.ensuredir(os.path.dirname(rel_path))
+                with open(rel_path, "wb") as fp:
+                    fp.write(file_contents)
+            with open("/dev/null", "w") as devnull:
+                subprocess.check_call(
+                    ["dpkg-deb", "-b", build_dir, path], stdout=devnull)
+        finally:
+            shutil.rmtree(build_dir)
 
     # Monkey-patch for Python 2/3 compatibility.
     if not hasattr(unittest.TestCase, 'assertCountEqual'):
