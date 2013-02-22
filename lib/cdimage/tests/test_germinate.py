@@ -21,11 +21,254 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import gzip
 import os
+from textwrap import dedent
+
+import mock
 
 from cdimage.config import Config, Series, all_series
-from cdimage.germinate import GerminateOutput
+from cdimage.germinate import (
+    GerminateNotInstalled,
+    GerminateOutput,
+    Germination,
+)
 from cdimage.tests.helpers import TestCase
+
+
+class TestGermination(TestCase):
+    def setUp(self):
+        super(TestGermination, self).setUp()
+        self.config = Config(read=False)
+        self.germination = Germination(self.config)
+
+    def test_germinate_path(self):
+        self.use_temp_dir()
+        self.config.root = self.temp_dir
+
+        self.assertRaises(
+            GerminateNotInstalled, getattr, self.germination, "germinate_path")
+
+        germinate_dir = os.path.join(self.temp_dir, "germinate")
+        os.makedirs(os.path.join(germinate_dir, "bin"))
+        old_germinate = os.path.join(germinate_dir, "germinate.py")
+        with open(old_germinate, "w"):
+            pass
+        os.chmod(old_germinate, 0o755)
+        self.assertEqual(old_germinate, self.germination.germinate_path)
+
+        new_germinate = os.path.join(germinate_dir, "bin", "germinate")
+        with open(new_germinate, "w"):
+            pass
+        os.chmod(new_germinate, 0o755)
+        self.assertEqual(new_germinate, self.germination.germinate_path)
+
+    def test_output_dir(self):
+        self.config.root = "/cdimage"
+        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["IMAGE_TYPE"] = "daily"
+        self.assertEqual(
+            "/cdimage/scratch/ubuntu/raring/daily/germinate",
+            self.germination.output_dir("ubuntu"))
+
+    def test_seed_sources_local_seeds(self):
+        self.config["LOCAL_SEEDS"] = "http://www.example.org/"
+        self.assertEqual(
+            ["http://www.example.org/"],
+            self.germination.seed_sources("ubuntu"))
+
+    def test_seed_sources_bzr(self):
+        for project, series, owners in (
+            ("ubuntu", "raring", ["ubuntu-core-dev"]),
+            ("kubuntu", "natty", ["ubuntu-core-dev"]),
+            ("kubuntu", "oneiric", ["kubuntu-dev", "ubuntu-core-dev"]),
+            ("kubuntu-active", "natty", ["ubuntu-core-dev"]),
+            ("kubuntu-active", "oneiric", ["kubuntu-dev", "ubuntu-core-dev"]),
+            ("ubuntustudio", "raring",
+             ["ubuntustudio-dev", "ubuntu-core-dev"]),
+            ("mythbuntu", "raring", ["mythbuntu-dev", "ubuntu-core-dev"]),
+            ("xubuntu", "hardy", ["ubuntu-core-dev"]),
+            ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
+            ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
+        ):
+            self.config["DIST"] = Series.find_by_name(series)
+            sources = [
+                "http://bazaar.launchpad.net/~%s/ubuntu-seeds/" % owner
+                for owner in owners]
+            self.assertEqual(sources, self.germination.seed_sources(project))
+
+    def test_seed_sources_non_bzr(self):
+        self.germination = Germination(self.config, prefer_bzr=False)
+        self.config["DIST"] = Series.find_by_name("raring")
+        self.assertEqual(
+            ["http://people.canonical.com/~ubuntu-archive/seeds/"],
+            self.germination.seed_sources("ubuntu"))
+
+    def test_use_bzr_local_seeds(self):
+        self.config["LOCAL_SEEDS"] = "http://www.example.org/"
+        self.assertFalse(self.germination.use_bzr)
+
+    def test_use_bzr_honours_preference(self):
+        self.assertTrue(self.germination.prefer_bzr)
+        self.assertTrue(self.germination.use_bzr)
+        self.germination.prefer_bzr = False
+        self.assertFalse(self.germination.use_bzr)
+
+    def test_make_index(self):
+        self.use_temp_dir()
+        self.config.root = self.temp_dir
+        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["IMAGE_TYPE"] = "daily"
+        files = []
+        for component in "main", "restricted", "universe", "multiverse":
+            source_dir = os.path.join(
+                self.temp_dir, "ftp", "dists", "raring", component, "source")
+            os.makedirs(source_dir)
+            with gzip.GzipFile(
+                    os.path.join(source_dir, "Sources.gz"), "wb") as sources:
+                sources.write(component.encode("UTF-8"))
+                sources.write(b"\n")
+            files.append("dists/raring/%s/source/Sources.gz" % component)
+        self.germination.make_index("ubuntu", "i386", files[0], files)
+        output_file = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily", "germinate",
+            "dists", "raring", "main", "source", "Sources.gz")
+        self.assertTrue(os.path.exists(output_file))
+        with gzip.GzipFile(output_file, "rb") as output_sources:
+            self.assertEqual(
+                b"main\nrestricted\nuniverse\nmultiverse\n",
+                output_sources.read())
+
+    def test_germinate_dists_environment_override(self):
+        self.config["GERMINATE_DISTS"] = "sentinel,sentinel-updates"
+        self.assertEqual(
+            ["sentinel", "sentinel-updates"], self.germination.germinate_dists)
+
+    def test_germinate_dists_proposed(self):
+        self.config["DIST"] = Series.find_by_name("precise")
+        self.assertEqual([
+            "precise",
+            "precise-security",
+            "precise-updates",
+            "precise-proposed",
+        ], self.germination.germinate_dists)
+
+    def test_germinate_dists_no_proposed(self):
+        self.config["DIST"] = Series.find_by_name("raring")
+        self.assertEqual([
+            "raring",
+            "raring-security",
+            "raring-updates",
+        ], self.germination.germinate_dists)
+
+    def test_seed_dist(self):
+        for project, series, seed_dist in (
+            ("ubuntu", "raring", "ubuntu.raring"),
+            ("ubuntu-server", "breezy", "ubuntu.breezy"),
+            ("ubuntu-netbook", "maverick", "netbook.maverick"),
+        ):
+            self.config["DIST"] = Series.find_by_name(series)
+            self.assertEqual(seed_dist, self.germination.seed_dist(project))
+
+    def test_components(self):
+        self.assertEqual(
+            ["main", "restricted"], list(self.germination.components))
+        self.config["CDIMAGE_UNSUPPORTED"] = 1
+        self.assertEqual(
+            ["main", "restricted", "universe", "multiverse"],
+            list(self.germination.components))
+        self.config["CDIMAGE_ONLYFREE"] = 1
+        self.assertEqual(
+            ["main", "universe"], list(self.germination.components))
+        del self.config["CDIMAGE_UNSUPPORTED"]
+        self.assertEqual(["main"], list(self.germination.components))
+
+    @mock.patch("subprocess.check_call")
+    def test_germinate_arch(self, mock_check_call):
+        self.use_temp_dir()
+        self.config.root = self.temp_dir
+        germinate_path = os.path.join(
+            self.temp_dir, "germinate", "bin", "germinate")
+        os.makedirs(os.path.dirname(germinate_path))
+        with open(germinate_path, "w"):
+            pass
+        os.chmod(germinate_path, 0o755)
+        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["IMAGE_TYPE"] = "daily"
+
+        for dist in "raring", "raring-security", "raring-updates":
+            for component in "main", "restricted":
+                for suffix in (
+                    "binary-%s/Packages.gz",
+                    "source/Sources.gz",
+                    "debian-installer/binary-%s/Packages.gz",
+                ):
+                    path = os.path.join(
+                        self.temp_dir, "ftp", "dists", dist, component, suffix)
+                    os.makedirs(os.path.dirname(path))
+                    with gzip.GzipFile(path, "wb"):
+                        pass
+
+        output_dir = "%s/scratch/ubuntu/raring/daily/germinate" % self.temp_dir
+
+        def check_call_side_effect(*args, **kwargs):
+            with open(os.path.join(output_dir, "i386", "structure"), "w"):
+                pass
+
+        mock_check_call.side_effect = check_call_side_effect
+        self.germination.germinate_arch("ubuntu", "i386")
+        expected_command = [
+            germinate_path,
+            "--seed-source",
+            "http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/",
+            "--mirror", "file://%s/" % output_dir,
+            "--seed-dist", "ubuntu.raring",
+            "--dist", "raring,raring-security,raring-updates",
+            "--arch", "i386",
+            "--components", "main",
+            "--no-rdepends",
+            "--bzr",
+        ]
+        self.assertEqual(
+            [mock.call(expected_command, cwd=("%s/i386" % output_dir))],
+            mock_check_call.call_args_list)
+
+    @mock.patch("cdimage.germinate.Germination.germinate_arch")
+    def test_germinate_project(self, mock_germinate_arch):
+        self.use_temp_dir()
+        self.config.root = self.temp_dir
+        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["ARCHES"] = "amd64 i386"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.capture_logging()
+        self.germination.germinate_project("ubuntu")
+        self.assertTrue(os.path.isdir(os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily",
+            "germinate")))
+        self.assertEqual(
+            [mock.call("ubuntu", "amd64"), mock.call("ubuntu", "i386")],
+            mock_germinate_arch.call_args_list)
+        self.assertLogEqual([
+            "Germinating for raring/amd64 ...",
+            "Germinating for raring/i386 ...",
+        ])
+
+    @mock.patch("cdimage.germinate.Germination.germinate_project")
+    def test_run(self, mock_germinate_project):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.germination.run()
+        self.assertEqual(
+            [mock.call("ubuntu")], mock_germinate_project.call_args_list)
+
+        mock_germinate_project.reset_mock()
+        del self.config["PROJECT"]
+        self.config["ALL_PROJECTS"] = "ubuntu kubuntu"
+        self.config["IMAGE_TYPE"] = "source"
+        self.germination.run()
+        self.assertEqual(
+            [mock.call("ubuntu"), mock.call("kubuntu")],
+            mock_germinate_project.call_args_list)
 
 
 class TestGerminateOutput(TestCase):
@@ -308,3 +551,24 @@ class TestGerminateOutput(TestCase):
         self.assertEqual(expected, list(output.list_seeds("ship-live")))
 
     # TODO list_seeds addon/dvd untested
+
+    def test_seed_packages(self):
+        self.write_structure([["base", []]])
+        arch_output_dir = os.path.join(self.temp_dir, "i386")
+        os.mkdir(arch_output_dir)
+        with open(os.path.join(arch_output_dir, "base"), "w") as base:
+            # A real germinate output file is more complex than this, but
+            # this is more than enough for testing.
+            print(
+                dedent("""\
+                    Package     | Source      | Why                     |
+                    ------------+-------------+-------------------------+
+                    base-files  | base-files  | Ubuntu.Raring base seed |
+                    base-passwd | base-passwd | Ubuntu.Raring base seed |
+                    ----------------------------------------------------+
+                                                                        |"""),
+                file=base)
+        output = GerminateOutput(self.config, self.structure)
+        self.assertEqual(
+            ["base-files", "base-passwd"],
+            output.seed_packages("i386", "base"))

@@ -19,6 +19,191 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import gzip
+import os
+import shutil
+import subprocess
+
+from cdimage import osextras
+from cdimage.log import logger
+from cdimage.mirror import find_mirror
+
+
+class GerminateNotInstalled(Exception):
+    pass
+
+
+class Germination:
+    def __init__(self, config, prefer_bzr=True):
+        self.config = config
+        # Set to False to use old-style seed checkouts.
+        self.prefer_bzr = prefer_bzr
+
+    @property
+    def germinate_path(self):
+        paths = [
+            os.path.join(self.config.root, "germinate", "bin", "germinate"),
+            os.path.join(self.config.root, "germinate", "germinate.py"),
+        ]
+        for path in paths:
+            if os.access(path, os.X_OK):
+                return path
+        else:
+            raise GerminateNotInstalled(
+                "Please check out lp:germinate in %s." %
+                os.path.join(self.config.root, "germinate"))
+
+    def output_dir(self, project):
+        return os.path.join(
+            self.config.root, "scratch", project, self.config.series,
+            self.config["IMAGE_TYPE"], "germinate")
+
+    def seed_sources(self, project):
+        if self.config["LOCAL_SEEDS"]:
+            return [self.config["LOCAL_SEEDS"]]
+        elif self.prefer_bzr:
+            pattern = "http://bazaar.launchpad.net/~%s/ubuntu-seeds/"
+            series = self.config["DIST"]
+            sources = [pattern % "ubuntu-core-dev"]
+            if project in ("kubuntu", "kubuntu-active"):
+                if series >= "oneiric":
+                    sources.insert(0, pattern % "kubuntu-dev")
+            elif project == "ubuntustudio":
+                sources.insert(0, pattern % "ubuntustudio-dev")
+            elif project == "mythbuntu":
+                sources.insert(0, pattern % "mythbuntu-dev")
+            elif project == "xubuntu":
+                if series >= "intrepid":
+                    sources.insert(0, pattern % "xubuntu-dev")
+            elif project == "lubuntu":
+                sources.insert(0, pattern % "lubuntu-dev")
+            return sources
+        else:
+            return ["http://people.canonical.com/~ubuntu-archive/seeds/"]
+
+    @property
+    def use_bzr(self):
+        if self.config["LOCAL_SEEDS"]:
+            # Local changes may well not be committed.
+            return False
+        else:
+            return self.prefer_bzr
+
+    def make_index(self, project, arch, rel_target, rel_paths):
+        target = os.path.join(self.output_dir(project), rel_target)
+        osextras.mkemptydir(os.path.dirname(target))
+        with gzip.GzipFile(target, "wb") as target_file:
+            for rel_path in rel_paths:
+                if os.path.isabs(rel_path):
+                    abs_path = rel_path
+                else:
+                    abs_path = os.path.join(
+                        find_mirror(self.config, arch), rel_path)
+                if os.path.isfile(abs_path):
+                    with gzip.GzipFile(abs_path, "rb") as source_file:
+                        target_file.write(source_file.read())
+
+    @property
+    def germinate_dists(self):
+        if self.config["GERMINATE_DISTS"]:
+            return self.config["GERMINATE_DISTS"].split(",")
+        else:
+            dist_patterns = ["%s", "%s-security", "%s-updates"]
+            if self.config.series == "precise":
+                dist_patterns.append("%s-proposed")
+            return [pattern % self.config.series for pattern in dist_patterns]
+
+    def seed_dist(self, project):
+        if project == "ubuntu-server" and self.config.series == "breezy":
+            return "ubuntu.%s" % self.config.series
+        elif project == "ubuntu-netbook":
+            return "netbook.%s" % self.config.series
+        else:
+            return "%s.%s" % (project, self.config.series)
+
+    @property
+    def components(self):
+        yield "main"
+        if not self.config["CDIMAGE_ONLYFREE"]:
+            yield "restricted"
+        if self.config["CDIMAGE_UNSUPPORTED"]:
+            yield "universe"
+            if not self.config["CDIMAGE_ONLYFREE"]:
+                yield "multiverse"
+
+    # TODO: convert to Germinate's native Python interface
+    def germinate_arch(self, project, arch):
+        for dist in self.germinate_dists:
+            for suffix in (
+                "binary-%s/Packages.gz",
+                "source/Sources.gz",
+                "debian-installer/binary-%s/Packages.gz",
+            ):
+                files = [
+                    "dists/%s/%s/%s" % (dist, component, suffix)
+                    for component in self.components]
+                if self.config["LOCAL"]:
+                    files.append(
+                        "%s/dists/%s/local/%s" %
+                        (self.config["LOCALDEBS"], dist, suffix))
+                self.make_index(project, arch, files[0], files)
+
+        arch_output_dir = os.path.join(self.output_dir(project), arch)
+        osextras.mkemptydir(arch_output_dir)
+        if (self.config["GERMINATE_HINTS"] and
+                os.path.isfile(self.config["GERMINATE_HINTS"])):
+            shutil.copy2(
+                self.config["GERMINATE_HINTS"],
+                os.path.join(arch_output_dir, "hints"))
+        command = [
+            self.germinate_path,
+            "--seed-source", ",".join(self.seed_sources(project)),
+            "--mirror", "file://%s/" % self.output_dir(project),
+            "--seed-dist", self.seed_dist(project),
+            "--dist", ",".join(self.germinate_dists),
+            "--arch", arch.split("+")[0],
+            "--components", "main",
+            "--no-rdepends",
+        ]
+        if self.use_bzr:
+            command.append("--bzr")
+        subprocess.check_call(command, cwd=arch_output_dir)
+        output_structure = os.path.join(self.output_dir(project), "STRUCTURE")
+        shutil.copy2(
+            os.path.join(arch_output_dir, "structure"), output_structure)
+
+        if self.config.series == "breezy":
+            # Unfortunately, we now need a second germinate run to figure
+            # out the dependencies of language packs and the like.
+            extras = []
+            with open(os.path.join(
+                    arch_output_dir, "ship.acsets"), "w") as ship_acsets:
+                output = GerminateOutput(self.config, output_structure)
+                for pkg in output.seed_packages(arch, "ship.seed"):
+                    extras.append("desktop/%s" % pkg)
+                    print(pkg, file=ship_acsets)
+            if extras:
+                logger.info(
+                    "Re-germinating for %s/%s language pack dependencies ..." %
+                    (self.config.series, arch))
+                command.extend(["--seed-packages", ",".join(extras)])
+                subprocess.check_call(command, cwd=arch_output_dir)
+
+    def germinate_project(self, project):
+        osextras.mkemptydir(self.output_dir(project))
+
+        for arch in self.config.arches:
+            logger.info(
+                "Germinating for %s/%s ..." % (self.config.series, arch))
+            self.germinate_arch(project, arch)
+
+    def run(self):
+        if self.config["IMAGE_TYPE"] == "source":
+            for project in self.config.all_projects:
+                self.germinate_project(project)
+        else:
+            self.germinate_project(self.config["PROJECT"])
+
 
 class GerminateOutput:
     def __init__(self, config, structure):
@@ -150,3 +335,9 @@ class GerminateOutput:
                 else:
                     for seed in self._inheritance("dvd"):
                         yield seed
+
+    def seed_packages(self, arch, seed):
+        with open(os.path.join(
+                os.path.dirname(self.structure), arch, seed)) as seed_file:
+            lines = seed_file.read().splitlines()[2:-2]
+            return [line.split(None, 1)[0] for line in lines]

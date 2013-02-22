@@ -197,10 +197,14 @@ class Config(defaultdict):
         if self["DIST"]:
             self["DIST"] = Series.find_by_name(self["DIST"])
 
+    def _add_package(self, package):
+        path = os.path.join(self.root, package)
+        if os.path.isdir(path):
+            sys.path.insert(0, path)
+
     def fix_path(self):
-        uat_path = os.path.join(self.root, "ubuntu-archive-tools")
-        if os.path.isdir(uat_path):
-            sys.path.insert(0, uat_path)
+        self._add_package("germinate")
+        self._add_package("ubuntu-archive-tools")
 
     @property
     def series(self):
@@ -213,6 +217,10 @@ class Config(defaultdict):
     @property
     def cpuarches(self):
         return self["CPUARCHES"].split()
+
+    @property
+    def all_projects(self):
+        return self["ALL_PROJECTS"].split()
 
 
 config = Config()

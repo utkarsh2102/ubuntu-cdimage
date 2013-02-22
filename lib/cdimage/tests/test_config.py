@@ -138,3 +138,11 @@ class TestConfig(TestCase):
         self.assertEqual(["i386"], config.cpuarches)
         config["CPUARCHES"] = "amd64 i386"
         self.assertEqual(["amd64", "i386"], config.cpuarches)
+
+    def test_all_projects(self):
+        config = Config(read=False)
+        self.assertEqual([], config.all_projects)
+        config["ALL_PROJECTS"] = "ubuntu"
+        self.assertEqual(["ubuntu"], config.all_projects)
+        config["ALL_PROJECTS"] = "ubuntu kubuntu"
+        self.assertEqual(["ubuntu", "kubuntu"], config.all_projects)
