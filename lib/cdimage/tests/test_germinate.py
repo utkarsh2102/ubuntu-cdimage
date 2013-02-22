@@ -200,9 +200,9 @@ class TestGermination(TestCase):
         for dist in "raring", "raring-security", "raring-updates":
             for component in "main", "restricted":
                 for suffix in (
-                    "binary-%s/Packages.gz",
+                    "binary-i386/Packages.gz",
                     "source/Sources.gz",
-                    "debian-installer/binary-%s/Packages.gz",
+                    "debian-installer/binary-i386/Packages.gz",
                 ):
                     path = os.path.join(
                         self.temp_dir, "ftp", "dists", dist, component, suffix)

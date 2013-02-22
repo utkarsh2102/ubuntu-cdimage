@@ -135,9 +135,9 @@ class Germination:
     def germinate_arch(self, project, arch):
         for dist in self.germinate_dists:
             for suffix in (
-                "binary-%s/Packages.gz",
+                "binary-%s/Packages.gz" % arch,
                 "source/Sources.gz",
-                "debian-installer/binary-%s/Packages.gz",
+                "debian-installer/binary-%s/Packages.gz" % arch,
             ):
                 files = [
                     "dists/%s/%s/%s" % (dist, component, suffix)
