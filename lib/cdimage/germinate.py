@@ -114,7 +114,7 @@ class Germination:
             return [pattern % self.config.series for pattern in dist_patterns]
 
     def seed_dist(self, project):
-        if project == "ubuntu-server" and self.config.series == "breezy":
+        if project == "ubuntu-server" and self.config.series != "breezy":
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntu-netbook":
             return "netbook.%s" % self.config.series

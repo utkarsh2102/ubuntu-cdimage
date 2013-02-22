@@ -164,7 +164,8 @@ class TestGermination(TestCase):
     def test_seed_dist(self):
         for project, series, seed_dist in (
             ("ubuntu", "raring", "ubuntu.raring"),
-            ("ubuntu-server", "breezy", "ubuntu.breezy"),
+            ("ubuntu-server", "breezy", "ubuntu-server.breezy"),
+            ("ubuntu-server", "raring", "ubuntu.raring"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
         ):
             self.config["DIST"] = Series.find_by_name(series)
