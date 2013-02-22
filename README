@@ -11,6 +11,8 @@ cdimage requires Python >= 2.7.  It should also work with Python >= 3.1 (not
 3.0), but at the moment this has only been confirmed by unit-testing and not
 by field experience.
 
+Running the cdimage test suite also requires python-mock.
+
 
 Day-to-day operation
 --------------------
