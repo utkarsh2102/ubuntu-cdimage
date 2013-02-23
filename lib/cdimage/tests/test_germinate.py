@@ -197,27 +197,32 @@ class TestGermination(TestCase):
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
 
+        output_dir = "%s/scratch/ubuntu/raring/daily/germinate" % self.temp_dir
+        expected_files = []
+
         for dist in "raring", "raring-security", "raring-updates":
-            for component in "main", "restricted":
-                for suffix in (
-                    "binary-i386/Packages.gz",
-                    "source/Sources.gz",
-                    "debian-installer/binary-i386/Packages.gz",
-                ):
+            for suffix in (
+                "binary-amd64/Packages.gz",
+                "source/Sources.gz",
+                "debian-installer/binary-amd64/Packages.gz",
+            ):
+                for component in "main", "restricted":
                     path = os.path.join(
                         self.temp_dir, "ftp", "dists", dist, component, suffix)
                     os.makedirs(os.path.dirname(path))
                     with gzip.GzipFile(path, "wb"):
                         pass
-
-        output_dir = "%s/scratch/ubuntu/raring/daily/germinate" % self.temp_dir
+                expected_files.append(
+                    os.path.join(output_dir, "dists", dist, "main", suffix))
 
         def check_call_side_effect(*args, **kwargs):
-            with open(os.path.join(output_dir, "i386", "structure"), "w"):
+            with open(os.path.join(output_dir, "amd64+mac", "structure"), "w"):
                 pass
 
         mock_check_call.side_effect = check_call_side_effect
-        self.germination.germinate_arch("ubuntu", "i386")
+        self.germination.germinate_arch("ubuntu", "amd64+mac")
+        for expected_file in expected_files:
+            self.assertTrue(os.path.exists(expected_file))
         expected_command = [
             germinate_path,
             "--seed-source",
@@ -225,13 +230,13 @@ class TestGermination(TestCase):
             "--mirror", "file://%s/" % output_dir,
             "--seed-dist", "ubuntu.raring",
             "--dist", "raring,raring-security,raring-updates",
-            "--arch", "i386",
+            "--arch", "amd64",
             "--components", "main",
             "--no-rdepends",
             "--bzr",
         ]
         self.assertEqual(
-            [mock.call(expected_command, cwd=("%s/i386" % output_dir))],
+            [mock.call(expected_command, cwd=("%s/amd64+mac" % output_dir))],
             mock_check_call.call_args_list)
 
     @mock.patch("cdimage.germinate.Germination.germinate_arch")

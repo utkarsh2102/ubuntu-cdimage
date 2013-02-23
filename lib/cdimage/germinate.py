@@ -133,11 +133,13 @@ class Germination:
 
     # TODO: convert to Germinate's native Python interface
     def germinate_arch(self, project, arch):
+        cpuarch = arch.split("+")[0]
+
         for dist in self.germinate_dists:
             for suffix in (
-                "binary-%s/Packages.gz" % arch,
+                "binary-%s/Packages.gz" % cpuarch,
                 "source/Sources.gz",
-                "debian-installer/binary-%s/Packages.gz" % arch,
+                "debian-installer/binary-%s/Packages.gz" % cpuarch,
             ):
                 files = [
                     "dists/%s/%s/%s" % (dist, component, suffix)
@@ -161,7 +163,7 @@ class Germination:
             "--mirror", "file://%s/" % self.output_dir(project),
             "--seed-dist", self.seed_dist(project),
             "--dist", ",".join(self.germinate_dists),
-            "--arch", arch.split("+")[0],
+            "--arch", cpuarch,
             "--components", "main",
             "--no-rdepends",
         ]
