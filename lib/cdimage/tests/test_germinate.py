@@ -27,7 +27,7 @@ from textwrap import dedent
 
 import mock
 
-from cdimage.config import Config, Series, all_series
+from cdimage.config import Config, all_series
 from cdimage.germinate import (
     GerminateNotInstalled,
     GerminateOutput,
@@ -65,7 +65,7 @@ class TestGermination(TestCase):
 
     def test_output_dir(self):
         self.config.root = "/cdimage"
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
         self.assertEqual(
             "/cdimage/scratch/ubuntu/raring/daily/germinate",
@@ -91,7 +91,7 @@ class TestGermination(TestCase):
             ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
             ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
         ):
-            self.config["DIST"] = Series.find_by_name(series)
+            self.config["DIST"] = series
             sources = [
                 "http://bazaar.launchpad.net/~%s/ubuntu-seeds/" % owner
                 for owner in owners]
@@ -99,7 +99,7 @@ class TestGermination(TestCase):
 
     def test_seed_sources_non_bzr(self):
         self.germination = Germination(self.config, prefer_bzr=False)
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         self.assertEqual(
             ["http://people.canonical.com/~ubuntu-archive/seeds/"],
             self.germination.seed_sources("ubuntu"))
@@ -117,7 +117,7 @@ class TestGermination(TestCase):
     def test_make_index(self):
         self.use_temp_dir()
         self.config.root = self.temp_dir
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
         files = []
         for component in "main", "restricted", "universe", "multiverse":
@@ -145,7 +145,7 @@ class TestGermination(TestCase):
             ["sentinel", "sentinel-updates"], self.germination.germinate_dists)
 
     def test_germinate_dists_proposed(self):
-        self.config["DIST"] = Series.find_by_name("precise")
+        self.config["DIST"] = "precise"
         self.assertEqual([
             "precise",
             "precise-security",
@@ -154,7 +154,7 @@ class TestGermination(TestCase):
         ], self.germination.germinate_dists)
 
     def test_germinate_dists_no_proposed(self):
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         self.assertEqual([
             "raring",
             "raring-security",
@@ -168,17 +168,17 @@ class TestGermination(TestCase):
             ("ubuntu-server", "raring", "ubuntu.raring"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
         ):
-            self.config["DIST"] = Series.find_by_name(series)
+            self.config["DIST"] = series
             self.assertEqual(seed_dist, self.germination.seed_dist(project))
 
     def test_components(self):
         self.assertEqual(
             ["main", "restricted"], list(self.germination.components))
-        self.config["CDIMAGE_UNSUPPORTED"] = 1
+        self.config["CDIMAGE_UNSUPPORTED"] = "1"
         self.assertEqual(
             ["main", "restricted", "universe", "multiverse"],
             list(self.germination.components))
-        self.config["CDIMAGE_ONLYFREE"] = 1
+        self.config["CDIMAGE_ONLYFREE"] = "1"
         self.assertEqual(
             ["main", "universe"], list(self.germination.components))
         del self.config["CDIMAGE_UNSUPPORTED"]
@@ -194,7 +194,7 @@ class TestGermination(TestCase):
         with open(germinate_path, "w"):
             pass
         os.chmod(germinate_path, 0o755)
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
 
         for dist in "raring", "raring-security", "raring-updates":
@@ -238,7 +238,7 @@ class TestGermination(TestCase):
     def test_germinate_project(self, mock_germinate_arch):
         self.use_temp_dir()
         self.config.root = self.temp_dir
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         self.config["ARCHES"] = "amd64 i386"
         self.config["IMAGE_TYPE"] = "daily"
         self.capture_logging()
@@ -432,13 +432,13 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.structure)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         expected = [
             "boot", "installer", "required", "minimal", "standard",
             "desktop-common", "desktop", "d-i-requirements", "ship",
         ]
         self.assertEqual(expected, list(output.list_seeds("tasks")))
-        self.config["CDIMAGE_DVD"] = 1
+        self.config["CDIMAGE_DVD"] = "1"
         expected.extend(["dns-server", "lamp-server"])
         self.assertEqual(expected, list(output.list_seeds("tasks")))
 
@@ -470,7 +470,7 @@ class TestGerminateOutput(TestCase):
         self.write_kubuntu_structure()
         output = GerminateOutput(self.config, self.structure)
         self.config["PROJECT"] = "kubuntu-active"
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         expected = [
             "boot", "installer", "required", "minimal", "standard",
             "desktop-common", "desktop", "d-i-requirements", "ship",
@@ -482,15 +482,15 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_breezy_structure()
         self.write_structure([["installer", []], ["casper", []]])
         output = GerminateOutput(self.config, self.structure)
-        self.config["CDIMAGE_INSTALL_BASE"] = 1
+        self.config["CDIMAGE_INSTALL_BASE"] = "1"
         self.assertEqual(["installer"], list(output.list_seeds("installer")))
         del self.config["CDIMAGE_INSTALL_BASE"]
-        self.config["CDIMAGE_LIVE"] = 1
-        self.config["DIST"] = Series.find_by_name("hoary")
+        self.config["CDIMAGE_LIVE"] = "1"
+        self.config["DIST"] = "hoary"
         self.assertEqual(["casper"], list(output.list_seeds("installer")))
-        self.config["DIST"] = Series.find_by_name("breezy")
+        self.config["DIST"] = "breezy"
         self.assertEqual(["casper"], list(output.list_seeds("installer")))
-        self.config["DIST"] = Series.find_by_name("dapper")
+        self.config["DIST"] = "dapper"
         self.assertEqual([], list(output.list_seeds("installer")))
 
     def test_list_seeds_debootstrap(self):

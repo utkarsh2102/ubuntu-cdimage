@@ -120,7 +120,7 @@ class TestConfig(TestCase):
 
     def test_series(self):
         config = Config(read=False)
-        config["DIST"] = Series.find_by_name("warty")
+        config["DIST"] = "warty"
         self.assertEqual("warty", config.series)
 
     def test_arches(self):

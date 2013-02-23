@@ -138,7 +138,7 @@ class TestDailyTreePublisher(TestCase):
         return publisher
 
     def test_image_output(self):
-        self.config["DIST"] = Series.find_by_name("hoary")
+        self.config["DIST"] = "hoary"
         self.assertEqual(
             os.path.join(
                 self.config.root, "scratch", "kubuntu", "hoary", "daily",
@@ -162,7 +162,7 @@ class TestDailyTreePublisher(TestCase):
     def test_image_type_dir(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
         self.assertEqual("daily-live", publisher.image_type_dir)
-        self.config["DIST"] = Series.find_by_name("hoary")
+        self.config["DIST"] = "hoary"
         self.assertEqual(
             os.path.join("hoary", "daily-live"), publisher.image_type_dir)
 
@@ -171,7 +171,7 @@ class TestDailyTreePublisher(TestCase):
             os.path.join(
                 self.config.root, "www", "full", "kubuntu", "daily-live"),
             self.make_publisher("kubuntu", "daily-live").publish_base)
-        self.config["DIST"] = Series.find_by_name("hoary")
+        self.config["DIST"] = "hoary"
         self.assertEqual(
             os.path.join(
                 self.config.root, "www", "full",
@@ -185,7 +185,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             (basedir, os.path.join("daily-live", date)),
             publisher.metalink_dirs(date))
-        self.config["DIST"] = Series.find_by_name("hoary")
+        self.config["DIST"] = "hoary"
         self.assertEqual(
             (basedir, os.path.join("hoary", "daily-live", date)),
             publisher.metalink_dirs(date))
@@ -194,7 +194,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             (basedir, os.path.join("kubuntu", "daily-live", date)),
             publisher.metalink_dirs(date))
-        self.config["DIST"] = Series.find_by_name("hoary")
+        self.config["DIST"] = "hoary"
         self.assertEqual(
             (basedir, os.path.join("kubuntu", "hoary", "daily-live", date)),
             publisher.metalink_dirs(date))
@@ -231,7 +231,7 @@ class TestDailyTreePublisher(TestCase):
             ("daily", "ubuntu", "breezy", "install"),
             ("daily", "ubuntu", "dapper", "alternate"),
         ):
-            self.config["DIST"] = Series.find_by_name(dist)
+            self.config["DIST"] = dist
             publisher = self.make_publisher(project, image_type)
             self.assertEqual(publish_type, publisher.publish_type)
 
@@ -251,7 +251,7 @@ class TestDailyTreePublisher(TestCase):
             ("xubuntu", "raring", "daily-live", 1073741824),
         ):
             if dist is not None:
-                self.config["DIST"] = Series.find_by_name(dist)
+                self.config["DIST"] = dist
             publisher = self.make_publisher(project, image_type)
             self.assertEqual(size_limit, publisher.size_limit)
 

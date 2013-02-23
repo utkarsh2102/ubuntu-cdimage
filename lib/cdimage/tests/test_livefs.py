@@ -19,7 +19,7 @@
 
 __metaclass__ = type
 
-from cdimage.config import Config, Series, all_series
+from cdimage.config import Config, all_series
 from cdimage.livefs import (
     NoLiveItem,
     flavours,
@@ -50,10 +50,7 @@ class TestLiveProject(TestCase):
     def assertProjectEqual(self, expected, project, series, **kwargs):
         config = Config(read=False)
         config["PROJECT"] = project
-        if isinstance(series, Series):
-            config["DIST"] = series
-        else:
-            config["DIST"] = Series.find_by_name(series)
+        config["DIST"] = series
         for key, value in kwargs.items():
             config[key.upper()] = value
         self.assertEqual(expected, live_project(config))
@@ -100,10 +97,7 @@ class TestLiveProject(TestCase):
 class TestLiveBuilder(TestCase):
     def assertBuilderEqual(self, expected, arch, series, project=None):
         config = Config(read=False)
-        if isinstance(series, Series):
-            config["DIST"] = series
-        else:
-            config["DIST"] = Series.find_by_name(series)
+        config["DIST"] = series
         if project is not None:
             config["PROJECT"] = project
         self.assertEqual(expected, live_builder(config, arch))
@@ -164,10 +158,7 @@ class TestLiveCDBase(TestCase):
     def assertBaseEqual(self, expected, arch, project, series, **kwargs):
         config = Config(read=False)
         config["PROJECT"] = project
-        if isinstance(series, Series):
-            config["DIST"] = series
-        else:
-            config["DIST"] = Series.find_by_name(series)
+        config["DIST"] = series
         for key, value in kwargs.items():
             config[key.upper()] = value
         self.assertEqual(expected, livecd_base(config, arch))
@@ -217,10 +208,7 @@ class TestFlavours(TestCase):
     def assertFlavoursEqual(self, expected, arch, project, series):
         config = Config(read=False)
         config["PROJECT"] = project
-        if isinstance(series, Series):
-            config["DIST"] = series
-        else:
-            config["DIST"] = Series.find_by_name(series)
+        config["DIST"] = series
         self.assertEqual(expected.split(), flavours(config, arch))
 
     def test_amd64(self):
@@ -313,19 +301,13 @@ class TestLiveItemPaths(TestCase):
     def assertPathsEqual(self, expected, arch, item, project, series):
         config = Config(read=False)
         config["PROJECT"] = project
-        if isinstance(series, Series):
-            config["DIST"] = series
-        else:
-            config["DIST"] = Series.find_by_name(series)
+        config["DIST"] = series
         self.assertEqual(expected, list(live_item_paths(config, arch, item)))
 
     def assertNoPaths(self, arch, item, project, series):
         config = Config(read=False)
         config["PROJECT"] = project
-        if isinstance(series, Series):
-            config["DIST"] = series
-        else:
-            config["DIST"] = Series.find_by_name(series)
+        config["DIST"] = series
         self.assertRaises(
             NoLiveItem, next, live_item_paths(config, arch, item))
 

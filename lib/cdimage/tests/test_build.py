@@ -32,7 +32,7 @@ from cdimage.build import (
     extract_debootstrap,
     update_local_indices,
 )
-from cdimage.config import Config, Series
+from cdimage.config import Config
 from cdimage.tests.helpers import TestCase
 
 
@@ -42,7 +42,7 @@ class TestUpdateLocalIndices(TestCase):
         self.use_temp_dir()
         self.config = Config(read=False)
         self.config.root = self.temp_dir
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         self.config["CPUARCHES"] = "i386"
         self.packages = os.path.join(self.temp_dir, "local", "packages")
         self.database = os.path.join(self.temp_dir, "local", "database")
@@ -144,12 +144,12 @@ class TestExtractDebootstrap(TestCase):
             ("gutsy", "usr/lib/debootstrap/scripts/gutsy"),
             ("hardy", "usr/share/debootstrap/scripts/hardy"),
         ):
-            self.config["DIST"] = Series.find_by_name(series)
+            self.config["DIST"] = series
             self.assertEqual(script, _debootstrap_script(self.config))
 
     def test_extract_debootstrap(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = Series.find_by_name("raring")
+        self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64+mac"
         mirror_dir = os.path.join(self.temp_dir, "ftp")

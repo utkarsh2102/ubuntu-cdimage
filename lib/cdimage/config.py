@@ -197,6 +197,21 @@ class Config(defaultdict):
         if self["DIST"]:
             self["DIST"] = Series.find_by_name(self["DIST"])
 
+    def __setitem__(self, key, value):
+        config_value = value
+        env_value = value
+        if key == "DIST":
+            if isinstance(value, Series):
+                env_value = value.name
+            elif value:
+                config_value = Series.find_by_name(value)
+        super(Config, self).__setitem__(key, config_value)
+        os.environ[key] = env_value
+
+    def __delitem__(self, key):
+        super(Config, self).__delitem__(key)
+        os.environ.pop(key, None)
+
     def _add_package(self, package):
         path = os.path.join(self.root, package)
         if os.path.isdir(path):

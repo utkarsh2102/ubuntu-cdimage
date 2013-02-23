@@ -29,7 +29,7 @@ from cdimage.check_installable import (
     _check_installable_dirs,
     _prepare_check_installable,
 )
-from cdimage.config import Config, Series
+from cdimage.config import Config
 from cdimage.tests.helpers import TestCase
 
 
@@ -42,7 +42,7 @@ class TestCheckInstallable(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["IMAGE_TYPE"] = "daily"
-        self.config["DIST"] = Series.find_by_name("warty")
+        self.config["DIST"] = "warty"
         self.config["ARCHES"] = "i386"
 
     def test_dirs(self):
