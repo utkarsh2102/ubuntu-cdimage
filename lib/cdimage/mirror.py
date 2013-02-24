@@ -23,10 +23,6 @@ import os
 import subprocess
 
 
-class UnknownMirror(Exception):
-    pass
-
-
 def find_mirror(config, arch):
     return os.path.join(config.root, "ftp")
 
