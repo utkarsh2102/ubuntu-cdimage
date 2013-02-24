@@ -6,11 +6,11 @@ except ImportError:
     from HTMLParser import HTMLParser
 from optparse import OptionParser
 import os
-import subprocess
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import config
+from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.tree import DailyTree, DailyTreePublisher
 
 
@@ -154,22 +154,6 @@ def check_uninstallables(project, series, image):
                              parser.formatted.rstrip('\n'))
 
 
-def get_notify_addresses(project=None):
-    path = os.path.join(config.root, 'production', 'notify-addresses')
-    if not os.path.exists(path):
-        path = os.path.join(config.root, 'etc', 'notify-addresses')
-    if not os.path.exists(path):
-        return []
-    with open(path) as fp:
-        all_addresses = []
-        for line in fp:
-            this_project, addresses = line.split(None, 1)
-            if (this_project == 'ALL' or
-                    (project is not None and this_project == project)):
-                all_addresses.extend(addresses.split())
-        return all_addresses
-
-
 def get_warnings(project):
     global warnings
     lines = []
@@ -191,54 +175,38 @@ def get_all_warnings(projects):
     return '\n\n\n'.join(texts)
 
 
-def create_mail(options, subject, recipients, body):
-    if options.stdout:
-        print "Would send mail to:", ', '.join(recipients)
-        print
-        print "Subject: %s" % subject
-        print "X-Generated-By: daily-checks.py"
-        print
-        print body
-    else:
-        mailer_args = ['mail', '-s', subject,
-                       '-a', 'X-Generated-By: daily-checks.py']
-        mailer_args.extend(recipients)
-        mailer = subprocess.Popen(mailer_args, stdin=subprocess.PIPE)
-        print >>mailer.stdin, body,
-        mailer.stdin.close()
-        mailer.wait()
-
-
 def send_warnings(options, projects):
-    releasers = get_notify_addresses()
+    releasers = get_notify_addresses(config)
     all_warnings = get_all_warnings(projects)
     if all_warnings == '':
         all_warnings = 'No problems found!'
-    create_mail(options, 'Daily CD health checks', releasers,
-                """\
+    body = """\
 This is a daily health check report on all CD images.
 If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
 
 %s
-""" % all_warnings)
+""" % all_warnings
+    send_mail(
+        "Daily CD health checks", "daily-checks", releasers, body,
+        dry_run=options.stdout)
 
     for project in projects:
         owners = [
-            owner for owner in get_notify_addresses(project)
+            owner for owner in get_notify_addresses(config, project)
             if owner not in releasers]
         if owners:
             these_warnings = get_warnings(project)
             if these_warnings == '':
                 continue
-            create_mail(options,
-                        '%s daily CD health check' % project_title(project),
-                        owners,
-                        """\
+            body = """\
 This is a daily health check report on the %s CD images.
 If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
 
 %s
-""" % (project_title(project), these_warnings))
+""" % (project_title(project), these_warnings)
+            send_mail(
+                "%s daily CD health check" % project_title(project),
+                "daily-checks", owners, body, dry_run=options.stdout)
 
 
 def main():
