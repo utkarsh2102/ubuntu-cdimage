@@ -18,6 +18,7 @@
 import os
 import subprocess
 
+from cdimage import osextras
 from cdimage.log import logger
 
 
@@ -62,9 +63,6 @@ def sign_cdimage(config, path):
                 subprocess.check_call(
                     _signing_command(config), stdin=infile, stdout=outfile)
             except subprocess.CalledProcessError:
-                try:
-                    os.unlink("%s.gpg" % path)
-                except OSError:
-                    pass
+                osextras.unlink_force("%s.gpg" % path)
                 raise
     return True
