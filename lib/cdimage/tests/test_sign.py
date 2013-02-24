@@ -18,6 +18,9 @@
 """Unit tests for cdimage.sign."""
 
 import os
+import subprocess
+
+import mock
 
 from cdimage.config import Config
 from cdimage.sign import _gnupg_files, _signing_command, sign_cdimage
@@ -67,3 +70,49 @@ class TestSign(TestCase):
         self.capture_logging()
         self.assertFalse(sign_cdimage(config, "dummy"))
         self.assertLogEqual(["No keys found; not signing images."])
+
+    @mock.patch("subprocess.check_call")
+    def test_sign_cdimage_configured(self, mock_check_call):
+        config = Config(read=False)
+        config["GNUPG_DIR"] = self.use_temp_dir()
+        config["SIGNING_KEYID"] = "01234567"
+        gpgconf, secring, pubring, trustdb = _gnupg_files(config)
+        sign_path = os.path.join(self.temp_dir, "to-sign")
+        for path in gpgconf, secring, pubring, trustdb, sign_path:
+            touch(path)
+        self.capture_logging()
+        self.assertTrue(sign_cdimage(config, sign_path))
+        self.assertLogEqual([])
+        self.assertEqual(1, mock_check_call.call_count)
+        expected_command = [
+            "gpg", "--options", gpgconf,
+            "--no-default-keyring",
+            "--secret-keyring", secring,
+            "--keyring", pubring,
+            "--trustdb-name", trustdb,
+            "--default-key", "01234567",
+            "--no-options", "--batch", "--no-tty",
+            "--armour", "--detach-sign",
+        ]
+        call = mock_check_call.call_args
+        self.assertEqual((expected_command, ), call[0])
+        self.assertCountEqual(["stdin", "stdout"], list(call[1].keys()))
+        self.assertEqual(sign_path, call[1]["stdin"].name)
+        self.assertEqual("%s.gpg" % sign_path, call[1]["stdout"].name)
+
+    @mock.patch("subprocess.check_call")
+    def test_sign_cdimage_subprocess_error(self, mock_check_call):
+        mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
+        config = Config(read=False)
+        config["GNUPG_DIR"] = self.use_temp_dir()
+        config["SIGNING_KEYID"] = "01234567"
+        gpgconf, secring, pubring, trustdb = _gnupg_files(config)
+        sign_path = os.path.join(self.temp_dir, "to-sign")
+        for path in gpgconf, secring, pubring, trustdb, sign_path:
+            touch(path)
+        touch("%s.gpg" % sign_path)
+        self.capture_logging()
+        self.assertRaises(
+            subprocess.CalledProcessError, sign_cdimage, config, sign_path)
+        self.assertLogEqual([])
+        self.assertFalse(os.path.exists("%s.gpg" % sign_path))
