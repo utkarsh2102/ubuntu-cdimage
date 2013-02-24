@@ -123,7 +123,6 @@ class TestOSExtras(TestCase):
         self.assertRaises(Completed, osextras.waitpid_retry, -1, 0)
 
     def test_run_bounded_runs(self):
-        self.use_temp_dir()
         sentinel = os.path.join(self.temp_dir, "foo")
         osextras.run_bounded(3600, ["touch", sentinel])
         self.assertTrue(os.path.exists(sentinel))
