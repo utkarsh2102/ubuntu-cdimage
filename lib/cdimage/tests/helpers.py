@@ -54,6 +54,7 @@ class TestCase(unittest.TestCase):
             return
         self.temp_dir = tempfile.mkdtemp(prefix="cdimage")
         self.addCleanup(shutil.rmtree, self.temp_dir)
+        return self.temp_dir
 
     def capture_logging(self):
         self.handler = UnlimitedBufferHandler()

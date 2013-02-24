@@ -52,8 +52,7 @@ class TestSign(TestCase):
 
     def test_sign_cdimage_missing_gnupg_files(self):
         config = Config(read=False)
-        self.use_temp_dir()
-        config["GNUPG_DIR"] = self.temp_dir
+        config["GNUPG_DIR"] = self.use_temp_dir()
         config["SIGNING_KEYID"] = "01234567"
         self.capture_logging()
         self.assertFalse(sign_cdimage(config, "dummy"))

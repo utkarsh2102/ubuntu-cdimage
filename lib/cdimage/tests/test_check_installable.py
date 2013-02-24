@@ -36,9 +36,8 @@ from cdimage.tests.helpers import TestCase
 class TestCheckInstallable(TestCase):
     def setUp(self):
         super(TestCheckInstallable, self).setUp()
-        self.use_temp_dir()
         self.config = Config(read=False)
-        self.config.root = self.temp_dir
+        self.config.root = self.use_temp_dir()
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["IMAGE_TYPE"] = "daily"

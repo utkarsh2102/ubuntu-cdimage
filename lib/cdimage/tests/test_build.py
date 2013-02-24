@@ -39,9 +39,8 @@ from cdimage.tests.helpers import TestCase
 class TestUpdateLocalIndices(TestCase):
     def setUp(self):
         super(TestUpdateLocalIndices, self).setUp()
-        self.use_temp_dir()
         self.config = Config(read=False)
-        self.config.root = self.temp_dir
+        self.config.root = self.use_temp_dir()
         self.config["DIST"] = "raring"
         self.config["CPUARCHES"] = "i386"
         self.packages = os.path.join(self.temp_dir, "local", "packages")
@@ -135,9 +134,8 @@ class TestUpdateLocalIndices(TestCase):
 class TestExtractDebootstrap(TestCase):
     def setUp(self):
         super(TestExtractDebootstrap, self).setUp()
-        self.use_temp_dir()
         self.config = Config(read=False)
-        self.config.root = self.temp_dir
+        self.config.root = self.use_temp_dir()
 
     def test_debootstrap_script(self):
         for series, script in (

@@ -43,8 +43,7 @@ class TestGermination(TestCase):
         self.germination = Germination(self.config)
 
     def test_germinate_path(self):
-        self.use_temp_dir()
-        self.config.root = self.temp_dir
+        self.config.root = self.use_temp_dir()
 
         self.assertRaises(
             GerminateNotInstalled, getattr, self.germination, "germinate_path")
@@ -115,8 +114,7 @@ class TestGermination(TestCase):
         self.assertFalse(self.germination.use_bzr)
 
     def test_make_index(self):
-        self.use_temp_dir()
-        self.config.root = self.temp_dir
+        self.config.root = self.use_temp_dir()
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
         files = []
@@ -186,8 +184,7 @@ class TestGermination(TestCase):
 
     @mock.patch("subprocess.check_call")
     def test_germinate_arch(self, mock_check_call):
-        self.use_temp_dir()
-        self.config.root = self.temp_dir
+        self.config.root = self.use_temp_dir()
         germinate_path = os.path.join(
             self.temp_dir, "germinate", "bin", "germinate")
         os.makedirs(os.path.dirname(germinate_path))
@@ -241,8 +238,7 @@ class TestGermination(TestCase):
 
     @mock.patch("cdimage.germinate.Germination.germinate_arch")
     def test_germinate_project(self, mock_germinate_arch):
-        self.use_temp_dir()
-        self.config.root = self.temp_dir
+        self.config.root = self.use_temp_dir()
         self.config["DIST"] = "raring"
         self.config["ARCHES"] = "amd64 i386"
         self.config["IMAGE_TYPE"] = "daily"

@@ -123,9 +123,8 @@ class TestDailyTree(TestCase):
 class TestDailyTreePublisher(TestCase):
     def setUp(self):
         super(TestDailyTreePublisher, self).setUp()
-        self.use_temp_dir()
         self.config = Config(read=False)
-        self.config.root = self.temp_dir
+        self.config.root = self.use_temp_dir()
         self.config["DIST"] = Series.latest()
 
     def make_publisher(self, project, image_type, **kwargs):

@@ -30,14 +30,13 @@ from cdimage.tests.helpers import TestCase
 
 class TestNextBuildId(TestCase):
     def test_increment(self):
-        self.use_temp_dir()
         with EnvironmentVarGuard() as env:
-            env["CDIMAGE_ROOT"] = self.temp_dir
-            os.mkdir(os.path.join(self.temp_dir, "etc"))
             config = Config(read=False)
+            config.root = self.use_temp_dir()
             config["PROJECT"] = "ubuntu"
             config["DIST"] = "warty"
             config["DATE"] = "20120806"
+            os.mkdir(os.path.join(self.temp_dir, "etc"))
             stamp = os.path.join(
                 config.root, "etc",
                 ".next-build-suffix-ubuntu-warty-daily-live")

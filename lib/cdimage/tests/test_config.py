@@ -94,9 +94,8 @@ class TestConfig(TestCase):
         self.assertEqual("", config["PROJECT"])
 
     def test_read_shell(self):
-        self.use_temp_dir()
         with EnvironmentVarGuard() as env:
-            env["CDIMAGE_ROOT"] = self.temp_dir
+            env["CDIMAGE_ROOT"] = self.use_temp_dir()
             os.mkdir(os.path.join(self.temp_dir, "etc"))
             with open(os.path.join(self.temp_dir, "etc", "config"), "w") as f:
                 print(dedent("""\
