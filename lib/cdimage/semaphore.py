@@ -46,10 +46,7 @@ class Semaphore:
             raise SemaphoreError("Cannot acquire lock on %s!" % self)
 
     def __exit__(self, unused_exc_type, unused_exc_value, unused_exc_tb):
-        try:
-            osextras.unlink_force(self.lock_path)
-        except OSError:
-            pass
+        osextras.unlink_force(self.lock_path)
 
     def _read(self):
         # Must be called within context manager lock.
