@@ -22,6 +22,8 @@ __metaclass__ = type
 import os
 import subprocess
 
+from cdimage.log import logger
+
 
 def find_mirror(config, arch):
     return os.path.join(config.root, "ftp")
@@ -32,7 +34,7 @@ class UnknownManifestFile(Exception):
 
 
 def _trigger_mirror(key, user, host, background=False):
-    print("%s:" % host)
+    logger.info("%s:" % host)
     command = [
         "ssh", "-i", key,
         "-o", "StrictHostKeyChecking no",
