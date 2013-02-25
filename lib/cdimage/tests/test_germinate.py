@@ -36,7 +36,7 @@ from cdimage.germinate import (
     GerminateOutput,
     Germination,
 )
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, touch
 
 
 class TestGermination(TestCase):
@@ -54,14 +54,12 @@ class TestGermination(TestCase):
         germinate_dir = os.path.join(self.temp_dir, "germinate")
         os.makedirs(os.path.join(germinate_dir, "bin"))
         old_germinate = os.path.join(germinate_dir, "germinate.py")
-        with open(old_germinate, "w"):
-            pass
+        touch(old_germinate)
         os.chmod(old_germinate, 0o755)
         self.assertEqual(old_germinate, self.germination.germinate_path)
 
         new_germinate = os.path.join(germinate_dir, "bin", "germinate")
-        with open(new_germinate, "w"):
-            pass
+        touch(new_germinate)
         os.chmod(new_germinate, 0o755)
         self.assertEqual(new_germinate, self.germination.germinate_path)
 
@@ -191,8 +189,7 @@ class TestGermination(TestCase):
         germinate_path = os.path.join(
             self.temp_dir, "germinate", "bin", "germinate")
         os.makedirs(os.path.dirname(germinate_path))
-        with open(germinate_path, "w"):
-            pass
+        touch(germinate_path)
         os.chmod(germinate_path, 0o755)
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
@@ -216,8 +213,7 @@ class TestGermination(TestCase):
                     os.path.join(output_dir, "dists", dist, "main", suffix))
 
         def check_call_side_effect(*args, **kwargs):
-            with open(os.path.join(output_dir, "amd64+mac", "structure"), "w"):
-                pass
+            touch(os.path.join(output_dir, "amd64+mac", "structure"))
 
         mock_check_call.side_effect = check_call_side_effect
         self.germination.germinate_arch("ubuntu", "amd64+mac")

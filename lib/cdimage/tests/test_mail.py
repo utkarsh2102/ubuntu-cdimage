@@ -35,7 +35,7 @@ from cdimage.mail import (
     get_notify_addresses,
     send_mail,
 )
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, touch
 
 
 class TestNotify(TestCase):
@@ -49,14 +49,12 @@ class TestNotify(TestCase):
 
         path = os.path.join(self.temp_dir, "etc", "notify-addresses")
         os.makedirs(os.path.dirname(path))
-        with open(path, "w"):
-            pass
+        touch(path)
         self.assertEqual(path, _notify_addresses_path(self.config))
 
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         os.makedirs(os.path.dirname(path))
-        with open(path, "w"):
-            pass
+        touch(path)
         self.assertEqual(path, _notify_addresses_path(self.config))
 
     def test_get_notify_addresses_no_config(self):

@@ -36,7 +36,7 @@ from cdimage.build import (
     update_local_indices,
 )
 from cdimage.config import Config
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, touch
 
 
 class TestUpdateLocalIndices(TestCase):
@@ -78,8 +78,7 @@ class TestUpdateLocalIndices(TestCase):
         self.make_deb(
             os.path.join(fake_dir, "fake-udeb-indep_1_all.udeb"),
             "debian-installer", "extra")
-        with open(os.path.join(fake_dir, "random-file"), "w"):
-            pass
+        touch(os.path.join(fake_dir, "random-file"))
 
         with mock.patch("subprocess.call") as mock_call:
             mock_call.return_value = 0
