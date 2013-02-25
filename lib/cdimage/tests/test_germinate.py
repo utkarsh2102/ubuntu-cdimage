@@ -232,9 +232,8 @@ class TestGermination(TestCase):
             "--no-rdepends",
             "--bzr",
         ]
-        self.assertEqual(
-            [mock.call(expected_command, cwd=("%s/amd64+mac" % output_dir))],
-            mock_check_call.call_args_list)
+        mock_check_call.assert_called_once_with(
+            expected_command, cwd=("%s/amd64+mac" % output_dir))
 
     @mock.patch("cdimage.germinate.Germination.germinate_arch")
     def test_germinate_project(self, mock_germinate_arch):
@@ -247,9 +246,8 @@ class TestGermination(TestCase):
         self.assertTrue(os.path.isdir(os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily",
             "germinate")))
-        self.assertEqual(
-            [mock.call("ubuntu", "amd64"), mock.call("ubuntu", "i386")],
-            mock_germinate_arch.call_args_list)
+        mock_germinate_arch.assert_has_calls(
+            [mock.call("ubuntu", "amd64"), mock.call("ubuntu", "i386")])
         self.assertLogEqual([
             "Germinating for raring/amd64 ...",
             "Germinating for raring/i386 ...",
@@ -260,17 +258,15 @@ class TestGermination(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["IMAGE_TYPE"] = "daily"
         self.germination.run()
-        self.assertEqual(
-            [mock.call("ubuntu")], mock_germinate_project.call_args_list)
+        mock_germinate_project.assert_called_once_with("ubuntu")
 
         mock_germinate_project.reset_mock()
         del self.config["PROJECT"]
         self.config["ALL_PROJECTS"] = "ubuntu kubuntu"
         self.config["IMAGE_TYPE"] = "source"
         self.germination.run()
-        self.assertEqual(
-            [mock.call("ubuntu"), mock.call("kubuntu")],
-            mock_germinate_project.call_args_list)
+        mock_germinate_project.assert_has_calls(
+            [mock.call("ubuntu"), mock.call("kubuntu")])
 
 
 class TestGerminateOutput(TestCase):

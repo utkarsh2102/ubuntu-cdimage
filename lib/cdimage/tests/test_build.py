@@ -84,9 +84,8 @@ class TestUpdateLocalIndices(TestCase):
 
             expected_command = [
                 "apt-ftparchive", "generate", "apt-ftparchive.conf"]
-            self.assertEqual(
-                [mock.call(expected_command, cwd=self.packages)],
-                mock_call.call_args_list)
+            mock_call.assert_called_once_with(
+                expected_command, cwd=self.packages)
 
         self.assertCountEqual([
             "raring_local_binary-i386.list",

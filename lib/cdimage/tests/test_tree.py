@@ -546,9 +546,8 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.manifest" % self.config.series,
             "report.html",
         ]), sorted(os.listdir(target_dir)))
-        self.assertEqual(
-            [mock.call("20120807", ["ubuntu/daily-live/raring-desktop-i386"])],
-            mock_post_qa.call_args_list)
+        mock_post_qa.assert_called_once_with(
+            "20120807", ["ubuntu/daily-live/raring-desktop-i386"])
 
 
 class TestSimpleTree(TestCase):

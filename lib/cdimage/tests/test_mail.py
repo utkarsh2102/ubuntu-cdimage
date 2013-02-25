@@ -140,9 +140,7 @@ class TestNotify(TestCase):
                 "-a", "X-Generated-By: test_notify",
                 "foo@example.org",
             ]
-            self.assertEqual(
-                [mock.call(expected_command, stdin=body)],
-                mock_popen.call_args_list)
+            mock_popen.assert_called_once_with(expected_command, stdin=body)
 
     @mock.patch("subprocess.Popen")
     def test_send_mail_from_string(self, mock_popen):
@@ -153,9 +151,7 @@ class TestNotify(TestCase):
             "mail", "-s", "Test subject", "-a", "X-Generated-By: test_notify",
             "foo@example.org", "bar@example.org",
         ]
-        self.assertEqual(
-            [mock.call(expected_command, stdin=subprocess.PIPE)],
-            mock_popen.call_args_list)
-        self.assertEqual(
-            [mock.call("Body\nText\n"), mock.call("")],
-            mock_popen.return_value.stdin.write.call_args_list)
+        mock_popen.assert_called_once_with(
+            expected_command, stdin=subprocess.PIPE)
+        mock_popen.return_value.stdin.write.assert_has_calls(
+            [mock.call("Body\nText\n"), mock.call("")])
