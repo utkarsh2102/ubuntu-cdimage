@@ -80,8 +80,7 @@ class TestUpdateLocalIndices(TestCase):
             "debian-installer", "extra")
         touch(os.path.join(fake_dir, "random-file"))
 
-        with mock.patch("subprocess.call") as mock_call:
-            mock_call.return_value = 0
+        with mock.patch("subprocess.call", return_value=0) as mock_call:
             update_local_indices(self.config)
 
             expected_command = [

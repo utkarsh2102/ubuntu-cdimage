@@ -89,7 +89,7 @@ class TestTriggerMirrors(TestCase):
             "./releases-sync",
         ])
 
-    @mock.patch("subprocess.call")
+    @mock.patch("subprocess.call", return_value=0)
     def test_trigger_mirror_foreground(self, mock_call):
         self.capture_logging()
         _trigger_mirror("id-test", "archvsync", "remote")

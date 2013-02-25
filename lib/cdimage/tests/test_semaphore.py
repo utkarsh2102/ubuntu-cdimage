@@ -50,10 +50,9 @@ class TestSemaphore(TestCase):
             self.assertTrue(os.path.exists(self.semaphore.lock_path))
         self.assertFalse(os.path.exists(self.semaphore.lock_path))
 
-    @mock.patch("subprocess.call")
+    @mock.patch("subprocess.call", return_value=1)
     def test_lock_failure(self, mock_call):
         """__enter__ raises SemaphoreError if the lock is already held."""
-        mock_call.return_value = 1
         self.assertRaises(SemaphoreError, self.semaphore.__enter__)
 
     def test_read_requires_lock(self):
