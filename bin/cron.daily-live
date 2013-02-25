@@ -1,13 +1,40 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export IMAGE_TYPE=daily-live
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
+"""Build a set of desktop images."""
 
-export CDIMAGE_LIVE=1
+from optparse import OptionParser
+import os
+import sys
 
-build-image-set "$IMAGE_TYPE"
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.build import build_image_set
+from cdimage.config import Config
+
+
+def main():
+    parser = OptionParser("%prog")
+    parser.parse_args()
+    os.environ["IMAGE_TYPE"] = "daily-live"
+    config = Config()
+    config["CDIMAGE_LIVE"] = "1"
+    if not build_image_set(config):
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

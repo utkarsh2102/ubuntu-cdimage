@@ -1,34 +1,59 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export IMAGE_TYPE=dvd
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
+"""Build a set of DVD images."""
 
-if [ "$PROJECT" = edubuntu ]; then
-	# Edubuntu lucid and onwards: DVD is live-only
-	if dist_le karmic; then
-		export CDIMAGE_INSTALL=1
-	fi
-elif [ "$PROJECT" = ubuntu ]; then
-	# Ubuntu oneiric and onwards: DVD is live-only
-	if dist_le natty; then
-		export CDIMAGE_INSTALL=1
-	fi
-elif [ "$PROJECT" = ubuntustudio ]; then
-	# Ubuntu Studio precise and onwards: DVD is live-only
-	# (Actually, it didn't exist before then anyway, but we check this
-	# just for documentation's sake.)
-	if dist_le oneiric; then
-		export CDIMAGE_INSTALL=1
-	fi
-else
-	export CDIMAGE_INSTALL=1
-fi
-export CDIMAGE_LIVE=1
-export CDIMAGE_DVD=1
+from optparse import OptionParser
+import os
+import sys
 
-build-image-set "$IMAGE_TYPE"
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.build import build_image_set
+from cdimage.config import Config
+
+
+def main():
+    parser = OptionParser("%prog")
+    parser.parse_args()
+    os.environ["IMAGE_TYPE"] = "dvd"
+    config = Config()
+    project = config["PROJECT"]
+    series = config["DIST"]
+    if project == "edubuntu":
+        # Edubuntu lucid and onwards: DVD is live-only
+        if series <= "karmic":
+            config["CDIMAGE_INSTALL"] = "1"
+    elif project == "ubuntu":
+        # Ubuntu oneiric and onwards: DVD is live-only
+        if series <= "natty":
+            config["CDIMAGE_INSTALL"] = "1"
+    elif project == "ubuntustudio":
+        # Ubuntu Studio precise and onwards: DVD is live-only
+        # (Actually, it didn't exist before then anyway, but we check this
+        # just for documentation's sake.)
+        if series <= "oneiric":
+            config["CDIMAGE_INSTALL"] = "1"
+    else:
+        config["CDIMAGE_INSTALL"] = "1"
+    config["CDIMAGE_LIVE"] = "1"
+    config["CDIMAGE_DVD"] = "1"
+    if not build_image_set(config):
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
