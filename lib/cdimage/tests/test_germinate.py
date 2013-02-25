@@ -25,7 +25,10 @@ import gzip
 import os
 from textwrap import dedent
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from cdimage.config import Config, all_series
 from cdimage.germinate import (

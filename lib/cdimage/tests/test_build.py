@@ -25,7 +25,10 @@ import gzip
 import os
 import subprocess
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from cdimage.build import (
     _debootstrap_script,

@@ -23,7 +23,10 @@ __metaclass__ = type
 
 import os
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from cdimage.semaphore import Semaphore, SemaphoreError
 from cdimage.tests.helpers import TestCase

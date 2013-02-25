@@ -24,7 +24,10 @@ try:
 except ImportError:
     from test.test_support import EnvironmentVarGuard
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from cdimage import osextras
 from cdimage.tests.helpers import TestCase, touch

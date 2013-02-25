@@ -25,7 +25,10 @@ import os
 import sys
 from textwrap import dedent
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from cdimage import osextras
 from cdimage.config import Config, Series, all_series

@@ -20,7 +20,10 @@
 import os
 import subprocess
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from cdimage.config import Config
 from cdimage.sign import _gnupg_files, _signing_command, sign_cdimage
