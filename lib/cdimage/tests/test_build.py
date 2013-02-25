@@ -582,10 +582,9 @@ class TestBuildImageSet(TestCase):
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.build.extract_debootstrap")
     @mock.patch("cdimage.build.Germination.run")
-    @mock.patch("cdimage.build.check_installable")
     @mock.patch("cdimage.build.DailyTreePublisher.publish")
     def test_build_image_set_locked(
-            self, mock_publish, mock_check_installable, mock_germinate_run,
+            self, mock_publish, mock_germinate_run,
             mock_extract_debootstrap, mock_call):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
@@ -614,7 +613,6 @@ class TestBuildImageSet(TestCase):
                 ])
                 mock_extract_debootstrap.assert_called_once_with(self.config)
                 mock_germinate_run.assert_called_once_with()
-                mock_check_installable.assert_called_once_with(self.config)
                 mock_publish.assert_called_once_with(date)
             except AssertionError:
                 stderr = os.fdopen(original_stderr, "w", 1)
@@ -644,8 +642,6 @@ class TestBuildImageSet(TestCase):
                     ===== Checking for other task changes =====
                     DATE
                     ===== Building Ubuntu daily CDs =====
-                    DATE
-                    ===== Producing installability report =====
                     DATE
                     ===== Publishing =====
                     DATE
