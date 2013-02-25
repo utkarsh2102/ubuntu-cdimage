@@ -19,6 +19,7 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import errno
 import os
 import subprocess
 
@@ -48,15 +49,24 @@ def _trigger_mirror(key, user, host, background=False):
         subprocess.call(command)
 
 
-def trigger_mirrors(config):
+def check_manifest(config):
     # Check for non-existent files in .manifest.
     simple_tree = os.path.join(config.root, "www", "simple")
-    with open(os.path.join(simple_tree, ".manifest")) as manifest:
-        for line in manifest:
-            name = line.rstrip("\n").split()[2]
-            if not os.path.exists(os.path.join(simple_tree, name.lstrip("/"))):
-                raise UnknownManifestFile(
-                    ".manifest has non-existent file %s" % name)
+    try:
+        with open(os.path.join(simple_tree, ".manifest")) as manifest:
+            for line in manifest:
+                name = line.rstrip("\n").split()[2]
+                path = os.path.join(simple_tree, name.lstrip("/"))
+                if not os.path.exists(path):
+                    raise UnknownManifestFile(
+                        ".manifest has non-existent file %s" % name)
+    except IOError as e:
+        if e.errno != errno.ENOENT:
+            raise
+
+
+def trigger_mirrors(config):
+    check_manifest(config)
 
     secret = os.path.join(config.root, "secret")
     home_secret = os.path.expanduser("~/secret")
