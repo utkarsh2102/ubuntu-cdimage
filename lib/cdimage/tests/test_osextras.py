@@ -73,6 +73,11 @@ class TestOSExtras(TestCase):
         new_dir = os.path.join(self.temp_dir, "dir")
         self.assertEqual([], osextras.listdir_force(new_dir))
 
+    def test_listdir_oserror(self):
+        not_dir = os.path.join(self.temp_dir, "file")
+        touch(not_dir)
+        self.assertRaises(OSError, osextras.listdir_force, not_dir)
+
     def test_unlink_file_present(self):
         path = os.path.join(self.temp_dir, "file")
         touch(path)
@@ -83,6 +88,11 @@ class TestOSExtras(TestCase):
         path = os.path.join(self.temp_dir, "file")
         osextras.unlink_force(path)
         self.assertFalse(os.path.exists(path))
+
+    def test_unlink_oserror(self):
+        path = os.path.join(self.temp_dir, "dir")
+        os.mkdir(path)
+        self.assertRaises(OSError, osextras.unlink_force, path)
 
     def test_find_on_path_missing_environment(self):
         with EnvironmentVarGuard() as env:
