@@ -133,6 +133,8 @@ _whitelisted_keys = (
     "GNUPG_DIR",
     "SIGNING_KEYID",
     "BRITNEY",
+    "LOCAL",
+    "LOCALDEBS",
     "LOCAL_SEEDS",
     "TRIGGER_MIRRORS",
     "TRIGGER_MIRRORS_ASYNC",
