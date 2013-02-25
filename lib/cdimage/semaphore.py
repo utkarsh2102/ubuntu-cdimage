@@ -19,6 +19,7 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import contextlib
 import errno
 import os
 import subprocess
@@ -69,6 +70,12 @@ class Semaphore:
             print(cur + offset, file=fd)
         return cur + offset
 
+    @property
+    def state(self):
+        """Return current state of semaphore."""
+        with self:
+            return self._read()
+
     def test_increment(self):
         """Test, increment, return state of test."""
         with self:
@@ -92,3 +99,8 @@ class Semaphore:
             if state == 0:
                 osextras.unlink_force(self.path)
             return state
+
+    @contextlib.contextmanager
+    def held(self):
+        yield self.test_increment()
+        self.decrement_test()

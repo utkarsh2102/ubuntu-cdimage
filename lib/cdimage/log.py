@@ -28,12 +28,22 @@ class CDImageLogger(logging.Formatter):
         return record.getMessage()
 
 
-logging.basicConfig()
-logger = logging.getLogger("cdimage")
-if not logger.handlers:
+def setup_logging():
     logger.setLevel(logging.INFO)
     # TODO: errors (and warnings?) should go to stderr
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(CDImageLogger())
     logger.addHandler(handler)
     logger.propagate = False
+
+
+def reset_logging():
+    logger = logging.getLogger("cdimage")
+    logger.handlers = []
+    setup_logging()
+
+
+logging.basicConfig()
+logger = logging.getLogger("cdimage")
+if not logger.handlers:
+    setup_logging()

@@ -89,23 +89,23 @@ class TestSemaphore(TestCase):
             self.assertEqual(9, self.semaphore._add(-1))
             self.assertEqual(9, self.semaphore._read())
 
+    def test_state(self):
+        """The state can be fetched without explicit locking."""
+        self.assertEqual(0, self.semaphore.state)
+
     def test_test_increment(self):
         self.assertEqual(0, self.semaphore.test_increment())
-        with self.semaphore:
-            self.assertEqual(1, self.semaphore._read())
+        self.assertEqual(1, self.semaphore.state)
         self.assertEqual(1, self.semaphore.test_increment())
-        with self.semaphore:
-            self.assertEqual(2, self.semaphore._read())
+        self.assertEqual(2, self.semaphore.state)
 
     def test_decrement_test(self):
         with open(self.semaphore.path, "w") as fd:
             print(2, file=fd)
         self.assertEqual(1, self.semaphore.decrement_test())
-        with self.semaphore:
-            self.assertEqual(1, self.semaphore._read())
+        self.assertEqual(1, self.semaphore.state)
         self.assertEqual(0, self.semaphore.decrement_test())
-        with self.semaphore:
-            self.assertEqual(0, self.semaphore._read())
+        self.assertEqual(0, self.semaphore.state)
 
     def test_decrement_test_error_on_zero(self):
         """decrement_test raises SemaphoreError if already zero."""
@@ -116,3 +116,14 @@ class TestSemaphore(TestCase):
         self.assertEqual(0, self.semaphore.test_increment())
         self.assertEqual(0, self.semaphore.decrement_test())
         self.assertFalse(os.path.exists(self.semaphore.path))
+
+    def test_held(self):
+        self.assertEqual(0, self.semaphore.state)
+        with self.semaphore.held() as state_zero:
+            self.assertEqual(0, state_zero)
+            self.assertEqual(1, self.semaphore.state)
+            with self.semaphore.held() as state_one:
+                self.assertEqual(1, state_one)
+                self.assertEqual(2, self.semaphore.state)
+            self.assertEqual(1, self.semaphore.state)
+        self.assertEqual(0, self.semaphore.state)
