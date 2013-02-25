@@ -86,7 +86,6 @@ class TestSign(TestCase):
         self.capture_logging()
         self.assertTrue(sign_cdimage(config, sign_path))
         self.assertLogEqual([])
-        self.assertEqual(1, mock_check_call.call_count)
         expected_command = [
             "gpg", "--options", gpgconf,
             "--no-default-keyring",
@@ -97,9 +96,9 @@ class TestSign(TestCase):
             "--no-options", "--batch", "--no-tty",
             "--armour", "--detach-sign",
         ]
+        mock_check_call.assert_called_once_with(
+            expected_command, stdin=mock.ANY, stdout=mock.ANY)
         call = mock_check_call.call_args
-        self.assertEqual((expected_command, ), call[0])
-        self.assertCountEqual(["stdin", "stdout"], list(call[1].keys()))
         self.assertEqual(sign_path, call[1]["stdin"].name)
         self.assertEqual("%s.gpg" % sign_path, call[1]["stdout"].name)
 
