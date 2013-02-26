@@ -28,6 +28,10 @@ import os
 import stat
 import subprocess
 import sys
+try:
+    from test.support import EnvironmentVarGuard
+except ImportError:
+    from test.test_support import EnvironmentVarGuard
 from textwrap import dedent
 import time
 import traceback
@@ -444,7 +448,37 @@ class TestBuildImageSet(TestCase):
             self.epoch_date,
         ])
         expected_cwd = os.path.join(self.temp_dir, "debian-cd")
-        mock_call.assert_called_once_with(["./build_all.sh"], cwd=expected_cwd)
+        mock_call.assert_called_once_with(
+            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
+
+    @mock.patch("subprocess.call", return_value=0)
+    def test_run_debian_cd_reexports_config(self, mock_call):
+        # We need to re-export configuration to debian-cd even if we didn't
+        # get it in our environment, since debian-cd won't read etc/config
+        # for itself.
+        config_path = os.path.join(self.temp_dir, "etc", "config")
+        os.makedirs(os.path.dirname(config_path))
+        with open(config_path, "w") as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=ubuntu
+                CAPPROJECT=Ubuntu
+                ARCHES="amd64 powerpc"
+                """), file=f)
+        with EnvironmentVarGuard() as env:
+            env["CDIMAGE_ROOT"] = self.temp_dir
+            config = Config()
+            self.capture_logging()
+            run_debian_cd(config)
+            self.assertLogEqual([
+                "===== Building Ubuntu daily CDs =====",
+                self.epoch_date,
+            ])
+            expected_cwd = os.path.join(self.temp_dir, "debian-cd")
+            mock_call.assert_called_once_with(
+                ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
+            self.assertEqual(
+                "amd64 powerpc", mock_call.call_args[1]["env"]["ARCHES"])
 
     def test_fix_permissions(self):
         self.config["PROJECT"] = "ubuntu"
@@ -609,7 +643,8 @@ class TestBuildImageSet(TestCase):
                         "make", "-C", os.path.dirname(britney_makefile)]),
                     mock.call(["germinate-to-tasks", "daily"]),
                     mock.call(["update-tasks", date, "daily"]),
-                    mock.call(["./build_all.sh"], cwd=debian_cd_dir),
+                    mock.call(
+                        ["./build_all.sh"], cwd=debian_cd_dir, env=mock.ANY),
                     mock.call(["purge-old-images", "daily"])
                 ])
                 mock_extract_debootstrap.assert_called_once_with(self.config)

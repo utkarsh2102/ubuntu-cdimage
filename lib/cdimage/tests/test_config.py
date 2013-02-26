@@ -100,6 +100,8 @@ class TestConfig(TestCase):
     def test_init_kwargs_default_arches(self):
         with EnvironmentVarGuard() as env:
             env["CDIMAGE_ROOT"] = self.use_temp_dir()
+            env.pop("ARCHES", None)
+            env.pop("CPUARCHES", None)
             etc_dir = os.path.join(self.temp_dir, "etc")
             os.mkdir(etc_dir)
             with open(os.path.join(etc_dir, "config"), "w") as f:
@@ -138,6 +140,28 @@ class TestConfig(TestCase):
             env["PROJECT"] = "kubuntu"
             config = Config()
             self.assertEqual("kubuntu", config["PROJECT"])
+
+    def test_arches_override(self):
+        # If ARCHES is set in the environment, it overrides
+        # etc/default-arches.
+        with EnvironmentVarGuard() as env:
+            env["CDIMAGE_ROOT"] = self.use_temp_dir()
+            env["ARCHES"] = "amd64"
+            env.pop("CPUARCHES", None)
+            etc_dir = os.path.join(self.temp_dir, "etc")
+            os.mkdir(etc_dir)
+            with open(os.path.join(etc_dir, "config"), "w") as f:
+                print(dedent("""\
+                    #! /bin/sh
+                    PROJECT=ubuntu
+                    DIST=raring
+                    """), file=f)
+            with open(os.path.join(etc_dir, "default-arches"), "w") as f:
+                print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
+            config = Config(IMAGE_TYPE="daily-live")
+            self.assertEqual("daily-live", config["IMAGE_TYPE"])
+            self.assertEqual("amd64", config["ARCHES"])
+            self.assertEqual("amd64", config["CPUARCHES"])
 
     def test_project(self):
         config = Config(read=False)

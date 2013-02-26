@@ -167,7 +167,10 @@ class Config(defaultdict):
                 self.read()
             self.fix_paths()
         if "IMAGE_TYPE" in kwargs:
-            self.set_default_arches()
+            if "ARCHES" not in os.environ:
+                self.set_default_arches()
+            if "CPUARCHES" not in os.environ:
+                self.set_default_cpuarches()
 
     def _read_nullsep_output(self, command):
         raw = subprocess.Popen(
@@ -198,11 +201,12 @@ class Config(defaultdict):
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
         for key, value in env.items():
             if key.startswith("CDIMAGE_") or key in _whitelisted_keys:
-                self[key] = value
+                super(Config, self).__setitem__(key, value)
 
         # Special entries.
         if self["DIST"]:
-            self["DIST"] = Series.find_by_name(self["DIST"])
+            super(Config, self).__setitem__(
+                "DIST", Series.find_by_name(self["DIST"]))
 
     def __setitem__(self, key, value):
         config_value = value
@@ -273,10 +277,12 @@ class Config(defaultdict):
                 if not self._default_arches_match_series(series):
                     continue
                 self["ARCHES"] = arches
-                self["CPUARCHES"] = " ".join(
-                    sorted(set(arch.split("+")[0] for arch in arches.split())))
                 return arches
         return None
+
+    def set_default_cpuarches(self):
+        self["CPUARCHES"] = " ".join(
+            sorted(set(arch.split("+")[0] for arch in self.arches)))
 
     @property
     def project(self):
