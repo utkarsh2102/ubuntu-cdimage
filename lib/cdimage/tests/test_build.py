@@ -536,10 +536,11 @@ class TestBuildImageSet(TestCase):
                 for line in body.splitlines():
                     print(line, file=f)
 
+    @mock.patch("time.strftime", return_value="20130225")
     @mock.patch("cdimage.build.sync_local_mirror")
     @mock.patch("cdimage.build.send_mail")
     def test_build_image_set_locked_notifies_on_failure(
-            self, mock_send_mail, mock_sync_local_mirror):
+            self, mock_send_mail, mock_sync_local_mirror, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
