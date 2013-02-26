@@ -164,7 +164,7 @@ class Config(defaultdict):
                 self.read(config_path)
             else:
                 self.read()
-            self.fix_path()
+            self.fix_paths()
 
     def _read_nullsep_output(self, command):
         raw = subprocess.Popen(
@@ -222,7 +222,12 @@ class Config(defaultdict):
         if os.path.isdir(path):
             sys.path.insert(0, path)
 
-    def fix_path(self):
+    def fix_paths(self):
+        bin_dir = os.path.join(self.root, "bin")
+        path_elements = os.environ.get("PATH", "").split(os.pathsep)
+        if bin_dir not in path_elements:
+            path_elements.insert(0, bin_dir)
+            os.environ["PATH"] = os.pathsep.join(path_elements)
         self._add_package("germinate")
         self._add_package("ubuntu-archive-tools")
 
