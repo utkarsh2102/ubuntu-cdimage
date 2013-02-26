@@ -133,7 +133,7 @@ class Publisher:
     def __init__(self, tree, image_type):
         self.tree = tree
         self.config = tree.config
-        self.project = self.config["PROJECT"]
+        self.project = self.config.project
         self.image_type = image_type
 
 

@@ -224,6 +224,14 @@ class Config(defaultdict):
         self._add_package("ubuntu-archive-tools")
 
     @property
+    def project(self):
+        return self["PROJECT"]
+
+    @property
+    def capproject(self):
+        return self["CAPPROJECT"]
+
+    @property
     def series(self):
         return str(self["DIST"])
 
@@ -234,6 +242,10 @@ class Config(defaultdict):
     @property
     def cpuarches(self):
         return self["CPUARCHES"].split()
+
+    @property
+    def image_type(self):
+        return self["IMAGE_TYPE"]
 
     @property
     def all_projects(self):

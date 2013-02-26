@@ -45,7 +45,7 @@ def lock_build_image_set(config):
     lock_path = os.path.join(
         config.root, "etc",
         ".lock-build-image-set-%s-%s-%s" % (
-            config["PROJECT"], config.series, config["IMAGE_TYPE"]))
+            config.project, config.series, config.image_type))
     try:
         subprocess.check_call(["lockfile", "-l", "7200", "-r", "0", lock_path])
     except subprocess.CalledProcessError:
@@ -56,7 +56,7 @@ def lock_build_image_set(config):
 
 
 def configure_for_project(config):
-    project = config["PROJECT"]
+    project = config.project
     series = config["DIST"]
     if project == "gobuntu":
         config["CDIMAGE_ONLYFREE"] = "1"
@@ -87,8 +87,8 @@ def open_log(config):
         return None
 
     log_path = os.path.join(
-        config.root, "log", config["PROJECT"], config.series,
-        "%s-%s.log" % (config["IMAGE_TYPE"], config["CDIMAGE_DATE"]))
+        config.root, "log", config.project, config.series,
+        "%s-%s.log" % (config.image_type, config["CDIMAGE_DATE"]))
     osextras.ensuredir(os.path.dirname(log_path))
     log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666)
     os.dup2(log, 1)
@@ -113,7 +113,7 @@ def sync_local_mirror(config, semaphore_state):
     if config["CDIMAGE_NOSYNC"]:
         return
 
-    capproject = config["CAPPROJECT"]
+    capproject = config.capproject
     sync_lock = os.path.join(config.root, "etc", ".lock-archive-sync")
     if semaphore_state == 0:
         log_marker("Syncing %s mirror" % capproject)
@@ -230,8 +230,8 @@ def _debootstrap_script(config):
 def extract_debootstrap(config):
     series = config["DIST"]
     output_dir = os.path.join(
-        config.root, "scratch", config["PROJECT"], series.name,
-        config["IMAGE_TYPE"], "debootstrap")
+        config.root, "scratch", config.project, series.name, config.image_type,
+        "debootstrap")
 
     osextras.ensuredir(output_dir)
 
@@ -269,7 +269,7 @@ def extract_debootstrap(config):
 
 
 def configure_splash(config):
-    project = config["PROJECT"]
+    project = config.project
     data_dir = os.path.join(config.root, "debian-cd", "data", config.series)
     for key, extension in (
         ("SPLASHRLE", "rle"),
@@ -285,7 +285,7 @@ def configure_splash(config):
 
 
 def run_debian_cd(config):
-    log_marker("Building %s daily CDs" % config["CAPPROJECT"])
+    log_marker("Building %s daily CDs" % config.capproject)
     debian_cd_dir = os.path.join(config.root, "debian-cd")
     subprocess.call(["./build_all.sh"], cwd=debian_cd_dir)
 
@@ -293,8 +293,8 @@ def run_debian_cd(config):
 def fix_permissions(config):
     """Kludge to work around permission-handling problems elsewhere."""
     scratch_dir = os.path.join(
-        config.root, "scratch", config["PROJECT"], config.series,
-        config["IMAGE_TYPE"])
+        config.root, "scratch", config.project, config.series,
+        config.image_type)
     if not os.path.isdir(scratch_dir):
         return
 
@@ -331,9 +331,9 @@ def notify_failure(config, log_path):
     if config["DEBUG"]:
         return
 
-    project = config["PROJECT"]
+    project = config.project
     series = config.series
-    image_type = config["IMAGE_TYPE"]
+    image_type = config.image_type
     date = config["CDIMAGE_DATE"]
 
     recipients = get_notify_addresses(config, project)
@@ -355,8 +355,8 @@ def notify_failure(config, log_path):
 
 
 def build_image_set_locked(config, semaphore_state):
-    project = config["PROJECT"]
-    image_type = config["IMAGE_TYPE"]
+    project = config.project
+    image_type = config.image_type
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
 

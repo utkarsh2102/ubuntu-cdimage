@@ -56,7 +56,7 @@ class Germination:
     def output_dir(self, project):
         return os.path.join(
             self.config.root, "scratch", project, self.config.series,
-            self.config["IMAGE_TYPE"], "germinate")
+            self.config.image_type, "germinate")
 
     def seed_sources(self, project):
         if self.config["LOCAL_SEEDS"]:
@@ -200,11 +200,11 @@ class Germination:
             self.germinate_arch(project, arch)
 
     def run(self):
-        if self.config["IMAGE_TYPE"] == "source":
+        if self.config.image_type == "source":
             for project in self.config.all_projects:
                 self.germinate_project(project)
         else:
-            self.germinate_project(self.config["PROJECT"])
+            self.germinate_project(self.config.project)
 
 
 class GerminateOutput:
@@ -243,7 +243,7 @@ class GerminateOutput:
         return [seed for seed in seeds if seed in remaining]
 
     def list_seeds(self, mode):
-        project = self.config["PROJECT"]
+        project = self.config.project
         series = self.config["DIST"]
 
         if mode == "all":

@@ -117,6 +117,16 @@ class TestConfig(TestCase):
             config = Config()
             self.assertEqual("kubuntu", config["PROJECT"])
 
+    def test_project(self):
+        config = Config(read=False)
+        config["PROJECT"] = "kubuntu"
+        self.assertEqual("kubuntu", config.project)
+
+    def test_capproject(self):
+        config = Config(read=False)
+        config["CAPPROJECT"] = "Kubuntu"
+        self.assertEqual("Kubuntu", config.capproject)
+
     def test_series(self):
         config = Config(read=False)
         config["DIST"] = "warty"
@@ -137,6 +147,11 @@ class TestConfig(TestCase):
         self.assertEqual(["i386"], config.cpuarches)
         config["CPUARCHES"] = "amd64 i386"
         self.assertEqual(["amd64", "i386"], config.cpuarches)
+
+    def test_image_type(self):
+        config = Config(read=False)
+        config["IMAGE_TYPE"] = "daily-live"
+        self.assertEqual("daily-live", config.image_type)
 
     def test_all_projects(self):
         config = Config(read=False)

@@ -29,7 +29,7 @@ def next_build_id(config, image_type):
     stamp = os.path.join(
         config.root, "etc",
         ".next-build-suffix-%s-%s-%s" % (
-            config["PROJECT"], config.series, image_type))
+            config.project, config.series, image_type))
     date = config["DATE"] or time.strftime("%Y%m%d")
 
     if config["DATE_SUFFIX"]:

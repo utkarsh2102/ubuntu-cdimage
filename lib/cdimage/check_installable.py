@@ -31,14 +31,13 @@ from cdimage.osextras import mkemptydir, run_bounded
 def _check_installable_dirs(config):
     britney = os.path.join(config.root, "britney")
     image_top = os.path.join(
-        config.root, "scratch", config["PROJECT"], config.series,
-        config["IMAGE_TYPE"], "tmp")
+        config.root, "scratch", config.project, config.series,
+        config.image_type, "tmp")
     live = os.path.join(
-        config.root, "scratch", config["PROJECT"], config.series,
-        config["IMAGE_TYPE"], "live")
+        config.root, "scratch", config.project, config.series,
+        config.image_type, "live")
     data = os.path.join(
-        britney, "data", config["PROJECT"], config["IMAGE_TYPE"],
-        config.series)
+        britney, "data", config.project, config.image_type, config.series)
     return britney, image_top, live, data
 
 
@@ -103,12 +102,12 @@ def _prepare_check_installable(config):
 def _check_installable_command(config):
     britney, _, _, data = _check_installable_dirs(config)
     report_dir = os.path.join(
-        britney, "report", config["PROJECT"], config["IMAGE_TYPE"])
+        britney, "report", config.project, config.image_type)
     mkemptydir(report_dir)
     return [
         os.path.join(britney, "rptprobs.sh"), data,
         os.path.join(report_dir, "%s_probs.html" % config.series),
-        "%s %s" % (config["CAPPROJECT"], config.series),
+        "%s %s" % (config.capproject, config.series),
     ]
 
 

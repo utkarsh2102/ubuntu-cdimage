@@ -47,7 +47,7 @@ def split_arch(arch):
 
 def live_builder(config, arch):
     cpuarch, subarch = split_arch(arch)
-    project = config["PROJECT"]
+    project = config.project
     series = config["DIST"]
 
     if cpuarch == "amd64":
@@ -91,7 +91,7 @@ def live_builder(config, arch):
 
 
 def live_project(config):
-    project = config["PROJECT"]
+    project = config.project
     series = config["DIST"]
 
     if project == "livecd-base":
@@ -133,7 +133,7 @@ def livecd_base(config, arch):
 
 def flavours(config, arch):
     cpuarch, subarch = split_arch(arch)
-    project = config["PROJECT"]
+    project = config.project
     series = config["DIST"]
 
     if cpuarch == "amd64":
@@ -215,7 +215,7 @@ def live_item_path_winfoss(config, arch):
     # This is a mess of special cases.  Fortunately it is now only of
     # historical interest.
     cpuarch, subarch = split_arch(arch)
-    project = config["PROJECT"]
+    project = config.project
     series = config["DIST"]
 
     if series == "warty" or cpuarch not in ("amd64", "i386"):
@@ -270,7 +270,7 @@ def live_item_path_winfoss(config, arch):
 
 def live_item_paths(config, arch, item):
     cpuarch, subarch = split_arch(arch)
-    project = config["PROJECT"]
+    project = config.project
     series = config["DIST"]
     root = livecd_base(config, arch)
     liveproject = live_project(config)

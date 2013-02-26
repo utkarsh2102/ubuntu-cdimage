@@ -32,7 +32,7 @@ def main():
     os.environ["IMAGE_TYPE"] = "daily"
     config = Config()
     config["CDIMAGE_INSTALL"] = "1"
-    if config["PROJECT"] == "edubuntu":
+    if config.project == "edubuntu":
         config["CDIMAGE_ADDON"] = "1"
     if not build_image_set(config):
         sys.exit(1)

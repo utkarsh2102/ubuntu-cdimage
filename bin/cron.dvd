@@ -31,7 +31,7 @@ def main():
     parser.parse_args()
     os.environ["IMAGE_TYPE"] = "dvd"
     config = Config()
-    project = config["PROJECT"]
+    project = config.project
     series = config["DIST"]
     if project == "edubuntu":
         # Edubuntu lucid and onwards: DVD is live-only
