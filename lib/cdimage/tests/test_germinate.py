@@ -35,6 +35,7 @@ from cdimage.germinate import (
     GerminateNotInstalled,
     GerminateOutput,
     Germination,
+    NoMasterSeeds,
 )
 from cdimage.tests.helpers import TestCase, touch
 
@@ -569,3 +570,77 @@ class TestGerminateOutput(TestCase):
         self.assertEqual(
             ["base-files", "base-passwd"],
             output.seed_packages("i386", "base"))
+
+    # TODO: master_seeds addon untested
+
+    def test_master_seeds_onlysource(self):
+        self.write_ubuntu_structure()
+        output = GerminateOutput(self.config, self.structure)
+        self.config["CDIMAGE_ONLYSOURCE"] = "1"
+        self.assertEqual([
+            "required", "minimal", "boot", "standard", "desktop-common",
+            "d-i-requirements", "installer", "live-common", "desktop",
+            "dns-server", "lamp-server", "openssh-server", "print-server",
+            "samba-server", "postgresql-server", "mail-server",
+            "tomcat-server", "virt-host", "server", "server-ship", "ship",
+            "live", "ship-live", "usb", "usb-live", "usb-langsupport",
+            "usb-ship-live",
+        ], list(output.master_seeds()))
+
+    def test_master_seeds_dvd_ubuntu_raring(self):
+        self.write_ubuntu_structure()
+        output = GerminateOutput(self.config, self.structure)
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["CDIMAGE_DVD"] = "1"
+        self.assertEqual(
+            ["usb-langsupport", "usb-ship-live"], list(output.master_seeds()))
+
+    def test_master_seeds_install_ubuntu_raring(self):
+        self.write_ubuntu_structure()
+        output = GerminateOutput(self.config, self.structure)
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["CDIMAGE_INSTALL"] = "1"
+        self.config["CDIMAGE_INSTALL_BASE"] = "1"
+        self.assertEqual([
+            "installer", "boot", "required", "minimal", "standard",
+            "desktop-common", "desktop", "d-i-requirements", "ship",
+        ], list(output.master_seeds()))
+
+    def test_master_seeds_live_ubuntu_raring(self):
+        self.write_ubuntu_structure()
+        output = GerminateOutput(self.config, self.structure)
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["CDIMAGE_INSTALL_BASE"] = "1"
+        self.config["CDIMAGE_LIVE"] = "1"
+        self.assertEqual([
+            "installer", "boot", "required", "minimal", "standard",
+            "ship-live",
+        ], list(output.master_seeds()))
+
+    @mock.patch("cdimage.germinate.GerminateOutput.master_seeds")
+    def test_master_task_entries(self, mock_master_seeds):
+        def side_effect():
+            yield "required"
+            yield "minimal"
+
+        self.write_ubuntu_structure()
+        output = GerminateOutput(self.config, self.structure)
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        mock_master_seeds.side_effect = side_effect
+        self.assertEqual([
+            "#include <ubuntu/raring/required>",
+            "#include <ubuntu/raring/minimal>",
+        ], list(output.master_task_entries()))
+
+    @mock.patch(
+        "cdimage.germinate.GerminateOutput.master_seeds", return_value=[])
+    def test_master_task_entries_no_seeds(self, mock_master_seeds):
+        self.write_ubuntu_structure()
+        output = GerminateOutput(self.config, self.structure)
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertRaises(NoMasterSeeds, list, output.master_task_entries())

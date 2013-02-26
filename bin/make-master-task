@@ -1,48 +1,42 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-if [ -z "$1" ]; then
-	echo 'Usage: make-master-task structure' >&2
-	exit 1
-fi
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-STRUCTURE="$1"
+"""Print a master task file for debian-cd."""
 
-if [ "$CDIMAGE_ADDON" ]; then
-	SEEDS="$(list-seeds "$STRUCTURE" addon)"
-elif [ "$CDIMAGE_ONLYSOURCE" ]; then
-	SEEDS="$(list-seeds "$STRUCTURE" all)"
-else
-	SEEDS="$(list-seeds "$STRUCTURE" installer)"
-	if [ "$CDIMAGE_DVD" ]; then
-		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" dvd | egrep -v '^(installer|casper)$' || true)"
-	elif [ "$CDIMAGE_INSTALL" ]; then
-		SEEDS="$SEEDS $(list-seeds "$STRUCTURE" tasks | egrep -v '^(installer|casper)$' || true)"
-	else
-		if [ "$CDIMAGE_INSTALL_BASE" = 1 ]; then
-			SEEDS="$SEEDS $(list-seeds "$STRUCTURE" base | egrep -v '^(installer|casper)$' || true)"
-		fi
-		if [ "$CDIMAGE_LIVE" = 1 ]; then
-			SEEDS="$SEEDS $(list-seeds "$STRUCTURE" ship-live | egrep -v '^(installer|casper)$' || true)"
-		fi
-	fi
-fi
+from __future__ import print_function
 
-if [ -z "$SEEDS" ]; then
-       echo 'Error! SEEDS is empty' >&2
-       exit 1
-fi
+from optparse import OptionParser
+import os
+import sys
 
-for seed in $SEEDS; do
-	# https://blueprints.launchpad.net/ubuntu/+spec/edubuntu-on-two-cds
-	if [ "$CDIMAGE_DVD" != 1 ] && [ "$CDIMAGE_ADDON" != 1 ] && \
-	   [ "$seed" = ship-addon ]; then
-		echo FORCE-CD-BREAK
-	fi
-	echo "#include <$PROJECT/$DIST/$seed>"
-done
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+from cdimage.germinate import GerminateOutput
 
-exit 0
+
+def main():
+    parser = OptionParser("%prog STRUCTURE")
+    _, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need structure file name")
+    germinate_output = GerminateOutput(config, args[0])
+    for entry in germinate_output.master_task_entries():
+        print(entry)
+
+
+if __name__ == "__main__":
+    main()
