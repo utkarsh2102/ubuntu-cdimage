@@ -29,8 +29,7 @@ from cdimage.config import Config
 def main():
     parser = OptionParser("%prog")
     parser.parse_args()
-    os.environ["IMAGE_TYPE"] = "source"
-    config = Config()
+    config = Config(IMAGE_TYPE="source")
 
     # build_all.sh will interpret this combination as a request to build
     # only source images.
