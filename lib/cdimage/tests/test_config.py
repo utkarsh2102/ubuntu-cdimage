@@ -93,6 +93,10 @@ class TestConfig(TestCase):
         config = Config(read=False)
         self.assertEqual("", config["PROJECT"])
 
+    def test_init_kwargs(self):
+        config = Config(read=False, IMAGE_TYPE="daily-live")
+        self.assertEqual("daily-live", config["IMAGE_TYPE"])
+
     def test_read_shell(self):
         with EnvironmentVarGuard() as env:
             env["CDIMAGE_ROOT"] = self.use_temp_dir()

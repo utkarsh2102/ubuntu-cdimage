@@ -151,11 +151,13 @@ _whitelisted_keys = (
 
 
 class Config(defaultdict):
-    def __init__(self, read=True):
+    def __init__(self, read=True, **kwargs):
         super(Config, self).__init__(str)
         if "CDIMAGE_ROOT" not in os.environ:
             os.environ["CDIMAGE_ROOT"] = "/srv/cdimage.ubuntu.com"
         self.root = os.environ["CDIMAGE_ROOT"]
+        for key, value in kwargs.items():
+            self[key] = value
         config_path = os.path.join(self.root, "etc", "config")
         if read:
             if os.path.exists(config_path):
@@ -193,11 +195,12 @@ class Config(defaultdict):
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
         for key, value in env.items():
             if key.startswith("CDIMAGE_") or key in _whitelisted_keys:
-                self[key] = value
+                super(Config, self).__setitem__(key, value)
 
         # Special entries.
         if self["DIST"]:
-            self["DIST"] = Series.find_by_name(self["DIST"])
+            super(Config, self).__setitem__(
+                "DIST", Series.find_by_name(self["DIST"]))
 
     def __setitem__(self, key, value):
         config_value = value
