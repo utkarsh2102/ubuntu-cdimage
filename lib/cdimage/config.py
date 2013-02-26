@@ -22,6 +22,7 @@ to co-exist until such time as the whole of cdimage is rewritten.
 __metaclass__ = type
 
 from collections import defaultdict, namedtuple
+import fnmatch
 import operator
 import os
 import re
@@ -165,6 +166,8 @@ class Config(defaultdict):
             else:
                 self.read()
             self.fix_paths()
+        if "IMAGE_TYPE" in kwargs:
+            self.set_default_arches()
 
     def _read_nullsep_output(self, command):
         raw = subprocess.Popen(
@@ -231,6 +234,51 @@ class Config(defaultdict):
         self._add_package("germinate")
         self._add_package("ubuntu-archive-tools")
 
+    def _default_arches_match_series(self, series):
+        if series == "*":
+            return True
+        elif "-" in series:
+            series_start, series_end = series.split("-", 1)
+            in_range = False
+            if not series_start:
+                in_range = True
+            for tryseries in self.all_series:
+                if tryseries == series_start:
+                    in_range = True
+                if tryseries == self.series:
+                    return in_range
+                if tryseries == series_end:
+                    in_range = False
+            else:
+                return False
+        else:
+            return series == self.series
+
+    def set_default_arches(self):
+        default_arches = os.path.join(self.root, "etc", "default-arches")
+        if not os.path.exists(default_arches):
+            return None
+        with open(default_arches) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                try:
+                    project, image_type, series, arches = line.split(None, 3)
+                except ValueError:
+                    continue
+                if not fnmatch.fnmatchcase(self.project, project):
+                    continue
+                if not fnmatch.fnmatchcase(self.image_type, image_type):
+                    continue
+                if not self._default_arches_match_series(series):
+                    continue
+                self["ARCHES"] = arches
+                self["CPUARCHES"] = " ".join(
+                    sorted(set(arch.split("+")[0] for arch in arches.split())))
+                return arches
+        return None
+
     @property
     def project(self):
         return self["PROJECT"]
@@ -258,6 +306,10 @@ class Config(defaultdict):
     @property
     def all_projects(self):
         return self["ALL_PROJECTS"].split()
+
+    @property
+    def all_series(self):
+        return self["ALL_DISTS"].split()
 
 
 config = Config()

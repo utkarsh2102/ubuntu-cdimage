@@ -97,6 +97,24 @@ class TestConfig(TestCase):
         config = Config(read=False, IMAGE_TYPE="daily-live")
         self.assertEqual("daily-live", config["IMAGE_TYPE"])
 
+    def test_init_kwargs_default_arches(self):
+        with EnvironmentVarGuard() as env:
+            env["CDIMAGE_ROOT"] = self.use_temp_dir()
+            etc_dir = os.path.join(self.temp_dir, "etc")
+            os.mkdir(etc_dir)
+            with open(os.path.join(etc_dir, "config"), "w") as f:
+                print(dedent("""\
+                    #! /bin/sh
+                    PROJECT=ubuntu
+                    DIST=raring
+                    """), file=f)
+            with open(os.path.join(etc_dir, "default-arches"), "w") as f:
+                print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
+            config = Config(IMAGE_TYPE="daily-live")
+            self.assertEqual("daily-live", config["IMAGE_TYPE"])
+            self.assertEqual("amd64 amd64+mac i386", config["ARCHES"])
+            self.assertEqual("amd64 i386", config["CPUARCHES"])
+
     def test_read_shell(self):
         with EnvironmentVarGuard() as env:
             env["CDIMAGE_ROOT"] = self.use_temp_dir()
@@ -164,3 +182,11 @@ class TestConfig(TestCase):
         self.assertEqual(["ubuntu"], config.all_projects)
         config["ALL_PROJECTS"] = "ubuntu kubuntu"
         self.assertEqual(["ubuntu", "kubuntu"], config.all_projects)
+
+    def test_all_series(self):
+        config = Config(read=False)
+        self.assertEqual([], config.all_series)
+        config["ALL_DISTS"] = "warty"
+        self.assertEqual(["warty"], config.all_series)
+        config["ALL_DISTS"] = "warty hoary"
+        self.assertEqual(["warty", "hoary"], config.all_series)
