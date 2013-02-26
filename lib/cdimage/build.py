@@ -51,8 +51,10 @@ def lock_build_image_set(config):
     except subprocess.CalledProcessError:
         logger.error("Another image set is already building!")
         raise
-    yield
-    osextras.unlink_force(lock_path)
+    try:
+        yield
+    finally:
+        osextras.unlink_force(lock_path)
 
 
 def configure_for_project(config):

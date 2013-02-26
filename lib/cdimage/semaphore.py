@@ -102,5 +102,7 @@ class Semaphore:
 
     @contextlib.contextmanager
     def held(self):
-        yield self.test_increment()
-        self.decrement_test()
+        try:
+            yield self.test_increment()
+        finally:
+            self.decrement_test()

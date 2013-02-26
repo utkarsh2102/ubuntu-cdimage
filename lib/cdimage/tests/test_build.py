@@ -654,6 +654,21 @@ class TestBuildImageSet(TestCase):
                     DATE
                     """.replace("DATE", self.epoch_date)), log.read())
 
+    @mock.patch(
+        "cdimage.build.build_image_set_locked", side_effect=KeyboardInterrupt)
+    def test_build_image_set_interrupted(self, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        lock_path = os.path.join(
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
+        semaphore_path = os.path.join(
+            self.temp_dir, "etc", ".sem-build-image-set")
+        os.makedirs(os.path.dirname(lock_path))
+        self.assertRaises(KeyboardInterrupt, build_image_set, self.config)
+        self.assertFalse(os.path.exists(lock_path))
+        self.assertFalse(os.path.exists(semaphore_path))
+
     @mock.patch("cdimage.build.build_image_set_locked")
     def test_build_image_set(self, mock_build_image_set_locked):
         self.config["PROJECT"] = "ubuntu"
