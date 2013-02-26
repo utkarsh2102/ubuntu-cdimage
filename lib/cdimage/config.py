@@ -198,12 +198,11 @@ class Config(defaultdict):
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
         for key, value in env.items():
             if key.startswith("CDIMAGE_") or key in _whitelisted_keys:
-                super(Config, self).__setitem__(key, value)
+                self[key] = value
 
         # Special entries.
         if self["DIST"]:
-            super(Config, self).__setitem__(
-                "DIST", Series.find_by_name(self["DIST"]))
+            self["DIST"] = Series.find_by_name(self["DIST"])
 
     def __setitem__(self, key, value):
         config_value = value
