@@ -316,5 +316,11 @@ class Config(defaultdict):
     def all_series(self):
         return self["ALL_DISTS"].split()
 
+    def export(self):
+        ret = dict(self)
+        if "DIST" in ret:
+            ret["DIST"] = ret["DIST"].name
+        return ret
+
 
 config = Config()

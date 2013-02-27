@@ -214,3 +214,10 @@ class TestConfig(TestCase):
         self.assertEqual(["warty"], config.all_series)
         config["ALL_DISTS"] = "warty hoary"
         self.assertEqual(["warty", "hoary"], config.all_series)
+
+    def test_export(self):
+        config = Config(read=False)
+        config["PROJECT"] = "ubuntu"
+        config["DIST"] = "raring"
+        self.assertEqual(
+            {"PROJECT": "ubuntu", "DIST": "raring"}, config.export())

@@ -289,7 +289,7 @@ def configure_splash(config):
 def run_debian_cd(config):
     log_marker("Building %s daily CDs" % config.capproject)
     debian_cd_dir = os.path.join(config.root, "debian-cd")
-    subprocess.call(["./build_all.sh"], cwd=debian_cd_dir, env=config)
+    subprocess.call(["./build_all.sh"], cwd=debian_cd_dir, env=config.export())
 
 
 def fix_permissions(config):
