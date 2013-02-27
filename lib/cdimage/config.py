@@ -197,7 +197,9 @@ class Config(defaultdict):
             commands.append(". %s" % self._shell_escape(config_path))
         commands.append("cat /proc/self/environ")
         for key in _whitelisted_keys:
-            commands.append("printf '%%s\\0' \"%s=$%s\"" % (key, key))
+            commands.append(
+                "test -z \"${KEY+x}\" || printf '%s\\0' \"KEY=$KEY\"".replace(
+                    "KEY", key))
         env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
         for key, value in env.items():
             if key.startswith("CDIMAGE_") or key in _whitelisted_keys:

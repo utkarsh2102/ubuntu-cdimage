@@ -130,6 +130,7 @@ class TestConfig(TestCase):
             config = Config()
             self.assertEqual("ubuntu", config["PROJECT"])
             self.assertEqual("Ubuntu", config["CAPPROJECT"])
+            self.assertNotIn("DEBUG", config)
 
     def test_missing_config(self):
         # Even if etc/config is missing, Config still reads values from the
