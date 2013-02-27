@@ -319,9 +319,12 @@ class Config(defaultdict):
         return self["ALL_DISTS"].split()
 
     def export(self):
-        ret = dict(self)
-        if "DIST" in ret:
-            ret["DIST"] = ret["DIST"].name
+        ret = dict(os.environ)
+        for key, value in self.items():
+            if key == "DIST":
+                ret[key] = value.name
+            else:
+                ret[key] = value
         return ret
 
 

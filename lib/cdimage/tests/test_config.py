@@ -207,8 +207,11 @@ class TestConfig(TestCase):
         self.assertEqual(["warty", "hoary"], config.all_series)
 
     def test_export(self):
+        os.environ["TEST_VAR"] = "1"
         config = Config(read=False)
         config["PROJECT"] = "ubuntu"
         config["DIST"] = "raring"
-        self.assertEqual(
-            {"PROJECT": "ubuntu", "DIST": "raring"}, config.export())
+        expected_env = dict(os.environ)
+        expected_env["PROJECT"] = "ubuntu"
+        expected_env["DIST"] = "raring"
+        self.assertEqual(expected_env, config.export())
