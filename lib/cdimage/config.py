@@ -206,7 +206,7 @@ class Config(defaultdict):
                 super(Config, self).__setitem__(key, value)
 
         # Special entries.
-        if self["DIST"]:
+        if "DIST" in self:
             super(Config, self).__setitem__(
                 "DIST", Series.find_by_name(self["DIST"]))
 
