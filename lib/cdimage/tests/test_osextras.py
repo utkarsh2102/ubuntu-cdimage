@@ -19,10 +19,6 @@
 
 import errno
 import os
-try:
-    from test.support import EnvironmentVarGuard
-except ImportError:
-    from test.test_support import EnvironmentVarGuard
 
 try:
     from unittest import mock
@@ -95,9 +91,8 @@ class TestOSExtras(TestCase):
         self.assertRaises(OSError, osextras.unlink_force, path)
 
     def test_find_on_path_missing_environment(self):
-        with EnvironmentVarGuard() as env:
-            env.pop("PATH", None)
-            self.assertFalse(osextras.find_on_path("ls"))
+        os.environ.pop("PATH", None)
+        self.assertFalse(osextras.find_on_path("ls"))
 
     def test_find_on_path_present_executable(self):
         bin_dir = os.path.join(self.temp_dir, "bin")
@@ -105,18 +100,16 @@ class TestOSExtras(TestCase):
         program = os.path.join(bin_dir, "program")
         touch(program)
         os.chmod(program, 0o755)
-        with EnvironmentVarGuard() as env:
-            env["PATH"] = bin_dir
-            self.assertTrue(osextras.find_on_path("program"))
+        os.environ["PATH"] = bin_dir
+        self.assertTrue(osextras.find_on_path("program"))
 
     def test_find_on_path_present_not_executable(self):
         bin_dir = os.path.join(self.temp_dir, "bin")
         os.mkdir(bin_dir)
         program = os.path.join(bin_dir, "program")
         touch(program)
-        with EnvironmentVarGuard() as env:
-            env["PATH"] = bin_dir
-            self.assertFalse(osextras.find_on_path("program"))
+        os.environ["PATH"] = bin_dir
+        self.assertFalse(osextras.find_on_path("program"))
 
     @mock.patch("os.waitpid")
     def test_waitpid_retry(self, mock_waitpid):

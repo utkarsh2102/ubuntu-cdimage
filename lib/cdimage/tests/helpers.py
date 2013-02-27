@@ -48,6 +48,16 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         super(TestCase, self).setUp()
         self.temp_dir = None
+        self.save_env = dict(os.environ)
+
+    def tearDown(self):
+        for key in set(os.environ.keys()) - set(self.save_env.keys()):
+            del os.environ[key]
+        for key, value in os.environ.items():
+            if value != self.save_env[key]:
+                os.environ[key] = self.save_env[key]
+        for key in set(self.save_env.keys()) - set(os.environ.keys()):
+            os.environ[key] = self.save_env[key]
 
     def use_temp_dir(self):
         if self.temp_dir is not None:

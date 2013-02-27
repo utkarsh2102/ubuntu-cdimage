@@ -22,10 +22,6 @@ from __future__ import print_function
 __metaclass__ = type
 
 import os
-try:
-    from test.support import EnvironmentVarGuard
-except ImportError:
-    from test.test_support import EnvironmentVarGuard
 from textwrap import dedent
 
 from cdimage.config import Config, Series, all_series
@@ -78,16 +74,14 @@ class TestSeries(TestCase):
 
 class TestConfig(TestCase):
     def test_default_root(self):
-        with EnvironmentVarGuard() as env:
-            env.pop("CDIMAGE_ROOT", None)
-            config = Config(read=False)
-            self.assertEqual("/srv/cdimage.ubuntu.com", config.root)
+        os.environ.pop("CDIMAGE_ROOT", None)
+        config = Config(read=False)
+        self.assertEqual("/srv/cdimage.ubuntu.com", config.root)
 
     def test_root_from_environment(self):
-        with EnvironmentVarGuard() as env:
-            env["CDIMAGE_ROOT"] = "/path"
-            config = Config(read=False)
-            self.assertEqual("/path", config.root)
+        os.environ["CDIMAGE_ROOT"] = "/path"
+        config = Config(read=False)
+        self.assertEqual("/path", config.root)
 
     def test_default_values(self):
         config = Config(read=False)
@@ -98,71 +92,67 @@ class TestConfig(TestCase):
         self.assertEqual("daily-live", config["IMAGE_TYPE"])
 
     def test_init_kwargs_default_arches(self):
-        with EnvironmentVarGuard() as env:
-            env["CDIMAGE_ROOT"] = self.use_temp_dir()
-            env.pop("ARCHES", None)
-            env.pop("CPUARCHES", None)
-            etc_dir = os.path.join(self.temp_dir, "etc")
-            os.mkdir(etc_dir)
-            with open(os.path.join(etc_dir, "config"), "w") as f:
-                print(dedent("""\
-                    #! /bin/sh
-                    PROJECT=ubuntu
-                    DIST=raring
-                    """), file=f)
-            with open(os.path.join(etc_dir, "default-arches"), "w") as f:
-                print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
-            config = Config(IMAGE_TYPE="daily-live")
-            self.assertEqual("daily-live", config["IMAGE_TYPE"])
-            self.assertEqual("amd64 amd64+mac i386", config["ARCHES"])
-            self.assertEqual("amd64 i386", config["CPUARCHES"])
+        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
+        os.environ.pop("ARCHES", None)
+        os.environ.pop("CPUARCHES", None)
+        etc_dir = os.path.join(self.temp_dir, "etc")
+        os.mkdir(etc_dir)
+        with open(os.path.join(etc_dir, "config"), "w") as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=ubuntu
+                DIST=raring
+                """), file=f)
+        with open(os.path.join(etc_dir, "default-arches"), "w") as f:
+            print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
+        config = Config(IMAGE_TYPE="daily-live")
+        self.assertEqual("daily-live", config["IMAGE_TYPE"])
+        self.assertEqual("amd64 amd64+mac i386", config["ARCHES"])
+        self.assertEqual("amd64 i386", config["CPUARCHES"])
 
     def test_read_shell(self):
-        with EnvironmentVarGuard() as env:
-            env["CDIMAGE_ROOT"] = self.use_temp_dir()
-            os.mkdir(os.path.join(self.temp_dir, "etc"))
-            with open(os.path.join(self.temp_dir, "etc", "config"), "w") as f:
-                print(dedent("""\
-                    #! /bin/sh
-                    PROJECT=ubuntu
-                    CAPPROJECT=Ubuntu
-                    """), file=f)
-            config = Config()
-            self.assertEqual("ubuntu", config["PROJECT"])
-            self.assertEqual("Ubuntu", config["CAPPROJECT"])
-            self.assertNotIn("DEBUG", config)
+        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
+        os.mkdir(os.path.join(self.temp_dir, "etc"))
+        with open(os.path.join(self.temp_dir, "etc", "config"), "w") as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=ubuntu
+                CAPPROJECT=Ubuntu
+                """), file=f)
+        config = Config()
+        self.assertEqual("ubuntu", config["PROJECT"])
+        self.assertEqual("Ubuntu", config["CAPPROJECT"])
+        self.assertNotIn("DEBUG", config)
 
     def test_missing_config(self):
         # Even if etc/config is missing, Config still reads values from the
         # environment.  This makes it easier to experiment locally.
         self.use_temp_dir()
-        with EnvironmentVarGuard() as env:
-            env["CDIMAGE_ROOT"] = self.temp_dir
-            env["PROJECT"] = "kubuntu"
-            config = Config()
-            self.assertEqual("kubuntu", config["PROJECT"])
+        os.environ["CDIMAGE_ROOT"] = self.temp_dir
+        os.environ["PROJECT"] = "kubuntu"
+        config = Config()
+        self.assertEqual("kubuntu", config["PROJECT"])
 
     def test_arches_override(self):
         # If ARCHES is set in the environment, it overrides
         # etc/default-arches.
-        with EnvironmentVarGuard() as env:
-            env["CDIMAGE_ROOT"] = self.use_temp_dir()
-            env["ARCHES"] = "amd64"
-            env.pop("CPUARCHES", None)
-            etc_dir = os.path.join(self.temp_dir, "etc")
-            os.mkdir(etc_dir)
-            with open(os.path.join(etc_dir, "config"), "w") as f:
-                print(dedent("""\
-                    #! /bin/sh
-                    PROJECT=ubuntu
-                    DIST=raring
-                    """), file=f)
-            with open(os.path.join(etc_dir, "default-arches"), "w") as f:
-                print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
-            config = Config(IMAGE_TYPE="daily-live")
-            self.assertEqual("daily-live", config["IMAGE_TYPE"])
-            self.assertEqual("amd64", config["ARCHES"])
-            self.assertEqual("amd64", config["CPUARCHES"])
+        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
+        os.environ["ARCHES"] = "amd64"
+        os.environ.pop("CPUARCHES", None)
+        etc_dir = os.path.join(self.temp_dir, "etc")
+        os.mkdir(etc_dir)
+        with open(os.path.join(etc_dir, "config"), "w") as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=ubuntu
+                DIST=raring
+                """), file=f)
+        with open(os.path.join(etc_dir, "default-arches"), "w") as f:
+            print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
+        config = Config(IMAGE_TYPE="daily-live")
+        self.assertEqual("daily-live", config["IMAGE_TYPE"])
+        self.assertEqual("amd64", config["ARCHES"])
+        self.assertEqual("amd64", config["CPUARCHES"])
 
     def test_project(self):
         config = Config(read=False)

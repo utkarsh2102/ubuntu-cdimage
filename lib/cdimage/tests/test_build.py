@@ -28,10 +28,6 @@ import os
 import stat
 import subprocess
 import sys
-try:
-    from test.support import EnvironmentVarGuard
-except ImportError:
-    from test.test_support import EnvironmentVarGuard
 from textwrap import dedent
 import time
 import traceback
@@ -465,20 +461,19 @@ class TestBuildImageSet(TestCase):
                 CAPPROJECT=Ubuntu
                 ARCHES="amd64 powerpc"
                 """), file=f)
-        with EnvironmentVarGuard() as env:
-            env["CDIMAGE_ROOT"] = self.temp_dir
-            config = Config()
-            self.capture_logging()
-            run_debian_cd(config)
-            self.assertLogEqual([
-                "===== Building Ubuntu daily CDs =====",
-                self.epoch_date,
-            ])
-            expected_cwd = os.path.join(self.temp_dir, "debian-cd")
-            mock_call.assert_called_once_with(
-                ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
-            self.assertEqual(
-                "amd64 powerpc", mock_call.call_args[1]["env"]["ARCHES"])
+        os.environ["CDIMAGE_ROOT"] = self.temp_dir
+        config = Config()
+        self.capture_logging()
+        run_debian_cd(config)
+        self.assertLogEqual([
+            "===== Building Ubuntu daily CDs =====",
+            self.epoch_date,
+        ])
+        expected_cwd = os.path.join(self.temp_dir, "debian-cd")
+        mock_call.assert_called_once_with(
+            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
+        self.assertEqual(
+            "amd64 powerpc", mock_call.call_args[1]["env"]["ARCHES"])
 
     def test_fix_permissions(self):
         self.config["PROJECT"] = "ubuntu"
