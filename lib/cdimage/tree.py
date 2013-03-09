@@ -53,6 +53,7 @@ projects = [
     "lubuntu",
     "mythbuntu",
     "ubuntu",
+    "ubuntu-gnome",
     "ubuntu-headless",
     "ubuntu-netbook",
     "ubuntu-server",
@@ -583,6 +584,9 @@ class DailyTreePublisher(Publisher):
         elif project == "ubuntu-chinese-edition":
             if image_type == "daily-live" and publish_type == "desktop":
                 return "Ubuntu Chinese Desktop %s" % arch
+        elif project == "ubuntu-gnome":
+            if image_type == "daily-live" and publish_type == "desktop":
+                return "Ubuntu GNOME %s" % arch
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""

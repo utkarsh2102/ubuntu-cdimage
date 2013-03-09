@@ -48,6 +48,10 @@ case $1 in
 		export PROJECT=lubuntu
 		export CAPPROJECT=Lubuntu
 		;;
+	ubuntu-gnome)
+		export PROJECT=ubuntu-gnome
+		export CAPPROJECT=Ubuntu-GNOME
+		;;
 	ubuntu-moblin-remix)
 		export PROJECT=ubuntu-moblin-remix
 		export CAPPROJECT=Ubuntu-Moblin-Remix

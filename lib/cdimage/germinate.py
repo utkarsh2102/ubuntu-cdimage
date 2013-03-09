@@ -77,6 +77,8 @@ class Germination:
                     sources.insert(0, pattern % "xubuntu-dev")
             elif project == "lubuntu":
                 sources.insert(0, pattern % "lubuntu-dev")
+            elif project == "ubuntu-gnome":
+                sources.insert(0, pattern % "ubuntu-gnome-dev")
             return sources
         else:
             return ["http://people.canonical.com/~ubuntu-archive/seeds/"]

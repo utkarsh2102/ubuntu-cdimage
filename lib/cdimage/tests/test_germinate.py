@@ -91,6 +91,7 @@ class TestGermination(TestCase):
             ("xubuntu", "hardy", ["ubuntu-core-dev"]),
             ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
             ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
+            ("ubuntu-gnome", "raring", ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
             sources = [
