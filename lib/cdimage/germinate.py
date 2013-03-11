@@ -696,5 +696,5 @@ class GerminateOutput:
                             self.config.series, project),
                         file=master)
         else:
-            osextras.mkemptydir(self.tasks_output_dir(project))
-            self.write_tasks_project(project)
+            osextras.mkemptydir(self.tasks_output_dir(self.config.project))
+            self.write_tasks_project(self.config.project)
