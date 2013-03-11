@@ -443,6 +443,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-core", "daily", "core", "Ubuntu Core"),
             ("ubuntu-chinese-edition", "daily-live", "desktop",
              "Ubuntu Chinese Desktop"),
+            ("ubuntukylin", "daily-live", "desktop", "UbuntuKylin Desktop"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
             # use the publisher's image_type at all.
