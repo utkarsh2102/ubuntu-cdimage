@@ -108,24 +108,25 @@ class TestLiveBuilder(TestCase):
 
     def test_armel(self):
         for series in all_series:
-            self.assertBuilderEqual("annonaceae.buildd", "armel", series)
+            self.assertBuilderEqual("celbalrai.buildd", "armel", series)
 
     def test_armhf(self):
         for series in all_series:
             self.assertBuilderEqual(
-                "celbalrai.buildd", "armhf+omap4", series, project="ubuntu")
+                "cadejo.buildd", "armhf+mx5", series, project="ubuntu")
             self.assertBuilderEqual(
-                "celbalrai.buildd", "armhf+omap", series, project="ubuntu")
+                "cadejo.buildd", "armhf+omap", series, project="ubuntu")
             self.assertBuilderEqual(
-                "celbalrai.buildd", "armhf+mx5", series, project="ubuntu")
+                "cadejo.buildd", "armhf+omap4", series, project="ubuntu")
+            self.assertBuilderEqual(
+                "cadejo.buildd", "armhf+omap", series, project="ubuntu-server")
             self.assertBuilderEqual(
                 "celbalrai.buildd", "armhf+omap4", series,
                 project="ubuntu-server")
+            self.assertBuilderEqual("celbalrai.buildd", "armhf+ac100", series)
+            self.assertBuilderEqual("celbalrai.buildd", "armhf+nexus7", series)
             self.assertBuilderEqual(
-                "celbalrai.buildd", "armhf+omap", series,
-                project="ubuntu-server")
-            self.assertBuilderEqual(
-                "celbalrai.buildd", "armhf+somethingelse", series)
+                "cadejo.buildd", "armhf+somethingelse", series)
 
     def test_hppa(self):
         for series in all_series:
@@ -194,7 +195,7 @@ class TestLiveCDBase(TestCase):
             self.base("royal.buildd", "ubuntu-ps3", "gutsy"),
             "powerpc+ps3", "ubuntu", "gutsy")
         self.assertBaseEqual(
-            self.base("annonaceae.buildd", "ubuntu-server-omap", "oneiric"),
+            self.base("celbalrai.buildd", "ubuntu-server-omap", "oneiric"),
             "armel+omap", "ubuntu-server", "oneiric")
 
     def test_ubuntu_defaults_locale(self):

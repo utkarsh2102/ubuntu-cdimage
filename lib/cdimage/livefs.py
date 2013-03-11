@@ -53,23 +53,21 @@ def live_builder(config, arch):
     if cpuarch == "amd64":
         return "kapok.buildd"
     elif cpuarch == "armel":
-        return "annonaceae.buildd"
+        return "celbalrai.buildd"
     elif cpuarch == "armhf":
         # TODO: These builders should be separated out again; or, better,
         # moved into the LP build farm.
         if project == "ubuntu":
-            if subarch == "omap4":
-                return "celbalrai.buildd"
-            elif subarch == "omap":
-                return "celbalrai.buildd"
-            elif subarch == "mx5":
-                return "celbalrai.buildd"
+            if subarch in ("mx5", "omap", "omap4"):
+                return "cadejo.buildd"
         elif project == "ubuntu-server":
-            if subarch == "omap4":
+            if subarch == "omap":
+                return "cadejo.buildd"
+            elif subarch == "omap4":
                 return "celbalrai.buildd"
-            elif subarch == "omap":
-                return "celbalrai.buildd"
-        return "celbalrai.buildd"
+        if subarch in ("ac100", "nexus7"):
+            return "celbalrai.buildd"
+        return "cadejo.buildd"
     elif cpuarch == "hppa":
         return "castilla.buildd"
     elif cpuarch == "i386":
