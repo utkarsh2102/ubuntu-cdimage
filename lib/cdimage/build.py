@@ -378,10 +378,12 @@ def build_image_set_locked(config, semaphore_state):
         extract_debootstrap(config)
 
         log_marker("Germinating")
-        Germination(config).run()
+        germination = Germination(config)
+        germination.run()
 
         log_marker("Generating new task lists")
-        subprocess.check_call(["germinate-to-tasks", image_type])
+        germinate_output = germination.output(project)
+        germinate_output.write_tasks()
 
         log_marker("Checking for other task changes")
         subprocess.check_call(["update-tasks", date, image_type])

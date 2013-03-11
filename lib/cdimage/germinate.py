@@ -19,8 +19,11 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+from collections import defaultdict
+import errno
 import gzip
 import os
+import re
 import shutil
 import subprocess
 
@@ -206,15 +209,25 @@ class Germination:
         else:
             self.germinate_project(self.config.project)
 
+    def output(self, project):
+        return GerminateOutput(self.config, self.output_dir(project))
+
 
 class NoMasterSeeds(Exception):
     pass
 
 
+re_not_base = re.compile(
+    r"^(linux-(image|restricted|amd64|386|686|k7|power|ia64|itanium|mckinley|"
+    r"sparc|hppa|imx51|dove|omap).*|"
+    r"nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$")
+
+
 class GerminateOutput:
-    def __init__(self, config, structure):
+    def __init__(self, config, directory):
         self.config = config
-        self.structure = structure
+        self.directory = directory
+        self.structure = os.path.join(directory, "STRUCTURE")
         self._parse_structure()
 
     def _parse_structure(self):
@@ -342,9 +355,11 @@ class GerminateOutput:
                     for seed in self._inheritance("dvd"):
                         yield seed
 
+    def seed_path(self, arch, seed):
+        return os.path.join(self.directory, arch, seed)
+
     def seed_packages(self, arch, seed):
-        with open(os.path.join(
-                os.path.dirname(self.structure), arch, seed)) as seed_file:
+        with open(self.seed_path(arch, seed)) as seed_file:
             lines = seed_file.read().splitlines()[2:-2]
             return [line.split(None, 1)[0] for line in lines]
 
@@ -376,8 +391,7 @@ class GerminateOutput:
                         if seed not in ("installer", "casper"):
                             yield seed
 
-    def master_task_entries(self):
-        project = self.config.project
+    def master_task_entries(self, project):
         series = self.config.series
 
         found = False
@@ -392,3 +406,292 @@ class GerminateOutput:
 
         if not found:
             raise NoMasterSeeds("No seeds found for master task!")
+
+    def tasks_output_dir(self, project):
+        return os.path.join(
+            self.config.root, "scratch", project, self.config.series,
+            self.config.image_type, "tasks")
+
+    def task_packages(self, arch, seed, seedsource):
+        """Like seed_packages, but with various special-case hacks."""
+        installer_seeds = set(self.list_seeds("installer"))
+
+        for package in self.seed_packages(arch, seedsource):
+            # Hackily exclude kernel-image-* from the installer and casper
+            # tasks.  Those udebs only exist to satisfy dependencies when
+            # building the debian-installer package.
+            if seed in installer_seeds and package.startswith("kernel-image-"):
+                continue
+
+            # germinate doesn't yet support subarchitecture specifications
+            # (and it's not entirely clear what they would mean if it did),
+            # so we need to hack the boot and installer seeds a bit for
+            # powerpc+ps3 (only gutsy).
+            if self.config.series == "gutsy" and arch == "powerpc+ps3":
+                if seed in installer_seeds:
+                    if "-powerpc-di" in package:
+                        continue
+                    package = package.replace("-powerpc64-smp-di", "-cell-di")
+                if seed == "boot":
+                    if package.startswith("linux-restricted-modules"):
+                        continue
+                    if package.startswith("linux-ubuntu-modules"):
+                        continue
+                    if package.endswith("-powerpc"):
+                        continue
+                    package = package.replace("-powerpc64-smp", "-cell")
+
+            # For precise, some flavours use a different kernel on i386.
+            # germinate doesn't currently support this without duplicating
+            # the entire boot and installer seeds, so we hack them instead.
+            if (self.config.project in ("xubuntu", "lubuntu") and
+                    self.config.series == "precise" and arch == "i386"):
+                if seed in installer_seeds:
+                    package = package.replace("-generic-pae-di", "-generic-di")
+                if seed == "boot":
+                    package = package.replace("-generic-pae", "-generic")
+
+            yield package
+
+    def installer_initrds(self, cpuarch):
+        if cpuarch in ("amd64", "i386", "lpia"):
+            return ["cdrom/initrd.gz", "netboot/netboot.tar.gz"]
+        elif cpuarch == "hppa":
+            return ["cdrom/2.6/initrd.gz", "netboot/2.6/boot.img"]
+        elif cpuarch == "ia64":
+            return ["cdrom/boot.img", "netboot/netboot.tar.gz"]
+        elif cpuarch == "powerpc":
+            return ["cdrom/initrd.gz", "netboot/initrd.gz"]
+        elif cpuarch == "sparc":
+            return ["cdrom/initrd.gz", "netboot/initrd.gz"]
+        else:
+            return []
+
+    def installer_subarches(self, cpuarch):
+        if cpuarch == "powerpc":
+            return ["powerpc", "powerpc64", "e500", "e500mc"]
+        else:
+            return ["."]
+
+    def initrd_packages(self, initrd, arch):
+        manifest_path = os.path.join(
+            find_mirror(self.config, arch), "dists", self.config.series,
+            "main", "installer-%s" % arch, "current", "images",
+            "MANIFEST.udebs")
+        if not os.path.exists(manifest_path):
+            return set()
+        if initrd.startswith("./"):
+            initrd = initrd[2:]
+        packages = set()
+        with open(manifest_path) as manifest:
+            found_initrd = False
+            for line in manifest:
+                line = line.rstrip("\n")
+                if line == initrd:
+                    found_initrd = True
+                elif found_initrd:
+                    if line and not line[0].isspace():
+                        break
+                    else:
+                        packages.add(line.split()[0])
+        return packages
+
+    def task_project(self, project):
+        # ubuntu-server really wants ubuntu-* tasks.
+        if project == "ubuntu-server":
+            return "ubuntu"
+        else:
+            return project
+
+    def task_headers(self, arch, seed):
+        headers = {}
+        try:
+            with open("%s.seedtext" % self.seed_path(arch, seed)) as seedtext:
+                for line in seedtext:
+                    if not line.lower().startswith("task-"):
+                        continue
+                    line = line.rstrip("\n")
+                    key, value = line.split(":", 1)
+                    key = key[5:].lower()
+                    value = value.lstrip()
+                    headers[key] = value
+        except IOError as e:
+            if e.errno != errno.ENOENT:
+                raise
+        return headers
+
+    def seed_task_mapping(self, project, arch):
+        series = self.config["DIST"]
+        task_project = self.task_project(project)
+        for seed in self.list_seeds("all"):
+            if series <= "dapper":
+                # Tasks implemented by hand.
+                if seed in ("boot", "required", "server-ship"):
+                    continue
+                elif seed == "server" and project != "edubuntu":
+                    continue
+                elif seed == "ship" and series <= "breezy":
+                    continue
+
+                if seed in (
+                    "base", "minimal", "standard", "desktop", "server", "ship",
+                ):
+                    task = "%s-%s" % (task_project, seed)
+                else:
+                    task = seed
+                input_seeds = [seed]
+            elif series <= "gutsy":
+                # Tasks implemented via tasksel, but without Task-Seeds;
+                # hacks required for seed/task mapping.
+                if seed == "required":
+                    task = "minimal"
+                else:
+                    task = seed
+                headers = self.task_headers(arch, seed)
+                if not headers:
+                    continue
+                if "per-derivative" in headers:
+                    task = "%s-%s" % (task_project, task)
+                input_seeds = [seed]
+            else:
+                # Tasks implemented via tasksel, with Task-Seeds to indicate
+                # task/seed mapping.
+                task = seed
+                headers = self.task_headers(arch, seed)
+                if not headers:
+                    continue
+                input_seeds = [seed] + headers.get("seeds", "").split()
+                if "per-derivative" in headers:
+                    # Edubuntu is odd; it's structured as an add-on to
+                    # Ubuntu, so sometimes we need to create ubuntu-* tasks.
+                    # At the moment I don't see a better approach than
+                    # hardcoding the task names.
+                    if project == "edubuntu" and task in ("desktop", "live"):
+                        task = "ubuntu-%s" % task
+                    else:
+                        task = "%s-%s" % (task_project, task)
+
+            yield input_seeds, task
+
+    def write_tasks_project(self, project, source=False):
+        if source:
+            master_project = "source"
+        else:
+            master_project = project
+        series = self.config["DIST"]
+        output_dir = self.tasks_output_dir(master_project)
+        osextras.ensuredir(output_dir)
+
+        for arch in self.config.arches:
+            initrd_packages = set()
+            if series >= "jaunty":
+                # Remove installer packages that are in both the cdrom and
+                # netboot initrds; there's no point duplicating these.
+                cpuarch = arch.split("+")[0]
+                initrds = self.installer_initrds(cpuarch)
+                subarches = self.installer_subarches(cpuarch)
+                for initrd in initrds:
+                    for subarch in subarches:
+                        initrd_packages |= self.initrd_packages(
+                            "%s/%s" % (subarch, initrd), cpuarch)
+
+            packages = defaultdict(list)
+            cpparch = arch.replace("+", "_")
+            for seed in self.list_seeds("all"):
+                if seed == "supported":
+                    seedsource = "%s+build-depends" % seed
+                else:
+                    seedsource = seed
+                seed_path = self.seed_path(arch, seedsource)
+                if not os.path.exists(seed_path):
+                    continue
+                with open(os.path.join(output_dir, seed), "a") as task_file:
+                    print("#ifdef ARCH_%s" % cpparch, file=task_file)
+                    for package in sorted(
+                            self.task_packages(arch, seed, seedsource)):
+                        if package not in initrd_packages:
+                            packages[seed].append(package)
+                            print(package, file=task_file)
+                    print("#endif /* ARCH_%s */" % cpparch, file=task_file)
+
+            tasks = defaultdict(list)
+            for input_seeds, task in self.seed_task_mapping(project, arch):
+                for input_seed in input_seeds:
+                    for pkg in packages.get(input_seed, []):
+                        tasks[pkg].append(task)
+
+            # Help debian-cd to regenerate Task headers, to make sure that
+            # we don't accidentally end up out of sync with the archive and
+            # break the package installation step.
+            # Note that the results of this will be wrong for source images,
+            # but that doesn't matter since they won't be used there.
+            override_path = os.path.join(output_dir, "override.%s" % arch)
+            with open(override_path, "w") as override:
+                for pkg, tasknames in sorted(tasks.items()):
+                    print(
+                        "%s  Task  %s" % (pkg, ", ".join(tasknames)),
+                        file=override)
+            if series == "breezy":
+                # In breezy, also generate Archive-Copier-Set headers for
+                # sets of packages that archive-copier needs to know to copy
+                # but that shouldn't appear as tasks in aptitude et al.
+                ship_acsets_path = self.seed_path(arch, "ship.acsets")
+                all_acsets = defaultdict(list)
+                try:
+                    with open(ship_acsets_path) as ship_acsets:
+                        for acset in ship_acsets:
+                            acset = acset.rstrip("\n")
+                            for package in self.seed_packages(arch, acset):
+                                all_acsets[package].append(acset)
+                except IOError as e:
+                    if e.errno != errno.ENOENT:
+                        raise
+                for pkg, acsetnames in sorted(all_acsets.items()):
+                    print(
+                        "%s  Archive-Copier-Set  %s" % (
+                            pkg, ", ".join(acsetnames)),
+                        file=override)
+
+            # Help debian-cd to get priorities in sync with the current base
+            # system, so that debootstrap >= 0.3.1 can work out the correct
+            # set of packages to install.
+            important_path = os.path.join(output_dir, "important.%s" % arch)
+            with open(important_path, "w") as important_file:
+                important = []
+                for seed in self.list_seeds("debootstrap"):
+                    important.extend(packages.get(seed, []))
+                for pkg in sorted(important):
+                    if not re_not_base.match(pkg):
+                        print(pkg, file=important_file)
+
+            with open(os.path.join(output_dir, "MASTER"), "w") as master:
+                for entry in self.master_task_entries(project):
+                    print(entry, file=master)
+
+    def write_tasks(self):
+        if self.config.image_type == "source":
+            output_dir = self.tasks_output_dir("source")
+            osextras.mkemptydir(output_dir)
+
+            # Generate task output for all source projects.
+            for project in self.config.all_projects:
+                self.write_tasks_project(project, source=True)
+                # TODO: write_tasks_project should just write these files
+                # with the names we need in the first place.
+                for entry in os.listdir(output_dir):
+                    if ":" not in entry:
+                        os.rename(
+                            os.path.join(output_dir, entry),
+                            os.path.join(
+                                output_dir, "%s:%s" % (project, entry)))
+
+            # Make a super-master task file.
+            with open(os.path.join(output_dir, "MASTER"), "w") as master:
+                for project in self.config.all_projects:
+                    print(
+                        "#include <source/%s/%s:MASTER>" % (
+                            self.config.series, project),
+                        file=master)
+        else:
+            osextras.mkemptydir(self.tasks_output_dir(project))
+            self.write_tasks_project(project)

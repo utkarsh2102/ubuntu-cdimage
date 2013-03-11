@@ -29,12 +29,12 @@ from cdimage.germinate import GerminateOutput
 
 
 def main():
-    parser = OptionParser("%prog STRUCTURE")
+    parser = OptionParser("%prog DIRECTORY")
     _, args = parser.parse_args()
     if len(args) < 1:
-        parser.error("need structure file name")
+        parser.error("need Germinate output directory")
     germinate_output = GerminateOutput(config, args[0])
-    for entry in germinate_output.master_task_entries():
+    for entry in germinate_output.master_task_entries(config.project):
         print(entry)
 
 

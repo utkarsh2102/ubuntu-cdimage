@@ -30,6 +30,7 @@ try:
 except ImportError:
     import mock
 
+from cdimage import osextras
 from cdimage.config import Config, all_series
 from cdimage.germinate import (
     GerminateNotInstalled,
@@ -268,16 +269,25 @@ class TestGermination(TestCase):
         mock_germinate_project.assert_has_calls(
             [mock.call("ubuntu"), mock.call("kubuntu")])
 
+    def test_output(self):
+        self.config.root = self.use_temp_dir()
+        output_dir = self.germination.output_dir("ubuntu")
+        os.makedirs(output_dir)
+        touch(os.path.join(output_dir, "STRUCTURE"))
+        output = self.germination.output("ubuntu")
+        self.assertEqual(self.config, output.config)
+        self.assertEqual(output_dir, output.directory)
+
 
 class TestGerminateOutput(TestCase):
     def setUp(self):
         super(TestGerminateOutput, self).setUp()
-        self.use_temp_dir()
         self.config = Config(read=False)
-        self.structure = os.path.join(self.temp_dir, "STRUCTURE")
+        self.config.root = self.use_temp_dir()
 
     def write_structure(self, seed_inherit):
-        with open(self.structure, "w") as structure:
+        structure_path = os.path.join(self.temp_dir, "STRUCTURE")
+        with open(structure_path, "w") as structure:
             for seed, inherit in seed_inherit:
                 print("%s: %s" % (seed, " ".join(inherit)), file=structure)
 
@@ -400,7 +410,7 @@ class TestGerminateOutput(TestCase):
     def test_inheritance_recurses(self):
         """_inheritance recurses properly."""
         self.write_structure([["a", []], ["b", ["a"]], ["c", ["b"]]])
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.assertEqual(["a"], output._inheritance("a"))
         self.assertEqual(["a", "b"], output._inheritance("b"))
         self.assertEqual(["a", "b", "c"], output._inheritance("c"))
@@ -408,13 +418,13 @@ class TestGerminateOutput(TestCase):
     def test_inheritance_avoids_duplicates(self):
         """_inheritance avoids adding a seed more than once."""
         self.write_structure([["a", []], ["b", ["a"]], ["c", ["a", "b"]]])
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.assertEqual(["a", "b", "c"], output._inheritance("c"))
 
     def test_without_inheritance(self):
         self.write_structure(
             [["a", []], ["b", ["a"]], ["c", ["b"]], ["d", ["a", "c"]]])
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         inheritance = output._inheritance("d")
         self.assertEqual(["a", "b", "c", "d"], inheritance)
         self.assertEqual(
@@ -422,12 +432,12 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_all(self):
         self.write_structure([["a", []], ["b", ["a"]], ["c", []]])
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.assertEqual(["a", "b", "c"], list(output.list_seeds("all")))
 
     def test_list_seeds_tasks_ubuntu(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         expected = [
@@ -441,7 +451,7 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_tasks_ubuntu_server(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu-server"
         expected = [
             "boot", "installer", "required", "minimal", "standard",
@@ -465,7 +475,7 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_tasks_kubuntu_active(self):
         self.write_kubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "kubuntu-active"
         self.config["DIST"] = "raring"
         expected = [
@@ -478,7 +488,7 @@ class TestGerminateOutput(TestCase):
     def test_list_seeds_installer(self):
         self.write_ubuntu_breezy_structure()
         self.write_structure([["installer", []], ["casper", []]])
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
         self.assertEqual(["installer"], list(output.list_seeds("installer")))
         del self.config["CDIMAGE_INSTALL_BASE"]
@@ -492,18 +502,18 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_debootstrap(self):
         self.write_ubuntu_hoary_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         for series in all_series[:2]:
             self.config["DIST"] = series
             self.assertEqual(["base"], list(output.list_seeds("debootstrap")))
         self.write_ubuntu_breezy_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         for series in all_series[2:6]:
             self.config["DIST"] = series
             self.assertEqual(
                 ["minimal"], list(output.list_seeds("debootstrap")))
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         for series in all_series[6:]:
             self.config["DIST"] = series
             self.assertEqual(
@@ -512,24 +522,24 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_base(self):
         self.write_ubuntu_hoary_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         for series in all_series[:2]:
             self.config["DIST"] = series
             self.assertEqual(["base"], list(output.list_seeds("base")))
         self.write_ubuntu_breezy_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["DIST"] = all_series[2]
         self.assertEqual(
             ["minimal", "standard"], list(output.list_seeds("base")))
         self.write_ubuntu_dapper_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         for series in all_series[3:6]:
             self.config["DIST"] = series
             self.assertEqual(
                 ["boot", "minimal", "standard"],
                 list(output.list_seeds("base")))
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         for series in all_series[6:]:
             self.config["DIST"] = series
             self.assertEqual(
@@ -538,7 +548,7 @@ class TestGerminateOutput(TestCase):
 
     def test_list_seeds_ship_live_ubuntu_server(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu-server"
         expected = [
             "boot", "installer", "standard", "dns-server", "lamp-server",
@@ -550,23 +560,43 @@ class TestGerminateOutput(TestCase):
 
     # TODO list_seeds addon/dvd untested
 
+    def test_seed_path(self):
+        self.write_ubuntu_structure()
+        output = GerminateOutput(self.config, self.temp_dir)
+        self.assertEqual(
+            os.path.join(self.temp_dir, "i386", "required"),
+            output.seed_path("i386", "required"))
+
+    def write_seed_output(self, arch, seed, packages):
+        """Write a simplified Germinate output file, enough for testing."""
+        path = os.path.join(self.temp_dir, arch, seed)
+        osextras.ensuredir(os.path.dirname(path))
+        with open(path, "w") as f:
+            why = "Ubuntu.Raring %s seed" % seed
+            pkg_len = max(len("Package"), max(map(len, packages)))
+            src_len = max(len("Source"), max(map(len, packages)))
+            why_len = len(why)
+            print(
+                "%-*s | %-*s | %-*s |" % (
+                    pkg_len, "Package", src_len, "Source", why_len, "Why"),
+                file=f)
+            print(
+                ("-" * pkg_len) + "-+-" +
+                ("-" * src_len) + "-+-" +
+                ("-" * why_len) + "-+",
+                file=f)
+            for pkg in packages:
+                print(
+                    "%-*s | %-*s | %-*s |" % (
+                        pkg_len, pkg, src_len, pkg, why_len, why),
+                    file=f)
+            print(("-" * (pkg_len + src_len + why_len + 6)) + "-+", file=f)
+            print("%*s |" % (pkg_len + src_len + why_len + 6, ""), file=f)
+
     def test_seed_packages(self):
         self.write_structure([["base", []]])
-        arch_output_dir = os.path.join(self.temp_dir, "i386")
-        os.mkdir(arch_output_dir)
-        with open(os.path.join(arch_output_dir, "base"), "w") as base:
-            # A real germinate output file is more complex than this, but
-            # this is more than enough for testing.
-            print(
-                dedent("""\
-                    Package     | Source      | Why                     |
-                    ------------+-------------+-------------------------+
-                    base-files  | base-files  | Ubuntu.Raring base seed |
-                    base-passwd | base-passwd | Ubuntu.Raring base seed |
-                    ----------------------------------------------------+
-                                                                        |"""),
-                file=base)
-        output = GerminateOutput(self.config, self.structure)
+        self.write_seed_output("i386", "base", ["base-files", "base-passwd"])
+        output = GerminateOutput(self.config, self.temp_dir)
         self.assertEqual(
             ["base-files", "base-passwd"],
             output.seed_packages("i386", "base"))
@@ -575,7 +605,7 @@ class TestGerminateOutput(TestCase):
 
     def test_master_seeds_onlysource(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["CDIMAGE_ONLYSOURCE"] = "1"
         self.assertEqual([
             "required", "minimal", "boot", "standard", "desktop-common",
@@ -589,7 +619,7 @@ class TestGerminateOutput(TestCase):
 
     def test_master_seeds_dvd_ubuntu_raring(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["CDIMAGE_DVD"] = "1"
@@ -598,7 +628,7 @@ class TestGerminateOutput(TestCase):
 
     def test_master_seeds_install_ubuntu_raring(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["CDIMAGE_INSTALL"] = "1"
@@ -610,7 +640,7 @@ class TestGerminateOutput(TestCase):
 
     def test_master_seeds_live_ubuntu_raring(self):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
@@ -627,20 +657,270 @@ class TestGerminateOutput(TestCase):
             yield "minimal"
 
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
-        self.config["PROJECT"] = "ubuntu"
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["DIST"] = "raring"
         mock_master_seeds.side_effect = side_effect
         self.assertEqual([
             "#include <ubuntu/raring/required>",
             "#include <ubuntu/raring/minimal>",
-        ], list(output.master_task_entries()))
+        ], list(output.master_task_entries("ubuntu")))
 
     @mock.patch(
         "cdimage.germinate.GerminateOutput.master_seeds", return_value=[])
     def test_master_task_entries_no_seeds(self, mock_master_seeds):
         self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.structure)
-        self.config["PROJECT"] = "ubuntu"
+        output = GerminateOutput(self.config, self.temp_dir)
         self.config["DIST"] = "raring"
-        self.assertRaises(NoMasterSeeds, list, output.master_task_entries())
+        self.assertRaises(
+            NoMasterSeeds, list, output.master_task_entries("ubuntu"))
+
+    def test_tasks_output_dir(self):
+        self.write_ubuntu_structure()
+        output = GerminateOutput(self.config, self.temp_dir)
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "scratch", "ubuntu", "raring", "daily",
+                "tasks"),
+            output.tasks_output_dir("ubuntu"))
+
+    def test_task_packages_plain(self):
+        self.write_structure([["base", []]])
+        self.write_seed_output("i386", "base", ["base-files", "base-passwd"])
+        output = GerminateOutput(self.config, self.temp_dir)
+        self.assertEqual(
+            ["base-files", "base-passwd"],
+            list(output.task_packages("i386", "base", "base")))
+
+    def test_task_packages_installer(self):
+        # kernel-image-* is excluded from the installer seed.
+        self.write_structure([["installer", []]])
+        self.write_seed_output(
+            "i386", "installer", [
+                "block-modules-3.8.0-6-generic-di",
+                "kernel-image-3.8.0-6-generic-di",
+            ])
+        self.config["CDIMAGE_INSTALL_BASE"] = "1"
+        output = GerminateOutput(self.config, self.temp_dir)
+        self.assertEqual(
+            ["block-modules-3.8.0-6-generic-di"],
+            list(output.task_packages("i386", "installer", "installer")))
+
+    def test_task_packages_gutsy_ps3_hack(self):
+        self.write_structure([["boot", []], ["installer", []]])
+        self.write_seed_output(
+            "powerpc+ps3", "boot", ["linux-image-2.6.22-14-powerpc64-smp"])
+        self.write_seed_output(
+            "powerpc+ps3", "installer", [
+                "block-modules-2.6.22-14-powerpc-di",
+                "block-modules-2.6.22-14-powerpc64-smp-di",
+            ])
+        self.config["DIST"] = "gutsy"
+        self.config["CDIMAGE_INSTALL_BASE"] = "1"
+        output = GerminateOutput(self.config, self.temp_dir)
+        self.assertEqual(
+            ["linux-image-2.6.22-14-cell"],
+            list(output.task_packages("powerpc+ps3", "boot", "boot")))
+        self.assertEqual(
+            ["block-modules-2.6.22-14-cell-di"],
+            list(output.task_packages(
+                "powerpc+ps3", "installer", "installer")))
+
+    def test_task_packages_precise_kernels(self):
+        self.write_structure([["boot", []], ["installer", []]])
+        self.write_seed_output(
+            "i386", "boot", ["linux-image-3.2.0-23-generic-pae"])
+        self.write_seed_output(
+            "i386", "installer", ["block-modules-3.2.0-23-generic-pae-di"])
+        self.config["DIST"] = "precise"
+        self.config["CDIMAGE_INSTALL_BASE"] = "1"
+        output = GerminateOutput(self.config, self.temp_dir)
+        for project, flavour in (
+            ("ubuntu", "generic-pae"),
+            ("xubuntu", "generic"),
+            ("lubuntu", "generic"),
+        ):
+            self.config["PROJECT"] = project
+            self.assertEqual(
+                ["linux-image-3.2.0-23-%s" % flavour],
+                list(output.task_packages("i386", "boot", "boot")))
+            self.assertEqual(
+                ["block-modules-3.2.0-23-%s-di" % flavour],
+                list(output.task_packages("i386", "installer", "installer")))
+
+    # TODO: installer_initrds, installer_subarches untested
+
+    def test_initrd_packages(self):
+        self.write_ubuntu_structure()
+        manifest_path = os.path.join(
+            self.temp_dir, "ftp", "dists", "raring", "main", "installer-i386",
+            "current", "images", "MANIFEST.udebs")
+        os.makedirs(os.path.dirname(manifest_path))
+        with open(manifest_path, "w") as manifest:
+            print(dedent("""\
+                cdrom/initrd.gz
+                \tanna 1.45ubuntu1 i386
+                \tcdrom-detect 1.43ubuntu1 all
+                netboot/netboot.tar.gz
+                \tdownload-installer 1.32ubuntu1 all
+                \tnet-retriever 1.32ubuntu1 i386"""), file=manifest)
+        self.config["DIST"] = "raring"
+        output = GerminateOutput(self.config, self.temp_dir)
+        self.assertEqual(
+            set(["anna", "cdrom-detect"]),
+            output.initrd_packages("./cdrom/initrd.gz", "i386"))
+        self.assertEqual(
+            set(["download-installer", "net-retriever"]),
+            output.initrd_packages("./netboot/netboot.tar.gz", "i386"))
+        self.assertEqual(set(), output.initrd_packages("unknown", "powerpc"))
+
+    # TODO: task_project untested
+
+    def test_task_headers(self):
+        self.write_ubuntu_structure()
+        seedtext_path = os.path.join(self.temp_dir, "i386", "desktop.seedtext")
+        os.makedirs(os.path.dirname(seedtext_path))
+        with open(seedtext_path, "w") as seedtext:
+            print(dedent("""\
+                Task-Per-Derivative: 1
+                Task-Key: ubuntu-desktop
+                Task-Seeds: desktop-common
+
+                = Seed text starts here ="""), file=seedtext)
+        output = GerminateOutput(self.config, self.temp_dir)
+        expected = {
+            "per-derivative": "1",
+            "key": "ubuntu-desktop",
+            "seeds": "desktop-common",
+        }
+        self.assertEqual(expected, output.task_headers("i386", "desktop"))
+        self.assertEqual({}, output.task_headers("i386", "missing"))
+
+    # TODO: seed_task_mapping <= gutsy untested
+
+    def test_seed_task_mapping(self):
+        self.write_ubuntu_structure()
+        seed_dir = os.path.join(self.temp_dir, "i386")
+        os.makedirs(seed_dir)
+        with open(os.path.join(
+                seed_dir, "standard.seedtext"), "w") as seedtext:
+            print("Task-Key: ubuntu-standard", file=seedtext)
+        with open(os.path.join(seed_dir, "desktop.seedtext"), "w") as seedtext:
+            print(dedent("""\
+                Task-Per-Derivative: 1
+                Task-Seeds: desktop-common"""), file=seedtext)
+        self.config["DIST"] = "raring"
+        output = GerminateOutput(self.config, self.temp_dir)
+        expected = [
+            (["standard"], "standard"),
+            (["desktop", "desktop-common"], "ubuntu-desktop"),
+        ]
+        self.assertEqual(
+            expected, list(output.seed_task_mapping("ubuntu", "i386")))
+
+    def test_write_tasks_project(self):
+        self.write_ubuntu_structure()
+        for arch in "amd64", "i386":
+            seed_dir = os.path.join(self.temp_dir, arch)
+            os.makedirs(seed_dir)
+            self.write_seed_output(arch, "required", ["base-files-%s" % arch])
+            self.write_seed_output(arch, "minimal", ["adduser-%s" % arch])
+            self.write_seed_output(arch, "desktop", ["xterm", "firefox"])
+            self.write_seed_output(arch, "live", ["xterm"])
+            with open(os.path.join(
+                    seed_dir, "minimal.seedtext"), "w") as seedtext:
+                print("Task-Seeds: required", file=seedtext)
+            with open(os.path.join(
+                    seed_dir, "desktop.seedtext"), "w") as seedtext:
+                print("Task-Per-Derivative: 1", file=seedtext)
+            with open(os.path.join(
+                    seed_dir, "live.seedtext"), "w") as seedtext:
+                print("Task-Per-Derivative: 1", file=seedtext)
+        self.config["DIST"] = "raring"
+        self.config["ARCHES"] = "amd64 i386"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.config["CDIMAGE_LIVE"] = "1"
+        output = GerminateOutput(self.config, self.temp_dir)
+        output.write_tasks_project("ubuntu")
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+            "tasks")
+        self.assertCountEqual([
+            "required", "minimal", "desktop", "live",
+            "override.amd64", "override.i386",
+            "important.amd64", "important.i386",
+            "MASTER",
+        ], os.listdir(output_dir))
+        with open(os.path.join(output_dir, "required")) as f:
+            self.assertEqual(
+                dedent("""\
+                    #ifdef ARCH_amd64
+                    base-files-amd64
+                    #endif /* ARCH_amd64 */
+                    #ifdef ARCH_i386
+                    base-files-i386
+                    #endif /* ARCH_i386 */
+                    """),
+                f.read())
+        with open(os.path.join(output_dir, "minimal")) as f:
+            self.assertEqual(
+                dedent("""\
+                    #ifdef ARCH_amd64
+                    adduser-amd64
+                    #endif /* ARCH_amd64 */
+                    #ifdef ARCH_i386
+                    adduser-i386
+                    #endif /* ARCH_i386 */
+                    """),
+                f.read())
+        with open(os.path.join(output_dir, "desktop")) as f:
+            self.assertEqual(
+                dedent("""\
+                    #ifdef ARCH_amd64
+                    firefox
+                    xterm
+                    #endif /* ARCH_amd64 */
+                    #ifdef ARCH_i386
+                    firefox
+                    xterm
+                    #endif /* ARCH_i386 */
+                    """),
+                f.read())
+        with open(os.path.join(output_dir, "live")) as f:
+            self.assertEqual(
+                dedent("""\
+                    #ifdef ARCH_amd64
+                    xterm
+                    #endif /* ARCH_amd64 */
+                    #ifdef ARCH_i386
+                    xterm
+                    #endif /* ARCH_i386 */
+                    """),
+                f.read())
+        with open(os.path.join(output_dir, "override.amd64")) as f:
+            self.assertEqual(
+                dedent("""\
+                    adduser-amd64  Task  minimal
+                    base-files-amd64  Task  minimal
+                    firefox  Task  ubuntu-desktop
+                    xterm  Task  ubuntu-desktop, ubuntu-live
+                    """),
+                f.read())
+        with open(os.path.join(output_dir, "override.i386")) as f:
+            self.assertEqual(
+                dedent("""\
+                    adduser-i386  Task  minimal
+                    base-files-i386  Task  minimal
+                    firefox  Task  ubuntu-desktop
+                    xterm  Task  ubuntu-desktop, ubuntu-live
+                    """),
+                f.read())
+        with open(os.path.join(output_dir, "important.amd64")) as f:
+            self.assertEqual("adduser-amd64\nbase-files-amd64\n", f.read())
+        with open(os.path.join(output_dir, "important.i386")) as f:
+            self.assertEqual("adduser-i386\nbase-files-i386\n", f.read())
+        with open(os.path.join(output_dir, "MASTER")) as f:
+            self.assertEqual("#include <ubuntu/raring/ship-live>\n", f.read())
+
+    # TODO: write_tasks untested

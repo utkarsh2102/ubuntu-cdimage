@@ -596,8 +596,15 @@ class TestBuildImageSet(TestCase):
                 self.assertFalse(build_image_set_locked(self.config, 0))
             except AssertionError:
                 stderr = os.fdopen(original_stderr, "w", 1)
+                try:
+                    with open(log_path) as log:
+                        stderr.write(log.read())
+                except IOError:
+                    pass
                 traceback.print_exc(file=stderr)
                 stderr.flush()
+                os._exit(1)
+            except Exception:
                 os._exit(1)
             os._exit(0)
         else:  # parent
@@ -611,20 +618,42 @@ class TestBuildImageSet(TestCase):
 
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.build.extract_debootstrap")
-    @mock.patch("cdimage.build.Germination.run")
+    @mock.patch("cdimage.germinate.GerminateOutput.write_tasks")
     @mock.patch("cdimage.build.DailyTreePublisher.publish")
     def test_build_image_set_locked(
-            self, mock_publish, mock_germinate_run,
-            mock_extract_debootstrap, mock_call):
+            self, mock_publish, mock_write_tasks, mock_extract_debootstrap,
+            mock_call):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 i386"
+        self.config["CPUARCHES"] = "amd64 i386"
+
         britney_makefile = os.path.join(
             self.temp_dir, "britney", "update_out", "Makefile")
         os.makedirs(os.path.dirname(britney_makefile))
         touch(britney_makefile)
         os.makedirs(os.path.join(self.temp_dir, "etc"))
+        germinate_path = os.path.join(
+            self.temp_dir, "germinate", "bin", "germinate")
+        os.makedirs(os.path.dirname(germinate_path))
+        touch(germinate_path)
+        os.chmod(germinate_path, 0o755)
+        germinate_output = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily", "germinate")
+        log_dir = os.path.join(self.temp_dir, "log", "ubuntu", "raring")
+
+        def side_effect(command, *args, **kwargs):
+            if command[0] == germinate_path:
+                for arch in self.config.arches:
+                    structure = os.path.join(
+                        germinate_output, arch, "structure")
+                    osextras.ensuredir(os.path.dirname(structure))
+                    touch(structure)
+
+        mock_call.side_effect = side_effect
+
         pid = os.fork()
         if pid == 0:  # child
             original_stderr = os.dup(sys.stderr.fileno())
@@ -632,28 +661,50 @@ class TestBuildImageSet(TestCase):
                 self.assertTrue(build_image_set_locked(self.config, 0))
                 date = self.config["CDIMAGE_DATE"]
                 debian_cd_dir = os.path.join(self.temp_dir, "debian-cd")
+
+                def germinate_command(arch):
+                    return mock.call([
+                        germinate_path,
+                        "--seed-source", mock.ANY,
+                        "--mirror", "file://%s/" % germinate_output,
+                        "--seed-dist", "ubuntu.raring",
+                        "--dist", "raring,raring-security,raring-updates",
+                        "--arch", arch,
+                        "--components", "main",
+                        "--no-rdepends",
+                        "--bzr",
+                    ], cwd=os.path.join(germinate_output, arch))
+
                 mock_call.assert_has_calls([
                     mock.call(["anonftpsync"]),
                     mock.call([
                         "make", "-C", os.path.dirname(britney_makefile)]),
-                    mock.call(["germinate-to-tasks", "daily"]),
+                    germinate_command("amd64"),
+                    germinate_command("i386"),
                     mock.call(["update-tasks", date, "daily"]),
                     mock.call(
                         ["./build_all.sh"], cwd=debian_cd_dir, env=mock.ANY),
                     mock.call(["purge-old-images", "daily"])
                 ])
                 mock_extract_debootstrap.assert_called_once_with(self.config)
-                mock_germinate_run.assert_called_once_with()
+                mock_write_tasks.assert_called_once_with()
                 mock_publish.assert_called_once_with(date)
             except AssertionError:
                 stderr = os.fdopen(original_stderr, "w", 1)
+                try:
+                    for entry in os.listdir(log_dir):
+                        with open(os.path.join(log_dir, entry)) as log:
+                            stderr.write(log.read())
+                except IOError:
+                    pass
                 traceback.print_exc(file=stderr)
                 stderr.flush()
+                os._exit(1)
+            except Exception:
                 os._exit(1)
             os._exit(0)
         else:  # parent
             self.wait_for_pid(pid, 0)
-            log_dir = os.path.join(self.temp_dir, "log", "ubuntu", "raring")
             self.assertTrue(os.path.isdir(log_dir))
             log_entries = os.listdir(log_dir)
             self.assertEqual(1, len(log_entries))
@@ -668,6 +719,8 @@ class TestBuildImageSet(TestCase):
                     DATE
                     ===== Germinating =====
                     DATE
+                    Germinating for raring/amd64 ...
+                    Germinating for raring/i386 ...
                     ===== Generating new task lists =====
                     DATE
                     ===== Checking for other task changes =====

@@ -30,13 +30,16 @@ from cdimage.germinate import GerminateOutput
 
 def main():
     parser = OptionParser(
-        "%prog STRUCTURE "
+        "%prog DIRECTORY "
         "all|tasks|installer|debootstrap|base|ship-live|addon|dvd")
     _, args = parser.parse_args()
     if len(args) < 1:
-        parser.error("need structure file name")
+        parser.error("need Germinate output directory")
     if len(args) < 2:
         parser.error("need mode")
+    # Smooth out API change for manual calls.
+    if os.path.isfile(args[0]) and os.path.basename(args[0]) == "STRUCTURE":
+        args[0] = os.path.dirname(args[0])
     germinate_output = GerminateOutput(config, args[0])
     for seed in germinate_output.list_seeds(args[1]):
         print(seed)
