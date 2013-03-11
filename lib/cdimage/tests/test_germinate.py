@@ -169,6 +169,7 @@ class TestGermination(TestCase):
             ("ubuntu-server", "raring", "ubuntu.raring"),
             ("jeos", "breezy", "jeos.breezy"),
             ("jeos", "hardy", "ubuntu.hardy"),
+            ("ubuntukylin", "raring", "ubuntu.raring"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
         ):
             self.config["DIST"] = series

@@ -120,6 +120,8 @@ class Germination:
         if (project in ("ubuntu-server", "jeos") and
                 self.config.series != "breezy"):
             return "ubuntu.%s" % self.config.series
+        elif project == "ubuntukylin":
+            return "ubuntu.%s" % self.config.series
         elif project == "ubuntu-netbook":
             return "netbook.%s" % self.config.series
         else:
