@@ -530,7 +530,7 @@ class GerminateOutput:
                     continue
                 elif seed == "server" and project != "edubuntu":
                     continue
-                elif seed == "ship" and series <= "breezy":
+                elif seed == "ship" and series >= "dapper":
                     continue
 
                 if seed in (
