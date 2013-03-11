@@ -117,7 +117,8 @@ class Germination:
             return [pattern % self.config.series for pattern in dist_patterns]
 
     def seed_dist(self, project):
-        if project == "ubuntu-server" and self.config.series != "breezy":
+        if (project in ("ubuntu-server", "jeos") and
+                self.config.series != "breezy"):
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntu-netbook":
             return "netbook.%s" % self.config.series
@@ -279,6 +280,8 @@ class GerminateOutput:
                     ship = "server-ship"
             elif project == "kubuntu-active":
                 ship = "active-ship"
+            elif project == "jeos":
+                ship = "jeos"
             for seed in self._inheritance(ship):
                 yield seed
             if self.config["CDIMAGE_DVD"]:
@@ -498,7 +501,7 @@ class GerminateOutput:
 
     def task_project(self, project):
         # ubuntu-server really wants ubuntu-* tasks.
-        if project == "ubuntu-server":
+        if project in ("ubuntu-server", "jeos"):
             return "ubuntu"
         else:
             return project

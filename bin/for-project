@@ -32,6 +32,10 @@ case $1 in
 		export PROJECT=ubuntu-server
 		export CAPPROJECT=Ubuntu-Server
 		;;
+	jeos)
+		export PROJECT=jeos
+		export CAPPROJECT=Ubuntu-JeOS
+		;;
 	ubuntu-netbook)
 		export PROJECT=ubuntu-netbook
 		export CAPPROJECT=Ubuntu-Netbook
@@ -75,6 +79,7 @@ Recognised projects:
   xubuntu
   gobuntu
   ubuntu-server
+  jeos
   ubuntu-netbook
   ubuntustudio
   mythbuntu

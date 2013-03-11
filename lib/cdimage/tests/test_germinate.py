@@ -167,6 +167,8 @@ class TestGermination(TestCase):
             ("ubuntu", "raring", "ubuntu.raring"),
             ("ubuntu-server", "breezy", "ubuntu-server.breezy"),
             ("ubuntu-server", "raring", "ubuntu.raring"),
+            ("jeos", "breezy", "jeos.breezy"),
+            ("jeos", "hardy", "ubuntu.hardy"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
         ):
             self.config["DIST"] = series
@@ -484,6 +486,17 @@ class TestGerminateOutput(TestCase):
             "active-ship",
         ]
         self.assertEqual(expected, list(output.list_seeds("tasks")))
+
+    def test_list_seeds_tasks_jeos(self):
+        self.write_structure([
+            ["required", []],
+            ["minimal", ["required"]],
+            ["jeos", ["minimal"]],
+        ])
+        output = GerminateOutput(self.config, self.temp_dir)
+        self.config["PROJECT"] = "jeos"
+        self.assertEqual(
+            ["required", "minimal", "jeos"], list(output.list_seeds("tasks")))
 
     def test_list_seeds_installer(self):
         self.write_ubuntu_breezy_structure()

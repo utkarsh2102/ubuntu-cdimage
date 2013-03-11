@@ -8,6 +8,8 @@ ubuntu-core		daily			precise			armhf amd64 i386
 ubuntu-core		daily			quantal-		armhf amd64 i386
 *			livecd-base		oneiric-		i386 amd64 powerpc
 
+jeos			*			*			i386
+
 mythbuntu		*			warty-edgy		amd64 i386 powerpc
 mythbuntu		*			*			amd64 i386
 
