@@ -583,6 +583,9 @@ class DailyTreePublisher(Publisher):
         elif project == "ubuntu-chinese-edition":
             if image_type == "daily-live" and publish_type == "desktop":
                 return "Ubuntu Chinese Desktop %s" % arch
+        elif project == "ubuntukylin":
+            if image_type == "daily-live" and publish_type == "desktop":
+                return "UbuntuKylin Desktop %s" % arch
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
