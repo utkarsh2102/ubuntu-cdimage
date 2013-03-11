@@ -76,6 +76,7 @@ def configure_for_project(config):
         "ubuntustudio",
         "mythbuntu",
         "lubuntu",
+        "ubuntukylin",
         "ubuntu-moblin-remix",
     ):
         config["CDIMAGE_UNSUPPORTED"] = "1"

@@ -52,6 +52,10 @@ case $1 in
 		export PROJECT=lubuntu
 		export CAPPROJECT=Lubuntu
 		;;
+	ubuntukylin)
+		export PROJECT=ubuntukylin
+		export CAPPROJECT=UbuntuKylin
+		;;
 	ubuntu-moblin-remix)
 		export PROJECT=ubuntu-moblin-remix
 		export CAPPROJECT=Ubuntu-Moblin-Remix
@@ -84,6 +88,7 @@ Recognised projects:
   ubuntustudio
   mythbuntu
   lubuntu
+  ubuntukylin
   ubuntu-moblin-remix
   ubuntu-core
   tocd3
