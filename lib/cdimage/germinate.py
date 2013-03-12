@@ -501,6 +501,23 @@ class GerminateOutput:
                         packages.add(line.split()[0])
         return packages
 
+    def common_initrd_packages(self, arch):
+        initrd_packages_sets = []
+        if self.config["DIST"] >= "jaunty":
+            # Remove installer packages that are in both the cdrom and
+            # netboot initrds; there's no point duplicating these.
+            cpuarch = arch.split("+")[0]
+            initrds = self.installer_initrds(cpuarch)
+            subarches = self.installer_subarches(cpuarch)
+            for initrd in initrds:
+                for subarch in subarches:
+                    initrd_packages_sets.append(self.initrd_packages(
+                        "%s/%s" % (subarch, initrd), cpuarch))
+        if initrd_packages_sets:
+            return set.intersection(*initrd_packages_sets)
+        else:
+            return set()
+
     def task_project(self, project):
         # ubuntu-server really wants ubuntu-* tasks.
         if project in ("ubuntu-server", "jeos"):
@@ -588,18 +605,7 @@ class GerminateOutput:
         osextras.ensuredir(output_dir)
 
         for arch in self.config.arches:
-            initrd_packages = set()
-            if series >= "jaunty":
-                # Remove installer packages that are in both the cdrom and
-                # netboot initrds; there's no point duplicating these.
-                cpuarch = arch.split("+")[0]
-                initrds = self.installer_initrds(cpuarch)
-                subarches = self.installer_subarches(cpuarch)
-                for initrd in initrds:
-                    for subarch in subarches:
-                        initrd_packages |= self.initrd_packages(
-                            "%s/%s" % (subarch, initrd), cpuarch)
-
+            initrd_packages = self.common_initrd_packages(arch)
             packages = defaultdict(list)
             cpparch = arch.replace("+", "_")
             for seed in self.list_seeds("all"):
