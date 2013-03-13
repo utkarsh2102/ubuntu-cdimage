@@ -150,11 +150,12 @@ if [ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_DVD" ] && dist_ge lucid; then
 	for arch in $ARCHES; do
 		case $arch in
 			amd64|i386)
-				if dist_ge raring; then
-					# Fetch the Ubuntu Server squashfs for Edubuntu Server
-					fetch "$(PROJECT=ubuntu-server find-live-filesystem "$arch" squashfs)" \
-						"$LIVE_OUT/$arch.server-squashfs"
-				fi
+# FIXME: Disabled for raring (LP: #1154601)
+#				if dist_ge raring; then
+#					# Fetch the Ubuntu Server squashfs for Edubuntu Server
+#					fetch "$(PROJECT=ubuntu-server find-live-filesystem "$arch" squashfs)" \
+#						"$LIVE_OUT/$arch.server-squashfs"
+#				fi
 
 				# Fetch the i386 LTSP chroot for Edubuntu Terminal Server
 				fetch "$(find-live-filesystem "$arch" ltsp-squashfs)" \
