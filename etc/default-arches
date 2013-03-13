@@ -13,6 +13,8 @@ jeos			*			*			i386
 mythbuntu		*			warty-edgy		amd64 i386 powerpc
 mythbuntu		*			*			amd64 i386
 
+ubuntu-gnome		*			*			amd64 i386
+
 ubuntu-netbook		*			*			i386
 
 ubuntu-server		*			intrepid-jaunty		amd64 hppa i386 ia64 powerpc powerpc+ps3 sparc
