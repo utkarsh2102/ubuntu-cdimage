@@ -251,6 +251,7 @@ class TestBuildImageSet(TestCase):
             ("mythbuntu", "raring", False, True),
             ("lubuntu", "raring", False, True),
             ("ubuntukylin", "raring", False, True),
+            ("ubuntu-gnome", "raring", False, True),
             ("ubuntu-moblin-remix", "raring", False, True),
         ):
             config = Config(read=False)
