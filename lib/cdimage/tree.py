@@ -57,6 +57,7 @@ projects = [
     "ubuntu-headless",
     "ubuntu-netbook",
     "ubuntu-server",
+    "ubuntukylin",
     "ubuntustudio",
     "xubuntu",
 ]
