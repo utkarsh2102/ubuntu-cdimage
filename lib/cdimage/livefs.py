@@ -123,14 +123,28 @@ def live_build_options(config, arch):
     return options
 
 
-def live_build_project(config, arch):
+def live_project(config, arch):
     project = config.project
     series = config["DIST"]
+
+    if project == "livecd-base":
+        liveproject = "base"
+    elif project == "tocd3.1":
+        liveproject = "tocd"
+    else:
+        liveproject = project
+
     cpuarch, subarch = split_arch(arch)
     if cpuarch == "lpia" and series <= "hardy":
-        return "%s-lpia" % project
-    else:
-        return project
+        liveproject = "%s-lpia" % liveproject
+
+    if config["CDIMAGE_DVD"]:
+        if ((project in ("ubuntu", "kubuntu") and series >= "hardy") or
+                (project == "edubuntu" and series >= "karmic") or
+                (project == "ubuntustudio" and series >= "precise")):
+            liveproject += "-dvd"
+
+    return liveproject
 
 
 def live_build_command(config, arch):
@@ -160,7 +174,7 @@ def live_build_command(config, arch):
 
     if config.subproject:
         command.extend(["-r", config.subproject])
-    command.append(live_build_project(config, arch))
+    command.append(live_project(config, arch))
 
     return command
 
@@ -244,24 +258,6 @@ def run_live_builds(config):
     return success
 
 
-def live_project(config):
-    project = config.project
-    series = config["DIST"]
-
-    if project == "livecd-base":
-        liveproject = "base"
-    elif project == "tocd3.1":
-        liveproject = "tocd"
-    else:
-        liveproject = project
-    if config["CDIMAGE_DVD"]:
-        if ((project in ("ubuntu", "kubuntu") and series >= "hardy") or
-                (project == "edubuntu" and series >= "karmic") or
-                (project == "ubuntustudio" and series >= "precise")):
-            liveproject += "-dvd"
-    return liveproject
-
-
 def livecd_base(config, arch):
     if config["LIVECD_BASE"]:
         return config["LIVECD_BASE"]
@@ -274,7 +270,7 @@ def livecd_base(config, arch):
     else:
         root = "http://%s/~buildd/LiveCD" % live_builder(config, arch)
 
-    liveproject = live_project(config)
+    liveproject = live_project(config, arch)
     if config["SUBPROJECT"]:
         liveproject += "-%s" % config["SUBPROJECT"]
     if subarch:
@@ -427,7 +423,7 @@ def live_item_paths(config, arch, item):
     project = config.project
     series = config["DIST"]
     root = livecd_base(config, arch)
-    liveproject = live_project(config)
+    liveproject = live_project(config, arch)
     if subarch:
         liveproject_subarch = "%s-%s" % (liveproject, subarch)
     else:

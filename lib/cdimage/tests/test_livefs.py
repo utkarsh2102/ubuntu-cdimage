@@ -38,7 +38,6 @@ from cdimage.livefs import (
     live_build_full_name,
     live_build_notify_failure,
     live_build_options,
-    live_build_project,
     live_builder,
     live_item_paths,
     live_project,
@@ -64,13 +63,14 @@ class TestSplitArch(TestCase):
 
 
 class TestLiveProject(TestCase):
-    def assertProjectEqual(self, expected, project, series, **kwargs):
+    def assertProjectEqual(self, expected, project, series, arch="i386",
+                           **kwargs):
         config = Config(read=False)
         config["PROJECT"] = project
         config["DIST"] = series
         for key, value in kwargs.items():
             config[key.upper()] = value
-        self.assertEqual(expected, live_project(config))
+        self.assertEqual(expected, live_project(config, arch))
 
     def test_project_livecd_base(self):
         self.assertProjectEqual("base", "livecd-base", "dapper")
@@ -109,6 +109,10 @@ class TestLiveProject(TestCase):
         for series in all_series[15:]:
             self.assertProjectEqual(
                 "ubuntustudio-dvd", "ubuntustudio", series, cdimage_dvd="1")
+
+    def test_lpia(self):
+        self.assertProjectEqual("ubuntu-lpia", "ubuntu", "hardy", arch="lpia")
+        self.assertProjectEqual("ubuntu", "ubuntu", "intrepid", arch="lpia")
 
 
 class TestLiveBuilder(TestCase):
@@ -217,19 +221,6 @@ class TestLiveBuildOptions(TestCase):
             self.config["DIST"] = series
             self.assertEqual(
                 ["-f", fstype], live_build_options(self.config, "i386"))
-
-
-class TestLiveBuildProject(TestCase):
-    def test_live_build_project(self):
-        config = Config(read=False)
-        config["PROJECT"] = "ubuntu"
-        for series, arch, output in (
-            ("raring", "i386", "ubuntu"),
-            ("hardy", "lpia", "ubuntu-lpia"),
-            ("intrepid", "lpia", "ubuntu"),
-        ):
-            config["DIST"] = series
-            self.assertEqual(output, live_build_project(config, arch))
 
 
 class TestLiveBuildCommand(TestCase):
