@@ -24,15 +24,22 @@ import sys
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.build import build_image_set
 from cdimage.config import Config
+from cdimage.livefs import run_live_builds
 
 
 def main():
     parser = OptionParser("%prog")
-    parser.parse_args()
+    parser.add_option(
+        "--live", default=False, action="store_true",
+        help="build live filesystems first")
+    options, _ = parser.parse_args()
     config = Config(IMAGE_TYPE="daily")
     config["CDIMAGE_INSTALL"] = "1"
     if config.project == "edubuntu":
         config["CDIMAGE_ADDON"] = "1"
+    if options.live:
+        if not run_live_builds(config):
+            sys.exit(1)
     if not build_image_set(config):
         sys.exit(1)
 
