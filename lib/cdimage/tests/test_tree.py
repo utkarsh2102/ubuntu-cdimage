@@ -154,6 +154,8 @@ def mock_isotracker(target):
             else:
                 del sys.modules["isotracker"]
 
+    return wrapper
+
 
 class TestDailyTreePublisher(TestCase):
     def setUp(self):
