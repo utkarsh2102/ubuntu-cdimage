@@ -181,7 +181,8 @@ class TestLiveBuildOptions(TestCase):
         super(TestLiveBuildOptions, self).setUp()
         self.config = Config(read=False)
 
-    def test_armel(self):
+    def test_armel_preinstalled(self):
+        self.config["IMAGE_TYPE"] = "daily-preinstalled"
         for subarch, fstype in (
             ("mx5", "ext4"),
             ("omap", "ext4"),
@@ -194,7 +195,8 @@ class TestLiveBuildOptions(TestCase):
                 live_build_options(self.config, "armel+%s" % subarch))
         self.assertEqual([], live_build_options(self.config, "armel+other"))
 
-    def test_armhf(self):
+    def test_armhf_preinstalled(self):
+        self.config["IMAGE_TYPE"] = "daily-preinstalled"
         for subarch, fstype in (
             ("mx5", "ext4"),
             ("omap", "ext4"),

@@ -104,10 +104,12 @@ def live_build_options(config, arch):
     options = []
 
     cpuarch, subarch = split_arch(arch)
-    if cpuarch in ("armel", "armhf") and subarch in ("mx5", "omap", "omap4"):
-        options.extend(["-f", "ext4"])
-    elif cpuarch in ("armel", "armhf") and subarch in ("ac100", "nexus7"):
-        options.extend(["-f", "plain"])
+    if (cpuarch in ("armel", "armhf") and
+            config.image_type == "daily-preinstalled"):
+        if subarch in ("mx5", "omap", "omap4"):
+            options.extend(["-f", "ext4"])
+        elif subarch in ("ac100", "nexus7"):
+            options.extend(["-f", "plain"])
 
     if config.project == "ubuntu-core":
         options.extend(["-f", "plain"])
