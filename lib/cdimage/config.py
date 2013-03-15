@@ -295,6 +295,10 @@ class Config(defaultdict):
         return self["CAPPROJECT"]
 
     @property
+    def subproject(self):
+        return self["SUBPROJECT"]
+
+    @property
     def series(self):
         return str(self["DIST"])
 

@@ -17,16 +17,33 @@
 
 """Unit tests for cdimage.livefs."""
 
+from __future__ import print_function
+
 __metaclass__ = type
+
+import os
+import subprocess
+import time
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from cdimage.config import Config, all_series
 from cdimage.livefs import (
     NoLiveItem,
     flavours,
+    live_build_command,
+    live_build_full_name,
+    live_build_notify_failure,
+    live_build_options,
+    live_build_project,
     live_builder,
     live_item_paths,
     live_project,
     livecd_base,
+    run_live_builds,
     split_arch,
 )
 from cdimage.tests.helpers import TestCase
@@ -153,6 +170,284 @@ class TestLiveBuilder(TestCase):
     def test_sparc(self):
         for series in all_series:
             self.assertBuilderEqual("vivies.buildd", "sparc", series)
+
+
+class TestLiveBuildOptions(TestCase):
+    def setUp(self):
+        super(TestLiveBuildOptions, self).setUp()
+        self.config = Config(read=False)
+
+    def test_armel(self):
+        for subarch, fstype in (
+            ("mx5", "ext4"),
+            ("omap", "ext4"),
+            ("omap4", "ext4"),
+            ("ac100", "plain"),
+            ("nexus7", "plain"),
+        ):
+            self.assertEqual(
+                ["-f", fstype],
+                live_build_options(self.config, "armel+%s" % subarch))
+        self.assertEqual([], live_build_options(self.config, "armel+other"))
+
+    def test_armhf(self):
+        for subarch, fstype in (
+            ("mx5", "ext4"),
+            ("omap", "ext4"),
+            ("omap4", "ext4"),
+            ("ac100", "plain"),
+            ("nexus7", "plain"),
+        ):
+            self.assertEqual(
+                ["-f", fstype],
+                live_build_options(self.config, "armhf+%s" % subarch))
+        self.assertEqual([], live_build_options(self.config, "armhf+other"))
+
+    def test_ubuntu_core(self):
+        self.config["PROJECT"] = "ubuntu-core"
+        self.assertEqual(
+            ["-f", "plain"], live_build_options(self.config, "i386"))
+
+    def test_wubi(self):
+        self.config["SUBPROJECT"] = "wubi"
+        for series, fstype in (
+            ("precise", "ext3"),
+            ("quantal", "ext3"),  # ext4
+        ):
+            self.config["DIST"] = series
+            self.assertEqual(
+                ["-f", fstype], live_build_options(self.config, "i386"))
+
+
+class TestLiveBuildProject(TestCase):
+    def test_live_build_project(self):
+        config = Config(read=False)
+        config["PROJECT"] = "ubuntu"
+        for series, arch, output in (
+            ("raring", "i386", "ubuntu"),
+            ("hardy", "lpia", "ubuntu-lpia"),
+            ("intrepid", "lpia", "ubuntu"),
+        ):
+            config["DIST"] = series
+            self.assertEqual(output, live_build_project(config, arch))
+
+
+class TestLiveBuildCommand(TestCase):
+    def setUp(self):
+        super(TestLiveBuildCommand, self).setUp()
+        self.config = Config(read=False)
+        self.base_expected = [
+            "ssh", "-n", "-o", "StrictHostKeyChecking=no",
+            "-o", "BatchMode=yes",
+        ]
+
+    def contains_subsequence(self, haystack, needle):
+        # This is inefficient, but it doesn't matter much here.
+        for i in range(len(haystack) - len(needle) + 1):
+            if haystack[i:i + len(needle)] == needle:
+                return True
+        return False
+
+    def assertCommandContains(self, subsequence, arch):
+        observed = live_build_command(self.config, arch)
+        if not self.contains_subsequence(observed, subsequence):
+            self.fail("%s does not contain %s" % (observed, subsequence))
+
+    def test_basic(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        expected = self.base_expected + [
+            "buildd@cardamom.buildd", "/home/buildd/bin/BuildLiveCD",
+            "-l", "-A", "i386", "-d", "raring", "ubuntu",
+        ]
+        self.assertEqual(expected, live_build_command(self.config, "i386"))
+
+    def test_ubuntu_defaults_locale(self):
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        self.assertCommandContains(["-u", "zh_CN"], "i386")
+
+    def test_pre_live_build(self):
+        self.config["DIST"] = "natty"
+        self.assertNotIn("-l", live_build_command(self.config, "i386"))
+
+    @mock.patch(
+        "cdimage.livefs.live_build_options", return_value=["-f", "plain"])
+    def test_uses_live_build_options(self, *args):
+        self.assertCommandContains(["-f", "plain"], "i386")
+
+    def test_subarch(self):
+        self.assertCommandContains(["-s", "omap4"], "armhf+omap4")
+
+    def test_proposed(self):
+        self.config["PROPOSED"] = "1"
+        self.assertIn("-p", live_build_command(self.config, "i386"))
+
+    def test_series(self):
+        self.config["DIST"] = "precise"
+        self.assertCommandContains(["-d", "precise"], "i386")
+
+    def test_subproject(self):
+        self.config["SUBPROJECT"] = "wubi"
+        self.assertCommandContains(["-r", "wubi"], "i386")
+
+    def test_project(self):
+        self.config["PROJECT"] = "kubuntu"
+        self.assertEqual(
+            "kubuntu", live_build_command(self.config, "i386")[-1])
+
+
+def mock_strftime(secs):
+    original_strftime = time.strftime
+    gmtime = time.gmtime(secs)
+    return mock.patch(
+        "time.strftime",
+        side_effect=lambda fmt, *args: original_strftime(fmt, gmtime))
+
+
+def mock_Popen(command):
+    original_Popen = subprocess.Popen
+    return mock.patch(
+        "subprocess.Popen",
+        side_effect=lambda *args, **kwargs: original_Popen(command))
+
+
+class TestRunLiveBuilds(TestCase):
+    def setUp(self):
+        super(TestRunLiveBuilds, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+
+    def test_live_build_full_name(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.assertEqual(
+            "ubuntu-i386", live_build_full_name(self.config, "i386"))
+        self.assertEqual(
+            "ubuntu-armhf-omap4",
+            live_build_full_name(self.config, "armhf+omap4"))
+        self.config["PROJECT"] = "kubuntu"
+        self.config["SUBPROJECT"] = "wubi"
+        self.assertEqual(
+            "kubuntu-wubi-i386", live_build_full_name(self.config, "i386"))
+
+    @mock.patch("cdimage.livefs.get_notify_addresses")
+    def test_live_build_notify_failure_debug(self, mock_notify_addresses):
+        self.config["DEBUG"] = "1"
+        live_build_notify_failure(self.config, None)
+        self.assertEqual(0, mock_notify_addresses.call_count)
+
+    @mock.patch("cdimage.livefs.send_mail")
+    def test_live_build_notify_failure_no_recipients(self, mock_send_mail):
+        live_build_notify_failure(self.config, None)
+        self.assertEqual(0, mock_send_mail.call_count)
+
+    @mock.patch("time.strftime", return_value="20130315")
+    @mock.patch("cdimage.livefs.urlopen", mock.mock_open(read_data=b""))
+    @mock.patch("cdimage.livefs.send_mail")
+    def test_live_build_notify_failure_no_log(self, mock_send_mail, *args):
+        self.config.root = self.use_temp_dir()
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        path = os.path.join(self.temp_dir, "production", "notify-addresses")
+        os.makedirs(os.path.dirname(path))
+        with open(path, "w") as notify_addresses:
+            print("ALL\tfoo@example.org", file=notify_addresses)
+        live_build_notify_failure(self.config, "i386")
+        mock_send_mail.assert_called_once_with(
+            "LiveFS ubuntu/raring/i386 failed to build on 20130315",
+            "buildlive", ["foo@example.org"], b"")
+
+    @mock.patch("time.strftime", return_value="20130315")
+    @mock.patch("cdimage.livefs.send_mail")
+    def test_live_build_notify_failure_log(self, mock_send_mail, *args):
+        self.config["PROJECT"] = "kubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        path = os.path.join(self.temp_dir, "production", "notify-addresses")
+        os.makedirs(os.path.dirname(path))
+        with open(path, "w") as notify_addresses:
+            print("ALL\tfoo@example.org", file=notify_addresses)
+        mock_urlopen = mock.mock_open(read_data=b"Log data\n")
+        with mock.patch("cdimage.livefs.urlopen", mock_urlopen):
+            live_build_notify_failure(self.config, "armhf+omap4")
+        mock_urlopen.assert_called_once_with(
+            "http://cadejo.buildd/~buildd/LiveCD/raring/kubuntu-omap4/latest/"
+            "livecd-20130315-armhf.out")
+        mock_send_mail.assert_called_once_with(
+            "LiveFS kubuntu-omap4/raring/armhf+omap4 failed to build on "
+            "20130315",
+            "buildlive", ["foo@example.org"], b"Log data\n")
+
+    @mock_strftime(1363355331)
+    @mock.patch("cdimage.livefs.live_build_command", return_value=["false"])
+    @mock.patch("cdimage.livefs.send_mail")
+    def test_run_live_builds_notifies_on_failure(self, mock_send_mail, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 i386"
+        path = os.path.join(self.temp_dir, "production", "notify-addresses")
+        os.makedirs(os.path.dirname(path))
+        with open(path, "w") as notify_addresses:
+            print("ALL\tfoo@example.org", file=notify_addresses)
+        mock_urlopen = mock.mock_open(read_data=b"Log data\n")
+        self.capture_logging()
+        with mock.patch("cdimage.livefs.urlopen", mock_urlopen):
+            self.assertFalse(run_live_builds(self.config))
+        self.assertCountEqual([
+            "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
+            "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
+            "ubuntu-amd64 on kapok.buildd finished at 2013-03-15 13:48:51 "
+            "(failed)",
+            "ubuntu-i386 on cardamom.buildd finished at 2013-03-15 13:48:51 "
+            "(failed)",
+            "No live filesystem builds succeeded.",
+        ], self.captured_log_messages())
+        mock_send_mail.assert_has_calls([
+            mock.call(
+                "LiveFS ubuntu/raring/amd64 failed to build on 20130315",
+                "buildlive", ["foo@example.org"], b"Log data\n"),
+            mock.call(
+                "LiveFS ubuntu/raring/i386 failed to build on 20130315",
+                "buildlive", ["foo@example.org"], b"Log data\n"),
+        ], any_order=True)
+
+    @mock_strftime(1363355331)
+    @mock_Popen(["true"])
+    @mock.patch("cdimage.livefs.live_build_notify_failure")
+    def test_run_live_builds(self, mock_live_build_notify_failure, mock_popen,
+                             *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 i386"
+        self.capture_logging()
+        self.assertTrue(run_live_builds(self.config))
+        self.assertCountEqual([
+            "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
+            "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
+            "ubuntu-amd64 on kapok.buildd finished at 2013-03-15 13:48:51 "
+            "(success)",
+            "ubuntu-i386 on cardamom.buildd finished at 2013-03-15 13:48:51 "
+            "(success)",
+        ], self.captured_log_messages())
+        expected_command_base = [
+            "ssh", "-n", "-o", "StrictHostKeyChecking=no",
+            "-o", "BatchMode=yes",
+        ]
+        mock_popen.assert_has_calls([
+            mock.call(
+                expected_command_base + [
+                    "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
+                    "-l", "-A", "amd64", "-d", "raring", "ubuntu",
+                ]),
+            mock.call(
+                expected_command_base + [
+                    "buildd@cardamom.buildd", "/home/buildd/bin/BuildLiveCD",
+                    "-l", "-A", "i386", "-d", "raring", "ubuntu",
+                ])
+        ])
+        self.assertEqual(0, mock_live_build_notify_failure.call_count)
 
 
 class TestLiveCDBase(TestCase):

@@ -164,6 +164,11 @@ class TestConfig(TestCase):
         config["CAPPROJECT"] = "Kubuntu"
         self.assertEqual("Kubuntu", config.capproject)
 
+    def test_subproject(self):
+        config = Config(read=False)
+        config["SUBPROJECT"] = "wubi"
+        self.assertEqual("wubi", config.subproject)
+
     def test_series(self):
         config = Config(read=False)
         config["DIST"] = "warty"

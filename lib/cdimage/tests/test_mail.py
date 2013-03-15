@@ -154,5 +154,5 @@ class TestNotify(TestCase):
         ]
         mock_popen.assert_called_once_with(
             expected_command, stdin=subprocess.PIPE)
-        mock_popen.return_value.stdin.write.assert_has_calls(
-            [mock.call("Body\nText\n"), mock.call("")])
+        mock_popen.return_value.stdin.write.assert_called_once_with(
+            b"Body\nText\n")

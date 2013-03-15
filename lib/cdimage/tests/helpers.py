@@ -72,9 +72,11 @@ class TestCase(unittest.TestCase):
         logger.addHandler(self.handler)
         logger.propagate = False
 
+    def captured_log_messages(self):
+        return [record.getMessage() for record in self.handler.buffer]
+
     def assertLogEqual(self, expected):
-        self.assertEqual(
-            expected, [record.getMessage() for record in self.handler.buffer])
+        self.assertEqual(expected, self.captured_log_messages())
 
     def make_deb(self, path, section, priority, files={}):
         build_dir = os.path.join(self.temp_dir, "make_deb")

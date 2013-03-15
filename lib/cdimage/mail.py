@@ -81,6 +81,8 @@ def send_mail(subject, generator, recipients, body, dry_run=False):
             mailer = subprocess.Popen(command, stdin=body)
         else:
             mailer = subprocess.Popen(command, stdin=subprocess.PIPE)
-            print(body, end="", file=mailer.stdin)
+            if bytes is not str and isinstance(body, str):
+                body = body.encode()
+            mailer.stdin.write(body)
             mailer.stdin.close()
         mailer.wait()

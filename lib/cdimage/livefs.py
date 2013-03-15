@@ -17,7 +17,19 @@
 
 __metaclass__ = type
 
+from contextlib import closing
+import os
+import subprocess
+import time
+try:
+    from urllib.error import URLError
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import URLError, urlopen
+
 from cdimage.config import Series
+from cdimage.log import logger
+from cdimage.mail import get_notify_addresses, send_mail
 
 
 class UnknownArchitecture(Exception):
@@ -86,6 +98,150 @@ def live_builder(config, arch):
     else:
         raise UnknownArchitecture(
             "No live filesystem builder known for %s" % arch)
+
+
+def live_build_options(config, arch):
+    options = []
+
+    cpuarch, subarch = split_arch(arch)
+    if cpuarch in ("armel", "armhf") and subarch in ("mx5", "omap", "omap4"):
+        options.extend(["-f", "ext4"])
+    elif cpuarch in ("armel", "armhf") and subarch in ("ac100", "nexus7"):
+        options.extend(["-f", "plain"])
+
+    if config.project == "ubuntu-core":
+        options.extend(["-f", "plain"])
+
+    if config.subproject == "wubi":
+        if config["DIST"] >= "quantal":
+            # TODO: Turn this back on once Wubi's resize2fs supports it.
+            #options.extend(["-f", "ext4"])
+            options.extend(["-f", "ext3"])
+        else:
+            options.extend(["-f", "ext3"])
+
+    return options
+
+
+def live_build_project(config, arch):
+    project = config.project
+    series = config["DIST"]
+    cpuarch, subarch = split_arch(arch)
+    if cpuarch == "lpia" and series <= "hardy":
+        return "%s-lpia" % project
+    else:
+        return project
+
+
+def live_build_command(config, arch):
+    command = [
+        "ssh", "-n", "-o", "StrictHostKeyChecking=no", "-o", "BatchMode=yes",
+        "buildd@%s" % live_builder(config, arch),
+        "/home/buildd/bin/BuildLiveCD",
+    ]
+
+    if config["UBUNTU_DEFAULTS_LOCALE"]:
+        command.extend(["-u", config["UBUNTU_DEFAULTS_LOCALE"]])
+    elif config["DIST"] >= "oneiric":
+        command.append("-l")
+
+    command.extend(live_build_options(config, arch))
+
+    cpuarch, subarch = split_arch(arch)
+    if cpuarch:
+        command.extend(["-A", cpuarch])
+    if subarch:
+        command.extend(["-s", subarch])
+
+    if config["PROPOSED"]:
+        command.append("-p")
+    if config.series:
+        command.extend(["-d", config.series])
+
+    if config.subproject:
+        command.extend(["-r", config.subproject])
+    command.append(live_build_project(config, arch))
+
+    return command
+
+
+# TODO: This is only used for logging, so it might be worth unifying with
+# live_build_notify_failure.
+def live_build_full_name(config, arch):
+    bits = [config.project]
+    if config.subproject:
+        bits.append(config.subproject)
+    cpuarch, subarch = split_arch(arch)
+    bits.append(cpuarch)
+    if subarch:
+        bits.append(subarch)
+    return "-".join(bits)
+
+
+def live_build_notify_failure(config, arch):
+    if config["DEBUG"]:
+        return
+
+    project = config.project
+    recipients = get_notify_addresses(config, project)
+    if not recipients:
+        return
+
+    livefs_id_bits = [project]
+    if config.subproject:
+        livefs_id_bits.append(config.subproject)
+    cpuarch, subarch = split_arch(arch)
+    if subarch:
+        livefs_id_bits.append(subarch)
+    if config["UBUNTU_DEFAULTS_LOCALE"]:
+        livefs_id_bits.append(config["UBUNTU_DEFAULTS_LOCALE"])
+    livefs_id = "-".join(livefs_id_bits)
+
+    # TODO: We have to guess the datestamp, which is unreliable.  We could
+    # do better by listing the remote directory.
+    datestamp = time.strftime("%Y%m%d")
+    log_url = "http://%s/~buildd/LiveCD/%s/%s/latest/livecd-%s-%s.out" % (
+        live_builder(config, arch), config.series, livefs_id,
+        datestamp, cpuarch)
+    try:
+        with closing(urlopen(log_url)) as f:
+            body = f.read()
+    except URLError:
+        body = b""
+    subject = "LiveFS %s%s/%s/%s failed to build on %s" % (
+        "(built by %s) " % config["SUDO_USER"] if config["SUDO_USER"] else "",
+        livefs_id, config.series, arch, datestamp)
+    send_mail(subject, "buildlive", recipients, body)
+
+
+def run_live_builds(config):
+    builds = {}
+    for arch in config.arches:
+        full_name = live_build_full_name(config, arch)
+        machine = live_builder(config, arch)
+        timestamp = time.strftime("%F %T")
+        logger.info("%s on %s starting at %s" % (full_name, machine, timestamp))
+        proc = subprocess.Popen(live_build_command(config, arch))
+        builds[proc.pid] = (proc, arch, full_name, machine)
+
+    success = False
+    while builds:
+        pid, status = os.wait()
+        if pid not in builds:
+            continue
+        proc, arch, full_name, machine = builds.pop(pid)
+        timestamp = time.strftime("%F %T")
+        text_status = "success" if status == 0 else "failed"
+        logger.info("%s on %s finished at %s (%s)" % (
+            full_name, machine, timestamp, text_status))
+        if status == 0:
+            success = True
+        else:
+            live_build_notify_failure(config, arch)
+
+    if not success:
+        logger.error("No live filesystem builds succeeded.")
+    return success
 
 
 def live_project(config):
