@@ -21,6 +21,7 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+from functools import wraps
 import os
 import sys
 from textwrap import dedent
@@ -121,6 +122,37 @@ class TestDailyTree(TestCase):
             "ubuntu\thoary\t/daily-live/current/hoary-live-i386.iso\t0",
             "ubuntu\thoary\t/daily/current/hoary-install-i386.iso\t0",
         ], self.tree.manifest())
+
+
+# As well as simply mocking isotracker.ISOTracker, we have to go through
+# some contortions to avoid needing ubuntu-archive-tools to be on sys.path
+# while running unit tests.
+
+class isotracker_module:
+    tracker = None
+
+    class ISOTracker:
+        def __init__(self, target):
+            isotracker_module.tracker = self
+            self.target = target
+            self.posted = []
+
+        def post_build(self, product, date, note=""):
+            self.posted.append([product, date, note])
+
+
+def mock_isotracker(target):
+    @wraps(target)
+    def wrapper(*args, **kwargs):
+        original_modules = sys.modules.copy()
+        sys.modules["isotracker"] = isotracker_module
+        try:
+            return target(*args, **kwargs)
+        finally:
+            if "isotracker" in original_modules:
+                sys.modules["isotracker"] = original_modules["isotracker"]
+            else:
+                del sys.modules["isotracker"]
 
 
 class TestDailyTreePublisher(TestCase):
@@ -454,58 +486,34 @@ class TestDailyTreePublisher(TestCase):
                 publisher.qa_product(
                     project, image_type, publish_type, "i386"))
 
+    @mock_isotracker
     def test_post_qa(self):
         publisher = self.make_publisher("ubuntu", "daily")
+        publisher.post_qa(
+            "20130221", [
+                "ubuntu/daily/raring-alternate-i386",
+                "ubuntu/daily/raring-alternate-amd64",
+            ])
+        expected = [
+            ["Ubuntu Alternate i386", "20130221", ""],
+            ["Ubuntu Alternate amd64", "20130221", ""],
+        ]
+        self.assertEqual("raring", isotracker_module.tracker.target)
+        self.assertEqual(expected, isotracker_module.tracker.posted)
 
-        # As well as simply mocking isotracker.ISOTracker, we have to go
-        # through some contortions to avoid needing ubuntu-archive-tools to
-        # be on sys.path while running unit tests.
-        class isotracker_module:
-            tracker = None
+        publisher.post_qa(
+            "20130221", [
+                "ubuntu/precise/daily-live/precise-desktop-i386",
+                "ubuntu/precise/daily-live/precise-desktop-amd64",
+            ])
+        expected = [
+            ["Ubuntu Desktop i386", "20130221", ""],
+            ["Ubuntu Desktop amd64", "20130221", ""],
+        ]
+        self.assertEqual("precise", isotracker_module.tracker.target)
+        self.assertEqual(expected, isotracker_module.tracker.posted)
 
-        class MockISOTracker:
-            def __init__(self, target):
-                isotracker_module.tracker = self
-                self.target = target
-                self.posted = []
-
-            def post_build(self, product, date, note=""):
-                self.posted.append([product, date, note])
-
-        original_modules = sys.modules.copy()
-        sys.modules["isotracker"] = isotracker_module
-        isotracker_module.ISOTracker = MockISOTracker
-        try:
-            publisher.post_qa(
-                "20130221", [
-                    "ubuntu/daily/raring-alternate-i386",
-                    "ubuntu/daily/raring-alternate-amd64",
-                ])
-            expected = [
-                ["Ubuntu Alternate i386", "20130221", ""],
-                ["Ubuntu Alternate amd64", "20130221", ""],
-            ]
-            self.assertEqual("raring", isotracker_module.tracker.target)
-            self.assertEqual(expected, isotracker_module.tracker.posted)
-
-            publisher.post_qa(
-                "20130221", [
-                    "ubuntu/precise/daily-live/precise-desktop-i386",
-                    "ubuntu/precise/daily-live/precise-desktop-amd64",
-                ])
-            expected = [
-                ["Ubuntu Desktop i386", "20130221", ""],
-                ["Ubuntu Desktop amd64", "20130221", ""],
-            ]
-            self.assertEqual("precise", isotracker_module.tracker.target)
-            self.assertEqual(expected, isotracker_module.tracker.posted)
-
-            # TODO: test oversized indicator
-        finally:
-            if "isotracker" in original_modules:
-                sys.modules["isotracker"] = original_modules["isotracker"]
-            else:
-                del sys.modules["isotracker"]
+        # TODO: test oversized indicator
 
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish(self, mock_post_qa):
