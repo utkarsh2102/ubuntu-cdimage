@@ -619,8 +619,6 @@ class DailyTreePublisher(Publisher):
             # Try to figure out the path to the OVERSIZED indicator for the
             # build.
             iso_path_bits = [self.full_tree]
-            if project != "ubuntu":
-                iso_path_bits.append(project)
             if image_series is not None:
                 iso_path_bits.append(image_series)
             iso_path_bits.extend([image_type, date, base])

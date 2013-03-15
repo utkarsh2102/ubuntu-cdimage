@@ -531,6 +531,21 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual("raring", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
+        publisher = self.make_publisher("kubuntu", "daily-live")
+        oversized_path = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "precise", "daily-live",
+            "20130315", "precise-desktop-i386.OVERSIZED")
+        os.makedirs(os.path.dirname(oversized_path))
+        touch(oversized_path)
+        publisher.post_qa(
+            "20130315", ["kubuntu/precise/daily-live/precise-desktop-i386"])
+        expected_note = (
+            "<strong>WARNING: This image is OVERSIZED. This should never "
+            "happen during milestone testing.</strong>")
+        expected = [["Kubuntu Desktop i386", "20130315", expected_note]]
+        self.assertEqual("precise", isotracker_module.tracker.target)
+        self.assertEqual(expected, isotracker_module.tracker.posted)
+
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish(self, mock_post_qa):
         self.config["ARCHES"] = "i386"
