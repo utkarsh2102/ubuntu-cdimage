@@ -263,6 +263,12 @@ class Config(defaultdict):
         default_arches = os.path.join(self.root, "etc", "default-arches")
         if not os.path.exists(default_arches):
             return None
+        want_project_bits = [self.project]
+        if self.subproject:
+            want_project_bits.append(self.subproject)
+        if self["UBUNTU_DEFAULTS_LOCALE"]:
+            want_project_bits.append(self["UBUNTU_DEFAULTS_LOCALE"])
+        want_project = "-".join(want_project_bits)
         with open(default_arches) as f:
             for line in f:
                 line = line.strip()
@@ -272,7 +278,7 @@ class Config(defaultdict):
                     project, image_type, series, arches = line.split(None, 3)
                 except ValueError:
                     continue
-                if not fnmatch.fnmatchcase(self.project, project):
+                if not fnmatch.fnmatchcase(want_project, project):
                     continue
                 if not fnmatch.fnmatchcase(self.image_type, image_type):
                     continue

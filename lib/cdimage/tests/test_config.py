@@ -110,6 +110,24 @@ class TestConfig(TestCase):
         self.assertEqual("amd64 amd64+mac i386", config["ARCHES"])
         self.assertEqual("amd64 i386", config["CPUARCHES"])
 
+    def test_init_kwargs_default_arches_subproject(self):
+        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
+        os.environ.pop("ARCHES", None)
+        os.environ.pop("CPUARCHES", None)
+        etc_dir = os.path.join(self.temp_dir, "etc")
+        os.mkdir(etc_dir)
+        with open(os.path.join(etc_dir, "config"), "w") as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=ubuntu
+                DIST=raring
+                """), file=f)
+        with open(os.path.join(etc_dir, "default-arches"), "w") as f:
+            print("ubuntu-wubi\t*\traring\tamd64 i386", file=f)
+            print("*\t*\t*\tamd64 i386 powerpc", file=f)
+        config = Config(SUBPROJECT="wubi", IMAGE_TYPE="wubi")
+        self.assertEqual("amd64 i386", config["ARCHES"])
+
     def test_read_shell(self):
         os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
         os.mkdir(os.path.join(self.temp_dir, "etc"))

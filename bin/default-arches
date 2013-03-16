@@ -30,22 +30,13 @@ from cdimage.config import config
 
 
 def main():
-    parser = OptionParser("%prog PROJECT IMAGE_TYPE DIST")
-    _, args = parser.parse_args()
-    if len(args) < 1:
-        parser.error("need project")
-    if len(args) < 2:
-        parser.error("need image-type")
-    if len(args) < 3:
-        parser.error("need dist")
+    parser = OptionParser("%prog")
+    parser.parse_args()
 
     if "ALL_DISTS" not in config:
         print("default-arches: ALL_DISTS not set!", file=sys.stderr)
         sys.exit(1)
 
-    config["PROJECT"] = args[0]
-    config["IMAGE_TYPE"] = args[1]
-    config["DIST"] = args[2]
     arches = config.set_default_arches()
     if arches is not None:
         print(arches)
