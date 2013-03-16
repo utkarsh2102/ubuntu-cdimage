@@ -27,6 +27,8 @@ The semaphore state is returned on stdout to allow the exit status to be
 used to report errors.
 """
 
+from __future__ import print_function
+
 from optparse import OptionParser
 import os
 import sys
@@ -52,7 +54,7 @@ def main():
         else:
             parser.error("unknown semaphore operation '%s'" % mode)
     except SemaphoreError as e:
-        print(e)
+        print(e, file=sys.stderr)
         sys.exit(1)
 
 
