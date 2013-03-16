@@ -15,3 +15,4 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 32 4 * * *	for-project ubuntu-core buildlive daily && build-livecd-base ubuntu-core daily
 22 0 * * *	for-project kubuntu-active cron.daily-live --live
 14 22 * * *	for-project ubuntukylin cron.daily-live --live
+32 15 * * *	for-project ubuntu-gnome cron.daily-live --live
