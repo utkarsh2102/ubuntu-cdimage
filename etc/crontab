@@ -2,13 +2,15 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # CD image cron jobs, run out of cdimage's crontab.
 
-31 7 * * *	for-project ubuntu cron.daily; for-project ubuntu cron.daily-live --live
-17 12 * * 2,6	for-project ubuntu cron.dvd --live
-14 5 * * *	for-project kubuntu cron.daily; for-project kubuntu cron.daily-live --live
-44 0 * * *	for-project edubuntu cron.dvd --live
-55 9 * * *	for-project xubuntu cron.daily-live --live
+31 7 * * *	for-project ubuntu cron.daily-live --live
+14 5 * * *	for-project kubuntu cron.daily-live --live
+24 0 * * *	for-project edubuntu cron.dvd --live
+50 9 * * *	for-project xubuntu cron.daily-live --live
 29 6 * * *	for-project ubuntu-server cron.daily
-17 6 * * *	for-project ubuntustudio cron.daily --live
+17 18 * * *	for-project ubuntustudio cron.daily --live
+# mythbuntu will only release for LTS releases, but we keep daily builds around to ensure it remains working
 19 10 * * *	for-project mythbuntu cron.daily-live --live
-46 4 * * *	build-livecd-base livecd-base
-32 4 * * *	build-livecd-base ubuntu-core daily
+29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live
+6 4 * * *	for-project livecd-base buildlive livecd-base && build-livecd-base livecd-base
+32 4 * * *	for-project ubuntu-core buildlive daily && build-livecd-base ubuntu-core daily
+22 0 * * *	for-project kubuntu-active cron.daily-live --live
