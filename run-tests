@@ -1,5 +1,10 @@
 #! /bin/sh
-PYTHONPATH=lib python -m unittest discover cdimage.tests
+
+if [ -z "$*" ]; then
+	set -- discover cdimage.tests
+fi
+
+PYTHONPATH=lib python -m unittest "$@"
 if which python3 >/dev/null 2>&1; then
-	PYTHONPATH=lib python3 -m unittest discover cdimage.tests
+	PYTHONPATH=lib python3 -m unittest "$@"
 fi
