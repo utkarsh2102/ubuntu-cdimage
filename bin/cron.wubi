@@ -23,8 +23,6 @@ export DATE="$(next-build-date "$IMAGE_TYPE")"
 mkdir -p "$CDIMAGE_ROOT/log/$PROJECT/$DIST"
 exec >"$CDIMAGE_ROOT/log/$PROJECT/$DIST/$IMAGE_TYPE-$DATE.log" 2>&1
 
-mkemptydir "$LIVE_OUT"
-
 download-live-filesystems
 
 IMAGE_TYPE_DIR="$IMAGE_TYPE"
