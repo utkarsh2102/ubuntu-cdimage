@@ -273,7 +273,8 @@ if [ "$TYPE" != netbook ] && [ "$TYPE" != mid ]; then
 		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img" ] && \
 		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img.gz" ] && \
 		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img.tar.gz" ] && \
-		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.tar.gz" ]; then
+		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.tar.gz" ] && \
+		   [ ! -e "$DAILY/$arch.tar.xz" ]; then
 			echo "No daily for $DIST $arch on $DATE!" >&2
 			exit 1
 		fi
@@ -316,6 +317,9 @@ for arch in $ARCHES; do
 				base="$DAILY/$DIST-$TYPE-$arch"
 			fi
 			;;
+		wubi)
+			base="$DAILY/$arch"
+			;;
 		*)
 			base="$DAILY/$DIST-$TYPE-$arch"
 			;;
@@ -330,12 +334,13 @@ for arch in $ARCHES; do
 	   [ ! -e "$base.img" ] && \
 	   [ ! -e "$base.img.gz" ] && \
 	   [ ! -e "$base.tar.gz" ] && \
-	   [ ! -e "$base.img.tar.gz" ]; then
+	   [ ! -e "$base.img.tar.gz" ] && \
+	   [ ! -e "$base.tar.xz" ]; then
 		continue
 	fi
 
 	# Copy, to make sure we have a canonical version of this.
-	for ext in iso list img img.gz img.tar.gz tar.gz bootimg; do
+	for ext in iso list img img.gz img.tar.gz tar.gz tar.xz bootimg; do
 		if [ ! -e "$base.$ext" ]; then
 			continue
 		fi
@@ -445,7 +450,7 @@ for arch in $ARCHES; do
 
 	want_manifest=false
 	case $TYPE in
-		live|desktop|netbook|mid|moblin-remix|uec|server-uec|preinstalled-*)
+		live|desktop|netbook|mid|moblin-remix|uec|server-uec|preinstalled-*|wubi)
 			want_manifest=:
 			;;
 		dvd)
