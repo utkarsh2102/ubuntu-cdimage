@@ -33,6 +33,8 @@ except ImportError:
 from cdimage.config import Config, all_series
 from cdimage.livefs import (
     NoLiveItem,
+    download_live_filesystems,
+    download_live_items,
     flavours,
     live_build_command,
     live_build_full_name,
@@ -40,12 +42,14 @@ from cdimage.livefs import (
     live_build_options,
     live_builder,
     live_item_paths,
+    live_output_directory,
     live_project,
     livecd_base,
     run_live_builds,
     split_arch,
+    write_autorun,
 )
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, touch
 
 
 class TestSplitArch(TestCase):
@@ -705,3 +709,249 @@ class TestLiveItemPaths(TestCase):
             self.assertPathsEqual(
                 [path], "i386", "ltsp-squashfs", "edubuntu", series)
         self.assertNoPaths("powerpc", "ltsp-squashfs", "edubuntu", "precise")
+
+
+class TestDownloadLiveFilesystems(TestCase):
+    def setUp(self):
+        super(TestDownloadLiveFilesystems, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+
+    def test_live_output_directory(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        expected = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+        self.assertEqual(expected, live_output_directory(self.config))
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        expected = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-zh_CN", "raring", "daily-live",
+            "live")
+        self.assertEqual(expected, live_output_directory(self.config))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_no_item(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertFalse(download_live_items(self.config, "powerpc", "umenu"))
+        self.assertEqual(0, mock_fetch.call_count)
+
+    @mock.patch("cdimage.osextras.fetch", return_value=False)
+    def test_download_live_items_failed_fetch(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertFalse(download_live_items(self.config, "i386", "squashfs"))
+        mock_fetch.assert_called_once_with(
+            "http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/current/"
+            "livecd.ubuntu.squashfs",
+            os.path.join(
+                self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+                "live", "i386.squashfs"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_kernel(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "quantal"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(download_live_items(self.config, "powerpc", "kernel"))
+        prefix = ("http://royal.buildd/~buildd/LiveCD/quantal/ubuntu/current/"
+                  "livecd.ubuntu.kernel-")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "quantal", "daily-live",
+            "live")
+        mock_fetch.assert_has_calls([
+            mock.call(
+                prefix + "powerpc-smp",
+                os.path.join(target_dir, "powerpc.kernel-powerpc-smp")),
+            mock.call(
+                prefix + "powerpc64-smp",
+                os.path.join(target_dir, "powerpc.kernel-powerpc64-smp")),
+        ])
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_initrd(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(download_live_items(self.config, "i386", "kernel"))
+        prefix = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/"
+                  "current/livecd.ubuntu.kernel-")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+        mock_fetch.assert_called_once_with(
+            prefix + "generic",
+            os.path.join(target_dir, "i386.kernel-generic"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_kernel_efi_signed(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(
+            download_live_items(self.config, "amd64", "kernel-efi-signed"))
+        prefix = ("http://kapok.buildd/~buildd/LiveCD/raring/ubuntu/"
+                  "current/livecd.ubuntu.kernel-")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+        mock_fetch.assert_called_once_with(
+            prefix + "generic.efi.signed",
+            os.path.join(target_dir, "amd64.kernel-generic.efi.signed"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_wubi(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(download_live_items(self.config, "i386", "wubi"))
+        url = "http://people.canonical.com/~evand/wubi/raring/stable"
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+        mock_fetch.assert_called_once_with(
+            url, os.path.join(target_dir, "i386.wubi.exe"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_umenu(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "hardy"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(download_live_items(self.config, "i386", "umenu"))
+        url = "http://people.canonical.com/~evand/umenu/stable"
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "hardy", "daily-live", "live")
+        mock_fetch.assert_called_once_with(
+            url, os.path.join(target_dir, "i386.umenu.exe"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_usb_creator(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(
+            download_live_items(self.config, "i386", "usb-creator"))
+        url = "http://people.canonical.com/~evand/usb-creator/raring/stable"
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+        mock_fetch.assert_called_once_with(
+            url, os.path.join(target_dir, "i386.usb-creator.exe"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_winfoss(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "gutsy"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(download_live_items(self.config, "i386", "winfoss"))
+        url = ("http://people.canonical.com/~henrik/winfoss/gutsy/ubuntu/"
+               "current/ubuntu-winfoss-7.10.tar.gz")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "gutsy", "daily-live", "live")
+        mock_fetch.assert_called_once_with(
+            url, os.path.join(target_dir, "i386.winfoss.tgz"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_squashfs(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(download_live_items(self.config, "i386", "squashfs"))
+        url = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/"
+               "current/livecd.ubuntu.squashfs")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+        mock_fetch.assert_called_once_with(
+            url, os.path.join(target_dir, "i386.squashfs"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_server_squashfs(self, mock_fetch):
+        self.config["PROJECT"] = "edubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "dvd"
+        self.assertTrue(
+            download_live_items(self.config, "i386", "server-squashfs"))
+        url = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu-server/"
+               "current/livecd.ubuntu-server.squashfs")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "edubuntu", "raring", "dvd", "live")
+        mock_fetch.assert_called_once_with(
+            url, os.path.join(target_dir, "i386.server-squashfs"))
+
+    def test_write_autorun(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+        os.makedirs(output_dir)
+        write_autorun(self.config, "i386", "wubi.exe", "Install Ubuntu")
+        autorun_path = os.path.join(output_dir, "i386.autorun.inf")
+        self.assertTrue(os.path.exists(autorun_path))
+        with open(autorun_path, "rb") as autorun:
+            self.assertEqual(
+                b"[autorun]\r\n"
+                b"open=wubi.exe\r\n"
+                b"icon=wubi.exe,0\r\n"
+                b"label=Install Ubuntu\r\n"
+                b"\r\n"
+                b"[Content]\r\n"
+                b"MusicFiles=false\r\n"
+                b"PictureFiles=false\r\n"
+                b"VideoFiles=false\r\n",
+                autorun.read())
+
+    @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_filesystems_ubuntu_live(self, mock_fetch):
+        def fetch_side_effect(source, target):
+            tail = os.path.basename(target).split(".", 1)[1]
+            if tail in (
+                "squashfs", "kernel-generic", "kernel-generic.efi.signed",
+                "initrd-generic", "manifest", "manifest-remove", "size",
+                "wubi.exe",
+            ):
+                touch(target)
+                return True
+            else:
+                return False
+
+        mock_fetch.side_effect = fetch_side_effect
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.config["ARCHES"] = "amd64 i386"
+        self.config["CDIMAGE_LIVE"] = "1"
+        download_live_filesystems(self.config)
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+        self.assertCountEqual([
+            "amd64.autorun.inf",
+            "amd64.initrd-generic",
+            "amd64.kernel-generic",
+            "amd64.kernel-generic.efi.signed",
+            "amd64.manifest",
+            "amd64.manifest-remove",
+            "amd64.size",
+            "amd64.squashfs",
+            "amd64.wubi.exe",
+            "i386.autorun.inf",
+            "i386.initrd-generic",
+            "i386.kernel-generic",
+            "i386.manifest",
+            "i386.manifest-remove",
+            "i386.size",
+            "i386.squashfs",
+            "i386.wubi.exe",
+        ], os.listdir(output_dir))
+        autorun_contents = (
+            b"[autorun]\r\n"
+            b"open=wubi.exe\r\n"
+            b"icon=wubi.exe,0\r\n"
+            b"label=Install Ubuntu\r\n"
+            b"\r\n"
+            b"[Content]\r\n"
+            b"MusicFiles=false\r\n"
+            b"PictureFiles=false\r\n"
+            b"VideoFiles=false\r\n")
+        for name in "amd64.autorun.inf", "i386.autorun.inf":
+            with open(os.path.join(output_dir, name), "rb") as autorun:
+                self.assertEqual(autorun_contents, autorun.read())

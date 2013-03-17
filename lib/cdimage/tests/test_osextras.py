@@ -135,3 +135,30 @@ class TestOSExtras(TestCase):
 
     def test_run_bounded_finite(self):
         osextras.run_bounded(1, ["sh", "-c", "while :; do sleep 3600; done"])
+
+    def test_fetch_empty(self):
+        target = os.path.join(self.temp_dir, "target")
+        self.assertFalse(osextras.fetch("", target))
+        self.assertFalse(os.path.exists(target))
+
+    def test_fetch_file(self):
+        source = os.path.join(self.temp_dir, "source")
+        touch(source)
+        target = os.path.join(self.temp_dir, "target")
+        self.assertTrue(osextras.fetch(source, target))
+        self.assertTrue(os.path.exists(target))
+        self.assertEqual(os.stat(target), os.stat(source))
+
+    @mock.patch("subprocess.call", return_value=1)
+    def test_fetch_url_removes_target_on_failure(self, *args):
+        target = os.path.join(self.temp_dir, "target")
+        touch(target)
+        self.assertFalse(osextras.fetch("http://example.org/source", target))
+        self.assertFalse(os.path.exists(target))
+
+    @mock.patch("subprocess.call", return_value=0)
+    def test_fetch_url(self, mock_call):
+        target = os.path.join(self.temp_dir, "target")
+        self.assertTrue(osextras.fetch("http://example.org/source", target))
+        mock_call.assert_called_once_with(
+            ["wget", "-nv", "http://example.org/source", "-O", target])

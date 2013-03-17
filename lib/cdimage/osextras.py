@@ -118,3 +118,20 @@ def run_bounded(seconds, command, **kwargs):
     while True:
         signal.pause()
     os._exit(0)
+
+
+def fetch(source, target):
+    """Fetch a file from a remote system."""
+    if not source:
+        return False
+
+    if source.startswith("/"):
+        os.link(source, target)
+        return True
+
+    # This should arguably use urllib2/urllib.request or similar instead.
+    if subprocess.call(["wget", "-nv", source, "-O", target]) == 0:
+        return True
+    else:
+        unlink_force(target)
+        return False

@@ -33,6 +33,7 @@ from cdimage import osextras
 from cdimage.build_id import next_build_id
 from cdimage.check_installable import check_installable
 from cdimage.germinate import Germination
+from cdimage.livefs import download_live_filesystems
 from cdimage.log import logger, reset_logging
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.mirror import find_mirror, trigger_mirrors
@@ -392,7 +393,7 @@ def build_image_set_locked(config, semaphore_state):
 
         if config["CDIMAGE_LIVE"] or project == "edubuntu":
             log_marker("Downloading live filesystem images")
-            subprocess.check_call(["download-live-filesystems"])
+            download_live_filesystems(config)
 
         configure_splash(config)
 

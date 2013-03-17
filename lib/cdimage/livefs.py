@@ -15,11 +15,16 @@
 
 """Live filesystems."""
 
+from __future__ import print_function
+
 __metaclass__ = type
 
 from contextlib import closing
+import io
 import os
+import re
 import subprocess
+from textwrap import dedent
 import time
 try:
     from urllib.error import URLError
@@ -27,6 +32,7 @@ try:
 except ImportError:
     from urllib2 import URLError, urlopen
 
+from cdimage import osextras
 from cdimage.config import Series
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
@@ -41,6 +47,10 @@ class NoLiveItem(Exception):
 
 
 class UnknownLiveItem(Exception):
+    pass
+
+
+class NoFilesystemImages(Exception):
     pass
 
 
@@ -485,3 +495,176 @@ def live_item_paths(config, arch, item):
             raise NoLiveItem
     else:
         raise UnknownLiveItem("Unknown live filesystem item '%s'" % item)
+
+
+def live_output_directory(config):
+    project = config.project
+    if config["UBUNTU_DEFAULTS_LOCALE"]:
+        project = "-".join([project, config["UBUNTU_DEFAULTS_LOCALE"]])
+    return os.path.join(
+        config.root, "scratch", project, config.series, config.image_type,
+        "live")
+
+
+def download_live_items(config, arch, item):
+    output_dir = live_output_directory(config)
+    found = False
+
+    try:
+        if item == "server-squashfs":
+            original_project = config.project
+            try:
+                config["PROJECT"] = "ubuntu-server"
+                urls = list(live_item_paths(config, arch, "squashfs"))
+            finally:
+                config["PROJECT"] = original_project
+        else:
+            urls = list(live_item_paths(config, arch, item))
+    except NoLiveItem:
+        return False
+
+    if item in ("kernel", "initrd"):
+        for url in urls:
+            flavour = re.sub(r"^.*?\..*?\..*?-", "", os.path.basename(url))
+            target = os.path.join(
+                output_dir, "%s.%s-%s" % (arch, item, flavour))
+            if osextras.fetch(url, target):
+                found = True
+    elif item == "kernel-efi-signed":
+        for url in urls:
+            base = os.path.basename(url)
+            if base.endswith(".efi.signed"):
+                base = base[:-len(".efi.signed")]
+            flavour = re.sub(r"^.*?\..*?\..*?-", "", base)
+            target = os.path.join(
+                output_dir, "%s.kernel-%s.efi.signed" % (arch, flavour))
+            if osextras.fetch(url, target):
+                found = True
+    elif item in ("wubi", "umenu", "usb-creator"):
+        target = os.path.join(output_dir, "%s.%s.exe" % (arch, item))
+        if osextras.fetch(urls[0], target):
+            found = True
+    elif item == "winfoss":
+        target = os.path.join(output_dir, "%s.%s.tgz" % (arch, item))
+        if osextras.fetch(urls[0], target):
+            found = True
+    else:
+        target = os.path.join(output_dir, "%s.%s" % (arch, item))
+        if osextras.fetch(urls[0], target):
+            found = True
+    return found
+
+
+def write_autorun(config, arch, name, label):
+    output_dir = live_output_directory(config)
+    autorun_path = os.path.join(output_dir, "%s.autorun.inf" % arch)
+    with io.open(autorun_path, "w", newline="\r\n") as autorun:
+        if str is bytes:
+            u = lambda s: unicode(s, "unicode_escape")
+        else:
+            u = lambda s: s
+        print(u(dedent("""\
+            [autorun]
+            open=%s
+            icon=%s,0
+            label=%s
+
+            [Content]
+            MusicFiles=false
+            PictureFiles=false
+            VideoFiles=false""")) % (u(name), u(name), u(label)), file=autorun)
+
+
+def download_live_filesystems(config):
+    project = config.project
+    series = config["DIST"]
+
+    output_dir = live_output_directory(config)
+    osextras.mkemptydir(output_dir)
+
+    if config["CDIMAGE_LIVE"]:
+        got_image = False
+        for arch in config.arches:
+            if config["UBUNTU_DEFAULTS_LOCALE"]:
+                if download_live_items(config, arch, "iso"):
+                    got_image = True
+                else:
+                    continue
+            elif download_live_items(config, arch, "cloop"):
+                got_image = True
+            elif download_live_items(config, arch, "squashfs"):
+                got_image = True
+            elif download_live_items(config, arch, "rootfs.tar.gz"):
+                got_image = True
+            elif download_live_items(config, arch, "tar.xz"):
+                got_image = True
+            else:
+                continue
+            if series >= "dapper" and project != "ubuntu-core":
+                download_live_items(config, arch, "kernel")
+                download_live_items(config, arch, "initrd")
+                download_live_items(config, arch, "kernel-efi-signed")
+            download_live_items(config, arch, "manifest")
+            if not download_live_items(config, arch, "manifest-remove"):
+                download_live_items(config, arch, "manifest-desktop")
+            download_live_items(config, arch, "size")
+
+            if config["UBUNTU_DEFAULTS_LOCALE"]:
+                continue
+
+            if (project not in ("livecd-base", "ubuntu-core",
+                                "kubuntu-active") and
+                    (project != "edubuntu" or series >= "precise")):
+                if series <= "feisty":
+                    pass
+                elif series <= "intrepid":
+                    if config["CDIMAGE_DVD"] != "1":
+                        download_live_items(config, arch, "wubi")
+                    download_live_items(config, arch, "umenu")
+                    umenu_path = os.path.join(
+                        output_dir, "%s.umenu.exe" % arch)
+                    if os.path.exists(umenu_path):
+                        write_autorun(config, arch, "umenu.exe", "Install")
+                else:
+                    # TODO: We still have to do something about not
+                    # including Wubi on the DVDs.
+                    download_live_items(config, arch, "wubi")
+                    wubi_path = os.path.join(output_dir, "%s.wubi.exe" % arch)
+                    if os.path.exists(wubi_path):
+                        # Nicely format the distribution name.
+                        def upper_first(m):
+                            text = m.group(0)
+                            return text[0].upper() + text[1:]
+
+                        autorun_project = re.sub(
+                            r"(\b[a-z])", upper_first,
+                            project.replace("-", " "))
+                        write_autorun(
+                            config, arch, "wubi.exe",
+                            "Install %s" % autorun_project)
+
+            if project not in ("livecd-base", "ubuntu-core", "edubuntu"):
+                if (project in ("kubuntu-active", "ubuntu-netbook",
+                                "ubuntu-moblin-remix") or
+                        config["CDIMAGE_DVD"] or
+                        series >= "maverick"):
+                    download_live_items(config, arch, "usb-creator")
+
+        if not got_image:
+            raise NoFilesystemImages("No filesystem images found.")
+
+    if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and
+            series <= "hardy"):
+        for cpuarch in config.cpuarches:
+            download_live_items(config, arch, "winfoss")
+
+    if project == "edubuntu" and config["CDIMAGE_DVD"] and series >= "lucid":
+        for arch in config.arches:
+            if arch in ("amd64", "i386"):
+                # TODO: Disabled for raring (LP: #1154601)
+                #if series >= "raring":
+                #    # Fetch the Ubuntu Server squashfs for Edubuntu Server.
+                #    download_live_items(config, arch, "server-squashfs")
+
+                # Fetch the i386 LTSP chroot for Edubuntu Terminal Server.
+                download_live_items(config, arch, "ltsp-squashfs")

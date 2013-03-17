@@ -1,166 +1,42 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT${UBUNTU_DEFAULTS_LOCALE:+-$UBUNTU_DEFAULTS_LOCALE}/$DIST/$IMAGE_TYPE/live"
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-mkemptydir "$LIVE_OUT"
+"""Download live filesystem files."""
 
-if [ "$CDIMAGE_LIVE" ]; then
-	GOT_IMAGE=0
-	for arch in $ARCHES; do
-		if [ "$UBUNTU_DEFAULTS_LOCALE" ]; then
-			if fetch "$(find-live-filesystem "$arch" iso)" \
-					"$LIVE_OUT/$arch.iso"; then
-				GOT_IMAGE=1
-			else
-				continue
-			fi
-		elif fetch "$(find-live-filesystem "$arch" cloop)" \
-				"$LIVE_OUT/$arch.cloop"; then
-			GOT_IMAGE=1
-		elif fetch "$(find-live-filesystem "$arch" squashfs)" \
-				"$LIVE_OUT/$arch.squashfs"; then
-			GOT_IMAGE=1
-		elif fetch "$(find-live-filesystem "$arch" rootfs.tar.gz)" \
-				"$LIVE_OUT/$arch.rootfs.tar.gz"; then
-			GOT_IMAGE=1
-		elif fetch "$(find-live-filesystem "$arch" tar.xz)" \
-				"$LIVE_OUT/$arch.tar.xz"; then
-			GOT_IMAGE=1
-		else
-			continue
-		fi
-		if dist_ge dapper && [ "$PROJECT" != ubuntu-core ]; then
-			for item in kernel initrd; do
-				for url in $(find-live-filesystem "$arch" "$item"); do
-					flavour="${url##*/}"
-					flavour="${flavour#*.*.*-}"
-					fetch "$url" "$LIVE_OUT/$arch.$item-$flavour" || true
-				done
-			done
-			for url in $(find-live-filesystem "$arch" kernel-efi-signed); do
-				flavour="${url##*/}"
-				flavour="${flavour%.efi.signed}"
-				flavour="${flavour#*.*.*-}"
-				fetch "$url" "$LIVE_OUT/$arch.kernel-$flavour.efi.signed" || true
-			done
-		fi
-		fetch "$(find-live-filesystem "$arch" manifest)" \
-			"$LIVE_OUT/$arch.manifest" || true
-		fetch "$(find-live-filesystem "$arch" manifest-remove)" \
-			"$LIVE_OUT/$arch.manifest-remove" || \
-			fetch "$(find-live-filesystem "$arch" manifest-desktop)" \
-				"$LIVE_OUT/$arch.manifest-desktop" || true
-		fetch "$(find-live-filesystem "$arch" size)" \
-			"$LIVE_OUT/$arch.size" || true
+from __future__ import print_function
 
-		if [ "$UBUNTU_DEFAULTS_LOCALE" ]; then
-			continue
-		fi
+from optparse import OptionParser
+import os
+import sys
 
-		if [ "$PROJECT" != livecd-base ] && \
-		   [ "$PROJECT" != ubuntu-core ] && \
-		   ([ "$PROJECT" != edubuntu ] || dist_ge precise) && \
-		   [ "$PROJECT" != kubuntu-active ]; then
-			if dist_le feisty; then
-				:
-			elif dist_le intrepid; then
-				if [ "$CDIMAGE_DVD" != 1 ]; then
-					(fetch "$(find-live-filesystem "$arch" wubi)" \
-					"$LIVE_OUT/$arch.wubi.exe" || true)
-				fi
-				(fetch "$(find-live-filesystem "$arch" umenu)" \
-				"$LIVE_OUT/$arch.umenu.exe" || true)
-				if [ -f "$LIVE_OUT/$arch.umenu.exe" ]; then
-					# This is Windows, so use CRLF.
-					cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
-[autorun]
-open=umenu.exe
-icon=umenu.exe,0
-label=Install
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+from cdimage.livefs import NoFilesystemImages, download_live_filesystems
 
-[Content]
-MusicFiles=false
-PictureFiles=false
-VideoFiles=false
-EOF
-					todos "$LIVE_OUT/$arch.autorun.inf"
-				fi
-			else
-				# TODO: We still have to do something
-				# about not including Wubi on the DVDs.
-				(fetch "$(find-live-filesystem "$arch" wubi)" \
-					"$LIVE_OUT/$arch.wubi.exe" || true)
-				if [ -f "$LIVE_OUT/$arch.wubi.exe" ]; then
-					# Nicely format the distribution name.
-					PROJ=$(echo "$PROJECT" | tr '-' ' ' | \
-						sed 's/\(\b[a-z]\)/\U\1/g' || echo "PROJECT")
-					cat > "$LIVE_OUT/$arch.autorun.inf" << EOF
-[autorun]
-open=wubi.exe
-icon=wubi.exe,0
-label=Install $PROJ
 
-[Content]
-MusicFiles=false
-PictureFiles=false
-VideoFiles=false
-EOF
-					todos "$LIVE_OUT/$arch.autorun.inf"
-				fi
-			fi
-		fi
-		case "$PROJECT" in
-			kubuntu-active|ubuntu-netbook|ubuntu-moblin-remix)
-				fetch "$(find-live-filesystem "$arch" usb-creator)" \
-					"$LIVE_OUT/$arch.usb-creator.exe" || true
-				;;
-			livecd-base|ubuntu-core|edubuntu)
-				;;
-			*)
-				if [ "$CDIMAGE_DVD" ]; then
-					fetch "$(find-live-filesystem "$arch" usb-creator)" \
-						"$LIVE_OUT/$arch.usb-creator.exe" || true
-				fi
-				if dist_ge maverick; then
-					fetch "$(find-live-filesystem "$arch" usb-creator)" \
-						"$LIVE_OUT/$arch.usb-creator.exe" || true
-				fi
-				;;
-		esac
-	done
-	if [ "$GOT_IMAGE" = 0 ]; then
-		echo "No filesystem images found." >&2
-		exit 1
-	fi
-fi
+def main():
+    parser = OptionParser("%prog")
+    parser.parse_args()
+    try:
+        download_live_filesystems(config)
+    except NoFilesystemImages as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
 
-if [ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_INSTALL" ] && dist_le hardy; then
-	for arch in $CPUARCHES; do
-		if winfoss="$(find-live-filesystem "$arch" winfoss)"; then
-			fetch "$winfoss" "$LIVE_OUT/$arch.winfoss.tgz"
-		fi
-	done
-fi
 
-if [ "$PROJECT" = edubuntu ] && [ "$CDIMAGE_DVD" ] && dist_ge lucid; then
-	for arch in $ARCHES; do
-		case $arch in
-			amd64|i386)
-# FIXME: Disabled for raring (LP: #1154601)
-#				if dist_ge raring; then
-#					# Fetch the Ubuntu Server squashfs for Edubuntu Server
-#					fetch "$(PROJECT=ubuntu-server find-live-filesystem "$arch" squashfs)" \
-#						"$LIVE_OUT/$arch.server-squashfs"
-#				fi
-
-				# Fetch the i386 LTSP chroot for Edubuntu Terminal Server
-				fetch "$(find-live-filesystem "$arch" ltsp-squashfs)" \
-					"$LIVE_OUT/$arch.ltsp-squashfs"
-				;;
-		esac
-	done
-fi
+if __name__ == "__main__":
+    main()
