@@ -63,6 +63,11 @@ cdtypestr () {
 				CD=CD
 				;;
 		esac
+		case $2 in
+			img|img.gz)
+				CD=image
+				;;
+		esac
 	else
 		CD=image
 	fi
@@ -148,6 +153,11 @@ cdtypedesc () {
 				;;
 			*)
 				CD=CD
+				;;
+		esac
+		case $2 in
+			img|img.gz)
+				CD=image
 				;;
 		esac
 	else
@@ -466,10 +476,13 @@ extensionstr () {
 		img)
 			echo 'USB image'
 			;;
+		img.gz)
+			echo 'preinstalled SD Card image'
+			;;
 		iso)
 			echo 'standard download'
 			;;
-		iso.torrent)
+		iso.torrent|img.torrent)
 			echo '<a href=\"https://help.ubuntu.com/community/BitTorrent\">BitTorrent</a> download'
 			;;
 		jigdo)
@@ -490,7 +503,7 @@ extensionstr () {
 		template)
 			echo '<a href=\"http://atterer.org/jigdo/\">jigdo</a> template'
 			;;
-		iso.zsync|img.zsync)
+		iso.zsync|img.zsync|img.gz.zsync)
 			echo '<a href=\"http://zsync.moria.org.uk/\">zsync</a> metafile'
 			;;
 		*)
@@ -664,7 +677,7 @@ for prefix in $CDPREFIX; do
 	for cdtype in live desktop server install alternate serveraddon \
 	    addon dvd src
 	do
-		if find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" | grep . >/dev/null; then
+		if find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" | grep . >/dev/null; then
 			cdtypecount="$(($cdtypecount + 1))"
 		fi
 	done
@@ -683,7 +696,7 @@ for prefix in $CDPREFIX; do
 	for cdtype in live desktop server install alternate serveraddon addon \
 	    dvd src
 	do
-		if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" | grep . >/dev/null; then
+		if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" | grep . >/dev/null; then
 			continue
 		fi
 
@@ -698,88 +711,96 @@ for prefix in $CDPREFIX; do
 				;;
 		esac
 
-		cat <<EOF >> "$HEADER"
-<h3>$(cdtypestr "$cdtype" | titlecase)</h3>
-
-$(cdtypedesc "$cdtype")
-
-EOF
-
-		archcount=0
-		for arch in $arches; do
-			if [ -e "$DIR/$prefix-$cdtype-$arch.list" ]; then
+		for format in iso img img.gz; do
+			archcount=0
+			if [ "$format" = img ] && [ -e "$DIR/$prefix-$cdtype.$format" ]; then
 				archcount="$(($archcount + 1))"
 			fi
-		done
+			for arch in $arches; do
+				if [ -e "$DIR/$prefix-$cdtype-$arch.$format" ]; then
+					archcount="$(($archcount + 1))"
+				fi
+			done
+			if [ "$archcount" = 0 ]; then
+				continue
+			fi
 
-		if [ "$archcount" -eq 1 ]; then
 			cat <<EOF >> "$HEADER"
+<h3>$(cdtypestr "$cdtype" "$format" | titlecase)</h3>
+
+$(cdtypedesc "$cdtype" "$format")
+
+EOF
+
+			if [ "$archcount" -eq 1 ]; then
+				cat <<EOF >> "$HEADER"
 <p>There is one image available:</p>
 EOF
-		elif [ "$cdtype" = src ]; then
-			cat <<EOF >> "$HEADER"
+			elif [ "$cdtype" = src ]; then
+				cat <<EOF >> "$HEADER"
 <p>There are $(count "$archcount") images available:</p>
 EOF
-		else
-			cat <<EOF >> "$HEADER"
+			else
+				cat <<EOF >> "$HEADER"
 <p>There are $(count "$archcount") images available, each for a different type of computer:</p>
 EOF
-		fi
+			fi
 
-		cat <<EOF >> "$HEADER"
+			cat <<EOF >> "$HEADER"
 
 <dl>
 EOF
 
-		for arch in $arches; do
-			case $cdtype in
-				src)
-					imagestr="$(cdtypestr "$cdtype" | titlecase) $arch"
-					htaccessimagestr="$imagestr"
-					;;
-				*)
-					imagestr="$(archstr "$arch") $(cdtypestr "$cdtype")"
-					htaccessimagestr="$(cdtypestr "$cdtype" | titlecase) for $(archstr "$arch") computers"
-					;;
-			esac
+			for arch in $arches; do
+				case $cdtype in
+					src)
+						imagestr="$(cdtypestr "$cdtype" "$format" | titlecase) $arch"
+						htaccessimagestr="$imagestr"
+						;;
+					*)
+						imagestr="$(archstr "$arch") $(cdtypestr "$cdtype" "$format")"
+						htaccessimagestr="$(cdtypestr "$cdtype" "$format" | titlecase) for $(archstr "$arch") computers"
+						;;
+				esac
 
-			if [ -e "$DIR/$prefix-$cdtype-$arch.iso" ]; then
-				cat <<EOF >> "$HEADER"
-<dt><a href="$prefix-$cdtype-$arch.iso">$imagestr</a>
+				if [ -e "$DIR/$prefix-$cdtype-$arch.$format" ]; then
+					cat <<EOF >> "$HEADER"
+<dt><a href="$prefix-$cdtype-$arch.$format">$imagestr</a>
 EOF
-			elif [ -e "$DIR/$prefix-$cdtype-$arch.iso.torrent" ]; then
-				cat <<EOF >> "$HEADER"
-<dt><a href="$prefix-$cdtype-$arch.iso.torrent">$imagestr (<a href="https://help.ubuntu.com/community/BitTorrent">BitTorrent</a> only)</a>
+				elif [ -e "$DIR/$prefix-$cdtype-$arch.$format.torrent" ]; then
+					cat <<EOF >> "$HEADER"
+<dt><a href="$prefix-$cdtype-$arch.$format.torrent">$imagestr (<a href="https://help.ubuntu.com/community/BitTorrent">BitTorrent</a> only)</a>
 EOF
-			else
-				continue
-			fi
+				else
+					continue
+				fi
 
-			if [ -e "$DIR/$prefix-$cdtype-$arch.iso.torrent" ]; then
-				foundtorrent=1
-			fi
+				if [ -e "$DIR/$prefix-$cdtype-$arch.$format.torrent" ]; then
+					foundtorrent=1
+				fi
 
-			if [ "$cdtype" != src ]; then
-				cat <<EOF >> "$HEADER"
+				if [ "$cdtype" != src ]; then
+					cat <<EOF >> "$HEADER"
 
 <dd>$(archdesc "$arch" "$cdtype")$(maybe_oversized "$DIR/$prefix-$cdtype-$arch.OVERSIZED" "$cdtype")</dd>
 
 EOF
-			fi
-
-			for extension in img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop manifest-remove template; do
-				if ! [ -e "$DIR/$prefix-$cdtype-$arch.$extension" ]; then
-					continue
 				fi
 
-				echo "AddDescription \"$htaccessimagestr ($(extensionstr "$extension"))\" $prefix-$cdtype-$arch.$extension" >> "$HTACCESS"
-			done
-		done
+				for extension in img.gz.torrent img.gz.zsync img.gz img.torrent img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop manifest-remove template; do
+					if ! [ -e "$DIR/$prefix-$cdtype-$arch.$extension" ]; then
+						continue
+					fi
 
-		cat <<EOF >> "$HEADER"
+					echo "AddDescription \"$htaccessimagestr ($(extensionstr "$extension"))\" $prefix-$cdtype-$arch.$extension" >> "$HTACCESS"
+				done
+			done
+
+			cat <<EOF >> "$HEADER"
 </dl>
 
 EOF
+		done
 	done
 done
 
@@ -797,11 +818,35 @@ else
 EOF
 fi
 
-cat <<EOF >> "$HEADER"
-<p>If you need help burning these images to disk, see the
+gotiso=
+gotimg=
+if find "$DIR/" -follow -maxdepth 1 -type f -name "*.iso" | grep . >/dev/null; then
+	gotiso=1
+fi
+if find "$DIR/" -follow -maxdepth 1 -type f -name "*.img" | grep . >/dev/null; then
+	gotimg=1
+fi
+if [ "$gotiso" ] && [ "$gotimg" ]; then
+	cat <<EOF >> "$HEADER"
+<p>If you need help burning these images to disk, see the 
+<a href="https://help.ubuntu.com/community/BurningIsoHowto">Image Burning Guide</a> or the
+<a href="https://wiki.ubuntu.com/MobileTeam/Mobile/HowTo/ImageWriting">USB Image Writing Guide</a>.</p>
+
+EOF
+elif [ "$gotiso" ]; then
+	cat <<EOF >> "$HEADER"
+<p>If you need help burning these images to disk, see the 
 <a href="https://help.ubuntu.com/community/BurningIsoHowto">Image Burning Guide</a>.</p>
 
 EOF
+elif [ "$gotimg" ]; then
+	cat <<EOF >> "$HEADER"
+<p>It is recommended you have at least a 1GB USB storage device to burn the
+image to. If you need help burning these images to disk, see the 
+<a href="https://wiki.ubuntu.com/MobileTeam/Mobile/HowTo/ImageWriting">USB Image Writing Guide</a>.</p>
+
+EOF
+fi
 
 cat <<EOF > "$FOOTER"
 </div></div></body></html>
@@ -839,12 +884,13 @@ IndexIgnore .htaccess HEADER.html FOOTER.html
 IndexOptions NameWidth=* DescriptionWidth=* SuppressHTMLPreamble FancyIndexing IconHeight=22 IconWidth=22
 AddIcon ${CDICONS}folder.png ^^DIRECTORY^^
 AddIcon ${CDICONS}iso.png .iso
+AddIcon ${CDICONS}img.png .img
 AddIcon ${CDICONS}jigdo.png .jigdo .template
 AddIcon ${CDICONS}list.png .list .manifest .html .zsync MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg
 AddIcon ${CDICONS}torrent.png .torrent .metalink
 EOF
 
-for extension in img iso.torrent iso jigdo list manifest manifest-desktop manifest-remove template; do
+for extension in img.gz.torrent img.gz img.torrent img iso.torrent iso jigdo list manifest manifest-desktop manifest-remove template; do
 	mimetype="$(mimetypestr "$extension")"
 	if [ "$mimetype" ] && \
 	   find "$DIR/" -follow -maxdepth 1 -type f -name "*.$extension" | grep . >/dev/null; then
