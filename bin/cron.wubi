@@ -53,18 +53,8 @@ for arch in $ARCHES; do
 	IMAGES_PUBLISHED="${IMAGES_PUBLISHED:+$IMAGES_PUBLISHED }$PROJECT/wubi/$DIST-wubi-$arch"
 done
 
-(cd "$PUBLISH" && \
-	find \( -name \*.tar.xz -o -name \*.manifest \) -printf '%P\n' \
-	| xargs md5sum -b > MD5SUMS)
-(cd "$PUBLISH" && \
-	find \( -name \*.tar.xz -o -name \*.manifest \) -printf '%P\n' \
-	| xargs sha1sum -b > SHA1SUMS)
-(cd "$PUBLISH" && \
-	find \( -name \*.tar.xz -o -name \*.manifest \) -printf '%P\n' \
-	| xargs sha256sum -b > SHA256SUMS)
-sign-cdimage "$PUBLISH/MD5SUMS"
-sign-cdimage "$PUBLISH/SHA1SUMS"
-sign-cdimage "$PUBLISH/SHA256SUMS"
+checksum-directory "$PUBLISH"
+
 cat <<EOF >> "$PUBLISH/.htaccess"
 IndexIgnore .htaccess
 IndexOptions NameWidth=* DescriptionWidth=* SuppressHTMLPreamble FancyIndexing IconHeight=22 IconWidth=22
