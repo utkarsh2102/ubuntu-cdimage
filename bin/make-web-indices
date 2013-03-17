@@ -67,9 +67,19 @@ cdtypestr () {
 			img|img.gz)
 				CD=image
 				;;
+			tar.gz)
+				CD="filesystem archive"
+				;;
 		esac
 	else
-		CD=image
+		case $2 in
+			tar.gz)
+				CD="filesystem archive"
+				;;
+			*)
+				CD=image
+				;;
+		esac
 	fi
 
 	case $1 in
@@ -120,6 +130,9 @@ cdtypestr () {
 			;;
 		active)
 			echo "preview active image"
+			;;
+		server-uec|uec)
+			echo "UEC image"
 			;;
 		preinstalled-desktop)
 			echo "preinstalled desktop $CD"
@@ -180,9 +193,19 @@ cdtypedesc () {
 			img|img.gz)
 				CD=image
 				;;
+			tar.gz)
+				CD="filesystem archive"
+				;;
 		esac
 	else
-		CD=image
+		case $2 in
+			tar.gz)
+				CD="filesystem archive"
+				;;
+			*)
+				CD=image
+				;;
+		esac
 	fi
 
 	case $1 in
@@ -206,9 +229,18 @@ EOF
 				*)
 					cat <<EOF
 <p>The desktop $CD allows you to try $CAPPROJECT without changing your
-computer at all, and at your option to install it permanently later. This
-type of $CD is what most people will want to use. You will need at least
-${DESKTOP_RAM}MiB of RAM to install from this $CD.</p>
+computer at all, and at your option to install it permanently later.
+EOF
+					# Only emit this sentence once per
+					# page.
+					if [ -z "$PREFMSG" ]; then
+						cat <<EOF
+This type of $CD is what most people will want to use.
+EOF
+						PREFMSG=1
+					fi
+					cat <<EOF
+You will need at least ${DESKTOP_RAM}MiB of RAM to install from this $CD.</p>
 EOF
 					;;
 			esac
@@ -343,6 +375,17 @@ following form:</p>
 </ul>
 EOF
 			;;
+		server-uec|uec)
+			cat <<EOF
+<p>The Ubuntu Enterprise Cloud image can be run on your personal
+<a class="http" href="http://www.ubuntu.com/products/whatisubuntu/serveredition/cloud/uec">Ubuntu
+Enterprise Cloud</a>, or modified, rebundled and uploaded to Amazon EC2. For
+further instruction on setting up a personal Ubuntu Enterprise Cloud, see
+<a class="http" href="https://help.ubuntu.com/community/Eucalyptus">Getting
+Started with Ubuntu Enterprise Cloud</a>
+</p>
+EOF
+			;;
 		preinstalled-desktop|preinstalled-netbook|preinstalled-headless|preinstalled-server)
 			cat <<EOF
 <p>The $1 $CD allows you to unpack a preinstalled version of $CAPPROJECT
@@ -361,6 +404,20 @@ EOF
 	esac
 }
 
+uecarchstr () {
+	case $1 in
+		amd64)
+			echo '64-bit'
+			;;
+		i386)
+			echo '32-bit'
+			;;
+		*)
+			# ignore
+			;;
+	esac
+}
+	
 archstr () {
 	case $1 in
 		amd64)
@@ -640,8 +697,35 @@ extensionstr () {
 		template)
 			echo '<a href=\"http://atterer.org/jigdo/\">jigdo</a> template'
 			;;
-		iso.zsync|img.zsync|img.gz.zsync)
+		iso.zsync|img.zsync|img.gz.zsync|tar.gz.zsync)
 			echo '<a href=\"http://zsync.moria.org.uk/\">zsync</a> metafile'
+			;;
+		vmlinuz-ec2)
+			echo 'EC2 kernel image'
+			;;
+		vmlinuz-virtual)
+			flavor=${1#*-}
+			echo 'UEC kernel image'
+			;;
+		initrd-ec2)
+			echo 'EC2 initramfs image'
+			;;
+		initrd-virtual)
+			flavor=${1#*-}
+			echo 'UEC initramfs image'
+			;;
+		img.tar.gz)
+			echo 'UEC/EC2 filesystem image'
+			;;
+		tar.gz)
+			case $PROJECT in
+				server-uec|uec)
+					echo 'Cloud Images tarball'
+				;;
+				*)
+					echo 'filesystem archive'
+				;;
+			esac
 			;;
 		bootimg)
 			echo 'combined Android bootimage'
@@ -815,11 +899,11 @@ EOF
 cdtypecount=0
 for prefix in $CDPREFIX; do
 	for cdtype in live desktop server install alternate serveraddon \
-	    addon dvd src netbook mid moblin-remix active mobile \
+	    addon dvd src netbook mid moblin-remix active mobile uec server-uec \
 	    preinstalled-desktop preinstalled-netbook preinstalled-mobile preinstalled-active \
 	    preinstalled-headless preinstalled-server
 	do
-		if find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" | grep . >/dev/null; then
+		if find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" -o -name "$prefix-$cdtype-*.tar.gz" | grep . >/dev/null; then
 			cdtypecount="$(($cdtypecount + 1))"
 		fi
 	done
@@ -836,11 +920,11 @@ foundtorrent=0
 
 for prefix in $CDPREFIX; do
 	for cdtype in live desktop server install alternate serveraddon addon \
-	    dvd src netbook mid moblin-remix mobile active \
+	    dvd src netbook mid moblin-remix mobile active uec server-uec \
 	    preinstalled-desktop preinstalled-netbook preinstalled-mobile preinstalled-active \
 	    preinstalled-headless preinstalled-server
 	do
-		if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" | grep . >/dev/null; then
+		if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" -o -name "$prefix-$cdtype-*.tar.gz" | grep . >/dev/null; then
 			continue
 		fi
 
@@ -855,7 +939,7 @@ for prefix in $CDPREFIX; do
 				;;
 		esac
 
-		for format in iso img img.gz; do
+		for format in iso img img.gz img.tar.gz tar.gz; do
 			archcount=0
 			if [ "$format" = img ] && [ -e "$DIR/$prefix-$cdtype.$format" ]; then
 				archcount="$(($archcount + 1))"
@@ -929,6 +1013,10 @@ EOF
 						imagestr="$(cdtypestr "$cdtype" "$format" | titlecase) $arch"
 						htaccessimagestr="$imagestr"
 						;;
+					server-uec|uec)
+						imagestr="$(uecarchstr "$arch") $(cdtypestr "$cdtype" "$format")"
+						htaccessimagestr="$(cdtypestr "$cdtype" "$format" | titlecase) for $(uecarchstr "$arch") computers"
+						;;
 					*)
 						imagestr="$(archstr "$arch") $(cdtypestr "$cdtype" "$format")"
 						htaccessimagestr="$(cdtypestr "$cdtype" "$format" | titlecase) for $(archstr "$arch") computers"
@@ -959,12 +1047,19 @@ EOF
 EOF
 				fi
 
-				for extension in img.gz.torrent img.gz.zsync img.gz img.torrent img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop manifest-remove template bootimg; do
+				for extension in img.gz.torrent img.gz.zsync img.gz img.tar.gz img.torrent img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop manifest-remove template tar.gz tar.gz.zsync bootimg; do
 					if ! [ -e "$DIR/$prefix-$cdtype-$arch.$extension" ]; then
 						continue
 					fi
 
 					echo "AddDescription \"$htaccessimagestr ($(extensionstr "$extension"))\" $prefix-$cdtype-$arch.$extension" >> "$HTACCESS"
+				done
+				for extension in initrd-ec2 initrd-virtual vmlinuz-ec2 vmlinuz-virtual; do
+					if ! [ -e "$DIR/$prefix-$cdtype-$arch-$extension" ]; then
+						continue
+					fi
+
+					echo "AddDescription \"$htaccessimagestr ($(extensionstr "$extension"))\" $prefix-$cdtype-$arch-$extension" >> "$HTACCESS"
 				done
 			done
 
@@ -975,6 +1070,61 @@ EOF
 		done
 	done
 done
+
+if [ -e "$DIR/published-ec2-$STATUS.txt" ]; then
+	cat <<EOF >> "$HEADER"
+<h3>Amazon EC2 Published AMIs</h3>
+
+<p>The images have been published to
+<a class="http" href="http://www.ubuntu.com/products/whatisubuntu/serveredition/features/ec2">Amazon
+EC2</a>, and can be used immediately with no need to download anything.  See
+the table below for the AMI ids. For further instruction on getting started
+with Amazon EC2, see the
+<a class="http" href="https://help.ubuntu.com/community/EC2StartersGuide">EC2
+Starters Guide</a>.
+</p>
+
+<table><tbody><tr>
+  <td><p> Availability Zone </p></td>
+  <td><p> arch </p></td>
+  <td><p> ami </p></td>
+  <td><p> ec2 command</p></td>
+</tr>
+EOF
+	grep ami "$DIR/published-ec2-$STATUS.txt" | while read zone ami manifest
+	do
+		case $manifest in
+			*amd64*)
+				arch=64-bit
+				link='http://developer.amazonwebservices.com/connect/entry%21default.jspa?categoryID=223&amp;externalID=2755&amp;fromSearchPage=true'
+				args="--instance-type m1.large"
+				;;
+			*i386*)
+				arch=32-bit
+				link='http://developer.amazonwebservices.com/connect/kbclick.jspa?categoryID=223&amp;externalID=2754&amp;searchID=1818410'
+				args="--instance-type m1.small"
+				;;
+		esac
+		case $zone in
+			eu-west-1)
+				zonename=Europe
+				args="$args --region $zone"
+				;;
+			us-east-1)
+				zonename=US
+				;;
+		esac
+		cat <<EOF >> "$HEADER"
+<tr>
+  <td><p> $zonename </p></td>
+  <td><p> $arch </p></td>
+  <td><p> <a href="$link"><tt>$ami</tt></a> </p></td>
+  <td><p> <tt>ec2-run-instances $ami --key \${EC2_KEYPAIR} $args </tt> </p></td>
+EOF
+	done
+
+	echo "</tbody></table>" >> "$HEADER"
+fi
 
 if dist_ge precise && \
    find "$DIR/" -follow -maxdepth 1 -type f -name \*-arm\* | grep . >/dev/null; then
@@ -1062,11 +1212,11 @@ cat <<EOF >> "$HTACCESS"
 
 HeaderName HEADER.html
 ReadmeName FOOTER.html
-IndexIgnore .htaccess HEADER.html FOOTER.html
+IndexIgnore .htaccess HEADER.html FOOTER.html published-ec2-daily.txt published-ec2-release.txt
 IndexOptions NameWidth=* DescriptionWidth=* SuppressHTMLPreamble FancyIndexing IconHeight=22 IconWidth=22
 AddIcon ${CDICONS}folder.png ^^DIRECTORY^^
 AddIcon ${CDICONS}iso.png .iso
-AddIcon ${CDICONS}img.png .img
+AddIcon ${CDICONS}img.png .img .tar.gz
 AddIcon ${CDICONS}jigdo.png .jigdo .template
 AddIcon ${CDICONS}list.png .list .manifest .html .zsync MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg
 AddIcon ${CDICONS}torrent.png .torrent .metalink

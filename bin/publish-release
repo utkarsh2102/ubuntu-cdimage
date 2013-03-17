@@ -224,6 +224,12 @@ fi
 
 DIST_TO_POOL=../.pool
 
+case $DATE in
+	*/unpacked)
+		RELEASE_FULL="$RELEASE_FULL/unpacked"
+		;;
+esac
+
 case $TYPE in
 	src)
 		DAILY="$DAILY/source"
@@ -265,7 +271,9 @@ if [ "$TYPE" != netbook ] && [ "$TYPE" != mid ]; then
 	for arch in $ARCHES; do
 		if [ ! -e "$DAILY/$DIST-$TYPE-$arch.iso" ] && \
 		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img" ] && \
-		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img.gz" ]; then
+		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img.gz" ] && \
+		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img.tar.gz" ] && \
+		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.tar.gz" ]; then
 			echo "No daily for $DIST $arch on $DATE!" >&2
 			exit 1
 		fi
@@ -320,12 +328,14 @@ for arch in $ARCHES; do
 
 	if [ ! -e "$base.iso" ] && \
 	   [ ! -e "$base.img" ] && \
-	   [ ! -e "$base.img.gz" ]; then
+	   [ ! -e "$base.img.gz" ] && \
+	   [ ! -e "$base.tar.gz" ] && \
+	   [ ! -e "$base.img.tar.gz" ]; then
 		continue
 	fi
 
 	# Copy, to make sure we have a canonical version of this.
-	for ext in iso list img img.gz bootimg; do
+	for ext in iso list img img.gz img.tar.gz tar.gz bootimg; do
 		if [ ! -e "$base.$ext" ]; then
 			continue
 		fi
@@ -348,6 +358,41 @@ for arch in $ARCHES; do
 				"$RELEASE_FULL" "$baseplain.$ext"
 		fi
 	done
+
+	for ext in initrd-ec2 initrd-virtual vmlinuz-ec2 vmlinuz-virtual; do
+		if [ ! -e "${base}-$ext" ]; then
+			continue
+		fi
+		if $PUBLISH_POOL; then
+			$echo cp -a "${base}-$ext" \
+				"$RELEASE_SIMPLE_POOL/${basestatus}-$ext"
+			$echo checksum-remove --no-sign \
+				"$RELEASE_SIMPLE_POOL" "${basestatus}-$ext"
+		fi
+		if $PUBLISH_DIST; then
+			$echo ln -sf "$DIST_TO_POOL/${basestatus}-$ext" \
+				"$RELEASE_SIMPLE_DIST/${basestatus}-$ext"
+			$echo checksum-remove --no-sign \
+				"$RELEASE_SIMPLE_DIST" "${basestatus}-$ext"
+		fi
+		if $PUBLISH_FULL; then
+			$echo cp -a "${base}-$ext" \
+				"$RELEASE_FULL/${baseplain}-$ext"
+			$echo checksum-remove --no-sign \
+				"$RELEASE_FULL" "${baseplain}-$ext"
+		fi
+	done
+
+	if [ -e "${base}-kernel-info.txt" ]; then
+		if $PUBLISH_DIST; then
+			$echo cp -a "${base}-kernel-info.txt" \
+				"$RELEASE_SIMPLE_DIST/${basestatus}-kernel-info.txt"
+		fi
+		if $PUBLISH_FULL; then
+			$echo cp -a "${base}-kernel-info.txt" \
+				"$RELEASE_FULL/${baseplain}-kernel-info.txt"
+		fi
+	fi
 
 	if [ "$TYPE" = install ] || [ "$TYPE" = alternate ] || \
 	   [ "$TYPE" = server ] || [ "$TYPE" = serveraddon ] || \
@@ -400,7 +445,7 @@ for arch in $ARCHES; do
 
 	want_manifest=false
 	case $TYPE in
-		live|desktop|netbook|mid|moblin-remix|preinstalled-*)
+		live|desktop|netbook|mid|moblin-remix|uec|server-uec|preinstalled-*)
 			want_manifest=:
 			;;
 		dvd)
@@ -427,7 +472,7 @@ for arch in $ARCHES; do
 		fi
 	fi
 
-	for ext in iso.zsync img.zsync img.gz.zsync; do
+	for ext in iso.zsync img.zsync img.gz.zsync tar.gz.zsync; do
 		if [ -e "$DAILY/$DIST-$TYPE-$arch.$ext" ]; then
 			baseext=${ext%.zsync}
 			if $PUBLISH_POOL; then
@@ -474,8 +519,26 @@ if $PUBLISH_DIST && [ -z "$CDIMAGE_NO_PURGE" ]; then
 	done
 fi
 
-if [ "$TYPE" != src ]; then
-	# Create and publish torrents.
+if [ "$TYPE" = uec ] || [ "$TYPE" = server-uec ]; then
+	for file in published-ec2-release.txt tool-version-info.txt \
+	            build-info.txt
+	do
+		if [ ! -e "$DAILY/$file" ]; then
+			continue
+		fi
+		if $PUBLISH_DIST; then
+			$echo cp -a "$DAILY/$file" \
+				"$RELEASE_SIMPLE_DIST/$file"
+		fi
+		if $PUBLISH_FULL; then
+			$echo cp -a "$DAILY/$file" \
+				"$RELEASE_FULL/$file"
+		fi
+	done
+fi
+
+if [ "$TYPE" != src ] && [ "$TYPE" != uec ] && [ "$TYPE" != server-uec ]; then
+	# Create and publish torrents
 	if $PUBLISH_DIST; then
 		TORRENTS="$CDIMAGE_ROOT/www/$TORRENT_TREE/simple/$DIST/$TYPE"
 		if [ -z "$CDIMAGE_NO_PURGE" ]; then
