@@ -8,6 +8,7 @@ export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
 IMAGE_TYPE=wubi
+export CDIMAGE_LIVE=1
 PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
 LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE"
 
@@ -24,21 +25,7 @@ exec >"$CDIMAGE_ROOT/log/$PROJECT/$DIST/$IMAGE_TYPE-$DATE.log" 2>&1
 
 mkemptydir "$LIVE_OUT"
 
-GOT_IMAGE=0
-for arch in $ARCHES; do
-	if fetch "$(find-live-filesystem "$arch" tar.xz)" \
-		"$LIVE_OUT/$arch.tar.xz"; then
-			GOT_IMAGE=1
-	fi
-	fetch "$(find-live-filesystem "$arch" manifest)" \
-		"$LIVE_OUT/$arch.manifest" || true
-
-done
-
-if [ "$GOT_IMAGE" = 0 ]; then
-	echo "No filesystem images found." >&2
-	exit 1
-fi
+download-live-filesystems
 
 IMAGE_TYPE_DIR="$IMAGE_TYPE"
 if [ "$DIST" != "${ALL_DISTS##* }" ]; then

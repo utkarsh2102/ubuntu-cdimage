@@ -626,7 +626,8 @@ def download_live_filesystems(config):
             download_live_items(config, arch, "size")
 
             if (config["UBUNTU_DEFAULTS_LOCALE"] or
-                    config["CDIMAGE_PREINSTALLED"]):
+                    config["CDIMAGE_PREINSTALLED"] or
+                    config.subproject == "wubi"):
                 continue
 
             if (project not in ("livecd-base", "ubuntu-core",

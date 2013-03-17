@@ -19,25 +19,6 @@ confirm () {
 	esac
 }
 
-fetch () {
-	case $1 in
-		'')
-			return 1
-			;;
-		/*)
-			ln "$1" "$2"
-			;;
-		*)
-			ret=0
-			wget -nv "$1" -O "$2" || ret=$?
-			if [ "$ret" -ne 0 ]; then
-				rm -f "$2"
-			fi
-			return $ret
-			;;
-	esac
-}
-
 get_notify_addresses () {
 	local path
 	if [ -e "$CDIMAGE_ROOT/production/notify-addresses" ]; then
