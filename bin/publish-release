@@ -321,7 +321,6 @@ for arch in $ARCHES; do
 	if [ ! -e "$base.iso" ] && \
 	   [ ! -e "$base.img" ] && \
 	   [ ! -e "$base.img.gz" ]; then
-	then
 		continue
 	fi
 
