@@ -42,8 +42,9 @@ make_torrent () {
 }
 
 if [ "$CDPREFIX" ]; then
-	for image in "$DIRECTORY/$CDPREFIX"-*.iso; do
+	for image in "$DIRECTORY/$CDPREFIX"-*.iso "$DIRECTORY/$CDPREFIX"-*.img; do
 		make_torrent "$image"
 	done
 fi
 make_torrent "$DIRECTORY/$CDPREFIX.iso"
+make_torrent "$DIRECTORY/$CDPREFIX.img"
