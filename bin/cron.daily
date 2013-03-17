@@ -35,8 +35,12 @@ def main():
     options, _ = parser.parse_args()
     config = Config(IMAGE_TYPE="daily")
     config["CDIMAGE_INSTALL"] = "1"
-    if config.project == "edubuntu":
+    project = config.project
+    series = config["DIST"]
+    if project == "edubuntu":
         config["CDIMAGE_ADDON"] = "1"
+    elif project == "ubuntu-server" and series >= "quantal":
+        config["CDIMAGE_SQUASHFS_BASE"] = "1"
     if options.live:
         if not run_live_builds(config):
             sys.exit(1)

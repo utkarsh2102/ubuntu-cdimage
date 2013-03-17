@@ -391,7 +391,8 @@ def build_image_set_locked(config, semaphore_state):
         log_marker("Checking for other task changes")
         subprocess.check_call(["update-tasks", date, image_type])
 
-        if config["CDIMAGE_LIVE"] or project == "edubuntu":
+        if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"] or
+                project == "edubuntu"):
             log_marker("Downloading live filesystem images")
             download_live_filesystems(config)
 

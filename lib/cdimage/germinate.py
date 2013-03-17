@@ -275,6 +275,7 @@ class GerminateOutput:
             ship = "ship"
             if "ship-addon" in self._seeds:
                 ship = "ship-addon"
+            in_squashfs = None
             if project == "ubuntu-server":
                 if series <= "breezy":
                     pass
@@ -282,11 +283,17 @@ class GerminateOutput:
                     ship = "server"
                 else:
                     ship = "server-ship"
+                in_squashfs = ["minimal"]
             elif project == "kubuntu-active":
                 ship = "active-ship"
             elif project == "jeos":
                 ship = "jeos"
-            for seed in self._inheritance(ship):
+            seeds = self._inheritance(ship)
+            if (self.config["CDIMAGE_SQUASHFS_BASE"] and
+                in_squashfs is not None):
+                for subtract in in_squashfs:
+                    seeds = self._without_inheritance(subtract, seeds)
+            for seed in seeds:
                 yield seed
             if self.config["CDIMAGE_DVD"]:
                 if series >= "edgy":
@@ -325,11 +332,6 @@ class GerminateOutput:
         elif mode == "ship-live":
             if project == "kubuntu-active":
                 yield "ship-active-live"
-            elif project == "ubuntu-server":
-                seeds = self._inheritance("server-ship")
-                seeds = self._without_inheritance("minimal", seeds)
-                for seed in seeds:
-                    yield seed
             else:
                 if series >= "dapper":
                     yield "ship-live"
@@ -429,6 +431,14 @@ class GerminateOutput:
             # building the debian-installer package.
             if seed in installer_seeds and package.startswith("kernel-image-"):
                 continue
+
+            # Force the use of live-installer rather than bootstrap-base on
+            # squashfs-base images.  Seed expansion doesn't do the right
+            # thing here because the installer seed is expanded before
+            # considering server-ship.
+            if self.config["CDIMAGE_SQUASHFS_BASE"]:
+                if package == "bootstrap-base":
+                    package = "live-installer"
 
             # germinate doesn't yet support subarchitecture specifications
             # (and it's not entirely clear what they would mean if it did),

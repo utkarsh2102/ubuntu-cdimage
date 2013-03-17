@@ -583,7 +583,7 @@ def download_live_filesystems(config):
     output_dir = live_output_directory(config)
     osextras.mkemptydir(output_dir)
 
-    if config["CDIMAGE_LIVE"]:
+    if config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"]:
         got_image = False
         for arch in config.arches:
             if config["UBUNTU_DEFAULTS_LOCALE"]:
@@ -601,7 +601,8 @@ def download_live_filesystems(config):
                 got_image = True
             else:
                 continue
-            if series >= "dapper" and project != "ubuntu-core":
+            if (series >= "dapper" and project != "ubuntu-core" and
+                    not config["CDIMAGE_SQUASHFS_BASE"]):
                 download_live_items(config, arch, "kernel")
                 download_live_items(config, arch, "initrd")
                 download_live_items(config, arch, "kernel-efi-signed")
