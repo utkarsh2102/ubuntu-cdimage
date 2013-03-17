@@ -24,6 +24,7 @@ get_purge_days () {
 if [ "$2" ]; then
 	DAYS="$2"
 else
+	DAYS="$(get_purge_days "$PROJECT")" || \
 	DAYS="$(get_purge_days "$PROJECT/$IMAGE_TYPE")" || \
 	DAYS="$(get_purge_days "$IMAGE_TYPE")" || {
 		echo "No purge time configured for $IMAGE_TYPE"

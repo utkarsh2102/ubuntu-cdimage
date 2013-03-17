@@ -20,6 +20,13 @@ export LC_ALL=C
 
 PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
+IMAGE_FORMAT=${IMAGE_FORMAT:-iso}
+case $PROJECT in
+	ubuntu-mid)
+		IMAGE_FORMAT=${IMAGE_FORMAT:-vfat}
+		;;
+esac
+export IMAGE_FORMAT
 export ALL_DISTS="${ALL_DISTS:-warty hoary breezy dapper edgy feisty gutsy hardy intrepid jaunty karmic lucid maverick natty oneiric precise quantal raring}"
 DIST="${DIST:-raring}"
 

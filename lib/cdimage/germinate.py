@@ -82,6 +82,8 @@ class Germination:
                 sources.insert(0, pattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
                 sources.insert(0, pattern % "ubuntu-gnome-dev")
+            elif project == "ubuntu-moblin-remix":
+                sources.insert(0, pattern % "moblin")
             return sources
         else:
             return ["http://people.canonical.com/~ubuntu-archive/seeds/"]
@@ -124,8 +126,12 @@ class Germination:
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntukylin":
             return "ubuntu.%s" % self.config.series
+        elif project == "ubuntu-mid":
+            return "mobile.%s" % self.config.series
         elif project == "ubuntu-netbook":
             return "netbook.%s" % self.config.series
+        elif project == "ubuntu-moblin-remix":
+            return "moblin.%s" % self.config.series
         else:
             return "%s.%s" % (project, self.config.series)
 

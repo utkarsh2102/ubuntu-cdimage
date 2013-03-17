@@ -94,6 +94,7 @@ class TestGermination(TestCase):
             ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntu-gnome", "raring",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
+            ("ubuntu-moblin-remix", "hardy", ["moblin", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
             sources = [
@@ -172,7 +173,9 @@ class TestGermination(TestCase):
             ("jeos", "breezy", "jeos.breezy"),
             ("jeos", "hardy", "ubuntu.hardy"),
             ("ubuntukylin", "raring", "ubuntu.raring"),
+            ("ubuntu-mid", "hardy", "mobile.hardy"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
+            ("ubuntu-moblin-remix", "hardy", "moblin.hardy")
         ):
             self.config["DIST"] = series
             self.assertEqual(seed_dist, self.germination.seed_dist(project))

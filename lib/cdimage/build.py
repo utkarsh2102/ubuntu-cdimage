@@ -80,6 +80,7 @@ def configure_for_project(config):
         "ubuntukylin",
         "ubuntu-gnome",
         "ubuntu-moblin-remix",
+        "ubuntu-mid",
     ):
         config["CDIMAGE_UNSUPPORTED"] = "1"
 

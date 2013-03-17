@@ -52,7 +52,7 @@ case $SOURCE in
 		source_tail="${SOURCE#ubuntu-netbook/}"
 		TREE_SUFFIX="/${source_tail%%/*}"
 		;;
-	ubuntu-server/*|ubuntu-netbook/*)
+	ubuntu-server/*|ubuntu-netbook/*|ubuntu-mid/*)
 		TREE_SUFFIX=
 		;;
 	*/*)
@@ -240,19 +240,39 @@ case $TYPE in
 		;;
 esac
 
-# Sanity-check.
-for arch in $ARCHES; do
-	if [ ! -e "$DAILY/$DIST-$TYPE-$arch.iso" ]; then
-		echo "No daily for $DIST $arch on $DATE!" >&2
-		exit 1
-	fi
+# override the arch list for these types unconditionally
+case $TYPE in
+	moblin-remix)
+		case $ARCHES in
+			*armel*)
+				;;
+			*)
+				ARCHES=i386
+				;;
+		esac
+		;;
+	mid)
+		ARCHES=lpia
+		;;
+esac
 
-	if [ -e "$DAILY/$DIST-$TYPE-$arch.OVERSIZED" ]; then
-		printf 'Daily for %s %s on %s is oversized! Continue?' \
-			"$DIST" "$arch" "$DATE"
-		confirm || exit 1
-	fi
-done
+# Sanity-check.
+if [ "$TYPE" != mid ]; then
+	for arch in $ARCHES; do
+		if [ ! -e "$DAILY/$DIST-$TYPE-$arch.iso" ] && \
+		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img" ] && \
+		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img.gz" ]; then
+			echo "No daily for $DIST $arch on $DATE!" >&2
+			exit 1
+		fi
+
+		if [ -e "$DAILY/$DIST-$TYPE-$arch.OVERSIZED" ]; then
+			printf 'Daily for %s %s on %s is oversized! Continue?' \
+				"$DIST" "$arch" "$DATE"
+			confirm || exit 1
+		fi
+	done
+fi
 
 if $PUBLISH_POOL; then
 	$echo mkdir -p "$RELEASE_SIMPLE_POOL"
@@ -276,19 +296,38 @@ fi
 echo "Constructing release trees ..."
 
 for arch in $ARCHES; do
+	case $TYPE in
+		mid)
+			if dist_le intrepid; then
+				base="$DAILY/$PROJECT-$TYPE"
+			else
+				base="$DAILY/$DIST-$TYPE-$arch"
+			fi
+			;;
+		*)
+			base="$DAILY/$DIST-$TYPE-$arch"
+			;;
+	esac
+
 	echo "Copying $TYPE-$arch image ..."
 
 	baseplain="$CDPREFIX-$TYPE-$arch"
 	basestatus="$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE-$arch"
 
-	if [ ! -e "$DAILY/$DIST-$TYPE-$arch.iso" ]; then
+	if [ ! -e "$base.iso" ] && \
+	   [ ! -e "$base.img" ] && \
+	   [ ! -e "$base.img.gz" ]; then
+	then
 		continue
 	fi
 
 	# Copy, to make sure we have a canonical version of this.
-	for ext in iso list; do
+	for ext in iso list img img.gz; do
+		if [ ! -e "$base.$ext" ]; then
+			continue
+		fi
 		if $PUBLISH_POOL; then
-			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
+			$echo cp -a "$base.$ext" \
 				"$RELEASE_SIMPLE_POOL/$basestatus.$ext"
 			$echo checksum-remove --no-sign \
 				"$RELEASE_SIMPLE_POOL" "$basestatus.$ext"
@@ -300,7 +339,7 @@ for arch in $ARCHES; do
 				"$RELEASE_SIMPLE_DIST" "$basestatus.$ext"
 		fi
 		if $PUBLISH_FULL; then
-			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
+			$echo cp -a "$base.$ext" \
 				"$RELEASE_FULL/$baseplain.$ext"
 			$echo checksum-remove --no-sign \
 				"$RELEASE_FULL" "$baseplain.$ext"
@@ -356,11 +395,23 @@ for arch in $ARCHES; do
 		fi
 	fi
 
-	if [ "$TYPE" = live ] || [ "$TYPE" = desktop ] || \
-	   ([ "$TYPE" = dvd ] && [ -e "$DAILY/$DIST-$TYPE-$arch.manifest" ]); then
+	want_manifest=false
+	case $TYPE in
+		live|desktop|mid|moblin-remix)
+			want_manifest=:
+			;;
+		dvd)
+			# DVDs are allowed to not have .manifest files, but
+			# may have them depending on configuration.
+			if [ -e "$base.manifest" ]; then
+				want_manifest=:
+			fi
+			;;
+	esac
+	if $want_manifest; then
 		# Copy, to make sure we have a canonical version of this.
 		if $PUBLISH_POOL; then
-			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.manifest" \
+			$echo cp -a "$base.manifest" \
 				"$RELEASE_SIMPLE_POOL/$basestatus.manifest"
 		fi
 		if $PUBLISH_DIST; then
@@ -368,48 +419,44 @@ for arch in $ARCHES; do
 				"$RELEASE_SIMPLE_DIST/$basestatus.manifest"
 		fi
 		if $PUBLISH_FULL; then
-			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.manifest" \
+			$echo cp -a "$base.manifest" \
 				"$RELEASE_FULL/$baseplain.manifest"
 		fi
 	fi
 
-	if $PUBLISH_POOL; then
-		if which zsyncmake >/dev/null 2>&1; then
-			echo "Making $arch zsync metafile ..."
-			$echo rm -f "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
-			$echo zsyncmake_wrapper \
-				-o "$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync" \
-				-u "$basestatus.iso" \
-				"$RELEASE_SIMPLE_POOL/$basestatus.iso"
+	for ext in iso.zsync img.zsync img.gz.zsync; do
+		if [ -e "$DAILY/$DIST-$TYPE-$arch.$ext" ]; then
+			baseext=${ext%.zsync}
+			if $PUBLISH_POOL; then
+				if which zsyncmake >/dev/null 2>&1; then
+					echo "Making $arch zsync metafile ..."
+					$echo rm -f "$RELEASE_SIMPLE_POOL/$basestatus.$ext"
+					$echo zsyncmake_wrapper \
+						-Z \
+						-o "$RELEASE_SIMPLE_POOL/$basestatus.$ext" \
+						-u "$basestatus.$baseext" \
+						"$RELEASE_SIMPLE_POOL/$basestatus.$baseext"
+				fi
+			elif $PUBLISH_FULL && [ "$OFFICIAL" = named ]; then
+				if which zsyncmake >/dev/null 2>&1; then
+					echo "Making $arch zsync metafile ..."
+					$echo rm -f "$RELEASE_FULL/$baseplain.$ext"
+					$echo zsyncmake_wrapper \
+						-Z \
+						-o "$RELEASE_FULL/$baseplain.$ext" \
+						-u "$baseplain.$baseext" \
+						"$RELEASE_FULL/$baseplain.$baseext"
+				fi
+			elif $PUBLISH_FULL; then
+				$echo cp -a "$DAILY/$DIST-$TYPE-$arch.$ext" \
+					"$RELEASE_FULL/$baseplain.$ext"
+			fi
 			if $PUBLISH_DIST; then
-				$echo ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
-					"$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
+				$echo ln -sf "$DIST_TO_POOL/$basestatus.$ext" \
+					"$RELEASE_SIMPLE_DIST/$basestatus.$ext"
 			fi
 		fi
-	elif $PUBLISH_FULL && [ "$OFFICIAL" = named ]; then
-		if which zsyncmake >/dev/null 2>&1; then
-			echo "Making $arch zsync metafile ..."
-			$echo rm -f "$RELEASE_FULL/$baseplain.iso.zsync"
-			$echo zsyncmake_wrapper \
-				-o "$RELEASE_FULL/$baseplain.iso.zsync" \
-				-u "$baseplain.iso" \
-				"$RELEASE_FULL/$baseplain.iso"
-		fi
-	elif [ -e "$DAILY/$DIST-$TYPE-$arch.iso.zsync" ]; then
-		# Copy, to make sure we have a canonical version of this.
-		if $PUBLISH_POOL; then
-			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
-				"$RELEASE_SIMPLE_POOL/$basestatus.iso.zsync"
-		fi
-		if $PUBLISH_DIST; then
-			$echo ln -sf "$DIST_TO_POOL/$basestatus.iso.zsync" \
-				"$RELEASE_SIMPLE_DIST/$basestatus.iso.zsync"
-		fi
-		if $PUBLISH_FULL; then
-			$echo cp -a "$DAILY/$DIST-$TYPE-$arch.iso.zsync" \
-				"$RELEASE_FULL/$baseplain.iso.zsync"
-		fi
-	fi
+	done
 done
 
 # There can only be one set of images per release in the per-release tree,
@@ -448,19 +495,23 @@ if [ "$TYPE" != src ]; then
 	for arch in $ARCHES; do
 		if $PUBLISH_DIST; then
 			basestatus="$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE-$arch"
-			[ -e "$RELEASE_SIMPLE_POOL/$basestatus.iso" ] || continue
-			$echo ln -f "$RELEASE_SIMPLE_POOL/$basestatus.iso" \
-				"$TORRENTS/$basestatus.iso"
-			$echo ln -f "$RELEASE_SIMPLE_DIST/$basestatus.iso.torrent" \
-				"$TORRENTS/$basestatus.iso.torrent"
+			for ext in iso img; do
+				[ -e "$RELEASE_SIMPLE_POOL/$basestatus.$ext" ] || continue
+				$echo ln -f "$RELEASE_SIMPLE_POOL/$basestatus.$ext" \
+					"$TORRENTS/$basestatus.$ext"
+				$echo ln -f "$RELEASE_SIMPLE_DIST/$basestatus.$ext.torrent" \
+					"$TORRENTS/$basestatus.$ext.torrent"
+			done
 		fi
 		if $PUBLISH_FULL; then
 			baseplain="$CDPREFIX-$TYPE-$arch"
-			[ -e "$RELEASE_FULL/$baseplain.iso" ] || continue
-			$echo ln -f "$RELEASE_FULL/$baseplain.iso" \
-				"$TORRENTS/$baseplain.iso"
-			$echo ln -f "$RELEASE_FULL/$baseplain.iso.torrent" \
-				"$TORRENTS/$baseplain.iso.torrent"
+			for ext in iso img; do
+				[ -e "$RELEASE_FULL/$baseplain.$ext" ] || continue
+				$echo ln -f "$RELEASE_FULL/$baseplain.$ext" \
+					"$TORRENTS/$baseplain.$ext"
+				$echo ln -f "$RELEASE_FULL/$baseplain.$ext.torrent" \
+					"$TORRENTS/$baseplain.$ext.torrent"
+			done
 		fi
 	done
 fi

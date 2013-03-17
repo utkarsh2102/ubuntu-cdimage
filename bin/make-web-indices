@@ -112,6 +112,12 @@ cdtypestr () {
 		netbook)
 			echo "netbook live $CD"
 			;;
+		mid)
+			echo "MID USB image"
+			;;
+		moblin-remix)
+			echo "Moblin live CD"
+			;;
 		active)
 			echo "preview active image"
 			;;
@@ -218,6 +224,25 @@ please file a bug on the
 <a href="https://bugs.launchpad.net/ubuntu/+source/debian-installer/+filebug">debian-installer</a>
 package.
 </p>
+EOF
+			;;
+		mid)
+			# MID has lower memory requirements than others
+			DESKTOP_RAM=128
+			cat <<EOF
+<p>The MID USB image allows you to try $CAPPROJECT without changing your
+computer at all, and at your option to install it permanently later. This
+USB image is optimized for handheld devices with 4-7" touchscreens and
+limited processing power. You will need at least ${DESKTOP_RAM}MB of RAM to
+install from this image.</p>
+EOF
+			;;
+		moblin-remix)
+			cat <<EOF
+<p>The live $CD allows you to try Ubuntu Moblin Remix without changing
+your computer at all, and at your option to install it permanently later.
+This live $CD is optimized for netbooks with screens up to 10". You will need
+at least ${DESKTOP_RAM}MB of RAM to install from this $CD.</p>
 EOF
 			;;
 		server)
@@ -438,6 +463,9 @@ maybe_oversized () {
 		local realtype
 		if [ "$2" = dvd ] || [ "$PROJECT" = ubuntustudio ]; then
 			realtype=dvd
+		elif [ "$PROJECT" = ubuntu-mid ] || \
+		     [ "$PROJECT" = ubuntu-moblin-remix ]; then
+			realtype=usb
 		else
 			realtype=cd
 		fi
@@ -448,6 +476,14 @@ maybe_oversized () {
 <span class="urgent">Warning: This image is oversized (which is a bug) and
 will not fit onto a standard 703MiB CD. However, you may still test it using
 a DVD, a USB drive, or a virtual machine.</span>
+EOF
+				;;
+			usb)
+				cat <<EOF
+<br>
+<span class="urgent">Warning: This image is oversized (which is a bug) and
+will not fit onto a 1GB USB stick. However, you may still test it using a
+DVD, a larger USB drive, or a virtual machine.</span>
 EOF
 				;;
 			dvd)
@@ -675,7 +711,7 @@ EOF
 cdtypecount=0
 for prefix in $CDPREFIX; do
 	for cdtype in live desktop server install alternate serveraddon \
-	    addon dvd src
+	    addon dvd src mid moblin-remix
 	do
 		if find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" | grep . >/dev/null; then
 			cdtypecount="$(($cdtypecount + 1))"
@@ -694,7 +730,7 @@ foundtorrent=0
 
 for prefix in $CDPREFIX; do
 	for cdtype in live desktop server install alternate serveraddon addon \
-	    dvd src
+	    dvd src mid moblin-remix
 	do
 		if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" | grep . >/dev/null; then
 			continue
@@ -750,6 +786,34 @@ EOF
 
 <dl>
 EOF
+
+			if [ "$format" = img ] && [ -e "$DIR/$prefix-$cdtype.$format" ]; then
+				case $cdtype in
+					mid)
+						imgarch=lpia
+						;;
+					*)
+						echo "Unknown image type $1!" >&2
+						;;
+				esac
+				imagestr="$(archstr "$imgarch") $(cdtypestr "$cdtype" "$format")"
+				htaccessimagestr="$(cdtypestr "$cdtype" "$format" | titlecase) for $(archstr "$imgarch") computers"
+
+				cat <<EOF >> "$HEADER"
+<dt><a href="$prefix-$cdtype.$format">$imagestr</a>
+
+<dd>$(archdesc "$imgarch" "$cdtype")$(maybe_oversized "$DIR/$prefix-$cdtype.OVERSIZED")</dd>
+
+EOF
+
+				for extension in img manifest; do
+					if ! [ -e "$DIR/$prefix-$cdtype.$extension" ]; then
+						continue
+					fi
+
+					echo "AddDescription \"$htaccessimagestr ($(extensionstr "$extension"))\" $prefix-$cdtype.$extension" >> "$HTACCESS"
+				done
+			fi
 
 			for arch in $arches; do
 				case $cdtype in
