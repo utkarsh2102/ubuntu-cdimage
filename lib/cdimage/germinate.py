@@ -130,6 +130,8 @@ class Germination:
             return "mobile.%s" % self.config.series
         elif project == "ubuntu-netbook":
             return "netbook.%s" % self.config.series
+        elif project == "ubuntu-headless":
+            return "ubuntu.%s" % self.config.series
         elif project == "ubuntu-moblin-remix":
             return "moblin.%s" % self.config.series
         else:

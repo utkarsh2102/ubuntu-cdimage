@@ -52,7 +52,11 @@ case $SOURCE in
 		source_tail="${SOURCE#ubuntu-netbook/}"
 		TREE_SUFFIX="/${source_tail%%/*}"
 		;;
-	ubuntu-server/*|ubuntu-netbook/*|ubuntu-mid/*)
+	ubuntu-headless/*/*)
+		source_tail="${SOURCE#ubuntu-headless/}"
+		TREE_SUFFIX="/${source_tail%%/*}"
+		;;
+	ubuntu-server/*|ubuntu-netbook/*|ubuntu-mid/*|ubuntu-headless/*)
 		TREE_SUFFIX=
 		;;
 	*/*)
@@ -242,7 +246,7 @@ esac
 
 # override the arch list for these types unconditionally
 case $TYPE in
-	moblin-remix)
+	netbook|moblin-remix)
 		case $ARCHES in
 			*armel*)
 				;;
@@ -257,7 +261,7 @@ case $TYPE in
 esac
 
 # Sanity-check.
-if [ "$TYPE" != mid ]; then
+if [ "$TYPE" != netbook ] && [ "$TYPE" != mid ]; then
 	for arch in $ARCHES; do
 		if [ ! -e "$DAILY/$DIST-$TYPE-$arch.iso" ] && \
 		   [ ! -e "$DAILY/$DIST-$TYPE-$arch.img" ] && \
@@ -297,7 +301,7 @@ echo "Constructing release trees ..."
 
 for arch in $ARCHES; do
 	case $TYPE in
-		mid)
+		netbook|mid)
 			if dist_le intrepid; then
 				base="$DAILY/$PROJECT-$TYPE"
 			else
@@ -322,7 +326,7 @@ for arch in $ARCHES; do
 	fi
 
 	# Copy, to make sure we have a canonical version of this.
-	for ext in iso list img img.gz; do
+	for ext in iso list img img.gz bootimg; do
 		if [ ! -e "$base.$ext" ]; then
 			continue
 		fi
@@ -397,7 +401,7 @@ for arch in $ARCHES; do
 
 	want_manifest=false
 	case $TYPE in
-		live|desktop|mid|moblin-remix)
+		live|desktop|netbook|mid|moblin-remix|preinstalled-*)
 			want_manifest=:
 			;;
 		dvd)

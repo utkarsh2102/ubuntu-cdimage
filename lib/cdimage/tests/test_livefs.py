@@ -801,6 +801,21 @@ class TestDownloadLiveFilesystems(TestCase):
             os.path.join(target_dir, "amd64.kernel-generic.efi.signed"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
+    def test_download_live_items_bootimg(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily-preinstalled"
+        self.assertTrue(
+            download_live_items(self.config, "armhf+omap4", "bootimg"))
+        url = ("http://cadejo.buildd/~buildd/LiveCD/raring/ubuntu-omap4/"
+               "current/livecd.ubuntu-omap4.bootimg-omap4")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "raring", "daily-preinstalled",
+            "live")
+        mock_fetch.assert_called_once_with(
+            url, os.path.join(target_dir, "armhf+omap4.bootimg-omap4"))
+
+    @mock.patch("cdimage.osextras.fetch", return_value=True)
     def test_download_live_items_wubi(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"

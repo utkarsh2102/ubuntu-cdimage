@@ -524,7 +524,7 @@ def download_live_items(config, arch, item):
     except NoLiveItem:
         return False
 
-    if item in ("kernel", "initrd"):
+    if item in ("kernel", "initrd", "bootimg"):
         for url in urls:
             flavour = re.sub(r"^.*?\..*?\..*?-", "", os.path.basename(url))
             target = os.path.join(
@@ -583,10 +583,22 @@ def download_live_filesystems(config):
     output_dir = live_output_directory(config)
     osextras.mkemptydir(output_dir)
 
-    if config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"]:
+    if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"] or
+            config["CDIMAGE_PREINSTALLED"]):
         got_image = False
         for arch in config.arches:
-            if config["UBUNTU_DEFAULTS_LOCALE"]:
+            if config["CDIMAGE_PREINSTALLED"]:
+                if download_live_items(config, arch, "ext4"):
+                    got_image = True
+                elif download_live_items(config, arch, "ext3"):
+                    got_image = True
+                elif download_live_items(config, arch, "ext2"):
+                    got_image = True
+                elif download_live_items(config, arch, "rootfs.tar.gz"):
+                    got_image = True
+                else:
+                    continue
+            elif config["UBUNTU_DEFAULTS_LOCALE"]:
                 if download_live_items(config, arch, "iso"):
                     got_image = True
                 else:
@@ -606,12 +618,15 @@ def download_live_filesystems(config):
                 download_live_items(config, arch, "kernel")
                 download_live_items(config, arch, "initrd")
                 download_live_items(config, arch, "kernel-efi-signed")
+                if config["CDIMAGE_PREINSTALLED"]:
+                    download_live_items(config, arch, "bootimg")
             download_live_items(config, arch, "manifest")
             if not download_live_items(config, arch, "manifest-remove"):
                 download_live_items(config, arch, "manifest-desktop")
             download_live_items(config, arch, "size")
 
-            if config["UBUNTU_DEFAULTS_LOCALE"]:
+            if (config["UBUNTU_DEFAULTS_LOCALE"] or
+                    config["CDIMAGE_PREINSTALLED"]):
                 continue
 
             if (project not in ("livecd-base", "ubuntu-core",

@@ -121,6 +121,21 @@ cdtypestr () {
 		active)
 			echo "preview active image"
 			;;
+		preinstalled-desktop)
+			echo "preinstalled desktop $CD"
+			;;
+		preinstalled-headless)
+			echo "preinstalled headless $CD"
+			;;
+		preinstalled-server)
+			echo "preinstalled server $CD"
+			;;
+		preinstalled-netbook)
+			echo "preinstalled netbook $CD"
+			;;
+		preinstalled-active)
+			echo "preview preinstalled active image"
+			;;
 		*)
 			echo "Unknown image type $1!" >&2
 			;;
@@ -328,6 +343,18 @@ following form:</p>
 </ul>
 EOF
 			;;
+		preinstalled-desktop|preinstalled-netbook|preinstalled-headless|preinstalled-server)
+			cat <<EOF
+<p>The $1 $CD allows you to unpack a preinstalled version of $CAPPROJECT
+onto a target device. 
+EOF
+			;;
+		preinstalled-active)
+			cat <<EOF
+<p>The Active Image allows you to unpack a preinstalled preview of the
+Plasma Active workspace onto an SD card.
+EOF
+			;;
 		*)
 			echo "Unknown image type $1!" >&2
 			;;
@@ -345,8 +372,41 @@ archstr () {
 		armel)
 			echo 'ARM EABI'
 			;;
+		armel+dove)
+			echo 'Marvell Dove'
+			;;
+		armel+imx51)
+			echo 'Freescale i.MX51'
+			;;
+		armel+omap)
+			echo 'Texas Instruments OMAP3'
+			;;
+		armel+omap4)
+			echo 'Texas Instruments OMAP4'
+			;;
+		armel+ac100)
+			echo 'Toshiba AC100 / Dynabook AZ'
+			;;
+		armel+mx5)
+			echo 'Freescale i.MX5x'
+			;;
 		armhf)
 			echo 'ARM EABI (Hard-Float)'
+			;;
+		armhf+omap)
+			echo 'Texas Instruments OMAP3 (Hard-Float)'
+			;;
+		armhf+omap4)
+			echo 'Texas Instruments OMAP4 (Hard-Float)'
+			;;
+		armhf+ac100)
+			echo 'Toshiba AC100 / Dynabook AZ (Hard-Float)'
+			;;
+		armhf+mx5)
+			echo 'Freescale i.MX5x (Hard-Float)'
+			;;
+		armhf+nexus7)
+			echo "Asus/Google Nexus7 Tablet"
 			;;
 		hppa)
 			echo 'HP PA-RISC'
@@ -397,6 +457,47 @@ EOF
 		armel)
 			cat <<EOF
 For ARMv7 processors and above.
+EOF
+			;;
+		armel+dove)
+			cat <<EOF
+For Dove boards.
+EOF
+			;;
+		armel+imx51)
+			cat <<EOF
+For i.MX51 boards.
+EOF
+			;;
+		armel+mx5|armhf+mx5)
+			cat <<EOF
+For Freescale i.MX5x boards. See <a href="https://wiki.ubuntu.com/ARM/MX5">ARM/MX5</a>
+for detailed installation information.
+EOF
+			;;
+		armel+omap|armhf+omap)
+			cat <<EOF
+For OMAP3 boards. See <a href="https://wiki.ubuntu.com/ARM/OMAP">ARM/OMAP</a>
+for detailed installation information.
+EOF
+			;;
+		armel+omap4|armhf+omap4)
+			cat <<EOF
+For OMAP4 boards. See <a href="https://wiki.ubuntu.com/ARM/OMAP">ARM/OMAP</a>
+for detailed installation information.
+EOF
+			;;
+		armel+ac100|armhf+ac100)
+			cat <<EOF
+For Toshiba AC100 / Dynabook AZ netbooks. See <a href="https://wiki.ubuntu.com/ARM/TEGRA/AC100">ARM/TEGRA/AC100</a>
+for detailed installation information (please make sure to download the 
+.bootimg file alongside with the filesystem archive).
+EOF
+			;;
+		armhf+nexus7)
+			cat <<EOF
+For the Asus/Google Nexus7 tablet. See <a href="https://wiki.ubuntu.com/Nexus7">the Nexus7 wikipages</a> for detailed
+installation information.
 EOF
 			;;
 		armhf)
@@ -541,6 +642,9 @@ extensionstr () {
 			;;
 		iso.zsync|img.zsync|img.gz.zsync)
 			echo '<a href=\"http://zsync.moria.org.uk/\">zsync</a> metafile'
+			;;
+		bootimg)
+			echo 'combined Android bootimage'
 			;;
 		*)
 			echo "Unknown extension $1!" >&2
@@ -711,7 +815,9 @@ EOF
 cdtypecount=0
 for prefix in $CDPREFIX; do
 	for cdtype in live desktop server install alternate serveraddon \
-	    addon dvd src mid moblin-remix
+	    addon dvd src netbook mid moblin-remix active mobile \
+	    preinstalled-desktop preinstalled-netbook preinstalled-mobile preinstalled-active \
+	    preinstalled-headless preinstalled-server
 	do
 		if find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" | grep . >/dev/null; then
 			cdtypecount="$(($cdtypecount + 1))"
@@ -730,7 +836,9 @@ foundtorrent=0
 
 for prefix in $CDPREFIX; do
 	for cdtype in live desktop server install alternate serveraddon addon \
-	    dvd src mid moblin-remix
+	    dvd src netbook mid moblin-remix mobile active \
+	    preinstalled-desktop preinstalled-netbook preinstalled-mobile preinstalled-active \
+	    preinstalled-headless preinstalled-server
 	do
 		if ! find "$DIR/" -follow -maxdepth 1 -type f -name "$prefix-$cdtype-*.list" -o -name "$prefix-$cdtype.img" -o -name "$prefix-$cdtype-*.img.gz" | grep . >/dev/null; then
 			continue
@@ -743,7 +851,7 @@ for prefix in $CDPREFIX; do
 					  sed "s/$prefix-$cdtype-\\(.*\\)\\.iso/\\1/" | sort -n)"
 				;;
 			*)
-				arches='i386 amd64 amd64+mac armel armhf powerpc powerpc+ps3 hppa ia64 lpia sparc'
+				arches='i386 amd64 amd64+mac armel+dove armel+imx51 armel+omap armel+omap4 armel+ac100 armel+mx5 armhf+omap armhf+omap4 armhf+ac100 armhf+mx5 armhf+nexus7 powerpc powerpc+ps3 hppa ia64 lpia sparc'
 				;;
 		esac
 
@@ -851,7 +959,7 @@ EOF
 EOF
 				fi
 
-				for extension in img.gz.torrent img.gz.zsync img.gz img.torrent img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop manifest-remove template; do
+				for extension in img.gz.torrent img.gz.zsync img.gz img.torrent img.zsync img iso.torrent iso.zsync iso jigdo list manifest manifest-desktop manifest-remove template bootimg; do
 					if ! [ -e "$DIR/$prefix-$cdtype-$arch.$extension" ]; then
 						continue
 					fi
@@ -867,6 +975,16 @@ EOF
 		done
 	done
 done
+
+if dist_ge precise && \
+   find "$DIR/" -follow -maxdepth 1 -type f -name \*-arm\* | grep . >/dev/null; then
+        cat <<EOF >> "$HEADER"
+<p>For ARM hardware for which we do not ship preinstalled images, see 
+<a href="https://wiki.ubuntu.com/ARM/Server/Install">ARM/Server/Install</a> 
+for detailed installation information.  </p>
+
+EOF
+fi
 
 if [ "$foundtorrent" = 1 ]; then
 	cat <<EOF >> "$HEADER"

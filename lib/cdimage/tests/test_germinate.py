@@ -175,6 +175,7 @@ class TestGermination(TestCase):
             ("ubuntukylin", "raring", "ubuntu.raring"),
             ("ubuntu-mid", "hardy", "mobile.hardy"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
+            ("ubuntu-headless", "lucid", "ubuntu.lucid"),
             ("ubuntu-moblin-remix", "hardy", "moblin.hardy")
         ):
             self.config["DIST"] = series

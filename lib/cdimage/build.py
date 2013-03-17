@@ -381,19 +381,20 @@ def build_image_set_locked(config, semaphore_state):
         log_marker("Extracting debootstrap scripts")
         extract_debootstrap(config)
 
-        log_marker("Germinating")
-        germination = Germination(config)
-        germination.run()
+        if not config["CDIMAGE_PREINSTALLED"]:
+            log_marker("Germinating")
+            germination = Germination(config)
+            germination.run()
 
-        log_marker("Generating new task lists")
-        germinate_output = germination.output(project)
-        germinate_output.write_tasks()
+            log_marker("Generating new task lists")
+            germinate_output = germination.output(project)
+            germinate_output.write_tasks()
 
-        log_marker("Checking for other task changes")
-        subprocess.check_call(["update-tasks", date, image_type])
+            log_marker("Checking for other task changes")
+            subprocess.check_call(["update-tasks", date, image_type])
 
         if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"] or
-                project == "edubuntu"):
+                config["CDIMAGE_PREINSTALLED"]):
             log_marker("Downloading live filesystem images")
             download_live_filesystems(config)
 
@@ -403,7 +404,8 @@ def build_image_set_locked(config, semaphore_state):
         fix_permissions(config)
 
         # Temporarily turned off for live builds.
-        if config["CDIMAGE_INSTALL_BASE"]:
+        if (config["CDIMAGE_INSTALL_BASE"] and
+                not config["CDIMAGE_PREINSTALLED"]):
             log_marker("Producing installability report")
             check_installable(config)
 

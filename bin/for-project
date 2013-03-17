@@ -44,6 +44,10 @@ case $1 in
 		export PROJECT=ubuntu-netbook
 		export CAPPROJECT=Ubuntu-Netbook
 		;;
+	ubuntu-headless)
+		export PROJECT=ubuntu-headless
+		export CAPPROJECT=Ubuntu-Headless
+		;;
 	ubuntustudio)
 		export PROJECT=ubuntustudio
 		export CAPPROJECT=Ubuntu-Studio
@@ -94,6 +98,7 @@ Recognised projects:
   jeos
   ubuntu-mid
   ubuntu-netbook
+  ubuntu-headless
   ubuntustudio
   mythbuntu
   lubuntu
