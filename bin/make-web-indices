@@ -111,7 +111,7 @@ cdtypestr () {
 			;;
 		addon)
 			# Edubuntu only
-			echo "add-on $CD"
+			echo "Ubuntu educational add-on $CD"
 			;;
 		dvd)
 			echo 'install/live DVD'
@@ -338,9 +338,8 @@ EOF
 		addon)
 			# Edubuntu only
 			cat <<EOF
-<p>The add-on $CD contains additional useful packages, including many
-educational programs and all available language packs. It requires that an
-Ubuntu desktop system already be installed.</p>
+<p>The Ubuntu educational add-on $CD contains additional useful packages, including many
+educational programs. It requires that an Ubuntu desktop system already be installed.</p>
 EOF
 			;;
 		dvd)
