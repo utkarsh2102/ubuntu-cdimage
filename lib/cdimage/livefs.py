@@ -246,7 +246,8 @@ def run_live_builds(config):
         full_name = live_build_full_name(config, arch)
         machine = live_builder(config, arch)
         timestamp = time.strftime("%F %T")
-        logger.info("%s on %s starting at %s" % (full_name, machine, timestamp))
+        logger.info(
+            "%s on %s starting at %s" % (full_name, machine, timestamp))
         proc = subprocess.Popen(live_build_command(config, arch))
         builds[proc.pid] = (proc, arch, full_name, machine)
 

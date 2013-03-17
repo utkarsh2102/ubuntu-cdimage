@@ -523,7 +523,8 @@ class TestDailyTreePublisher(TestCase):
             "raring-desktop-i386.OVERSIZED")
         os.makedirs(os.path.dirname(oversized_path))
         touch(oversized_path)
-        publisher.post_qa("20130315", ["ubuntu/daily-live/raring-desktop-i386"])
+        publisher.post_qa(
+            "20130315", ["ubuntu/daily-live/raring-desktop-i386"])
         expected_note = (
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>")
