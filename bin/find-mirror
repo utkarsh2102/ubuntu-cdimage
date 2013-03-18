@@ -30,7 +30,7 @@ from cdimage.mirror import find_mirror
 
 def main():
     parser = OptionParser("%prog ARCH")
-    options, args = parser.parse_args()
+    _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need architecture")
     print(find_mirror(config, args[0]))
