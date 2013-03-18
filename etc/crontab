@@ -5,6 +5,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # precise daily builds
 31 8 * * *	DIST=precise for-project ubuntu cron.daily; DIST=precise for-project ubuntu cron.daily-live --live
 29 9 * * *	DIST=precise for-project ubuntu-server cron.daily
+45 9 * * *	DIST=precise for-project ubuntu-core buildlive daily && DIST=precise build-livecd-base ubuntu-core daily
 56 21 * * *	DIST=precise SUBPROJECT=wubi for-project ubuntu buildlive wubi && DIST=precise for-project ubuntu cron.wubi
 34 14 * * 2,6	DIST=precise for-project ubuntu cron.dvd --live
 19 19 * * *	DIST=precise for-project edubuntu cron.dvd --live
