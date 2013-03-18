@@ -1,5 +1,9 @@
 PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+# On the Ubuntu production instance, this file lives in
+# /srv/cdimage.ubuntu.com/etc/crontab; please update that file if you expect
+# your changes to survive.
+
 # CD image cron jobs, run out of cdimage's crontab.
 
 # precise daily builds
