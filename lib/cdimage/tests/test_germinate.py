@@ -150,6 +150,7 @@ class TestGermination(TestCase):
 
     def test_germinate_dists_proposed(self):
         self.config["DIST"] = "precise"
+        self.config["PROPOSED"] = "1"
         self.assertEqual([
             "precise",
             "precise-security",

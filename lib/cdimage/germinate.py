@@ -116,7 +116,7 @@ class Germination:
             return self.config["GERMINATE_DISTS"].split(",")
         else:
             dist_patterns = ["%s", "%s-security", "%s-updates"]
-            if self.config.series == "precise":
+            if self.config.get("PROPOSED", "0") != "0":
                 dist_patterns.append("%s-proposed")
             return [pattern % self.config.series for pattern in dist_patterns]
 
