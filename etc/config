@@ -30,6 +30,12 @@ export IMAGE_FORMAT
 export ALL_DISTS="${ALL_DISTS:-warty hoary breezy dapper edgy feisty gutsy hardy intrepid jaunty karmic lucid maverick natty oneiric precise quantal raring}"
 DIST="${DIST:-raring}"
 
+case $DIST in
+	precise)
+		#export PROPOSED=1
+		;;
+esac
+
 # If you want to build image for one or more architectures comment out the
 # following line
 #ARCHES=i386
