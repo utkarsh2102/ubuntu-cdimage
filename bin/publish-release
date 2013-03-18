@@ -450,7 +450,7 @@ for arch in $ARCHES; do
 
 	want_manifest=false
 	case $TYPE in
-		live|desktop|netbook|mid|moblin-remix|uec|server-uec|preinstalled-*|wubi)
+		live|desktop|netbook|mid|moblin-remix|uec|server-uec|preinstalled-*|core|wubi)
 			want_manifest=:
 			;;
 		dvd)
