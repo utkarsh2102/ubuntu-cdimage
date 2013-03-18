@@ -75,6 +75,10 @@ case $1 in
 		export PROJECT=ubuntu-moblin-remix
 		export CAPPROJECT=Ubuntu-Moblin-Remix
 		;;
+	livecd-base)
+		export PROJECT=livecd-base
+		export CAPPROJECT=LiveCD-Base
+		;;
 	ubuntu-core)
 		export PROJECT=ubuntu-core
 		export CAPPROJECT=Ubuntu-Core
@@ -108,6 +112,7 @@ Recognised projects:
   ubuntukylin
   ubuntu-gnome
   ubuntu-moblin-remix
+  livecd-base
   ubuntu-core
   tocd3
   tocd3.1
