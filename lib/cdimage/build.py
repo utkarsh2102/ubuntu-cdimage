@@ -43,10 +43,13 @@ from cdimage.tree import Publisher, Tree
 
 @contextlib.contextmanager
 def lock_build_image_set(config):
+    project = config.project
+    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+        project = "ubuntu-chinese-edition"
     lock_path = os.path.join(
         config.root, "etc",
         ".lock-build-image-set-%s-%s-%s" % (
-            config.project, config.series, config.image_type))
+            project, config.series, config.image_type))
     try:
         subprocess.check_call(["lockfile", "-l", "7200", "-r", "0", lock_path])
     except subprocess.CalledProcessError:
@@ -92,8 +95,11 @@ def open_log(config):
     if config["DEBUG"]:
         return None
 
+    project = config.project
+    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+        project = "ubuntu-chinese-edition"
     log_path = os.path.join(
-        config.root, "log", config.project, config.series,
+        config.root, "log", project, config.series,
         "%s-%s.log" % (config.image_type, config["CDIMAGE_DATE"]))
     osextras.ensuredir(os.path.dirname(log_path))
     log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666)
@@ -416,6 +422,8 @@ def notify_failure(config, log_path):
         return
 
     project = config.project
+    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+        project = "ubuntu-chinese-edition"
     series = config.series
     image_type = config.image_type
     date = config["CDIMAGE_DATE"]
@@ -439,7 +447,6 @@ def notify_failure(config, log_path):
 
 
 def build_image_set_locked(config, semaphore_state):
-    project = config.project
     image_type = config.image_type
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
@@ -468,7 +475,7 @@ def build_image_set_locked(config, semaphore_state):
                 germination.run()
 
                 log_marker("Generating new task lists")
-                germinate_output = germination.output(project)
+                germinate_output = germination.output(config.project)
                 germinate_output.write_tasks()
 
                 log_marker("Checking for other task changes")

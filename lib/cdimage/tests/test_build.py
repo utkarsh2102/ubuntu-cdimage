@@ -285,6 +285,24 @@ class TestBuildImageSet(TestCase):
             self.assertEqual(0, mock_unlink_force.call_count)
         mock_unlink_force.assert_called_once_with(expected_lock_path)
 
+    @mock.patch("subprocess.check_call")
+    @mock.patch("cdimage.osextras.unlink_force")
+    def test_lock_build_image_set_chinese(self, mock_unlink_force,
+                                          mock_check_call):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        expected_lock_path = os.path.join(
+            self.temp_dir, "etc",
+            ".lock-build-image-set-ubuntu-chinese-edition-raring-daily")
+        self.assertFalse(os.path.exists(expected_lock_path))
+        with lock_build_image_set(self.config):
+            mock_check_call.assert_called_once_with([
+                "lockfile", "-l", "7200", "-r", "0", expected_lock_path])
+            self.assertEqual(0, mock_unlink_force.call_count)
+        mock_unlink_force.assert_called_once_with(expected_lock_path)
+
     def test_configure_onlyfree_unsupported(self):
         for project, series, onlyfree, unsupported in (
             ("ubuntu", "raring", False, False),
@@ -350,6 +368,34 @@ class TestBuildImageSet(TestCase):
             self.wait_for_pid(pid, 0)
             expected_log_path = os.path.join(
                 self.temp_dir, "log", "ubuntu", "raring", "daily-20130224.log")
+            self.assertTrue(os.path.exists(expected_log_path))
+            with open(expected_log_path) as log:
+                self.assertEqual([
+                    "Log path: %s" % expected_log_path,
+                    "VERBOSE: 3",
+                    "Standard error",
+                ], log.read().splitlines())
+
+    def test_open_log_chinese(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        self.config["CDIMAGE_DATE"] = "20130224"
+        pid = os.fork()
+        if pid == 0:  # child
+            log_path = open_log(self.config)
+            print("Log path: %s" % log_path)
+            print("VERBOSE: %s" % self.config["VERBOSE"])
+            sys.stdout.flush()
+            print("Standard error", file=sys.stderr)
+            sys.stderr.flush()
+            os._exit(0)
+        else:  # parent
+            self.wait_for_pid(pid, 0)
+            expected_log_path = os.path.join(
+                self.temp_dir, "log", "ubuntu-chinese-edition", "raring",
+                "daily-20130224.log")
             self.assertTrue(os.path.exists(expected_log_path))
             with open(expected_log_path) as log:
                 self.assertEqual([
@@ -599,6 +645,27 @@ class TestBuildImageSet(TestCase):
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
             "CD image ubuntu/raring/daily failed to build on 20130225",
+            "build-image-set", ["foo@example.org"], mock.ANY)
+        self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
+
+    @mock.patch("cdimage.build.send_mail")
+    def test_notify_failure_chinese(self, mock_send_mail):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        self.config["CDIMAGE_DATE"] = "20130225"
+        path = os.path.join(self.temp_dir, "production", "notify-addresses")
+        os.makedirs(os.path.dirname(path))
+        with open(path, "w") as notify_addresses:
+            print("ALL\tfoo@example.org", file=notify_addresses)
+        log_path = os.path.join(self.temp_dir, "log")
+        with open(log_path, "w") as log:
+            print("Log", file=log)
+        notify_failure(self.config, log_path)
+        mock_send_mail.assert_called_once_with(
+            "CD image ubuntu-chinese-edition/raring/daily failed to build on "
+            "20130225",
             "build-image-set", ["foo@example.org"], mock.ANY)
         self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
 
