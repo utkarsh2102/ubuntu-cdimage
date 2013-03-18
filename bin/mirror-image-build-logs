@@ -1,0 +1,47 @@
+#! /usr/bin/python
+
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Mirror image build logs.
+
+This is entirely special-cased for the Ubuntu production instance.
+"""
+
+import os
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+
+
+def main():
+    hostname = subprocess.Popen(["hostname", "-f"], stdout=subprocess.PIPE)
+    if hostname.communicate()[0].rstrip("\n") != "nusakan.canonical.com":
+        sys.exit(0)
+
+    subprocess.check_call([
+        "rsync",
+        "-azessh -i /home/cdimage/.ssh/id-cd-build-logs",
+        "--delete",
+        os.path.join(config.root, "log/"),
+        "ubuntu-archive@lillypilly:"
+        "/home/ubuntu-archive/public_html/cd-build-logs/",
+    ])
+
+
+if __name__ == "__main__":
+    main()
