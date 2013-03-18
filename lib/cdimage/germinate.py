@@ -25,7 +25,6 @@ import gzip
 import os
 import re
 import shutil
-import subprocess
 
 from cdimage import osextras
 from cdimage.log import logger
