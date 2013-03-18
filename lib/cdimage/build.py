@@ -486,6 +486,7 @@ def build_image_set_locked(config, semaphore_state):
 
         # Temporarily turned off for live builds.
         if (config["CDIMAGE_INSTALL_BASE"] and
+                not config["CDIMAGE_ADDON"] and
                 not config["CDIMAGE_PREINSTALLED"]):
             log_marker("Producing installability report")
             check_installable(config)
