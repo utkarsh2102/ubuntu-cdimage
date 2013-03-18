@@ -529,7 +529,7 @@ def download_live_items(config, arch, item):
             flavour = re.sub(r"^.*?\..*?\..*?-", "", os.path.basename(url))
             target = os.path.join(
                 output_dir, "%s.%s-%s" % (arch, item, flavour))
-            if osextras.fetch(url, target):
+            if osextras.fetch(config, url, target):
                 found = True
     elif item == "kernel-efi-signed":
         for url in urls:
@@ -539,19 +539,19 @@ def download_live_items(config, arch, item):
             flavour = re.sub(r"^.*?\..*?\..*?-", "", base)
             target = os.path.join(
                 output_dir, "%s.kernel-%s.efi.signed" % (arch, flavour))
-            if osextras.fetch(url, target):
+            if osextras.fetch(config, url, target):
                 found = True
     elif item in ("wubi", "umenu", "usb-creator"):
         target = os.path.join(output_dir, "%s.%s.exe" % (arch, item))
-        if osextras.fetch(urls[0], target):
+        if osextras.fetch(config, urls[0], target):
             found = True
     elif item == "winfoss":
         target = os.path.join(output_dir, "%s.%s.tgz" % (arch, item))
-        if osextras.fetch(urls[0], target):
+        if osextras.fetch(config, urls[0], target):
             found = True
     else:
         target = os.path.join(output_dir, "%s.%s" % (arch, item))
-        if osextras.fetch(urls[0], target):
+        if osextras.fetch(config, urls[0], target):
             found = True
     return found
 

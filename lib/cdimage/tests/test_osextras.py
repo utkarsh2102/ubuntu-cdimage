@@ -26,6 +26,7 @@ except ImportError:
     import mock
 
 from cdimage import osextras
+from cdimage.config import Config
 from cdimage.tests.helpers import TestCase, touch
 
 
@@ -137,28 +138,34 @@ class TestOSExtras(TestCase):
         osextras.run_bounded(1, ["sh", "-c", "while :; do sleep 3600; done"])
 
     def test_fetch_empty(self):
+        config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
-        self.assertFalse(osextras.fetch("", target))
+        self.assertFalse(osextras.fetch(config, "", target))
         self.assertFalse(os.path.exists(target))
 
     def test_fetch_file(self):
+        config = Config(read=False)
         source = os.path.join(self.temp_dir, "source")
         touch(source)
         target = os.path.join(self.temp_dir, "target")
-        self.assertTrue(osextras.fetch(source, target))
+        self.assertTrue(osextras.fetch(config, source, target))
         self.assertTrue(os.path.exists(target))
         self.assertEqual(os.stat(target), os.stat(source))
 
     @mock.patch("subprocess.call", return_value=1)
     def test_fetch_url_removes_target_on_failure(self, *args):
+        config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
         touch(target)
-        self.assertFalse(osextras.fetch("http://example.org/source", target))
+        self.assertFalse(
+            osextras.fetch(config, "http://example.org/source", target))
         self.assertFalse(os.path.exists(target))
 
     @mock.patch("subprocess.call", return_value=0)
     def test_fetch_url(self, mock_call):
+        config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
-        self.assertTrue(osextras.fetch("http://example.org/source", target))
+        self.assertTrue(
+            osextras.fetch(config, "http://example.org/source", target))
         mock_call.assert_called_once_with(
             ["wget", "-nv", "http://example.org/source", "-O", target])

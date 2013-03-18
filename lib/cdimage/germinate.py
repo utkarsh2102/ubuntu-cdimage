@@ -30,6 +30,7 @@ import subprocess
 from cdimage import osextras
 from cdimage.log import logger
 from cdimage.mirror import find_mirror
+from cdimage.proxy import proxy_check_call
 
 
 class GerminateNotInstalled(Exception):
@@ -185,7 +186,8 @@ class Germination:
         ]
         if self.use_bzr:
             command.append("--bzr")
-        subprocess.check_call(command, cwd=arch_output_dir)
+        proxy_check_call(
+            self.config, "germinate", command, cwd=arch_output_dir)
         output_structure = os.path.join(self.output_dir(project), "STRUCTURE")
         shutil.copy2(
             os.path.join(arch_output_dir, "structure"), output_structure)
@@ -205,7 +207,8 @@ class Germination:
                     "Re-germinating for %s/%s language pack dependencies ..." %
                     (self.config.series, arch))
                 command.extend(["--seed-packages", ",".join(extras)])
-                subprocess.check_call(command, cwd=arch_output_dir)
+                proxy_check_call(
+                    self.config, "germinate", command, cwd=arch_output_dir)
 
     def germinate_project(self, project):
         osextras.mkemptydir(self.output_dir(project))

@@ -173,7 +173,7 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
     @mock.patch("subprocess.check_call")
     @mock.patch("cdimage.osextras.fetch")
     def test_modern(self, mock_fetch, mock_check_call):
-        def fetch_side_effect(source, target):
+        def fetch_side_effect(config, source, target):
             tail = os.path.basename(target).split(".", 1)[1]
             if tail in ("iso", "manifest", "manifest-remove", "size"):
                 touch(target)

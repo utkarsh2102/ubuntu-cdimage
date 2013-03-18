@@ -745,6 +745,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertFalse(download_live_items(self.config, "i386", "squashfs"))
         mock_fetch.assert_called_once_with(
+            self.config,
             "http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/current/"
             "livecd.ubuntu.squashfs",
             os.path.join(
@@ -764,10 +765,10 @@ class TestDownloadLiveFilesystems(TestCase):
             "live")
         mock_fetch.assert_has_calls([
             mock.call(
-                prefix + "powerpc-smp",
+                self.config, prefix + "powerpc-smp",
                 os.path.join(target_dir, "powerpc.kernel-powerpc-smp")),
             mock.call(
-                prefix + "powerpc64-smp",
+                self.config, prefix + "powerpc64-smp",
                 os.path.join(target_dir, "powerpc.kernel-powerpc64-smp")),
         ])
 
@@ -782,7 +783,7 @@ class TestDownloadLiveFilesystems(TestCase):
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(
-            prefix + "generic",
+            self.config, prefix + "generic",
             os.path.join(target_dir, "i386.kernel-generic"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
@@ -797,7 +798,7 @@ class TestDownloadLiveFilesystems(TestCase):
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(
-            prefix + "generic.efi.signed",
+            self.config, prefix + "generic.efi.signed",
             os.path.join(target_dir, "amd64.kernel-generic.efi.signed"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
@@ -813,7 +814,8 @@ class TestDownloadLiveFilesystems(TestCase):
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-preinstalled",
             "live")
         mock_fetch.assert_called_once_with(
-            url, os.path.join(target_dir, "armhf+omap4.bootimg-omap4"))
+            self.config, url,
+            os.path.join(target_dir, "armhf+omap4.bootimg-omap4"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
     def test_download_live_items_wubi(self, mock_fetch):
@@ -825,7 +827,7 @@ class TestDownloadLiveFilesystems(TestCase):
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(
-            url, os.path.join(target_dir, "i386.wubi.exe"))
+            self.config, url, os.path.join(target_dir, "i386.wubi.exe"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
     def test_download_live_items_umenu(self, mock_fetch):
@@ -837,7 +839,7 @@ class TestDownloadLiveFilesystems(TestCase):
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "hardy", "daily-live", "live")
         mock_fetch.assert_called_once_with(
-            url, os.path.join(target_dir, "i386.umenu.exe"))
+            self.config, url, os.path.join(target_dir, "i386.umenu.exe"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
     def test_download_live_items_usb_creator(self, mock_fetch):
@@ -850,7 +852,7 @@ class TestDownloadLiveFilesystems(TestCase):
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(
-            url, os.path.join(target_dir, "i386.usb-creator.exe"))
+            self.config, url, os.path.join(target_dir, "i386.usb-creator.exe"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
     def test_download_live_items_winfoss(self, mock_fetch):
@@ -863,7 +865,7 @@ class TestDownloadLiveFilesystems(TestCase):
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "gutsy", "daily-live", "live")
         mock_fetch.assert_called_once_with(
-            url, os.path.join(target_dir, "i386.winfoss.tgz"))
+            self.config, url, os.path.join(target_dir, "i386.winfoss.tgz"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
     def test_download_live_items_squashfs(self, mock_fetch):
@@ -876,7 +878,7 @@ class TestDownloadLiveFilesystems(TestCase):
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(
-            url, os.path.join(target_dir, "i386.squashfs"))
+            self.config, url, os.path.join(target_dir, "i386.squashfs"))
 
     @mock.patch("cdimage.osextras.fetch", return_value=True)
     def test_download_live_items_server_squashfs(self, mock_fetch):
@@ -890,7 +892,7 @@ class TestDownloadLiveFilesystems(TestCase):
         target_dir = os.path.join(
             self.temp_dir, "scratch", "edubuntu", "raring", "dvd", "live")
         mock_fetch.assert_called_once_with(
-            url, os.path.join(target_dir, "i386.server-squashfs"))
+            self.config, url, os.path.join(target_dir, "i386.server-squashfs"))
 
     def test_write_autorun(self):
         self.config["PROJECT"] = "ubuntu"
@@ -917,7 +919,7 @@ class TestDownloadLiveFilesystems(TestCase):
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_filesystems_ubuntu_live(self, mock_fetch):
-        def fetch_side_effect(source, target):
+        def fetch_side_effect(config, source, target):
             tail = os.path.basename(target).split(".", 1)[1]
             if tail in (
                 "squashfs", "kernel-generic", "kernel-generic.efi.signed",

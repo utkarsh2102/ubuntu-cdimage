@@ -22,6 +22,7 @@ import signal
 import subprocess
 
 from cdimage.log import logger
+from cdimage.proxy import proxy_call
 
 
 def ensuredir(directory):
@@ -120,7 +121,7 @@ def run_bounded(seconds, command, **kwargs):
     os._exit(0)
 
 
-def fetch(source, target):
+def fetch(config, source, target):
     """Fetch a file from a remote system."""
     if not source:
         return False
@@ -130,7 +131,7 @@ def fetch(source, target):
         return True
 
     # This should arguably use urllib2/urllib.request or similar instead.
-    if subprocess.call(["wget", "-nv", source, "-O", target]) == 0:
+    if proxy_call(config, "fetch", ["wget", "-nv", source, "-O", target]) == 0:
         return True
     else:
         unlink_force(target)
