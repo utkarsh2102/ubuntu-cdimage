@@ -31,6 +31,10 @@ except ImportError:
 from cdimage.config import Config, all_series
 from cdimage.mirror import (
     UnknownManifestFile,
+    _get_mirror_key,
+    _get_mirrors,
+    _get_mirrors_async,
+    _trigger_command,
     _trigger_mirror,
     check_manifest,
     find_mirror,
@@ -76,32 +80,6 @@ class TestChecksumFile(TestCase):
 
 
 class TestTriggerMirrors(TestCase):
-    @mock.patch("subprocess.Popen")
-    def test_trigger_mirror_background(self, mock_popen):
-        self.capture_logging()
-        _trigger_mirror("id-test", "archvsync", "remote", background=True)
-        self.assertLogEqual(["remote:"])
-        mock_popen.assert_called_once_with([
-            "ssh", "-i", "id-test",
-            "-o", "StrictHostKeyChecking no",
-            "-o", "BatchMode yes",
-            "archvsync@remote",
-            "./releases-sync",
-        ])
-
-    @mock.patch("subprocess.call", return_value=0)
-    def test_trigger_mirror_foreground(self, mock_call):
-        self.capture_logging()
-        _trigger_mirror("id-test", "archvsync", "remote")
-        self.assertLogEqual(["remote:"])
-        mock_call.assert_called_once_with([
-            "ssh", "-i", "id-test",
-            "-o", "StrictHostKeyChecking no",
-            "-o", "BatchMode yes",
-            "archvsync@remote",
-            "./releases-sync",
-        ])
-
     def test_check_manifest_no_manifest(self):
         config = Config(read=False)
         config.root = self.use_temp_dir()
@@ -147,6 +125,65 @@ class TestTriggerMirrors(TestCase):
         self.home_secret = os.path.join(self.temp_dir, "home", "secret")
 
     @mock.patch("os.path.expanduser")
+    def test_get_mirror_key(self, mock_expanduser):
+        """If ~/secret exists, it is preferred over $CDIMAGE_ROOT/secret."""
+        self.configure_triggers()
+        mock_expanduser.return_value = self.home_secret
+        key = os.path.join(self.temp_dir, "secret", "auckland")
+        self.assertEqual(key, _get_mirror_key(self.config))
+        os.makedirs(self.home_secret)
+        key = os.path.join(self.home_secret, "auckland")
+        self.assertEqual(key, _get_mirror_key(self.config))
+
+    def test_get_mirrors(self):
+        self.configure_triggers()
+        self.assertEqual(["foo", "bar"], _get_mirrors(self.config))
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        self.assertEqual(["scandium.canonical.com"], _get_mirrors(self.config))
+
+    def test_get_mirrors_async(self):
+        self.configure_triggers()
+        self.assertEqual(
+            ["foo-async", "bar-async"], _get_mirrors_async(self.config))
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        self.assertEqual([], _get_mirrors_async(self.config))
+
+    def test_trigger_command(self):
+        config = Config(read=False)
+        self.assertEqual("./releases-sync", _trigger_command(config))
+        config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        self.assertEqual("./china-sync", _trigger_command(config))
+
+    @mock.patch("subprocess.Popen")
+    def test_trigger_mirror_background(self, mock_popen):
+        config = Config(read=False)
+        self.capture_logging()
+        _trigger_mirror(
+            config, "id-test", "archvsync", "remote", background=True)
+        self.assertLogEqual(["remote:"])
+        mock_popen.assert_called_once_with([
+            "ssh", "-i", "id-test",
+            "-o", "StrictHostKeyChecking no",
+            "-o", "BatchMode yes",
+            "archvsync@remote",
+            "./releases-sync",
+        ])
+
+    @mock.patch("subprocess.call", return_value=0)
+    def test_trigger_mirror_foreground(self, mock_call):
+        config = Config(read=False)
+        self.capture_logging()
+        _trigger_mirror(config, "id-test", "archvsync", "remote")
+        self.assertLogEqual(["remote:"])
+        mock_call.assert_called_once_with([
+            "ssh", "-i", "id-test",
+            "-o", "StrictHostKeyChecking no",
+            "-o", "BatchMode yes",
+            "archvsync@remote",
+            "./releases-sync",
+        ])
+
+    @mock.patch("os.path.expanduser")
     @mock.patch("cdimage.mirror._trigger_mirror")
     def test_trigger_mirrors(self, mock_trigger_mirror, mock_expanduser):
         self.configure_triggers()
@@ -154,25 +191,10 @@ class TestTriggerMirrors(TestCase):
         key = os.path.join(self.temp_dir, "secret", "auckland")
         trigger_mirrors(self.config)
         mock_trigger_mirror.assert_has_calls([
-            mock.call(key, "archvsync", "foo"),
-            mock.call(key, "archvsync", "bar"),
-            mock.call(key, "archvsync", "foo-async", background=True),
-            mock.call(key, "archvsync", "bar-async", background=True),
-        ])
-
-    @mock.patch("os.path.expanduser")
-    @mock.patch("cdimage.mirror._trigger_mirror")
-    def test_trigger_mirrors_home_secret(self, mock_trigger_mirror,
-                                         mock_expanduser):
-        """If ~/secret exists, it is preferred over $CDIMAGE_ROOT/secret."""
-        self.configure_triggers()
-        mock_expanduser.return_value = self.home_secret
-        os.makedirs(self.home_secret)
-        key = os.path.join(self.home_secret, "auckland")
-        trigger_mirrors(self.config)
-        mock_trigger_mirror.assert_has_calls([
-            mock.call(key, "archvsync", "foo"),
-            mock.call(key, "archvsync", "bar"),
-            mock.call(key, "archvsync", "foo-async", background=True),
-            mock.call(key, "archvsync", "bar-async", background=True),
+            mock.call(self.config, key, "archvsync", "foo"),
+            mock.call(self.config, key, "archvsync", "bar"),
+            mock.call(
+                self.config, key, "archvsync", "foo-async", background=True),
+            mock.call(
+                self.config, key, "archvsync", "bar-async", background=True),
         ])

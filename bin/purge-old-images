@@ -8,6 +8,7 @@ if [ -z "$1" ]; then
 	echo 'Usage: purge-old-images IMAGE_TYPE [DAYS]' >&2
 	exit 1
 fi
+PROJECT="$PROJECT${UBUNTU_DEFAULTS_LOCALE:+-$UBUNTU_DEFAULTS_LOCALE}"
 IMAGE_TYPE="$1"
 IMAGE_TYPE_DIR="$(echo "$IMAGE_TYPE" | sed 's,_,/,g')"
 
@@ -43,12 +44,16 @@ case $PROJECT in
 	ubuntu|livecd-base)
 		FULL_TREE=full
 		;;
+	ubuntu-zh_CN)
+		FULL_TREE="china-images/$DIST"
+		;;
 	*)
 		FULL_TREE="full/$PROJECT"
 		;;
 esac
 
-if [ "$DIST" != "${ALL_DISTS##* }" ]; then
+if [ "$PROJECT" != ubuntu-zh_CN ] && \
+   [ "$DIST" != "${ALL_DISTS##* }" ]; then
 	FULL_TREE="$FULL_TREE/$DIST"
 fi
 

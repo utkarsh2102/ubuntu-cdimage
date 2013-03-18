@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-# Copyright (C) 2012 Canonical Ltd.
+# Copyright (C) 2012, 2013 Canonical Ltd.
 # Author: Colin Watson <cjwatson@ubuntu.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -34,7 +34,15 @@ except ImportError:
 from cdimage import osextras
 from cdimage.config import Config, Series, all_series
 from cdimage.tests.helpers import TestCase, touch
-from cdimage.tree import DailyTree, DailyTreePublisher, SimpleTree, Tree
+from cdimage.tree import (
+    ChinaDailyTree,
+    ChinaDailyTreePublisher,
+    DailyTree,
+    DailyTreePublisher,
+    Publisher,
+    SimpleTree,
+    Tree,
+)
 
 
 class TestTree(TestCase):
@@ -43,6 +51,17 @@ class TestTree(TestCase):
         self.use_temp_dir()
         self.config = Config(read=False)
         self.tree = Tree(self.config, self.temp_dir)
+
+    def test_get_daily(self):
+        tree = Tree.get_daily(self.config, self.temp_dir)
+        self.assertIsInstance(tree, DailyTree)
+        self.assertEqual(self.config, tree.config)
+        self.assertEqual(self.temp_dir, tree.directory)
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        tree = Tree.get_daily(self.config, self.temp_dir)
+        self.assertIsInstance(tree, ChinaDailyTree)
+        self.assertEqual(self.config, tree.config)
+        self.assertEqual(self.temp_dir, tree.directory)
 
     def test_path_to_project(self):
         self.assertEqual("kubuntu", self.tree.path_to_project("kubuntu/foo"))
@@ -74,6 +93,23 @@ class TestTree(TestCase):
         self.assertFalse(self.tree.manifest_file_allowed(path))
 
 
+class TestPublisher(TestCase):
+    def test_get_daily(self):
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        tree = Tree.get_daily(config)
+        publisher = Publisher.get_daily(tree, "daily")
+        self.assertIsInstance(publisher, DailyTreePublisher)
+        self.assertEqual(tree, publisher.tree)
+        self.assertEqual("daily", publisher.image_type)
+        config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        tree = Tree.get_daily(config)
+        publisher = Publisher.get_daily(tree, "daily")
+        self.assertIsInstance(publisher, ChinaDailyTreePublisher)
+        self.assertEqual(tree, publisher.tree)
+        self.assertEqual("daily", publisher.image_type)
+
+
 class TestDailyTree(TestCase):
     def setUp(self):
         super(TestDailyTree, self).setUp()
@@ -91,6 +127,9 @@ class TestDailyTree(TestCase):
         self.assertEqual(
             "warty", self.tree.name_to_series("warty-install-i386.iso"))
         self.assertRaises(ValueError, self.tree.name_to_series, "README")
+
+    def test_site_name(self):
+        self.assertEqual("cdimage.ubuntu.com", self.tree.site_name)
 
     def test_path_to_manifest(self):
         iso = "kubuntu/hoary-install-i386.iso"
@@ -181,6 +220,10 @@ class TestDailyTreePublisher(TestCase):
                 "debian-cd"),
             self.make_publisher("kubuntu", "daily").image_output)
 
+    def test_source_extension(self):
+        self.assertEqual(
+            "raw", self.make_publisher("ubuntu", "daily").source_extension)
+
     def test_britney_report(self):
         self.assertEqual(
             os.path.join(
@@ -254,6 +297,7 @@ class TestDailyTreePublisher(TestCase):
             ("daily-live", "ubuntu-server", "hardy", "live"),
             ("daily-live", "ubuntu", "breezy", "live"),
             ("daily-live", "ubuntu", "dapper", "desktop"),
+            ("daily-live", "ubuntu-zh_CN", "raring", "desktop"),
             ("ports_dvd", "ubuntu", "hardy", "dvd"),
             ("dvd", "kubuntu", "hardy", "dvd"),
             ("daily", "edubuntu", "edgy", "install"),
@@ -475,7 +519,7 @@ class TestDailyTreePublisher(TestCase):
             ("lubuntu", "daily-preinstalled", "preinstalled-desktop",
              "Lubuntu Desktop Preinstalled"),
             ("ubuntu-core", "daily", "core", "Ubuntu Core"),
-            ("ubuntu-chinese-edition", "daily-live", "desktop",
+            ("ubuntu-zh_CN", "daily-live", "desktop",
              "Ubuntu Chinese Desktop"),
             ("ubuntukylin", "daily-live", "desktop", "UbuntuKylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME"),
@@ -593,6 +637,189 @@ class TestDailyTreePublisher(TestCase):
         ]), sorted(os.listdir(target_dir)))
         mock_post_qa.assert_called_once_with(
             "20120807", ["ubuntu/daily-live/raring-desktop-i386"])
+
+
+class TestChinaDailyTree(TestDailyTree):
+    def setUp(self):
+        super(TestChinaDailyTree, self).setUp()
+        self.tree = ChinaDailyTree(self.config, self.temp_dir)
+
+    def test_default_directory(self):
+        self.config.root = self.temp_dir
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "china-images"),
+            ChinaDailyTree(self.config).directory)
+
+    def test_site_name(self):
+        self.assertEqual("china-images.ubuntu.com", self.tree.site_name)
+
+
+class TestChinaDailyTreePublisher(TestDailyTreePublisher):
+    def setUp(self):
+        super(TestChinaDailyTreePublisher, self).setUp()
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+
+    def make_publisher(self, project, image_type, **kwargs):
+        self.config["PROJECT"] = project
+        self.tree = ChinaDailyTree(self.config)
+        publisher = ChinaDailyTreePublisher(self.tree, image_type, **kwargs)
+        osextras.ensuredir(publisher.image_output)
+        osextras.ensuredir(publisher.britney_report)
+        osextras.ensuredir(publisher.full_tree)
+        return publisher
+
+    def test_image_output(self):
+        self.config["DIST"] = "natty"
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "scratch", "ubuntu-chinese-edition",
+                "natty"),
+            self.make_publisher("ubuntu", "daily-live").image_output)
+        self.config["DIST"] = "oneiric"
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "scratch", "ubuntu-zh_CN", "oneiric",
+                "daily-live", "live"),
+            self.make_publisher("ubuntu", "daily-live").image_output)
+
+    def test_source_extension(self):
+        self.assertEqual(
+            "iso",
+            self.make_publisher("ubuntu", "daily-live").source_extension)
+
+    def test_full_tree(self):
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "china-images"),
+            self.make_publisher("ubuntu", "daily-live").full_tree)
+
+    def test_image_type_dir(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        for series in all_series:
+            self.config["DIST"] = series
+            self.assertEqual(
+                os.path.join(series.name, "daily-live"),
+                publisher.image_type_dir)
+
+    def test_publish_base(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        for series in all_series:
+            self.config["DIST"] = series
+            self.assertEqual(
+                os.path.join(
+                    self.config.root, "www", "china-images",
+                    series.name, "daily-live"),
+                publisher.publish_base)
+
+    def test_metalink_dirs(self):
+        basedir = os.path.join(self.config.root, "www", "china-images")
+        date = "20120912"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        for series in all_series:
+            self.config["DIST"] = series
+            self.assertEqual(
+                (basedir, os.path.join(series.name, "daily-live", date)),
+                publisher.metalink_dirs(date))
+
+    def test_size_limit(self):
+        for image_type, size_limit in (
+            ("dvd", 4700372992),
+            ("daily-live", 850000000),
+        ):
+            publisher = self.make_publisher("ubuntu", image_type)
+            self.assertEqual(size_limit, publisher.size_limit)
+
+    def test_publish_binary(self):
+        publisher = self.make_publisher(
+            "ubuntu", "daily-live", try_zsyncmake=False)
+        source_dir = os.path.join(publisher.image_output, "i386")
+        os.mkdir(source_dir)
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.iso" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.list" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.manifest" % self.config.series))
+        self.capture_logging()
+        self.assertEqual(
+            ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"],
+            list(publisher.publish_binary("desktop", "i386", "20120807")))
+        self.assertLogEqual([
+            "Publishing i386 ...",
+            "Unknown file type 'empty'; assuming .iso",
+            "Publishing i386 live manifest ...",
+        ])
+        target_dir = os.path.join(publisher.publish_base, "20120807")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertEqual([
+            "%s-desktop-i386.iso" % self.config.series,
+            "%s-desktop-i386.list" % self.config.series,
+            "%s-desktop-i386.manifest" % self.config.series,
+        ], sorted(os.listdir(target_dir)))
+
+    def test_publish_source(self):
+        pass
+
+    @mock_isotracker
+    def test_post_qa_oversized(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        oversized_path = os.path.join(
+            self.temp_dir, "www", "china-images", "raring", "daily-live",
+            "20130315", "raring-desktop-i386.OVERSIZED")
+        os.makedirs(os.path.dirname(oversized_path))
+        touch(oversized_path)
+        publisher.post_qa(
+            "20130315", ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"])
+        expected_note = (
+            "<strong>WARNING: This image is OVERSIZED. This should never "
+            "happen during milestone testing.</strong>")
+        expected = [["Ubuntu Chinese Desktop i386", "20130315", expected_note]]
+        self.assertEqual("raring", isotracker_module.tracker.target)
+        self.assertEqual(expected, isotracker_module.tracker.posted)
+
+    @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
+    def test_publish(self, mock_post_qa):
+        self.config["ARCHES"] = "i386"
+        self.config["CDIMAGE_LIVE"] = "1"
+        publisher = self.make_publisher(
+            "ubuntu", "daily-live", try_zsyncmake=False)
+        source_dir = os.path.join(publisher.image_output, "i386")
+        os.mkdir(source_dir)
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.iso" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.list" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.manifest" % self.config.series))
+        # TODO: until make-web-indices is converted to Python
+        bin_dir = os.path.join(self.config.root, "bin")
+        os.mkdir(bin_dir)
+        os.symlink("/bin/true", os.path.join(bin_dir, "make-web-indices"))
+        os.symlink("/bin/true", os.path.join(bin_dir, "make-metalink"))
+        os.mkdir(os.path.join(self.config.root, "etc"))
+        self.capture_logging()
+
+        publisher.publish("20120807")
+
+        self.assertLogEqual([
+            "Publishing i386 ...",
+            "Unknown file type 'empty'; assuming .iso",
+            "Publishing i386 live manifest ...",
+            "No keys found; not signing images.",
+            "No keys found; not signing images.",
+        ])
+        target_dir = os.path.join(publisher.publish_base, "20120807")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertEqual(sorted([
+            "MD5SUMS",
+            "SHA1SUMS",
+            "SHA256SUMS",
+            "%s-desktop-i386.iso" % self.config.series,
+            "%s-desktop-i386.list" % self.config.series,
+            "%s-desktop-i386.manifest" % self.config.series,
+        ]), sorted(os.listdir(target_dir)))
+        mock_post_qa.assert_called_once_with(
+            "20120807",
+            ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"])
 
 
 class TestSimpleTree(TestCase):

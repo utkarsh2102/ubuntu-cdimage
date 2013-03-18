@@ -7,6 +7,9 @@ case $1 in
 	ubuntu)
 		export PROJECT=ubuntu
 		export CAPPROJECT=Ubuntu
+		if [ "$UBUNTU_DEFAULTS_LOCALE" = zh_CN ]; then
+			export CAPPROJECT='Ubuntu Chinese Edition'
+		fi
 		;;
 	kubuntu)
 		export PROJECT=kubuntu

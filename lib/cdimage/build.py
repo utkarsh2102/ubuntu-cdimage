@@ -33,12 +33,12 @@ from cdimage import osextras
 from cdimage.build_id import next_build_id
 from cdimage.check_installable import check_installable
 from cdimage.germinate import Germination
-from cdimage.livefs import download_live_filesystems
+from cdimage.livefs import download_live_filesystems, live_output_directory
 from cdimage.log import logger, reset_logging
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.mirror import find_mirror, trigger_mirrors
 from cdimage.semaphore import Semaphore
-from cdimage.tree import DailyTree, DailyTreePublisher
+from cdimage.tree import Publisher, Tree
 
 
 @contextlib.contextmanager
@@ -226,6 +226,84 @@ def build_britney(config):
         subprocess.check_call(["make", "-C", update_out])
 
 
+class UnknownLocale(Exception):
+    pass
+
+
+def build_ubuntu_defaults_locale(config):
+    locale = config["UBUNTU_DEFAULTS_LOCALE"]
+    if locale != "zh_CN":
+        raise UnknownLocale(
+            "UBUNTU_DEFAULTS_LOCALE='%s' not currently supported!" % locale)
+
+    series = config["DIST"]
+    if series < "oneiric":
+        # Original hack: repack an existing image.
+        iso = config["ISO"]
+        if not iso:
+            raise Exception(
+                "Pass ISO=<path to Ubuntu image> in the environment.")
+
+        scratch = os.path.join(
+            config.root, "scratch", "ubuntu-chinese-edition", series.name)
+        bsdtar_tree = os.path.join(scratch, "bsdtar-tree")
+
+        log_marker("Unpacking")
+        if os.path.isdir(bsdtar_tree):
+            subprocess.check_call(["chmod", "-R", "+w", bsdtar_tree])
+        osextras.mkemptydir(bsdtar_tree)
+        subprocess.check_call(["bsdtar", "-xf", iso, "-C", bsdtar_tree])
+        subprocess.check_call(["chmod", "-R", "+w", bsdtar_tree])
+
+        log_marker("Transforming (robots in disguise)")
+        with open(os.path.join(bsdtar_tree, "isolinux", "lang"), "w") as lang:
+            print(locale, file=lang)
+        subprocess.call([
+            "mkisofs",
+            "-r", "-V", "Ubuntu Chinese %s i386" % series.version,
+            "-o", os.path.join(scratch, os.path.basename(iso)),
+            "-cache-inodes", "-J", "-l",
+            "-b", "isolinux/isolinux.bin", "-c", "isolinux/boot.cat",
+            "-no-emul-boot", "-boot-load-size", "4", "-boot-info-table",
+            bsdtar_tree,
+        ])
+
+        iso_prefix = iso.rsplit(".", 1)[0]
+        scratch_prefix = os.path.join(
+            scratch, os.path.basename(iso).rsplit(".", 1)[0])
+
+        for ext in "list", "manifest":
+            if os.path.exists("%s.%s" % (iso_prefix, ext)):
+                shutil.copy2(
+                    "%s.%s" % (iso_prefix, ext),
+                    "%s.%s" % (scratch_prefix, ext))
+            else:
+                osextras.unlink_force("%s.%s" % (scratch_prefix, ext))
+    else:
+        original_project = config.project
+        try:
+            config["PROJECT"] = "ubuntu"
+            download_live_filesystems(config)
+            scratch = live_output_directory(config)
+            for entry in os.listdir(scratch):
+                if "." in entry:
+                    os.rename(
+                        os.path.join(scratch, entry),
+                        os.path.join(
+                            scratch, "%s-desktop-%s" % (series.name, entry)))
+            pi_makelist = os.path.join(
+                config.root, "debian-cd", "tools", "pi-makelist")
+            for entry in os.listdir(scratch):
+                if entry.endswith(".iso"):
+                    entry_path = os.path.join(scratch, entry)
+                    list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
+                    with open(list_path, "w") as list_file:
+                        subprocess.check_call(
+                            [pi_makelist, entry_path], stdout=list_file)
+        finally:
+            config["PROJECT"] = original_project
+
+
 def _debootstrap_script(config):
     if config["DIST"] <= "gutsy":
         return "usr/lib/debootstrap/scripts/%s" % config.series
@@ -381,27 +459,30 @@ def build_image_set_locked(config, semaphore_state):
         log_marker("Extracting debootstrap scripts")
         extract_debootstrap(config)
 
-        if not config["CDIMAGE_PREINSTALLED"]:
-            log_marker("Germinating")
-            germination = Germination(config)
-            germination.run()
+        if config["UBUNTU_DEFAULTS_LOCALE"]:
+            build_ubuntu_defaults_locale(config)
+        else:
+            if not config["CDIMAGE_PREINSTALLED"]:
+                log_marker("Germinating")
+                germination = Germination(config)
+                germination.run()
 
-            log_marker("Generating new task lists")
-            germinate_output = germination.output(project)
-            germinate_output.write_tasks()
+                log_marker("Generating new task lists")
+                germinate_output = germination.output(project)
+                germinate_output.write_tasks()
 
-            log_marker("Checking for other task changes")
-            subprocess.check_call(["update-tasks", date, image_type])
+                log_marker("Checking for other task changes")
+                subprocess.check_call(["update-tasks", date, image_type])
 
-        if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"] or
-                config["CDIMAGE_PREINSTALLED"]):
-            log_marker("Downloading live filesystem images")
-            download_live_filesystems(config)
+            if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"] or
+                    config["CDIMAGE_PREINSTALLED"]):
+                log_marker("Downloading live filesystem images")
+                download_live_filesystems(config)
 
-        configure_splash(config)
+            configure_splash(config)
 
-        run_debian_cd(config)
-        fix_permissions(config)
+            run_debian_cd(config)
+            fix_permissions(config)
 
         # Temporarily turned off for live builds.
         if (config["CDIMAGE_INSTALL_BASE"] and
@@ -411,8 +492,8 @@ def build_image_set_locked(config, semaphore_state):
 
         if not config["DEBUG"] and not config["CDIMAGE_NOPUBLISH"]:
             log_marker("Publishing")
-            tree = DailyTree(config)
-            DailyTreePublisher(tree, image_type).publish(date)
+            tree = Tree.get_daily(config)
+            Publisher.get_daily(tree, image_type).publish(date)
 
             log_marker("Purging old images")
             subprocess.check_call(["purge-old-images", image_type])

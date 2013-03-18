@@ -11,7 +11,7 @@ import sys
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import config
 from cdimage.mail import get_notify_addresses, send_mail
-from cdimage.tree import DailyTree, DailyTreePublisher
+from cdimage.tree import Publisher, Tree
 
 
 warnings = {}
@@ -102,8 +102,8 @@ def project_title(project):
 def check_image(project, series, image):
     config["PROJECT"] = project
     config["DIST"] = series
-    tree = DailyTree(config)
-    publisher = DailyTreePublisher(tree, image)
+    tree = Tree.get_daily(config)
+    publisher = Publisher.get_daily(tree, image)
 
     curdir = os.path.join(publisher.publish_base, 'current')
     if not os.path.exists(curdir):
@@ -138,8 +138,8 @@ def check_image(project, series, image):
 def check_uninstallables(project, series, image):
     config["PROJECT"] = project
     config["DIST"] = series
-    tree = DailyTree(config)
-    publisher = DailyTreePublisher(tree, image)
+    tree = Tree.get_daily(config)
+    publisher = Publisher.get_daily(tree, image)
 
     curdir = os.path.join(publisher.publish_base, 'current')
     report_path = os.path.join(curdir, 'report.html')

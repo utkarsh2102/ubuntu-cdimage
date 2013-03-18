@@ -39,10 +39,12 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.build import (
+    UnknownLocale,
     _debootstrap_script,
     build_britney,
     build_image_set,
     build_image_set_locked,
+    build_ubuntu_defaults_locale,
     configure_for_project,
     configure_splash,
     extract_debootstrap,
@@ -151,6 +153,53 @@ class TestUpdateLocalIndices(TestCase):
         self.assertTrue(os.path.exists(os.path.join(
             self.packages, "dists", "raring", "local", "debian-installer",
             "binary-i386")))
+
+
+class TestBuildUbuntuDefaultsLocale(TestCase):
+    def setUp(self):
+        super(TestBuildUbuntuDefaultsLocale, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        self.config["PROJECT"] = "ubuntu"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        self.config["CDIMAGE_LIVE"] = "1"
+
+    def test_requires_chinese_locale(self):
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "en"
+        self.assertRaises(
+            UnknownLocale, build_ubuntu_defaults_locale, self.config)
+
+    @mock.patch("subprocess.check_call")
+    @mock.patch("cdimage.osextras.fetch")
+    def test_modern(self, mock_fetch, mock_check_call):
+        def fetch_side_effect(source, target):
+            tail = os.path.basename(target).split(".", 1)[1]
+            if tail in ("iso", "manifest", "manifest-remove", "size"):
+                touch(target)
+                return True
+            else:
+                return False
+
+        mock_fetch.side_effect = fetch_side_effect
+        self.config["DIST"] = "oneiric"
+        self.config["ARCHES"] = "i386"
+        build_ubuntu_defaults_locale(self.config)
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-zh_CN", "oneiric", "daily-live",
+            "live")
+        self.assertTrue(os.path.isdir(output_dir))
+        self.assertCountEqual([
+            "oneiric-desktop-i386.iso",
+            "oneiric-desktop-i386.list",
+            "oneiric-desktop-i386.manifest",
+            "oneiric-desktop-i386.manifest-remove",
+            "oneiric-desktop-i386.size",
+        ], os.listdir(output_dir))
+        mock_check_call.assert_called_once_with([
+            os.path.join(self.temp_dir, "debian-cd", "tools", "pi-makelist"),
+            os.path.join(output_dir, "oneiric-desktop-i386.iso"),
+        ], stdout=mock.ANY)
 
 
 class TestExtractDebootstrap(TestCase):
@@ -621,7 +670,7 @@ class TestBuildImageSet(TestCase):
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.build.extract_debootstrap")
     @mock.patch("cdimage.germinate.GerminateOutput.write_tasks")
-    @mock.patch("cdimage.build.DailyTreePublisher.publish")
+    @mock.patch("cdimage.tree.DailyTreePublisher.publish")
     def test_build_image_set_locked(
             self, mock_publish, mock_write_tasks, mock_extract_debootstrap,
             mock_call):

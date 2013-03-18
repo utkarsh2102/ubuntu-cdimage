@@ -77,6 +77,14 @@ def zsyncmake(infile, outfile, url):
 class Tree:
     """A publication tree."""
 
+    @staticmethod
+    def get_daily(config, directory=None):
+        if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+            cls = ChinaDailyTree
+        else:
+            cls = DailyTree
+        return cls(config, directory=directory)
+
     def __init__(self, config, directory):
         self.config = config
         self.directory = directory
@@ -91,6 +99,11 @@ class Tree:
 
     def name_to_series(self, name):
         """Return the series for a file basename."""
+        raise NotImplementedError
+
+    @property
+    def site_name(self):
+        """Return the public host name corresponding to this tree."""
         raise NotImplementedError
 
     def path_to_manifest(self, path):
@@ -132,6 +145,14 @@ class Tree:
 class Publisher:
     """A object that can publish images to a tree."""
 
+    @staticmethod
+    def get_daily(tree, image_type, try_zsyncmake=True):
+        if tree.config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+            cls = ChinaDailyTreePublisher
+        else:
+            cls = DailyTreePublisher
+        return cls(tree, image_type, try_zsyncmake=try_zsyncmake)
+
     def __init__(self, tree, image_type):
         self.tree = tree
         self.config = tree.config
@@ -151,6 +172,10 @@ class DailyTree(Tree):
         """Return the series for a file basename."""
         dist = name.split("-")[0]
         return Series.find_by_name(dist)
+
+    @property
+    def site_name(self):
+        return "cdimage.ubuntu.com"
 
     def manifest_files(self):
         """Yield all the files to include in a manifest of this tree."""
@@ -191,6 +216,10 @@ class DailyTreePublisher(Publisher):
         return os.path.join(
             self.config.root, "scratch", self.project, self.config.series,
             self.image_type, "debian-cd")
+
+    @property
+    def source_extension(self):
+        return "raw"
 
     @property
     def britney_report(self):
@@ -338,8 +367,8 @@ class DailyTreePublisher(Publisher):
 
     def detect_image_extension(self, source_prefix):
         subp = subprocess.Popen(
-            ["file", "-b", "%s.raw" % source_prefix], stdout=subprocess.PIPE,
-            universal_newlines=True)
+            ["file", "-b", "%s.%s" % (source_prefix, self.source_extension)],
+            stdout=subprocess.PIPE, universal_newlines=True)
         output = subp.communicate()[0].rstrip("\n")
         if output.startswith("# "):
             output = output[2:]
@@ -397,7 +426,8 @@ class DailyTreePublisher(Publisher):
         target_dir = os.path.join(self.publish_base, date)
         target_prefix = os.path.join(target_dir, out_prefix)
 
-        if not os.path.exists("%s.raw" % source_prefix):
+        if not os.path.exists(
+                "%s.%s" % (source_prefix, self.source_extension)):
             logger.warning("No %s image for %s!" % (publish_type, arch))
             for name in osextras.listdir_force(target_dir):
                 if name.startswith("%s." % out_prefix):
@@ -408,7 +438,8 @@ class DailyTreePublisher(Publisher):
         osextras.ensuredir(target_dir)
         extension = self.detect_image_extension(source_prefix)
         shutil.move(
-            "%s.raw" % source_prefix, "%s.%s" % (target_prefix, extension))
+            "%s.%s" % (source_prefix, self.source_extension),
+            "%s.%s" % (target_prefix, extension))
         if os.path.exists("%s.list" % source_prefix):
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
         self.checksum_dirs.append(source_dir)
@@ -469,7 +500,11 @@ class DailyTreePublisher(Publisher):
         else:
             osextras.unlink_force("%s.OVERSIZED" % target_prefix)
 
-        yield os.path.join(self.project, self.image_type_dir, in_prefix)
+        qa_project = self.project
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            qa_project = "-".join(
+                [qa_project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
+        yield os.path.join(qa_project, self.image_type_dir, in_prefix)
 
     def publish_source(self, date):
         for i in count(1):
@@ -479,12 +514,15 @@ class DailyTreePublisher(Publisher):
             source_prefix = os.path.join(source_dir, in_prefix)
             target_dir = os.path.join(self.publish_base, date, "source")
             target_prefix = os.path.join(target_dir, out_prefix)
-            if not os.path.exists("%s.raw" % source_prefix):
+            if not os.path.exists(
+                    "%s.%s" % (source_prefix, self.source_extension)):
                 break
 
             logger.info("Publishing source %d ..." % i)
             osextras.ensuredir(target_dir)
-            shutil.move("%s.raw" % source_prefix, "%s.iso" % target_prefix)
+            shutil.move(
+                "%s.%s" % (source_prefix, self.source_extension),
+                "%s.iso" % target_prefix)
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
             with ChecksumFileSet(
                     self.config, target_dir, sign=False) as checksum_files:
@@ -582,7 +620,7 @@ class DailyTreePublisher(Publisher):
         elif project == "ubuntu-core":
             if image_type == "daily" and publish_type == "core":
                 return "Ubuntu Core %s" % arch
-        elif project == "ubuntu-chinese-edition":
+        elif project == "ubuntu-zh_CN":
             if image_type == "daily-live" and publish_type == "desktop":
                 return "Ubuntu Chinese Desktop %s" % arch
         elif project == "ubuntukylin":
@@ -694,7 +732,7 @@ class DailyTreePublisher(Publisher):
             basedir, reldir = self.metalink_dirs(date)
             if subprocess.call([
                 os.path.join(self.config.root, "bin", "make-metalink"),
-                basedir, self.config.series, reldir, "cdimage.ubuntu.com",
+                basedir, self.config.series, reldir, self.tree.site_name,
             ]) == 0:
                 metalink_checksum_directory(self.config, target_dir)
             else:
@@ -736,6 +774,69 @@ class DailyTreePublisher(Publisher):
         self.post_qa(date, published)
 
 
+class ChinaDailyTree(DailyTree):
+    """A publication tree containing daily builds of the Chinese edition.
+
+    There isn't really any natural reason for Chinese to be special here,
+    but the Chinese edition was initially done as a special-case hack.  Its
+    successor, UbuntuKylin, is implemented more normally.
+    """
+
+    def __init__(self, config, directory=None):
+        if directory is None:
+            directory = os.path.join(config.root, "www", "china-images")
+        super(ChinaDailyTree, self).__init__(config, directory)
+
+    @property
+    def site_name(self):
+        return "china-images.ubuntu.com"
+
+
+class ChinaDailyTreePublisher(DailyTreePublisher):
+    """An object that can publish daily builds of the Chinese edition."""
+
+    @property
+    def image_output(self):
+        if self.config["DIST"] < "oneiric":
+            return os.path.join(
+                self.config.root, "scratch", "ubuntu-chinese-edition",
+                self.config.series)
+        else:
+            project = "ubuntu"
+            if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+                project = "-".join([
+                    project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
+            return os.path.join(
+                self.config.root, "scratch", project, self.config.series,
+                self.image_type, "live")
+
+    @property
+    def source_extension(self):
+        return "iso"
+
+    @property
+    def full_tree(self):
+        return self.tree.directory
+
+    @property
+    def image_type_dir(self):
+        return os.path.join(
+            self.config.series, self.image_type.replace("_", "/"))
+
+    def metalink_dirs(self, date):
+        return self.tree.directory, os.path.join(self.image_type_dir, date)
+
+    @property
+    def size_limit(self):
+        if self.publish_type == "dvd":
+            # http://en.wikipedia.org/wiki/DVD_plus_RW
+            return 4700372992
+        else:
+            # In the New World Order, we like round numbers, plus add
+            # another 50MB for Chinese localisation overhead.
+            return 850000000
+
+
 class SimpleTree(Tree):
     """A publication tree containing a few important releases."""
 
@@ -752,6 +853,10 @@ class SimpleTree(Tree):
         except ValueError:
             logger.warning("Unknown version: %s" % version)
             raise
+
+    @property
+    def site_name(self):
+        return "releases.ubuntu.com"
 
     def manifest_files(self):
         """Yield all the files to include in a manifest of this tree."""

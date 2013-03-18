@@ -34,21 +34,6 @@ class UnknownManifestFile(Exception):
     pass
 
 
-def _trigger_mirror(key, user, host, background=False):
-    logger.info("%s:" % host)
-    command = [
-        "ssh", "-i", key,
-        "-o", "StrictHostKeyChecking no",
-        "-o", "BatchMode yes",
-        "%s@%s" % (user, host),
-        "./releases-sync",
-    ]
-    if background:
-        subprocess.Popen(command)
-    else:
-        subprocess.call(command)
-
-
 def check_manifest(config):
     # Check for non-existent files in .manifest.
     simple_tree = os.path.join(config.root, "www", "simple")
@@ -65,17 +50,61 @@ def check_manifest(config):
             raise
 
 
-def trigger_mirrors(config):
-    check_manifest(config)
-
+def _get_mirror_key(config):
     secret = os.path.join(config.root, "secret")
     home_secret = os.path.expanduser("~/secret")
     if os.path.isdir(home_secret):
         secret = home_secret
-    key = os.path.join(secret, "auckland")
+    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+        base = "id-china-images"
+    else:
+        base = "auckland"
+    return os.path.join(secret, base)
 
-    for host in config["TRIGGER_MIRRORS"].split():
-        _trigger_mirror(key, "archvsync", host)
 
-    for host in config["TRIGGER_MIRRORS_ASYNC"].split():
-        _trigger_mirror(key, "archvsync", host, background=True)
+def _get_mirrors(config):
+    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+        return ["scandium.canonical.com"]
+    else:
+        return config["TRIGGER_MIRRORS"].split()
+
+
+def _get_mirrors_async(config):
+    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+        return []
+    else:
+        return config["TRIGGER_MIRRORS_ASYNC"].split()
+
+
+def _trigger_command(config):
+    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+        return "./china-sync"
+    else:
+        return "./releases-sync"
+
+
+def _trigger_mirror(config, key, user, host, background=False):
+    logger.info("%s:" % host)
+    command = [
+        "ssh", "-i", key,
+        "-o", "StrictHostKeyChecking no",
+        "-o", "BatchMode yes",
+        "%s@%s" % (user, host),
+        _trigger_command(config),
+    ]
+    if background:
+        subprocess.Popen(command)
+    else:
+        subprocess.call(command)
+
+
+def trigger_mirrors(config):
+    check_manifest(config)
+
+    key = _get_mirror_key(config)
+
+    for host in _get_mirrors(config):
+        _trigger_mirror(config, key, "archvsync", host)
+
+    for host in _get_mirrors_async(config):
+        _trigger_mirror(config, key, "archvsync", host, background=True)
