@@ -47,18 +47,7 @@ for arch in $CPUARCHES; do
 done
 
 if [ -d "$PUBLISH" ]; then
-	(cd "$PUBLISH" && \
-		find \( -name \*.cloop -o -name \*.squashfs \) \
-		     -printf '%P\n' | xargs md5sum -b > MD5SUMS)
-	(cd "$PUBLISH" && \
-		find \( -name \*.cloop -o -name \*.squashfs \) \
-		     -printf '%P\n' | xargs sha1sum -b > SHA1SUMS)
-	(cd "$PUBLISH" && \
-		find \( -name \*.cloop -o -name \*.squashfs \) \
-		     -printf '%P\n' | xargs sha256sum -b > SHA256SUMS)
-	sign-cdimage "$PUBLISH/MD5SUMS"
-	sign-cdimage "$PUBLISH/SHA1SUMS"
-	sign-cdimage "$PUBLISH/SHA256SUMS"
+	checksum-directory "$PUBLISH"
 	ln -nsf "$DATE" "$CDIMAGE_ROOT/www/full/$IMAGE_TYPE/current"
 else
 	echo "No images produced!" >&2
