@@ -827,7 +827,7 @@ case $DIST in
 		distversion=12.04.2
 		distfullname='Precise Pangolin'
 		case $PROJECT in
-			ubuntu|kubuntu|ubuntu-server)
+			ubuntu|kubuntu|ubuntu-server|edubuntu*|xubuntu|mythbuntu|ubuntustudio)
 				distversion="$distversion LTS"
 				;;
 		esac
