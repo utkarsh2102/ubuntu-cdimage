@@ -207,7 +207,7 @@ class TestDailyTreePublisher(TestCase):
         self.config["PROJECT"] = project
         self.tree = DailyTree(self.config)
         publisher = DailyTreePublisher(self.tree, image_type, **kwargs)
-        osextras.ensuredir(publisher.image_output)
+        osextras.ensuredir(publisher.image_output("i386"))
         osextras.ensuredir(publisher.britney_report)
         osextras.ensuredir(publisher.full_tree)
         return publisher
@@ -217,8 +217,8 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             os.path.join(
                 self.config.root, "scratch", "kubuntu", "hoary", "daily",
-                "debian-cd"),
-            self.make_publisher("kubuntu", "daily").image_output)
+                "debian-cd", "i386"),
+            self.make_publisher("kubuntu", "daily").image_output("i386"))
 
     def test_source_extension(self):
         self.assertEqual(
@@ -430,8 +430,8 @@ class TestDailyTreePublisher(TestCase):
     def test_publish_binary(self):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
-        source_dir = os.path.join(publisher.image_output, "i386")
-        os.mkdir(source_dir)
+        source_dir = publisher.image_output("i386")
+        osextras.ensuredir(source_dir)
         touch(os.path.join(
             source_dir, "%s-desktop-i386.raw" % self.config.series))
         touch(os.path.join(
@@ -456,7 +456,7 @@ class TestDailyTreePublisher(TestCase):
     def test_publish_source(self):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
-        source_dir = os.path.join(publisher.image_output, "src")
+        source_dir = publisher.image_output("src")
         os.mkdir(source_dir)
         touch(os.path.join(source_dir, "%s-src-1.raw" % self.config.series))
         touch(os.path.join(source_dir, "%s-src-1.list" % self.config.series))
@@ -597,8 +597,8 @@ class TestDailyTreePublisher(TestCase):
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
-        source_dir = os.path.join(publisher.image_output, "i386")
-        os.mkdir(source_dir)
+        source_dir = publisher.image_output("i386")
+        osextras.ensuredir(source_dir)
         touch(os.path.join(
             source_dir, "%s-desktop-i386.raw" % self.config.series))
         touch(os.path.join(
@@ -663,7 +663,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.config["PROJECT"] = project
         self.tree = ChinaDailyTree(self.config)
         publisher = ChinaDailyTreePublisher(self.tree, image_type, **kwargs)
-        osextras.ensuredir(publisher.image_output)
+        osextras.ensuredir(publisher.image_output("i386"))
         osextras.ensuredir(publisher.britney_report)
         osextras.ensuredir(publisher.full_tree)
         return publisher
@@ -674,13 +674,13 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             os.path.join(
                 self.config.root, "scratch", "ubuntu-chinese-edition",
                 "natty"),
-            self.make_publisher("ubuntu", "daily-live").image_output)
+            self.make_publisher("ubuntu", "daily-live").image_output("i386"))
         self.config["DIST"] = "oneiric"
         self.assertEqual(
             os.path.join(
                 self.config.root, "scratch", "ubuntu-zh_CN", "oneiric",
                 "daily-live", "live"),
-            self.make_publisher("ubuntu", "daily-live").image_output)
+            self.make_publisher("ubuntu", "daily-live").image_output("i386"))
 
     def test_source_extension(self):
         self.assertEqual(
@@ -731,8 +731,8 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
     def test_publish_binary(self):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
-        source_dir = os.path.join(publisher.image_output, "i386")
-        os.mkdir(source_dir)
+        source_dir = publisher.image_output("i386")
+        osextras.ensuredir(source_dir)
         touch(os.path.join(
             source_dir, "%s-desktop-i386.iso" % self.config.series))
         touch(os.path.join(
@@ -782,8 +782,8 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.config["CDIMAGE_LIVE"] = "1"
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
-        source_dir = os.path.join(publisher.image_output, "i386")
-        os.mkdir(source_dir)
+        source_dir = publisher.image_output("i386")
+        osextras.ensuredir(source_dir)
         touch(os.path.join(
             source_dir, "%s-desktop-i386.iso" % self.config.series))
         touch(os.path.join(

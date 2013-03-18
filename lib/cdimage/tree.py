@@ -211,11 +211,10 @@ class DailyTreePublisher(Publisher):
         self.checksum_dirs = []
         self.try_zsyncmake = try_zsyncmake  # for testing
 
-    @property
-    def image_output(self):
+    def image_output(self, arch):
         return os.path.join(
             self.config.root, "scratch", self.project, self.config.series,
-            self.image_type, "debian-cd")
+            self.image_type, "debian-cd", arch)
 
     @property
     def source_extension(self):
@@ -421,7 +420,7 @@ class DailyTreePublisher(Publisher):
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         out_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
-        source_dir = os.path.join(self.image_output, arch)
+        source_dir = self.image_output(arch)
         source_prefix = os.path.join(source_dir, in_prefix)
         target_dir = os.path.join(self.publish_base, date)
         target_prefix = os.path.join(target_dir, out_prefix)
@@ -510,7 +509,7 @@ class DailyTreePublisher(Publisher):
         for i in count(1):
             in_prefix = "%s-src-%d" % (self.config.series, i)
             out_prefix = "%s-src-%d" % (self.config.series, i)
-            source_dir = os.path.join(self.image_output, "src")
+            source_dir = self.image_output("src")
             source_prefix = os.path.join(source_dir, in_prefix)
             target_dir = os.path.join(self.publish_base, date, "source")
             target_prefix = os.path.join(target_dir, out_prefix)
@@ -715,7 +714,7 @@ class DailyTreePublisher(Publisher):
         if os.path.isdir(target_dir_source):
             checksum_directory(
                 self.config, target_dir_source,
-                old_directories=[os.path.join(self.image_output, "src")],
+                old_directories=[self.image_output("src")],
                 map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
             subprocess.check_call(
                 [os.path.join(self.config.root, "bin", "make-web-indices"),
@@ -795,8 +794,7 @@ class ChinaDailyTree(DailyTree):
 class ChinaDailyTreePublisher(DailyTreePublisher):
     """An object that can publish daily builds of the Chinese edition."""
 
-    @property
-    def image_output(self):
+    def image_output(self, arch):
         if self.config["DIST"] < "oneiric":
             return os.path.join(
                 self.config.root, "scratch", "ubuntu-chinese-edition",
