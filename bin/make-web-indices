@@ -18,6 +18,7 @@ STATUS="${3:-release}"
 HEADER="$DIR/HEADER.html"
 FOOTER="$DIR/FOOTER.html"
 HTACCESS="$DIR/.htaccess"
+PREFMSG=
 
 count () {
 	case $1 in
@@ -970,6 +971,11 @@ for prefix in $CDPREFIX; do
 $(cdtypedesc "$cdtype" "$format")
 
 EOF
+			if [ "$cdtype" = desktop ]; then
+				# We'd rather set this in cdtypedesc, but
+				# unfortunately it's in a subshell so doesn't stick.
+				PREFMSG=1
+			fi
 
 			if [ "$archcount" -eq 1 ]; then
 				cat <<EOF >> "$HEADER"
