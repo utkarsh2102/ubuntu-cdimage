@@ -847,21 +847,26 @@ case $DIST in
 		;;
 esac
 
+important=false
 case $CDPREFIX in
 	*-alpha-*)
 		distextra=" Alpha ${CDPREFIX#*-alpha-}"
 		;;
 	*-preview)
 		distextra=' Preview'
+		important=:
 		;;
 	*-beta)
 		distextra=' Beta'
+		important=:
 		;;
 	*-beta?*)
 		distextra=" Beta $(echo "$CDPREFIX" | sed 's/.*-beta//')"
+		important=:
 		;;
 	*-rc)
 		distextra=' Release Candidate'
+		important=:
 		;;
 	$DIST)
 		distextra=' Daily Build'
@@ -874,6 +879,7 @@ case $CDPREFIX in
 		;;
 	*)
 		distextra=
+		important=:
 		;;
 esac
 
@@ -904,6 +910,52 @@ cat <<EOF >> "$HEADER"
 
 <div id="main">
 
+EOF
+
+RELDIR="$(readlink -f "$DIR")"
+case /$RELDIR/ in
+	*/full/*)
+		if $important; then
+			case $PROJECT in
+				ubuntu|ubuntu-server|ubuntu-netbook)
+					cat <<EOF >> "$HEADER"
+<p>This directory contains only less-used images which are not mirrored
+widely. For the most frequently downloaded images, see
+<a href="http://releases.ubuntu.com/">releases.ubuntu.com</a>.
+Please use a <a href="http://www.ubuntu.com/getubuntu/downloadmirrors">
+mirror</a> if possible.</p>
+
+EOF
+					;;
+				kubuntu)
+					if dist_le oneiric; then
+						cat <<EOF >> "$HEADER"
+<p>This directory contains only less-used images which are not mirrored
+widely. For the most frequently downloaded images, see
+<a href="http://releases.ubuntu.com/kubuntu/">releases.ubuntu.com</a>.
+Please use a <a href="http://www.ubuntu.com/getubuntu/downloadmirrors">
+mirror</a> if possible.</p>
+
+EOF
+					fi
+					;;
+			esac
+		fi
+		;;
+	*/simple/*)
+		cat <<EOF >> "$HEADER"
+<p>This directory contains the most frequently downloaded $CAPPROJECT
+images. Other images, including DVDs and source CDs, may be available on the
+<a href="http://cdimage.ubuntu.com/">cdimage server</a>. See also the
+<a href="http://www.ubuntu.com/getubuntu/downloadmirrors">list of download
+mirrors</a>.</p>
+
+EOF
+		;;
+esac
+
+
+cat <<EOF >> "$HEADER"
 <h2>Select an image</h2>
 
 EOF
