@@ -52,13 +52,13 @@ def main():
     if "_" not in package:
         parser.error("package must be specified as <package>_<version>")
 
-    if arch == "source":
+    if options.architecture == "source":
         mirror = find_mirror(config, "i386")
         target = os.path.join(
             mirror, "dists", options.suite, options.component,
             "source", "Sources.gz")
     else:
-        mirror = find_mirror(config, arch)
+        mirror = find_mirror(config, options.architecture)
         target = os.path.join(
             mirror, "dists", options.suite, options.component,
             "binary-%s" % options.architecture, "Packages.gz")
