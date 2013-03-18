@@ -1,67 +1,85 @@
-#!/bin/sh
+#! /usr/bin/python
 
-set -e
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-# simple script to run anonftpsync repeatedly, at 5min intervals, until the
-# requested package/version is available.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+"""Wait for a package to appear on the local mirror.
 
-FTPDIR=ftp
-if [ -f "$CDIMAGE_ROOT/production/anonftpsync" ]; then
-	ANONFTPSYNC_CONF="$CDIMAGE_ROOT/production/anonftpsync"
-else
-	ANONFTPSYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync"
-fi
-export ANONFTPSYNC_CONF
+Run anonftpsync repeatedly, at five-minute intervals, until the requested
+package/version is available.
+"""
 
-ARCH=i386
-COMPONENT=main
+from __future__ import print_function
 
-while [ $# -gt 0 ]; do
-	case $1 in
-		-a)
-			ARCH="$2"
-			shift 2
-			;;
-		-c)
-			COMPONENT="$2"
-			shift 2
-			;;
-		-d)
-			DIST="$2"
-			shift 2
-			;;
-		*)
-			PACKAGE=$1
-			shift
-			;;
-	esac
-done
+from optparse import OptionParser
+import os
+import subprocess
+import sys
+import time
 
-if [ -z "$PACKAGE" ]; then
-	echo "No package specified."
-	exit 1
-fi
-if [ "$PACKAGE" = "${PACKAGE%%_*}" ]; then
-	echo "Package must be specified as <package>_<version>"
-	exit 1
-fi
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+from cdimage.mirror import find_mirror
 
-if [ "$ARCH" = "source" ]; then
-	TARGET="$CDIMAGE_ROOT/$FTPDIR/dists/$DIST/$COMPONENT/source/Sources.gz"
-else
-	TARGET="$CDIMAGE_ROOT/$FTPDIR/dists/$DIST/$COMPONENT/binary-$ARCH/Packages.gz"
-fi
 
-echo -n "Waiting for $PACKAGE."
-if ! zgrep -q "$PACKAGE" "$TARGET"; then
-	output=$(anonftpsync 2>&1) || echo $output | grep -q lockfile
-	while ! zgrep -q "$PACKAGE" "$TARGET"; do
-		echo -n "."
-		sleep 300
-		output=$(anonftpsync 2>&1) || echo $output | grep -q lockfile
-	done
-fi
-echo " package found."
+def main():
+    parser = OptionParser("%prog [options] PACKAGE_VERSION")
+    parser.add_option(
+        "-a", "--architecture", default="i386",
+        help="architecture to search, or 'source' (default: i386)")
+    parser.add_option(
+        "-c", "--component", default="main",
+        help="component to search (default: main)")
+    parser.add_option(
+        "-d", "--suite", default=config.series,
+        help="suite to search (default: %s)" % config.series)
+    options, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("no package specified")
+    package = args[0]
+    if "_" not in package:
+        parser.error("package must be specified as <package>_<version>")
+
+    if arch == "source":
+        mirror = find_mirror(config, "i386")
+        target = os.path.join(
+            mirror, "dists", options.suite, options.component,
+            "source", "Sources.gz")
+    else:
+        mirror = find_mirror(config, arch)
+        target = os.path.join(
+            mirror, "dists", options.suite, options.component,
+            "binary-%s" % options.architecture, "Packages.gz")
+
+    print("Waiting for %s." % package, end="")
+    sys.stdout.flush()
+
+    first_time = True
+    while subprocess.call(["zgrep", "-q", package, target]) != 0:
+        if not first_time:
+            print(".", end="")
+            sys.stdout.flush()
+            time.sleep(300)
+            first_time = True
+        anonftpsync = subprocess.Popen(
+            ["anonftpsync"], stderr=subprocess.STDOUT)
+        stdout = anonftpsync.communicate()[0]
+        if anonftpsync.returncode != 0 and "lockfile" not in stdout:
+            sys.exit(1)
+    print(" package found.")
+
+
+if __name__ == "__main__":
+    main()
