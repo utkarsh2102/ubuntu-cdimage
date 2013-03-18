@@ -38,6 +38,7 @@ ubuntu-wubi		*			*			amd64 i386
 
 ubuntu-zh_CN		*			maverick-natty		i386
 ubuntu-zh_CN		*			oneiric-		amd64 i386
+ubuntukylin		*			*			amd64 i386
 
 ubuntustudio		*			warty-edgy		amd64 i386 powerpc
 ubuntustudio		*			*			amd64 i386
