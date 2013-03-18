@@ -301,7 +301,7 @@ class GerminateOutput:
                 ship = "jeos"
             seeds = self._inheritance(ship)
             if (self.config["CDIMAGE_SQUASHFS_BASE"] and
-                in_squashfs is not None):
+                    in_squashfs is not None):
                 for subtract in in_squashfs:
                     seeds = self._without_inheritance(subtract, seeds)
             for seed in seeds:
