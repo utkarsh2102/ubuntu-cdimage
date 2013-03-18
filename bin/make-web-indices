@@ -397,6 +397,14 @@ EOF
 Plasma Active workspace onto an SD card.
 EOF
 			;;
+		ubuntu-core)
+			cat <<EOF
+<p>Ubuntu Core is a minimal rootfs for use in the creation of custom images for specific needs. 
+Ubuntu Core strives to create a suitable minimal environment for use in Board Support Packages, 
+constrained or integrated environments, or as the basis for application demonstration images.
+See the <a class="http" href="https://wiki.ubuntu.com/Core">Ubuntu Core Wikipage</a> for more information.
+EOF
+			;;
 		*)
 			echo "Unknown image type $1!" >&2
 			;;
