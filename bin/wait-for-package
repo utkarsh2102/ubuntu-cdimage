@@ -25,6 +25,7 @@ from __future__ import print_function
 
 from optparse import OptionParser
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -32,6 +33,13 @@ import time
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import config
 from cdimage.mirror import find_mirror
+
+
+def reset_sigpipe():
+    # Python installs a SIGPIPE handler by default.  This is bad for
+    # non-Python subprocesses, which generally expect SIGPIPE to be set to
+    # the default action.
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 
 def main():
@@ -67,7 +75,8 @@ def main():
     sys.stdout.flush()
 
     first_time = True
-    while subprocess.call(["zgrep", "-q", package, target]) != 0:
+    while subprocess.call(
+            ["zgrep", "-q", package, target], preexec_fn=reset_sigpipe) != 0:
         if not first_time:
             print(".", end="")
             sys.stdout.flush()
