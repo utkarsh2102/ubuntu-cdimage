@@ -897,9 +897,16 @@ for css in $(cssincludes); do
   @import url($css);
 EOF
 done
+case $PROJECT in
+	kubuntu*)
+		# TODO: move this into CSS, as done in /include/style.css?
+		cat <<EOF >> "$HEADER"
+<link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+<link rel="icon" type="image/png" href="http://www.kubuntu.org/themes/kubuntu10.04/favicon.ico">
+EOF
+		;;
+esac
 cat <<EOF >> "$HEADER"
-  pre { background: none; }
-  body { margin: 2em; }
   </style>
  </head>
  <body><div id="pageWrapper">
