@@ -629,7 +629,11 @@ maybe_oversized () {
 		if [ "$2" = dvd ] || [ "$PROJECT" = ubuntustudio ]; then
 			realtype=dvd
 		elif [ "$PROJECT" = ubuntu-mid ] || \
-		     [ "$PROJECT" = ubuntu-moblin-remix ]; then
+		     [ "$PROJECT" = ubuntu-moblin-remix ] || \
+		     [ "$PROJECT" = kubuntu ] || \
+		     [ "$PROJECT" = kubuntu-active ]; then
+			realtype=usb
+		elif [ "$PROJECT" = xubuntu ] && dist_ge raring; then
 			realtype=usb
 		else
 			realtype=cd
