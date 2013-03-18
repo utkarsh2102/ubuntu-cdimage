@@ -830,7 +830,7 @@ case $DIST in
 	precise)
 		distversion=12.04.2
 		distfullname='Precise Pangolin'
-		case $PROJECT in
+		case $PROJECT${UBUNTU_DEFAULTS_LOCALE:+-$UBUNTU_DEFAULTS_LOCALE} in
 			ubuntu|kubuntu|ubuntu-server|edubuntu*|xubuntu|mythbuntu|ubuntustudio)
 				distversion="$distversion LTS"
 				;;
