@@ -505,6 +505,45 @@ class DailyTreePublisher(Publisher):
                 [qa_project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
         yield os.path.join(qa_project, self.image_type_dir, in_prefix)
 
+    def publish_livecd_base(self, arch, date):
+        source_dir = os.path.join(
+            self.config.root, "scratch", self.project, self.config.series,
+            self.image_type, "live")
+        source_prefix = os.path.join(source_dir, arch)
+        target_dir = os.path.join(self.publish_base, date)
+        target_prefix = os.path.join(target_dir, arch)
+
+        if os.path.exists("%s.cloop" % source_prefix):
+            fs = "cloop"
+        elif os.path.exists("%s.squashfs" % source_prefix):
+            fs = "squashfs"
+        else:
+            logger.warning("No filesystem for %s!" % arch)
+            return
+
+        logger.info("Publishing %s ..." % arch)
+        osextras.ensuredir(target_dir)
+        shutil.copy2(
+            "%s.%s" % (source_prefix, fs), "%s.%s" % (target_prefix, fs))
+        if os.path.exists("%s.kernel" % source_prefix):
+            shutil.copy2(
+                "%s.kernel" % source_prefix, "%s.kernel" % target_prefix)
+        if os.path.exists("%s.initrd" % source_prefix):
+            shutil.copy2(
+                "%s.initrd" % source_prefix, "%s.initrd" % target_prefix)
+        shutil.copy2(
+            "%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
+        if os.path.exists("%s.manifest-remove" % source_prefix):
+            shutil.copy2(
+                "%s.manifest-remove" % source_prefix,
+                "%s.manifest-remove" % target_prefix)
+        elif os.path.exists("%s.manifest-desktop" % source_prefix):
+            shutil.copy2(
+                "%s.manifest-desktop" % source_prefix,
+                "%s.manifest-desktop" % target_prefix)
+
+        yield os.path.join("livecd-base", self.image_type_dir, arch)
+
     def publish_source(self, date):
         for i in count(1):
             in_prefix = "%s-src-%d" % (self.config.series, i)
@@ -677,7 +716,10 @@ class DailyTreePublisher(Publisher):
         self.new_publish_dir(date)
         published = []
         self.checksum_dirs = []
-        if not self.config["CDIMAGE_ONLYSOURCE"]:
+        if self.config.project == "livecd-base":
+            for arch in self.config.cpuarches:
+                published.extend(list(self.publish_livecd_base(arch, date)))
+        elif not self.config["CDIMAGE_ONLYSOURCE"]:
             for arch in self.config.arches:
                 published.extend(
                     list(self.publish_binary(self.publish_type, arch, date)))
@@ -688,7 +730,7 @@ class DailyTreePublisher(Publisher):
         published.extend(list(self.publish_source(date)))
 
         if not published:
-            logger.warning("No CDs produced!")
+            logger.warning("No images produced!")
             return
 
         target_dir = os.path.join(self.publish_base, date)
@@ -706,6 +748,8 @@ class DailyTreePublisher(Publisher):
             checksum_directory(
                 self.config, target_dir, old_directories=self.checksum_dirs,
                 map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
+        if (self.config.project != "livecd-base" and
+                not self.config["CDIMAGE_ONLYSOURCE"]):
             subprocess.check_call(
                 [os.path.join(self.config.root, "bin", "make-web-indices"),
                  target_dir, self.config.series, "daily"])

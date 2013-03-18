@@ -453,6 +453,28 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.manifest" % self.config.series,
         ], sorted(os.listdir(target_dir)))
 
+    def test_publish_livecd_base(self):
+        publisher = self.make_publisher(
+            "livecd-base", "livecd-base", try_zsyncmake=False)
+        source_dir = os.path.join(
+            self.temp_dir, "scratch", "livecd-base", self.config.series,
+            "livecd-base", "live")
+        osextras.ensuredir(source_dir)
+        for ext in (
+            "squashfs", "kernel", "initrd", "manifest", "manifest-remove",
+        ):
+            touch(os.path.join(source_dir, "i386.%s" % ext))
+        self.capture_logging()
+        self.assertEqual(
+            ["livecd-base/livecd-base/i386"],
+            list(publisher.publish_livecd_base("i386", "20130318")))
+        self.assertLogEqual(["Publishing i386 ..."])
+        target_dir = os.path.join(publisher.publish_base, "20130318")
+        self.assertCountEqual([
+            "i386.squashfs", "i386.kernel", "i386.initrd",
+            "i386.manifest", "i386.manifest-remove",
+        ], sorted(os.listdir(target_dir)))
+
     def test_publish_source(self):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
@@ -755,6 +777,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
         ], sorted(os.listdir(target_dir)))
+
+    def test_publish_livecd_base(self):
+        pass
 
     def test_publish_source(self):
         pass

@@ -47,11 +47,7 @@ fi
 if [ -z "$DEBUG" ]; then
 	echo "===== Publishing ====="
 	date
-	if [ "$PROJECT" = "livecd-base" ]; then
-		publish-livecd-base "$CDIMAGE_DATE" "$IMAGE_TYPE"
-	else
-		publish-daily "$CDIMAGE_DATE" "$IMAGE_TYPE"
-	fi
+	publish-daily "$CDIMAGE_DATE" "$IMAGE_TYPE"
 
 	echo "===== Purging old images ====="
 	date
