@@ -1,0 +1,35 @@
+#! /usr/bin/python
+
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Trigger old-releases mirrors."""
+
+import os
+import sys
+
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+from cdimage.mirror import trigger_mirrors
+
+
+def main():
+    config["TRIGGER_MIRRORS"] = "sawo.canonical.com"
+    config["TRIGGER_MIRRORS_ASYNC"] = ""
+    trigger_mirrors(config)
+
+
+if __name__ == "__main__":
+    main()
