@@ -286,28 +286,23 @@ def build_ubuntu_defaults_locale(config):
             else:
                 osextras.unlink_force("%s.%s" % (scratch_prefix, ext))
     else:
-        original_project = config.project
-        try:
-            config["PROJECT"] = "ubuntu"
-            download_live_filesystems(config)
-            scratch = live_output_directory(config)
-            for entry in os.listdir(scratch):
-                if "." in entry:
-                    os.rename(
-                        os.path.join(scratch, entry),
-                        os.path.join(
-                            scratch, "%s-desktop-%s" % (series.name, entry)))
-            pi_makelist = os.path.join(
-                config.root, "debian-cd", "tools", "pi-makelist")
-            for entry in os.listdir(scratch):
-                if entry.endswith(".iso"):
-                    entry_path = os.path.join(scratch, entry)
-                    list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
-                    with open(list_path, "w") as list_file:
-                        subprocess.check_call(
-                            [pi_makelist, entry_path], stdout=list_file)
-        finally:
-            config["PROJECT"] = original_project
+        download_live_filesystems(config)
+        scratch = live_output_directory(config)
+        for entry in os.listdir(scratch):
+            if "." in entry:
+                os.rename(
+                    os.path.join(scratch, entry),
+                    os.path.join(
+                        scratch, "%s-desktop-%s" % (series.name, entry)))
+        pi_makelist = os.path.join(
+            config.root, "debian-cd", "tools", "pi-makelist")
+        for entry in os.listdir(scratch):
+            if entry.endswith(".iso"):
+                entry_path = os.path.join(scratch, entry)
+                list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
+                with open(list_path, "w") as list_file:
+                    subprocess.check_call(
+                        [pi_makelist, entry_path], stdout=list_file)
 
 
 def _debootstrap_script(config):
