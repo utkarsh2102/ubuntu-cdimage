@@ -75,6 +75,8 @@ fi
 # will want to keep this variable empty.
 # The "async" mirrors will be notified asynchronously, i.e. we won't wait for
 # them to respond.
+# If these are unset, the contents of
+# $CDIMAGE_ROOT/production/trigger-mirrors will be used if present.
 TRIGGER_MIRRORS=
 TRIGGER_MIRRORS_ASYNC=
 

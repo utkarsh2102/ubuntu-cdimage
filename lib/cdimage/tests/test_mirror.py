@@ -136,12 +136,37 @@ class TestTriggerMirrors(TestCase):
         self.assertEqual(key, _get_mirror_key(self.config))
 
     def test_get_mirrors(self):
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        production_path = os.path.join(
+            self.temp_dir, "production", "trigger-mirrors")
+        os.makedirs(os.path.dirname(production_path))
+        with open(production_path, "w") as production:
+            print("sync x.example.org", file=production)
+            print("async other.example.org", file=production)
+            print("sync y.example.org z.example.org", file=production)
+        self.assertEqual(
+            ["x.example.org", "y.example.org", "z.example.org"],
+            _get_mirrors(config))
         self.configure_triggers()
         self.assertEqual(["foo", "bar"], _get_mirrors(self.config))
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         self.assertEqual(["scandium.canonical.com"], _get_mirrors(self.config))
 
     def test_get_mirrors_async(self):
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        production_path = os.path.join(
+            self.temp_dir, "production", "trigger-mirrors")
+        os.makedirs(os.path.dirname(production_path))
+        with open(production_path, "w") as production:
+            print("sync x.example.org", file=production)
+            print("async a.example.org b.example.org", file=production)
+            print("sync y.example.org z.example.org", file=production)
+            print("async c.example.org", file=production)
+        self.assertEqual(
+            ["a.example.org", "b.example.org", "c.example.org"],
+            _get_mirrors_async(config))
         self.configure_triggers()
         self.assertEqual(
             ["foo-async", "bar-async"], _get_mirrors_async(self.config))

@@ -62,18 +62,36 @@ def _get_mirror_key(config):
     return os.path.join(secret, base)
 
 
+def _trigger_mirrors_production_config(config, trigger_type):
+    path = os.path.join(config.root, "production", "trigger-mirrors")
+    mirrors = []
+    if os.path.exists(path):
+        with open(path) as f:
+            for line in f:
+                if line.startswith("#"):
+                    continue
+                words = line.split()
+                if words and words[0] == trigger_type:
+                    mirrors.extend(words[1:])
+    return mirrors
+
+
 def _get_mirrors(config):
     if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
         return ["scandium.canonical.com"]
-    else:
+    elif config["TRIGGER_MIRRORS"]:
         return config["TRIGGER_MIRRORS"].split()
+    else:
+        return _trigger_mirrors_production_config(config, "sync")
 
 
 def _get_mirrors_async(config):
     if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
         return []
-    else:
+    elif config["TRIGGER_MIRRORS_ASYNC"]:
         return config["TRIGGER_MIRRORS_ASYNC"].split()
+    else:
+        return _trigger_mirrors_production_config(config, "async")
 
 
 def _trigger_command(config):
