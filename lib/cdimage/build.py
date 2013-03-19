@@ -118,7 +118,7 @@ def open_log(config):
 
 def log_marker(message):
     logger.info("===== %s =====" % message)
-    logger.info(time.strftime("%a %b %e %H:%M:%S %Z %Y", time.gmtime()))
+    logger.info(time.strftime("%a %b %e %H:%M:%S UTC %Y", time.gmtime()))
 
 
 def sync_local_mirror(config, semaphore_state):

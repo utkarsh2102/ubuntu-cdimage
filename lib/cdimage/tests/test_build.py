@@ -259,7 +259,7 @@ class TestBuildImageSet(TestCase):
         mock_gmtime = mock.patch("time.gmtime", return_value=time.gmtime(0))
         mock_gmtime.start()
         self.addCleanup(mock_gmtime.stop)
-        self.epoch_date = "Thu Jan  1 00:00:00 GMT 1970"
+        self.epoch_date = "Thu Jan  1 00:00:00 UTC 1970"
 
     def wait_for_pid(self, pid, expected_status):
         while True:
