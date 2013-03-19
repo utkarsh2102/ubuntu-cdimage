@@ -676,7 +676,7 @@ class DailyTreePublisher(Publisher):
                 return "UbuntuKylin Desktop %s" % arch
         elif project == "ubuntu-gnome":
             if image_type == "daily-live" and publish_type == "desktop":
-                return "Ubuntu GNOME %s" % arch
+                return "Ubuntu GNOME Desktop %s" % arch
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
