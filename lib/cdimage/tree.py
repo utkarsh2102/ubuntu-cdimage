@@ -192,7 +192,8 @@ class DailyTree(Tree):
                 if dev_ino in seen_inodes:
                     del dirnames[i]
 
-            if "current" in dirpath.split(os.sep):
+            dirpath_bits = dirpath.split(os.sep)
+            if "current" in dirpath_bits or "latest" in dirpath_bits:
                 relative_dirpath = dirpath[len(self.directory) + 1:]
                 for filename in filenames:
                     path = os.path.join(dirpath, filename)
@@ -355,14 +356,18 @@ class DailyTreePublisher(Publisher):
         """
         publish_base = self.publish_base
         publish_date = os.path.join(publish_base, date)
-        publish_current = os.path.join(publish_base, "current")
         osextras.ensuredir(publish_date)
-        if not self.config["CDIMAGE_NOCOPY"]:
-            for name in sorted(osextras.listdir_force(publish_current)):
-                if name.startswith("%s-" % self.config.series):
-                    os.link(
-                        os.path.join(publish_current, name),
-                        os.path.join(publish_date, name))
+        if self.config["CDIMAGE_NOCOPY"]:
+            return
+        for previous_name in "latest", "current":
+            publish_previous = os.path.join(publish_base, previous_name)
+            if os.path.exists(publish_previous):
+                for name in sorted(os.listdir(publish_previous)):
+                    if name.startswith("%s-" % self.config.series):
+                        os.link(
+                            os.path.join(publish_previous, name),
+                            os.path.join(publish_date, name))
+                break
 
     def detect_image_extension(self, source_prefix):
         subp = subprocess.Popen(
@@ -788,6 +793,7 @@ class DailyTreePublisher(Publisher):
                     if name.endswith(".metalink"):
                         osextras.unlink_force(os.path.join(target_dir, name))
 
+        self.link(date, "latest")
         self.link(date, "current")
 
         manifest_lock = os.path.join(

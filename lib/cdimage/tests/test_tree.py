@@ -386,6 +386,21 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             [], os.listdir(os.path.join(publisher.publish_base, "20120807")))
 
+    def test_new_publish_dir_prefers_latest(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        publish_current = os.path.join(publisher.publish_base, "current")
+        osextras.ensuredir(publish_current)
+        touch(os.path.join(
+            publish_current, "%s-alternate-i386.iso" % self.config.series))
+        publish_latest = os.path.join(publisher.publish_base, "latest")
+        osextras.ensuredir(publish_latest)
+        touch(os.path.join(
+            publish_latest, "%s-alternate-amd64.iso" % self.config.series))
+        publisher.new_publish_dir("20130319")
+        self.assertEqual(
+            ["%s-alternate-amd64.iso" % self.config.series],
+            os.listdir(os.path.join(publisher.publish_base, "20130319")))
+
     def test_jigdo_ports_powerpc(self):
         publisher = self.make_publisher("ubuntu", "daily")
         for series in all_series[:5]:
@@ -666,6 +681,9 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.manifest" % self.config.series,
             "report.html",
         ]), sorted(os.listdir(target_dir)))
+        self.assertCountEqual(
+            ["20120807", "current", "latest"],
+            os.listdir(publisher.publish_base))
         mock_post_qa.assert_called_once_with(
             "20120807", ["ubuntu/daily-live/raring-desktop-i386"])
 
@@ -851,6 +869,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
         ]), sorted(os.listdir(target_dir)))
+        self.assertCountEqual(
+            ["20120807", "current", "latest"],
+            os.listdir(publisher.publish_base))
         mock_post_qa.assert_called_once_with(
             "20120807",
             ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"])
