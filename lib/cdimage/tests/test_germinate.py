@@ -984,8 +984,8 @@ class TestGerminateOutput(TestCase):
 
     # TODO: write_tasks untested
 
-    @mock.patch("subprocess.check_call")
-    def test_diff_tasks(self, mock_check_call):
+    @mock.patch("subprocess.call", return_value=1)
+    def test_diff_tasks(self, mock_call):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -1002,8 +1002,8 @@ class TestGerminateOutput(TestCase):
         touch(os.path.join("%s-previous" % output_dir, "standard"))
         output = GerminateOutput(self.config, self.temp_dir)
         output.diff_tasks()
-        self.assertEqual(2, mock_check_call.call_count)
-        mock_check_call.assert_has_calls([
+        self.assertEqual(2, mock_call.call_count)
+        mock_call.assert_has_calls([
             mock.call([
                 "diff", "-u",
                 os.path.join("%s-previous" % output_dir, "minimal"),
@@ -1068,19 +1068,21 @@ class TestGerminateOutput(TestCase):
                     print(line, file=f)
 
     @mock.patch("cdimage.germinate.send_mail")
-    @mock.patch("subprocess.check_call")
-    def test_update_tasks_sends_mail(self, mock_check_call, mock_send_mail):
-        def check_call_side_effect(command, *args, **kwargs):
+    def test_update_tasks_sends_mail(self, mock_send_mail):
+        original_call = subprocess.call
+
+        def call_side_effect(command, *args, **kwargs):
             if (len(command) >= 4 and command[:2] == ["diff", "-u"] and
                     "stdout" in kwargs):
                 old = os.path.basename(command[2])
                 new = os.path.basename(command[3])
-                subprocess.call(
+                original_call(
                     ["printf", "%s\\n", "--- %s" % old], *args, **kwargs)
-                subprocess.call(
+                original_call(
                     ["printf", "%s\\n", "+++ %s" % new], *args, **kwargs)
+                return 1
             else:
-                subprocess.call(command, *args, **kwargs)
+                return original_call(command, *args, **kwargs)
 
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
@@ -1101,11 +1103,11 @@ class TestGerminateOutput(TestCase):
         os.makedirs(os.path.dirname(task_mail_path))
         with open(task_mail_path, "w") as task_mail:
             print("foo@example.org", file=task_mail)
-        mock_check_call.side_effect = check_call_side_effect
         mock_send_mail.side_effect = partial(
             self.send_mail_to_file, os.path.join(self.temp_dir, "mail"))
         output = GerminateOutput(self.config, self.temp_dir)
-        output.update_tasks("20130319")
+        with mock.patch("subprocess.call", side_effect=call_side_effect):
+            output.update_tasks("20130319")
         with open(os.path.join(self.temp_dir, "mail")) as mail:
             self.assertEqual(dedent("""\
                 To: foo@example.org

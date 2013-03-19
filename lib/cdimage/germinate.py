@@ -742,7 +742,7 @@ class GerminateOutput:
                 kwargs = {}
                 if output is not None:
                     kwargs["stdout"] = output
-                subprocess.check_call(["diff", "-u", old, new], **kwargs)
+                subprocess.call(["diff", "-u", old, new], **kwargs)
 
     def update_tasks(self, date):
         tasks_dir = self.tasks_output_dir(self.config.project)
