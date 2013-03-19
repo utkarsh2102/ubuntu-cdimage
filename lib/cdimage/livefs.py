@@ -243,6 +243,9 @@ def live_build_notify_failure(config, arch):
 def run_live_builds(config):
     builds = {}
     for arch in config.arches:
+        if arch == "amd64+mac":
+            # Use normal amd64 live image on amd64+mac.
+            continue
         full_name = live_build_full_name(config, arch)
         machine = live_builder(config, arch)
         timestamp = time.strftime("%F %T")

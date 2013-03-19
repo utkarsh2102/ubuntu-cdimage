@@ -446,6 +446,26 @@ class TestRunLiveBuilds(TestCase):
         ])
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
 
+    @mock_Popen(["true"])
+    @mock.patch("cdimage.livefs.live_build_notify_failure")
+    def test_run_live_builds_skips_amd64_mac(self,
+                                             mock_live_build_notify_failure,
+                                             mock_popen):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 amd64+mac"
+        self.capture_logging()
+        self.assertTrue(run_live_builds(self.config))
+        expected_command = [
+            "ssh", "-n", "-o", "StrictHostKeyChecking=no",
+            "-o", "BatchMode=yes",
+            "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
+            "-l", "-A", "amd64", "-d", "raring", "ubuntu",
+        ]
+        mock_popen.assert_called_once_with(expected_command)
+        self.assertEqual(0, mock_live_build_notify_failure.call_count)
+
 
 class TestLiveCDBase(TestCase):
     def assertBaseEqual(self, expected, arch, project, series, **kwargs):
