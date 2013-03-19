@@ -474,7 +474,7 @@ def build_image_set_locked(config, semaphore_state):
                 germinate_output.write_tasks()
 
                 log_marker("Checking for other task changes")
-                subprocess.check_call(["update-tasks", date, image_type])
+                germinate_output.update_tasks(date)
 
             if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"] or
                     config["CDIMAGE_PREINSTALLED"]):

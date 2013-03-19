@@ -25,9 +25,12 @@ import gzip
 import os
 import re
 import shutil
+import subprocess
+import traceback
 
 from cdimage import osextras
 from cdimage.log import logger
+from cdimage.mail import send_mail
 from cdimage.mirror import find_mirror
 from cdimage.proxy import proxy_check_call
 
@@ -728,3 +731,62 @@ class GerminateOutput:
         else:
             osextras.mkemptydir(self.tasks_output_dir(self.config.project))
             self.write_tasks_project(self.config.project)
+
+    def diff_tasks(self, output=None):
+        tasks_dir = self.tasks_output_dir(self.config.project)
+        previous_tasks_dir = "%s-previous" % tasks_dir
+        for seed in ["MASTER"] + list(self.list_seeds("all")):
+            old = os.path.join(previous_tasks_dir, seed)
+            new = os.path.join(tasks_dir, seed)
+            if os.path.exists(old) and os.path.exists(new):
+                kwargs = {}
+                if output is not None:
+                    kwargs["stdout"] = output
+                subprocess.check_call(["diff", "-u", old, new], **kwargs)
+
+    def update_tasks(self, date):
+        tasks_dir = self.tasks_output_dir(self.config.project)
+        previous_tasks_dir = "%s-previous" % tasks_dir
+        debian_cd_tasks_dir = os.path.join(
+            self.config.root, "debian-cd", "tasks", "auto",
+            self.config.image_type, self.config.project, self.config.series)
+
+        task_recipients = []
+        task_mail_path = os.path.join(self.config.root, "etc", "task-mail")
+        if os.path.exists(task_mail_path):
+            with open(task_mail_path) as task_mail:
+                task_recipients = task_mail.read().split()
+        if task_recipients:
+            read, write = os.pipe()
+            pid = os.fork()
+            if pid == 0:  # child
+                try:
+                    os.close(read)
+                    with os.fdopen(write, "w", 1) as write_file:
+                        self.diff_tasks(output=write_file)
+                    os._exit(0)
+                except Exception:
+                    traceback.print_exc()
+                finally:
+                    os._exit(1)
+            else:  # parent
+                os.close(write)
+                with os.fdopen(read) as read_file:
+                    send_mail(
+                        "Task changes for %s %s/%s on %s" % (
+                            self.config.capproject, self.config.image_type,
+                            self.config.series, date),
+                        "update-tasks", task_recipients, read_file)
+                os.waitpid(pid, 0)
+
+        self.diff_tasks()
+
+        osextras.mkemptydir(debian_cd_tasks_dir)
+        osextras.mkemptydir(previous_tasks_dir)
+        for entry in os.listdir(tasks_dir):
+            shutil.copy2(
+                os.path.join(tasks_dir, entry),
+                os.path.join(debian_cd_tasks_dir, entry))
+            shutil.copy2(
+                os.path.join(tasks_dir, entry),
+                os.path.join(previous_tasks_dir, entry))
