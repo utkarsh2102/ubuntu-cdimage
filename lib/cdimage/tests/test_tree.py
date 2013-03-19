@@ -511,6 +511,15 @@ class TestDailyTreePublisher(TestCase):
             "%s-src-2.template" % self.config.series,
         ], sorted(os.listdir(target_dir)))
 
+    def test_link(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        target_dir = os.path.join(publisher.publish_base, "20130319")
+        os.makedirs(target_dir)
+        publisher.link("20130319", "current")
+        self.assertEqual(
+            "20130319",
+            os.readlink(os.path.join(publisher.publish_base, "current")))
+
     def test_qa_product(self):
         for project, image_type, publish_type, product in (
             ("ubuntu", "daily", "alternate", "Ubuntu Alternate"),

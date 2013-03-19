@@ -590,6 +590,11 @@ class DailyTreePublisher(Publisher):
             yield os.path.join(
                 self.project, self.image_type, "%s-src" % self.config.series)
 
+    def link(self, date, name):
+        target = os.path.join(self.publish_base, name)
+        osextras.unlink_force(target)
+        os.symlink(date, target)
+
     def qa_product(self, project, image_type, publish_type, arch):
         """Return the QA tracker product for an image, or None.
 
@@ -783,9 +788,7 @@ class DailyTreePublisher(Publisher):
                     if name.endswith(".metalink"):
                         osextras.unlink_force(os.path.join(target_dir, name))
 
-        publish_current = os.path.join(self.publish_base, "current")
-        osextras.unlink_force(publish_current)
-        os.symlink(date, publish_current)
+        self.link(date, "current")
 
         manifest_lock = os.path.join(
             self.config.root, "etc", ".lock-manifest-daily")
