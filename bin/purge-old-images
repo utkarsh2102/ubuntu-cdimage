@@ -78,8 +78,10 @@ for dir in *; do
 		continue
 	fi
 
-	# Pointed to by 'current' symlink?
+	# Pointed to by 'current' or 'latest' symlink?
 	if [ -h current ] && [ "$(readlink current)" = "$dir" ]; then
+		continue
+	elif [ -h latest ] && [ "$(readlink latest)" = "$dir" ]; then
 		continue
 	fi
 
