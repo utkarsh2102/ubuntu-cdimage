@@ -1292,7 +1292,7 @@ IndexIgnore .htaccess HEADER.html FOOTER.html published-ec2-daily.txt published-
 IndexOptions NameWidth=* DescriptionWidth=* SuppressHTMLPreamble FancyIndexing IconHeight=22 IconWidth=22
 AddIcon ${CDICONS}folder.png ^^DIRECTORY^^
 AddIcon ${CDICONS}iso.png .iso
-AddIcon ${CDICONS}img.png .img .tar.gz
+AddIcon ${CDICONS}img.png .img .tar.gz .tar.xz
 AddIcon ${CDICONS}jigdo.png .jigdo .template
 AddIcon ${CDICONS}list.png .list .manifest .html .zsync MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg
 AddIcon ${CDICONS}torrent.png .torrent .metalink
