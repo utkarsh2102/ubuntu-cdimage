@@ -49,7 +49,7 @@ from cdimage.livefs import (
     split_arch,
     write_autorun,
 )
-from cdimage.tests.helpers import TestCase, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch
 
 
 class TestSplitArch(TestCase):
@@ -346,8 +346,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as notify_addresses:
+        with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         live_build_notify_failure(self.config, "i386")
         mock_send_mail.assert_called_once_with(
@@ -361,8 +360,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as notify_addresses:
+        with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         mock_urlopen = mock.mock_open(read_data=b"Log data\n")
         with mock.patch("cdimage.livefs.urlopen", mock_urlopen):
@@ -384,8 +382,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as notify_addresses:
+        with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         mock_urlopen = mock.mock_open(read_data=b"Log data\n")
         self.capture_logging()

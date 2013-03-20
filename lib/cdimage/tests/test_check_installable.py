@@ -30,7 +30,7 @@ from cdimage.check_installable import (
     _prepare_check_installable,
 )
 from cdimage.config import Config
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, mkfile
 
 
 class TestCheckInstallable(TestCase):
@@ -104,8 +104,7 @@ class TestCheckInstallable(TestCase):
             Provides: glibc
 
             """)
-        os.makedirs(os.path.dirname(status_path))
-        with open(status_path, "w") as status:
+        with mkfile(status_path) as status:
             print(fake_packages, end="", file=status)
         os.makedirs(live)
         with open("/dev/null", "w") as devnull:

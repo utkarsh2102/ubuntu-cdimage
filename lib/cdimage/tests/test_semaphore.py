@@ -29,7 +29,7 @@ except ImportError:
     import mock
 
 from cdimage.semaphore import Semaphore, SemaphoreError
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, mkfile
 
 
 class TestSemaphore(TestCase):
@@ -66,7 +66,7 @@ class TestSemaphore(TestCase):
 
     def test_read_existing(self):
         """An existing semaphore file reads as its integer value."""
-        with open(self.semaphore.path, "w") as fd:
+        with mkfile(self.semaphore.path) as fd:
             print(10, file=fd)
         with self.semaphore:
             self.assertEqual(10, self.semaphore._read())
@@ -83,7 +83,7 @@ class TestSemaphore(TestCase):
 
     def test_add_existing(self):
         """Adding to an existing semaphore file adjusts its contents."""
-        with open(self.semaphore.path, "w") as fd:
+        with mkfile(self.semaphore.path) as fd:
             print(10, file=fd)
         with self.semaphore:
             self.assertEqual(9, self.semaphore._add(-1))
@@ -100,7 +100,7 @@ class TestSemaphore(TestCase):
         self.assertEqual(2, self.semaphore.state)
 
     def test_decrement_test(self):
-        with open(self.semaphore.path, "w") as fd:
+        with mkfile(self.semaphore.path) as fd:
             print(2, file=fd)
         self.assertEqual(1, self.semaphore.decrement_test())
         self.assertEqual(1, self.semaphore.state)

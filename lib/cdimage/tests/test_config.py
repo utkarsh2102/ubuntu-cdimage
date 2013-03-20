@@ -25,7 +25,7 @@ import os
 from textwrap import dedent
 
 from cdimage.config import Config, Series, all_series
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, mkfile
 
 
 class TestSeries(TestCase):
@@ -96,14 +96,13 @@ class TestConfig(TestCase):
         os.environ.pop("ARCHES", None)
         os.environ.pop("CPUARCHES", None)
         etc_dir = os.path.join(self.temp_dir, "etc")
-        os.mkdir(etc_dir)
-        with open(os.path.join(etc_dir, "config"), "w") as f:
+        with mkfile(os.path.join(etc_dir, "config")) as f:
             print(dedent("""\
                 #! /bin/sh
                 PROJECT=ubuntu
                 DIST=raring
                 """), file=f)
-        with open(os.path.join(etc_dir, "default-arches"), "w") as f:
+        with mkfile(os.path.join(etc_dir, "default-arches")) as f:
             print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
         config = Config(IMAGE_TYPE="daily-live")
         self.assertEqual("daily-live", config["IMAGE_TYPE"])
@@ -115,14 +114,13 @@ class TestConfig(TestCase):
         os.environ.pop("ARCHES", None)
         os.environ.pop("CPUARCHES", None)
         etc_dir = os.path.join(self.temp_dir, "etc")
-        os.mkdir(etc_dir)
-        with open(os.path.join(etc_dir, "config"), "w") as f:
+        with mkfile(os.path.join(etc_dir, "config")) as f:
             print(dedent("""\
                 #! /bin/sh
                 PROJECT=ubuntu
                 DIST=raring
                 """), file=f)
-        with open(os.path.join(etc_dir, "default-arches"), "w") as f:
+        with mkfile(os.path.join(etc_dir, "default-arches")) as f:
             print("ubuntu-wubi\t*\traring\tamd64 i386", file=f)
             print("*\t*\t*\tamd64 i386 powerpc", file=f)
         config = Config(SUBPROJECT="wubi", IMAGE_TYPE="wubi")
@@ -130,8 +128,7 @@ class TestConfig(TestCase):
 
     def test_read_shell(self):
         os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
-        os.mkdir(os.path.join(self.temp_dir, "etc"))
-        with open(os.path.join(self.temp_dir, "etc", "config"), "w") as f:
+        with mkfile(os.path.join(self.temp_dir, "etc", "config")) as f:
             print(dedent("""\
                 #! /bin/sh
                 PROJECT=ubuntu
@@ -158,14 +155,13 @@ class TestConfig(TestCase):
         os.environ["ARCHES"] = "amd64"
         os.environ.pop("CPUARCHES", None)
         etc_dir = os.path.join(self.temp_dir, "etc")
-        os.mkdir(etc_dir)
-        with open(os.path.join(etc_dir, "config"), "w") as f:
+        with mkfile(os.path.join(etc_dir, "config")) as f:
             print(dedent("""\
                 #! /bin/sh
                 PROJECT=ubuntu
                 DIST=raring
                 """), file=f)
-        with open(os.path.join(etc_dir, "default-arches"), "w") as f:
+        with mkfile(os.path.join(etc_dir, "default-arches")) as f:
             print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
         config = Config(IMAGE_TYPE="daily-live")
         self.assertEqual("daily-live", config["IMAGE_TYPE"])

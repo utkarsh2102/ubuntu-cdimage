@@ -35,7 +35,7 @@ from cdimage.mail import (
     get_notify_addresses,
     send_mail,
 )
-from cdimage.tests.helpers import TestCase, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch
 
 
 class TestNotify(TestCase):
@@ -48,12 +48,10 @@ class TestNotify(TestCase):
         self.assertIsNone(_notify_addresses_path(self.config))
 
         path = os.path.join(self.temp_dir, "etc", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
         touch(path)
         self.assertEqual(path, _notify_addresses_path(self.config))
 
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
         touch(path)
         self.assertEqual(path, _notify_addresses_path(self.config))
 
@@ -62,8 +60,7 @@ class TestNotify(TestCase):
 
     def test_get_notify_addresses_all_matches_any_project(self):
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as f:
+        with mkfile(path) as f:
             print("ALL\tfoo@example.org bar@example.org", file=f)
         self.assertEqual(
             ["foo@example.org", "bar@example.org"],
@@ -77,8 +74,7 @@ class TestNotify(TestCase):
 
     def test_get_notify_addresses_projects_match_exactly(self):
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as f:
+        with mkfile(path) as f:
             print("ubuntu\tubuntu@example.org", file=f)
             print("kubuntu\tkubuntu@example.org", file=f)
         self.assertEqual(
@@ -91,7 +87,7 @@ class TestNotify(TestCase):
 
     def test_send_mail_dry_run_from_file(self):
         path = os.path.join(self.temp_dir, "body")
-        with open(path, "w") as body:
+        with mkfile(path) as body:
             print("Body", file=body)
             print("Text", file=body)
         self.capture_logging()
@@ -130,7 +126,7 @@ class TestNotify(TestCase):
     @mock.patch("subprocess.Popen")
     def test_send_mail_from_file(self, mock_popen):
         path = os.path.join(self.temp_dir, "body")
-        with open(path, "w") as body:
+        with mkfile(path) as body:
             print("Body", file=body)
             print("Text", file=body)
         with open(path) as body:

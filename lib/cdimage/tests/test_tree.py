@@ -33,7 +33,7 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.config import Config, Series, all_series
-from cdimage.tests.helpers import TestCase, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch
 from cdimage.tree import (
     ChinaDailyTree,
     ChinaDailyTreePublisher,
@@ -133,9 +133,7 @@ class TestDailyTree(TestCase):
 
     def test_path_to_manifest(self):
         iso = "kubuntu/hoary-install-i386.iso"
-        iso_path = os.path.join(self.temp_dir, iso)
-        os.makedirs(os.path.dirname(iso_path))
-        touch(iso_path)
+        touch(os.path.join(self.temp_dir, iso))
         self.assertEqual(
             "kubuntu\thoary\t/%s\t0" % iso, self.tree.path_to_manifest(iso))
 
@@ -358,7 +356,6 @@ class TestDailyTreePublisher(TestCase):
         self.config["CDIMAGE_NOCOPY"] = "1"
         publisher = self.make_publisher("ubuntu", "daily")
         publish_current = os.path.join(publisher.publish_base, "current")
-        osextras.ensuredir(publish_current)
         touch(os.path.join(
             publish_current, "%s-alternate-i386.iso" % self.config.series))
         publisher.new_publish_dir("20120807")
@@ -368,7 +365,6 @@ class TestDailyTreePublisher(TestCase):
     def test_new_publish_dir_copies_same_series(self):
         publisher = self.make_publisher("ubuntu", "daily")
         publish_current = os.path.join(publisher.publish_base, "current")
-        osextras.ensuredir(publish_current)
         image = "%s-alternate-i386.iso" % self.config.series
         touch(os.path.join(publish_current, image))
         publisher.new_publish_dir("20120807")
@@ -379,7 +375,6 @@ class TestDailyTreePublisher(TestCase):
     def test_new_publish_dir_skips_different_series(self):
         publisher = self.make_publisher("ubuntu", "daily")
         publish_current = os.path.join(publisher.publish_base, "current")
-        osextras.ensuredir(publish_current)
         image = "warty-alternate-i386.iso"
         touch(os.path.join(publish_current, image))
         publisher.new_publish_dir("20120807")
@@ -389,11 +384,9 @@ class TestDailyTreePublisher(TestCase):
     def test_new_publish_dir_prefers_pending(self):
         publisher = self.make_publisher("ubuntu", "daily")
         publish_current = os.path.join(publisher.publish_base, "current")
-        osextras.ensuredir(publish_current)
         touch(os.path.join(
             publish_current, "%s-alternate-i386.iso" % self.config.series))
         publish_pending = os.path.join(publisher.publish_base, "pending")
-        osextras.ensuredir(publish_pending)
         touch(os.path.join(
             publish_pending, "%s-alternate-amd64.iso" % self.config.series))
         publisher.new_publish_dir("20130319")
@@ -428,7 +421,7 @@ class TestDailyTreePublisher(TestCase):
 
     def test_replace_jigdo_mirror(self):
         jigdo_path = os.path.join(self.temp_dir, "jigdo")
-        with open(jigdo_path, "w") as jigdo:
+        with mkfile(jigdo_path) as jigdo:
             print("[Servers]", file=jigdo)
             print("Debian=http://archive.ubuntu.com/ubuntu/ --try-last",
                   file=jigdo)
@@ -446,7 +439,6 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
         source_dir = publisher.image_output("i386")
-        osextras.ensuredir(source_dir)
         touch(os.path.join(
             source_dir, "%s-desktop-i386.raw" % self.config.series))
         touch(os.path.join(
@@ -474,7 +466,6 @@ class TestDailyTreePublisher(TestCase):
         source_dir = os.path.join(
             self.temp_dir, "scratch", "livecd-base", self.config.series,
             "livecd-base", "live")
-        osextras.ensuredir(source_dir)
         for ext in (
             "squashfs", "kernel", "initrd", "manifest", "manifest-remove",
         ):
@@ -494,7 +485,6 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
         source_dir = publisher.image_output("src")
-        os.mkdir(source_dir)
         touch(os.path.join(source_dir, "%s-src-1.raw" % self.config.series))
         touch(os.path.join(source_dir, "%s-src-1.list" % self.config.series))
         touch(os.path.join(source_dir, "%s-src-1.jigdo" % self.config.series))
@@ -621,11 +611,9 @@ class TestDailyTreePublisher(TestCase):
     @mock_isotracker
     def test_post_qa_oversized(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
-        oversized_path = os.path.join(
+        touch(os.path.join(
             self.temp_dir, "www", "full", "daily-live", "20130315",
-            "raring-desktop-i386.OVERSIZED")
-        os.makedirs(os.path.dirname(oversized_path))
-        touch(oversized_path)
+            "raring-desktop-i386.OVERSIZED"))
         publisher.post_qa(
             "20130315", ["ubuntu/daily-live/raring-desktop-i386"])
         expected_note = (
@@ -636,11 +624,9 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
         publisher = self.make_publisher("kubuntu", "daily-live")
-        oversized_path = os.path.join(
+        touch(os.path.join(
             self.temp_dir, "www", "full", "kubuntu", "precise", "daily-live",
-            "20130315", "precise-desktop-i386.OVERSIZED")
-        os.makedirs(os.path.dirname(oversized_path))
-        touch(oversized_path)
+            "20130315", "precise-desktop-i386.OVERSIZED"))
         publisher.post_qa(
             "20130315", ["kubuntu/precise/daily-live/precise-desktop-i386"])
         expected_note = (
@@ -654,7 +640,6 @@ class TestDailyTreePublisher(TestCase):
     def test_polish_directory(self, mock_call):
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130320")
-        os.makedirs(target_dir)
         touch(os.path.join(
             target_dir, "%s-desktop-i386.iso" % self.config.series))
         self.capture_logging()
@@ -686,7 +671,6 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
         source_dir = publisher.image_output("i386")
-        osextras.ensuredir(source_dir)
         touch(os.path.join(
             source_dir, "%s-desktop-i386.raw" % self.config.series))
         touch(os.path.join(
@@ -823,7 +807,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
         source_dir = publisher.image_output("i386")
-        osextras.ensuredir(source_dir)
         touch(os.path.join(
             source_dir, "%s-desktop-i386.iso" % self.config.series))
         touch(os.path.join(
@@ -856,11 +839,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
     @mock_isotracker
     def test_post_qa_oversized(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
-        oversized_path = os.path.join(
+        touch(os.path.join(
             self.temp_dir, "www", "china-images", "raring", "daily-live",
-            "20130315", "raring-desktop-i386.OVERSIZED")
-        os.makedirs(os.path.dirname(oversized_path))
-        touch(oversized_path)
+            "20130315", "raring-desktop-i386.OVERSIZED"))
         publisher.post_qa(
             "20130315", ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"])
         expected_note = (
@@ -877,7 +858,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         publisher = self.make_publisher(
             "ubuntu", "daily-live", try_zsyncmake=False)
         source_dir = publisher.image_output("i386")
-        osextras.ensuredir(source_dir)
         touch(os.path.join(
             source_dir, "%s-desktop-i386.iso" % self.config.series))
         touch(os.path.join(
@@ -939,15 +919,12 @@ class TestSimpleTree(TestCase):
 
     def test_path_to_manifest(self):
         iso = "kubuntu/.pool/kubuntu-5.04-install-i386.iso"
-        iso_path = os.path.join(self.temp_dir, iso)
-        os.makedirs(os.path.dirname(iso_path))
-        touch(iso_path)
+        touch(os.path.join(self.temp_dir, iso))
         self.assertEqual(
             "kubuntu\thoary\t/%s\t0" % iso, self.tree.path_to_manifest(iso))
 
     def test_manifest_files_prefers_non_pool(self):
         pool = os.path.join(self.temp_dir, ".pool")
-        os.mkdir(pool)
         touch(os.path.join(pool, "ubuntu-4.10-install-i386.iso"))
         dist = os.path.join(self.temp_dir, "warty")
         os.mkdir(dist)
@@ -960,7 +937,6 @@ class TestSimpleTree(TestCase):
 
     def test_manifest_files_includes_non_duplicates_in_pool(self):
         pool = os.path.join(self.temp_dir, ".pool")
-        os.mkdir(pool)
         touch(os.path.join(pool, "ubuntu-4.10-install-i386.iso"))
         touch(os.path.join(pool, "ubuntu-4.10-install-amd64.iso"))
         dist = os.path.join(self.temp_dir, "warty")
@@ -975,7 +951,6 @@ class TestSimpleTree(TestCase):
 
     def test_manifest(self):
         pool = os.path.join(self.temp_dir, "kubuntu", ".pool")
-        os.makedirs(pool)
         touch(os.path.join(pool, "kubuntu-5.04-install-i386.iso"))
         touch(os.path.join(pool, "kubuntu-5.04-live-i386.iso"))
         dist = os.path.join(self.temp_dir, "kubuntu", "hoary")

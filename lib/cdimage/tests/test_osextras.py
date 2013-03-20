@@ -54,7 +54,6 @@ class TestOSExtras(TestCase):
 
     def test_mkemptydir_previously_populated(self):
         new_dir = os.path.join(self.temp_dir, "dir")
-        os.mkdir(new_dir)
         touch(os.path.join(new_dir, "file"))
         osextras.mkemptydir(new_dir)
         self.assertTrue(os.path.isdir(new_dir))
@@ -62,7 +61,6 @@ class TestOSExtras(TestCase):
 
     def test_listdir_directory_present(self):
         new_dir = os.path.join(self.temp_dir, "dir")
-        os.mkdir(new_dir)
         touch(os.path.join(new_dir, "file"))
         self.assertEqual(["file"], osextras.listdir_force(new_dir))
 
@@ -97,7 +95,6 @@ class TestOSExtras(TestCase):
 
     def test_find_on_path_present_executable(self):
         bin_dir = os.path.join(self.temp_dir, "bin")
-        os.mkdir(bin_dir)
         program = os.path.join(bin_dir, "program")
         touch(program)
         os.chmod(program, 0o755)
@@ -106,9 +103,7 @@ class TestOSExtras(TestCase):
 
     def test_find_on_path_present_not_executable(self):
         bin_dir = os.path.join(self.temp_dir, "bin")
-        os.mkdir(bin_dir)
-        program = os.path.join(bin_dir, "program")
-        touch(program)
+        touch(os.path.join(bin_dir, "program"))
         os.environ["PATH"] = bin_dir
         self.assertFalse(osextras.find_on_path("program"))
 

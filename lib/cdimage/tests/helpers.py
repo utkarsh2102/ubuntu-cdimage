@@ -19,6 +19,7 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import contextlib
 from logging.handlers import BufferingHandler
 import os
 import shutil
@@ -79,14 +80,13 @@ class TestCase(unittest.TestCase):
         self.assertEqual(expected, self.captured_log_messages())
 
     def make_deb(self, path, section, priority, files={}):
+        osextras.ensuredir(os.path.dirname(path))
         build_dir = os.path.join(self.temp_dir, "make_deb")
-        os.mkdir(build_dir)
         try:
             base = os.path.basename(path).split(".", 1)[0]
             name, version, arch = base.split("_")
             control_dir = os.path.join(build_dir, "DEBIAN")
-            os.mkdir(control_dir)
-            with open(os.path.join(control_dir, "control"), "w") as control:
+            with mkfile(os.path.join(control_dir, "control")) as control:
                 print(dedent("""\
                     Package: %s
                     Version: %s
@@ -100,8 +100,7 @@ class TestCase(unittest.TestCase):
             for file_path, file_contents in files.items():
                 rel_path = os.path.join(
                     build_dir, os.path.relpath(file_path, "/"))
-                osextras.ensuredir(os.path.dirname(rel_path))
-                with open(rel_path, "wb") as fp:
+                with mkfile(rel_path, mode="wb") as fp:
                     fp.write(file_contents)
             with open("/dev/null", "w") as devnull:
                 subprocess.check_call(
@@ -116,6 +115,13 @@ class TestCase(unittest.TestCase):
         assertRegex = unittest.TestCase.assertRegexpMatches
 
 
+@contextlib.contextmanager
+def mkfile(path, mode="w"):
+    osextras.ensuredir(os.path.dirname(path))
+    with open(path, mode) as f:
+        yield f
+
+
 def touch(path):
-    with open(path, "a"):
+    with mkfile(path, mode="a"):
         pass

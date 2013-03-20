@@ -60,7 +60,7 @@ from cdimage.build import (
 from cdimage.config import Config
 from cdimage.log import logger
 from cdimage.mail import text_file_type
-from cdimage.tests.helpers import TestCase, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch
 
 
 class TestUpdateLocalIndices(TestCase):
@@ -85,7 +85,6 @@ class TestUpdateLocalIndices(TestCase):
 
     def test_lists_and_overrides(self):
         fake_dir = os.path.join(self.pool, "f", "fake")
-        os.makedirs(fake_dir)
         self.make_deb(
             os.path.join(fake_dir, "fake_1_i386.deb"), "misc", "optional")
         self.make_deb(
@@ -228,11 +227,10 @@ class TestExtractDebootstrap(TestCase):
         udeb_path = os.path.join(
             mirror_dir, "pool", "main", "d", "debootstrap",
             "debootstrap-udeb_1_all.udeb")
-        os.makedirs(os.path.dirname(packages_path))
-        os.makedirs(os.path.dirname(udeb_path))
         self.make_deb(
             udeb_path, "debian-installer", "extra",
             files={"/usr/share/debootstrap/scripts/raring": b"sentinel"})
+        os.makedirs(os.path.dirname(packages_path))
         with gzip.GzipFile(packages_path, "wb") as packages:
             ftparchive = subprocess.Popen(
                 ["apt-ftparchive", "packages", "pool"],
@@ -412,7 +410,6 @@ class TestBuildImageSet(TestCase):
     def check_call_make_sync_lock(self, mock_check_call, *args, **kwargs):
         if mock_check_call.call_count == 1:
             self.assertEqual("lockfile", args[0][0])
-            osextras.ensuredir(os.path.dirname(self.expected_sync_lock))
             touch(self.expected_sync_lock)
         elif mock_check_call.call_count == 2:
             self.assertEqual("anonftpsync", args[0][0])
@@ -501,7 +498,6 @@ class TestBuildImageSet(TestCase):
     @mock.patch("subprocess.check_call")
     def test_build_britney_with_makefile(self, mock_check_call):
         path = os.path.join(self.temp_dir, "britney", "update_out", "Makefile")
-        osextras.ensuredir(os.path.dirname(path))
         touch(path)
         self.capture_logging()
         build_britney(self.config)
@@ -511,7 +507,6 @@ class TestBuildImageSet(TestCase):
 
     def test_configure_splash(self):
         data_dir = os.path.join(self.temp_dir, "debian-cd", "data", "raring")
-        osextras.ensuredir(data_dir)
         for key, extension in (
             ("SPLASHRLE", "rle"),
             ("GFXSPLASH", "pcx"),
@@ -549,9 +544,7 @@ class TestBuildImageSet(TestCase):
         # We need to re-export configuration to debian-cd even if we didn't
         # get it in our environment, since debian-cd won't read etc/config
         # for itself.
-        config_path = os.path.join(self.temp_dir, "etc", "config")
-        os.makedirs(os.path.dirname(config_path))
-        with open(config_path, "w") as f:
+        with mkfile(os.path.join(self.temp_dir, "etc", "config")) as f:
             print(dedent("""\
                 #! /bin/sh
                 PROJECT=ubuntu
@@ -621,8 +614,7 @@ class TestBuildImageSet(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as notify_addresses:
+        with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         notify_failure(self.config, None)
         mock_send_mail.assert_called_once_with(
@@ -636,11 +628,10 @@ class TestBuildImageSet(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as notify_addresses:
+        with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         log_path = os.path.join(self.temp_dir, "log")
-        with open(log_path, "w") as log:
+        with mkfile(log_path) as log:
             print("Log", file=log)
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
@@ -656,11 +647,10 @@ class TestBuildImageSet(TestCase):
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as notify_addresses:
+        with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         log_path = os.path.join(self.temp_dir, "log")
-        with open(log_path, "w") as log:
+        with mkfile(log_path) as log:
             print("Log", file=log)
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
@@ -671,7 +661,7 @@ class TestBuildImageSet(TestCase):
 
     def send_mail_to_file(self, path, subject, generator, recipients, body,
                           dry_run=False):
-        with open(path, "w") as f:
+        with mkfile(path) as f:
             print("To: %s" % ", ".join(recipients), file=f)
             print("Subject: %s" % subject, file=f)
             print("X-Generated-By: %s" % generator, file=f)
@@ -693,8 +683,7 @@ class TestBuildImageSet(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        os.makedirs(os.path.dirname(path))
-        with open(path, "w") as notify_addresses:
+        with mkfile(path, "w") as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         log_path = os.path.join(
             self.temp_dir, "log", "ubuntu", "raring", "daily-20130225.log")
@@ -751,12 +740,10 @@ class TestBuildImageSet(TestCase):
 
         britney_makefile = os.path.join(
             self.temp_dir, "britney", "update_out", "Makefile")
-        os.makedirs(os.path.dirname(britney_makefile))
         touch(britney_makefile)
         os.makedirs(os.path.join(self.temp_dir, "etc"))
         germinate_path = os.path.join(
             self.temp_dir, "germinate", "bin", "germinate")
-        os.makedirs(os.path.dirname(germinate_path))
         touch(germinate_path)
         os.chmod(germinate_path, 0o755)
         germinate_output = os.path.join(
@@ -766,10 +753,7 @@ class TestBuildImageSet(TestCase):
         def side_effect(command, *args, **kwargs):
             if command[0] == germinate_path:
                 for arch in self.config.arches:
-                    structure = os.path.join(
-                        germinate_output, arch, "structure")
-                    osextras.ensuredir(os.path.dirname(structure))
-                    touch(structure)
+                    touch(os.path.join(germinate_output, arch, "structure"))
 
         mock_call.side_effect = side_effect
 

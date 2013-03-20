@@ -40,7 +40,7 @@ from cdimage.mirror import (
     find_mirror,
     trigger_mirrors,
 )
-from cdimage.tests.helpers import TestCase, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch
 
 
 class TestChecksumFile(TestCase):
@@ -89,8 +89,7 @@ class TestTriggerMirrors(TestCase):
         config = Config(read=False)
         config.root = self.use_temp_dir()
         manifest = os.path.join(self.temp_dir, "www", "simple", ".manifest")
-        os.makedirs(os.path.dirname(manifest))
-        with open(manifest, "w") as f:
+        with mkfile(manifest) as f:
             print(
                 "ubuntu\tprecise\t/precise/ubuntu-12.04.2-desktop-i386.iso\t"
                 "726970368", file=f)
@@ -108,8 +107,7 @@ class TestTriggerMirrors(TestCase):
         config = Config(read=False)
         config.root = self.use_temp_dir()
         manifest = os.path.join(self.temp_dir, "www", "simple", ".manifest")
-        os.makedirs(os.path.dirname(manifest))
-        with open(manifest, "w") as f:
+        with mkfile(manifest) as f:
             print(
                 "ubuntu\tprecise\t/precise/ubuntu-12.04.2-desktop-i386.iso\t"
                 "726970368", file=f)
@@ -141,7 +139,7 @@ class TestTriggerMirrors(TestCase):
         production_path = os.path.join(
             self.temp_dir, "production", "trigger-mirrors")
         os.makedirs(os.path.dirname(production_path))
-        with open(production_path, "w") as production:
+        with mkfile(production_path) as production:
             print("sync x.example.org", file=production)
             print("async other.example.org", file=production)
             print("sync y.example.org z.example.org", file=production)
@@ -158,8 +156,7 @@ class TestTriggerMirrors(TestCase):
         config.root = self.use_temp_dir()
         production_path = os.path.join(
             self.temp_dir, "production", "trigger-mirrors")
-        os.makedirs(os.path.dirname(production_path))
-        with open(production_path, "w") as production:
+        with mkfile(production_path) as production:
             print("sync x.example.org", file=production)
             print("async a.example.org b.example.org", file=production)
             print("sync y.example.org z.example.org", file=production)

@@ -37,7 +37,7 @@ from cdimage.checksums import (
     metalink_checksum_directory,
 )
 from cdimage.config import Config
-from cdimage.tests.helpers import TestCase, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch
 
 
 class TestApplySed(TestCase):
@@ -52,7 +52,7 @@ class TestChecksumFile(TestCase):
         self.use_temp_dir()
 
     def test_read(self):
-        with open(os.path.join(self.temp_dir, "MD5SUMS"), "w") as md5sums:
+        with mkfile(os.path.join(self.temp_dir, "MD5SUMS")) as md5sums:
             print(dedent("""\
                 checksum  one-path
                 checksum *another-path
@@ -73,7 +73,7 @@ class TestChecksumFile(TestCase):
     def test_checksum_small_file(self):
         entry_path = os.path.join(self.temp_dir, "entry")
         data = b"test\n"
-        with open(entry_path, "wb") as entry:
+        with mkfile(entry_path, mode="wb") as entry:
             entry.write(data)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
@@ -83,7 +83,7 @@ class TestChecksumFile(TestCase):
     def test_checksum_large_file(self):
         entry_path = os.path.join(self.temp_dir, "entry")
         data = b"a" * 1048576
-        with open(entry_path, "wb") as entry:
+        with mkfile(entry_path, mode="wb") as entry:
             entry.write(data)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "SHA1SUMS", hashlib.sha1)
@@ -93,7 +93,7 @@ class TestChecksumFile(TestCase):
     def test_add(self):
         entry_path = os.path.join(self.temp_dir, "entry")
         data = b"test\n"
-        with open(entry_path, "wb") as entry:
+        with mkfile(entry_path, mode="wb") as entry:
             entry.write(data)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
@@ -107,7 +107,7 @@ class TestChecksumFile(TestCase):
         # an existing checksum.)
         entry_path = os.path.join(self.temp_dir, "entry")
         data = "test\n"
-        with open(entry_path, "w") as entry:
+        with mkfile(entry_path) as entry:
             entry.write(data)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
@@ -126,14 +126,14 @@ class TestChecksumFile(TestCase):
         # Adding an existing file with an mtime newer than that of the
         # checksums file causes its checksum to be updated.
         path = os.path.join(self.temp_dir, "entry")
-        with open(path, "w") as entry:
+        with mkfile(path) as entry:
             pass
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
         checksum_file.add("entry")
         checksum_file.write()
         self.rewind_mtime(checksum_file.path)
-        with open(path, "w") as entry:
+        with mkfile(path) as entry:
             print("mtime", end="", file=entry)
         checksum_file.add("entry")
         self.assertEqual(
@@ -143,7 +143,7 @@ class TestChecksumFile(TestCase):
         # Adding an existing file with a ctime newer than that of the
         # checksums file causes its checksum to be updated.
         path = os.path.join(self.temp_dir, "entry")
-        with open(path, "w") as entry:
+        with mkfile(path) as entry:
             print("ctime", end="", file=entry)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
@@ -166,9 +166,8 @@ class TestChecksumFile(TestCase):
 
     def test_merge_takes_valid_checksums(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        os.mkdir(old_dir)
         touch(os.path.join(self.temp_dir, "entry"))
-        with open(os.path.join(old_dir, "MD5SUMS"), "w") as old_md5sums:
+        with mkfile(os.path.join(old_dir, "MD5SUMS")) as old_md5sums:
             print("checksum *entry", file=old_md5sums)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
@@ -177,8 +176,7 @@ class TestChecksumFile(TestCase):
 
     def test_merge_ignores_stale_checksums(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        os.mkdir(old_dir)
-        with open(os.path.join(old_dir, "MD5SUMS"), "w") as old_md5sums:
+        with mkfile(os.path.join(old_dir, "MD5SUMS")) as old_md5sums:
             print("checksum *entry", file=old_md5sums)
         entry_path = os.path.join(self.temp_dir, "entry")
         touch(entry_path)
@@ -191,9 +189,8 @@ class TestChecksumFile(TestCase):
 
     def test_merge_takes_other_names(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        os.mkdir(old_dir)
         touch(os.path.join(self.temp_dir, "entry"))
-        with open(os.path.join(old_dir, "MD5SUMS"), "w") as old_md5sums:
+        with mkfile(os.path.join(old_dir, "MD5SUMS")) as old_md5sums:
             print("checksum *other-entry", file=old_md5sums)
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
@@ -205,7 +202,7 @@ class TestChecksumFile(TestCase):
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5, sign=False)
         for name in "1", "2":
             entry_path = os.path.join(self.temp_dir, name)
-            with open(entry_path, "w") as entry:
+            with mkfile(entry_path) as entry:
                 print(name, end="", file=entry)
             checksum_file.add(name)
         checksum_file.write()
@@ -224,10 +221,10 @@ class TestChecksumFile(TestCase):
     def test_context_manager(self):
         for name in "1", "2":
             entry_path = os.path.join(self.temp_dir, name)
-            with open(entry_path, "w") as entry:
+            with mkfile(entry_path) as entry:
                 print(name, end="", file=entry)
         md5sums_path = os.path.join(self.temp_dir, "MD5SUMS")
-        with open(md5sums_path, "w") as md5sums:
+        with mkfile(md5sums_path) as md5sums:
             subprocess.call(
                 ["md5sum", "-b", "1", "2"], stdout=md5sums, cwd=self.temp_dir)
         with ChecksumFile(
@@ -256,7 +253,7 @@ class TestChecksumFileSet(TestCase):
         if directory is None:
             directory = self.temp_dir
         for base, command in self.files_and_commands.items():
-            with open(os.path.join(directory, base), "w") as f:
+            with mkfile(os.path.join(directory, base)) as f:
                 subprocess.call(
                     [command, "-b"] + names, stdout=f, cwd=directory)
 
@@ -278,11 +275,11 @@ class TestChecksumFileSet(TestCase):
 
     def test_read(self):
         entry_path = os.path.join(self.temp_dir, "entry")
-        with open(entry_path, "w") as entry:
+        with mkfile(entry_path) as entry:
             print("data", end="", file=entry)
         self.create_checksum_files(["entry"])
         for base, command in self.files_and_commands.items():
-            with open(os.path.join(self.temp_dir, base), "w") as f:
+            with mkfile(os.path.join(self.temp_dir, base)) as f:
                 subprocess.call(
                     [command, "-b", "entry"], stdout=f, cwd=self.temp_dir)
         checksum_files = self.cls(self.config, self.temp_dir)
@@ -292,7 +289,7 @@ class TestChecksumFileSet(TestCase):
     def test_add(self):
         entry_path = os.path.join(self.temp_dir, "entry")
         data = "test\n"
-        with open(entry_path, "w") as entry:
+        with mkfile(entry_path) as entry:
             print(data, end="", file=entry)
         checksum_files = self.cls(self.config, self.temp_dir)
         checksum_files.add("entry")
@@ -301,7 +298,7 @@ class TestChecksumFileSet(TestCase):
     def test_remove(self):
         entry_path = os.path.join(self.temp_dir, "entry")
         data = "test\n"
-        with open(entry_path, "w") as entry:
+        with mkfile(entry_path) as entry:
             print(data, end="", file=entry)
         self.create_checksum_files(["entry"])
         checksum_files = self.cls(self.config, self.temp_dir)
@@ -313,7 +310,7 @@ class TestChecksumFileSet(TestCase):
         old_dir = os.path.join(self.temp_dir, "old")
         os.mkdir(old_dir)
         entry_path = os.path.join(self.temp_dir, "entry")
-        with open(entry_path, "w") as entry:
+        with mkfile(entry_path) as entry:
             print("data", end="", file=entry)
         shutil.copy(entry_path, os.path.join(old_dir, "entry"))
         self.create_checksum_files(["entry"], directory=old_dir)
@@ -329,17 +326,16 @@ class TestChecksumFileSet(TestCase):
 
     def test_merge_all(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        os.mkdir(old_dir)
-        old_iso_hppa_path = os.path.join(self.temp_dir, "old", "foo-hppa.raw")
-        with open(old_iso_hppa_path, "w") as old_iso_hppa:
+        old_iso_hppa_path = os.path.join(old_dir, "foo-hppa.raw")
+        with mkfile(old_iso_hppa_path) as old_iso_hppa:
             print("foo-hppa.raw", end="", file=old_iso_hppa)
-        old_iso_i386_path = os.path.join(self.temp_dir, "old", "foo-i386.raw")
-        with open(old_iso_i386_path, "w") as old_iso_i386:
+        old_iso_i386_path = os.path.join(old_dir, "foo-i386.raw")
+        with mkfile(old_iso_i386_path) as old_iso_i386:
             print("foo-i386.raw", end="", file=old_iso_i386)
         self.create_checksum_files(
             ["foo-hppa.raw", "foo-i386.raw"], directory=old_dir)
         iso_amd64_path = os.path.join(self.temp_dir, "foo-amd64.iso")
-        with open(iso_amd64_path, "w") as iso_amd64:
+        with mkfile(iso_amd64_path) as iso_amd64:
             print("foo-amd64.iso", end="", file=iso_amd64)
         touch(os.path.join(self.temp_dir, "foo-amd64.list"))
         shutil.copy(
@@ -359,7 +355,7 @@ class TestChecksumFileSet(TestCase):
             self.config, self.temp_dir, sign=False)
         for name in "1", "2":
             entry_path = os.path.join(self.temp_dir, name)
-            with open(entry_path, "w") as entry:
+            with mkfile(entry_path) as entry:
                 print(name, end="", file=entry)
             checksum_files.add(name)
         checksum_files.write()
@@ -373,7 +369,7 @@ class TestChecksumFileSet(TestCase):
     def test_context_manager(self):
         for name in "1", "2":
             entry_path = os.path.join(self.temp_dir, name)
-            with open(entry_path, "w") as entry:
+            with mkfile(entry_path) as entry:
                 print(name, end="", file=entry)
         self.create_checksum_files(["1", "2"])
         with self.cls(
@@ -393,17 +389,16 @@ class TestChecksumFileSet(TestCase):
 
     def test_checksum_directory(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        os.mkdir(old_dir)
-        old_iso_hppa_path = os.path.join(self.temp_dir, "old", "foo-hppa.raw")
-        with open(old_iso_hppa_path, "w") as old_iso_hppa:
+        old_iso_hppa_path = os.path.join(old_dir, "foo-hppa.raw")
+        with mkfile(old_iso_hppa_path) as old_iso_hppa:
             print("foo-hppa.raw", end="", file=old_iso_hppa)
-        old_iso_i386_path = os.path.join(self.temp_dir, "old", "foo-i386.raw")
-        with open(old_iso_i386_path, "w") as old_iso_i386:
+        old_iso_i386_path = os.path.join(old_dir, "foo-i386.raw")
+        with mkfile(old_iso_i386_path) as old_iso_i386:
             print("foo-i386.raw", end="", file=old_iso_i386)
         self.create_checksum_files(
             ["foo-hppa.raw", "foo-i386.raw"], directory=old_dir)
         iso_amd64_path = os.path.join(self.temp_dir, "foo-amd64.iso")
-        with open(iso_amd64_path, "w") as iso_amd64:
+        with mkfile(iso_amd64_path) as iso_amd64:
             print("foo-amd64.iso", end="", file=iso_amd64)
         touch(os.path.join(self.temp_dir, "foo-amd64.list"))
         shutil.copy(
@@ -451,18 +446,16 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
 
     def test_merge_all(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        os.mkdir(old_dir)
-        old_iso_i386_path = os.path.join(self.temp_dir, "old", "foo-i386.iso")
-        with open(old_iso_i386_path, "w") as old_iso_i386:
+        old_iso_i386_path = os.path.join(old_dir, "foo-i386.iso")
+        with mkfile(old_iso_i386_path) as old_iso_i386:
             print("foo-i386.iso", end="", file=old_iso_i386)
-        old_metalink_i386_path = os.path.join(
-            self.temp_dir, "old", "foo-i386.metalink")
-        with open(old_metalink_i386_path, "w") as old_metalink_i386:
+        old_metalink_i386_path = os.path.join(old_dir, "foo-i386.metalink")
+        with mkfile(old_metalink_i386_path) as old_metalink_i386:
             print("foo-i386.metalink", end="", file=old_metalink_i386)
         self.create_checksum_files(
             ["foo-i386.metalink"], directory=old_dir)
         metalink_amd64_path = os.path.join(self.temp_dir, "foo-amd64.metalink")
-        with open(metalink_amd64_path, "w") as metalink_amd64:
+        with mkfile(metalink_amd64_path) as metalink_amd64:
             print("foo-amd64.metalink", end="", file=metalink_amd64)
         touch(os.path.join(self.temp_dir, "foo-amd64.list"))
         shutil.copy(
@@ -478,7 +471,7 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
     def test_context_manager(self):
         for name in "1", "2":
             entry_path = os.path.join(self.temp_dir, name)
-            with open(entry_path, "w") as entry:
+            with mkfile(entry_path) as entry:
                 print(name, end="", file=entry)
         self.create_checksum_files(["1", "2"])
         with self.cls(
@@ -491,18 +484,16 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
 
     def test_checksum_directory(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        os.mkdir(old_dir)
-        old_iso_i386_path = os.path.join(self.temp_dir, "old", "foo-i386.iso")
-        with open(old_iso_i386_path, "w") as old_iso_i386:
+        old_iso_i386_path = os.path.join(old_dir, "foo-i386.iso")
+        with mkfile(old_iso_i386_path) as old_iso_i386:
             print("foo-i386.iso", end="", file=old_iso_i386)
-        old_metalink_i386_path = os.path.join(
-            self.temp_dir, "old", "foo-i386.metalink")
-        with open(old_metalink_i386_path, "w") as old_metalink_i386:
+        old_metalink_i386_path = os.path.join(old_dir, "foo-i386.metalink")
+        with mkfile(old_metalink_i386_path) as old_metalink_i386:
             print("foo-i386.metalink", end="", file=old_metalink_i386)
         self.create_checksum_files(
             ["foo-i386.metalink"], directory=old_dir)
         metalink_amd64_path = os.path.join(self.temp_dir, "foo-amd64.metalink")
-        with open(metalink_amd64_path, "w") as metalink_amd64:
+        with mkfile(metalink_amd64_path) as metalink_amd64:
             print("foo-amd64.metalink", end="", file=metalink_amd64)
         touch(os.path.join(self.temp_dir, "foo-amd64.list"))
         shutil.copy(

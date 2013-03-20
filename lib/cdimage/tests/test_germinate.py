@@ -32,7 +32,6 @@ try:
 except ImportError:
     import mock
 
-from cdimage import osextras
 from cdimage.config import Config, all_series
 from cdimage.germinate import (
     GerminateNotInstalled,
@@ -41,7 +40,7 @@ from cdimage.germinate import (
     NoMasterSeeds,
 )
 from cdimage.mail import text_file_type
-from cdimage.tests.helpers import TestCase, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch
 
 
 class TestGermination(TestCase):
@@ -57,7 +56,6 @@ class TestGermination(TestCase):
             GerminateNotInstalled, getattr, self.germination, "germinate_path")
 
         germinate_dir = os.path.join(self.temp_dir, "germinate")
-        os.makedirs(os.path.join(germinate_dir, "bin"))
         old_germinate = os.path.join(germinate_dir, "germinate.py")
         touch(old_germinate)
         os.chmod(old_germinate, 0o755)
@@ -203,7 +201,6 @@ class TestGermination(TestCase):
         self.config.root = self.use_temp_dir()
         germinate_path = os.path.join(
             self.temp_dir, "germinate", "bin", "germinate")
-        os.makedirs(os.path.dirname(germinate_path))
         touch(germinate_path)
         os.chmod(germinate_path, 0o755)
         self.config["DIST"] = "raring"
@@ -287,7 +284,6 @@ class TestGermination(TestCase):
     def test_output(self):
         self.config.root = self.use_temp_dir()
         output_dir = self.germination.output_dir("ubuntu")
-        os.makedirs(output_dir)
         touch(os.path.join(output_dir, "STRUCTURE"))
         output = self.germination.output("ubuntu")
         self.assertEqual(self.config, output.config)
@@ -301,8 +297,7 @@ class TestGerminateOutput(TestCase):
         self.config.root = self.use_temp_dir()
 
     def write_structure(self, seed_inherit):
-        structure_path = os.path.join(self.temp_dir, "STRUCTURE")
-        with open(structure_path, "w") as structure:
+        with mkfile(os.path.join(self.temp_dir, "STRUCTURE")) as structure:
             for seed, inherit in seed_inherit:
                 print("%s: %s" % (seed, " ".join(inherit)), file=structure)
 
@@ -597,9 +592,7 @@ class TestGerminateOutput(TestCase):
 
     def write_seed_output(self, arch, seed, packages):
         """Write a simplified Germinate output file, enough for testing."""
-        path = os.path.join(self.temp_dir, arch, seed)
-        osextras.ensuredir(os.path.dirname(path))
-        with open(path, "w") as f:
+        with mkfile(os.path.join(self.temp_dir, arch, seed)) as f:
             why = "Ubuntu.Raring %s seed" % seed
             pkg_len = max(len("Package"), max(map(len, packages)))
             src_len = max(len("Source"), max(map(len, packages)))
@@ -799,8 +792,7 @@ class TestGerminateOutput(TestCase):
         manifest_path = os.path.join(
             self.temp_dir, "ftp", "dists", "raring", "main", "installer-i386",
             "current", "images", "MANIFEST.udebs")
-        os.makedirs(os.path.dirname(manifest_path))
-        with open(manifest_path, "w") as manifest:
+        with mkfile(manifest_path) as manifest:
             print(dedent("""\
                 cdrom/initrd.gz
                 \tanna 1.45ubuntu1 i386
@@ -823,8 +815,7 @@ class TestGerminateOutput(TestCase):
         manifest_path = os.path.join(
             self.temp_dir, "ftp", "dists", "raring", "main", "installer-i386",
             "current", "images", "MANIFEST.udebs")
-        os.makedirs(os.path.dirname(manifest_path))
-        with open(manifest_path, "w") as manifest:
+        with mkfile(manifest_path) as manifest:
             print(dedent("""\
                 cdrom/initrd.gz
                 \tanna 1.45ubuntu1 i386
@@ -841,8 +832,7 @@ class TestGerminateOutput(TestCase):
     def test_task_headers(self):
         self.write_ubuntu_structure()
         seedtext_path = os.path.join(self.temp_dir, "i386", "desktop.seedtext")
-        os.makedirs(os.path.dirname(seedtext_path))
-        with open(seedtext_path, "w") as seedtext:
+        with mkfile(seedtext_path) as seedtext:
             print(dedent("""\
                 Task-Per-Derivative: 1
                 Task-Key: ubuntu-desktop
@@ -863,11 +853,9 @@ class TestGerminateOutput(TestCase):
     def test_seed_task_mapping(self):
         self.write_ubuntu_structure()
         seed_dir = os.path.join(self.temp_dir, "i386")
-        os.makedirs(seed_dir)
-        with open(os.path.join(
-                seed_dir, "standard.seedtext"), "w") as seedtext:
+        with mkfile(os.path.join(seed_dir, "standard.seedtext")) as seedtext:
             print("Task-Key: ubuntu-standard", file=seedtext)
-        with open(os.path.join(seed_dir, "desktop.seedtext"), "w") as seedtext:
+        with mkfile(os.path.join(seed_dir, "desktop.seedtext")) as seedtext:
             print(dedent("""\
                 Task-Per-Derivative: 1
                 Task-Seeds: desktop-common"""), file=seedtext)
@@ -884,19 +872,17 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_structure()
         for arch in "amd64", "i386":
             seed_dir = os.path.join(self.temp_dir, arch)
-            os.makedirs(seed_dir)
             self.write_seed_output(arch, "required", ["base-files-%s" % arch])
             self.write_seed_output(arch, "minimal", ["adduser-%s" % arch])
             self.write_seed_output(arch, "desktop", ["xterm", "firefox"])
             self.write_seed_output(arch, "live", ["xterm"])
-            with open(os.path.join(
-                    seed_dir, "minimal.seedtext"), "w") as seedtext:
+            with mkfile(os.path.join(
+                    seed_dir, "minimal.seedtext")) as seedtext:
                 print("Task-Seeds: required", file=seedtext)
-            with open(os.path.join(
-                    seed_dir, "desktop.seedtext"), "w") as seedtext:
+            with mkfile(os.path.join(
+                    seed_dir, "desktop.seedtext")) as seedtext:
                 print("Task-Per-Derivative: 1", file=seedtext)
-            with open(os.path.join(
-                    seed_dir, "live.seedtext"), "w") as seedtext:
+            with mkfile(os.path.join(seed_dir, "live.seedtext")) as seedtext:
                 print("Task-Per-Derivative: 1", file=seedtext)
         self.config["DIST"] = "raring"
         self.config["ARCHES"] = "amd64 i386"
@@ -995,8 +981,6 @@ class TestGerminateOutput(TestCase):
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
             "tasks")
-        os.makedirs(output_dir)
-        os.makedirs("%s-previous" % output_dir)
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
         touch(os.path.join(output_dir, "standard"))
@@ -1025,7 +1009,6 @@ class TestGerminateOutput(TestCase):
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
             "tasks")
-        os.makedirs(output_dir)
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
         output = GerminateOutput(self.config, self.temp_dir)
@@ -1050,14 +1033,13 @@ class TestGerminateOutput(TestCase):
         output.update_tasks("20130319")
         self.assertEqual(0, mock_send_mail.call_count)
         task_mail_path = os.path.join(self.temp_dir, "etc", "task-mail")
-        os.makedirs(os.path.dirname(task_mail_path))
         touch(task_mail_path)
         output.update_tasks("20130319")
         self.assertEqual(0, mock_send_mail.call_count)
 
     def send_mail_to_file(self, path, subject, generator, recipients, body,
                           dry_run=False):
-        with open(path, "w") as f:
+        with mkfile(path) as f:
             print("To: %s" % ", ".join(recipients), file=f)
             print("Subject: %s" % subject, file=f)
             print("X-Generated-By: %s" % generator, file=f)
@@ -1094,16 +1076,13 @@ class TestGerminateOutput(TestCase):
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
             "tasks")
-        os.makedirs(output_dir)
-        os.makedirs("%s-previous" % output_dir)
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
         touch(os.path.join(output_dir, "standard"))
         touch(os.path.join("%s-previous" % output_dir, "minimal"))
         touch(os.path.join("%s-previous" % output_dir, "standard"))
         task_mail_path = os.path.join(self.temp_dir, "etc", "task-mail")
-        os.makedirs(os.path.dirname(task_mail_path))
-        with open(task_mail_path, "w") as task_mail:
+        with mkfile(task_mail_path) as task_mail:
             print("foo@example.org", file=task_mail)
         mock_send_mail.side_effect = partial(
             self.send_mail_to_file, os.path.join(self.temp_dir, "mail"))

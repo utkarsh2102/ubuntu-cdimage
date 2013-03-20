@@ -24,7 +24,7 @@ import subprocess
 
 from cdimage.config import Config
 from cdimage.proxy import _select_proxy, proxy_call, proxy_check_call
-from cdimage.tests.helpers import TestCase
+from cdimage.tests.helpers import TestCase, mkfile
 
 
 class TestProxy(TestCase):
@@ -33,11 +33,10 @@ class TestProxy(TestCase):
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
         self.config_path = os.path.join(self.temp_dir, "production", "proxies")
-        os.makedirs(os.path.dirname(self.config_path))
 
     def test_select_proxy(self):
         self.assertIsNone(_select_proxy(self.config, "any-caller"))
-        with open(self.config_path, "w") as f:
+        with mkfile(self.config_path) as f:
             print("test1\thttp://foo.example.org:3128/", file=f)
             print("test2\thttp://bar.example.org:3128/", file=f)
         self.assertEqual(
@@ -50,10 +49,10 @@ class TestProxy(TestCase):
 
     def test_call_set_proxy(self):
         http_proxy = "http://foo.example.org:3128/"
-        with open(self.config_path, "w") as f:
+        with mkfile(self.config_path) as f:
             print("caller\t%s" % http_proxy, file=f)
         path = os.path.join(self.temp_dir, "proxy")
-        with open(path, "w") as fp:
+        with mkfile(path) as fp:
             self.assertEqual(
                 0,
                 proxy_call(
@@ -64,10 +63,10 @@ class TestProxy(TestCase):
 
     def test_call_unset_proxy(self):
         os.environ["http_proxy"] = "http://set.example.org:3128/"
-        with open(self.config_path, "w") as f:
+        with mkfile(self.config_path) as f:
             print("caller\tunset", file=f)
         path = os.path.join(self.temp_dir, "proxy")
-        with open(path, "w") as fp:
+        with mkfile(path) as fp:
             self.assertEqual(
                 0,
                 proxy_call(
@@ -79,10 +78,10 @@ class TestProxy(TestCase):
     def test_call_unchanged(self):
         http_proxy = "http://set.example.org:3128/"
         os.environ["http_proxy"] = http_proxy
-        with open(self.config_path, "w") as f:
+        with mkfile(self.config_path) as f:
             print("caller\tunset", file=f)
         path = os.path.join(self.temp_dir, "proxy")
-        with open(path, "w") as fp:
+        with mkfile(path) as fp:
             self.assertEqual(
                 0,
                 proxy_call(
