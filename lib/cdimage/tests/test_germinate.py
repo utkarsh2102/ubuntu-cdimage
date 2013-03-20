@@ -246,8 +246,10 @@ class TestGermination(TestCase):
             "--no-rdepends",
             "--bzr",
         ]
-        mock_check_call.assert_called_once_with(
-            expected_command, cwd=("%s/amd64+mac" % output_dir))
+        self.assertEqual(1, mock_check_call.call_count)
+        self.assertEqual(expected_command, mock_check_call.call_args[0][0])
+        self.assertEqual(
+            "%s/amd64+mac" % output_dir, mock_check_call.call_args[1]["cwd"])
 
     @mock.patch("cdimage.germinate.Germination.germinate_arch")
     def test_germinate_project(self, mock_germinate_arch):

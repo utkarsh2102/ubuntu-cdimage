@@ -167,5 +167,7 @@ class TestOSExtras(TestCase):
         target = os.path.join(self.temp_dir, "target")
         self.assertTrue(
             osextras.fetch(config, "http://example.org/source", target))
-        mock_call.assert_called_once_with(
-            ["wget", "-nv", "http://example.org/source", "-O", target])
+        self.assertEqual(1, mock_call.call_count)
+        self.assertEqual(
+            ["wget", "-nv", "http://example.org/source", "-O", target],
+            mock_call.call_args[0][0])
