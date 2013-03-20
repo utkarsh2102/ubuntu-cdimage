@@ -82,8 +82,7 @@ class TestCheckInstallable(TestCase):
         self.capture_logging()
         _prepare_check_installable(self.config)
         self.assertLogEqual([])
-        self.assertEqual(
-            ["Packages_i386", "Sources"], sorted(os.listdir(data)))
+        self.assertCountEqual(["Packages_i386", "Sources"], os.listdir(data))
         with open(os.path.join(data, "Packages_i386")) as packages_file:
             self.assertEqual("Package: foo\n\n", packages_file.read())
 
@@ -115,8 +114,7 @@ class TestCheckInstallable(TestCase):
         self.capture_logging()
         _prepare_check_installable(self.config)
         self.assertLogEqual([])
-        self.assertEqual(
-            ["Packages_i386", "Sources"], sorted(os.listdir(data)))
+        self.assertCountEqual(["Packages_i386", "Sources"], os.listdir(data))
         with open(os.path.join(data, "Packages_i386")) as packages_file:
             self.assertEqual(fake_packages, packages_file.read())
 

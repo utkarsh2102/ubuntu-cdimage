@@ -230,7 +230,7 @@ class TestChecksumFile(TestCase):
         with ChecksumFile(
                 self.config, self.temp_dir, "MD5SUMS", hashlib.md5,
                 sign=False) as checksum_file:
-            self.assertEqual(["1", "2"], sorted(checksum_file.entries))
+            self.assertCountEqual(["1", "2"], checksum_file.entries)
             checksum_file.remove("1")
         with open(md5sums_path) as md5sums:
             self.assertEqual(

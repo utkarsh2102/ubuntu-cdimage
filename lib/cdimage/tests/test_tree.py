@@ -454,11 +454,11 @@ class TestDailyTreePublisher(TestCase):
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
-        self.assertEqual([
+        self.assertCountEqual([
             "%s-desktop-i386.iso" % self.config.series,
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
-        ], sorted(os.listdir(target_dir)))
+        ], os.listdir(target_dir))
 
     def test_publish_livecd_base(self):
         publisher = self.make_publisher(
@@ -479,7 +479,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertCountEqual([
             "i386.squashfs", "i386.kernel", "i386.initrd",
             "i386.manifest", "i386.manifest-remove",
-        ], sorted(os.listdir(target_dir)))
+        ], os.listdir(target_dir))
 
     def test_publish_source(self):
         publisher = self.make_publisher(
@@ -505,7 +505,7 @@ class TestDailyTreePublisher(TestCase):
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807", "source")
         self.assertEqual([], os.listdir(source_dir))
-        self.assertEqual([
+        self.assertCountEqual([
             "%s-src-1.iso" % self.config.series,
             "%s-src-1.jigdo" % self.config.series,
             "%s-src-1.list" % self.config.series,
@@ -514,7 +514,7 @@ class TestDailyTreePublisher(TestCase):
             "%s-src-2.jigdo" % self.config.series,
             "%s-src-2.list" % self.config.series,
             "%s-src-2.template" % self.config.series,
-        ], sorted(os.listdir(target_dir)))
+        ], os.listdir(target_dir))
 
     def test_link(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
@@ -698,7 +698,7 @@ class TestDailyTreePublisher(TestCase):
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
-        self.assertEqual(sorted([
+        self.assertCountEqual([
             "MD5SUMS",
             "SHA1SUMS",
             "SHA256SUMS",
@@ -706,7 +706,7 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
             "report.html",
-        ]), sorted(os.listdir(target_dir)))
+        ], os.listdir(target_dir))
         self.assertCountEqual(
             [".htaccess", "20120807", "current", "pending"],
             os.listdir(publisher.publish_base))
@@ -824,11 +824,11 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
-        self.assertEqual([
+        self.assertCountEqual([
             "%s-desktop-i386.iso" % self.config.series,
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
-        ], sorted(os.listdir(target_dir)))
+        ], os.listdir(target_dir))
 
     def test_publish_livecd_base(self):
         pass
@@ -883,14 +883,14 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
-        self.assertEqual(sorted([
+        self.assertCountEqual([
             "MD5SUMS",
             "SHA1SUMS",
             "SHA256SUMS",
             "%s-desktop-i386.iso" % self.config.series,
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
-        ]), sorted(os.listdir(target_dir)))
+        ], os.listdir(target_dir))
         self.assertCountEqual(
             [".htaccess", "20120807", "current", "pending"],
             os.listdir(publisher.publish_base))
