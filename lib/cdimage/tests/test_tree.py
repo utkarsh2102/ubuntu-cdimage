@@ -650,6 +650,35 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual("precise", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
+    @mock.patch("subprocess.call", return_value=0)
+    def test_polish_directory(self, mock_call):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        target_dir = os.path.join(publisher.publish_base, "20130320")
+        os.makedirs(target_dir)
+        touch(os.path.join(
+            target_dir, "%s-desktop-i386.iso" % self.config.series))
+        self.capture_logging()
+        publisher.polish_directory("20130320")
+        self.assertCountEqual([
+            "MD5SUMS",
+            "SHA1SUMS",
+            "SHA256SUMS",
+            "%s-desktop-i386.iso" % self.config.series,
+        ], os.listdir(target_dir))
+        make_web_indices = os.path.join(
+            self.temp_dir, "bin", "make-web-indices")
+        make_metalink = os.path.join(self.temp_dir, "bin", "make-metalink")
+        mock_call.assert_has_calls([
+            mock.call([
+                make_web_indices, target_dir, self.config.series, "daily",
+            ]),
+            mock.call([
+                make_metalink, publisher.tree.directory, self.config.series,
+                os.path.join(publisher.image_type_dir, "20130320"),
+                publisher.tree.site_name,
+            ]),
+        ])
+
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish(self, mock_post_qa):
         self.config["ARCHES"] = "i386"

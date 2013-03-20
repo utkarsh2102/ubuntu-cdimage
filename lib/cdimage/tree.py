@@ -595,6 +595,49 @@ class DailyTreePublisher(Publisher):
             yield os.path.join(
                 self.project, self.image_type, "%s-src" % self.config.series)
 
+    def polish_directory(self, date):
+        """Apply various bits of polish to a published directory."""
+        target_dir = os.path.join(self.publish_base, date)
+
+        if not self.config["CDIMAGE_ONLYSOURCE"]:
+            checksum_directory(
+                self.config, target_dir, old_directories=self.checksum_dirs,
+                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
+        if (self.config.project != "livecd-base" and
+                not self.config["CDIMAGE_ONLYSOURCE"]):
+            subprocess.check_call(
+                [os.path.join(self.config.root, "bin", "make-web-indices"),
+                 target_dir, self.config.series, "daily"])
+
+        target_dir_source = os.path.join(target_dir, "source")
+        if os.path.isdir(target_dir_source):
+            checksum_directory(
+                self.config, target_dir_source,
+                old_directories=[self.image_output("src")],
+                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
+            subprocess.check_call(
+                [os.path.join(self.config.root, "bin", "make-web-indices"),
+                 target_dir_source, self.config.series, "daily"])
+
+        if (self.image_type.endswith("-live") or
+                self.image_type.endswith("dvd")):
+            # Create and publish metalink files.
+            md5sums_metalink = os.path.join(target_dir, "MD5SUMS-metalink")
+            md5sums_metalink_gpg = os.path.join(
+                target_dir, "MD5SUMS-metalink.gpg")
+            osextras.unlink_force(md5sums_metalink)
+            osextras.unlink_force(md5sums_metalink_gpg)
+            basedir, reldir = self.metalink_dirs(date)
+            if subprocess.call([
+                os.path.join(self.config.root, "bin", "make-metalink"),
+                basedir, self.config.series, reldir, self.tree.site_name,
+            ]) == 0:
+                metalink_checksum_directory(self.config, target_dir)
+            else:
+                for name in os.listdir(target_dir):
+                    if name.endswith(".metalink"):
+                        osextras.unlink_force(os.path.join(target_dir, name))
+
     def link(self, date, name):
         target = os.path.join(self.publish_base, name)
         osextras.unlink_force(target)
@@ -760,56 +803,16 @@ class DailyTreePublisher(Publisher):
             logger.warning("No images produced!")
             return
 
-        target_dir = os.path.join(self.publish_base, date)
-
         source_report = os.path.join(
             self.britney_report, "%s_probs.html" % self.config.series)
-        target_report = os.path.join(target_dir, "report.html")
+        target_report = os.path.join(self.publish_base, date, "report.html")
         if (self.config["CDIMAGE_INSTALL_BASE"] and
                 os.path.exists(source_report)):
             shutil.copy2(source_report, target_report)
         else:
             osextras.unlink_force(target_report)
 
-        if not self.config["CDIMAGE_ONLYSOURCE"]:
-            checksum_directory(
-                self.config, target_dir, old_directories=self.checksum_dirs,
-                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
-        if (self.config.project != "livecd-base" and
-                not self.config["CDIMAGE_ONLYSOURCE"]):
-            subprocess.check_call(
-                [os.path.join(self.config.root, "bin", "make-web-indices"),
-                 target_dir, self.config.series, "daily"])
-
-        target_dir_source = os.path.join(target_dir, "source")
-        if os.path.isdir(target_dir_source):
-            checksum_directory(
-                self.config, target_dir_source,
-                old_directories=[self.image_output("src")],
-                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
-            subprocess.check_call(
-                [os.path.join(self.config.root, "bin", "make-web-indices"),
-                 target_dir_source, self.config.series, "daily"])
-
-        if (self.image_type.endswith("-live") or
-                self.image_type.endswith("dvd")):
-            # Create and publish metalink files.
-            md5sums_metalink = os.path.join(target_dir, "MD5SUMS-metalink")
-            md5sums_metalink_gpg = os.path.join(
-                target_dir, "MD5SUMS-metalink.gpg")
-            osextras.unlink_force(md5sums_metalink)
-            osextras.unlink_force(md5sums_metalink_gpg)
-            basedir, reldir = self.metalink_dirs(date)
-            if subprocess.call([
-                os.path.join(self.config.root, "bin", "make-metalink"),
-                basedir, self.config.series, reldir, self.tree.site_name,
-            ]) == 0:
-                metalink_checksum_directory(self.config, target_dir)
-            else:
-                for name in os.listdir(target_dir):
-                    if name.endswith(".metalink"):
-                        osextras.unlink_force(os.path.join(target_dir, name))
-
+        self.polish_directory(date)
         self.link(date, "pending")
         self.link(date, "current")
         self.set_link_descriptions()
