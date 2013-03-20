@@ -112,6 +112,8 @@ class TestCase(unittest.TestCase):
     # Monkey-patch for Python 2/3 compatibility.
     if not hasattr(unittest.TestCase, 'assertCountEqual'):
         assertCountEqual = unittest.TestCase.assertItemsEqual
+    if not hasattr(unittest.TestCase, 'assertRegex'):
+        assertRegex = unittest.TestCase.assertRegexpMatches
 
 
 def touch(path):

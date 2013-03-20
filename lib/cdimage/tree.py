@@ -193,7 +193,7 @@ class DailyTree(Tree):
                     del dirnames[i]
 
             dirpath_bits = dirpath.split(os.sep)
-            if "current" in dirpath_bits or "latest" in dirpath_bits:
+            if "current" in dirpath_bits or "pending" in dirpath_bits:
                 relative_dirpath = dirpath[len(self.directory) + 1:]
                 for filename in filenames:
                     path = os.path.join(dirpath, filename)
@@ -359,7 +359,7 @@ class DailyTreePublisher(Publisher):
         osextras.ensuredir(publish_date)
         if self.config["CDIMAGE_NOCOPY"]:
             return
-        for previous_name in "latest", "current":
+        for previous_name in "pending", "current":
             publish_previous = os.path.join(publish_base, previous_name)
             if os.path.exists(publish_previous):
                 for name in sorted(os.listdir(publish_previous)):
@@ -600,6 +600,23 @@ class DailyTreePublisher(Publisher):
         osextras.unlink_force(target)
         os.symlink(date, target)
 
+    def set_link_descriptions(self):
+        """Set standard link descriptions in publish_base/.htaccess."""
+        descriptions = {
+            "pending": (
+                "Most recently built images; not yet automatically tested"),
+            "current": (
+                "Latest images to have passed any automatic testing; "
+                "try this first"),
+        }
+        htaccess_path = os.path.join(self.publish_base, ".htaccess")
+        if not os.path.exists(htaccess_path):
+            with AtomicFile(htaccess_path) as htaccess:
+                for name, description in sorted(descriptions.items()):
+                    print('AddDescription "%s" %s' % (description, name),
+                          file=htaccess)
+                print("IndexOptions FancyIndexing", file=htaccess)
+
     def qa_product(self, project, image_type, publish_type, arch):
         """Return the QA tracker product for an image, or None.
 
@@ -793,8 +810,9 @@ class DailyTreePublisher(Publisher):
                     if name.endswith(".metalink"):
                         osextras.unlink_force(os.path.join(target_dir, name))
 
-        self.link(date, "latest")
+        self.link(date, "pending")
         self.link(date, "current")
+        self.set_link_descriptions()
 
         manifest_lock = os.path.join(
             self.config.root, "etc", ".lock-manifest-daily")

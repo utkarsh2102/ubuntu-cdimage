@@ -386,16 +386,16 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             [], os.listdir(os.path.join(publisher.publish_base, "20120807")))
 
-    def test_new_publish_dir_prefers_latest(self):
+    def test_new_publish_dir_prefers_pending(self):
         publisher = self.make_publisher("ubuntu", "daily")
         publish_current = os.path.join(publisher.publish_base, "current")
         osextras.ensuredir(publish_current)
         touch(os.path.join(
             publish_current, "%s-alternate-i386.iso" % self.config.series))
-        publish_latest = os.path.join(publisher.publish_base, "latest")
-        osextras.ensuredir(publish_latest)
+        publish_pending = os.path.join(publisher.publish_base, "pending")
+        osextras.ensuredir(publish_pending)
         touch(os.path.join(
-            publish_latest, "%s-alternate-amd64.iso" % self.config.series))
+            publish_pending, "%s-alternate-amd64.iso" % self.config.series))
         publisher.new_publish_dir("20130319")
         self.assertEqual(
             ["%s-alternate-amd64.iso" % self.config.series],
@@ -534,6 +534,19 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             "20130319",
             os.readlink(os.path.join(publisher.publish_base, "current")))
+
+    def test_set_link_descriptions(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        os.makedirs(publisher.publish_base)
+        publisher.set_link_descriptions()
+        htaccess_path = os.path.join(publisher.publish_base, ".htaccess")
+        self.assertTrue(os.path.exists(htaccess_path))
+        with open(htaccess_path) as htaccess:
+            self.assertRegex(htaccess.read(), dedent("""\
+                AddDescription "Latest.*" current
+                AddDescription "Most recently built.*" pending
+                IndexOptions FancyIndexing
+                """))
 
     def test_qa_product(self):
         for project, image_type, publish_type, product in (
@@ -682,7 +695,7 @@ class TestDailyTreePublisher(TestCase):
             "report.html",
         ]), sorted(os.listdir(target_dir)))
         self.assertCountEqual(
-            ["20120807", "current", "latest"],
+            [".htaccess", "20120807", "current", "pending"],
             os.listdir(publisher.publish_base))
         mock_post_qa.assert_called_once_with(
             "20120807", ["ubuntu/daily-live/raring-desktop-i386"])
@@ -870,7 +883,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "%s-desktop-i386.manifest" % self.config.series,
         ]), sorted(os.listdir(target_dir)))
         self.assertCountEqual(
-            ["20120807", "current", "latest"],
+            [".htaccess", "20120807", "current", "pending"],
             os.listdir(publisher.publish_base))
         mock_post_qa.assert_called_once_with(
             "20120807",
