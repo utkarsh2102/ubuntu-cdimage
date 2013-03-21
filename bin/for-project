@@ -58,10 +58,12 @@ def main():
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need project")
-    project = args[0]
+    project = raw_project = args[0]
+    if "UBUNTU_DEFAULTS_LOCALE" in os.environ:
+        project = "-".join([project, os.environ["UBUNTU_DEFAULTS_LOCALE"]])
     if project not in project_map:
         parser.error("unrecognised project '%s'" % project)
-    os.environ["PROJECT"] = project
+    os.environ["PROJECT"] = raw_project
     os.environ["CAPPROJECT"] = project_map[project]
     if len(args) == 1:
         os.execl(os.environ.get("SHELL", "/bin/sh"), "-i")
