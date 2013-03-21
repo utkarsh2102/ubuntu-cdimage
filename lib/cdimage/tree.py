@@ -40,6 +40,7 @@ from cdimage.checksums import (
 )
 from cdimage.config import Series
 from cdimage.log import logger, reset_logging
+from cdimage.mirror import trigger_mirrors
 from cdimage import osextras
 from cdimage.project import setenv_for_project
 
@@ -213,6 +214,7 @@ class Tree:
         publisher = Publisher.get_daily(tree, config["IMAGE_TYPE"])
         try:
             publisher.mark_current(date, arches)
+            trigger_mirrors(config)
         except Exception:
             for line in traceback.format_exc().splitlines():
                 logger.error(line)

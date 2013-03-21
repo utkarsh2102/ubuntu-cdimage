@@ -94,8 +94,10 @@ class TestTree(TestCase):
         self.assertFalse(self.tree.manifest_file_allowed(path))
 
     @mock.patch("time.strftime", return_value="2013-03-21 00:00:00")
+    @mock.patch("cdimage.tree.trigger_mirrors")
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
-    def test_mark_current_trigger(self, mock_polish_directory, *args):
+    def test_mark_current_trigger(self, mock_polish_directory,
+                                  mock_trigger_mirrors, *args):
         self.config.root = self.temp_dir
         publish_base = os.path.join(self.temp_dir, "www", "full", "daily-live")
         target_dir = os.path.join(publish_base, "20130321")
@@ -112,6 +114,8 @@ class TestTree(TestCase):
         if pid == 0:  # child
             try:
                 Tree.mark_current_trigger(self.config)
+                self.assertEqual(0, mock_polish_directory.call_count)
+                mock_trigger_mirrors.assert_called_once_with(self.config)
             except Exception:
                 traceback.print_exc(file=sys.stderr)
                 os._exit(1)
@@ -127,7 +131,6 @@ class TestTree(TestCase):
             publish_current = os.path.join(publish_base, "current")
             self.assertTrue(os.path.islink(publish_current))
             self.assertEqual("20130321", os.readlink(publish_current))
-            self.assertEqual(0, mock_polish_directory.call_count)
 
 
 class TestPublisher(TestCase):
