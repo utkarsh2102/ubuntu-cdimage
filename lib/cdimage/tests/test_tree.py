@@ -105,7 +105,7 @@ class TestTree(TestCase):
         ):
             touch(os.path.join(target_dir, name))
         self.config["SSH_ORIGINAL_COMMAND"] = (
-            "--project=ubuntu --series=%s --publish-type=desktop "
+            "mark-current --project=ubuntu --series=%s --publish-type=desktop "
             "--architecture=i386 20130321" % series)
         Tree.mark_current_trigger(self.config)
         log_path = os.path.join(self.temp_dir, "log", "mark-current.log")

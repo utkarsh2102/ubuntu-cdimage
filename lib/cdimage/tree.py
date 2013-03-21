@@ -149,7 +149,7 @@ class Tree:
     @staticmethod
     def mark_current_trigger(config, args=None):
         if not args:
-            args = config["SSH_ORIGINAL_COMMAND"].split()
+            args = config["SSH_ORIGINAL_COMMAND"].split()[1:]
         if not args:
             return
 
@@ -161,7 +161,8 @@ class Tree:
         sys.stdout = os.fdopen(1, "w", 1)
         reset_logging()
 
-        logger.info("[%s] %s" % (time.strftime("%F %T"), " ".join(args)))
+        logger.info(
+            "[%s] mark-current %s" % (time.strftime("%F %T"), " ".join(args)))
 
         parser = OptionParser("%prog [options] BUILD-ID")
         parser.add_option("-p", "--project", help="set project")
