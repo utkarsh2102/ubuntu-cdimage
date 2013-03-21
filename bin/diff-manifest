@@ -9,9 +9,6 @@
 Compare two manifest file with format of "package version" per line, and
 summarize when a package is in one file but not in another ("<",">").
 If the package is in both manifests, are the versions equal or not ("=","?").
-
-USAGE:
-   diff-manifest manifest1 manifest2
 """
 
 from __future__ import print_function
@@ -21,8 +18,7 @@ import sys
 
 
 def next_package(manifest):
-    """Get the next package name and version information from a manifest.
-    """
+    """Get the next package name and version information from a manifest."""
     while manifest:
         line = manifest.pop(0)
         if not line:
@@ -53,7 +49,7 @@ def manifest_pairs(ma, mb):
         else:  # left[0] > right[0]
             yield None, right
             right = next_package(mb)
-    # drain off which ever file still has packages in it
+    # drain off whichever file still has packages in it
     while left:
         yield left, None
         left = next_package(ma)
@@ -63,11 +59,8 @@ def manifest_pairs(ma, mb):
 
 
 def main():
-    """Create a difference listing of two manifest files.  If a package
-    is present in both files, check if the versions are the same.
-    """
     parser = OptionParser(usage="Usage: %prog manifest1 manifest2")
-    options, args = parser.parse_args()
+    _, args = parser.parse_args()
     if len(args) < 2:
         print("ERROR: Must provide two manifest files to diff",
               file=sys.stderr)
