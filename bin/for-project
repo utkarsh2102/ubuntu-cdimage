@@ -19,34 +19,10 @@
 
 from optparse import OptionParser
 import os
+import sys
 
-# Be careful about the values here; in most cases they are passed to
-# debian-cd, which will get upset if they contain a space, hence all the
-# odd-looking hyphens.  ubuntu-zh_CN is an exception to this.
-project_map = {
-    "ubuntu": "Ubuntu",
-    "ubuntu-zh_CN": "Ubuntu Chinese Edition",
-    "kubuntu": "Kubuntu",
-    "kubuntu-active": "Kubuntu-Active",
-    "edubuntu": "Edubuntu",
-    "xubuntu": "Xubuntu",
-    "gobuntu": "Gobuntu",
-    "ubuntu-server": "Ubuntu-Server",
-    "jeos": "Ubuntu-JeOS",
-    "ubuntu-mid": "Ubuntu-MID",
-    "ubuntu-netbook": "Ubuntu-Netbook",
-    "ubuntu-headless": "Ubuntu-Headless",
-    "ubuntustudio": "Ubuntu-Studio",
-    "mythbuntu": "Mythbuntu",
-    "lubuntu": "Lubuntu",
-    "ubuntukylin": "UbuntuKylin",
-    "ubuntu-gnome": "Ubuntu-GNOME",
-    "ubuntu-moblin-remix": "Ubuntu-Moblin-Remix",
-    "livecd-base": "LiveCD-Base",
-    "ubuntu-core": "Ubuntu-Core",
-    "tocd3": "TheOpenCDv3",
-    "tocd3.1": "TheOpenCDv3.1",
-}
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.project import project_map, setenv_for_project
 
 
 def main():
@@ -58,13 +34,9 @@ def main():
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need project")
-    project = raw_project = args[0]
-    if "UBUNTU_DEFAULTS_LOCALE" in os.environ:
-        project = "-".join([project, os.environ["UBUNTU_DEFAULTS_LOCALE"]])
-    if project not in project_map:
+    project = args[0]
+    if not setenv_for_project(project):
         parser.error("unrecognised project '%s'" % project)
-    os.environ["PROJECT"] = raw_project
-    os.environ["CAPPROJECT"] = project_map[project]
     if len(args) == 1:
         os.execl(os.environ.get("SHELL", "/bin/sh"), "-i")
     else:
