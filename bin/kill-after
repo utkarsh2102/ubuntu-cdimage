@@ -1,62 +1,45 @@
 #! /usr/bin/python
 
+# Copyright (C) 2008, 2012, 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Run a process, killing it if it takes too long."""
+
 from __future__ import print_function
 
+from optparse import OptionParser
 import os
-import signal
 import sys
 
-
-def usage(stream, code):
-    print("""\
-Usage: kill-after number-of-seconds command [argument ...]""", file=stream)
-    sys.exit(code)
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.osextras import run_bounded
 
 
-if len(sys.argv) < 3:
-    usage(sys.stderr, 1)
-if sys.argv[1] == '--help':
-    usage(sys.stdout, 0)
-try:
-    int(sys.argv[1])
-except ValueError:
-    usage(sys.stderr, 1)
+def main():
+    parser = OptionParser("%prog number-of-seconds command [argument ...]")
+    _, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need number of seconds")
+    if len(args) < 2:
+        parser.error("need command")
+    try:
+        timeout = float(args[0])
+    except ValueError:
+        parser.error("number of seconds is not numeric")
+    run_bounded(timeout, args[1:])
 
 
-def sigalrm_handler(signum, frame):
-    print("%s took too long, terminating ..." % sys.argv[2], file=sys.stderr)
-    os.kill(-pid, signal.SIGTERM)
-
-
-def sigchld_handler(signum, frame):
-    _, status = os.waitpid(pid, 0)
-    if os.WIFEXITED(status):
-        os._exit(status)
-    else:
-        print("child exited with signal %d" % os.WTERMSIG(status),
-              file=sys.stderr)
-        os._exit(os.WTERMSIG(status) + 128)
-
-
-old_sigalrm = signal.signal(signal.SIGALRM, sigalrm_handler)
-old_sigchld = signal.signal(signal.SIGCHLD, sigchld_handler)
-
-pid = os.fork()
-if pid == 0:
-    # child
-    signal.signal(signal.SIGALRM, old_sigalrm)
-    signal.signal(signal.SIGCHLD, old_sigchld)
-    os.setpgid(0, 0)
-    print(sys.argv)
-    os.execvp(sys.argv[2], sys.argv[2:])
-
-# prevent race by setting process group on either side; cf. Stevens 1993
-try:
-    os.setpgid(pid, 0)
-except OSError:
-    # may fail if the child has already execed
-    pass
-
-signal.alarm(int(sys.argv[1]))
-while True:
-    signal.pause()
+if __name__ == "__main__":
+    main()
