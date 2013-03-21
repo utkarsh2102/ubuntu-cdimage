@@ -809,6 +809,10 @@ class DailyTreePublisher(Publisher):
                         target = os.path.join(publish_current, entry)
                         osextras.unlink_force(target)
                         os.symlink(source, target)
+            for date in existing.values():
+                publish_date = os.path.join(self.publish_base, date)
+                if publish_date not in self.checksum_dirs:
+                    self.checksum_dirs.append(publish_date)
             self.polish_directory("current")
 
     def current_uses_trigger(self, arch):

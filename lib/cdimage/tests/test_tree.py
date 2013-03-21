@@ -618,6 +618,7 @@ class TestDailyTreePublisher(TestCase):
             self.assertTrue(os.path.islink(path))
             self.assertEqual(
                 os.path.join(os.pardir, "20130321", name), os.readlink(path))
+        self.assertEqual([target_dir], publisher.checksum_dirs)
         mock_polish_directory.assert_called_once_with("current")
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
@@ -664,6 +665,10 @@ class TestDailyTreePublisher(TestCase):
                 self.assertTrue(os.path.islink(path))
                 self.assertEqual(
                     os.path.join(os.pardir, date, name), os.readlink(path))
+        self.assertCountEqual([
+            os.path.join(publisher.publish_base, "20130320"),
+            os.path.join(publisher.publish_base, "20130321"),
+        ], publisher.checksum_dirs)
         mock_polish_directory.assert_called_once_with("current")
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
@@ -730,8 +735,12 @@ class TestDailyTreePublisher(TestCase):
             self.assertTrue(os.path.islink(path))
             self.assertEqual(
                 os.path.join(os.pardir, "20130321", name), os.readlink(path))
+        self.assertEqual(
+            [os.path.join(publisher.publish_base, "20130321")],
+            publisher.checksum_dirs)
         mock_polish_directory.assert_called_once_with("current")
         mock_polish_directory.reset_mock()
+        publisher.checksum_dirs = []
         publisher.mark_current("20130320", ["amd64+mac", "powerpc"])
         self.assertFalse(os.path.islink(publish_current))
         self.assertTrue(os.path.isdir(publish_current))
@@ -754,6 +763,10 @@ class TestDailyTreePublisher(TestCase):
                 self.assertTrue(os.path.islink(path))
                 self.assertEqual(
                     os.path.join(os.pardir, date, name), os.readlink(path))
+        self.assertCountEqual([
+            os.path.join(publisher.publish_base, "20130320"),
+            os.path.join(publisher.publish_base, "20130321"),
+        ], publisher.checksum_dirs)
         mock_polish_directory.assert_called_once_with("current")
 
     def test_set_link_descriptions(self):
