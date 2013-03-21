@@ -110,6 +110,15 @@ class TestCase(unittest.TestCase):
         finally:
             shutil.rmtree(build_dir)
 
+    def wait_for_pid(self, pid, expected_status):
+        while True:
+            try:
+                self.assertEqual((pid, expected_status), os.waitpid(pid, 0))
+                break
+            except OSError as e:
+                if e.errno != errno.EINTR:
+                    raise
+
     # Monkey-patch for Python 2/3 compatibility.
     if not hasattr(unittest.TestCase, 'assertCountEqual'):
         assertCountEqual = unittest.TestCase.assertItemsEqual

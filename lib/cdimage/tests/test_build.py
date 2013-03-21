@@ -259,15 +259,6 @@ class TestBuildImageSet(TestCase):
         self.addCleanup(mock_gmtime.stop)
         self.epoch_date = "Thu Jan  1 00:00:00 UTC 1970"
 
-    def wait_for_pid(self, pid, expected_status):
-        while True:
-            try:
-                self.assertEqual((pid, expected_status), os.waitpid(pid, 0))
-                break
-            except OSError as e:
-                if e.errno != errno.EINTR:
-                    raise
-
     @mock.patch("subprocess.check_call")
     @mock.patch("cdimage.osextras.unlink_force")
     def test_lock_build_image_set(self, mock_unlink_force, mock_check_call):

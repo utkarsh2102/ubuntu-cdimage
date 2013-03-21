@@ -25,6 +25,7 @@ from functools import wraps
 import os
 import sys
 from textwrap import dedent
+import traceback
 
 try:
     from unittest import mock
@@ -107,17 +108,26 @@ class TestTree(TestCase):
         self.config["SSH_ORIGINAL_COMMAND"] = (
             "mark-current --project=ubuntu --series=%s --publish-type=desktop "
             "--architecture=i386 20130321" % series)
-        Tree.mark_current_trigger(self.config)
-        log_path = os.path.join(self.temp_dir, "log", "mark-current.log")
-        with open(log_path) as log:
-            self.assertEqual(
-                "[2013-03-21 00:00:00] %s\n" %
-                self.config["SSH_ORIGINAL_COMMAND"],
-                log.read())
-        publish_current = os.path.join(publish_base, "current")
-        self.assertTrue(os.path.islink(publish_current))
-        self.assertEqual("20130321", os.readlink(publish_current))
-        self.assertEqual(0, mock_polish_directory.call_count)
+        pid = os.fork()
+        if pid == 0:  # child
+            try:
+                Tree.mark_current_trigger(self.config)
+            except Exception:
+                traceback.print_exc(file=sys.stderr)
+                os._exit(1)
+            os._exit(0)
+        else:  # parent
+            self.wait_for_pid(pid, 0)
+            log_path = os.path.join(self.temp_dir, "log", "mark-current.log")
+            with open(log_path) as log:
+                self.assertEqual(
+                    "[2013-03-21 00:00:00] %s\n" %
+                    self.config["SSH_ORIGINAL_COMMAND"],
+                    log.read())
+            publish_current = os.path.join(publish_base, "current")
+            self.assertTrue(os.path.islink(publish_current))
+            self.assertEqual("20130321", os.readlink(publish_current))
+            self.assertEqual(0, mock_polish_directory.call_count)
 
 
 class TestPublisher(TestCase):
