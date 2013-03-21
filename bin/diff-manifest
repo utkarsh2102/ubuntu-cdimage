@@ -64,7 +64,7 @@ def main():
     if len(args) < 2:
         parser.error("must provide two manifest files to diff")
 
-    # create similarily ordered lists from each manifest file
+    # create similarly ordered lists from each manifest file
     with open(args[0]) as mfa:
         ma = sorted(mfa.readlines())
     with open(args[1]) as mfb:
