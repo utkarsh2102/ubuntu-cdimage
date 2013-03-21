@@ -1,129 +1,73 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-# Execute a subsidiary command in the context of a given project.
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-case $1 in
-	ubuntu)
-		export PROJECT=ubuntu
-		export CAPPROJECT=Ubuntu
-		if [ "$UBUNTU_DEFAULTS_LOCALE" = zh_CN ]; then
-			export CAPPROJECT='Ubuntu Chinese Edition'
-		fi
-		;;
-	kubuntu)
-		export PROJECT=kubuntu
-		export CAPPROJECT=Kubuntu
-		;;
-	kubuntu-active)
-		export PROJECT=kubuntu-active
-		export CAPPROJECT=Kubuntu-Active
-		;;
-	edubuntu)
-		export PROJECT=edubuntu
-		export CAPPROJECT=Edubuntu
-		;;
-	xubuntu)
-		export PROJECT=xubuntu
-		export CAPPROJECT=Xubuntu
-		;;
-	gobuntu)
-		export PROJECT=gobuntu
-		export CAPPROJECT=Gobuntu
-		;;
-	ubuntu-server)
-		export PROJECT=ubuntu-server
-		export CAPPROJECT=Ubuntu-Server
-		;;
-	jeos)
-		export PROJECT=jeos
-		export CAPPROJECT=Ubuntu-JeOS
-		;;
-	ubuntu-mid)
-		export PROJECT=ubuntu-mid
-		export CAPPROJECT=Ubuntu-MID
-		;;
-	ubuntu-netbook)
-		export PROJECT=ubuntu-netbook
-		export CAPPROJECT=Ubuntu-Netbook
-		;;
-	ubuntu-headless)
-		export PROJECT=ubuntu-headless
-		export CAPPROJECT=Ubuntu-Headless
-		;;
-	ubuntustudio)
-		export PROJECT=ubuntustudio
-		export CAPPROJECT=Ubuntu-Studio
-		;;
-	mythbuntu)
-		export PROJECT=mythbuntu
-		export CAPPROJECT=Mythbuntu
-		;;
-	lubuntu)
-		export PROJECT=lubuntu
-		export CAPPROJECT=Lubuntu
-		;;
-	ubuntukylin)
-		export PROJECT=ubuntukylin
-		export CAPPROJECT=UbuntuKylin
-		;;
-	ubuntu-gnome)
-		export PROJECT=ubuntu-gnome
-		export CAPPROJECT=Ubuntu-GNOME
-		;;
-	ubuntu-moblin-remix)
-		export PROJECT=ubuntu-moblin-remix
-		export CAPPROJECT=Ubuntu-Moblin-Remix
-		;;
-	livecd-base)
-		export PROJECT=livecd-base
-		export CAPPROJECT=LiveCD-Base
-		;;
-	ubuntu-core)
-		export PROJECT=ubuntu-core
-		export CAPPROJECT=Ubuntu-Core
-		;;
-	tocd3)
-		export PROJECT=tocd3
-		export CAPPROJECT=TheOpenCDv3
-		;;
-	tocd3.1)
-		export PROJECT=tocd3.1
-		export CAPPROJECT=TheOpenCDv3.1
-		;;
-	*)
-		cat <<EOF >&2
-Usage: for-project PROJECT [COMMAND ARGS...]
-Recognised projects:
-  ubuntu
-  kubuntu
-  kubuntu-active
-  edubuntu
-  xubuntu
-  gobuntu
-  ubuntu-server
-  jeos
-  ubuntu-mid
-  ubuntu-netbook
-  ubuntu-headless
-  ubuntustudio
-  mythbuntu
-  lubuntu
-  ubuntukylin
-  ubuntu-gnome
-  ubuntu-moblin-remix
-  livecd-base
-  ubuntu-core
-  tocd3
-  tocd3.1
-EOF
-		exit 1
-		;;
-esac
-shift
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-if [ $# -eq 0 ]; then
-	exec "${SHELL:-/bin/sh}" -i
-else
-	exec "$@"
-fi
+"""Execute a subsidiary command in the context of a given project."""
+
+from optparse import OptionParser
+import os
+
+# Be careful about the values here; in most cases they are passed to
+# debian-cd, which will get upset if they contain a space, hence all the
+# odd-looking hyphens.  ubuntu-zh_CN is an exception to this.
+project_map = {
+    "ubuntu": "Ubuntu",
+    "ubuntu-zh_CN": "Ubuntu Chinese Edition",
+    "kubuntu": "Kubuntu",
+    "kubuntu-active": "Kubuntu-Active",
+    "edubuntu": "Edubuntu",
+    "xubuntu": "Xubuntu",
+    "gobuntu": "Gobuntu",
+    "ubuntu-server": "Ubuntu-Server",
+    "jeos": "Ubuntu-JeOS",
+    "ubuntu-mid": "Ubuntu-MID",
+    "ubuntu-netbook": "Ubuntu-Netbook",
+    "ubuntu-headless": "Ubuntu-Headless",
+    "ubuntustudio": "Ubuntu-Studio",
+    "mythbuntu": "Mythbuntu",
+    "lubuntu": "Lubuntu",
+    "ubuntukylin": "UbuntuKylin",
+    "ubuntu-gnome": "Ubuntu-GNOME",
+    "ubuntu-moblin-remix": "Ubuntu-Moblin-Remix",
+    "livecd-base": "LiveCD-Base",
+    "ubuntu-core": "Ubuntu-Core",
+    "tocd3": "TheOpenCDv3",
+    "tocd3.1": "TheOpenCDv3.1",
+}
+
+
+def main():
+    parser = OptionParser(
+        "%prog PROJECT [COMMAND ARGS...]\n"
+        "Recognised projects:\n" +
+        "\n".join("  %s" % project for project in sorted(project_map)))
+    parser.disable_interspersed_args()
+    _, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need project")
+    project = args[0]
+    if project not in project_map:
+        parser.error("unrecognised project '%s'" % project)
+    os.environ["PROJECT"] = project
+    os.environ["CAPPROJECT"] = project_map[project]
+    if len(args) == 1:
+        os.execl(os.environ.get("SHELL", "/bin/sh"), "-i")
+    else:
+        os.execvp(args[1], args[1:])
+
+
+if __name__ == "__main__":
+    main()
