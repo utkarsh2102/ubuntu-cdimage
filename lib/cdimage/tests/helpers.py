@@ -19,6 +19,7 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import calendar
 import contextlib
 from logging.handlers import BufferingHandler
 import os
@@ -26,6 +27,7 @@ import shutil
 import subprocess
 import tempfile
 from textwrap import dedent
+import time
 try:
     import unittest2 as unittest
 except ImportError:
@@ -125,3 +127,8 @@ def mkfile(path, mode="w"):
 def touch(path):
     with mkfile(path, mode="a"):
         pass
+
+
+def date_to_time(date):
+    """Return UTC seconds-since-epoch for a string in the form "20130321"."""
+    return calendar.timegm(time.strptime(date, "%Y%m%d"))

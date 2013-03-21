@@ -19,6 +19,7 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+import errno
 from itertools import count
 import os
 import re
@@ -26,6 +27,7 @@ import shutil
 import socket
 import stat
 import subprocess
+import time
 import traceback
 
 from cdimage.atomicfile import AtomicFile
@@ -845,6 +847,83 @@ class DailyTreePublisher(Publisher):
             osextras.unlink_force(manifest_lock)
 
         self.post_qa(date, published)
+
+    def get_purge_days(self, key):
+        path = os.path.join(self.config.root, "etc", "purge-days")
+        try:
+            with open(path) as purge_days:
+                for line in purge_days:
+                    if line.startswith("#"):
+                        continue
+                    line = line.rstrip("\n")
+                    words = line.split(None, 1)
+                    if len(words) != 2:
+                        continue
+                    if words[0] == key:
+                        return int(words[1])
+        except IOError as e:
+            if e.errno != errno.ENOENT:
+                raise
+        return None
+
+    def purge(self, days=None):
+        project = self.project
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "-".join(
+                [project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
+        project_image_type = "%s/%s" % (project, self.image_type)
+
+        if days is None:
+            days = self.get_purge_days(project)
+        if days is None:
+            days = self.get_purge_days(project_image_type)
+        if days is None:
+            days = self.get_purge_days(self.image_type)
+        if days is None:
+            logger.info("No purge time configured for %s" % project_image_type)
+            return
+        if days == 0:
+            logger.info("Not purging images for %s" % project_image_type)
+            return
+        logger.info(
+            "Purging %s images older than %d days ..." %
+            (project_image_type, days))
+        oldest = time.strftime(
+            "%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days))
+
+        for entry in sorted(osextras.listdir_force(self.publish_base)):
+            entry_path = os.path.join(self.publish_base, entry)
+
+            # Directory?
+            if not os.path.isdir(entry_path):
+                continue
+
+            # Numeric directory?
+            if not entry[0].isdigit():
+                continue
+
+            # Older than cut-off date?
+            if int(oldest) <= int(entry.split(".", 1)[0]):
+                continue
+
+            # Pointed to by "pending" or "current" symlink?
+            publish_pending = os.path.join(self.publish_base, "pending")
+            if (os.path.islink(publish_pending) and
+                    os.readlink(publish_pending) == entry):
+                continue
+            publish_current = os.path.join(self.publish_base, "current")
+            if (os.path.islink(publish_current) and
+                    os.readlink(publish_current) == entry):
+                continue
+
+            if self.config["DEBUG"] or self.config["CDIMAGE_NOPURGE"]:
+                logger.info(
+                    "Would purge %s/%s/%s" %
+                    (project, self.image_type_dir, entry))
+            else:
+                logger.info(
+                    "Purging %s/%s/%s" % (project, self.image_type_dir, entry))
+                shutil.rmtree(entry_path)
 
 
 class ChinaDailyTree(DailyTree):

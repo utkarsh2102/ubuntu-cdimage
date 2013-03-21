@@ -728,9 +728,10 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.germinate.GerminateOutput.write_tasks")
     @mock.patch("cdimage.germinate.GerminateOutput.update_tasks")
     @mock.patch("cdimage.tree.DailyTreePublisher.publish")
+    @mock.patch("cdimage.tree.DailyTreePublisher.purge")
     def test_build_image_set_locked(
-            self, mock_publish, mock_update_tasks, mock_write_tasks,
-            mock_extract_debootstrap, mock_call):
+            self, mock_purge, mock_publish, mock_update_tasks,
+            mock_write_tasks, mock_extract_debootstrap, mock_call):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "raring"
@@ -786,12 +787,12 @@ class TestBuildImageSet(TestCase):
                     germinate_command("i386"),
                     mock.call(
                         ["./build_all.sh"], cwd=debian_cd_dir, env=mock.ANY),
-                    mock.call(["purge-old-images", "daily"])
                 ])
                 mock_extract_debootstrap.assert_called_once_with(self.config)
                 mock_write_tasks.assert_called_once_with()
                 mock_update_tasks.assert_called_once_with(date)
                 mock_publish.assert_called_once_with(date)
+                mock_purge.assert_called_once_with()
             except AssertionError:
                 stderr = os.fdopen(original_stderr, "w", 1)
                 try:

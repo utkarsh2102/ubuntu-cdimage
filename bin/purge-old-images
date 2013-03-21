@@ -1,94 +1,41 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-if [ -z "$1" ]; then
-	echo 'Usage: purge-old-images IMAGE_TYPE [DAYS]' >&2
-	exit 1
-fi
-PROJECT="$PROJECT${UBUNTU_DEFAULTS_LOCALE:+-$UBUNTU_DEFAULTS_LOCALE}"
-IMAGE_TYPE="$1"
-IMAGE_TYPE_DIR="$(echo "$IMAGE_TYPE" | sed 's,_,/,g')"
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-get_purge_days () {
-	while read imagetype days; do
-		if [ "$imagetype" = "$1" ]; then
-			echo "$days"
-			return 0
-		fi
-	done < "$CDIMAGE_ROOT/etc/purge-days"
-	return 1
-}
+"""Purge old image builds."""
 
-if [ "$2" ]; then
-	DAYS="$2"
-else
-	DAYS="$(get_purge_days "$PROJECT")" || \
-	DAYS="$(get_purge_days "$PROJECT/$IMAGE_TYPE")" || \
-	DAYS="$(get_purge_days "$IMAGE_TYPE")" || {
-		echo "No purge time configured for $IMAGE_TYPE"
-		exit 0
-	}
-fi
-if [ "$DAYS" = 0 ]; then
-	echo "Not purging images for $PROJECT/$IMAGE_TYPE"
-	exit 0
-fi
-echo "Purging $PROJECT/$IMAGE_TYPE images older than $DAYS days ..."
+from optparse import OptionParser
+import os
+import sys
 
-OLDEST="$(date -d "$DAYS days ago" +%Y%m%d)"
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+from cdimage.tree import Publisher, Tree
 
-case $PROJECT in
-	ubuntu|livecd-base)
-		FULL_TREE=full
-		;;
-	ubuntu-zh_CN)
-		FULL_TREE="china-images/$DIST"
-		;;
-	*)
-		FULL_TREE="full/$PROJECT"
-		;;
-esac
 
-if [ "$PROJECT" != ubuntu-zh_CN ] && \
-   [ "$DIST" != "${ALL_DISTS##* }" ]; then
-	FULL_TREE="$FULL_TREE/$DIST"
-fi
+def main():
+    parser = OptionParser("%prog IMAGE_TYPE [DAYS]")
+    _, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need image-type")
+    image_type = args[0]
+    days = args[1] if len(args) >= 2 else None
+    tree = Tree.get_daily(config)
+    Publisher.get_daily(tree, image_type).purge(days=days)
 
-if ! cd "$CDIMAGE_ROOT/www/$FULL_TREE/$IMAGE_TYPE_DIR"; then
-	echo "No old images to purge"
-	exit 0
-fi
 
-for dir in *; do
-	# Directory?
-	if [ ! -d "$dir" ]; then
-		continue
-	fi
-
-	# Numeric directory?
-	if ! echo "$dir" | grep -q '^[0-9]'; then
-		continue
-	fi
-
-	# Older than cut-off date?
-	if [ "$OLDEST" = "$dir" ] || [ "$OLDEST" '<' "$dir" ]; then
-		continue
-	fi
-
-	# Pointed to by 'current' or 'pending' symlink?
-	if [ -h current ] && [ "$(readlink current)" = "$dir" ]; then
-		continue
-	elif [ -h pending ] && [ "$(readlink pending)" = "$dir" ]; then
-		continue
-	fi
-
-	if [ "$DEBUG" ] || [ "$CDIMAGE_NOPURGE" ]; then
-		echo "Would purge $IMAGE_TYPE_DIR/$dir"
-	else
-		echo "Purging $IMAGE_TYPE_DIR/$dir"
-		rm -rf "$dir"
-	fi
-done
+if __name__ == "__main__":
+    main()

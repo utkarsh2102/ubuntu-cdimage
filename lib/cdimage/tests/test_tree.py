@@ -33,7 +33,7 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.config import Config, Series, all_series
-from cdimage.tests.helpers import TestCase, mkfile, touch
+from cdimage.tests.helpers import TestCase, date_to_time, mkfile, touch
 from cdimage.tree import (
     ChinaDailyTree,
     ChinaDailyTreePublisher,
@@ -712,6 +712,94 @@ class TestDailyTreePublisher(TestCase):
             os.listdir(publisher.publish_base))
         mock_post_qa.assert_called_once_with(
             "20120807", ["ubuntu/daily-live/raring-desktop-i386"])
+
+    def test_get_purge_days_no_config(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        self.assertIsNone(publisher.get_purge_days("daily"))
+
+    def test_get_purge_days(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-days")) as purge_days:
+            print(dedent("""\
+                # comment
+
+                daily 1
+                daily-live 2"""), file=purge_days)
+        self.assertEqual(1, publisher.get_purge_days("daily"))
+        self.assertEqual(2, publisher.get_purge_days("daily-live"))
+        self.assertIsNone(publisher.get_purge_days("dvd"))
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_removes_old(self, *args):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130318", "20130319", "20130320", "20130321":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-days")) as purge_days:
+            print("daily 1", file=purge_days)
+        self.capture_logging()
+        publisher.purge()
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "ubuntu-zh_CN"
+            purge_desc = "%s/%s" % (project, self.config.series)
+        else:
+            project = "ubuntu"
+            purge_desc = project
+        self.assertLogEqual([
+            # TODO: this test exposes poor grammar
+            "Purging %s/daily images older than 1 days ..." % project,
+            "Purging %s/daily/20130318" % purge_desc,
+            "Purging %s/daily/20130319" % purge_desc,
+        ])
+        self.assertCountEqual(
+            ["20130320", "20130321"], os.listdir(publisher.publish_base))
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_preserves_pending(self, *args):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130319", "20130320", "20130321":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        os.symlink("20130319", os.path.join(publisher.publish_base, "pending"))
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-days")) as purge_days:
+            print("daily 1", file=purge_days)
+        self.capture_logging()
+        publisher.purge()
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "ubuntu-zh_CN"
+        else:
+            project = "ubuntu"
+        self.assertLogEqual([
+            # TODO: this test exposes poor grammar
+            "Purging %s/daily images older than 1 days ..." % project,
+        ])
+        self.assertCountEqual(
+            ["20130319", "20130320", "20130321", "pending"],
+            os.listdir(publisher.publish_base))
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_preserves_current(self, *args):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130319", "20130320", "20130321":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        os.symlink("20130319", os.path.join(publisher.publish_base, "current"))
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-days")) as purge_days:
+            print("daily 1", file=purge_days)
+        self.capture_logging()
+        publisher.purge()
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "ubuntu-zh_CN"
+        else:
+            project = "ubuntu"
+        self.assertLogEqual([
+            # TODO: this test exposes poor grammar
+            "Purging %s/daily images older than 1 days ..." % project,
+        ])
+        self.assertCountEqual(
+            ["20130319", "20130320", "20130321", "current"],
+            os.listdir(publisher.publish_base))
 
 
 class TestChinaDailyTree(TestDailyTree):

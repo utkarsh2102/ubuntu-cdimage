@@ -496,10 +496,11 @@ def build_image_set_locked(config, semaphore_state):
         if not config["DEBUG"] and not config["CDIMAGE_NOPUBLISH"]:
             log_marker("Publishing")
             tree = Tree.get_daily(config)
-            Publisher.get_daily(tree, image_type).publish(date)
+            publisher = Publisher.get_daily(tree, image_type)
+            publisher.publish(date)
 
             log_marker("Purging old images")
-            subprocess.check_call(["purge-old-images", image_type])
+            publisher.purge()
 
             log_marker("Triggering mirrors")
             trigger_mirrors(config)
