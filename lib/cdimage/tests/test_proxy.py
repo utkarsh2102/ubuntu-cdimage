@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-# Copyright (C) 2012 Canonical Ltd.
+# Copyright (C) 2013 Canonical Ltd.
 # Author: Colin Watson <cjwatson@ubuntu.com>
 
 # This program is free software: you can redistribute it and/or modify
