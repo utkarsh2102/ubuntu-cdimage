@@ -115,7 +115,7 @@ def run_bounded(seconds, command, **kwargs):
         os.kill(-subp.pid, signal.SIGTERM)
 
     signal.signal(signal.SIGALRM, sigalrm_handler)
-    signal.alarm(seconds)
+    signal.setitimer(signal.ITIMER_REAL, seconds)
     while True:
         signal.pause()
     os._exit(0)

@@ -130,7 +130,7 @@ class TestOSExtras(TestCase):
         self.assertTrue(os.path.exists(sentinel))
 
     def test_run_bounded_finite(self):
-        osextras.run_bounded(1, ["sh", "-c", "while :; do sleep 3600; done"])
+        osextras.run_bounded(.1, ["sh", "-c", "while :; do sleep 3600; done"])
 
     def test_fetch_empty(self):
         config = Config(read=False)
