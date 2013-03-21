@@ -92,6 +92,33 @@ class TestTree(TestCase):
         os.mkdir(path)
         self.assertFalse(self.tree.manifest_file_allowed(path))
 
+    @mock.patch("time.strftime", return_value="2013-03-21 00:00:00")
+    @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
+    def test_mark_current_trigger(self, mock_polish_directory, *args):
+        self.config.root = self.temp_dir
+        publish_base = os.path.join(self.temp_dir, "www", "full", "daily-live")
+        target_dir = os.path.join(publish_base, "20130321")
+        series = Series.latest().name
+        for name in (
+            "%s-desktop-i386.iso" % series,
+            "%s-desktop-i386.manifest" % series,
+        ):
+            touch(os.path.join(target_dir, name))
+        self.config["SSH_ORIGINAL_COMMAND"] = (
+            "--project=ubuntu --series=%s --publish-type=desktop "
+            "--architecture=i386 20130321" % series)
+        Tree.mark_current_trigger(self.config)
+        log_path = os.path.join(self.temp_dir, "log", "mark-current.log")
+        with open(log_path) as log:
+            self.assertEqual(
+                "[2013-03-21 00:00:00] %s\n" %
+                self.config["SSH_ORIGINAL_COMMAND"],
+                log.read())
+        publish_current = os.path.join(publish_base, "current")
+        self.assertTrue(os.path.islink(publish_current))
+        self.assertEqual("20130321", os.readlink(publish_current))
+        self.assertEqual(0, mock_polish_directory.call_count)
+
 
 class TestPublisher(TestCase):
     def test_get_daily(self):
@@ -312,6 +339,10 @@ class TestDailyTreePublisher(TestCase):
             self.config["DIST"] = dist
             publisher = self.make_publisher(project, image_type)
             self.assertEqual(publish_type, publisher.publish_type)
+            if "_" not in image_type:
+                self.assertEqual(
+                    image_type,
+                    DailyTreePublisher._guess_image_type(publish_type))
 
     def test_size_limit(self):
         for project, dist, image_type, size_limit in (
@@ -524,6 +555,196 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             "20130319",
             os.readlink(os.path.join(publisher.publish_base, "current")))
+
+    def test_published_images(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        target_dir = os.path.join(publisher.publish_base, "20130321")
+        for name in (
+            "MD5SUMS",
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+        ):
+            touch(os.path.join(target_dir, name))
+        self.assertEqual(
+            set(["raring-desktop-amd64.iso", "raring-desktop-i386.iso"]),
+            publisher.published_images("20130321"))
+
+    @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
+    def test_mark_current_missing_to_single(self, mock_polish_directory):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        target_dir = os.path.join(publisher.publish_base, "20130321")
+        for name in (
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+        ):
+            touch(os.path.join(target_dir, name))
+        publisher.mark_current("20130321", ["amd64", "i386"])
+        publish_current = os.path.join(publisher.publish_base, "current")
+        self.assertTrue(os.path.islink(publish_current))
+        self.assertEqual("20130321", os.readlink(publish_current))
+        self.assertEqual(0, mock_polish_directory.call_count)
+
+    @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
+    def test_mark_current_missing_to_mixed(self, mock_polish_directory):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        target_dir = os.path.join(publisher.publish_base, "20130321")
+        for name in (
+            "MD5SUMS",
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+        ):
+            touch(os.path.join(target_dir, name))
+        publisher.mark_current("20130321", ["amd64"])
+        publish_current = os.path.join(publisher.publish_base, "current")
+        self.assertFalse(os.path.islink(publish_current))
+        self.assertTrue(os.path.isdir(publish_current))
+        self.assertCountEqual(
+            ["raring-desktop-amd64.iso", "raring-desktop-amd64.manifest"],
+            os.listdir(publish_current))
+        for name in (
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+        ):
+            path = os.path.join(publish_current, name)
+            self.assertTrue(os.path.islink(path))
+            self.assertEqual(
+                os.path.join(os.pardir, "20130321", name), os.readlink(path))
+        mock_polish_directory.assert_called_once_with("current")
+
+    @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
+    def test_mark_current_single_to_single(self, mock_polish_directory):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        for date in "20130320", "20130321":
+            for name in (
+                "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+                "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            ):
+                touch(os.path.join(publisher.publish_base, date, name))
+        publish_current = os.path.join(publisher.publish_base, "current")
+        os.symlink("20130320", publish_current)
+        publisher.mark_current("20130321", ["amd64", "i386"])
+        self.assertTrue(os.path.islink(publish_current))
+        self.assertEqual("20130321", os.readlink(publish_current))
+        self.assertEqual(0, mock_polish_directory.call_count)
+
+    @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
+    def test_mark_current_single_to_mixed(self, mock_polish_directory):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        for date in "20130320", "20130321":
+            for name in (
+                "MD5SUMS",
+                "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+                "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            ):
+                touch(os.path.join(publisher.publish_base, date, name))
+        publish_current = os.path.join(publisher.publish_base, "current")
+        os.symlink("20130320", publish_current)
+        publisher.mark_current("20130321", ["amd64"])
+        self.assertFalse(os.path.islink(publish_current))
+        self.assertTrue(os.path.isdir(publish_current))
+        self.assertCountEqual([
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+        ], os.listdir(publish_current))
+        for date, arch in (("20130320", "i386"), ("20130321", "amd64")):
+            for name in (
+                "raring-desktop-%s.iso" % arch,
+                "raring-desktop-%s.manifest" % arch,
+            ):
+                path = os.path.join(publish_current, name)
+                self.assertTrue(os.path.islink(path))
+                self.assertEqual(
+                    os.path.join(os.pardir, date, name), os.readlink(path))
+        mock_polish_directory.assert_called_once_with("current")
+
+    @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
+    def test_mark_current_mixed_to_single(self, mock_polish_directory):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        for date in "20130320", "20130321":
+            for name in (
+                "MD5SUMS",
+                "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+                "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            ):
+                touch(os.path.join(publisher.publish_base, date, name))
+        publish_current = os.path.join(publisher.publish_base, "current")
+        osextras.ensuredir(publish_current)
+        for date, arch in (("20130320", "i386"), ("20130321", "amd64")):
+            for name in (
+                "raring-desktop-%s.iso" % arch,
+                "raring-desktop-%s.manifest" % arch,
+            ):
+                os.symlink(
+                    os.path.join(os.pardir, date, name),
+                    os.path.join(publish_current, name))
+        publisher.mark_current("20130321", ["i386"])
+        self.assertTrue(os.path.islink(publish_current))
+        self.assertEqual("20130321", os.readlink(publish_current))
+        self.assertEqual(0, mock_polish_directory.call_count)
+
+    @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
+    def test_mark_current_mixed_to_mixed(self, mock_polish_directory):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        for date in "20130320", "20130321":
+            for name in (
+                "MD5SUMS",
+                "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+                "raring-desktop-amd64+mac.iso",
+                "raring-desktop-amd64+mac.manifest",
+                "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+                "raring-desktop-powerpc.iso",
+                "raring-desktop-powerpc.manifest",
+            ):
+                touch(os.path.join(publisher.publish_base, date, name))
+        publish_current = os.path.join(publisher.publish_base, "current")
+        osextras.ensuredir(publish_current)
+        for date, arch in (("20130320", "i386"), ("20130321", "amd64")):
+            for name in (
+                "raring-desktop-%s.iso" % arch,
+                "raring-desktop-%s.manifest" % arch,
+            ):
+                os.symlink(
+                    os.path.join(os.pardir, date, name),
+                    os.path.join(publish_current, name))
+        publisher.mark_current("20130321", ["i386"])
+        self.assertFalse(os.path.islink(publish_current))
+        self.assertTrue(os.path.isdir(publish_current))
+        self.assertCountEqual([
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+        ], os.listdir(publish_current))
+        for name in (
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+        ):
+            path = os.path.join(publish_current, name)
+            self.assertTrue(os.path.islink(path))
+            self.assertEqual(
+                os.path.join(os.pardir, "20130321", name), os.readlink(path))
+        mock_polish_directory.assert_called_once_with("current")
+        mock_polish_directory.reset_mock()
+        publisher.mark_current("20130320", ["amd64+mac", "powerpc"])
+        self.assertFalse(os.path.islink(publish_current))
+        self.assertTrue(os.path.isdir(publish_current))
+        self.assertCountEqual([
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "raring-desktop-amd64+mac.iso",
+            "raring-desktop-amd64+mac.manifest",
+            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            "raring-desktop-powerpc.iso", "raring-desktop-powerpc.manifest",
+        ], os.listdir(publish_current))
+        for date, arch in (
+            ("20130320", "amd64+mac"), ("20130320", "powerpc"),
+            ("20130321", "amd64"), ("20130321", "i386"),
+        ):
+            for name in (
+                "raring-desktop-%s.iso" % arch,
+                "raring-desktop-%s.manifest" % arch,
+            ):
+                path = os.path.join(publish_current, name)
+                self.assertTrue(os.path.islink(path))
+                self.assertEqual(
+                    os.path.join(os.pardir, date, name), os.readlink(path))
+        mock_polish_directory.assert_called_once_with("current")
 
     def test_set_link_descriptions(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
@@ -779,7 +1000,7 @@ class TestDailyTreePublisher(TestCase):
             os.listdir(publisher.publish_base))
 
     @mock.patch("time.time", return_value=date_to_time("20130321"))
-    def test_purge_preserves_current(self, *args):
+    def test_purge_preserves_current_symlink(self, *args):
         publisher = self.make_publisher("ubuntu", "daily")
         for name in "20130319", "20130320", "20130321":
             touch(os.path.join(publisher.publish_base, name, "file"))
@@ -796,6 +1017,36 @@ class TestDailyTreePublisher(TestCase):
         self.assertLogEqual([
             # TODO: this test exposes poor grammar
             "Purging %s/daily images older than 1 days ..." % project,
+        ])
+        self.assertCountEqual(
+            ["20130319", "20130320", "20130321", "current"],
+            os.listdir(publisher.publish_base))
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_preserves_symlinks_in_current_directory(self, *args):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130318", "20130319", "20130320", "20130321":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        publish_current = os.path.join(publisher.publish_base, "current")
+        os.makedirs(publish_current)
+        os.symlink(
+            os.path.join(os.pardir, "20130319", "raring-desktop-i386.iso"),
+            os.path.join(publish_current, "raring-desktop-i386.iso"))
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-days")) as purge_days:
+            print("daily 1", file=purge_days)
+        self.capture_logging()
+        publisher.purge()
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "ubuntu-zh_CN"
+            purge_desc = "%s/%s" % (project, self.config.series)
+        else:
+            project = "ubuntu"
+            purge_desc = project
+        self.assertLogEqual([
+            # TODO: this test exposes poor grammar
+            "Purging %s/daily images older than 1 days ..." % project,
+            "Purging %s/daily/20130318" % purge_desc,
         ])
         self.assertCountEqual(
             ["20130319", "20130320", "20130321", "current"],

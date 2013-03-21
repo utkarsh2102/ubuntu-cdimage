@@ -21,12 +21,14 @@ __metaclass__ = type
 
 import errno
 from itertools import count
+from optparse import OptionParser
 import os
 import re
 import shutil
 import socket
 import stat
 import subprocess
+import sys
 import time
 import traceback
 
@@ -37,8 +39,9 @@ from cdimage.checksums import (
     metalink_checksum_directory,
 )
 from cdimage.config import Series
-from cdimage.log import logger
+from cdimage.log import logger, reset_logging
 from cdimage import osextras
+from cdimage.project import setenv_for_project
 
 
 # TODO: This should be in a configuration file.  ALL_PROJECTS is not
@@ -142,6 +145,78 @@ class Tree:
         return sorted(filter(
             lambda line: line is not None,
             (self.path_to_manifest(path) for path in self.manifest_files())))
+
+    @staticmethod
+    def mark_current_trigger(config, args=None):
+        if not args:
+            args = config["SSH_ORIGINAL_COMMAND"].split()
+        if not args:
+            return
+
+        log_path = os.path.join(config.root, "log", "mark-current.log")
+        osextras.ensuredir(os.path.dirname(log_path))
+        log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o666)
+        os.dup2(log, 1)
+        os.close(log)
+        sys.stdout = os.fdopen(1, "w", 1)
+        reset_logging()
+
+        logger.info("[%s] %s" % (time.strftime("%F %T"), " ".join(args)))
+
+        parser = OptionParser("%prog [options] BUILD-ID")
+        parser.add_option("-p", "--project", help="set project")
+        parser.add_option("-S", "--subproject", help="set subproject")
+        parser.add_option("-l", "--locale", help="set locale")
+        parser.add_option("-s", "--series", help="set series")
+        parser.add_option("-t", "--publish-type", help="set publish type")
+        parser.add_option("-i", "--image-type", help="set image type")
+        parser.add_option("-a", "--architecture", help="set architecture")
+        options, parsed_args = parser.parse_args(args)
+
+        if options.subproject:
+            config["SUBPROJECT"] = options.subproject
+        if options.locale:
+            config["UBUNTU_DEFAULTS_LOCALE"] = options.locale
+        if options.project:
+            if not setenv_for_project(options.project):
+                parser.error("unrecognised project '%s'" % options.project)
+            config["PROJECT"] = os.environ["PROJECT"]
+            config["CAPPROJECT"] = os.environ["CAPPROJECT"]
+        else:
+            parser.error("need project")
+
+        if options.series:
+            config["DIST"] = options.series
+
+        if options.image_type:
+            config["IMAGE_TYPE"] = options.image_type
+        elif options.publish_type:
+            config["IMAGE_TYPE"] = DailyTreePublisher._guess_image_type(
+                options.publish_type)
+            if not config["IMAGE_TYPE"]:
+                parser.error(
+                    "unrecognised publish type '%s'" % options.publish_type)
+        else:
+            parser.error("need image type or publish type")
+
+        if options.architecture:
+            arches = [options.architecture]
+        else:
+            parser.error("need architecture")
+
+        if len(parsed_args) < 1:
+            parser.error("need build ID")
+        date = parsed_args[0]
+
+        tree = Tree.get_daily(config)
+        publisher = Publisher.get_daily(tree, config["IMAGE_TYPE"])
+        try:
+            publisher.mark_current(date, arches)
+        except Exception:
+            for line in traceback.format_exc().splitlines():
+                logger.error(line)
+            sys.stdout.flush()
+            raise
 
 
 class Publisher:
@@ -254,6 +329,7 @@ class DailyTreePublisher(Publisher):
             reldir = os.path.join(self.project, self.image_type_dir, date)
         return self.tree.directory, reldir
 
+    # Keep this in sync with _guess_image_type below.
     @property
     def publish_type(self):
         if self.image_type.endswith("-preinstalled"):
@@ -308,6 +384,22 @@ class DailyTreePublisher(Publisher):
                     return "install"
                 else:
                     return "alternate"
+
+    # Keep this in sync with publish_type above.
+    @staticmethod
+    def _guess_image_type(publish_type):
+        if publish_type.startswith("preinstalled-"):
+            return "daily-preinstalled"
+        elif publish_type in (
+                "desktop", "live", "mid", "moblin-remix", "netbook"):
+            return "daily-live"
+        elif publish_type == "dvd":
+            return "dvd"
+        elif publish_type in (
+                "addon", "alternate", "core", "install", "jeos", "server"):
+            return "daily"
+        else:
+            return None
 
     @property
     def size_limit(self):
@@ -645,6 +737,110 @@ class DailyTreePublisher(Publisher):
         osextras.unlink_force(target)
         os.symlink(date, target)
 
+    def published_images(self, date):
+        """Return all the images published at a particular date (or alias)."""
+        images = set()
+        publish_dir = os.path.join(self.publish_base, date)
+        for entry in osextras.listdir_force(publish_dir):
+            entry_path = os.path.join(publish_dir, entry)
+            if self.tree.manifest_file_allowed(entry_path):
+                images.add(entry)
+        return images
+
+    def mark_current(self, date, arches):
+        """Mark images as current."""
+        # First, build a map of what's available at the requested date, and
+        # what's already marked as current.
+        available = self.published_images(date)
+        existing = {}
+        publish_current = os.path.join(self.publish_base, "current")
+        if os.path.islink(publish_current):
+            target_date = os.readlink(publish_current)
+            if "/" not in target_date:
+                for entry in self.published_images("current"):
+                    existing[entry] = target_date
+        else:
+            for entry in self.published_images("current"):
+                entry_path = os.path.join(publish_current, entry)
+                # Be very careful to check that entries in a "current"
+                # directory match the expected form, since we may feel the
+                # need to delete them later.
+                assert os.path.islink(entry_path)
+                target_bits = os.readlink(entry_path).split(os.sep)
+                assert len(target_bits) == 3
+                assert target_bits[0] == os.pardir
+                assert target_bits[2] == entry
+                existing[entry] = target_bits[1]
+
+        # Update the map according to this request.
+        changed = set()
+        for image in available:
+            image_base = image.split(".", 1)[0]
+            for arch in arches:
+                if image_base.endswith("-%s" % arch):
+                    changed.add(image)
+                    existing[image] = date
+                    break
+
+        if (set(existing) == available and
+                set(existing.values()) == set([date])):
+            # Everything is consistent and complete.  Replace "current" with
+            # a single symlink.
+            if (not os.path.islink(publish_current) and
+                    os.path.isdir(publish_current)):
+                shutil.rmtree(publish_current)
+            self.link(date, "current")
+        else:
+            # It's more complicated than that: the current images differ on
+            # different architectures.  Make a directory, populate it with
+            # symlinks, and reapply polish such as indices and checksums.
+            if os.path.islink(publish_current):
+                os.unlink(publish_current)
+            if not os.path.exists(publish_current):
+                os.mkdir(publish_current)
+                changed = set(existing)
+            for image in changed:
+                date = existing[image]
+                publish_date = os.path.join(self.publish_base, date)
+                for entry in osextras.listdir_force(publish_date):
+                    if entry.split(".", 1)[0] == image.split(".", 1)[0]:
+                        source = os.path.join(os.pardir, date, entry)
+                        target = os.path.join(publish_current, entry)
+                        osextras.unlink_force(target)
+                        os.symlink(source, target)
+            self.polish_directory("current")
+
+    def current_uses_trigger(self, arch):
+        """Find out whether the "current" symlink is trigger-controlled."""
+        current_triggers_path = os.path.join(
+            self.config.root, "production", "current-triggers")
+        if not os.path.exists(current_triggers_path):
+            return False
+        want_project_bits = [self.project]
+        if self.subproject:
+            want_project_bits.append(self.subproject)
+        if self["UBUNTU_DEFAULTS_LOCALE"]:
+            want_project_bits.append(self["UBUNTU_DEFAULTS_LOCALE"])
+        want_project = "-".join(want_project_bits)
+        with open(current_triggers_path) as current_triggers:
+            for line in current_triggers:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                try:
+                    project, image_type, series, arches = line.split(None, 3)
+                except ValueError:
+                    continue
+                if want_project != project:
+                    continue
+                if self.image_type != image_type:
+                    continue
+                if self.config.series != series:
+                    continue
+                if arch in arches:
+                    return True
+        return False
+
     def set_link_descriptions(self):
         """Set standard link descriptions in publish_base/.htaccess."""
         descriptions = {
@@ -816,6 +1012,10 @@ class DailyTreePublisher(Publisher):
 
         self.polish_directory(date)
         self.link(date, "pending")
+        current_arches = [
+            arch for arch in self.config.arches
+            if not self.current_uses_trigger(arch)]
+        self.mark_current(date, current_arches)
         self.link(date, "current")
         self.set_link_descriptions()
 
@@ -912,9 +1112,25 @@ class DailyTreePublisher(Publisher):
                     os.readlink(publish_pending) == entry):
                 continue
             publish_current = os.path.join(self.publish_base, "current")
-            if (os.path.islink(publish_current) and
-                    os.readlink(publish_current) == entry):
-                continue
+            if os.path.islink(publish_current):
+                if os.readlink(publish_current) == entry:
+                    continue
+            elif os.path.isdir(publish_current):
+                found_current = False
+                for current_entry in os.listdir(publish_current):
+                    current_entry_path = os.path.join(
+                        publish_current, current_entry)
+                    if os.path.islink(current_entry_path):
+                        target_bits = os.readlink(
+                            current_entry_path).split(os.sep)
+                        if (len(target_bits) == 3 and
+                                target_bits[0] == os.pardir and
+                                target_bits[1] == entry and
+                                target_bits[2] == current_entry):
+                            found_current = True
+                            break
+                if found_current:
+                    continue
 
             if self.config["DEBUG"] or self.config["CDIMAGE_NOPURGE"]:
                 logger.info(
