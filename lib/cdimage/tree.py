@@ -974,6 +974,10 @@ class DailyTreePublisher(Publisher):
                 iso_path_bits.append(image_series)
             iso_path_bits.extend([image_type, date, base])
             iso_path = os.path.join(*iso_path_bits)
+            if not os.path.isdir(os.path.dirname(iso_path)):
+                raise Exception(
+                    "Cannot post images from nonexistent directory: '%s'" %
+                    os.path.dirname(iso_path))
             note = ""
             if os.path.exists("%s.OVERSIZED" % iso_path):
                 note = (

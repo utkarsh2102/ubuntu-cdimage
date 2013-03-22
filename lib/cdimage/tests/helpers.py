@@ -124,6 +124,8 @@ class TestCase(unittest.TestCase):
         assertCountEqual = unittest.TestCase.assertItemsEqual
     if not hasattr(unittest.TestCase, 'assertRegex'):
         assertRegex = unittest.TestCase.assertRegexpMatches
+    if not hasattr(unittest.TestCase, 'assertRaisesRegex'):
+        assertRaisesRegex = unittest.TestCase.assertRaisesRegexp
 
 
 @contextlib.contextmanager

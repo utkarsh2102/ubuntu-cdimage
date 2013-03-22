@@ -831,6 +831,7 @@ class TestDailyTreePublisher(TestCase):
     @mock_isotracker
     def test_post_qa(self):
         publisher = self.make_publisher("ubuntu", "daily")
+        os.makedirs(os.path.join(publisher.publish_base, "20130221"))
         publisher.post_qa(
             "20130221", [
                 "ubuntu/daily/raring-alternate-i386",
@@ -843,6 +844,8 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual("raring", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
+        os.makedirs(os.path.join(
+            publisher.full_tree, "precise", "daily-live", "20130221"))
         publisher.post_qa(
             "20130221", [
                 "ubuntu/precise/daily-live/precise-desktop-i386",
@@ -882,6 +885,14 @@ class TestDailyTreePublisher(TestCase):
         expected = [["Kubuntu Desktop i386", "20130315", expected_note]]
         self.assertEqual("precise", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
+
+    @mock_isotracker
+    def test_post_qa_wrong_date(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        self.assertRaisesRegex(
+            Exception, r"Cannot post images from nonexistent directory: .*",
+            publisher.post_qa, "bad-date",
+            ["ubuntu/daily-live/raring-desktop-i386.iso"])
 
     @mock.patch("subprocess.call", return_value=0)
     def test_polish_directory(self, mock_call):
@@ -1199,6 +1210,10 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         pass
 
     def test_publish_source(self):
+        pass
+
+    # TODO: we should have a modified version of this for zh_CN
+    def test_post_qa(self):
         pass
 
     @mock_isotracker
