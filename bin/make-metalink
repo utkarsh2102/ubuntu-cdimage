@@ -30,3 +30,7 @@ def main():
         os.execv(metalink_builder, [metalink_builder] + sys.argv[1:])
     else:
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
