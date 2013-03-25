@@ -38,10 +38,13 @@ from cdimage.tests.helpers import TestCase, date_to_time, mkfile, touch
 from cdimage.tree import (
     ChinaDailyTree,
     ChinaDailyTreePublisher,
+    ChinaReleaseTree,
     DailyTree,
     DailyTreePublisher,
+    FullReleaseTree,
     Publisher,
-    SimpleTree,
+    SimpleReleasePublisher,
+    SimpleReleaseTree,
     Tree,
 )
 
@@ -61,6 +64,26 @@ class TestTree(TestCase):
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         tree = Tree.get_daily(self.config, self.temp_dir)
         self.assertIsInstance(tree, ChinaDailyTree)
+        self.assertEqual(self.config, tree.config)
+        self.assertEqual(self.temp_dir, tree.directory)
+
+    def test_get_release(self):
+        for official, cls in (
+            ("yes", SimpleReleaseTree),
+            ("poolonly", SimpleReleaseTree),
+            ("named", FullReleaseTree),
+            ("no", FullReleaseTree),
+        ):
+            tree = Tree.get_release(self.config, official, self.temp_dir)
+            self.assertIsInstance(tree, cls)
+            self.assertEqual(self.config, tree.config)
+            self.assertEqual(self.temp_dir, tree.directory)
+        self.assertRaisesRegex(
+            Exception, r"Unrecognised OFFICIAL setting: 'x'",
+            Tree.get_release, self.config, "x")
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        tree = Tree.get_release(self.config, "yes", self.temp_dir)
+        self.assertIsInstance(tree, ChinaReleaseTree)
         self.assertEqual(self.config, tree.config)
         self.assertEqual(self.temp_dir, tree.directory)
 
@@ -134,20 +157,65 @@ class TestTree(TestCase):
 
 
 class TestPublisher(TestCase):
+    def setUp(self):
+        super(TestPublisher, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+
     def test_get_daily(self):
-        config = Config(read=False)
-        config.root = self.use_temp_dir()
-        tree = Tree.get_daily(config)
+        tree = Tree.get_daily(self.config)
         publisher = Publisher.get_daily(tree, "daily")
         self.assertIsInstance(publisher, DailyTreePublisher)
         self.assertEqual(tree, publisher.tree)
         self.assertEqual("daily", publisher.image_type)
-        config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        tree = Tree.get_daily(config)
+        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
+        tree = Tree.get_daily(self.config)
         publisher = Publisher.get_daily(tree, "daily")
         self.assertIsInstance(publisher, ChinaDailyTreePublisher)
         self.assertEqual(tree, publisher.tree)
         self.assertEqual("daily", publisher.image_type)
+
+    def test_publish_type(self):
+        for image_type, project, dist, publish_type in (
+            ("daily-preinstalled", "ubuntu-netbook", "precise",
+             "preinstalled-netbook"),
+            ("daily-preinstalled", "ubuntu-headless", "precise",
+             "preinstalled-headless"),
+            ("daily-preinstalled", "ubuntu-server", "precise",
+             "preinstalled-server"),
+            ("daily-preinstalled", "ubuntu", "precise",
+             "preinstalled-desktop"),
+            ("daily-live", "edubuntu", "edgy", "live"),
+            ("daily-live", "edubuntu", "feisty", "desktop"),
+            ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
+            ("daily-live", "ubuntu-mid", "lucid", "mid"),
+            ("daily-live", "ubuntu-moblin-remix", "lucid", "moblin-remix"),
+            ("daily-live", "ubuntu-netbook", "hardy", "netbook"),
+            ("daily-live", "ubuntu-server", "hardy", "live"),
+            ("daily-live", "ubuntu", "breezy", "live"),
+            ("daily-live", "ubuntu", "dapper", "desktop"),
+            ("daily-live", "ubuntu-zh_CN", "raring", "desktop"),
+            ("ports_dvd", "ubuntu", "hardy", "dvd"),
+            ("dvd", "kubuntu", "hardy", "dvd"),
+            ("daily", "edubuntu", "edgy", "install"),
+            ("daily", "edubuntu", "feisty", "server"),
+            ("daily", "edubuntu", "gutsy", "server"),
+            ("daily", "edubuntu", "hardy", "addon"),
+            ("daily", "jeos", "hardy", "jeos"),
+            ("daily", "ubuntu-core", "precise", "core"),
+            ("daily", "ubuntu-server", "breezy", "install"),
+            ("daily", "ubuntu-server", "dapper", "server"),
+            ("daily", "ubuntu", "breezy", "install"),
+            ("daily", "ubuntu", "dapper", "alternate"),
+        ):
+            self.config["PROJECT"] = project
+            self.config["DIST"] = dist
+            tree = Tree(self.config, self.temp_dir)
+            publisher = Publisher(tree, image_type)
+            self.assertEqual(publish_type, publisher.publish_type)
+            if "_" not in image_type:
+                self.assertEqual(
+                    image_type, Publisher._guess_image_type(publish_type))
 
 
 class TestDailyTree(TestCase):
@@ -315,47 +383,6 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             (basedir, os.path.join("kubuntu", "hoary", "daily-live", date)),
             publisher.metalink_dirs(date))
-
-    def test_publish_type(self):
-        for image_type, project, dist, publish_type in (
-            ("daily-preinstalled", "ubuntu-netbook", "precise",
-             "preinstalled-netbook"),
-            ("daily-preinstalled", "ubuntu-headless", "precise",
-             "preinstalled-headless"),
-            ("daily-preinstalled", "ubuntu-server", "precise",
-             "preinstalled-server"),
-            ("daily-preinstalled", "ubuntu", "precise",
-             "preinstalled-desktop"),
-            ("daily-live", "edubuntu", "edgy", "live"),
-            ("daily-live", "edubuntu", "feisty", "desktop"),
-            ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
-            ("daily-live", "ubuntu-mid", "lucid", "mid"),
-            ("daily-live", "ubuntu-moblin-remix", "lucid", "moblin-remix"),
-            ("daily-live", "ubuntu-netbook", "hardy", "netbook"),
-            ("daily-live", "ubuntu-server", "hardy", "live"),
-            ("daily-live", "ubuntu", "breezy", "live"),
-            ("daily-live", "ubuntu", "dapper", "desktop"),
-            ("daily-live", "ubuntu-zh_CN", "raring", "desktop"),
-            ("ports_dvd", "ubuntu", "hardy", "dvd"),
-            ("dvd", "kubuntu", "hardy", "dvd"),
-            ("daily", "edubuntu", "edgy", "install"),
-            ("daily", "edubuntu", "feisty", "server"),
-            ("daily", "edubuntu", "gutsy", "server"),
-            ("daily", "edubuntu", "hardy", "addon"),
-            ("daily", "jeos", "hardy", "jeos"),
-            ("daily", "ubuntu-core", "precise", "core"),
-            ("daily", "ubuntu-server", "breezy", "install"),
-            ("daily", "ubuntu-server", "dapper", "server"),
-            ("daily", "ubuntu", "breezy", "install"),
-            ("daily", "ubuntu", "dapper", "alternate"),
-        ):
-            self.config["DIST"] = dist
-            publisher = self.make_publisher(project, image_type)
-            self.assertEqual(publish_type, publisher.publish_type)
-            if "_" not in image_type:
-                self.assertEqual(
-                    image_type,
-                    DailyTreePublisher._guess_image_type(publish_type))
 
     def test_size_limit(self):
         for project, dist, image_type, size_limit in (
@@ -1279,18 +1306,25 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"])
 
 
-class TestSimpleTree(TestCase):
+class TestSimpleReleaseTree(TestCase):
     def setUp(self):
-        super(TestSimpleTree, self).setUp()
+        super(TestSimpleReleaseTree, self).setUp()
         self.use_temp_dir()
         self.config = Config(read=False)
-        self.tree = SimpleTree(self.config, self.temp_dir)
+        self.tree = SimpleReleaseTree(self.config, self.temp_dir)
 
     def test_default_directory(self):
         self.config.root = self.temp_dir
         self.assertEqual(
             os.path.join(self.temp_dir, "www", "simple"),
-            SimpleTree(self.config).directory)
+            SimpleReleaseTree(self.config).directory)
+
+    def test_get_publisher(self):
+        publisher = self.tree.get_publisher("daily-live", "yes", "beta-1")
+        self.assertIsInstance(publisher, SimpleReleasePublisher)
+        self.assertEqual("daily-live", publisher.image_type)
+        self.assertEqual("yes", publisher.official)
+        self.assertEqual("beta-1", publisher.status)
 
     def test_name_to_series(self):
         self.assertEqual(
@@ -1345,3 +1379,58 @@ class TestSimpleTree(TestCase):
             "kubuntu\thoary\t/kubuntu/hoary/kubuntu-5.04-install-i386.iso\t0",
             "kubuntu\thoary\t/kubuntu/hoary/kubuntu-5.04-live-i386.iso\t0",
         ], self.tree.manifest())
+
+
+class TestReleasePublisher(TestCase):
+    def setUp(self):
+        super(TestReleasePublisher, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+
+    @mock.patch("subprocess.check_call")
+    def test_make_torrents_simple(self, mock_check_call):
+        self.config["CAPPROJECT"] = "Ubuntu"
+        paths = [
+            os.path.join(
+                self.temp_dir, "dir", "ubuntu-13.04-desktop-%s.iso" % arch)
+            for arch in ("amd64", "i386")]
+        for path in paths:
+            touch(path)
+        tree = Tree.get_release(self.config, "yes", directory=self.temp_dir)
+        publisher = tree.get_publisher("daily-live", "yes")
+        publisher.make_torrents(
+            os.path.join(self.temp_dir, "dir"), "ubuntu-13.04")
+        command_base = [
+            "btmakemetafile", "http://torrent.ubuntu.com:6969/announce",
+            "--announce_list",
+            ("http://torrent.ubuntu.com:6969/announce|"
+                "http://ipv6.torrent.ubuntu.com:6969/announce"),
+            "--comment", "Ubuntu CD releases.ubuntu.com",
+        ]
+        mock_check_call.assert_has_calls([
+            mock.call(command_base + [path], stdout=mock.ANY)
+            for path in paths])
+
+    @mock.patch("subprocess.check_call")
+    def test_make_torrents_full(self, mock_check_call):
+        self.config["CAPPROJECT"] = "Ubuntu"
+        paths = [
+            os.path.join(
+                self.temp_dir, "dir", "ubuntu-13.04-desktop-%s.iso" % arch)
+            for arch in ("amd64", "i386")]
+        for path in paths:
+            touch(path)
+        tree = Tree.get_release(self.config, "named", directory=self.temp_dir)
+        publisher = tree.get_publisher("daily-live", "named")
+        self.capture_logging()
+        publisher.make_torrents(
+            os.path.join(self.temp_dir, "dir"), "ubuntu-13.04")
+        self.assertLogEqual(
+            ["Creating torrent for %s ..." % path for path in paths])
+        command_base = [
+            "btmakemetafile", "http://torrent.ubuntu.com:6969/announce",
+            "--comment", "Ubuntu CD cdimage.ubuntu.com",
+        ]
+        mock_check_call.assert_has_calls([
+            mock.call(command_base + [path], stdout=mock.ANY)
+            for path in paths])

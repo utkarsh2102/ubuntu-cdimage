@@ -549,8 +549,8 @@ if [ "$TYPE" != src ] && [ "$TYPE" != uec ] && [ "$TYPE" != server-uec ]; then
 		if [ -z "$CDIMAGE_NO_PURGE" ]; then
 			$echo mkemptydir "$TORRENTS"
 		fi
-		$echo make-torrents "$RELEASE_SIMPLE_DIST" \
-			"$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE" releases.ubuntu.com
+		$echo make-torrents "$RELEASE_SIMPLE_DIST" "$OFFICIAL" \
+			"$CDPREFIX-${FILESTATUS:+$FILESTATUS-}$TYPE"
 	fi
 	if $PUBLISH_FULL; then
 		for dir in "$CDIMAGE_ROOT/www/$TORRENT_TREE/releases/$DIST"/*; do
@@ -561,7 +561,7 @@ if [ "$TYPE" != src ] && [ "$TYPE" != uec ] && [ "$TYPE" != server-uec ]; then
 		done
 		TORRENTS="$CDIMAGE_ROOT/www/$TORRENT_TREE/releases/$DIST/${STATUS:-release}/$TYPE"
 		$echo mkemptydir "$TORRENTS"
-		$echo make-torrents "$RELEASE_FULL" "$CDPREFIX-$TYPE" cdimage.ubuntu.com
+		$echo make-torrents "$RELEASE_FULL" "$OFFICIAL" "$CDPREFIX-$TYPE"
 	fi
 	for arch in $ARCHES; do
 		if $PUBLISH_DIST; then

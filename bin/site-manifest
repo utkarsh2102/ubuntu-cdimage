@@ -26,11 +26,11 @@ import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import config
-from cdimage.tree import DailyTree, SimpleTree
+from cdimage.tree import DailyTree, SimpleReleaseTree
 
 
 tree_classes = {
-    "simple": SimpleTree,
+    "simple": SimpleReleaseTree,
     "daily": DailyTree,
 }
 

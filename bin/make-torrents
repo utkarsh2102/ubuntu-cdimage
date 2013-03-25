@@ -1,50 +1,45 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-TRACKER=http://torrent.ubuntu.com:6969/announce
-IP6TRACKER=http://ipv6.torrent.ubuntu.com:6969/announce
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-if [ -z "$1" ]; then
-	echo 'Usage: make-torrents DIRECTORY CDPREFIX [TARGET_HOSTNAME]' >&2
-	echo 'TARGET_HOSTNAME is used in the metafile comment; it defaults' >&2
-	echo 'to cdimage.ubuntu.com.' >&2
-	exit 1
-fi
-DIRECTORY="$1"
-# $2 may be empty
-CDPREFIX="$2"
-if [ "$3" ]; then
-	TARGET_HOSTNAME="$3"
-else
-	TARGET_HOSTNAME=cdimage.ubuntu.com
-fi
+"""Make torrent control files."""
 
-make_torrent () {
-	image="$1"
-	[ -f "$image" ] || return 0
-	echo "Creating torrent for $image ..."
-	rm -f "$image.torrent"
-	if [ "$TARGET_HOSTNAME" = releases.ubuntu.com ]; then
-		# NB: Only the bittornado version of btmakemetafile has the
-		# --announce_list flag.
-		btmakemetafile "$TRACKER" \
-			--announce_list "$TRACKER|$IP6TRACKER" \
-			--comment "$CAPPROJECT CD $TARGET_HOSTNAME" \
-			"$image" >/dev/null
-	else
-		btmakemetafile "$TRACKER" \
-			--comment "$CAPPROJECT CD $TARGET_HOSTNAME" \
-			"$image" >/dev/null
-	fi
-}
+from optparse import OptionParser
+import os
+import sys
 
-if [ "$CDPREFIX" ]; then
-	for image in "$DIRECTORY/$CDPREFIX"-*.iso "$DIRECTORY/$CDPREFIX"-*.img; do
-		make_torrent "$image"
-	done
-fi
-make_torrent "$DIRECTORY/$CDPREFIX.iso"
-make_torrent "$DIRECTORY/$CDPREFIX.img"
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import config
+from cdimage.tree import Publisher, Tree
+
+
+def main():
+    parser = OptionParser("%prog DIRECTORY OFFICIAL [PREFIX]")
+    _, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need directory")
+    if len(args) < 2:
+        parser.error("need official (yes/poolonly/named/no)")
+    directory = args[0]
+    official = args[1]
+    prefix = args[2] if len(args) >= 3 else ""
+    tree = Tree.get_release(config, official)
+    publisher = tree.get_publisher(config.image_type, official)
+    publisher.make_torrents(directory, prefix)
+
+
+if __name__ == "__main__":
+    main()

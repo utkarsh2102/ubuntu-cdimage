@@ -30,7 +30,7 @@ except ImportError:
     from urlparse import urljoin
 
 from cdimage.checksums import ChecksumFile
-from cdimage.tree import SimpleTree
+from cdimage.tree import SimpleReleaseTree
 
 
 class HeadRequest(Request):
@@ -54,7 +54,7 @@ class HTTPHeadRedirectHandler(HTTPRedirectHandler):
 
 def verify_cloudfront(config, root, files):
     ret = True
-    tree = SimpleTree(config)
+    tree = SimpleReleaseTree(config)
     md5sums = ChecksumFile(
         config, os.path.join(tree.directory, ".pool"), "MD5SUMS", None)
     md5sums.read()

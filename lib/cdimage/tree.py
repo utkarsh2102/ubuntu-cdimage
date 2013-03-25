@@ -91,6 +91,18 @@ class Tree:
             cls = DailyTree
         return cls(config, directory=directory)
 
+    @staticmethod
+    def get_release(config, official, directory=None):
+        if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
+            cls = ChinaReleaseTree
+        elif official in ("yes", "poolonly"):
+            cls = SimpleReleaseTree
+        elif official in ("named", "no"):
+            cls = FullReleaseTree
+        else:
+            raise Exception("Unrecognised OFFICIAL setting: '%s'" % official)
+        return cls(config, directory=directory)
+
     def __init__(self, config, directory):
         self.config = config
         self.directory = directory
@@ -239,6 +251,78 @@ class Publisher:
         self.project = self.config.project
         self.image_type = image_type
 
+    # Keep this in sync with _guess_image_type below.
+    @property
+    def publish_type(self):
+        if self.image_type.endswith("-preinstalled"):
+            if self.project == "ubuntu-netbook":
+                return "preinstalled-netbook"
+            elif self.project == "ubuntu-headless":
+                return "preinstalled-headless"
+            elif self.project == "ubuntu-server":
+                return "preinstalled-server"
+            else:
+                return "preinstalled-desktop"
+        elif self.image_type.endswith("-live"):
+            if self.project == "edubuntu":
+                if self.config["DIST"] <= "edgy":
+                    return "live"
+                else:
+                    return "desktop"
+            elif self.project == "ubuntu-mid":
+                return "mid"
+            elif self.project == "ubuntu-moblin-remix":
+                return "moblin-remix"
+            elif self.project in ("ubuntu-netbook", "kubuntu-netbook"):
+                return "netbook"
+            elif self.project == "ubuntu-server":
+                return "live"
+            else:
+                if self.config["DIST"] <= "breezy":
+                    return "live"
+                else:
+                    return "desktop"
+        elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
+            return "dvd"
+        else:
+            if self.project == "edubuntu":
+                if self.config["DIST"] <= "edgy":
+                    return "install"
+                elif self.config["DIST"] <= "gutsy":
+                    return "server"
+                else:
+                    return "addon"
+            elif self.project == "ubuntu-server":
+                if self.config["DIST"] <= "breezy":
+                    return "install"
+                else:
+                    return "server"
+            elif self.project == "jeos":
+                return "jeos"
+            elif self.project == "ubuntu-core":
+                return "core"
+            else:
+                if self.config["DIST"] <= "breezy":
+                    return "install"
+                else:
+                    return "alternate"
+
+    # Keep this in sync with publish_type above.
+    @staticmethod
+    def _guess_image_type(publish_type):
+        if publish_type.startswith("preinstalled-"):
+            return "daily-preinstalled"
+        elif publish_type in (
+                "desktop", "live", "mid", "moblin-remix", "netbook"):
+            return "daily-live"
+        elif publish_type == "dvd":
+            return "dvd"
+        elif publish_type in (
+                "addon", "alternate", "core", "install", "jeos", "server"):
+            return "daily"
+        else:
+            return None
+
 
 class DailyTree(Tree):
     """A publication tree containing daily builds."""
@@ -331,78 +415,6 @@ class DailyTreePublisher(Publisher):
         else:
             reldir = os.path.join(self.project, self.image_type_dir, date)
         return self.tree.directory, reldir
-
-    # Keep this in sync with _guess_image_type below.
-    @property
-    def publish_type(self):
-        if self.image_type.endswith("-preinstalled"):
-            if self.project == "ubuntu-netbook":
-                return "preinstalled-netbook"
-            elif self.project == "ubuntu-headless":
-                return "preinstalled-headless"
-            elif self.project == "ubuntu-server":
-                return "preinstalled-server"
-            else:
-                return "preinstalled-desktop"
-        elif self.image_type.endswith("-live"):
-            if self.project == "edubuntu":
-                if self.config["DIST"] <= "edgy":
-                    return "live"
-                else:
-                    return "desktop"
-            elif self.project == "ubuntu-mid":
-                return "mid"
-            elif self.project == "ubuntu-moblin-remix":
-                return "moblin-remix"
-            elif self.project in ("ubuntu-netbook", "kubuntu-netbook"):
-                return "netbook"
-            elif self.project == "ubuntu-server":
-                return "live"
-            else:
-                if self.config["DIST"] <= "breezy":
-                    return "live"
-                else:
-                    return "desktop"
-        elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
-            return "dvd"
-        else:
-            if self.project == "edubuntu":
-                if self.config["DIST"] <= "edgy":
-                    return "install"
-                elif self.config["DIST"] <= "gutsy":
-                    return "server"
-                else:
-                    return "addon"
-            elif self.project == "ubuntu-server":
-                if self.config["DIST"] <= "breezy":
-                    return "install"
-                else:
-                    return "server"
-            elif self.project == "jeos":
-                return "jeos"
-            elif self.project == "ubuntu-core":
-                return "core"
-            else:
-                if self.config["DIST"] <= "breezy":
-                    return "install"
-                else:
-                    return "alternate"
-
-    # Keep this in sync with publish_type above.
-    @staticmethod
-    def _guess_image_type(publish_type):
-        if publish_type.startswith("preinstalled-"):
-            return "daily-preinstalled"
-        elif publish_type in (
-                "desktop", "live", "mid", "moblin-remix", "netbook"):
-            return "daily-live"
-        elif publish_type == "dvd":
-            return "dvd"
-        elif publish_type in (
-                "addon", "alternate", "core", "install", "jeos", "server"):
-            return "daily"
-        else:
-            return None
 
     @property
     def size_limit(self):
@@ -1214,13 +1226,27 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
             return 850000000
 
 
-class SimpleTree(Tree):
+class FullReleaseTree(DailyTree):
+    def get_publisher(self, image_type, official, status=None):
+        return FullReleasePublisher(self, image_type, official, status=status)
+
+
+class ChinaReleaseTree(ChinaDailyTree):
+    def get_publisher(self, image_type, official, status=None):
+        return FullReleasePublisher(self, image_type, official, status=status)
+
+
+class SimpleReleaseTree(Tree):
     """A publication tree containing a few important releases."""
 
     def __init__(self, config, directory=None):
         if directory is None:
             directory = os.path.join(config.root, "www", "simple")
-        super(SimpleTree, self).__init__(config, directory)
+        super(SimpleReleaseTree, self).__init__(config, directory)
+
+    def get_publisher(self, image_type, official, status=None):
+        return SimpleReleasePublisher(
+            self, image_type, official, status=status)
 
     def name_to_series(self, name):
         """Return the series for a file basename."""
@@ -1258,3 +1284,78 @@ class SimpleTree(Tree):
                         path = os.path.join(dirpath, filename)
                         if self.manifest_file_allowed(path):
                             yield os.path.join(relative_dirpath, filename)
+
+
+class ReleasePublisher(Publisher):
+    """An object that can publish releases of images."""
+
+    torrent_tracker = "http://torrent.ubuntu.com:6969/announce"
+    ipv6_torrent_tracker = "http://ipv6.torrent.ubuntu.com:6969/announce"
+
+    def __init__(self, tree, image_type, official, status=None):
+        super(ReleasePublisher, self).__init__(tree, image_type)
+        self.official = official
+        self.status = status if status else "release"
+
+    @property
+    def release_path(self):
+        if self.project == "ubuntu":
+            return self.tree.directory
+        else:
+            return os.path.join(self.tree.directory, self.project)
+
+    @property
+    def series_path(self):
+        raise NotImplementedError
+
+    def make_torrents(self, directory, prefix):
+        images = []
+        for entry in osextras.listdir_force(directory):
+            if not entry.endswith(".iso") and not entry.endswith(".img"):
+                continue
+            if (entry.startswith("%s-" % prefix) or
+                    entry == "%s.iso" % prefix or
+                    entry == "%s.img" % prefix):
+                images.append(entry)
+
+        for image in sorted(images):
+            path = os.path.join(directory, image)
+            logger.info("Creating torrent for %s ..." % path)
+            osextras.unlink_force("%s.torrent" % path)
+            command = ["btmakemetafile", self.torrent_tracker]
+            if isinstance(self.tree, SimpleReleaseTree):
+                # N.B.: Only the bittornado version of btmakemetafile has
+                # the --announce_list flag.
+                command.extend([
+                    "--announce_list",
+                    "%s|%s" % (
+                        self.torrent_tracker, self.ipv6_torrent_tracker),
+                ])
+            command.extend([
+                "--comment",
+                "%s CD %s" % (self.config.capproject, self.tree.site_name),
+                path,
+            ])
+            with open("/dev/null", "w") as devnull:
+                subprocess.check_call(command, stdout=devnull)
+
+
+class FullReleasePublisher(ReleasePublisher):
+    """An object that can publish releases in a "full" layout.
+
+    This layout is used in the directory trees managed by DailyTree and
+    ChinaDailyTree.
+    """
+
+    @property
+    def series_path(self):
+        return os.path.join(
+            self.release_path, "releases", self.config.series, self.status)
+
+
+class SimpleReleasePublisher(ReleasePublisher):
+    """An object that can publish releases to a SimpleReleaseTree."""
+
+    @property
+    def series_path(self):
+        return os.path.join(self.release_path, self.config.series)
