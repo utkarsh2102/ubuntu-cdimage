@@ -716,14 +716,12 @@ extensionstr () {
 			echo 'EC2 kernel image'
 			;;
 		vmlinuz-virtual)
-			flavor=${1#*-}
 			echo 'UEC kernel image'
 			;;
 		initrd-ec2)
 			echo 'EC2 initramfs image'
 			;;
 		initrd-virtual)
-			flavor=${1#*-}
 			echo 'UEC initramfs image'
 			;;
 		img.tar.gz)
