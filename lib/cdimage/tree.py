@@ -838,8 +838,8 @@ class DailyTreePublisher(Publisher):
         want_project_bits = [self.project]
         if self.subproject:
             want_project_bits.append(self.subproject)
-        if self["UBUNTU_DEFAULTS_LOCALE"]:
-            want_project_bits.append(self["UBUNTU_DEFAULTS_LOCALE"])
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            want_project_bits.append(self.config["UBUNTU_DEFAULTS_LOCALE"])
         want_project = "-".join(want_project_bits)
         with open(current_triggers_path) as current_triggers:
             for line in current_triggers:
