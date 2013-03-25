@@ -21,7 +21,6 @@ from __future__ import print_function
 
 __metaclass__ = type
 
-import errno
 from functools import partial
 import gzip
 import os

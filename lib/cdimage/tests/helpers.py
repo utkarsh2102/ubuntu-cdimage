@@ -21,6 +21,7 @@ __metaclass__ = type
 
 import calendar
 import contextlib
+import errno
 from logging.handlers import BufferingHandler
 import os
 import shutil
