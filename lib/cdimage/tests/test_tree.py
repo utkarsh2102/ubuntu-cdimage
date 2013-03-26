@@ -1234,7 +1234,8 @@ class TestDailyTreePublisher(TestCase):
             ["ubuntu/daily-live/raring-desktop-i386.iso"])
 
     @mock.patch("subprocess.call", return_value=0)
-    def test_polish_directory(self, mock_call):
+    @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
+    def test_polish_directory(self, mock_make_web_indices, mock_call):
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130320")
         touch(os.path.join(
@@ -1247,18 +1248,13 @@ class TestDailyTreePublisher(TestCase):
             "SHA256SUMS",
             "%s-desktop-i386.iso" % self.config.series,
         ], os.listdir(target_dir))
-        make_web_indices = os.path.join(
-            self.temp_dir, "bin", "make-web-indices")
+        mock_make_web_indices.assert_called_once_with(
+            target_dir, self.config.series, status="daily")
         make_metalink = os.path.join(self.temp_dir, "bin", "make-metalink")
-        mock_call.assert_has_calls([
-            mock.call([
-                make_web_indices, target_dir, self.config.series, "daily",
-            ]),
-            mock.call([
-                make_metalink, publisher.tree.directory, self.config.series,
-                os.path.join(publisher.image_type_dir, "20130320"),
-                publisher.tree.site_name,
-            ]),
+        mock_call.assert_called_once_with([
+            make_metalink, publisher.tree.directory, self.config.series,
+            os.path.join(publisher.image_type_dir, "20130320"),
+            publisher.tree.site_name
         ])
 
     @mock.patch("cdimage.tree.zsyncmake")
@@ -1276,10 +1272,9 @@ class TestDailyTreePublisher(TestCase):
             source_dir, "%s-desktop-i386.manifest" % self.config.series))
         touch(os.path.join(
             publisher.britney_report, "%s_probs.html" % self.config.series))
-        # TODO: until make-web-indices is converted to Python
+        # TODO: clean up make-metalink call
         bin_dir = os.path.join(self.config.root, "bin")
         os.mkdir(bin_dir)
-        os.symlink("/bin/true", os.path.join(bin_dir, "make-web-indices"))
         os.symlink("/bin/true", os.path.join(bin_dir, "make-metalink"))
         os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
@@ -1297,6 +1292,9 @@ class TestDailyTreePublisher(TestCase):
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
         self.assertCountEqual([
+            ".htaccess",
+            "FOOTER.html",
+            "HEADER.html",
             "MD5SUMS",
             "SHA1SUMS",
             "SHA256SUMS",
@@ -1592,10 +1590,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             source_dir, "%s-desktop-i386.list" % self.config.series))
         touch(os.path.join(
             source_dir, "%s-desktop-i386.manifest" % self.config.series))
-        # TODO: until make-web-indices is converted to Python
+        # TODO: clean up make-metalink call
         bin_dir = os.path.join(self.config.root, "bin")
         os.mkdir(bin_dir)
-        os.symlink("/bin/true", os.path.join(bin_dir, "make-web-indices"))
         os.symlink("/bin/true", os.path.join(bin_dir, "make-metalink"))
         os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
@@ -1613,6 +1610,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
         self.assertCountEqual([
+            ".htaccess",
+            "FOOTER.html",
+            "HEADER.html",
             "MD5SUMS",
             "SHA1SUMS",
             "SHA256SUMS",

@@ -1816,9 +1816,8 @@ class DailyTreePublisher(Publisher):
                 map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
         if (self.config.project != "livecd-base" and
                 not self.config["CDIMAGE_ONLYSOURCE"]):
-            subprocess.check_call(
-                [os.path.join(self.config.root, "bin", "make-web-indices"),
-                 target_dir, self.config.series, "daily"])
+            self.make_web_indices(
+                target_dir, self.config.series, status="daily")
 
         target_dir_source = os.path.join(target_dir, "source")
         if os.path.isdir(target_dir_source):
@@ -1826,9 +1825,8 @@ class DailyTreePublisher(Publisher):
                 self.config, target_dir_source,
                 old_directories=[self.image_output("src")],
                 map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
-            subprocess.check_call(
-                [os.path.join(self.config.root, "bin", "make-web-indices"),
-                 target_dir_source, self.config.series, "daily"])
+            self.make_web_indices(
+                target_dir_source, self.config.series, status="daily")
 
         if (self.image_type.endswith("-live") or
                 self.image_type.endswith("dvd")):
