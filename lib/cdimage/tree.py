@@ -310,12 +310,12 @@ class Publisher:
     """A object that can publish images to a tree."""
 
     @staticmethod
-    def get_daily(tree, image_type, try_zsyncmake=True):
+    def get_daily(tree, image_type):
         if tree.config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
             cls = ChinaDailyTreePublisher
         else:
             cls = DailyTreePublisher
-        return cls(tree, image_type, try_zsyncmake=try_zsyncmake)
+        return cls(tree, image_type)
 
     def __init__(self, tree, image_type):
         self.tree = tree
@@ -1474,10 +1474,9 @@ class DailyTree(Tree):
 class DailyTreePublisher(Publisher):
     """An object that can publish daily builds."""
 
-    def __init__(self, tree, image_type, try_zsyncmake=True):
+    def __init__(self, tree, image_type):
         super(DailyTreePublisher, self).__init__(tree, image_type)
         self.checksum_dirs = []
-        self.try_zsyncmake = try_zsyncmake  # for testing
 
     def image_output(self, arch):
         return os.path.join(
@@ -1701,7 +1700,7 @@ class DailyTreePublisher(Publisher):
                 "%s.bootimg" % source_prefix, "%s.bootimg" % target_prefix)
 
         # zsync metafiles
-        if self.try_zsyncmake and osextras.find_on_path("zsyncmake"):
+        if osextras.find_on_path("zsyncmake"):
             logger.info("Making %s zsync metafile ..." % arch)
             osextras.unlink_force("%s.%s.zsync" % (target_prefix, extension))
             zsyncmake(
@@ -1797,7 +1796,7 @@ class DailyTreePublisher(Publisher):
                 osextras.unlink_force("%s.template" % target_prefix)
 
             # zsync metafiles
-            if self.try_zsyncmake and osextras.find_on_path("zsyncmake"):
+            if osextras.find_on_path("zsyncmake"):
                 logger.info("Making source %d zsync metafile ..." % i)
                 osextras.unlink_force("%s.iso.zsync" % target_prefix)
                 zsyncmake(

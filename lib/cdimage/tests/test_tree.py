@@ -796,9 +796,10 @@ class TestDailyTreePublisher(TestCase):
                 Debian=http://ports.ubuntu.com/ubuntu-ports --try-last
                 """), jigdo.read())
 
-    def test_publish_binary(self):
-        publisher = self.make_publisher(
-            "ubuntu", "daily-live", try_zsyncmake=False)
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    def test_publish_binary(self, mock_zsyncmake, *args):
+        publisher = self.make_publisher("ubuntu", "daily-live")
         source_dir = publisher.image_output("i386")
         touch(os.path.join(
             source_dir, "%s-desktop-i386.raw" % self.config.series))
@@ -812,6 +813,7 @@ class TestDailyTreePublisher(TestCase):
             "Publishing i386 ...",
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
+            "Making i386 zsync metafile ...",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
@@ -820,10 +822,15 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
         ], os.listdir(target_dir))
+        mock_zsyncmake.assert_called_once_with(
+            os.path.join(
+                target_dir, "%s-desktop-i386.iso" % self.config.series),
+            os.path.join(
+                target_dir, "%s-desktop-i386.iso.zsync" % self.config.series),
+            "%s-desktop-i386.iso" % self.config.series)
 
     def test_publish_livecd_base(self):
-        publisher = self.make_publisher(
-            "livecd-base", "livecd-base", try_zsyncmake=False)
+        publisher = self.make_publisher("livecd-base", "livecd-base")
         source_dir = os.path.join(
             self.temp_dir, "scratch", "livecd-base", self.config.series,
             "livecd-base", "live")
@@ -842,9 +849,10 @@ class TestDailyTreePublisher(TestCase):
             "i386.manifest", "i386.manifest-remove",
         ], os.listdir(target_dir))
 
-    def test_publish_source(self):
-        publisher = self.make_publisher(
-            "ubuntu", "daily-live", try_zsyncmake=False)
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    def test_publish_source(self, mock_zsyncmake, *args):
+        publisher = self.make_publisher("ubuntu", "daily-live")
         source_dir = publisher.image_output("src")
         touch(os.path.join(source_dir, "%s-src-1.raw" % self.config.series))
         touch(os.path.join(source_dir, "%s-src-1.list" % self.config.series))
@@ -861,8 +869,10 @@ class TestDailyTreePublisher(TestCase):
         self.assertLogEqual([
             "Publishing source 1 ...",
             "Publishing source 1 jigdo ...",
+            "Making source 1 zsync metafile ...",
             "Publishing source 2 ...",
             "Publishing source 2 jigdo ...",
+            "Making source 2 zsync metafile ...",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807", "source")
         self.assertEqual([], os.listdir(source_dir))
@@ -876,6 +886,18 @@ class TestDailyTreePublisher(TestCase):
             "%s-src-2.list" % self.config.series,
             "%s-src-2.template" % self.config.series,
         ], os.listdir(target_dir))
+        mock_zsyncmake.assert_has_calls([
+            mock.call(
+                os.path.join(target_dir, "%s-src-1.iso" % self.config.series),
+                os.path.join(
+                    target_dir, "%s-src-1.iso.zsync" % self.config.series),
+                "%s-src-1.iso" % self.config.series),
+            mock.call(
+                os.path.join(target_dir, "%s-src-2.iso" % self.config.series),
+                os.path.join(
+                    target_dir, "%s-src-2.iso.zsync" % self.config.series),
+                "%s-src-2.iso" % self.config.series),
+        ])
 
     def test_link(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
@@ -1239,12 +1261,12 @@ class TestDailyTreePublisher(TestCase):
             ]),
         ])
 
+    @mock.patch("cdimage.tree.zsyncmake")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
-    def test_publish(self, mock_post_qa):
+    def test_publish(self, mock_post_qa, *args):
         self.config["ARCHES"] = "i386"
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
-        publisher = self.make_publisher(
-            "ubuntu", "daily-live", try_zsyncmake=False)
+        publisher = self.make_publisher("ubuntu", "daily-live")
         source_dir = publisher.image_output("i386")
         touch(os.path.join(
             source_dir, "%s-desktop-i386.raw" % self.config.series))
@@ -1268,6 +1290,7 @@ class TestDailyTreePublisher(TestCase):
             "Publishing i386 ...",
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
+            "Making i386 zsync metafile ...",
             "No keys found; not signing images.",
             "No keys found; not signing images.",
         ])
@@ -1496,9 +1519,10 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             publisher = self.make_publisher("ubuntu", image_type)
             self.assertEqual(size_limit, publisher.size_limit)
 
-    def test_publish_binary(self):
-        publisher = self.make_publisher(
-            "ubuntu", "daily-live", try_zsyncmake=False)
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    def test_publish_binary(self, mock_zsyncmake, *args):
+        publisher = self.make_publisher("ubuntu", "daily-live")
         source_dir = publisher.image_output("i386")
         touch(os.path.join(
             source_dir, "%s-desktop-i386.iso" % self.config.series))
@@ -1514,6 +1538,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "Publishing i386 ...",
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
+            "Making i386 zsync metafile ...",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
@@ -1522,6 +1547,12 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
         ], os.listdir(target_dir))
+        mock_zsyncmake.assert_called_once_with(
+            os.path.join(
+                target_dir, "%s-desktop-i386.iso" % self.config.series),
+            os.path.join(
+                target_dir, "%s-desktop-i386.iso.zsync" % self.config.series),
+            "%s-desktop-i386.iso" % self.config.series)
 
     def test_publish_livecd_base(self):
         pass
@@ -1548,12 +1579,12 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.assertEqual("raring", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
+    @mock.patch("cdimage.tree.zsyncmake")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
-    def test_publish(self, mock_post_qa):
+    def test_publish(self, mock_post_qa, *args):
         self.config["ARCHES"] = "i386"
         self.config["CDIMAGE_LIVE"] = "1"
-        publisher = self.make_publisher(
-            "ubuntu", "daily-live", try_zsyncmake=False)
+        publisher = self.make_publisher("ubuntu", "daily-live")
         source_dir = publisher.image_output("i386")
         touch(os.path.join(
             source_dir, "%s-desktop-i386.iso" % self.config.series))
@@ -1575,6 +1606,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "Publishing i386 ...",
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
+            "Making i386 zsync metafile ...",
             "No keys found; not signing images.",
             "No keys found; not signing images.",
         ])
