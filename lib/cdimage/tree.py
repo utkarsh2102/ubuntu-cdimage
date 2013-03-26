@@ -249,6 +249,11 @@ class Tree:
         tree = Tree.get_daily(config)
         publisher = Publisher.get_daily(tree, config["IMAGE_TYPE"])
         try:
+            for arch in arches:
+                if not publisher.current_uses_trigger(arch):
+                    logger.warning(
+                        "%s is not trigger-controlled; update "
+                        "production/current-triggers" % arch)
             publisher.mark_current(date, arches)
             trigger_mirrors(config)
         except Exception:

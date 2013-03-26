@@ -154,6 +154,10 @@ class TestTree(TestCase):
             "%s-desktop-i386.manifest" % series,
         ):
             touch(os.path.join(target_dir, name))
+        current_triggers_path = os.path.join(
+            self.temp_dir, "production", "current-triggers")
+        with mkfile(current_triggers_path) as current_triggers:
+            print("ubuntu\tdaily-live\traring\ti386", file=current_triggers)
         self.config["SSH_ORIGINAL_COMMAND"] = (
             "mark-current --project=ubuntu --series=%s --publish-type=desktop "
             "--architecture=i386 20130321" % series)
