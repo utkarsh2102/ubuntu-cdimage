@@ -39,8 +39,13 @@ all_series = []
 
 
 class Series(BaseSeries):
+    def __new__(cls, *args, **kwargs):
+        return super(Series, cls).__new__(cls, *args)
+
     def __init__(self, *args, **kwargs):
         self._index = None
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     @classmethod
     def find_by_name(self, name):
@@ -99,25 +104,45 @@ class Series(BaseSeries):
     def __gt__(self, other):
         return self._compare(other, operator.gt)
 
+    def displayversion(self, project):
+        version = getattr(self, "pointversion", self.version)
+        if project in getattr(self, "lts_projects", []):
+            version += " LTS"
+        return version
+
 
 # TODO: This should probably come from a configuration file.
 all_series.extend([
     Series("warty", "4.10", "Warty Warthog"),
     Series("hoary", "5.04", "Hoary Hedgehog"),
     Series("breezy", "5.10", "Breezy Badger"),
-    Series("dapper", "6.06", "Dapper Drake"),
+    Series(
+        "dapper", "6.06", "Dapper Drake",
+        pointversion="6.06.2",
+        lts_projects=["ubuntu", "kubuntu", "edubuntu", "ubuntu-server"]),
     Series("edgy", "6.10", "Edgy Eft"),
     Series("feisty", "7.04", "Feisty Fawn"),
     Series("gutsy", "7.10", "Gutsy Gibbon"),
-    Series("hardy", "8.04", "Hardy Heron"),
+    Series(
+        "hardy", "8.04", "Hardy Heron",
+        pointversion="8.04.4", lts_projects=["ubuntu", "ubuntu-server"]),
     Series("intrepid", "8.10", "Intrepid Ibex"),
     Series("jaunty", "9.04", "Jaunty Jackalope"),
     Series("karmic", "9.10", "Karmic Koala"),
-    Series("lucid", "10.04", "Lucid Lynx"),
+    Series(
+        "lucid", "10.04", "Lucid Lynx",
+        pointversion="10.04.4",
+        lts_projects=["ubuntu", "kubuntu", "ubuntu-server"]),
     Series("maverick", "10.10", "Maverick Meerkat"),
     Series("natty", "11.04", "Natty Narwhal"),
     Series("oneiric", "11.10", "Oneiric Ocelot"),
-    Series("precise", "12.04", "Precise Pangolin"),
+    Series(
+        "precise", "12.04", "Precise Pangolin",
+        pointversion="12.04.2",
+        lts_projects=[
+            "ubuntu", "kubuntu", "ubuntu-server", "edubuntu", "xubuntu",
+            "mythbuntu", "ubuntustudio",
+        ]),
     Series("quantal", "12.10", "Quantal Quetzal"),
     Series("raring", "13.04", "Raring Ringtail"),
 ])

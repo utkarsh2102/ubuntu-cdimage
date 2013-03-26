@@ -71,6 +71,13 @@ class TestSeries(TestCase):
         self.assertGreaterEqual(series, Series.find_by_name("hoary"))
         self.assertGreater(series, Series.find_by_name("warty"))
 
+    def test_displayversion(self):
+        series = Series.find_by_name("breezy")
+        self.assertEqual("5.10", series.displayversion("ubuntu"))
+        series = Series.find_by_name("dapper")
+        self.assertEqual("6.06.2 LTS", series.displayversion("ubuntu"))
+        self.assertEqual("6.06.2", series.displayversion("xubuntu"))
+
 
 class TestConfig(TestCase):
     def test_default_root(self):

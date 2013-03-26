@@ -22,6 +22,10 @@ from __future__ import print_function
 __metaclass__ = type
 
 from functools import wraps
+try:
+    from html.parser import HTMLParser
+except ImportError:
+    from HTMLParser import HTMLParser
 import os
 import sys
 from textwrap import dedent
@@ -42,10 +46,14 @@ from cdimage.tree import (
     DailyTree,
     DailyTreePublisher,
     FullReleaseTree,
+    Link,
+    Paragraph,
     Publisher,
     SimpleReleasePublisher,
     SimpleReleaseTree,
+    Span,
     Tree,
+    UnorderedList,
 )
 
 
@@ -86,6 +94,22 @@ class TestTree(TestCase):
         self.assertIsInstance(tree, ChinaReleaseTree)
         self.assertEqual(self.config, tree.config)
         self.assertEqual(self.temp_dir, tree.directory)
+
+    def test_get_for_directory(self):
+        self.config.root = self.temp_dir
+        path = os.path.join(self.temp_dir, "www", "full", "foo")
+        os.makedirs(path)
+        for status, cls in (
+            ("daily", DailyTree),
+            ("release", FullReleaseTree),
+        ):
+            tree = Tree.get_for_directory(self.config, path, status)
+            self.assertIsInstance(tree, cls)
+            self.assertEqual(
+                os.path.join(self.temp_dir, "www", "full"), tree.directory)
+        tree = Tree.get_for_directory(self.config, self.temp_dir, "daily")
+        self.assertIsInstance(tree, Tree)
+        self.assertEqual("/", tree.directory)
 
     def test_path_to_project(self):
         self.assertEqual("kubuntu", self.tree.path_to_project("kubuntu/foo"))
@@ -156,6 +180,31 @@ class TestTree(TestCase):
             self.assertEqual("20130321", os.readlink(publish_current))
 
 
+class TestTags(TestCase):
+    def test_paragraph(self):
+        tag = Paragraph(["Sentence one.", "Sentence two."])
+        self.assertEqual("<p>Sentence one.  Sentence two.</p>", str(tag))
+
+    def test_unordered_list(self):
+        tag = UnorderedList(["one", "two"])
+        self.assertEqual("<ul>\n<li>one</li>\n<li>two</li>\n</ul>", str(tag))
+
+    def test_span(self):
+        tag = Span("urgent", ["Sentence one.", "Sentence two."])
+        self.assertEqual(
+            "<span class=\"urgent\">Sentence one.  Sentence two.</span>",
+            str(tag))
+
+    def test_link(self):
+        tag = Link("http://www.example.org/", "Example")
+        self.assertEqual(
+            "<a href=\"http://www.example.org/\">Example</a>", str(tag))
+        tag = Link("http://www.example.org/", "Example", show_class=True)
+        self.assertEqual(
+            "<a class=\"http\" href=\"http://www.example.org/\">Example</a>",
+            str(tag))
+
+
 class TestPublisher(TestCase):
     def setUp(self):
         super(TestPublisher, self).setUp()
@@ -216,6 +265,243 @@ class TestPublisher(TestCase):
             if "_" not in image_type:
                 self.assertEqual(
                     image_type, Publisher._guess_image_type(publish_type))
+
+
+class TestPublisherWebIndices(TestCase):
+    """Test Publisher.make_web_indices and its subsidiary methods."""
+
+    def setUp(self):
+        super(TestPublisherWebIndices, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        self.directory = os.path.join(
+            self.config.root, "www", "full", "daily", "20130326")
+        os.makedirs(self.directory)
+        self.tree = Tree.get_for_directory(
+            self.config, self.directory, "daily")
+
+    def test_titlecase(self):
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertEqual("Desktop image", publisher.titlecase("desktop image"))
+
+    def test_cssincludes(self):
+        for project, expected in (
+            ("ubuntu", ["http://releases.ubuntu.com/include/style.css"]),
+            ("kubuntu", ["http://releases.ubuntu.com/include/kubuntu.css"]),
+        ):
+            self.config["PROJECT"] = project
+            publisher = Publisher(self.tree, "daily")
+            self.assertEqual(expected, publisher.cssincludes())
+
+    def test_cdtypestr(self):
+        self.config["DIST"] = "quantal"
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertEqual(
+            "desktop image", publisher.cdtypestr("desktop", "iso"))
+
+    def test_cdtypedesc_desktop(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "quantal"
+        publisher = Publisher(self.tree, "daily-live")
+        desc = list(publisher.cdtypedesc("desktop", "iso"))
+        self.assertEqual(
+            "<p>The desktop image allows you to try Ubuntu without changing "
+            "your computer at all, and at your option to install it "
+            "permanently later.  This type of image is what most people will "
+            "want to use.  You will need at least 384MiB of RAM to install "
+            "from this image.</p>", "\n".join(map(str, desc)))
+        desc_second_time = list(publisher.cdtypedesc("desktop", "iso"))
+        self.assertEqual(
+            "<p>The desktop image allows you to try Ubuntu without changing "
+            "your computer at all, and at your option to install it "
+            "permanently later.  You will need at least 384MiB of RAM to "
+            "install from this image.</p>",
+            "\n".join(map(str, desc_second_time)))
+
+    def test_cdtypedesc_alternate(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "quantal"
+        publisher = Publisher(self.tree, "daily")
+        desc = list(publisher.cdtypedesc("alternate", "iso"))
+        self.assertEqual(
+            "<p>The alternate install image allows you to perform certain "
+            "specialist installations of Ubuntu.  It provides for the "
+            "following situations:</p>\n"
+            "<ul>\n"
+            "<li>setting up automated deployments;</li>\n"
+            "<li>upgrading from older installations without network "
+            "access;</li>\n"
+            "<li>LVM and/or RAID partitioning;</li>\n"
+            "<li>installs on systems with less than about 384MiB of RAM "
+            "(although note that low-memory systems may not be able to run "
+            "a full desktop environment reasonably).</li>\n"
+            "</ul>\n"
+            "<p>In the event that you encounter a bug using the alternate "
+            "installer, please file a bug on the <a "
+            "href=\"https://bugs.launchpad.net/ubuntu/+source/"
+            "debian-installer/+filebug\">debian-installer</a> package.</p>",
+            "\n".join(map(str, desc)))
+
+    def test_archdesc(self):
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertEqual(
+            "For almost all PCs.  This includes most machines with "
+            "Intel/AMD/etc type processors and almost all computers that run "
+            "Microsoft Windows, as well as newer Apple Macintosh systems "
+            "based on Intel processors.  Choose this if you are at all "
+            "unsure.",
+            publisher.archdesc("i386", "desktop"))
+
+    def test_maybe_oversized(self):
+        self.config["DIST"] = "precise"
+        oversized_path = os.path.join(
+            self.directory, "precise-desktop-i386.OVERSIZED")
+        touch(oversized_path)
+        publisher = Publisher(self.tree, "daily-live")
+        desc = list(publisher.maybe_oversized(
+            "daily", oversized_path, "desktop"))
+        self.assertEqual(
+            "<br>\n"
+            "<span class=\"urgent\">Warning: This image is oversized (which "
+            "is a bug) and will not fit onto a standard 703MiB CD.  However, "
+            "you may still test it using a DVD, a USB drive, or a virtual "
+            "machine.</span>",
+            "\n".join(map(str, desc)))
+
+    def test_mimetypestr(self):
+        publisher = Publisher(self.tree, "daily")
+        self.assertIsNone(publisher.mimetypestr("iso"))
+        self.assertEqual(
+            "application/octet-stream", publisher.mimetypestr("img"))
+
+    def test_extensionstr(self):
+        publisher = Publisher(self.tree, "daily")
+        self.assertEqual("standard download", publisher.extensionstr("iso"))
+        self.assertEqual(
+            "<a href=\"https://help.ubuntu.com/community/BitTorrent\">"
+            "BitTorrent</a> download",
+            publisher.extensionstr("iso.torrent"))
+
+    def test_web_heading(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "dapper"
+        publisher = Publisher(self.tree, "daily")
+        self.assertEqual(
+            "Ubuntu 6.06.2 LTS (Dapper Drake)",
+            publisher.web_heading("ubuntu-6.06.2"))
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            "Ubuntu 13.04 (Raring Ringtail) Daily Build",
+            publisher.web_heading("raring"))
+
+    def test_find_images(self):
+        for name in (
+            "MD5SUMS",
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.list",
+            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+        ):
+            touch(os.path.join(self.directory, name))
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertCountEqual(
+            ["raring-desktop-amd64.list", "raring-desktop-i386.list"],
+            publisher.find_images(self.directory, "raring", "desktop"))
+
+    def test_find_source_images(self):
+        for name in (
+            "MD5SUMS",
+            "raring-src-1.iso", "raring-src-2.iso", "raring-src-3.iso",
+        ):
+            touch(os.path.join(self.directory, name))
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertEqual(
+            [1, 2, 3], publisher.find_source_images(self.directory, "raring"))
+
+    def test_find_any_with_extension(self):
+        for name in (
+            "MD5SUMS",
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.iso.torrent",
+            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+        ):
+            touch(os.path.join(self.directory, name))
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertTrue(
+            publisher.find_any_with_extension(self.directory, "iso"))
+        self.assertTrue(
+            publisher.find_any_with_extension(self.directory, "iso.torrent"))
+        self.assertTrue(
+            publisher.find_any_with_extension(self.directory, "list"))
+        self.assertFalse(
+            publisher.find_any_with_extension(self.directory, "manifest"))
+
+    def test_make_web_indices(self):
+        # We don't attempt to test the entire text here; that would be very
+        # tedious.  Instead, we simply test that a sample run has no missing
+        # substitutions and produces reasonably well-formed HTML.
+        # HTMLParser is not very strict about this; we might be better off
+        # upgrading to XHTML so that we can use an XML parser.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "raring"
+        for name in (
+            "MD5SUMS",
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.iso.zsync",
+            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+        ):
+            touch(os.path.join(self.directory, name))
+        publisher = Publisher(self.tree, "daily-live")
+        publisher.make_web_indices(self.directory, "raring", status="daily")
+
+        self.assertCountEqual([
+            "HEADER.html", "FOOTER.html", ".htaccess",
+            "MD5SUMS",
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.iso.zsync",
+            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+        ], os.listdir(self.directory))
+
+        header_path = os.path.join(self.directory, "HEADER.html")
+        footer_path = os.path.join(self.directory, "FOOTER.html")
+        htaccess_path = os.path.join(self.directory, ".htaccess")
+        parser = HTMLParser()
+        with open(header_path) as header:
+            data = header.read()
+            self.assertNotIn("%s", data)
+            parser.feed(data)
+        with open(footer_path) as footer:
+            data = footer.read()
+            self.assertNotIn("%s", data)
+            parser.feed(data)
+        parser.close()
+        with open(htaccess_path) as htaccess:
+            self.assertEqual(
+                "AddDescription \"Desktop image for PC (Intel x86) computers "
+                "(standard download)\" raring-desktop-i386.iso\n"
+                "AddDescription \"Desktop image for PC (Intel x86) computers "
+                "(file listing)\" raring-desktop-i386.list\n"
+                "AddDescription \"Desktop image for 64-bit PC (AMD64) "
+                "computers (<a href=\\\"http://zsync.moria.org.uk/\\\">"
+                "zsync</a> metafile)\" raring-desktop-amd64.iso.zsync\n"
+                "AddDescription \"Desktop image for 64-bit PC (AMD64) "
+                "computers (standard download)\" raring-desktop-amd64.iso\n"
+                "\n"
+                "HeaderName HEADER.html\n"
+                "ReadmeName FOOTER.html\n"
+                "IndexIgnore .htaccess HEADER.html FOOTER.html "
+                "published-ec2-daily.txt published-ec2-release.txt\n"
+                "IndexOptions NameWidth=* DescriptionWidth=* "
+                "SuppressHTMLPreamble FancyIndexing IconHeight=22 "
+                "IconWidth=22\n"
+                "AddIcon ../../cdicons/folder.png ^^DIRECTORY^^\n"
+                "AddIcon ../../cdicons/iso.png .iso\n"
+                "AddIcon ../../cdicons/img.png .img .tar.gz .tar.xz\n"
+                "AddIcon ../../cdicons/jigdo.png .jigdo .template\n"
+                "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
+                "MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg "
+                "SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg\n"
+                "AddIcon ../../cdicons/torrent.png .torrent .metalink\n",
+                htaccess.read())
 
 
 class TestDailyTree(TestCase):
