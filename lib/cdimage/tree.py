@@ -1934,8 +1934,8 @@ class DailyTreePublisher(Publisher):
         if not os.path.exists(current_triggers_path):
             return False
         want_project_bits = [self.project]
-        if self.subproject:
-            want_project_bits.append(self.subproject)
+        if self.config.subproject:
+            want_project_bits.append(self.config.subproject)
         if self.config["UBUNTU_DEFAULTS_LOCALE"]:
             want_project_bits.append(self.config["UBUNTU_DEFAULTS_LOCALE"])
         want_project = "-".join(want_project_bits)
