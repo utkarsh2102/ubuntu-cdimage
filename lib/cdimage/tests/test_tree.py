@@ -1667,38 +1667,14 @@ class TestSimpleReleaseTree(TestCase):
         ], self.tree.manifest())
 
 
-class TestReleasePublisher(TestCase):
+class TestFullReleasePublisher(TestCase):
     def setUp(self):
-        super(TestReleasePublisher, self).setUp()
+        super(TestFullReleasePublisher, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
 
     @mock.patch("subprocess.check_call")
-    def test_make_torrents_simple(self, mock_check_call):
-        self.config["CAPPROJECT"] = "Ubuntu"
-        paths = [
-            os.path.join(
-                self.temp_dir, "dir", "ubuntu-13.04-desktop-%s.iso" % arch)
-            for arch in ("amd64", "i386")]
-        for path in paths:
-            touch(path)
-        tree = Tree.get_release(self.config, "yes", directory=self.temp_dir)
-        publisher = tree.get_publisher("daily-live", "yes")
-        publisher.make_torrents(
-            os.path.join(self.temp_dir, "dir"), "ubuntu-13.04")
-        command_base = [
-            "btmakemetafile", "http://torrent.ubuntu.com:6969/announce",
-            "--announce_list",
-            ("http://torrent.ubuntu.com:6969/announce|"
-                "http://ipv6.torrent.ubuntu.com:6969/announce"),
-            "--comment", "Ubuntu CD releases.ubuntu.com",
-        ]
-        mock_check_call.assert_has_calls([
-            mock.call(command_base + [path], stdout=mock.ANY)
-            for path in paths])
-
-    @mock.patch("subprocess.check_call")
-    def test_make_torrents_full(self, mock_check_call):
+    def test_make_torrents(self, mock_check_call):
         self.config["CAPPROJECT"] = "Ubuntu"
         paths = [
             os.path.join(
@@ -1716,6 +1692,37 @@ class TestReleasePublisher(TestCase):
         command_base = [
             "btmakemetafile", "http://torrent.ubuntu.com:6969/announce",
             "--comment", "Ubuntu CD cdimage.ubuntu.com",
+        ]
+        mock_check_call.assert_has_calls([
+            mock.call(command_base + [path], stdout=mock.ANY)
+            for path in paths])
+
+
+class TestSimpleReleasePublisher(TestCase):
+    def setUp(self):
+        super(TestSimpleReleasePublisher, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+
+    @mock.patch("subprocess.check_call")
+    def test_make_torrents(self, mock_check_call):
+        self.config["CAPPROJECT"] = "Ubuntu"
+        paths = [
+            os.path.join(
+                self.temp_dir, "dir", "ubuntu-13.04-desktop-%s.iso" % arch)
+            for arch in ("amd64", "i386")]
+        for path in paths:
+            touch(path)
+        tree = Tree.get_release(self.config, "yes", directory=self.temp_dir)
+        publisher = tree.get_publisher("daily-live", "yes")
+        publisher.make_torrents(
+            os.path.join(self.temp_dir, "dir"), "ubuntu-13.04")
+        command_base = [
+            "btmakemetafile", "http://torrent.ubuntu.com:6969/announce",
+            "--announce_list",
+            ("http://torrent.ubuntu.com:6969/announce|"
+                "http://ipv6.torrent.ubuntu.com:6969/announce"),
+            "--comment", "Ubuntu CD releases.ubuntu.com",
         ]
         mock_check_call.assert_has_calls([
             mock.call(command_base + [path], stdout=mock.ANY)
