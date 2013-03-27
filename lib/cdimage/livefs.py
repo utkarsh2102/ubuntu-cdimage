@@ -617,7 +617,8 @@ def download_live_filesystems(config):
             else:
                 continue
             if (series >= "dapper" and project != "ubuntu-core" and
-                    not config["CDIMAGE_SQUASHFS_BASE"]):
+                    not config["CDIMAGE_SQUASHFS_BASE"] and
+                    config.subproject != "wubi"):
                 download_live_items(config, arch, "kernel")
                 download_live_items(config, arch, "initrd")
                 download_live_items(config, arch, "kernel-efi-signed")
