@@ -305,6 +305,30 @@ def build_ubuntu_defaults_locale(config):
                         [pi_makelist, entry_path], stdout=list_file)
 
 
+def build_livecd_base(config):
+    download_live_filesystems(config)
+
+    if config.project == "ubuntu-core":
+        log_marker("Copying images to debian-cd output directory")
+        scratch_dir = os.path.join(
+            config.root, "scratch", config.project, config.series,
+            config.image_type)
+        live_dir = os.path.join(scratch_dir, "live")
+        for arch in config.arches:
+            live_prefix = os.path.join(live_dir, arch)
+            rootfs = "%s.rootfs.tar.gz" % live_prefix
+            if os.path.exists(rootfs):
+                output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+                osextras.ensuredir(output_dir)
+                output_prefix = os.path.join(
+                    output_dir, "%s-core-%s" % (config.series, arch))
+                shutil.copy2(rootfs, "%s.raw" % output_prefix)
+                with open("%s.type" % output_prefix, "w") as f:
+                    print("tar archive", file=f)
+                shutil.copy2(
+                    "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
+
+
 def _debootstrap_script(config):
     if config["DIST"] <= "gutsy":
         return "usr/lib/debootstrap/scripts/%s" % config.series
@@ -446,23 +470,28 @@ def build_image_set_locked(config, semaphore_state):
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
 
+    livecd_base = config.project in ("livecd-base", "ubuntu-core")
+
     try:
         configure_for_project(config)
         log_path = open_log(config)
 
-        sync_local_mirror(config, semaphore_state)
+        if not livecd_base:
+            sync_local_mirror(config, semaphore_state)
 
-        if config["LOCAL"]:
-            log_marker("Updating archive of local packages")
-            update_local_indices(config)
+            if config["LOCAL"]:
+                log_marker("Updating archive of local packages")
+                update_local_indices(config)
 
-        build_britney(config)
+            build_britney(config)
 
-        log_marker("Extracting debootstrap scripts")
-        extract_debootstrap(config)
+            log_marker("Extracting debootstrap scripts")
+            extract_debootstrap(config)
 
         if config["UBUNTU_DEFAULTS_LOCALE"]:
             build_ubuntu_defaults_locale(config)
+        elif livecd_base:
+            build_livecd_base(config)
         else:
             if not config["CDIMAGE_PREINSTALLED"]:
                 log_marker("Germinating")

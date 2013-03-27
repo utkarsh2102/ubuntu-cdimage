@@ -33,7 +33,16 @@ def main():
         "--live", default=False, action="store_true",
         help="build live filesystems first")
     options, _ = parser.parse_args()
-    config = Config(IMAGE_TYPE="daily-live")
+
+    project = os.environ.get("PROJECT", None)
+    if project == "livecd-base":
+        image_type = "livecd-base"
+    elif project == "ubuntu-core":
+        image_type = "daily"
+    else:
+        image_type = "daily-live"
+
+    config = Config(IMAGE_TYPE=image_type)
     config["CDIMAGE_LIVE"] = "1"
     if options.live:
         if not run_live_builds(config):

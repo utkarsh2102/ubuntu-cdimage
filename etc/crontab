@@ -9,7 +9,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # precise daily builds
 31 8 * * *	DIST=precise for-project ubuntu cron.daily; DIST=precise for-project ubuntu cron.daily-live --live
 29 9 * * *	DIST=precise for-project ubuntu-server cron.daily
-45 9 * * *	DIST=precise for-project ubuntu-core buildlive daily && DIST=precise build-livecd-base ubuntu-core daily
+45 9 * * *	DIST=precise for-project ubuntu-core cron.daily-live --live
 56 21 * * *	DIST=precise SUBPROJECT=wubi for-project ubuntu buildlive wubi && DIST=precise for-project ubuntu cron.wubi
 34 14 * * 2,6	DIST=precise for-project ubuntu cron.dvd --live
 19 19 * * *	DIST=precise for-project edubuntu cron.dvd --live
@@ -28,8 +28,8 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # mythbuntu will only release for LTS releases, but we keep daily builds around to ensure it remains working
 29 10 * * *	for-project mythbuntu cron.daily-live --live
 29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live
-6 4 * * *	for-project livecd-base buildlive livecd-base && build-livecd-base livecd-base
-32 4 * * *	for-project ubuntu-core buildlive daily && build-livecd-base ubuntu-core daily
+6 4 * * *	for-project livecd-base cron.daily-live --live
+32 4 * * *	for-project ubuntu-core cron.daily-live --live
 22 0 * * *	for-project kubuntu-active cron.daily-live --live
 # preinstalled armhf images
 35 1 * * *	for-project lubuntu cron.daily-preinstalled --live

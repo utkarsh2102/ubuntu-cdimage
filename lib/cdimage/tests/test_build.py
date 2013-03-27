@@ -43,6 +43,7 @@ from cdimage.build import (
     build_britney,
     build_image_set,
     build_image_set_locked,
+    build_livecd_base,
     build_ubuntu_defaults_locale,
     configure_for_project,
     configure_splash,
@@ -198,6 +199,76 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
             os.path.join(self.temp_dir, "debian-cd", "tools", "pi-makelist"),
             os.path.join(output_dir, "oneiric-desktop-i386.iso"),
         ], stdout=mock.ANY)
+
+
+class TestBuildLiveCDBase(TestCase):
+    def setUp(self):
+        super(TestBuildLiveCDBase, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        self.config["CDIMAGE_LIVE"] = "1"
+        mock_gmtime = mock.patch("time.gmtime", return_value=time.gmtime(0))
+        mock_gmtime.start()
+        self.addCleanup(mock_gmtime.stop)
+        self.epoch_date = "Thu Jan  1 00:00:00 UTC 1970"
+
+    @mock.patch("cdimage.osextras.fetch")
+    def test_livecd_base(self, mock_fetch):
+        def fetch_side_effect(config, source, target):
+            tail = os.path.basename(target).split(".", 1)[1]
+            if tail in ("manifest", "squashfs"):
+                touch(target)
+                return True
+            else:
+                return False
+
+        mock_fetch.side_effect = fetch_side_effect
+        self.config["PROJECT"] = "livecd-base"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "livecd-base"
+        self.config["ARCHES"] = "i386"
+        self.capture_logging()
+        build_livecd_base(self.config)
+        self.assertLogEqual([])
+        live_dir = os.path.join(
+            self.temp_dir, "scratch", "livecd-base", "raring", "livecd-base",
+            "live")
+        self.assertTrue(os.path.isdir(live_dir))
+        self.assertCountEqual(
+            ["i386.manifest", "i386.squashfs"], os.listdir(live_dir))
+
+    @mock.patch("cdimage.osextras.fetch")
+    def test_ubuntu_core(self, mock_fetch):
+        def fetch_side_effect(config, source, target):
+            if (target.endswith(".manifest") or
+                    target.endswith(".rootfs.tar.gz")):
+                touch(target)
+                return True
+            else:
+                return False
+
+        mock_fetch.side_effect = fetch_side_effect
+        self.config["PROJECT"] = "ubuntu-core"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "i386"
+        self.capture_logging()
+        build_livecd_base(self.config)
+        self.assertLogEqual([
+            "===== Copying images to debian-cd output directory =====",
+            self.epoch_date,
+        ])
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-core", "raring", "daily",
+            "debian-cd", "i386")
+        self.assertTrue(os.path.isdir(output_dir))
+        self.assertCountEqual([
+            "raring-core-i386.manifest",
+            "raring-core-i386.raw",
+            "raring-core-i386.type",
+        ], os.listdir(output_dir))
+        with open(os.path.join(output_dir, "raring-core-i386.type")) as f:
+            self.assertEqual("tar archive\n", f.read())
 
 
 class TestExtractDebootstrap(TestCase):
