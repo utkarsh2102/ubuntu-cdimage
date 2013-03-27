@@ -10,8 +10,6 @@
 # update lib/cdimage/config.py, or unless their names start with "CDIMAGE_"
 # and they are exported to the environment.
 
-. "$CDIMAGE_ROOT/bin/functions.sh"
-
 if [ "$DEBUG" ] && [ "$DEBUG" -gt 1 ]; then
 	set -x
 fi
