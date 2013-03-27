@@ -17,18 +17,33 @@
 
 """Create metalink files."""
 
+from optparse import OptionParser
 import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import config
+from cdimage.tree import Publisher, Tree
 
 
 def main():
-    metalink_builder = os.path.join(config.root, "MirrorMetalink", "build.py")
-    if os.path.exists(metalink_builder):
-        os.execv(metalink_builder, [metalink_builder] + sys.argv[1:])
-    else:
+    parser = OptionParser(
+        "%prog DIRECTORY VERSION STATUS\n"
+        " e.g.: %prog " + config.root +
+        "/www/full/daily-live/20130327 raring daily")
+    _, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("need directory")
+    if len(args) < 2:
+        parser.error("need version")
+    if len(args) < 3:
+        parser.error("need status")
+    directory = args[0]
+    version = args[1]
+    status = args[2]
+    tree = Tree.get_for_directory(config, directory, status)
+    publisher = Publisher(tree, "daily")  # image_type unused
+    if not publisher.make_metalink(directory, version):
         sys.exit(1)
 
 

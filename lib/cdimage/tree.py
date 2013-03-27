@@ -1426,6 +1426,21 @@ class Publisher:
                         "AddType %s .%s" % (mimetype, extension),
                         file=htaccess)
 
+    def make_metalink(self, directory, version):
+        reldir = os.path.relpath(directory, self.tree.directory)
+        metalink_builder = os.path.join(
+            self.config.root, "MirrorMetalink", "build.py")
+        command = [
+            metalink_builder, self.tree.directory, version, reldir,
+            self.tree.site_name,
+        ]
+        try:
+            return subprocess.call(command) == 0
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                return False
+            raise
+
 
 class DailyTree(Tree):
     """A publication tree containing daily builds."""
@@ -1510,13 +1525,6 @@ class DailyTreePublisher(Publisher):
     @property
     def publish_base(self):
         return os.path.join(self.full_tree, self.image_type_dir)
-
-    def metalink_dirs(self, date):
-        if self.project == "ubuntu":
-            reldir = os.path.join(self.image_type_dir, date)
-        else:
-            reldir = os.path.join(self.project, self.image_type_dir, date)
-        return self.tree.directory, reldir
 
     @property
     def size_limit(self):
@@ -1836,11 +1844,7 @@ class DailyTreePublisher(Publisher):
                 target_dir, "MD5SUMS-metalink.gpg")
             osextras.unlink_force(md5sums_metalink)
             osextras.unlink_force(md5sums_metalink_gpg)
-            basedir, reldir = self.metalink_dirs(date)
-            if subprocess.call([
-                os.path.join(self.config.root, "bin", "make-metalink"),
-                basedir, self.config.series, reldir, self.tree.site_name,
-            ]) == 0:
+            if self.make_metalink(target_dir, self.config.series):
                 metalink_checksum_directory(self.config, target_dir)
             else:
                 for name in os.listdir(target_dir):
@@ -2311,9 +2315,6 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
     def image_type_dir(self):
         return os.path.join(
             self.config.series, self.image_type.replace("_", "/"))
-
-    def metalink_dirs(self, date):
-        return self.tree.directory, os.path.join(self.image_type_dir, date)
 
     @property
     def size_limit(self):

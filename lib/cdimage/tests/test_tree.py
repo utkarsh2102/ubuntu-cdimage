@@ -653,27 +653,6 @@ class TestDailyTreePublisher(TestCase):
                 "kubuntu", "hoary", "daily-live"),
             self.make_publisher("kubuntu", "daily-live").publish_base)
 
-    def test_metalink_dirs(self):
-        basedir = os.path.join(self.config.root, "www", "full")
-        date = "20120912"
-        publisher = self.make_publisher("ubuntu", "daily-live")
-        self.assertEqual(
-            (basedir, os.path.join("daily-live", date)),
-            publisher.metalink_dirs(date))
-        self.config["DIST"] = "hoary"
-        self.assertEqual(
-            (basedir, os.path.join("hoary", "daily-live", date)),
-            publisher.metalink_dirs(date))
-        publisher = self.make_publisher("kubuntu", "daily-live")
-        self.config["DIST"] = Series.latest()
-        self.assertEqual(
-            (basedir, os.path.join("kubuntu", "daily-live", date)),
-            publisher.metalink_dirs(date))
-        self.config["DIST"] = "hoary"
-        self.assertEqual(
-            (basedir, os.path.join("kubuntu", "hoary", "daily-live", date)),
-            publisher.metalink_dirs(date))
-
     def test_size_limit(self):
         for project, dist, image_type, size_limit in (
             ("edubuntu", None, "daily-preinstalled", 4700372992),
@@ -1250,14 +1229,16 @@ class TestDailyTreePublisher(TestCase):
         ], os.listdir(target_dir))
         mock_make_web_indices.assert_called_once_with(
             target_dir, self.config.series, status="daily")
-        make_metalink = os.path.join(self.temp_dir, "bin", "make-metalink")
+        metalink_builder = os.path.join(
+            self.temp_dir, "MirrorMetalink", "build.py")
         mock_call.assert_called_once_with([
-            make_metalink, publisher.tree.directory, self.config.series,
+            metalink_builder, publisher.tree.directory, self.config.series,
             os.path.join(publisher.image_type_dir, "20130320"),
             publisher.tree.site_name
         ])
 
     @mock.patch("cdimage.tree.zsyncmake")
+    @mock.patch("cdimage.tree.DailyTreePublisher.make_metalink")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish(self, mock_post_qa, *args):
         self.config["ARCHES"] = "i386"
@@ -1272,10 +1253,6 @@ class TestDailyTreePublisher(TestCase):
             source_dir, "%s-desktop-i386.manifest" % self.config.series))
         touch(os.path.join(
             publisher.britney_report, "%s_probs.html" % self.config.series))
-        # TODO: clean up make-metalink call
-        bin_dir = os.path.join(self.config.root, "bin")
-        os.mkdir(bin_dir)
-        os.symlink("/bin/true", os.path.join(bin_dir, "make-metalink"))
         os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
 
@@ -1499,16 +1476,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
                     series.name, "daily-live"),
                 publisher.publish_base)
 
-    def test_metalink_dirs(self):
-        basedir = os.path.join(self.config.root, "www", "china-images")
-        date = "20120912"
-        publisher = self.make_publisher("ubuntu", "daily-live")
-        for series in all_series:
-            self.config["DIST"] = series
-            self.assertEqual(
-                (basedir, os.path.join(series.name, "daily-live", date)),
-                publisher.metalink_dirs(date))
-
     def test_size_limit(self):
         for image_type, size_limit in (
             ("dvd", 4700372992),
@@ -1578,6 +1545,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
     @mock.patch("cdimage.tree.zsyncmake")
+    @mock.patch("cdimage.tree.DailyTreePublisher.make_metalink")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish(self, mock_post_qa, *args):
         self.config["ARCHES"] = "i386"
@@ -1590,10 +1558,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             source_dir, "%s-desktop-i386.list" % self.config.series))
         touch(os.path.join(
             source_dir, "%s-desktop-i386.manifest" % self.config.series))
-        # TODO: clean up make-metalink call
-        bin_dir = os.path.join(self.config.root, "bin")
-        os.mkdir(bin_dir)
-        os.symlink("/bin/true", os.path.join(bin_dir, "make-metalink"))
         os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
 
