@@ -606,14 +606,8 @@ if $PUBLISH_DIST; then
 		if [ "$PROJECT" != ubuntu ]; then
 			METALINK_VERSION="$PROJECT/$VERSION"
 		fi
-		$echo rm -f "$RELEASE_SIMPLE_DIST/MD5SUMS-metalink" \
-			"$RELEASE_SIMPLE_DIST/MD5SUMS-metalink.gpg"
-		if $echo make-metalink "$RELEASE_SIMPLE_DIST" \
-			"$METALINK_VERSION" release; then
-			$echo checksum-directory --metalink "$RELEASE_SIMPLE_DIST"
-		else
-			$echo rm -f "$RELEASE_SIMPLE_DIST"/*.metalink
-		fi
+		$echo make-metalink "$RELEASE_SIMPLE_DIST" \
+			"$METALINK_VERSION" release
 	fi
 fi
 if $PUBLISH_FULL; then
@@ -623,14 +617,7 @@ if $PUBLISH_FULL; then
 		"$RELEASE_FULL" "$DAILY"
 	if $METALINK; then
 		echo "Creating and publishing metalink files for the full tree ..."
-		$echo rm -f "$RELEASE_FULL/MD5SUMS-metalink" \
-			"$RELEASE_FULL/MD5SUMS-metalink.gpg"
-		if $echo make-metalink "$RELEASE_FULL_METALINK" \
-			"$VERSION" release; then
-			$echo checksum-directory --metalink "$RELEASE_FULL"
-		else
-			rm -f "$RELEASE_FULL"/*.metalink
-		fi
+		$echo make-metalink "$RELEASE_FULL_METALINK" "$VERSION" release
 	fi
 fi
 
