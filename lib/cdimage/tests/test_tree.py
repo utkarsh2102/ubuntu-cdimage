@@ -1264,7 +1264,6 @@ class TestDailyTreePublisher(TestCase):
             "Publishing i386 live manifest ...",
             "Making i386 zsync metafile ...",
             "No keys found; not signing images.",
-            "No keys found; not signing images.",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
@@ -1568,7 +1567,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
             "Making i386 zsync metafile ...",
-            "No keys found; not signing images.",
             "No keys found; not signing images.",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")

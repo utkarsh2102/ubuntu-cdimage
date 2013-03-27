@@ -1427,6 +1427,10 @@ class Publisher:
                         file=htaccess)
 
     def make_metalink(self, directory, version):
+        """Create and publish metalink files."""
+        osextras.unlink_force(os.path.join(directory, "MD5SUMS-metalink"))
+        osextras.unlink_force(os.path.join(directory, "MD5SUMS-metalink.gpg"))
+
         reldir = os.path.relpath(directory, self.tree.directory)
         metalink_builder = os.path.join(
             self.config.root, "MirrorMetalink", "build.py")
@@ -1435,11 +1439,17 @@ class Publisher:
             self.tree.site_name,
         ]
         try:
-            return subprocess.call(command) == 0
+            if subprocess.call(command) == 0:
+                metalink_checksum_directory(self.config, directory)
+                return
         except OSError as e:
-            if e.errno == errno.ENOENT:
-                return False
-            raise
+            if e.errno != errno.ENOENT:
+                raise
+
+        # Metalink creation failed.  Remove any stale .metalink files.
+        for name in os.listdir(directory):
+            if name.endswith(".metalink"):
+                osextras.unlink_force(os.path.join(directory, name))
 
 
 class DailyTree(Tree):
@@ -1838,18 +1848,7 @@ class DailyTreePublisher(Publisher):
 
         if (self.image_type.endswith("-live") or
                 self.image_type.endswith("dvd")):
-            # Create and publish metalink files.
-            md5sums_metalink = os.path.join(target_dir, "MD5SUMS-metalink")
-            md5sums_metalink_gpg = os.path.join(
-                target_dir, "MD5SUMS-metalink.gpg")
-            osextras.unlink_force(md5sums_metalink)
-            osextras.unlink_force(md5sums_metalink_gpg)
-            if self.make_metalink(target_dir, self.config.series):
-                metalink_checksum_directory(self.config, target_dir)
-            else:
-                for name in os.listdir(target_dir):
-                    if name.endswith(".metalink"):
-                        osextras.unlink_force(os.path.join(target_dir, name))
+            self.make_metalink(target_dir, self.config.series)
 
     def link(self, date, name):
         target = os.path.join(self.publish_base, name)
