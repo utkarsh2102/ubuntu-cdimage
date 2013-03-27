@@ -1851,9 +1851,7 @@ class DailyTreePublisher(Publisher):
             self.make_metalink(target_dir, self.config.series)
 
     def link(self, date, name):
-        target = os.path.join(self.publish_base, name)
-        osextras.unlink_force(target)
-        os.symlink(date, target)
+        osextras.symlink_force(date, os.path.join(self.publish_base, name))
 
     def published_images(self, date):
         """Return all the images published at a particular date (or alias)."""
@@ -1924,8 +1922,7 @@ class DailyTreePublisher(Publisher):
                     if entry.split(".", 1)[0] == image.split(".", 1)[0]:
                         source = os.path.join(os.pardir, date, entry)
                         target = os.path.join(publish_current, entry)
-                        osextras.unlink_force(target)
-                        os.symlink(source, target)
+                        osextras.symlink_force(source, target)
             for date in existing.values():
                 publish_date = os.path.join(self.publish_base, date)
                 if publish_date not in self.checksum_dirs:
