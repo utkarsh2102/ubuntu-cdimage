@@ -7,7 +7,7 @@ export SUBPROJECT=wubi
 export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
 . "$CDIMAGE_ROOT/etc/config"
 
-IMAGE_TYPE=wubi
+export IMAGE_TYPE=wubi
 export CDIMAGE_LIVE=1
 PATH="$CDIMAGE_ROOT/bin${PATH:+:$PATH}"
 LIVE_OUT="$CDIMAGE_ROOT/scratch/$PROJECT/$DIST/$IMAGE_TYPE"
