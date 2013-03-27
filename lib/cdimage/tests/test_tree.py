@@ -116,6 +116,14 @@ class TestTree(TestCase):
         self.assertEqual("ubuntu", self.tree.path_to_project("foo"))
         self.assertEqual("ubuntu", self.tree.path_to_project("ubuntu/foo/bar"))
 
+    def test_project_base(self):
+        self.config.root = self.temp_dir
+        self.config["PROJECT"] = "ubuntu"
+        self.assertEqual(self.temp_dir, self.tree.project_base)
+        self.config["PROJECT"] = "kubuntu"
+        self.assertEqual(
+            os.path.join(self.temp_dir, "kubuntu"), self.tree.project_base)
+
     def test_manifest_file_allowed_passes_good_extensions(self):
         paths = [
             os.path.join(self.temp_dir, name)
@@ -602,10 +610,10 @@ class TestDailyTreePublisher(TestCase):
     def make_publisher(self, project, image_type, **kwargs):
         self.config["PROJECT"] = project
         self.tree = DailyTree(self.config)
+        osextras.ensuredir(self.tree.project_base)
         publisher = DailyTreePublisher(self.tree, image_type, **kwargs)
         osextras.ensuredir(publisher.image_output("i386"))
         osextras.ensuredir(publisher.britney_report)
-        osextras.ensuredir(publisher.full_tree)
         return publisher
 
     def test_image_output(self):
@@ -625,14 +633,6 @@ class TestDailyTreePublisher(TestCase):
             os.path.join(
                 self.config.root, "britney", "report", "kubuntu", "daily"),
             self.make_publisher("kubuntu", "daily").britney_report)
-
-    def test_full_tree(self):
-        self.assertEqual(
-            os.path.join(self.config.root, "www", "full"),
-            self.make_publisher("ubuntu", "daily").full_tree)
-        self.assertEqual(
-            os.path.join(self.config.root, "www", "full", "kubuntu"),
-            self.make_publisher("kubuntu", "daily").full_tree)
 
     def test_image_type_dir(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
@@ -1163,7 +1163,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
         os.makedirs(os.path.join(
-            publisher.full_tree, "precise", "daily-live", "20130221"))
+            self.tree.project_base, "precise", "daily-live", "20130221"))
         publisher.post_qa(
             "20130221", [
                 "ubuntu/precise/daily-live/precise-desktop-i386",
@@ -1415,6 +1415,13 @@ class TestChinaDailyTree(TestDailyTree):
             os.path.join(self.temp_dir, "www", "china-images"),
             ChinaDailyTree(self.config).directory)
 
+    def test_project_base(self):
+        self.config.root = self.temp_dir
+        self.config["PROJECT"] = "ubuntu"
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "china-images"),
+            ChinaDailyTree(self.config).project_base)
+
     def test_site_name(self):
         self.assertEqual("china-images.ubuntu.com", self.tree.site_name)
 
@@ -1427,10 +1434,10 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
     def make_publisher(self, project, image_type, **kwargs):
         self.config["PROJECT"] = project
         self.tree = ChinaDailyTree(self.config)
+        osextras.ensuredir(self.tree.project_base)
         publisher = ChinaDailyTreePublisher(self.tree, image_type, **kwargs)
         osextras.ensuredir(publisher.image_output("i386"))
         osextras.ensuredir(publisher.britney_report)
-        osextras.ensuredir(publisher.full_tree)
         return publisher
 
     def test_image_output(self):
@@ -1451,11 +1458,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.assertEqual(
             "iso",
             self.make_publisher("ubuntu", "daily-live").source_extension)
-
-    def test_full_tree(self):
-        self.assertEqual(
-            os.path.join(self.temp_dir, "www", "china-images"),
-            self.make_publisher("ubuntu", "daily-live").full_tree)
 
     def test_image_type_dir(self):
         publisher = self.make_publisher("ubuntu", "daily-live")

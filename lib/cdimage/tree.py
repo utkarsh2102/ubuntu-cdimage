@@ -139,6 +139,14 @@ class Tree:
         else:
             return "ubuntu"
 
+    @property
+    def project_base(self):
+        """Return the per-project base directory within this tree."""
+        if self.config.project == "ubuntu":
+            return self.directory
+        else:
+            return os.path.join(self.directory, self.config.project)
+
     def name_to_series(self, name):
         """Return the series for a file basename."""
         raise NotImplementedError
@@ -1519,13 +1527,6 @@ class DailyTreePublisher(Publisher):
             self.image_type)
 
     @property
-    def full_tree(self):
-        if self.project == "ubuntu":
-            return self.tree.directory
-        else:
-            return os.path.join(self.tree.directory, self.project)
-
-    @property
     def image_type_dir(self):
         image_type_dir = self.image_type.replace("_", "/")
         if not self.config["DIST"].is_latest:
@@ -1534,7 +1535,7 @@ class DailyTreePublisher(Publisher):
 
     @property
     def publish_base(self):
-        return os.path.join(self.full_tree, self.image_type_dir)
+        return os.path.join(self.tree.project_base, self.image_type_dir)
 
     @property
     def size_limit(self):
@@ -2081,7 +2082,7 @@ class DailyTreePublisher(Publisher):
 
             # Try to figure out the path to the OVERSIZED indicator for the
             # build.
-            iso_path_bits = [self.full_tree]
+            iso_path_bits = [self.tree.project_base]
             if image_series is not None:
                 iso_path_bits.append(image_series)
             iso_path_bits.extend([image_type, date, base])
@@ -2160,7 +2161,7 @@ class DailyTreePublisher(Publisher):
             # Create timestamps for this run.
             # TODO cjwatson 20120807: Shouldn't these be in www/full
             # rather than www/full[/project]?
-            trace_dir = os.path.join(self.full_tree, ".trace")
+            trace_dir = os.path.join(self.tree.project_base, ".trace")
             osextras.ensuredir(trace_dir)
             fqdn = socket.getfqdn()
             with open(os.path.join(trace_dir, fqdn), "w") as trace_file:
@@ -2278,6 +2279,10 @@ class ChinaDailyTree(DailyTree):
         super(ChinaDailyTree, self).__init__(config, directory)
 
     @property
+    def project_base(self):
+        return self.directory
+
+    @property
     def site_name(self):
         return "china-images.ubuntu.com"
 
@@ -2302,10 +2307,6 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
     @property
     def source_extension(self):
         return "iso"
-
-    @property
-    def full_tree(self):
-        return self.tree.directory
 
     @property
     def image_type_dir(self):
