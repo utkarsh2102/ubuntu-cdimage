@@ -109,6 +109,21 @@ class TestOSExtras(TestCase):
         self.assertTrue(os.path.islink(path))
         self.assertEqual("source", os.readlink(path))
 
+    def test_link_present(self):
+        source = os.path.join(self.temp_dir, "source")
+        touch(source)
+        target = os.path.join(self.temp_dir, "target")
+        touch(target)
+        osextras.link_force(source, target)
+        self.assertEqual(os.stat(source), os.stat(target))
+
+    def test_link_missing(self):
+        source = os.path.join(self.temp_dir, "source")
+        touch(source)
+        target = os.path.join(self.temp_dir, "target")
+        osextras.link_force(source, target)
+        self.assertEqual(os.stat(source), os.stat(target))
+
     def test_find_on_path_missing_environment(self):
         os.environ.pop("PATH", None)
         self.assertFalse(osextras.find_on_path("ls"))

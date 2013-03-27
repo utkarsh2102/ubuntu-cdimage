@@ -148,6 +148,7 @@ class TestChecksumFile(TestCase):
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
         checksum_file.entries["entry"] = ""
+        checksum_file.changed = True
         checksum_file.write()
         # We can simulate a ctime change by rewinding the mtime of both
         # entry and the checksums file.

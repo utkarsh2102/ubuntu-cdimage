@@ -53,6 +53,7 @@ class TestCase(unittest.TestCase):
         super(TestCase, self).setUp()
         self.temp_dir = None
         self.save_env = dict(os.environ)
+        self.maxDiff = None
 
     def tearDown(self):
         for key in set(os.environ.keys()) - set(self.save_env.keys()):

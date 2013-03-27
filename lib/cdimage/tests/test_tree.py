@@ -52,6 +52,7 @@ from cdimage.tree import (
     SimpleReleasePublisher,
     SimpleReleaseTree,
     Span,
+    TorrentTree,
     Tree,
     UnorderedList,
 )
@@ -1592,6 +1593,21 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"])
 
 
+class TestFullReleaseTree(TestCase):
+    def setUp(self):
+        super(TestFullReleaseTree, self).setUp()
+        self.use_temp_dir()
+        self.config = Config(read=False)
+        self.tree = FullReleaseTree(self.config, self.temp_dir)
+
+    def test_tree_suffix(self):
+        self.assertEqual(
+            "/ports", self.tree.tree_suffix("ubuntu-server/ports/daily"))
+        self.assertEqual("", self.tree.tree_suffix("ubuntu-server/daily"))
+        self.assertEqual("/ports", self.tree.tree_suffix("ports/daily"))
+        self.assertEqual("", self.tree.tree_suffix("daily"))
+
+
 class TestSimpleReleaseTree(TestCase):
     def setUp(self):
         super(TestSimpleReleaseTree, self).setUp()
@@ -1604,6 +1620,13 @@ class TestSimpleReleaseTree(TestCase):
         self.assertEqual(
             os.path.join(self.temp_dir, "www", "simple"),
             SimpleReleaseTree(self.config).directory)
+
+    def test_tree_suffix(self):
+        self.assertEqual(
+            "/ports", self.tree.tree_suffix("ubuntu-server/ports/daily"))
+        self.assertEqual("", self.tree.tree_suffix("ubuntu-server/daily"))
+        self.assertEqual("/ports", self.tree.tree_suffix("ports/daily"))
+        self.assertEqual("", self.tree.tree_suffix("daily"))
 
     def test_get_publisher(self):
         publisher = self.tree.get_publisher("daily-live", "yes", "beta-1")
@@ -1667,11 +1690,272 @@ class TestSimpleReleaseTree(TestCase):
         ], self.tree.manifest())
 
 
-class TestFullReleasePublisher(TestCase):
+class TestTorrentTree(TestCase):
+    def setUp(self):
+        super(TestTorrentTree, self).setUp()
+        self.use_temp_dir()
+        self.config = Config(read=False)
+        self.tree = TorrentTree(self.config, self.temp_dir)
+
+    def test_default_directory(self):
+        self.config.root = self.temp_dir
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "torrent"),
+            TorrentTree(self.config).directory)
+
+
+class TestReleasePublisherMixin:
+    def test_daily_dir_normal(self):
+        self.config["PROJECT"] = "ubuntu"
+        publisher = self.get_publisher()
+        path = os.path.join(self.temp_dir, "www", "full", "daily", "20130327")
+        os.makedirs(path)
+        self.assertEqual(
+            path, publisher.daily_dir("daily", "20130327", "alternate"))
+        self.config["PROJECT"] = "kubuntu"
+        publisher = self.get_publisher()
+        path = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "daily", "20130327")
+        os.makedirs(path)
+        self.assertEqual(
+            path, publisher.daily_dir("daily", "20130327", "alternate"))
+
+    def test_daily_dir_path_in_date(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "full", "ubuntu-server", "daily",
+                "20130327"),
+            self.get_publisher().daily_dir(
+                "daily", "ubuntu-server/daily/20130327", "server"))
+
+    def test_daily_dir_source(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "full", "daily", "20130327", "source"),
+            self.get_publisher().daily_dir("daily", "20130327", "src"))
+
+    def test_daily_base(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "quantal"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "full", "quantal", "daily", "20130327",
+                "i386"),
+            self.get_publisher().daily_base(
+                "quantal/daily", "20130327", "wubi", "i386"))
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "full", "daily-live", "20130327",
+                "raring-desktop-i386"),
+            self.get_publisher().daily_base(
+                "daily-live", "20130327", "desktop", "i386"))
+
+    def test_version(self):
+        self.config["DIST"] = "raring"
+        self.assertEqual("13.04", self.get_publisher().version)
+        self.config["DIST"] = "dapper"
+        self.assertEqual("6.06.2", self.get_publisher().version)
+
+    def test_metalink_version(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual("13.04", self.get_publisher().metalink_version)
+        self.config["PROJECT"] = "kubuntu"
+        self.config["DIST"] = "dapper"
+        self.assertEqual(
+            "kubuntu/6.06.2", self.get_publisher().metalink_version)
+
+    def test_do(self):
+        path = os.path.join(self.temp_dir, "path")
+        self.capture_logging()
+        self.get_publisher(dry_run=True).do("touch %s" % path, touch, path)
+        self.assertLogEqual(["touch %s" % path])
+        self.assertFalse(os.path.exists(path))
+        self.capture_logging()
+        self.get_publisher().do("touch %s" % path, touch, path)
+        self.assertLogEqual([])
+        self.assertTrue(os.path.exists(path))
+
+    def test_remove_checksum(self):
+        md5sums_path = os.path.join(self.temp_dir, "MD5SUMS")
+        with mkfile(md5sums_path) as md5sums:
+            print("checksum  path", file=md5sums)
+        self.capture_logging()
+        self.get_publisher(dry_run=True).remove_checksum(self.temp_dir, "path")
+        self.assertLogEqual(
+            ["checksum-remove --no-sign %s path" % self.temp_dir])
+        with open(md5sums_path) as md5sums:
+            self.assertEqual("checksum  path\n", md5sums.read())
+        self.capture_logging()
+        self.get_publisher().remove_checksum(self.temp_dir, "path")
+        self.assertLogEqual([])
+        self.assertFalse(os.path.exists(md5sums_path))
+
+    def test_copy(self):
+        old_path = os.path.join(self.temp_dir, "old")
+        new_path = os.path.join(self.temp_dir, "new")
+        with mkfile(old_path) as old:
+            print("sentinel", file=old)
+        self.get_publisher().copy(old_path, new_path)
+        with open(new_path) as new:
+            self.assertEqual("sentinel\n", new.read())
+
+    def test_symlink(self):
+        pool_path = os.path.join(self.temp_dir, ".pool", "foo.iso")
+        touch(pool_path)
+        dist_path = os.path.join(self.temp_dir, "raring", "foo.iso")
+        os.makedirs(os.path.dirname(dist_path))
+        self.get_publisher().symlink(pool_path, dist_path)
+        self.assertEqual(
+            os.path.join(os.pardir, ".pool", "foo.iso"),
+            os.readlink(dist_path))
+
+    def test_hardlink(self):
+        pool_path = os.path.join(self.temp_dir, ".pool", "foo.iso")
+        touch(pool_path)
+        dist_path = os.path.join(self.temp_dir, "raring", "foo.iso")
+        os.makedirs(os.path.dirname(dist_path))
+        self.get_publisher().hardlink(pool_path, dist_path)
+        self.assertEqual(os.stat(pool_path), os.stat(dist_path))
+
+    def test_remove(self):
+        path = os.path.join(self.temp_dir, "path")
+        touch(path)
+        self.get_publisher().remove(path)
+        self.assertFalse(os.path.exists(path))
+
+    def test_remove_tree(self):
+        path = os.path.join(self.temp_dir, "dir", "name")
+        touch(path)
+        self.get_publisher().remove_tree(os.path.dirname(path))
+        self.assertFalse(os.path.exists(os.path.dirname(path)))
+
+    def test_copy_jigdo(self):
+        old_path = os.path.join(self.temp_dir, "raring-alternate-amd64.jigdo")
+        new_path = os.path.join(
+            self.temp_dir, "ubuntu-13.04-alternate-amd64.jigdo")
+        with mkfile(old_path) as old:
+            print("Filename=raring-alternate-amd64.jigdo", file=old)
+            print("Template=raring-alternate-amd64.template", file=old)
+        self.get_publisher().copy_jigdo(old_path, new_path)
+        with open(new_path) as new:
+            self.assertEqual(
+                "Filename=ubuntu-13.04-alternate-amd64.jigdo\n"
+                "Template=ubuntu-13.04-alternate-amd64.template\n",
+                new.read())
+
+    def test_mkemptydir(self):
+        path = os.path.join(self.temp_dir, "dir")
+        touch(os.path.join(path, "name"))
+        self.get_publisher().mkemptydir(path)
+        self.assertEqual([], os.listdir(path))
+
+    # TODO: checksum_directory, metalink_checksum_directory untested
+
+    def test_want_manifest(self):
+        path = os.path.join(self.temp_dir, "foo.manifest")
+        self.assertTrue(self.get_publisher().want_manifest("desktop", path))
+        self.assertFalse(self.get_publisher().want_manifest("dvd", path))
+        touch(path)
+        self.assertTrue(self.get_publisher().want_manifest("dvd", path))
+        self.assertFalse(self.get_publisher().want_manifest("alternate", path))
+
+    def test_want_metalink(self):
+        self.assertTrue(self.get_publisher().want_metalink("desktop"))
+        self.assertFalse(self.get_publisher().want_metalink("netbook"))
+        self.assertFalse(self.get_publisher().want_metalink(
+            "preinstalled-netbook"))
+
+
+def call_btmakemetafile_zsyncmake(command, *args, **kwargs):
+    if command[0] == "btmakemetafile":
+        touch("%s.torrent" % command[-1])
+    elif command[0] == "zsyncmake":
+        for i in range(1, len(command)):
+            if command[i] == "-o":
+                touch(command[i + 1])
+                break
+    return 0
+
+
+class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
     def setUp(self):
         super(TestFullReleasePublisher, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
+
+    def get_tree(self, official="named"):
+        return Tree.get_release(self.config, official)
+
+    def get_publisher(self, tree=None, image_type="daily", official="named",
+                      **kwargs):
+        if tree is None:
+            tree = self.get_tree(official=official)
+        return tree.get_publisher(image_type, official, **kwargs)
+
+    def test_want_dist(self):
+        self.assertFalse(self.get_publisher(official="named").want_dist)
+        self.assertFalse(self.get_publisher(official="no").want_dist)
+
+    def test_want_pool(self):
+        self.assertFalse(self.get_publisher(official="named").want_pool)
+        self.assertFalse(self.get_publisher(official="no").want_pool)
+
+    def test_want_full(self):
+        self.assertTrue(self.get_publisher(official="named").want_full)
+        self.assertTrue(self.get_publisher(official="no").want_full)
+
+    def test_target_dir(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "full", "releases", "raring", "release"),
+            self.get_publisher().target_dir("daily", "20130327", "alternate"))
+        self.config["PROJECT"] = "kubuntu"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "full", "kubuntu", "releases", "raring",
+                "release", "source"),
+            self.get_publisher().target_dir("daily", "20130327", "src"))
+
+    def test_version_link(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "full", "releases", "13.04"),
+            self.get_publisher().version_link("daily"))
+        self.config["PROJECT"] = "kubuntu"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "full", "kubuntu", "releases", "13.04"),
+            self.get_publisher().version_link("daily"))
+
+    def test_torrent_dir(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "torrent", "releases",
+                "raring", "release", "desktop"),
+            self.get_publisher().torrent_dir("daily-live", "desktop"))
+        self.config["PROJECT"] = "kubuntu"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "torrent", "kubuntu", "releases",
+                "raring", "beta-2", "desktop"),
+            self.get_publisher(status="beta-2").torrent_dir(
+                "daily-live", "desktop"))
+
+    def test_want_torrent(self):
+        self.assertTrue(
+            self.get_publisher(official="named").want_torrent("desktop"))
+        self.assertTrue(
+            self.get_publisher(official="no").want_torrent("desktop"))
+        self.assertFalse(self.get_publisher().want_torrent("src"))
 
     @mock.patch("subprocess.check_call")
     def test_make_torrents(self, mock_check_call):
@@ -1682,8 +1966,7 @@ class TestFullReleasePublisher(TestCase):
             for arch in ("amd64", "i386")]
         for path in paths:
             touch(path)
-        tree = Tree.get_release(self.config, "named", directory=self.temp_dir)
-        publisher = tree.get_publisher("daily-live", "named")
+        publisher = self.get_publisher(image_type="daily-live")
         self.capture_logging()
         publisher.make_torrents(
             os.path.join(self.temp_dir, "dir"), "ubuntu-13.04")
@@ -1697,12 +1980,275 @@ class TestFullReleasePublisher(TestCase):
             mock.call(command_base + [path], stdout=mock.ANY)
             for path in paths])
 
+    def test_publish_release_prefixes(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            ("raring", "raring-beta2"),
+            self.get_publisher(
+                official="no", status="beta-2").publish_release_prefixes())
+        self.config["PROJECT"] = "kubuntu"
+        self.config["DIST"] = "dapper"
+        self.assertEqual(
+            ("kubuntu-6.06.2", "kubuntu-6.06.2"),
+            self.get_publisher(official="named").publish_release_prefixes())
 
-class TestSimpleReleasePublisher(TestCase):
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    def test_publish_release_arch_ubuntu_desktop_named(self, mock_call, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "raring"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        target_dir = os.path.join(
+            self.temp_dir, "www", "full", "releases", "raring", "rc")
+        torrent_dir = os.path.join(
+            self.temp_dir, "www", "torrent", "releases", "raring", "rc",
+            "desktop")
+        osextras.ensuredir(target_dir)
+        osextras.ensuredir(torrent_dir)
+        self.capture_logging()
+        publisher = self.get_publisher(official="named", status="rc")
+        publisher.publish_release_arch(
+            "daily-live", "20130327", "desktop", "i386")
+        self.assertLogEqual([
+            "Copying desktop-i386 image ...",
+            "Making i386 zsync metafile ...",
+            "Creating torrent for %s/ubuntu-13.04-rc-desktop-i386.iso ..." %
+            target_dir,
+        ])
+        self.assertCountEqual([
+            "ubuntu-13.04-rc-desktop-i386.iso",
+            "ubuntu-13.04-rc-desktop-i386.iso.torrent",
+            "ubuntu-13.04-rc-desktop-i386.iso.zsync",
+            "ubuntu-13.04-rc-desktop-i386.manifest",
+        ], os.listdir(target_dir))
+        target_base = os.path.join(target_dir, "ubuntu-13.04-rc-desktop-i386")
+        self.assertFalse(os.path.islink("%s.iso" % target_base))
+        self.assertFalse(os.path.islink("%s.manifest" % target_base))
+        self.assertEqual(2, mock_call.call_count)
+        mock_call.assert_has_calls([
+            mock.call([
+                "zsyncmake", "-o", "%s.iso.zsync" % target_base,
+                "-u", "ubuntu-13.04-rc-desktop-i386.iso",
+                "%s.iso" % target_base,
+            ]),
+            mock.call([
+                "btmakemetafile", mock.ANY,
+                "--comment", "Ubuntu CD cdimage.ubuntu.com",
+                "%s.iso" % target_base,
+            ], stdout=mock.ANY),
+        ])
+        self.assertCountEqual([
+            "ubuntu-13.04-rc-desktop-i386.iso",
+            "ubuntu-13.04-rc-desktop-i386.iso.torrent",
+        ], os.listdir(torrent_dir))
+        torrent_base = os.path.join(
+            torrent_dir, "ubuntu-13.04-rc-desktop-i386")
+        self.assertEqual(
+            os.stat("%s.iso" % target_base), os.stat("%s.iso" % torrent_base))
+        self.assertEqual(
+            os.stat("%s.iso.torrent" % target_base),
+            os.stat("%s.iso.torrent" % torrent_base))
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    def test_publish_release_arch_ubuntu_desktop_no(self, mock_call, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "raring"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        target_dir = os.path.join(
+            self.temp_dir, "www", "full", "releases", "raring", "rc")
+        torrent_dir = os.path.join(
+            self.temp_dir, "www", "torrent", "releases", "raring", "rc",
+            "desktop")
+        osextras.ensuredir(target_dir)
+        osextras.ensuredir(torrent_dir)
+        self.capture_logging()
+        publisher = self.get_publisher(official="no", status="rc")
+        publisher.publish_release_arch(
+            "daily-live", "20130327", "desktop", "i386")
+        self.assertLogEqual([
+            "Copying desktop-i386 image ...",
+            "Creating torrent for %s/raring-desktop-i386.iso ..." % target_dir,
+        ])
+        self.assertCountEqual([
+            "raring-desktop-i386.iso", "raring-desktop-i386.iso.torrent",
+            "raring-desktop-i386.iso.zsync", "raring-desktop-i386.manifest",
+        ], os.listdir(target_dir))
+        target_base = os.path.join(target_dir, "raring-desktop-i386")
+        self.assertFalse(os.path.islink("%s.iso" % target_base))
+        self.assertFalse(os.path.islink("%s.manifest" % target_base))
+        mock_call.assert_called_once_with([
+            "btmakemetafile", mock.ANY,
+            "--comment", "Ubuntu CD cdimage.ubuntu.com",
+            "%s.iso" % target_base,
+        ], stdout=mock.ANY)
+        self.assertCountEqual([
+            "raring-desktop-i386.iso", "raring-desktop-i386.iso.torrent",
+        ], os.listdir(torrent_dir))
+        torrent_base = os.path.join(torrent_dir, "raring-desktop-i386")
+        self.assertEqual(
+            os.stat("%s.iso" % target_base), os.stat("%s.iso" % torrent_base))
+        self.assertEqual(
+            os.stat("%s.iso.torrent" % target_base),
+            os.stat("%s.iso.torrent" % torrent_base))
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    def test_publish_release_kubuntu_desktop_named(self, mock_call, *args):
+        self.config["PROJECT"] = "kubuntu"
+        self.config["CAPPROJECT"] = "Kubuntu"
+        self.config["DIST"] = "raring"
+        self.config["ARCHES"] = "amd64 i386"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "raring-desktop-amd64.iso"))
+        touch(os.path.join(daily_dir, "raring-desktop-amd64.manifest"))
+        touch(os.path.join(daily_dir, "raring-desktop-amd64.iso.zsync"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        target_dir = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "releases", "raring",
+            "release")
+        torrent_dir = os.path.join(
+            self.temp_dir, "www", "torrent", "kubuntu", "releases", "raring",
+            "release", "desktop")
+        self.capture_logging()
+        publisher = self.get_publisher(official="named")
+        publisher.publish_release("daily-live", "20130327", "desktop")
+        self.assertLogEqual([
+            "Constructing release trees ...",
+            "Copying desktop-amd64 image ...",
+            "Making amd64 zsync metafile ...",
+            "Creating torrent for %s/kubuntu-13.04-desktop-amd64.iso ..." %
+            target_dir,
+            "Copying desktop-i386 image ...",
+            "Making i386 zsync metafile ...",
+            "Creating torrent for %s/kubuntu-13.04-desktop-i386.iso ..." %
+            target_dir,
+            "Checksumming full tree ...",
+            "No keys found; not signing images.",
+            "Creating and publishing metalink files for the full tree ...",
+            "No keys found; not signing images.",
+            "Done!  Remember to sync-mirrors after checking that everything "
+            "is OK.",
+        ])
+        self.assertCountEqual([
+            ".htaccess", "FOOTER.html", "HEADER.html",
+            "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
+            "kubuntu-13.04-desktop-amd64.iso",
+            "kubuntu-13.04-desktop-amd64.iso.torrent",
+            "kubuntu-13.04-desktop-amd64.iso.zsync",
+            "kubuntu-13.04-desktop-amd64.manifest",
+            "kubuntu-13.04-desktop-i386.iso",
+            "kubuntu-13.04-desktop-i386.iso.torrent",
+            "kubuntu-13.04-desktop-i386.iso.zsync",
+            "kubuntu-13.04-desktop-i386.manifest",
+        ], os.listdir(target_dir))
+        self.assertCountEqual([
+            "kubuntu-13.04-desktop-amd64.iso",
+            "kubuntu-13.04-desktop-amd64.iso.torrent",
+            "kubuntu-13.04-desktop-i386.iso",
+            "kubuntu-13.04-desktop-i386.iso.torrent",
+        ], os.listdir(torrent_dir))
+        self.assertFalse(os.path.exists(os.path.join(
+            self.temp_dir, "www", "simple")))
+
+
+class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
     def setUp(self):
         super(TestSimpleReleasePublisher, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
+
+    def get_tree(self, official="yes"):
+        return Tree.get_release(self.config, official)
+
+    def get_publisher(self, tree=None, image_type="daily", official="yes",
+                      **kwargs):
+        if tree is None:
+            tree = self.get_tree(official=official)
+        return tree.get_publisher(image_type, official, **kwargs)
+
+    def test_want_dist(self):
+        self.assertTrue(self.get_publisher(official="yes").want_dist)
+        self.assertFalse(self.get_publisher(official="poolonly").want_dist)
+
+    def test_want_pool(self):
+        self.assertTrue(self.get_publisher(official="yes").want_pool)
+        self.assertTrue(self.get_publisher(official="poolonly").want_pool)
+
+    def test_want_full(self):
+        self.assertFalse(self.get_publisher(official="yes").want_full)
+        self.assertFalse(self.get_publisher(official="poolonly").want_full)
+
+    def test_target_dir(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "simple", "raring"),
+            self.get_publisher().target_dir("daily", "20130327", "alternate"))
+        self.config["PROJECT"] = "kubuntu"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "simple", "kubuntu", "raring", "source"),
+            self.get_publisher().target_dir("daily", "20130327", "src"))
+
+    def test_version_link(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "simple", "13.04"),
+            self.get_publisher().version_link("daily"))
+        self.config["PROJECT"] = "kubuntu"
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "simple", "kubuntu", "13.04"),
+            self.get_publisher().version_link("daily"))
+
+    def test_pool_dir(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "simple", ".pool"),
+            self.get_publisher().pool_dir("daily"))
+        self.config["PROJECT"] = "kubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(self.temp_dir, "www", "simple", "kubuntu", ".pool"),
+            self.get_publisher().pool_dir("daily"))
+
+    def test_torrent_dir(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "torrent", "simple",
+                "raring", "desktop"),
+            self.get_publisher().torrent_dir("daily-live", "desktop"))
+        self.config["PROJECT"] = "kubuntu"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "torrent", "kubuntu", "simple",
+                "raring", "desktop"),
+            self.get_publisher().torrent_dir("daily-live", "desktop"))
+
+    def test_want_torrent(self):
+        self.assertTrue(
+            self.get_publisher(official="yes").want_torrent("desktop"))
+        self.assertFalse(
+            self.get_publisher(official="poolonly").want_torrent("desktop"))
+        self.assertFalse(self.get_publisher().want_torrent("src"))
 
     @mock.patch("subprocess.check_call")
     def test_make_torrents(self, mock_check_call):
@@ -1713,8 +2259,7 @@ class TestSimpleReleasePublisher(TestCase):
             for arch in ("amd64", "i386")]
         for path in paths:
             touch(path)
-        tree = Tree.get_release(self.config, "yes", directory=self.temp_dir)
-        publisher = tree.get_publisher("daily-live", "yes")
+        publisher = self.get_publisher(image_type="daily-live")
         publisher.make_torrents(
             os.path.join(self.temp_dir, "dir"), "ubuntu-13.04")
         command_base = [
@@ -1727,3 +2272,209 @@ class TestSimpleReleasePublisher(TestCase):
         mock_check_call.assert_has_calls([
             mock.call(command_base + [path], stdout=mock.ANY)
             for path in paths])
+
+    def test_publish_release_prefixes(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.assertEqual(
+            ("ubuntu-13.04", "ubuntu-13.04-beta2"),
+            self.get_publisher(status="beta-2").publish_release_prefixes())
+        self.config["PROJECT"] = "kubuntu"
+        self.config["DIST"] = "dapper"
+        self.assertEqual(
+            ("kubuntu-6.06.2", "kubuntu-6.06.2"),
+            self.get_publisher().publish_release_prefixes())
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    def test_publish_release_arch_ubuntu_desktop_yes(self, mock_call, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "raring"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        pool_dir = os.path.join(self.temp_dir, "www", "simple", ".pool")
+        target_dir = os.path.join(self.temp_dir, "www", "simple", "raring")
+        torrent_dir = os.path.join(
+            self.temp_dir, "www", "torrent", "simple", "raring", "desktop")
+        osextras.ensuredir(pool_dir)
+        osextras.ensuredir(target_dir)
+        osextras.ensuredir(torrent_dir)
+        self.capture_logging()
+        publisher = self.get_publisher(official="yes", status="rc")
+        publisher.publish_release_arch(
+            "daily-live", "20130327", "desktop", "i386")
+        self.assertLogEqual([
+            "Copying desktop-i386 image ...",
+            "Making i386 zsync metafile ...",
+            "Creating torrent for %s/ubuntu-13.04-rc-desktop-i386.iso ..." %
+            target_dir,
+        ])
+        self.assertCountEqual([
+            "ubuntu-13.04-rc-desktop-i386.iso",
+            "ubuntu-13.04-rc-desktop-i386.iso.zsync",
+            "ubuntu-13.04-rc-desktop-i386.manifest",
+        ], os.listdir(pool_dir))
+        self.assertCountEqual([
+            "ubuntu-13.04-rc-desktop-i386.iso",
+            "ubuntu-13.04-rc-desktop-i386.iso.torrent",
+            "ubuntu-13.04-rc-desktop-i386.iso.zsync",
+            "ubuntu-13.04-rc-desktop-i386.manifest",
+        ], os.listdir(target_dir))
+        pool_base = os.path.join(pool_dir, "ubuntu-13.04-rc-desktop-i386")
+        target_base = os.path.join(target_dir, "ubuntu-13.04-rc-desktop-i386")
+        self.assertEqual(
+            "../.pool/ubuntu-13.04-rc-desktop-i386.iso",
+            os.readlink("%s.iso" % target_base))
+        self.assertEqual(
+            "../.pool/ubuntu-13.04-rc-desktop-i386.iso.zsync",
+            os.readlink("%s.iso.zsync" % target_base))
+        self.assertEqual(
+            "../.pool/ubuntu-13.04-rc-desktop-i386.manifest",
+            os.readlink("%s.manifest" % target_base))
+        self.assertFalse(os.path.islink("%s.iso.torrent" % target_base))
+        self.assertEqual(2, mock_call.call_count)
+        mock_call.assert_has_calls([
+            mock.call([
+                "zsyncmake", "-o", "%s.iso.zsync" % pool_base,
+                "-u", "ubuntu-13.04-rc-desktop-i386.iso",
+                "%s.iso" % pool_base,
+            ]),
+            mock.call([
+                "btmakemetafile", mock.ANY,
+                "--announce_list", mock.ANY,
+                "--comment", "Ubuntu CD releases.ubuntu.com",
+                "%s.iso" % target_base,
+            ], stdout=mock.ANY),
+        ])
+        self.assertCountEqual([
+            "ubuntu-13.04-rc-desktop-i386.iso",
+            "ubuntu-13.04-rc-desktop-i386.iso.torrent",
+        ], os.listdir(torrent_dir))
+        torrent_base = os.path.join(
+            torrent_dir, "ubuntu-13.04-rc-desktop-i386")
+        self.assertEqual(
+            os.stat("%s.iso" % pool_base), os.stat("%s.iso" % torrent_base))
+        self.assertEqual(
+            os.stat("%s.iso.torrent" % target_base),
+            os.stat("%s.iso.torrent" % torrent_base))
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    def test_publish_release_arch_ubuntu_desktop_poolonly(self, mock_call,
+                                                          *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "raring"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        pool_dir = os.path.join(self.temp_dir, "www", "simple", ".pool")
+        osextras.ensuredir(pool_dir)
+        self.capture_logging()
+        publisher = self.get_publisher(official="poolonly", status="rc")
+        publisher.publish_release_arch(
+            "daily-live", "20130327", "desktop", "i386")
+        self.assertLogEqual([
+            "Copying desktop-i386 image ...",
+            "Making i386 zsync metafile ...",
+        ])
+        self.assertCountEqual([
+            "ubuntu-13.04-rc-desktop-i386.iso",
+            "ubuntu-13.04-rc-desktop-i386.iso.zsync",
+            "ubuntu-13.04-rc-desktop-i386.manifest",
+        ], os.listdir(pool_dir))
+        self.assertFalse(os.path.exists(os.path.join(
+            self.temp_dir, "www", "simple", "raring")))
+        self.assertFalse(os.path.exists(os.path.join(
+            self.temp_dir, "www", "torrent", "simple", "raring", "desktop")))
+        pool_base = os.path.join(pool_dir, "ubuntu-13.04-rc-desktop-i386")
+        mock_call.assert_called_once_with([
+            "zsyncmake", "-o", "%s.iso.zsync" % pool_base,
+            "-u", "ubuntu-13.04-rc-desktop-i386.iso",
+            "%s.iso" % pool_base,
+        ])
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    def test_publish_release_kubuntu_desktop_yes(self, mock_call, *args):
+        self.config["PROJECT"] = "kubuntu"
+        self.config["CAPPROJECT"] = "Kubuntu"
+        self.config["DIST"] = "raring"
+        self.config["ARCHES"] = "amd64 i386"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "raring-desktop-amd64.iso"))
+        touch(os.path.join(daily_dir, "raring-desktop-amd64.manifest"))
+        touch(os.path.join(daily_dir, "raring-desktop-amd64.iso.zsync"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
+        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        pool_dir = os.path.join(
+            self.temp_dir, "www", "simple", "kubuntu", ".pool")
+        target_dir = os.path.join(
+            self.temp_dir, "www", "simple", "kubuntu", "raring")
+        torrent_dir = os.path.join(
+            self.temp_dir, "www", "torrent", "kubuntu", "simple", "raring",
+            "desktop")
+        self.capture_logging()
+        publisher = self.get_publisher(official="yes")
+        publisher.publish_release("daily-live", "20130327", "desktop")
+        self.assertLogEqual([
+            "Constructing release trees ...",
+            "Copying desktop-amd64 image ...",
+            "Making amd64 zsync metafile ...",
+            "Creating torrent for %s/kubuntu-13.04-desktop-amd64.iso ..." %
+            target_dir,
+            "Copying desktop-i386 image ...",
+            "Making i386 zsync metafile ...",
+            "Creating torrent for %s/kubuntu-13.04-desktop-i386.iso ..." %
+            target_dir,
+            "Checksumming simple tree (pool) ...",
+            "No keys found; not signing images.",
+            "Checksumming simple tree (raring) ...",
+            "No keys found; not signing images.",
+            "Creating and publishing metalink files for the simple tree "
+            "(raring) ...",
+            "No keys found; not signing images.",
+            "Done!  Remember to sync-mirrors after checking that everything "
+            "is OK.",
+        ])
+        self.assertCountEqual([
+            "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
+            "kubuntu-13.04-desktop-amd64.iso",
+            "kubuntu-13.04-desktop-amd64.iso.zsync",
+            "kubuntu-13.04-desktop-amd64.manifest",
+            "kubuntu-13.04-desktop-i386.iso",
+            "kubuntu-13.04-desktop-i386.iso.zsync",
+            "kubuntu-13.04-desktop-i386.manifest",
+        ], os.listdir(pool_dir))
+        self.assertCountEqual([
+            ".htaccess", "FOOTER.html", "HEADER.html",
+            "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
+            "kubuntu-13.04-desktop-amd64.iso",
+            "kubuntu-13.04-desktop-amd64.iso.torrent",
+            "kubuntu-13.04-desktop-amd64.iso.zsync",
+            "kubuntu-13.04-desktop-amd64.manifest",
+            "kubuntu-13.04-desktop-i386.iso",
+            "kubuntu-13.04-desktop-i386.iso.torrent",
+            "kubuntu-13.04-desktop-i386.iso.zsync",
+            "kubuntu-13.04-desktop-i386.manifest",
+        ], os.listdir(target_dir))
+        self.assertCountEqual([
+            "kubuntu-13.04-desktop-amd64.iso",
+            "kubuntu-13.04-desktop-amd64.iso.torrent",
+            "kubuntu-13.04-desktop-i386.iso",
+            "kubuntu-13.04-desktop-i386.iso.torrent",
+        ], os.listdir(torrent_dir))
+        self.assertFalse(os.path.exists(os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "releases")))
+        self.assertTrue(os.path.exists(os.path.join(
+            self.temp_dir, "www", "simple", ".manifest")))
+        self.assertTrue(os.path.isdir(os.path.join(
+            self.temp_dir, "www", "simple", ".trace")))

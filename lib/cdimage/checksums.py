@@ -57,8 +57,10 @@ class ChecksumFile:
         self.hash_method = hash_method
         self.sign = sign
         self.entries = {}
+        self.changed = False
 
     def read(self):
+        self.changed = False
         self.entries = {}
         if not os.path.exists(self.path):
             return
@@ -93,9 +95,11 @@ class ChecksumFile:
             (this_time is not None and entry_time is not None and
              entry_time > this_time)):
             self.entries[entry_name] = self.checksum(entry_path)
+            self.changed = True
 
     def remove(self, entry_name):
         self.entries.pop(entry_name, None)
+        self.changed = True
 
     def merge(self, directories, entry_name, possible_entry_names):
         if entry_name in self.entries:
@@ -119,9 +123,12 @@ class ChecksumFile:
             for name in possible_entry_names:
                 if name in old_checksum_file.entries:
                     self.entries[entry_name] = old_checksum_file.entries[name]
+                    self.changed = True
                     return
 
     def write(self):
+        if not self.changed:
+            return
         if self.entries:
             with AtomicFile(self.path) as checksums:
                 for entry_name in sorted(self.entries):

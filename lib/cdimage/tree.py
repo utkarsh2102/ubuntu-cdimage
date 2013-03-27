@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 # Copyright (C) 2012, 2013 Canonical Ltd.
 # Author: Colin Watson <cjwatson@ubuntu.com>
 
@@ -46,6 +48,10 @@ from cdimage import osextras
 from cdimage.project import setenv_for_project
 
 
+if sys.version < "3":
+    input = raw_input
+
+
 # TODO: This should be in a configuration file.  ALL_PROJECTS is not
 # currently suitable, because it only lists projects currently being built,
 # but manifest generation needs to know about anything currently in a
@@ -70,12 +76,14 @@ projects = [
 ]
 
 
-def zsyncmake(infile, outfile, url):
+def zsyncmake(infile, outfile, url, dry_run=False):
     command = ["zsyncmake"]
     if infile.endswith(".gz"):
         command.append("-Z")
     command.extend(["-o", outfile, "-u", url, infile])
-    if subprocess.call(command) != 0:
+    if dry_run:
+        logger.info(" ".join(command))
+    elif subprocess.call(command) != 0:
         logger.info("Trying again with block size 2048 ...")
         command[1:1] = ["-b", "2048"]
         subprocess.check_call(command)
@@ -966,7 +974,7 @@ class Publisher:
 
     def find_source_images(self, directory, prefix):
         numbers = []
-        for entry in os.listdir(directory):
+        for entry in osextras.listdir_force(directory):
             match = re.match(r"^%s-src-([0-9]+)\.iso$" % prefix, entry)
             if match is not None:
                 numbers.append(int(match.group(1)))
@@ -2324,27 +2332,70 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
             return 850000000
 
 
-class FullReleaseTree(DailyTree):
-    def get_publisher(self, image_type, official, status=None):
-        return FullReleasePublisher(self, image_type, official, status=status)
+class ReleaseTreeMixin:
+    """Additional methods for trees containing released images."""
+
+    def tree_suffix(self, source):
+        # Publish ports/daily to ports/releases/..., etc.
+        ubuntu_projects = (
+            "ubuntu-server", "ubuntu-netbook", "ubuntu-mid", "ubuntu-headless")
+        if "/" in source:
+            project, tail = source.split("/", 1)
+            if project in ubuntu_projects:
+                if "/" in tail:
+                    return "/%s" % tail.split("/", 1)[0]
+                else:
+                    return ""
+            else:
+                return "/%s" % source.split("/", 1)[0]
+        else:
+            return ""
+
+    def publish_target(self, source):
+        return self.project_base + self.tree_suffix(source)
 
 
-class ChinaReleaseTree(ChinaDailyTree):
-    def get_publisher(self, image_type, official, status=None):
-        return FullReleasePublisher(self, image_type, official, status=status)
+class FullReleaseTree(DailyTree, ReleaseTreeMixin):
+    """A publication tree containing released images.
+
+    The full tree contains everything except the releases that are in the
+    simple tree (so in practice it contains alpha/beta releases), and has a
+    more complicated structure that ordinary users ultimately shouldn't have
+    to pay too much attention to.
+
+    See also `SimpleReleaseTree`.
+    """
+
+    def get_publisher(self, image_type, official, status=None, dry_run=False):
+        return FullReleasePublisher(
+            self, image_type, official, status=status, dry_run=dry_run)
 
 
-class SimpleReleaseTree(Tree):
-    """A publication tree containing a few important releases."""
+class ChinaReleaseTree(ChinaDailyTree, ReleaseTreeMixin):
+    def get_publisher(self, image_type, official, status=None, dry_run=False):
+        return FullReleasePublisher(
+            self, image_type, official, status=status, dry_run=dry_run)
+
+
+class SimpleReleaseTree(Tree, ReleaseTreeMixin):
+    """A publication tree containing a few important releases.
+
+    The simple tree is intended for smaller mirrors and for ease of use by
+    naïve end users.  It contains a pool of images and a tree per release of
+    symlinks into that pool with filenames that include the status of the
+    image.
+
+    See also `FullReleaseTree`.
+    """
 
     def __init__(self, config, directory=None):
         if directory is None:
             directory = os.path.join(config.root, "www", "simple")
         super(SimpleReleaseTree, self).__init__(config, directory)
 
-    def get_publisher(self, image_type, official, status=None):
+    def get_publisher(self, image_type, official, status=None, dry_run=False):
         return SimpleReleasePublisher(
-            self, image_type, official, status=status)
+            self, image_type, official, status=status, dry_run=dry_run)
 
     def name_to_series(self, name):
         """Return the series for a file basename."""
@@ -2384,27 +2435,91 @@ class SimpleReleaseTree(Tree):
                             yield os.path.join(relative_dirpath, filename)
 
 
+class TorrentTree(Tree, ReleaseTreeMixin):
+    """A publication tree containing images for use by a BitTorrent tracker."""
+
+    def __init__(self, config, directory=None):
+        if directory is None:
+            directory = os.path.join(config.root, "www", "torrent")
+        super(TorrentTree, self).__init__(config, directory)
+
+
+class PublishReleaseException(Exception):
+    pass
+
+
 class ReleasePublisher(Publisher):
-    """An object that can publish releases of images."""
+    """An object that can publish releases of images.
+
+    Releases are always copies of a nominated daily build.
+    """
 
     torrent_tracker = "http://torrent.ubuntu.com:6969/announce"
     ipv6_torrent_tracker = "http://ipv6.torrent.ubuntu.com:6969/announce"
 
-    def __init__(self, tree, image_type, official, status=None):
+    def __init__(self, tree, image_type, official, status=None, dry_run=False):
         super(ReleasePublisher, self).__init__(tree, image_type)
         self.official = official
         self.status = status if status else "release"
+        self.dry_run = dry_run
 
-    @property
-    def release_path(self):
-        if self.project == "ubuntu":
-            return self.tree.directory
+    def daily_dir(self, source, date, publish_type):
+        daily_tree = Tree.get_daily(self.config)
+        daily_dir = os.path.join(daily_tree.project_base, source, date)
+        if not os.path.isdir(daily_dir) and "/" in date:
+            daily_dir = os.path.join(daily_tree.directory, date)
+        if publish_type == "src":
+            daily_dir = os.path.join(daily_dir, "source")
+        return daily_dir
+
+    def daily_base(self, source, date, publish_type, arch):
+        series = self.config["DIST"]
+        daily_dir = self.daily_dir(source, date, publish_type)
+        if publish_type in ("netbook", "mid") and series <= "intrepid":
+            return os.path.join(
+                daily_dir, "%s-%s" % (self.project, publish_type))
+        elif publish_type == "wubi":
+            return os.path.join(daily_dir, arch)
         else:
-            return os.path.join(self.tree.directory, self.project)
+            return os.path.join(
+                daily_dir, "%s-%s-%s" % (series.name, publish_type, arch))
 
-    @property
-    def series_path(self):
+    def target_dir(self, source, date, publish_type):
         raise NotImplementedError
+
+    def version_link(self, source):
+        raise NotImplementedError
+
+    def pool_dir(self, source):
+        raise NotImplementedError
+
+    def torrent_dir(self, source, publish_type):
+        raise NotImplementedError
+
+    def make_torrent(self, path):
+        if not self.dry_run:
+            logger.info("Creating torrent for %s ..." % path)
+        osextras.unlink_force("%s.torrent" % path)
+        command = ["btmakemetafile", self.torrent_tracker]
+        if isinstance(self.tree, SimpleReleaseTree):
+            # N.B.: Only the bittornado version of btmakemetafile has
+            # the --announce_list flag.
+            command.extend([
+                "--announce_list",
+                "%s|%s" % (
+                    self.torrent_tracker, self.ipv6_torrent_tracker),
+            ])
+        command.extend([
+            "--comment",
+            "%s CD %s" % (self.config.capproject, self.tree.site_name),
+            path,
+        ])
+        if self.dry_run:
+            logger.info(
+                " ".join(self.config._shell_escape(arg) for arg in command))
+        else:
+            with open("/dev/null", "w") as devnull:
+                subprocess.check_call(command, stdout=devnull)
 
     def make_torrents(self, directory, prefix):
         images = []
@@ -2417,25 +2532,479 @@ class ReleasePublisher(Publisher):
                 images.append(entry)
 
         for image in sorted(images):
-            path = os.path.join(directory, image)
-            logger.info("Creating torrent for %s ..." % path)
-            osextras.unlink_force("%s.torrent" % path)
-            command = ["btmakemetafile", self.torrent_tracker]
-            if isinstance(self.tree, SimpleReleaseTree):
-                # N.B.: Only the bittornado version of btmakemetafile has
-                # the --announce_list flag.
-                command.extend([
-                    "--announce_list",
-                    "%s|%s" % (
-                        self.torrent_tracker, self.ipv6_torrent_tracker),
-                ])
-            command.extend([
-                "--comment",
-                "%s CD %s" % (self.config.capproject, self.tree.site_name),
-                path,
-            ])
-            with open("/dev/null", "w") as devnull:
-                subprocess.check_call(command, stdout=devnull)
+            self.make_torrent(os.path.join(directory, image))
+
+    @property
+    def version(self):
+        series = self.config["DIST"]
+        return getattr(series, "pointversion", series.version)
+
+    @property
+    def metalink_version(self):
+        if self.project == "ubuntu":
+            return self.version
+        else:
+            return os.path.join(self.project, self.version)
+
+    def publish_release_prefixes(self):
+        # "beta-2" should end up in directories named "beta-2", but with
+        # filenames including "beta2" (otherwise we get hyphen overload).
+        if self.status.startswith("release"):
+            filestatus = ""
+        else:
+            filestatus = self.status.replace("-", "")
+
+        if self.official in ("yes", "poolonly", "named"):
+            prefix = "%s-%s" % (self.project, self.version)
+        else:
+            prefix = self.config.series
+
+        prefix_status = prefix
+        if filestatus:
+            prefix_status += "-%s" % filestatus
+        if self.official == "named":
+            prefix = prefix_status
+
+        return prefix, prefix_status
+
+    def do(self, msg, func, *args, **kwargs):
+        if self.dry_run:
+            logger.info(msg)
+        else:
+            func(*args, **kwargs)
+
+    def remove_checksum(self, directory, name):
+        if self.dry_run:
+            logger.info("checksum-remove --no-sign %s %s" % (directory, name))
+        else:
+            with ChecksumFileSet(self.config, directory, sign=False) as files:
+                files.remove(name)
+
+    def copy(self, source, target):
+        self.do("cp -a %s %s" % (source, target), shutil.copy2, source, target)
+        self.remove_checksum(os.path.dirname(target), target)
+
+    def symlink(self, source, link_name):
+        relpath = os.path.relpath(source, os.path.dirname(link_name))
+        self.do(
+            "ln -sf %s %s" % (relpath, link_name),
+            osextras.symlink_force, relpath, link_name)
+        self.remove_checksum(os.path.dirname(link_name), link_name)
+
+    def hardlink(self, source, link_name):
+        self.do(
+            "ln -f %s %s" % (source, link_name),
+            osextras.link_force, source, link_name)
+
+    def remove(self, path):
+        self.do("rm -f %s" % path, osextras.unlink_force, path)
+
+    def remove_tree(self, path):
+        self.do("rm -rf %s" % path, shutil.rmtree, path)
+
+    def copy_jigdo(self, source, target):
+        if self.dry_run:
+            logger.info("Would fix up jigdo file")
+            return
+        source_pat = "=%s" % os.path.basename(source).rsplit(".", 1)[0]
+        target_pat = "=%s" % os.path.basename(target).rsplit(".", 1)[0]
+        with open(source) as sf, open(target, "w") as tf:
+            for line in sf:
+                tf.write(line.replace(source_pat, target_pat))
+
+    def mkemptydir(self, path):
+        if self.dry_run:
+            logger.info("rm -rf %s" % path)
+            logger.info("mkdir -p %s" % path)
+        else:
+            osextras.mkemptydir(path)
+
+    def checksum_directory(self, dirs, map_expr=None):
+        self.do(
+            "checksum-directory %s%s" % (
+                "--map %s " % map_expr if map_expr else "",
+                " ".join(dirs)),
+            checksum_directory,
+            self.config, dirs[0], old_directories=dirs, map_expr=map_expr)
+
+    def metalink_checksum_directory(self, dirs):
+        self.do(
+            "checksum-directory --metalink %s" % " ".join(dirs),
+            metalink_checksum_directory,
+            self.config, dirs[0], old_directories=dirs)
+
+    def want_manifest(self, publish_type, path):
+        if publish_type in (
+            "live", "desktop", "netbook", "mid", "moblin-remix",
+            "uec", "server-uec", "core", "wubi",
+        ):
+            return True
+        elif publish_type == "dvd" and os.path.exists(path):
+            # DVDs are allowed to not have .manifest files, but may have
+            # them depending on configuration.
+            return True
+        else:
+            return False
+
+    def want_torrent(self, publish_type):
+        raise NotImplementedError
+
+    def want_metalink(self, publish_type):
+        # TODO: maybe others?  metalink is only supported for Wubi
+        if publish_type in (
+            "netbook", "mid", "moblin-remix", "uec", "server-uec",
+        ):
+            return False
+        elif publish_type.startswith("preinstalled-"):
+            return False
+        else:
+            return True
+
+    def publish_release_arch(self, source, date, publish_type, arch):
+        """Publish release images for a single architecture."""
+        logger.info("Copying %s-%s image ..." % (publish_type, arch))
+
+        base = self.daily_base(source, date, publish_type, arch)
+        prefix, prefix_status = self.publish_release_prefixes()
+        base_plain = "%s-%s-%s" % (prefix, publish_type, arch)
+        base_status = "%s-%s-%s" % (prefix_status, publish_type, arch)
+
+        def daily(ext, sep="."):
+            return "%s%s%s" % (base, sep, ext)
+
+        def pool(ext, sep="."):
+            return os.path.join(
+                self.pool_dir(source), "%s%s%s" % (base_status, sep, ext))
+
+        def dist(ext, sep="."):
+            return os.path.join(
+                self.target_dir(source, date, publish_type),
+                "%s%s%s" % (base_status, sep, ext))
+
+        def full(ext, sep="."):
+            return os.path.join(
+                self.target_dir(source, date, publish_type),
+                "%s%s%s" % (base_plain, sep, ext))
+
+        def torrent(ext, sep="."):
+            torrent_dir = self.torrent_dir(source, publish_type)
+            if self.want_dist:
+                return os.path.join(
+                    torrent_dir, "%s%s%s" % (base_status, sep, ext))
+            else:
+                assert self.want_full
+                return os.path.join(
+                    torrent_dir, "%s%s%s" % (base_plain, sep, ext))
+
+        for ext in "iso", "img", "img.gz", "tar.gz", "img.tar.gz", "tar.xz":
+            if os.path.exists(daily(ext)):
+                break
+        else:
+            return
+
+        # Copy, to make sure we have a canonical version of this.
+        for ext in (
+            "iso", "img", "img.gz", "tar.gz", "img.tar.gz", "tar.xz",
+            "bootimg",
+        ):
+            if not os.path.exists(daily(ext)):
+                continue
+            if self.want_pool:
+                self.copy(daily(ext), pool(ext))
+            if self.want_dist:
+                self.symlink(pool(ext), dist(ext))
+            if self.want_full:
+                self.copy(daily(ext), full(ext))
+
+        for ext in (
+            "initrd-ec2", "initrd-virtual", "vmlinuz-ec2", "vmlinuz-virtual",
+        ):
+            if not os.path.exists(daily(ext, "-")):
+                continue
+            if self.want_pool:
+                self.copy(daily(ext, "-"), pool(ext, "-"))
+            if self.want_dist:
+                self.symlink(pool(ext, "-"), dist(ext, "-"))
+            if self.want_full:
+                self.copy(daily(ext, "-"), full(ext, "-"))
+
+        for ext in ("kernel-info.txt", ):
+            if not os.path.exists(daily(ext, "-")):
+                continue
+            if self.want_dist:
+                self.copy(daily(ext, "-"), dist(ext, "-"))
+            if self.want_full:
+                self.copy(daily(ext, "-"), full(ext, "-"))
+
+        if publish_type in (
+            "install", "alternate", "server", "serveraddon", "addon", "src",
+        ):
+            if (os.path.exists(daily("jigdo")) and
+                    os.path.exists(daily("template"))):
+                if self.want_pool:
+                    self.copy(daily("template"), pool("template"))
+                    self.copy_jigdo(daily("jigdo"), pool("jigdo"))
+                if self.want_dist:
+                    self.symlink(pool("template"), dist("template"))
+                    self.symlink(pool("jigdo"), dist("jigdo"))
+                if self.want_full:
+                    self.copy(daily("template"), full("template"))
+                    self.copy_jigdo(daily("jigdo"), full("jigdo"))
+            else:
+                if self.want_pool:
+                    self.remove(pool("template"))
+                    self.remove(pool("jigdo"))
+                if self.want_dist:
+                    self.remove(dist("template"))
+                    self.remove(dist("jigdo"))
+                if self.want_full:
+                    self.remove(full("template"))
+                    self.remove(full("jigdo"))
+
+        if self.want_manifest(publish_type, daily("manifest")):
+            # Copy, to make sure we have a canonical version of this.
+            if self.want_pool:
+                self.copy(daily("manifest"), pool("manifest"))
+            if self.want_dist:
+                self.symlink(pool("manifest"), dist("manifest"))
+            if self.want_full:
+                self.copy(daily("manifest"), full("manifest"))
+
+        for ext in "iso", "img", "img.gz", "tar.gz":
+            zsyncext = "%s.zsync" % ext
+            if not os.path.exists(daily(zsyncext)):
+                continue
+            if self.want_pool:
+                if osextras.find_on_path("zsyncmake"):
+                    logger.info("Making %s zsync metafile ..." % arch)
+                    self.remove(pool(zsyncext))
+                    zsyncmake(
+                        pool(ext), pool(zsyncext), os.path.basename(pool(ext)),
+                        dry_run=self.dry_run)
+            elif self.want_full and self.official == "named":
+                if osextras.find_on_path("zsyncmake"):
+                    logger.info("Making %s zsync metafile ..." % arch)
+                    self.remove(full(zsyncext))
+                    zsyncmake(
+                        full(ext), full(zsyncext), os.path.basename(full(ext)),
+                        dry_run=self.dry_run)
+            elif self.want_full:
+                self.copy(daily(zsyncext), full(zsyncext))
+            if self.want_dist:
+                self.symlink(pool(zsyncext), dist(zsyncext))
+
+        if self.want_torrent(publish_type):
+            # Create and publish torrents.
+            assert self.want_dist != self.want_full
+            for ext in "iso", "img":
+                torrentext = "%s.torrent" % ext
+                if self.want_dist:
+                    if os.path.exists(dist(ext)):
+                        self.make_torrent(dist(ext))
+                    if os.path.exists(pool(ext)):
+                        self.hardlink(pool(ext), torrent(ext))
+                        self.hardlink(dist(torrentext), torrent(torrentext))
+                else:
+                    if os.path.exists(full(ext)):
+                        self.make_torrent(full(ext))
+                    if os.path.exists(full(ext)):
+                        self.hardlink(full(ext), torrent(ext))
+                        self.hardlink(full(torrentext), torrent(torrentext))
+
+    def publish_release(self, source, date, publish_type):
+        """Publish a daily build as a release."""
+        series = self.config["DIST"]
+        arches = self.config.arches
+        prefix, prefix_status = self.publish_release_prefixes()
+
+        # Do what I mean.
+        if source.endswith("/source"):
+            source = source[:-len("/source")]
+
+        if not series.is_latest:
+            if source == "ubuntu-server/daily":
+                source = os.path.join("ubuntu-server", series.name, "daily")
+            else:
+                source = os.path.join(series.name, source)
+
+        daily_dir = self.daily_dir(source, date, publish_type)
+        target_dir = self.target_dir(source, date, publish_type)
+        if not self.want_full:
+            pool_dir = self.pool_dir(source)
+
+        if publish_type == "src":
+            # Perverse, but works.
+            arches = self.find_source_images(daily_dir, series.name)
+            # Sanity-check.
+            if not arches:
+                raise PublishReleaseException(
+                    "No source daily for %s on %s!" % (series.name, date))
+
+        # Override the architecture list for these types unconditionally.
+        # TODO: should reset default-arches for the source project instead
+        if (publish_type in ("netbook", "moblin-remix") and
+                not [arch for arch in arches if arch.startswith("armel")]):
+            arches = ["i386"]
+        elif publish_type == "mid":
+            arches = ["lpia"]
+
+        # Sanity-check.
+        if publish_type not in ("netbook", "mid", "src"):
+            for arch in arches:
+                paths = []
+                for ext in "iso", "img", "img.gz", "img.tar.gz", "tar.gz":
+                    paths.append(os.path.join(
+                        daily_dir,
+                        "%s-%s-%s.%s" % (
+                            series.name, publish_type, arch, ext)))
+                paths.append(os.path.join(daily_dir, "%s.tar.xz" % arch))
+                for path in paths:
+                    if os.path.exists(path):
+                        break
+                else:
+                    raise PublishReleaseException(
+                        "No daily for %s %s on %s!" %
+                        (series.name, arch, date))
+
+                oversized_path = os.path.join(
+                    daily_dir,
+                    "%s-%s-%s.OVERSIZED" % (series.name, publish_type, arch))
+                if os.path.exists(oversized_path):
+                    yesno = input(
+                        "Daily for %s %s on %s is oversized!  "
+                        "Continue? [yN] " % (series.name, arch, date))
+                    if not yesno.lower().startswith("y"):
+                        sys.exit(1)
+
+        if self.want_pool:
+            self.do("mkdir -p %s" % pool_dir, osextras.ensuredir, pool_dir)
+        if self.want_dist or self.want_full:
+            self.do("mkdir -p %s" % target_dir, osextras.ensuredir, target_dir)
+            version_link = self.version_link(source)
+            if not os.path.islink(version_link):
+                self.do(
+                    "ln -ns %s %s" % (series.name, version_link),
+                    os.symlink, series.name, version_link)
+        if self.want_dist and not self.config["CDIMAGE_NO_PURGE"]:
+            entries = osextras.listdir_force(target_dir)
+            for entry in entries:
+                if not entry.startswith("%s-%s-" % (prefix, publish_type)):
+                    continue
+                entry_path = os.path.join(target_dir, entry)
+                if os.path.islink(entry_path):
+                    self.remove(entry_path)
+
+        if self.want_torrent(publish_type):
+            # Prepare torrent trees for publication.
+            torrent_dir = self.torrent_dir(source, publish_type)
+            if self.want_dist:
+                if not self.config["CDIMAGE_NO_PURGE"]:
+                    self.mkemptydir(torrent_dir)
+            if self.want_full:
+                torrent_releases_dir = os.path.dirname(
+                    os.path.dirname(torrent_dir))
+                for entry in osextras.listdir_force(torrent_releases_dir):
+                    entry_path = os.path.join(torrent_releases_dir, entry)
+                    if entry != self.status and os.path.isdir(entry_path):
+                        self.remove_tree(entry_path)
+                self.mkemptydir(torrent_dir)
+
+        logger.info("Constructing release trees ...")
+        for arch in arches:
+            self.publish_release_arch(source, date, publish_type, arch)
+
+        # There can only be one set of images per release in the per-release
+        # tree, so if we're publishing there then we can now safely clean up
+        # previous images for that release.
+        if self.want_dist and not self.config["CDIMAGE_NO_PURGE"]:
+            for purge_dir in target_dir, pool_dir:
+                for entry in os.listdir(purge_dir):
+                    if not entry.startswith("%s-" % prefix):
+                        continue
+                    # TODO: This test is wrong, but cumbersome to fix.  For
+                    # example, consider the existence of
+                    # ubuntu-13.04-beta2-preinstalled-desktop-armhf+omap4.img
+                    # while publishing ubuntu-13.04.
+                    if entry.startswith("%s-" % prefix_status):
+                        continue
+                    entry_path = os.path.join(purge_dir, entry)
+                    logger.info("Purging %s" % entry_path)
+                    self.remove(entry_path)
+
+        if publish_type in ("uec", "server-uec"):
+            for name in (
+                "published-ec2-release.txt", "tool-version-info.txt",
+                "build-info.txt",
+            ):
+                path = os.path.join(daily_dir, name)
+                if not os.path.exists(path):
+                    continue
+                if self.want_dist or self.want_full:
+                    self.copy(path, os.path.join(target_dir, name))
+
+        if self.want_dist:
+            self.make_web_indices(target_dir, prefix_status)
+        if self.want_full:
+            self.make_web_indices(target_dir, prefix)
+
+        if self.want_pool:
+            logger.info("Checksumming simple tree (pool) ...")
+            self.checksum_directory(
+                [pool_dir, daily_dir],
+                map_expr="s/^%s-/%s-/" % (prefix_status, series.name))
+        if self.want_dist:
+            logger.info("Checksumming simple tree (%s) ..." % series.name)
+            self.checksum_directory(
+                [target_dir, daily_dir],
+                map_expr="s/^%s-/%s-/" % (prefix_status, series.name))
+            if self.want_metalink(publish_type):
+                logger.info(
+                    "Creating and publishing metalink files for the simple "
+                    "tree (%s) ..." % series.name)
+                self.make_metalink(target_dir, self.metalink_version)
+        if self.want_full:
+            logger.info("Checksumming full tree ...")
+            self.checksum_directory(
+                [target_dir, daily_dir],
+                map_expr="s/^%s-/%s-/" % (prefix, series.name))
+            if self.want_metalink(publish_type):
+                logger.info(
+                    "Creating and publishing metalink files for the full "
+                    "tree ...")
+                if self.official == "named":
+                    metalink_target_dir = os.path.join(
+                        self.tree.publish_target(source), "releases",
+                        self.version, self.status)
+                else:
+                    metalink_target_dir = target_dir
+                self.make_metalink(metalink_target_dir, self.version)
+
+        if self.want_dist or self.want_pool:
+            if self.dry_run:
+                logger.info(
+                    "site-manifest simple %s .manifest" % self.tree.directory)
+            else:
+                manifest_path = os.path.join(self.tree.directory, ".manifest")
+                with AtomicFile(manifest_path) as manifest:
+                    for line in self.tree.manifest():
+                        print(line, file=manifest)
+                os.chmod(
+                    manifest_path,
+                    os.stat(manifest_path).st_mode | stat.S_IWGRP)
+
+                # Create timestamps for this run.
+                if self.dry_run:
+                    logger.info("Would create trace file")
+                else:
+                    trace_dir = os.path.join(self.tree.directory, ".trace")
+                    osextras.ensuredir(trace_dir)
+                    fqdn = socket.getfqdn()
+                    with open(os.path.join(trace_dir, fqdn), "w") as trace:
+                        subprocess.check_call(["date", "-u"], stdout=trace)
+
+        logger.info(
+            "Done!  Remember to sync-mirrors after checking that everything "
+            "is OK.")
 
 
 class FullReleasePublisher(ReleasePublisher):
@@ -2445,15 +3014,88 @@ class FullReleasePublisher(ReleasePublisher):
     ChinaDailyTree.
     """
 
+    def __init__(self, *args, **kwargs):
+        super(FullReleasePublisher, self).__init__(*args, **kwargs)
+        assert self.official in ("named", "no")
+        assert not isinstance(self.tree, SimpleReleaseTree)
+
     @property
-    def series_path(self):
+    def want_dist(self):
+        return False
+
+    @property
+    def want_pool(self):
+        return False
+
+    @property
+    def want_full(self):
+        return True
+
+    def target_dir(self, source, date, publish_type):
+        target_dir = os.path.join(
+            self.tree.publish_target(source), "releases", self.config.series,
+            self.status)
+        if date.endswith("/unpacked"):
+            target_dir = os.path.join(target_dir, "unpacked")
+        if publish_type == "src":
+            target_dir = os.path.join(target_dir, "source")
+        return target_dir
+
+    def version_link(self, source):
         return os.path.join(
-            self.release_path, "releases", self.config.series, self.status)
+            self.tree.publish_target(source), "releases", self.version)
+
+    def torrent_dir(self, source, publish_type):
+        torrent_tree = TorrentTree(self.config)
+        return os.path.join(
+            torrent_tree.publish_target(source), "releases",
+            self.config.series, self.status, publish_type)
+
+    def want_torrent(self, publish_type):
+        return publish_type not in ("src", "uec", "server-uec")
 
 
 class SimpleReleasePublisher(ReleasePublisher):
     """An object that can publish releases to a SimpleReleaseTree."""
 
+    def __init__(self, *args, **kwargs):
+        super(SimpleReleasePublisher, self).__init__(*args, **kwargs)
+        assert self.official in ("yes", "poolonly")
+        assert isinstance(self.tree, SimpleReleaseTree)
+
     @property
-    def series_path(self):
-        return os.path.join(self.release_path, self.config.series)
+    def want_dist(self):
+        return self.official == "yes"
+
+    @property
+    def want_pool(self):
+        return True
+
+    @property
+    def want_full(self):
+        return False
+
+    def target_dir(self, source, date, publish_type):
+        target_dir = os.path.join(
+            self.tree.publish_target(source), self.config.series)
+        if publish_type == "src":
+            target_dir = os.path.join(target_dir, "source")
+        return target_dir
+
+    def version_link(self, source):
+        return os.path.join(self.tree.publish_target(source), self.version)
+
+    def pool_dir(self, source):
+        return os.path.join(self.tree.publish_target(source), ".pool")
+
+    def torrent_dir(self, source, publish_type):
+        torrent_tree = TorrentTree(self.config)
+        return os.path.join(
+            torrent_tree.publish_target(source), "simple", self.config.series,
+            publish_type)
+
+    def want_torrent(self, publish_type):
+        if self.want_dist:
+            return publish_type not in ("src", "uec", "server-uec")
+        else:
+            return False
