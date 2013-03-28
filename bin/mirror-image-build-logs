@@ -20,6 +20,7 @@
 This is entirely special-cased for the Ubuntu production instance.
 """
 
+from optparse import OptionParser
 import os
 import subprocess
 import sys
@@ -29,6 +30,9 @@ from cdimage.config import config
 
 
 def main():
+    parser = OptionParser("%prog")
+    parser.parse_args()
+
     hostname = subprocess.Popen(["hostname", "-f"], stdout=subprocess.PIPE)
     if hostname.communicate()[0].rstrip("\n") != "nusakan.canonical.com":
         sys.exit(0)

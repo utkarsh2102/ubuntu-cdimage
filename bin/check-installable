@@ -17,6 +17,7 @@
 
 """Check package installability on images."""
 
+from optparse import OptionParser
 import os
 import sys
 
@@ -26,6 +27,8 @@ from cdimage.config import config
 
 
 def main():
+    parser = OptionParser("%prog")
+    parser.parse_args()
     check_installable(config)
 
 

@@ -17,6 +17,7 @@
 
 """Trigger cdimage mirrors."""
 
+from optparse import OptionParser
 import os
 import sys
 
@@ -26,6 +27,8 @@ from cdimage.mirror import trigger_mirrors
 
 
 def main():
+    parser = OptionParser("%prog")
+    parser.parse_args()
     trigger_mirrors(config)
 
 
