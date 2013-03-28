@@ -156,3 +156,31 @@ def shell_escape(arg):
         return arg
     else:
         return "'%s'" % arg.replace("'", "'\\''")
+
+
+def _read_nullsep_output(command):
+    raw = subprocess.Popen(
+        command, stdout=subprocess.PIPE,
+        universal_newlines=True).communicate()[0]
+    out = {}
+    for line in raw.split("\0"):
+        try:
+            key, value = line.split("=", 1)
+            out[key] = value
+        except ValueError:
+            continue
+    return out
+
+
+def read_shell_config(config_path=None, whitelisted_keys=[]):
+    commands = []
+    if config_path is not None:
+        commands.append(". %s" % shell_escape(config_path))
+    commands.append("cat /proc/self/environ")
+    for key in whitelisted_keys:
+        commands.append(
+            "test -z \"${KEY+x}\" || printf '%s\\0' \"KEY=$KEY\"".replace(
+                "KEY", key))
+    env = _read_nullsep_output(["sh", "-c", "; ".join(commands)])
+    for key, value in env.items():
+        yield key, value

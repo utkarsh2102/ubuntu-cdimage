@@ -25,7 +25,6 @@ from collections import defaultdict, namedtuple
 import fnmatch
 import operator
 import os
-import subprocess
 import sys
 
 from cdimage import osextras
@@ -198,30 +197,9 @@ class Config(defaultdict):
             if "CPUARCHES" not in os.environ:
                 self.set_default_cpuarches()
 
-    def _read_nullsep_output(self, command):
-        raw = subprocess.Popen(
-            command, stdout=subprocess.PIPE,
-            universal_newlines=True).communicate()[0]
-        out = {}
-        for line in raw.split("\0"):
-            try:
-                key, value = line.split("=", 1)
-                out[key] = value
-            except ValueError:
-                continue
-        return out
-
     def read(self, config_path=None):
-        commands = []
-        if config_path is not None:
-            commands.append(". %s" % osextras.shell_escape(config_path))
-        commands.append("cat /proc/self/environ")
-        for key in _whitelisted_keys:
-            commands.append(
-                "test -z \"${KEY+x}\" || printf '%s\\0' \"KEY=$KEY\"".replace(
-                    "KEY", key))
-        env = self._read_nullsep_output(["sh", "-c", "; ".join(commands)])
-        for key, value in env.items():
+        for key, value in osextras.read_shell_config(
+                config_path, _whitelisted_keys):
             if key.startswith("CDIMAGE_") or key in _whitelisted_keys:
                 super(Config, self).__setitem__(key, value)
 

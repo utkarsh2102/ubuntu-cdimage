@@ -17,8 +17,11 @@
 
 """Unit tests for cdimage.osextras."""
 
+from __future__ import print_function
+
 import errno
 import os
+from textwrap import dedent
 
 try:
     from unittest import mock
@@ -27,7 +30,7 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.config import Config
-from cdimage.tests.helpers import TestCase, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch
 
 
 class TestOSExtras(TestCase):
@@ -207,3 +210,17 @@ class TestOSExtras(TestCase):
         self.assertEqual("'  '", osextras.shell_escape("  "))
         self.assertEqual(
             "'shell'\\''s great'", osextras.shell_escape("shell's great"))
+
+    def test_read_shell_config(self):
+        os.environ["ONE"] = "one"
+        config_path = os.path.join(self.temp_dir, "config")
+        with mkfile(config_path) as config:
+            print(dedent("""\
+                ONE="$ONE two three"
+                TWO=two
+                THREE=three"""), file=config)
+        config_dict = dict(
+            osextras.read_shell_config(config_path, ["ONE", "TWO"]))
+        self.assertEqual("one two three", config_dict["ONE"])
+        self.assertEqual("two", config_dict["TWO"])
+        self.assertNotIn("three", config_dict)
