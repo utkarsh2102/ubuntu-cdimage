@@ -975,7 +975,7 @@ class Publisher:
         for entry in os.listdir(directory):
             if entry == ("%s.img" % prefix_type):
                 images.append(entry)
-            elif entry.endswith(".tar.xz"):
+            elif publish_type == "wubi" and entry.endswith(".tar.xz"):
                 # Wubi images are just "ARCH.tar.xz", with no prefix.
                 images.append(entry)
             elif entry.startswith("%s-" % prefix_type):
