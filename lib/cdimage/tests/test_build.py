@@ -510,8 +510,15 @@ class TestBuildImageSet(TestCase):
         }, _anonftpsync_options(self.config))
 
     @mock.patch("socket.getfqdn", return_value="cdimage.example.org")
-    @mock.patch("subprocess.call", return_value=0)
+    @mock.patch("subprocess.call")
     def test_anonftpsync(self, mock_call, *args):
+        def call_side_effect(command, *args, **kwargs):
+            if command[0] == "lockfile":
+                return 1
+            else:
+                return 0
+
+        mock_call.side_effect = call_side_effect
         path = os.path.join(self.temp_dir, "etc", "anonftpsync")
         with mkfile(path) as anonftpsync_config:
             print("RSYNC_PASSWORD=secret", file=anonftpsync_config)

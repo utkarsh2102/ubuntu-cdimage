@@ -167,12 +167,10 @@ def anonftpsync(config):
     fqdn = socket.getfqdn()
     lock_base = "Archive-Update-in-Progress-%s" % fqdn
     lock = os.path.join(target, lock_base)
-    try:
-        subprocess.check_call(
-            ["lockfile", "-!", "-l", "43200", "-r", "0", lock])
-    except subprocess.CalledProcessError:
-        logger.error("%s is unable to start rsync; lock file exists." % fqdn)
-        raise
+    if subprocess.call(
+            ["lockfile", "-!", "-l", "43200", "-r", "0", lock]) == 0:
+        raise Exception(
+            "%s is unable to start rsync; lock file exists." % fqdn)
     try:
         log_path = os.path.join(config.root, "log", "rsync.log")
         osextras.ensuredir(os.path.dirname(log_path))
