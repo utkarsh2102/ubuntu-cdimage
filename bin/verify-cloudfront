@@ -29,7 +29,7 @@ from cdimage.cloudfront import verify_cloudfront
 
 def main():
     parser = OptionParser("%prog URL-ROOT FILE [...]")
-    options, args = parser.parse_args()
+    _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need URL root")
     elif len(args) < 2:

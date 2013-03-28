@@ -28,7 +28,7 @@ from cdimage.sign import sign_cdimage
 
 def main():
     parser = OptionParser("%prog FILE")
-    options, args = parser.parse_args()
+    _, args = parser.parse_args()
     if not args:
         parser.error("no file name given")
     for arg in args:

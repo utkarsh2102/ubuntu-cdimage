@@ -37,7 +37,7 @@ tree_classes = {
 
 def main():
     parser = OptionParser("%prog {simple|daily} DIRECTORY [FILE]")
-    options, args = parser.parse_args()
+    _, args = parser.parse_args()
     if len(args) < 1 or args[0] not in tree_classes:
         parser.error("need {simple|daily}")
     elif len(args) < 2:

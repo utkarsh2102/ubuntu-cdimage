@@ -28,7 +28,7 @@ from cdimage.tree import Publisher, Tree
 
 def main():
     parser = OptionParser("%prog DATE [IMAGE_TYPE]")
-    options, args = parser.parse_args()
+    _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need date")
     date = args[0]
