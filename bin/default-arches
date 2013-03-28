@@ -32,11 +32,6 @@ from cdimage.config import config
 def main():
     parser = OptionParser("%prog")
     parser.parse_args()
-
-    if "ALL_DISTS" not in config:
-        print("default-arches: ALL_DISTS not set!", file=sys.stderr)
-        sys.exit(1)
-
     arches = config.set_default_arches()
     if arches is not None:
         print(arches)

@@ -155,6 +155,18 @@ class TestConfig(TestCase):
         config = Config()
         self.assertEqual("kubuntu", config["PROJECT"])
 
+    def test_default_arches_match_series(self):
+        config = Config(read=False)
+        config["DIST"] = "precise"
+        self.assertTrue(config._default_arches_match_series("*"))
+        self.assertTrue(config._default_arches_match_series("natty-precise"))
+        self.assertTrue(config._default_arches_match_series("precise-quantal"))
+        self.assertTrue(config._default_arches_match_series("natty-quantal"))
+        self.assertFalse(config._default_arches_match_series("lucid-natty"))
+        self.assertFalse(config._default_arches_match_series("quantal-raring"))
+        self.assertFalse(config._default_arches_match_series("lucid"))
+        self.assertTrue(config._default_arches_match_series("precise"))
+
     def test_arches_override(self):
         # If ARCHES is set in the environment, it overrides
         # etc/default-arches.
@@ -223,14 +235,6 @@ class TestConfig(TestCase):
         self.assertEqual(["ubuntu"], config.all_projects)
         config["ALL_PROJECTS"] = "ubuntu kubuntu"
         self.assertEqual(["ubuntu", "kubuntu"], config.all_projects)
-
-    def test_all_series(self):
-        config = Config(read=False)
-        self.assertEqual([], config.all_series)
-        config["ALL_DISTS"] = "warty"
-        self.assertEqual(["warty"], config.all_series)
-        config["ALL_DISTS"] = "warty hoary"
-        self.assertEqual(["warty", "hoary"], config.all_series)
 
     def test_export(self):
         os.environ["TEST_VAR"] = "1"

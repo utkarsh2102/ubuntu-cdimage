@@ -151,7 +151,6 @@ all_series.extend([
 _whitelisted_keys = (
     "PROJECT",
     "CAPPROJECT",
-    "ALL_DISTS",
     "DIST",
     "ALL_PROJECTS",
     "ARCHES",
@@ -245,7 +244,7 @@ class Config(defaultdict):
             in_range = False
             if not series_start:
                 in_range = True
-            for tryseries in self.all_series:
+            for tryseries in all_series:
                 if tryseries == series_start:
                     in_range = True
                 if tryseries == self.series:
@@ -321,10 +320,6 @@ class Config(defaultdict):
     @property
     def all_projects(self):
         return self["ALL_PROJECTS"].split()
-
-    @property
-    def all_series(self):
-        return self["ALL_DISTS"].split()
 
     def export(self):
         ret = dict(os.environ)

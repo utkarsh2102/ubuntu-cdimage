@@ -21,7 +21,6 @@ case $PROJECT in
 		;;
 esac
 export IMAGE_FORMAT
-export ALL_DISTS="${ALL_DISTS:-warty hoary breezy dapper edgy feisty gutsy hardy intrepid jaunty karmic lucid maverick natty oneiric precise quantal raring}"
 DIST="${DIST:-raring}"
 
 case $DIST in
