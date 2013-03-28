@@ -53,16 +53,10 @@ BRITNEY="$CDIMAGE_ROOT/britney"
 # Do not update the local mirror
 #export CDIMAGE_NOSYNC=1 
 
-# Create alternate iso
-#export CDIMAGE_INSTALL=1
-
 # Do not create source iso
 if [ -z "$CDIMAGE_ONLYSOURCE" ]; then
 	export CDIMAGE_NOSOURCE=1
 fi
-
-# Create desktop iso
-#export CDIMAGE_LIVE=1
 
 # Hosts that need to be notified when the build is done.  Third-party users
 # will want to keep this variable empty.
