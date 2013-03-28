@@ -1,11 +1,11 @@
 Operating cdimage
 =================
 
-cdimage is a collection of shell and Python scripts wrapped around the
-debian-cd package.  Originally, it was just the few things you had to type
-to make debian-cd build CDs; since then it has evolved to handle generating
-package lists using germinate, live CD building, and CD publication for
-multiple projects.  The following is a quick operator's guide.
+cdimage is a collection of Python scripts wrapped around the debian-cd
+package.  Originally, it was just the few things you had to type to make
+debian-cd build CDs; since then it has evolved to handle generating package
+lists using germinate, live CD building, and CD publication for multiple
+projects.  The following is a quick operator's guide.
 
 cdimage requires Python >= 2.7.  It should also work with Python >= 3.1 (not
 3.0), but at the moment this has only been confirmed by unit-testing and not
