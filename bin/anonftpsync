@@ -1,126 +1,36 @@
-#! /bin/sh
-set -e
+#! /usr/bin/python
 
-# This script originates from http://www.debian.org/mirror/anonftpsync
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Colin Watson <cjwatson@ubuntu.com>
 
-# Note: You MUST have rsync 2.0.16-1 or newer, which is available in slink
-# and all newer Debian releases, or at http://rsync.samba.org/
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Set the variables below to fit your site. You can then use cron to have
-# this script run daily to automatically update your copy of the archive.
+"""Synchronise a local mirror."""
 
-# Don't forget:
-# chmod 744 anonftpsync
+from optparse import OptionParser
+import os
+import sys
 
-export CDIMAGE_ROOT="${CDIMAGE_ROOT:-/srv/cdimage.ubuntu.com}"
-. "$CDIMAGE_ROOT/etc/config"
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.build import anonftpsync
+from cdimage.config import config
 
-# TO is the destination for the base of the Debian mirror directory
-# (the dir that holds dists/ and ls-lR).
 
-TO="$CDIMAGE_ROOT/ftp"
+def main():
+    parser = OptionParser("%prog")
+    parser.parse_args()
+    anonftpsync(config)
 
-# This file may override with private rsync locations and options
-if [ "$ANONFTPSYNC_CONF" ]; then
-  SYNC_CONF="$ANONFTPSYNC_CONF"
-elif [ -f "$CDIMAGE_ROOT/production/anonftpsync" ]; then
-  SYNC_CONF="$CDIMAGE_ROOT/production/anonftpsync"
-else
-  SYNC_CONF="$CDIMAGE_ROOT/etc/anonftpsync"
-fi
-if [ -f "$SYNC_CONF" ] ; then
-. "$SYNC_CONF"
-fi
 
-# RSYNC_SRC is the full source location of an Ubuntu mirror that we can rsync
-# from.  This can be any source string that rsync will accept, e.g.
-# "somebody@internalserver:/srv/ftp/ubuntu" (for a mirror at /srv/ftp/ubuntu on
-# a machine called internalserver, to be approached using ssh under the account
-# name "somebody"); or "192.168.1.200:ubuntu" (for the directory "ubuntu" in
-# your home directory on a machine 192.168.1.200); or "/usr/src/ubuntu-archive"
-# (for a location on the local machine); or
-# "rsync.arcticnetwork.ca::ubuntu-releases" (for directory "ubuntu-releases" on
-# an rsync server rsync.arcticnetwork.ca).
-
-# EXCLUDE is a list of parameters listing patterns that rsync will exclude.
-# The following example would exclude mostly everything:
-#EXCLUDE="\
-#  --exclude binary-alpha/ --exclude binary-arm/ --exclude binary-i386/ \
-#  --exclude binary-m68k/ --exclude binary-powerpc/ --exclude binary-sparc/ \
-#  --exclude binary-ia64/ --exclude binary-mips*/ --exclude binary-hppa/ \
-#  --exclude binary-sh/ --exclude binary-s390/ \
-#  --exclude binary-hurd-i386/ \
-#  --exclude *_alpha.deb --exclude *_arm.deb --exclude *_i386.deb \
-#  --exclude *_m68k.deb --exclude *_powerpc.deb --exclude *_sparc.deb \
-#  --exclude *_ia64.deb --exclude *_hppa.deb --exclude *_sh.deb \
-#  --exclude *_mips.deb --exclude *_mipsel.deb --exclude *_s390.deb \
-#  --exclude *_hurd-i386.deb \
-#  --exclude disks-alpha/ --exclude disks-arm/ --exclude disks-i386/ \
-#  --exclude disks-ia64/ --exclude disks-m68k/ --exclude disks-mips*/  \
-#  --exclude disks-powerpc/  --exclude disks-s390/  --exclude disks-sparc/ \
-#  --exclude stable/ --exclude testing/ --exclude unstable/ \
-#  --exclude source/ \
-#  --exclude *.orig.tar.gz --exclude *.diff.gz --exclude *.dsc \
-#  --exclude /contrib/ --exclude /non-free/ \
-# "
-
-# With a blank EXCLUDE you will mirror the entire archive.
-
-EXCLUDE=${RSYNC_EXCLUDE}
-
-# There should be no need to edit anything below this point, unless there
-# are problems.
-
-#-----------------------------------------------------------------------------#
-
-# Note: on some non-Debian systems, hostname doesn't accept -f option.
-# If that's the case on your system, make sure hostname prints the full
-# hostname, and remove the -f option. If there's no hostname command,
-# explicitly replace `hostname -f` with the hostname.
-HOSTNAME=`hostname -f`
-
-LOCK="${TO}/Archive-Update-in-Progress-${HOSTNAME}"
-
-mkdir -p "$TO"
-
-# Get in the right directory
-cd "$CDIMAGE_ROOT/log"
-
-# Check to see if another sync is in progress
-if lockfile -! -l 43200 -r 0 "$LOCK"; then
-  echo ${HOSTNAME} is unable to start rsync, lock file exists
-  exit 1
-fi
-# Note: on some non-Debian systems, trap doesn't accept "exit" as signal
-# specification. If that's the case on your system, try using "0".
-trap "rm -f $LOCK > /dev/null 2>&1" exit
-
-set +e
-
-rsync --recursive --links --hard-links --times --verbose --stats \
-     --chmod=Dg+s,g+rwX \
-     --compress \
-     --exclude "Archive-Update-in-Progress-${HOSTNAME}" \
-     --exclude Packages* --exclude Sources* \
-     --exclude Release* --exclude InRelease \
-     --exclude "project/trace/${HOSTNAME}" \
-     $EXCLUDE \
-     $RSYNC_SRC/ $TO/ > rsync.log 2>&1
-
-# Second pass to update metadata and clean up old files.
-rsync --recursive --links --hard-links --times --verbose --stats \
-     --chmod=Dg+s,g+rwX \
-     --compress \
-     --delay-updates --delete --delete-after \
-     $EXCLUDE \
-     $RSYNC_SRC/ $TO/ >> rsync.log 2>&1
-
-# Delete dangling symlinks.
-find $TO/ -type l -xtype l | xargs -r rm 
-
-mkdir -p "${TO}/project/trace"
-date -u > "${TO}/project/trace/${HOSTNAME}"
-
-# Note: if you don't have savelog, use any other log rotation facility, or
-# comment this out, the log will simply be overwritten each time.
-savelog rsync.log > /dev/null 2>&1
+if __name__ == "__main__":
+    main()

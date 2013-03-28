@@ -23,6 +23,7 @@ import contextlib
 import gzip
 import os
 import shutil
+import socket
 import stat
 import subprocess
 import sys
@@ -121,6 +122,107 @@ def log_marker(message):
     logger.info(time.strftime("%a %b %e %H:%M:%S UTC %Y", time.gmtime()))
 
 
+def _anonftpsync_config_path(config):
+    if config["ANONFTPSYNC_CONF"]:
+        return config["ANONFTPSYNC_CONF"]
+    paths = [
+        os.path.join(config.root, "production", "anonftpsync"),
+        os.path.join(config.root, "etc", "anonftpsync"),
+    ]
+    for path in paths:
+        if os.path.exists(path):
+            return path
+    else:
+        return None
+
+
+def _anonftpsync_options(config):
+    env = {}
+    path = _anonftpsync_config_path(config)
+    if path:
+        whitelisted_keys = [
+            "RSYNC_EXCLUDE",
+            "RSYNC_ICONV",
+            "RSYNC_PASSWORD",
+            "RSYNC_PROXY",
+            "RSYNC_RSH",
+            "RSYNC_SRC",
+        ]
+        for key, value in osextras.read_shell_config(path, whitelisted_keys):
+            if key.startswith("RSYNC_"):
+                env[key] = value
+    if "RSYNC_SRC" not in env:
+        raise Exception(
+            "RSYNC_SRC not configured!  Edit %s or %s and try again." % (
+                os.path.join(config.root, "production", "anonftpsync"),
+                os.path.join(config.root, "etc", "anonftpsync")))
+    return env
+
+
+def anonftpsync(config):
+    env = dict(os.environ)
+    for key, value in _anonftpsync_options(config).items():
+        env[key] = value
+    target = os.path.join(config.root, "ftp")
+    fqdn = socket.getfqdn()
+    lock_base = "Archive-Update-in-Progress-%s" % fqdn
+    lock = os.path.join(target, lock_base)
+    try:
+        subprocess.check_call(
+            ["lockfile", "-!", "-l", "43200", "-r", "0", lock])
+    except subprocess.CalledProcessError:
+        logger.error("%s is unable to start rsync; lock file exists." % fqdn)
+        raise
+    try:
+        log_path = os.path.join(config.root, "log", "rsync.log")
+        osextras.ensuredir(os.path.dirname(log_path))
+        with open(log_path, "w") as log:
+            command_base = [
+                "rsync", "--recursive", "--links", "--hard-links", "--times",
+                "--verbose", "--stats", "--chmod=Dg+s,g+rwX", "--compress",
+                "--exclude", lock_base,
+                "--exclude", "project/trace/%s" % fqdn,
+            ]
+            exclude = env.get("RSYNC_EXCLUDE", "").split()
+            source_target = ["%s/" % env["RSYNC_SRC"], "%s/" % target]
+
+            subprocess.call(
+                command_base + [
+                    "--exclude", "Packages*", "--exclude", "Sources*",
+                    "--exclude", "Release*", "--exclude", "InRelease",
+                ] + exclude + source_target,
+                stdout=log, stderr=subprocess.STDOUT, env=env)
+
+            # Second pass to update metadata and clean up old files.
+            subprocess.call(
+                command_base + [
+                    "--delay-updates", "--delete", "--delete-after",
+                ] + exclude + source_target,
+                stdout=log, stderr=subprocess.STDOUT, env=env)
+
+        # Delete dangling symlinks.
+        for dirpath, _, filenames in os.walk(target):
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                if os.path.islink(path) and not os.path.exists(path):
+                    os.unlink(path)
+
+        trace_dir = os.path.join(target, "project", "trace")
+        osextras.ensuredir(trace_dir)
+        with open(os.path.join(trace_dir, fqdn), "w") as trace:
+            subprocess.check_call(["date", "-u"], stdout=trace)
+
+        # Note: if you don't have savelog, use any other log rotation
+        # facility, or comment this out, the log will simply be overwritten
+        # each time.
+        with open("/dev/null", "w") as devnull:
+            subprocess.call(
+                ["savelog", log_path],
+                stdout=devnull, stderr=subprocess.STDOUT)
+    finally:
+        osextras.unlink_force(lock)
+
+
 def sync_local_mirror(config, semaphore_state):
     if config["CDIMAGE_NOSYNC"]:
         return
@@ -137,7 +239,7 @@ def sync_local_mirror(config, semaphore_state):
             logger.error("Couldn't acquire archive sync lock!")
             raise
         try:
-            subprocess.check_call(["anonftpsync"])
+            anonftpsync(config)
         finally:
             osextras.unlink_force(sync_lock)
     else:

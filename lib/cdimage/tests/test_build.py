@@ -39,7 +39,10 @@ except ImportError:
 from cdimage import osextras
 from cdimage.build import (
     UnknownLocale,
+    _anonftpsync_config_path,
+    _anonftpsync_options,
     _debootstrap_script,
+    anonftpsync,
     build_britney,
     build_image_set,
     build_image_set_locked,
@@ -468,42 +471,138 @@ class TestBuildImageSet(TestCase):
         log_marker("Testing")
         self.assertLogEqual(["===== Testing =====", self.epoch_date])
 
+    def test_anonftpsync_config_path(self):
+        self.assertIsNone(_anonftpsync_config_path(self.config))
+        path = os.path.join(self.temp_dir, "etc", "anonftpsync")
+        touch(path)
+        self.assertEqual(path, _anonftpsync_config_path(self.config))
+        path = os.path.join(self.temp_dir, "production", "anonftpsync")
+        touch(path)
+        self.assertEqual(path, _anonftpsync_config_path(self.config))
+        self.config["ANONFTPSYNC_CONF"] = "sentinel"
+        self.assertEqual("sentinel", _anonftpsync_config_path(self.config))
+
+    def test_anonftpsync_options(self):
+        for key in list(os.environ.keys()):
+            if key.startswith("RSYNC_"):
+                os.environ.pop(key, None)
+        self.assertRaisesRegex(
+            Exception, "RSYNC_SRC not configured.*",
+            _anonftpsync_options, self.config)
+        path = os.path.join(self.temp_dir, "etc", "anonftpsync")
+        with mkfile(path) as anonftpsync_config:
+            print("RSYNC_PASSWORD='secret'", file=anonftpsync_config)
+        self.assertRaisesRegex(
+            Exception, "RSYNC_SRC not configured.*",
+            _anonftpsync_options, self.config)
+        with open(path, "a") as anonftpsync_config:
+            print(
+                "RSYNC_SRC=rsync.example.org::ubuntu", file=anonftpsync_config)
+        self.assertEqual({
+            "RSYNC_PASSWORD": "secret",
+            "RSYNC_SRC": "rsync.example.org::ubuntu",
+        }, _anonftpsync_options(self.config))
+        self.config["RSYNC_RSH"] = "ssh"
+        self.assertEqual({
+            "RSYNC_PASSWORD": "secret",
+            "RSYNC_RSH": "ssh",
+            "RSYNC_SRC": "rsync.example.org::ubuntu",
+        }, _anonftpsync_options(self.config))
+
+    @mock.patch("socket.getfqdn", return_value="cdimage.example.org")
+    @mock.patch("subprocess.call", return_value=0)
+    def test_anonftpsync(self, mock_call, *args):
+        path = os.path.join(self.temp_dir, "etc", "anonftpsync")
+        with mkfile(path) as anonftpsync_config:
+            print("RSYNC_PASSWORD=secret", file=anonftpsync_config)
+            print(
+                "RSYNC_SRC=rsync.example.org::ubuntu", file=anonftpsync_config)
+            print("RSYNC_EXCLUDE='--exclude foo'", file=anonftpsync_config)
+        target = os.path.join(self.temp_dir, "ftp")
+        touch(os.path.join(target, "dir", "file"))
+        os.symlink("file", os.path.join(target, "dir", "valid-link"))
+        os.symlink("nonexistent", os.path.join(target, "dir", "broken-link"))
+        lock = os.path.join(
+            target, "Archive-Update-in-Progress-cdimage.example.org")
+        trace = os.path.join(target, "project", "trace", "cdimage.example.org")
+        log = os.path.join(self.temp_dir, "log", "rsync.log")
+        anonftpsync(self.config)
+        self.assertEqual(5, mock_call.call_count)
+        expected_rsync_base = [
+            "rsync", "--recursive", "--links", "--hard-links", "--times",
+            "--verbose", "--stats", "--chmod=Dg+s,g+rwX", "--compress",
+            "--exclude", os.path.basename(lock),
+            "--exclude", "project/trace/cdimage.example.org",
+        ]
+        mock_call.assert_has_calls([
+            mock.call(["lockfile", "-!", "-l", "43200", "-r", "0", lock]),
+            mock.call(expected_rsync_base + [
+                "--exclude", "Packages*", "--exclude", "Sources*",
+                "--exclude", "Release*", "--exclude", "InRelease",
+                "--exclude", "foo",
+                "rsync.example.org::ubuntu/", "%s/" % target,
+            ], stdout=mock.ANY, stderr=subprocess.STDOUT, env=mock.ANY),
+            mock.call(expected_rsync_base + [
+                "--delay-updates", "--delete", "--delete-after",
+                "--exclude", "foo",
+                "rsync.example.org::ubuntu/", "%s/" % target,
+            ], stdout=mock.ANY, stderr=subprocess.STDOUT, env=mock.ANY),
+            mock.call(["date", "-u"], stdout=mock.ANY),
+            mock.call(["savelog", log], stdout=mock.ANY, stderr=mock.ANY),
+        ])
+        self.assertEqual(
+            "secret", mock_call.call_args_list[1][1]["env"]["RSYNC_PASSWORD"])
+        self.assertEqual(
+            "secret", mock_call.call_args_list[2][1]["env"]["RSYNC_PASSWORD"])
+        self.assertFalse(os.path.exists(lock))
+        self.assertTrue(os.path.exists(trace))
+        self.assertTrue(os.path.exists(log))
+        self.assertTrue(os.path.exists(os.path.join(target, "dir", "file")))
+        self.assertTrue(
+            os.path.lexists(os.path.join(target, "dir", "valid-link")))
+        self.assertFalse(
+            os.path.lexists(os.path.join(target, "dir", "broken-link")))
+
     def check_call_make_sync_lock(self, mock_check_call, *args, **kwargs):
         if mock_check_call.call_count == 1:
             self.assertEqual("lockfile", args[0][0])
             touch(self.expected_sync_lock)
-        elif mock_check_call.call_count == 2:
-            self.assertEqual("anonftpsync", args[0][0])
-            self.assertTrue(os.path.exists(self.expected_sync_lock))
+
+    def anonftpsync_sync_lock_exists(self, *args, **kwargs):
+        self.assertTrue(os.path.exists(self.expected_sync_lock))
 
     @mock.patch("subprocess.check_call")
-    def test_config_nosync(self, mock_check_call):
+    @mock.patch("cdimage.build.anonftpsync")
+    def test_config_nosync(self, mock_anonftpsync, mock_check_call):
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["CDIMAGE_NOSYNC"] = "1"
         self.capture_logging()
         sync_local_mirror(self.config, 0)
         self.assertLogEqual([])
         self.assertEqual(0, mock_check_call.call_count)
+        self.assertEqual(0, mock_anonftpsync.call_count)
 
     @mock.patch("subprocess.check_call")
-    def test_sync(self, mock_check_call):
+    @mock.patch("cdimage.build.anonftpsync")
+    def test_sync(self, mock_anonftpsync, mock_check_call):
         self.config["CAPPROJECT"] = "Ubuntu"
         mock_check_call.side_effect = partial(
             self.check_call_make_sync_lock, mock_check_call)
+        mock_anonftpsync.side_effect = self.anonftpsync_sync_lock_exists
         self.capture_logging()
         sync_local_mirror(self.config, 0)
         self.assertLogEqual([
             "===== Syncing Ubuntu mirror =====",
             self.epoch_date,
         ])
-        mock_check_call.assert_has_calls([
-            mock.call(["lockfile", "-r", "4", self.expected_sync_lock]),
-            mock.call(["anonftpsync"]),
-        ])
+        mock_check_call.assert_called_once_with(
+            ["lockfile", "-r", "4", self.expected_sync_lock])
+        mock_anonftpsync.assert_called_once_with(self.config)
         self.assertFalse(os.path.exists(self.expected_sync_lock))
 
     @mock.patch("subprocess.check_call")
-    def test_sync_lock_failure(self, mock_check_call):
+    @mock.patch("cdimage.build.anonftpsync")
+    def test_sync_lock_failure(self, mock_anonftpsync, mock_check_call):
         self.config["CAPPROJECT"] = "Ubuntu"
         mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
         self.capture_logging()
@@ -516,6 +615,7 @@ class TestBuildImageSet(TestCase):
         ])
         mock_check_call.assert_called_once_with(
             ["lockfile", "-r", "4", self.expected_sync_lock])
+        self.assertEqual(0, mock_anonftpsync.call_count)
         self.assertFalse(os.path.exists(self.expected_sync_lock))
 
     @mock.patch("subprocess.check_call")
@@ -785,6 +885,7 @@ class TestBuildImageSet(TestCase):
                 self.assertIn("Exception: Artificial exception", log.read())
 
     @mock.patch("subprocess.call", return_value=0)
+    @mock.patch("cdimage.build.anonftpsync")
     @mock.patch("cdimage.build.extract_debootstrap")
     @mock.patch("cdimage.germinate.GerminateOutput.write_tasks")
     @mock.patch("cdimage.germinate.GerminateOutput.update_tasks")
@@ -792,7 +893,8 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.tree.DailyTreePublisher.purge")
     def test_build_image_set_locked(
             self, mock_purge, mock_publish, mock_update_tasks,
-            mock_write_tasks, mock_extract_debootstrap, mock_call):
+            mock_write_tasks, mock_extract_debootstrap, mock_anonftpsync,
+            mock_call):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "raring"
@@ -841,7 +943,6 @@ class TestBuildImageSet(TestCase):
                     ], cwd=os.path.join(germinate_output, arch))
 
                 mock_call.assert_has_calls([
-                    mock.call(["anonftpsync"]),
                     mock.call([
                         "make", "-C", os.path.dirname(britney_makefile)]),
                     germinate_command("amd64"),
@@ -849,6 +950,7 @@ class TestBuildImageSet(TestCase):
                     mock.call(
                         ["./build_all.sh"], cwd=debian_cd_dir, env=mock.ANY),
                 ])
+                mock_anonftpsync.assert_called_once_with(self.config)
                 mock_extract_debootstrap.assert_called_once_with(self.config)
                 mock_write_tasks.assert_called_once_with()
                 mock_update_tasks.assert_called_once_with(date)
