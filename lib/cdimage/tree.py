@@ -437,7 +437,7 @@ class Publisher:
             return ["http://releases.ubuntu.com/include/style.css"]
 
     def cdtypestr(self, publish_type, image_format):
-        if image_format == "tar.gz":
+        if image_format in ("tar.gz", "tar.xz"):
             cd = "filesystem archive"
         elif self.config["DIST"] < "quantal":
             if image_format in ("img", "img.gz"):
@@ -493,6 +493,8 @@ class Publisher:
             return "preinstalled netbook %s" % cd
         elif publish_type == "preinstalled-active":
             return "preview preinstalled active image"
+        elif publish_type == "wubi":
+            return "Wubi %s" % cd
         else:
             raise WebIndicesException("Unknown image type %s!" % publish_type)
 
@@ -520,7 +522,7 @@ class Publisher:
             else:
                 desktop_ram = 384
 
-        if image_format == "tar.gz":
+        if image_format in ("tar.gz", "tar.xz"):
             cd = "filesystem archive"
         elif self.config["DIST"] < "quantal":
             if image_format in ("img", "img.gz"):
@@ -723,6 +725,12 @@ class Publisher:
                 "https://wiki.ubuntu.com/Core", "Ubuntu Core wiki page",
                 show_class=True)
             sentences.append("See the %s for more information." % link)
+        elif publish_type == "wubi":
+            sentences.append(
+                "This is a filesystem image downloaded by Wubi (a system "
+                "which installs Ubuntu into disk image files on a Windows "
+                "filesystem).  You should not normally need to download it "
+                "separately.")
         else:
             raise WebIndicesException("Unknown image type %s!" % publish_type)
 
@@ -932,6 +940,8 @@ class Publisher:
                 return "filesystem archive"
         elif extension == "bootimg":
             return "combined Android bootimage"
+        elif extension == "tar.xz":
+            return "Wubi filesystem archive"
         else:
             raise WebIndicesException("Unknown extension %s!" % extension)
 
@@ -964,6 +974,9 @@ class Publisher:
         prefix_type = "%s-%s" % (prefix, publish_type)
         for entry in os.listdir(directory):
             if entry == ("%s.img" % prefix_type):
+                images.append(entry)
+            elif entry.endswith(".tar.xz"):
+                # Wubi images are just "ARCH.tar.xz", with no prefix.
                 images.append(entry)
             elif entry.startswith("%s-" % prefix_type):
                 if (entry.endswith(".list") or
@@ -1004,6 +1017,7 @@ class Publisher:
             "preinstalled-desktop", "preinstalled-netbook",
             "preinstalled-mobile", "preinstalled-active",
             "preinstalled-headless", "preinstalled-server",
+            "wubi",
         )
 
         all_arches = (
@@ -1132,6 +1146,7 @@ class Publisher:
 
                     for image_format in (
                         "iso", "img", "img.gz", "img.tar.gz", "tar.gz",
+                        "tar.xz",
                     ):
                         paths = []
                         if image_format == "img":
@@ -1141,6 +1156,12 @@ class Publisher:
                                     prefix, publish_type, image_format))
                             if os.path.exists(path):
                                 paths.append((path, None))
+                        elif image_format == "tar.xz":
+                            for arch in arches:
+                                path = os.path.join(
+                                    directory, "%s.%s" % (arch, image_format))
+                                if os.path.exists(path):
+                                    paths.append((path, arch))
                         for arch in arches:
                             path = os.path.join(
                                 directory,
@@ -1241,7 +1262,7 @@ class Publisher:
                                     "jigdo", "list", "manifest",
                                     "manifest-desktop", "manifest-remove",
                                     "template", "tar.gz", "tar.gz.zsync",
-                                    "bootimg",
+                                    "bootimg", "tar.xz",
                                 )
                             for extension in htaccess_extensions:
                                 extpath = "%s.%s" % (base, extension)
