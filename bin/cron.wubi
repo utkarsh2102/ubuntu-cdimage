@@ -54,15 +54,7 @@ for arch in $ARCHES; do
 done
 
 checksum-directory "$PUBLISH"
-
-cat <<EOF >> "$PUBLISH/.htaccess"
-IndexIgnore .htaccess
-IndexOptions NameWidth=* DescriptionWidth=* SuppressHTMLPreamble FancyIndexing IconHeight=22 IconWidth=22
-AddIcon ../../cdicons/folder.png ^^DIRECTORY^^
-AddIcon ../../cdicons/img.png .tar.xz 
-AddIcon ../../cdicons/list.png .list .manifest MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg
-EOF
-
+make-web-indices "$PUBLISH" "$DIST" daily
 ln -nsf "$DATE" "$PUBLISH_ROOT/current"
 post-qa "$DATE" $IMAGES_PUBLISHED
 purge-old-images "$IMAGE_TYPE"
