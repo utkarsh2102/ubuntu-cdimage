@@ -470,13 +470,15 @@ def build_image_set_locked(config, semaphore_state):
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
 
-    livecd_base = config.project in ("livecd-base", "ubuntu-core")
+    live_fs_only = (
+        config.project in ("livecd-base", "ubuntu-core") or
+        config.subproject == "wubi")
 
     try:
         configure_for_project(config)
         log_path = open_log(config)
 
-        if not livecd_base:
+        if not live_fs_only:
             sync_local_mirror(config, semaphore_state)
 
             if config["LOCAL"]:
@@ -490,7 +492,7 @@ def build_image_set_locked(config, semaphore_state):
 
         if config["UBUNTU_DEFAULTS_LOCALE"]:
             build_ubuntu_defaults_locale(config)
-        elif livecd_base:
+        elif live_fs_only:
             build_livecd_base(config)
         else:
             if not config["CDIMAGE_PREINSTALLED"]:

@@ -35,10 +35,13 @@ def main():
     options, _ = parser.parse_args()
 
     project = os.environ.get("PROJECT", None)
+    subproject = os.environ.get("SUBPROJECT", None)
     if project == "livecd-base":
         image_type = "livecd-base"
     elif project == "ubuntu-core":
         image_type = "daily"
+    elif subproject == "wubi":
+        image_type = "wubi"
     else:
         image_type = "daily-live"
 
