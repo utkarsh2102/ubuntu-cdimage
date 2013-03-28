@@ -17,6 +17,7 @@
 
 import errno
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -148,3 +149,10 @@ def fetch(config, source, target):
     else:
         unlink_force(target)
         return False
+
+
+def shell_escape(arg):
+    if re.match(r"^[a-zA-Z0-9+,./:=@_-]+$", arg):
+        return arg
+    else:
+        return "'%s'" % arg.replace("'", "'\\''")

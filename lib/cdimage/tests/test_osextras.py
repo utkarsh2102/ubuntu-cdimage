@@ -201,3 +201,9 @@ class TestOSExtras(TestCase):
         self.assertEqual(
             ["wget", "-nv", "http://example.org/source", "-O", target],
             mock_call.call_args[0][0])
+
+    def test_shell_escape(self):
+        self.assertEqual("foo", osextras.shell_escape("foo"))
+        self.assertEqual("'  '", osextras.shell_escape("  "))
+        self.assertEqual(
+            "'shell'\\''s great'", osextras.shell_escape("shell's great"))

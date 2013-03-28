@@ -25,9 +25,10 @@ from collections import defaultdict, namedtuple
 import fnmatch
 import operator
 import os
-import re
 import subprocess
 import sys
+
+from cdimage import osextras
 
 
 class UnknownSeries(Exception):
@@ -210,16 +211,10 @@ class Config(defaultdict):
                 continue
         return out
 
-    def _shell_escape(self, arg):
-        if re.match(r"^[a-zA-Z0-9+,./:=@_-]+$", arg):
-            return arg
-        else:
-            return "'%s'" % arg.replace("'", "'\\''")
-
     def read(self, config_path=None):
         commands = []
         if config_path is not None:
-            commands.append(". %s" % self._shell_escape(config_path))
+            commands.append(". %s" % osextras.shell_escape(config_path))
         commands.append("cat /proc/self/environ")
         for key in _whitelisted_keys:
             commands.append(

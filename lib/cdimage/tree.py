@@ -2561,7 +2561,7 @@ class ReleasePublisher(Publisher):
         ])
         if self.dry_run:
             logger.info(
-                " ".join(self.config._shell_escape(arg) for arg in command))
+                " ".join(osextras.shell_escape(arg) for arg in command))
         else:
             with open("/dev/null", "w") as devnull:
                 subprocess.check_call(command, stdout=devnull)
