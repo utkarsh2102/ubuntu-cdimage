@@ -70,10 +70,4 @@ TRIGGER_MIRRORS_ASYNC=
 export TRIGGER_MIRRORS
 export TRIGGER_MIRRORS_ASYNC
 
-# Some older versions of debootstrap must *think* they're running as root,
-# even though that's not really needed here.  If you have that problem, make
-# sure you have fakeroot installed and uncomment this variable.
-DEBOOTSTRAPROOT=fakeroot
-export DEBOOTSTRAPROOT
-
 umask 002
