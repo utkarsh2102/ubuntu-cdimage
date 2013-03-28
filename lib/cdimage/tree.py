@@ -1808,6 +1808,27 @@ class DailyTreePublisher(Publisher):
 
         yield os.path.join("livecd-base", self.image_type_dir, arch)
 
+    def publish_wubi(self, arch, date):
+        source_dir = os.path.join(
+            self.config.root, "scratch", self.project, self.config.series,
+            self.image_type)
+        source_prefix = os.path.join(source_dir, arch)
+        target_dir = os.path.join(self.publish_base, date)
+        target_prefix = os.path.join(target_dir, arch)
+
+        if not os.path.exists("%s.tar.xz" % source_prefix):
+            logger.warning("No filesystem for %s!" % arch)
+            return
+
+        logger.info("Publishing %s ..." % arch)
+        osextras.ensuredir(target_dir)
+        shutil.copy2("%s.tar.xz" % source_prefix, "%s.tar.xz" % target_prefix)
+        shutil.copy2(
+            "%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
+
+        yield os.path.join(
+            self.project, "wubi", "%s-wubi-%s" % (self.config.series, arch))
+
     def publish_source(self, date):
         for i in count(1):
             in_prefix = "%s-src-%d" % (self.config.series, i)
@@ -2140,6 +2161,9 @@ class DailyTreePublisher(Publisher):
         if self.config.project == "livecd-base":
             for arch in self.config.cpuarches:
                 published.extend(list(self.publish_livecd_base(arch, date)))
+        elif self.config.subproject == "wubi":
+            for arch in self.config.arches:
+                published.extend(list(self.publish_wubi(arch, date)))
         elif not self.config["CDIMAGE_ONLYSOURCE"]:
             for arch in self.config.arches:
                 published.extend(
