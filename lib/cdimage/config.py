@@ -182,6 +182,7 @@ class Config(defaultdict):
         if "CDIMAGE_ROOT" not in os.environ:
             os.environ["CDIMAGE_ROOT"] = "/srv/cdimage.ubuntu.com"
         self.root = os.environ["CDIMAGE_ROOT"]
+        self.fix_paths()
         for key, value in kwargs.items():
             self[key] = value
         config_path = os.path.join(self.root, "etc", "config")
@@ -190,7 +191,6 @@ class Config(defaultdict):
                 self.read(config_path)
             else:
                 self.read()
-            self.fix_paths()
         if "IMAGE_TYPE" in kwargs:
             if "ARCHES" not in os.environ:
                 self.set_default_arches()
