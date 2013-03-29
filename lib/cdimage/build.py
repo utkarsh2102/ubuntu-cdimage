@@ -392,8 +392,7 @@ def build_ubuntu_defaults_locale(config):
             if "." in entry:
                 os.rename(
                     os.path.join(scratch, entry),
-                    os.path.join(
-                        scratch, "%s-desktop-%s" % (series.name, entry)))
+                    os.path.join(scratch, "%s-desktop-%s" % (series, entry)))
         pi_makelist = os.path.join(
             config.root, "debian-cd", "tools", "pi-makelist")
         for entry in os.listdir(scratch):

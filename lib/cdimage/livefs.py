@@ -475,7 +475,7 @@ def live_item_paths(config, arch, item):
         if (project != "xubuntu" and arch in ("amd64", "i386") and
                 series >= "gutsy"):
             yield ("http://people.canonical.com/~evand/wubi/%s/stable" %
-                   series.name)
+                   series)
         else:
             raise NoLiveItem
     elif item == "umenu":
@@ -486,7 +486,7 @@ def live_item_paths(config, arch, item):
     elif item == "usb-creator":
         if arch in ("amd64", "i386"):
             yield ("http://people.canonical.com/~evand/usb-creator/%s/"
-                   "stable" % series.name)
+                   "stable" % series)
         else:
             raise NoLiveItem
     elif item == "ltsp-squashfs":

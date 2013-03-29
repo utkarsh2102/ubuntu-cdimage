@@ -692,7 +692,7 @@ class TestLiveItemPaths(TestCase):
             self.assertNoPaths("i386", "wubi", "ubuntu", series)
         for series in all_series[6:]:
             path = ("http://people.canonical.com/~evand/wubi/%s/stable" %
-                    series.name)
+                    series)
             self.assertPathsEqual([path], "amd64", "wubi", "ubuntu", series)
             self.assertPathsEqual([path], "i386", "wubi", "ubuntu", series)
         self.assertNoPaths("i386", "wubi", "xubuntu", "precise")
@@ -710,7 +710,7 @@ class TestLiveItemPaths(TestCase):
     def test_usb_creator(self):
         for series in all_series:
             path = ("http://people.canonical.com/~evand/usb-creator/%s/"
-                    "stable" % series.name)
+                    "stable" % series)
             self.assertPathsEqual(
                 [path], "amd64", "usb-creator", "ubuntu", series)
             self.assertPathsEqual(
@@ -720,7 +720,7 @@ class TestLiveItemPaths(TestCase):
     def test_ltsp_squashfs(self):
         for series in all_series:
             path = ("http://cardamom.buildd/~buildd/LiveCD/%s/edubuntu/"
-                    "current/livecd.edubuntu-ltsp.squashfs" % series.name)
+                    "current/livecd.edubuntu-ltsp.squashfs" % series)
             self.assertPathsEqual(
                 [path], "amd64", "ltsp-squashfs", "edubuntu", series)
             self.assertPathsEqual(

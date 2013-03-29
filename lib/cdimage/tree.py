@@ -2527,7 +2527,7 @@ class ReleasePublisher(Publisher):
             return os.path.join(daily_dir, arch)
         else:
             return os.path.join(
-                daily_dir, "%s-%s-%s" % (series.name, publish_type, arch))
+                daily_dir, "%s-%s-%s" % (series, publish_type, arch))
 
     def target_dir(self, source, date, publish_type):
         raise NotImplementedError
@@ -2883,7 +2883,7 @@ class ReleasePublisher(Publisher):
             # Sanity-check.
             if not arches:
                 raise PublishReleaseException(
-                    "No source daily for %s on %s!" % (series.name, date))
+                    "No source daily for %s on %s!" % (series, date))
 
         # Override the architecture list for these types unconditionally.
         # TODO: should reset default-arches for the source project instead
@@ -2900,24 +2900,22 @@ class ReleasePublisher(Publisher):
                 for ext in "iso", "img", "img.gz", "img.tar.gz", "tar.gz":
                     paths.append(os.path.join(
                         daily_dir,
-                        "%s-%s-%s.%s" % (
-                            series.name, publish_type, arch, ext)))
+                        "%s-%s-%s.%s" % (series, publish_type, arch, ext)))
                 paths.append(os.path.join(daily_dir, "%s.tar.xz" % arch))
                 for path in paths:
                     if os.path.exists(path):
                         break
                 else:
                     raise PublishReleaseException(
-                        "No daily for %s %s on %s!" %
-                        (series.name, arch, date))
+                        "No daily for %s %s on %s!" % (series, arch, date))
 
                 oversized_path = os.path.join(
                     daily_dir,
-                    "%s-%s-%s.OVERSIZED" % (series.name, publish_type, arch))
+                    "%s-%s-%s.OVERSIZED" % (series, publish_type, arch))
                 if os.path.exists(oversized_path):
                     yesno = input(
                         "Daily for %s %s on %s is oversized!  "
-                        "Continue? [yN] " % (series.name, arch, date))
+                        "Continue? [yN] " % (series, arch, date))
                     if not yesno.lower().startswith("y"):
                         sys.exit(1)
 
@@ -2928,7 +2926,7 @@ class ReleasePublisher(Publisher):
             version_link = self.version_link(source)
             if not os.path.islink(version_link):
                 self.do(
-                    "ln -ns %s %s" % (series.name, version_link),
+                    "ln -ns %s %s" % (series, version_link),
                     os.symlink, series.name, version_link)
         if self.want_dist and not self.config["CDIMAGE_NO_PURGE"]:
             entries = osextras.listdir_force(target_dir)
@@ -2996,22 +2994,22 @@ class ReleasePublisher(Publisher):
             logger.info("Checksumming simple tree (pool) ...")
             self.checksum_directory(
                 [pool_dir, daily_dir],
-                map_expr="s/^%s-/%s-/" % (prefix_status, series.name))
+                map_expr="s/^%s-/%s-/" % (prefix_status, series))
         if self.want_dist:
-            logger.info("Checksumming simple tree (%s) ..." % series.name)
+            logger.info("Checksumming simple tree (%s) ..." % series)
             self.checksum_directory(
                 [target_dir, daily_dir],
-                map_expr="s/^%s-/%s-/" % (prefix_status, series.name))
+                map_expr="s/^%s-/%s-/" % (prefix_status, series))
             if self.want_metalink(publish_type):
                 logger.info(
                     "Creating and publishing metalink files for the simple "
-                    "tree (%s) ..." % series.name)
+                    "tree (%s) ..." % series)
                 self.make_metalink(target_dir, self.metalink_version)
         if self.want_full:
             logger.info("Checksumming full tree ...")
             self.checksum_directory(
                 [target_dir, daily_dir],
-                map_expr="s/^%s-/%s-/" % (prefix, series.name))
+                map_expr="s/^%s-/%s-/" % (prefix, series))
             if self.want_metalink(publish_type):
                 logger.info(
                     "Creating and publishing metalink files for the full "

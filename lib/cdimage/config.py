@@ -21,7 +21,7 @@ to co-exist until such time as the whole of cdimage is rewritten.
 
 __metaclass__ = type
 
-from collections import defaultdict, namedtuple
+from collections import Iterable, defaultdict
 import fnmatch
 import operator
 import os
@@ -34,15 +34,14 @@ class UnknownSeries(Exception):
     pass
 
 
-BaseSeries = namedtuple("BaseSeries", ["name", "version", "displayname"])
 all_series = []
 
 
-class Series(BaseSeries):
-    def __new__(cls, *args, **kwargs):
-        return super(Series, cls).__new__(cls, *args)
-
-    def __init__(self, *args, **kwargs):
+class Series(Iterable):
+    def __init__(self, name, version, displayname, **kwargs):
+        self.name = name
+        self.version = version
+        self.displayname = displayname
         self._index = None
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -69,6 +68,11 @@ class Series(BaseSeries):
 
     def __str__(self):
         return self.name
+
+    def __iter__(self):
+        yield self.name
+        yield self.version
+        yield self.displayname
 
     @property
     def index(self):

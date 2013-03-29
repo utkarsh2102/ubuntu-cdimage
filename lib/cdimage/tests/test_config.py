@@ -44,6 +44,10 @@ class TestSeries(TestCase):
         series = Series.find_by_name("warty")
         self.assertEqual("warty", str(series))
 
+    def test_format(self):
+        series = Series.find_by_name("warty")
+        self.assertEqual("warty", "%s" % series)
+
     def test_is_latest(self):
         self.assertFalse(all_series[0].is_latest)
         self.assertTrue(all_series[-1].is_latest)
