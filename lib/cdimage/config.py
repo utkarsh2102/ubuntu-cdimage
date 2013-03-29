@@ -244,11 +244,11 @@ class Config(defaultdict):
             if not series_start:
                 in_range = True
             for tryseries in all_series:
-                if tryseries == series_start:
+                if tryseries.name == series_start:
                     in_range = True
-                if tryseries == self.series:
+                if tryseries.name == self.series:
                     return in_range
-                if tryseries == series_end:
+                if tryseries.name == series_end:
                     in_range = False
             else:
                 return False

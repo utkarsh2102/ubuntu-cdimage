@@ -164,6 +164,10 @@ class TestConfig(TestCase):
         self.assertTrue(config._default_arches_match_series("natty-quantal"))
         self.assertFalse(config._default_arches_match_series("lucid-natty"))
         self.assertFalse(config._default_arches_match_series("quantal-raring"))
+        self.assertTrue(config._default_arches_match_series("precise-"))
+        self.assertFalse(config._default_arches_match_series("quantal-"))
+        self.assertTrue(config._default_arches_match_series("-precise"))
+        self.assertFalse(config._default_arches_match_series("-oneiric"))
         self.assertFalse(config._default_arches_match_series("lucid"))
         self.assertTrue(config._default_arches_match_series("precise"))
 
