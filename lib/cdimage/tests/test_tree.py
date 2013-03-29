@@ -166,7 +166,8 @@ class TestTree(TestCase):
         current_triggers_path = os.path.join(
             self.temp_dir, "production", "current-triggers")
         with mkfile(current_triggers_path) as current_triggers:
-            print("ubuntu\tdaily-live\traring\ti386", file=current_triggers)
+            print(
+                "ubuntu\tdaily-live\t%s\ti386" % series, file=current_triggers)
         self.config["SSH_ORIGINAL_COMMAND"] = (
             "mark-current --project=ubuntu --series=%s --publish-type=desktop "
             "--architecture=i386 20130321" % series)
@@ -1284,7 +1285,8 @@ class TestDailyTreePublisher(TestCase):
             [".htaccess", "20120807", "current", "pending"],
             os.listdir(publisher.publish_base))
         mock_post_qa.assert_called_once_with(
-            "20120807", ["ubuntu/daily-live/raring-desktop-i386"])
+            "20120807",
+            ["ubuntu/daily-live/%s-desktop-i386" % self.config.series])
 
     def test_get_purge_days_no_config(self):
         publisher = self.make_publisher("ubuntu", "daily")
@@ -1499,7 +1501,8 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             source_dir, "%s-desktop-i386.manifest" % self.config.series))
         self.capture_logging()
         self.assertEqual(
-            ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"],
+            ["ubuntu-zh_CN/%s/daily-live/%s-desktop-i386" % (
+                self.config.series, self.config.series)],
             list(publisher.publish_binary("desktop", "i386", "20120807")))
         self.assertLogEqual([
             "Publishing i386 ...",
@@ -1590,7 +1593,8 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             os.listdir(publisher.publish_base))
         mock_post_qa.assert_called_once_with(
             "20120807",
-            ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"])
+            ["ubuntu-zh_CN/%s/daily-live/%s-desktop-i386" % (
+                self.config.series, self.config.series)])
 
 
 class TestFullReleaseTree(TestCase):
@@ -2108,22 +2112,23 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
     def test_publish_release_kubuntu_desktop_named(self, mock_call, *args):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"
-        self.config["DIST"] = "raring"
+        series = Series.latest()
+        self.config["DIST"] = series
         self.config["ARCHES"] = "amd64 i386"
         daily_dir = os.path.join(
             self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327")
-        touch(os.path.join(daily_dir, "raring-desktop-amd64.iso"))
-        touch(os.path.join(daily_dir, "raring-desktop-amd64.manifest"))
-        touch(os.path.join(daily_dir, "raring-desktop-amd64.iso.zsync"))
-        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
-        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
-        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso.zsync" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.iso" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.manifest" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.iso.zsync" % series))
         target_dir = os.path.join(
-            self.temp_dir, "www", "full", "kubuntu", "releases", "raring",
+            self.temp_dir, "www", "full", "kubuntu", "releases", series.name,
             "release")
         torrent_dir = os.path.join(
-            self.temp_dir, "www", "torrent", "kubuntu", "releases", "raring",
-            "release", "desktop")
+            self.temp_dir, "www", "torrent", "kubuntu", "releases",
+            series.name, "release", "desktop")
         self.capture_logging()
         publisher = self.get_publisher(official="named")
         publisher.publish_release("daily-live", "20130327", "desktop")
@@ -2131,12 +2136,12 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Constructing release trees ...",
             "Copying desktop-amd64 image ...",
             "Making amd64 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-13.04-desktop-amd64.iso ..." %
-            target_dir,
+            "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
+                target_dir, series.version),
             "Copying desktop-i386 image ...",
             "Making i386 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-13.04-desktop-i386.iso ..." %
-            target_dir,
+            "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..." % (
+                target_dir, series.version),
             "Checksumming full tree ...",
             "No keys found; not signing images.",
             "Creating and publishing metalink files for the full tree ...",
@@ -2147,20 +2152,20 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
             "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
-            "kubuntu-13.04-desktop-amd64.iso",
-            "kubuntu-13.04-desktop-amd64.iso.torrent",
-            "kubuntu-13.04-desktop-amd64.iso.zsync",
-            "kubuntu-13.04-desktop-amd64.manifest",
-            "kubuntu-13.04-desktop-i386.iso",
-            "kubuntu-13.04-desktop-i386.iso.torrent",
-            "kubuntu-13.04-desktop-i386.iso.zsync",
-            "kubuntu-13.04-desktop-i386.manifest",
+            "kubuntu-%s-desktop-amd64.iso" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
+            "kubuntu-%s-desktop-amd64.manifest" % series.version,
+            "kubuntu-%s-desktop-i386.iso" % series.version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-i386.iso.zsync" % series.version,
+            "kubuntu-%s-desktop-i386.manifest" % series.version,
         ], os.listdir(target_dir))
         self.assertCountEqual([
-            "kubuntu-13.04-desktop-amd64.iso",
-            "kubuntu-13.04-desktop-amd64.iso.torrent",
-            "kubuntu-13.04-desktop-i386.iso",
-            "kubuntu-13.04-desktop-i386.iso.torrent",
+            "kubuntu-%s-desktop-amd64.iso" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-i386.iso" % series.version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % series.version,
         ], os.listdir(torrent_dir))
         self.assertFalse(os.path.exists(os.path.join(
             self.temp_dir, "www", "simple")))
@@ -2405,22 +2410,23 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
     def test_publish_release_kubuntu_desktop_yes(self, mock_call, *args):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"
-        self.config["DIST"] = "raring"
+        series = Series.latest()
+        self.config["DIST"] = series
         self.config["ARCHES"] = "amd64 i386"
         daily_dir = os.path.join(
             self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327")
-        touch(os.path.join(daily_dir, "raring-desktop-amd64.iso"))
-        touch(os.path.join(daily_dir, "raring-desktop-amd64.manifest"))
-        touch(os.path.join(daily_dir, "raring-desktop-amd64.iso.zsync"))
-        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
-        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
-        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso.zsync" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.iso" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.manifest" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.iso.zsync" % series))
         pool_dir = os.path.join(
             self.temp_dir, "www", "simple", "kubuntu", ".pool")
         target_dir = os.path.join(
-            self.temp_dir, "www", "simple", "kubuntu", "raring")
+            self.temp_dir, "www", "simple", "kubuntu", series.name)
         torrent_dir = os.path.join(
-            self.temp_dir, "www", "torrent", "kubuntu", "simple", "raring",
+            self.temp_dir, "www", "torrent", "kubuntu", "simple", series.name,
             "desktop")
         self.capture_logging()
         publisher = self.get_publisher(official="yes")
@@ -2429,48 +2435,48 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Constructing release trees ...",
             "Copying desktop-amd64 image ...",
             "Making amd64 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-13.04-desktop-amd64.iso ..." %
-            target_dir,
+            "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
+                target_dir, series.version),
             "Copying desktop-i386 image ...",
             "Making i386 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-13.04-desktop-i386.iso ..." %
-            target_dir,
+            "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..." % (
+                target_dir, series.version),
             "Checksumming simple tree (pool) ...",
             "No keys found; not signing images.",
-            "Checksumming simple tree (raring) ...",
+            "Checksumming simple tree (%s) ..." % series,
             "No keys found; not signing images.",
             "Creating and publishing metalink files for the simple tree "
-            "(raring) ...",
+            "(%s) ..." % series,
             "No keys found; not signing images.",
             "Done!  Remember to sync-mirrors after checking that everything "
             "is OK.",
         ])
         self.assertCountEqual([
             "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
-            "kubuntu-13.04-desktop-amd64.iso",
-            "kubuntu-13.04-desktop-amd64.iso.zsync",
-            "kubuntu-13.04-desktop-amd64.manifest",
-            "kubuntu-13.04-desktop-i386.iso",
-            "kubuntu-13.04-desktop-i386.iso.zsync",
-            "kubuntu-13.04-desktop-i386.manifest",
+            "kubuntu-%s-desktop-amd64.iso" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
+            "kubuntu-%s-desktop-amd64.manifest" % series.version,
+            "kubuntu-%s-desktop-i386.iso" % series.version,
+            "kubuntu-%s-desktop-i386.iso.zsync" % series.version,
+            "kubuntu-%s-desktop-i386.manifest" % series.version,
         ], os.listdir(pool_dir))
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
             "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
-            "kubuntu-13.04-desktop-amd64.iso",
-            "kubuntu-13.04-desktop-amd64.iso.torrent",
-            "kubuntu-13.04-desktop-amd64.iso.zsync",
-            "kubuntu-13.04-desktop-amd64.manifest",
-            "kubuntu-13.04-desktop-i386.iso",
-            "kubuntu-13.04-desktop-i386.iso.torrent",
-            "kubuntu-13.04-desktop-i386.iso.zsync",
-            "kubuntu-13.04-desktop-i386.manifest",
+            "kubuntu-%s-desktop-amd64.iso" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
+            "kubuntu-%s-desktop-amd64.manifest" % series.version,
+            "kubuntu-%s-desktop-i386.iso" % series.version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-i386.iso.zsync" % series.version,
+            "kubuntu-%s-desktop-i386.manifest" % series.version,
         ], os.listdir(target_dir))
         self.assertCountEqual([
-            "kubuntu-13.04-desktop-amd64.iso",
-            "kubuntu-13.04-desktop-amd64.iso.torrent",
-            "kubuntu-13.04-desktop-i386.iso",
-            "kubuntu-13.04-desktop-i386.iso.torrent",
+            "kubuntu-%s-desktop-amd64.iso" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-i386.iso" % series.version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % series.version,
         ], os.listdir(torrent_dir))
         self.assertFalse(os.path.exists(os.path.join(
             self.temp_dir, "www", "full", "kubuntu", "releases")))
