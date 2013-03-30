@@ -23,8 +23,6 @@ from optparse import OptionParser
 import os
 import sys
 
-os.environ["CDIMAGE_INSIDE_DEFAULT_ARCHES"] = "1"
-
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import Config
 

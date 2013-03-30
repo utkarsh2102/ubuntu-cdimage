@@ -38,11 +38,6 @@ esac
 # collections, so not ubuntu-server.
 ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu kubuntu-active edubuntu xubuntu ubuntustudio mythbuntu}"
 
-if [ -z "$ARCHES" ] && [ -z "$CDIMAGE_INSIDE_DEFAULT_ARCHES" ]; then
-	ARCHES="$(default-arches)"
-fi
-CPUARCHES="$(echo "$ARCHES" | xargs -n1 | sed 's/+.*//' | sort -u | xargs)"
-
 GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
 SIGNING_KEYID=FBB75451
 

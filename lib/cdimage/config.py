@@ -193,11 +193,6 @@ class Config(defaultdict):
                 self.read(config_path)
             else:
                 self.read()
-        if "IMAGE_TYPE" in kwargs:
-            if "ARCHES" not in os.environ:
-                self.set_default_arches()
-            if "CPUARCHES" not in os.environ:
-                self.set_default_cpuarches()
 
     def read(self, config_path=None):
         for key, value in osextras.read_shell_config(
@@ -209,6 +204,10 @@ class Config(defaultdict):
         if "DIST" in self:
             super(Config, self).__setitem__(
                 "DIST", Series.find_by_name(self["DIST"]))
+        if "ARCHES" not in self:
+            self.set_default_arches()
+        if "CPUARCHES" not in self:
+            self.set_default_cpuarches()
 
     def __setitem__(self, key, value):
         config_value = value
