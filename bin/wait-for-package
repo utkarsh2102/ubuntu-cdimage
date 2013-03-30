@@ -31,7 +31,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.mirror import find_mirror
 
 
@@ -43,6 +43,7 @@ def reset_sigpipe():
 
 
 def main():
+    config = Config()
     parser = OptionParser("%prog [options] PACKAGE_VERSION")
     parser.add_option(
         "-a", "--architecture", default="i386",

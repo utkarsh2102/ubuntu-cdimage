@@ -25,13 +25,14 @@ import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.build_id import next_build_id
-from cdimage.config import config
+from cdimage.config import Config
 
 
 def main():
     parser = OptionParser("%prog [IMAGE_TYPE]")
     _, args = parser.parse_args()
     image_type = args[0] if args else ""
+    config = Config()
     print(next_build_id(config, image_type))
 
 

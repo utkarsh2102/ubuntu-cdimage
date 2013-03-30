@@ -23,7 +23,7 @@ import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.build import build_image_set
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.livefs import run_live_builds
 
 
@@ -33,6 +33,7 @@ def main():
         "--live", default=False, action="store_true",
         help="build live filesystems first")
     options, args = parser.parse_args()
+    config = Config()
     if args:
         config["IMAGE_TYPE"] = args[0]
     if options.live:

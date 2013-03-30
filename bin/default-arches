@@ -26,12 +26,13 @@ import sys
 os.environ["CDIMAGE_INSIDE_DEFAULT_ARCHES"] = "1"
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 
 
 def main():
     parser = OptionParser("%prog")
     parser.parse_args()
+    config = Config()
     arches = config.set_default_arches()
     if arches is not None:
         print(arches)

@@ -22,13 +22,14 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.mirror import trigger_mirrors
 
 
 def main():
     parser = OptionParser("%prog")
     parser.parse_args()
+    config = Config()
     config["TRIGGER_MIRRORS"] = "sawo.canonical.com"
     config["TRIGGER_MIRRORS_ASYNC"] = ""
     trigger_mirrors(config)

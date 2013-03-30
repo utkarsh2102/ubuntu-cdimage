@@ -22,7 +22,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.tree import Publisher, Tree
 
 
@@ -39,6 +39,7 @@ def main():
     directory = args[0]
     prefix = args[1]
     status = args[2] if len(args) >= 2 else "release"
+    config = Config()
     tree = Tree.get_for_directory(config, directory, status)
     publisher = Publisher(tree, "daily")  # image_type unused
     publisher.make_web_indices(directory, prefix, status=status)

@@ -25,7 +25,7 @@ import stat
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.tree import DailyTree, SimpleReleaseTree
 
 
@@ -50,6 +50,7 @@ def main():
     else:
         path = None
         output = sys.stdout
+    config = Config()
     try:
         for line in tree_classes[args[0]](config, args[1]).manifest():
             print(line, file=output)

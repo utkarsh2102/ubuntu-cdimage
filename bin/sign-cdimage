@@ -22,7 +22,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.sign import sign_cdimage
 
 
@@ -31,6 +31,7 @@ def main():
     _, args = parser.parse_args()
     if not args:
         parser.error("no file name given")
+    config = Config()
     for arg in args:
         if not sign_cdimage(config, arg):
             break

@@ -332,6 +332,3 @@ class Config(defaultdict):
             else:
                 ret[key] = value
         return ret
-
-
-config = Config()

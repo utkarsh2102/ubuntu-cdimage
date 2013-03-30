@@ -23,7 +23,7 @@ import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.checksums import ChecksumFileSet
-from cdimage.config import config
+from cdimage.config import Config
 
 
 def main():
@@ -36,6 +36,7 @@ def main():
         parser.error("need directory and filename")
 
     directory, filename = args[:2]
+    config = Config()
     with ChecksumFileSet(config, directory, sign=options.sign) as files:
         files.remove(filename)
 

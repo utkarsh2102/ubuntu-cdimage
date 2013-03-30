@@ -23,7 +23,7 @@ import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.checksums import checksum_directory, metalink_checksum_directory
-from cdimage.config import config
+from cdimage.config import Config
 
 
 def main():
@@ -37,6 +37,7 @@ def main():
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need directory")
+    config = Config()
     if options.metalink:
         metalink_checksum_directory(config, args[0], old_directories=args)
     else:

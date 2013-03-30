@@ -22,7 +22,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.tree import Publisher, Tree
 
 
@@ -33,6 +33,7 @@ def main():
         parser.error("need date")
     if len(args) < 2:
         parser.error("need list of images to post")
+    config = Config()
     tree = Tree.get_daily(config)
     # Second parameter is arbitrary here; post_qa doesn't use it.
     publisher = Publisher.get_daily(tree, "daily")

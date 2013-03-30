@@ -23,7 +23,7 @@ import socket
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.cloudfront import verify_cloudfront
 
 
@@ -34,6 +34,8 @@ def main():
         parser.error("need URL root")
     elif len(args) < 2:
         parser.error("need at least one local file name")
+
+    config = Config()
 
     if socket.getfqdn().endswith(".canonical.com"):
         os.environ["http_proxy"] = "http://squid.internal:3128/"

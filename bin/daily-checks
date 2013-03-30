@@ -9,7 +9,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import config
+from cdimage.config import Config
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.tree import Publisher, Tree
 
@@ -99,7 +99,7 @@ def project_title(project):
         return project.title()
 
 
-def check_image(project, series, image):
+def check_image(config, project, series, image):
     config["PROJECT"] = project
     config["DIST"] = series
     tree = Tree.get_daily(config)
@@ -135,7 +135,7 @@ def check_image(project, series, image):
                          "%s contains openoffice.org-core" % iso)
 
 
-def check_uninstallables(project, series, image):
+def check_uninstallables(config, project, series, image):
     config["PROJECT"] = project
     config["DIST"] = series
     tree = Tree.get_daily(config)
@@ -175,7 +175,7 @@ def get_all_warnings(projects):
     return '\n\n\n'.join(texts)
 
 
-def send_warnings(options, projects):
+def send_warnings(config, options, projects):
     releasers = get_notify_addresses(config)
     all_warnings = get_all_warnings(projects)
     if all_warnings == '':
@@ -216,6 +216,8 @@ def main():
         help="write to standard output rather than sending mail")
     options, _ = parser.parse_args()
 
+    config = Config()
+
     projects = ('ubuntu', 'ubuntu-server', 'kubuntu', 'edubuntu', 'xubuntu',
                 'ubuntustudio', 'ubuntu-netbook', 'kubuntu-netbook',
                 'ubuntu-moblin-remix')
@@ -224,12 +226,12 @@ def main():
     for project in projects:
         for series in active_series:
             for image in 'daily-live', 'daily', 'dvd':
-                check_image(project, series, image)
+                check_image(config, project, series, image)
 
             for image in 'daily-live', 'daily', 'dvd':
-                check_uninstallables(project, series, image)
+                check_uninstallables(config, project, series, image)
 
-    send_warnings(options, projects)
+    send_warnings(config, options, projects)
 
 
 if __name__ == "__main__":
