@@ -19,7 +19,7 @@ from __future__ import print_function
 
 __metaclass__ = type
 
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 import errno
 import gzip
 import os
@@ -249,9 +249,7 @@ class GerminateOutput:
         self._parse_structure()
 
     def _parse_structure(self):
-        self._seeds = {}
-        # TODO: move to collections.OrderedDict with 2.7
-        self._seed_order = []
+        self._seeds = OrderedDict()
         with open(self.structure) as structure:
             for line in structure:
                 line = line.strip()
@@ -259,7 +257,6 @@ class GerminateOutput:
                     continue
                 seed, inherit = line.split(":", 1)
                 self._seeds[seed] = inherit.split()
-                self._seed_order.append(seed)
 
     def _expand_inheritance(self, seed, inherit):
         for s in self._seeds.get(seed, ()):
@@ -282,7 +279,7 @@ class GerminateOutput:
         series = self.config["DIST"]
 
         if mode == "all":
-            for seed in self._seed_order:
+            for seed in self._seeds:
                 yield seed
         elif mode == "tasks":
             ship = "ship"
