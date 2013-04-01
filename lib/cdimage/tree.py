@@ -1056,7 +1056,7 @@ class Publisher:
                     <style type="text/css" media="screen">""") % heading,
                 file=header)
             for css in self.cssincludes():
-                print("  @import url(%s)" % css, file=header)
+                print("  @import url(%s);" % css, file=header)
             if self.project == "kubuntu":
                 # TODO: move this into CSS, as done in /include/style.css?
                 print(
