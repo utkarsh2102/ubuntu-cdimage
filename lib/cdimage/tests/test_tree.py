@@ -1322,8 +1322,7 @@ class TestDailyTreePublisher(TestCase):
             project = "ubuntu"
             purge_desc = project
         self.assertLogEqual([
-            # TODO: this test exposes poor grammar
-            "Purging %s/daily images older than 1 days ..." % project,
+            "Purging %s/daily images older than 1 day ..." % project,
             "Purging %s/daily/20130318" % purge_desc,
             "Purging %s/daily/20130319" % purge_desc,
         ])
@@ -1346,8 +1345,7 @@ class TestDailyTreePublisher(TestCase):
         else:
             project = "ubuntu"
         self.assertLogEqual([
-            # TODO: this test exposes poor grammar
-            "Purging %s/daily images older than 1 days ..." % project,
+            "Purging %s/daily images older than 1 day ..." % project,
         ])
         self.assertCountEqual(
             ["20130319", "20130320", "20130321", "pending"],
@@ -1369,8 +1367,7 @@ class TestDailyTreePublisher(TestCase):
         else:
             project = "ubuntu"
         self.assertLogEqual([
-            # TODO: this test exposes poor grammar
-            "Purging %s/daily images older than 1 days ..." % project,
+            "Purging %s/daily images older than 1 day ..." % project,
         ])
         self.assertCountEqual(
             ["20130319", "20130320", "20130321", "current"],
@@ -1398,8 +1395,7 @@ class TestDailyTreePublisher(TestCase):
             project = "ubuntu"
             purge_desc = project
         self.assertLogEqual([
-            # TODO: this test exposes poor grammar
-            "Purging %s/daily images older than 1 days ..." % project,
+            "Purging %s/daily images older than 1 day ..." % project,
             "Purging %s/daily/20130318" % purge_desc,
         ])
         self.assertCountEqual(

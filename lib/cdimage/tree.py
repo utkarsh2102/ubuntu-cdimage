@@ -2262,8 +2262,8 @@ class DailyTreePublisher(Publisher):
             logger.info("Not purging images for %s" % project_image_type)
             return
         logger.info(
-            "Purging %s images older than %d days ..." %
-            (project_image_type, days))
+            "Purging %s images older than %d %s ..." %
+            (project_image_type, days, "day" if days == 1 else "days"))
         oldest = time.strftime(
             "%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days))
 
