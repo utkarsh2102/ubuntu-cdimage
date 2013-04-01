@@ -3026,8 +3026,7 @@ class ReleasePublisher(Publisher):
 
         if self.want_dist or self.want_pool:
             if self.dry_run:
-                logger.info(
-                    "site-manifest simple %s .manifest" % self.tree.directory)
+                logger.info("site-manifest %s .manifest" % self.tree.directory)
             else:
                 manifest_path = os.path.join(self.tree.directory, ".manifest")
                 with AtomicFile(manifest_path) as manifest:
