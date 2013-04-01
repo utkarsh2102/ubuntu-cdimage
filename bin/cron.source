@@ -40,7 +40,7 @@ def main():
     # which will involve unsupported packages.
     config["CDIMAGE_UNSUPPORTED"] = "1"
 
-    if not build_image_set(config):
+    if not build_image_set(config, None):
         sys.exit(1)
 
 

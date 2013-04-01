@@ -23,6 +23,7 @@ __metaclass__ = type
 
 from functools import partial
 import gzip
+import optparse
 import os
 import stat
 import subprocess
@@ -59,6 +60,7 @@ from cdimage.build import (
     run_debian_cd,
     update_local_indices,
     sync_local_mirror,
+    want_live_builds,
 )
 from cdimage.config import Config
 from cdimage.log import logger
@@ -471,6 +473,20 @@ class TestBuildImageSet(TestCase):
         log_marker("Testing")
         self.assertLogEqual(["===== Testing =====", self.epoch_date])
 
+    def test_want_live_builds_no_options(self):
+        self.assertFalse(want_live_builds(None))
+
+    def test_want_live_builds_irrelevant_options(self):
+        self.assertFalse(want_live_builds(optparse.Values()))
+
+    def test_want_live_builds_option_false(self):
+        options = optparse.Values({"live": False})
+        self.assertFalse(want_live_builds(options))
+
+    def test_want_live_builds_option_true(self):
+        options = optparse.Values({"live": True})
+        self.assertTrue(want_live_builds(options))
+
     def test_anonftpsync_config_path(self):
         self.assertIsNone(_anonftpsync_config_path(self.config))
         path = os.path.join(self.temp_dir, "etc", "anonftpsync")
@@ -868,7 +884,7 @@ class TestBuildImageSet(TestCase):
         if pid == 0:  # child
             original_stderr = os.dup(sys.stderr.fileno())
             try:
-                self.assertFalse(build_image_set_locked(self.config, 0))
+                self.assertFalse(build_image_set_locked(self.config, None, 0))
             except AssertionError:
                 stderr = os.fdopen(original_stderr, "w", 1)
                 try:
@@ -932,7 +948,7 @@ class TestBuildImageSet(TestCase):
         if pid == 0:  # child
             original_stderr = os.dup(sys.stderr.fileno())
             try:
-                self.assertTrue(build_image_set_locked(self.config, 0))
+                self.assertTrue(build_image_set_locked(self.config, None, 0))
                 date = self.config["CDIMAGE_DATE"]
                 debian_cd_dir = os.path.join(self.temp_dir, "debian-cd")
 
@@ -1022,7 +1038,8 @@ class TestBuildImageSet(TestCase):
         semaphore_path = os.path.join(
             self.temp_dir, "etc", ".sem-build-image-set")
         os.makedirs(os.path.dirname(lock_path))
-        self.assertRaises(KeyboardInterrupt, build_image_set, self.config)
+        self.assertRaises(
+            KeyboardInterrupt, build_image_set, self.config, None)
         self.assertFalse(os.path.exists(lock_path))
         self.assertFalse(os.path.exists(semaphore_path))
 
@@ -1037,11 +1054,12 @@ class TestBuildImageSet(TestCase):
             self.temp_dir, "etc", ".sem-build-image-set")
         os.makedirs(os.path.dirname(lock_path))
 
-        def side_effect(config, semaphore_state):
+        def side_effect(config, options, semaphore_state):
             self.assertTrue(os.path.exists(lock_path))
+            self.assertIsNone(options)
             self.assertEqual(0, semaphore_state)
             with open(semaphore_path) as semaphore:
                 self.assertEqual("1\n", semaphore.read())
 
         mock_build_image_set_locked.side_effect = side_effect
-        build_image_set(self.config)
+        build_image_set(self.config, None)

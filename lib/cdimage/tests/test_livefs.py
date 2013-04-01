@@ -32,6 +32,7 @@ except ImportError:
 
 from cdimage.config import Config, all_series
 from cdimage.livefs import (
+    LiveBuildsFailed,
     NoLiveItem,
     download_live_filesystems,
     download_live_items,
@@ -387,7 +388,9 @@ class TestRunLiveBuilds(TestCase):
         mock_urlopen = mock.mock_open(read_data=b"Log data\n")
         self.capture_logging()
         with mock.patch("cdimage.livefs.urlopen", mock_urlopen):
-            self.assertFalse(run_live_builds(self.config))
+            self.assertRaisesRegex(
+                LiveBuildsFailed, "No live filesystem builds succeeded.",
+                run_live_builds, self.config)
         self.assertCountEqual([
             "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
             "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
@@ -395,7 +398,6 @@ class TestRunLiveBuilds(TestCase):
             "(failed)",
             "ubuntu-i386 on cardamom.buildd finished at 2013-03-15 13:48:51 "
             "(failed)",
-            "No live filesystem builds succeeded.",
         ], self.captured_log_messages())
         mock_send_mail.assert_has_calls([
             mock.call(
@@ -416,7 +418,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         self.capture_logging()
-        self.assertTrue(run_live_builds(self.config))
+        run_live_builds(self.config)
         self.assertCountEqual([
             "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
             "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
@@ -453,7 +455,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 amd64+mac"
         self.capture_logging()
-        self.assertTrue(run_live_builds(self.config))
+        run_live_builds(self.config)
         expected_command = [
             "ssh", "-n", "-o", "StrictHostKeyChecking=no",
             "-o", "BatchMode=yes",

@@ -34,7 +34,11 @@ from cdimage import osextras
 from cdimage.build_id import next_build_id
 from cdimage.check_installable import check_installable
 from cdimage.germinate import Germination
-from cdimage.livefs import download_live_filesystems, live_output_directory
+from cdimage.livefs import (
+    download_live_filesystems,
+    live_output_directory,
+    run_live_builds,
+)
 from cdimage.log import logger, reset_logging
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.mirror import find_mirror, trigger_mirrors
@@ -120,6 +124,10 @@ def open_log(config):
 def log_marker(message):
     logger.info("===== %s =====" % message)
     logger.info(time.strftime("%a %b %e %H:%M:%S UTC %Y", time.gmtime()))
+
+
+def want_live_builds(options):
+    return options is not None and getattr(options, "live", False)
 
 
 def _anonftpsync_config_path(config):
@@ -564,7 +572,7 @@ def notify_failure(config, log_path):
             body.close()
 
 
-def build_image_set_locked(config, semaphore_state):
+def build_image_set_locked(config, options, semaphore_state):
     image_type = config.image_type
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
@@ -576,6 +584,10 @@ def build_image_set_locked(config, semaphore_state):
     try:
         configure_for_project(config)
         log_path = open_log(config)
+
+        if want_live_builds(options):
+            log_marker("Building live filesystems")
+            run_live_builds(config)
 
         if not live_fs_only:
             sync_local_mirror(config, semaphore_state)
@@ -646,9 +658,9 @@ def build_image_set_locked(config, semaphore_state):
         return False
 
 
-def build_image_set(config):
+def build_image_set(config, options):
     """Master entry point for building images."""
     semaphore = Semaphore(
         os.path.join(config.root, "etc", ".sem-build-image-set"))
     with lock_build_image_set(config), semaphore.held() as semaphore_state:
-        return build_image_set_locked(config, semaphore_state)
+        return build_image_set_locked(config, options, semaphore_state)

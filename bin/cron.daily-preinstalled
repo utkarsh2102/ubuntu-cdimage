@@ -24,7 +24,6 @@ import sys
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.build import build_image_set
 from cdimage.config import Config
-from cdimage.livefs import run_live_builds
 
 
 def main():
@@ -36,10 +35,7 @@ def main():
     config = Config(IMAGE_TYPE="daily-preinstalled")
     config["CDIMAGE_PREINSTALLED"] = "1"
     config["CDIMAGE_COMPRESS"] = "1"
-    if options.live:
-        if not run_live_builds(config):
-            sys.exit(1)
-    if not build_image_set(config):
+    if not build_image_set(config, options):
         sys.exit(1)
 
 

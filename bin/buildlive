@@ -17,13 +17,15 @@
 
 """Ask builders to build live filesystem images."""
 
+from __future__ import print_function
+
 from optparse import OptionParser
 import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import Config
-from cdimage.livefs import run_live_builds
+from cdimage.livefs import LiveBuildsFailed, run_live_builds
 
 
 def main():
@@ -32,7 +34,10 @@ def main():
     if len(args) < 1:
         parser.error("need image-type")
     config = Config(IMAGE_TYPE=args[0])
-    if not run_live_builds(config):
+    try:
+        run_live_builds(config)
+    except LiveBuildsFailed as e:
+        print(e, file=sys.stderr)
         sys.exit(1)
 
 

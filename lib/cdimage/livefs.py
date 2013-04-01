@@ -54,6 +54,10 @@ class NoFilesystemImages(Exception):
     pass
 
 
+class LiveBuildsFailed(Exception):
+    pass
+
+
 def split_arch(arch):
     arch_bits = arch.split("+", 1)
     if len(arch_bits) == 1:
@@ -270,8 +274,7 @@ def run_live_builds(config):
             live_build_notify_failure(config, arch)
 
     if not success:
-        logger.error("No live filesystem builds succeeded.")
-    return success
+        raise LiveBuildsFailed("No live filesystem builds succeeded.")
 
 
 def livecd_base(config, arch):
