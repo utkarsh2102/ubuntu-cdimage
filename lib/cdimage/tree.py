@@ -1662,11 +1662,13 @@ class DailyTreePublisher(Publisher):
         series = self.config["DIST"]
         cpuarch = arch.split("+")[0]
         if cpuarch == "powerpc":
-            # https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/000098.html
+            # https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/
+            #   000098.html
             if series > "edgy":
                 return True
         elif cpuarch == "sparc":
-            # https://lists.ubuntu.com/archives/ubuntu-devel-announce/2008-March/000400.html
+            # https://lists.ubuntu.com/archives/ubuntu-devel-announce/
+            #   2008-March/000400.html
             if series < "dapper" or series > "gutsy":
                 return True
         elif cpuarch in ("armel", "armhf", "hppa", "ia64", "lpia"):
