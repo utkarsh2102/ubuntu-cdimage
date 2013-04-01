@@ -234,7 +234,7 @@ def live_build_notify_failure(config, arch):
         live_builder(config, arch), config.series, livefs_id,
         datestamp, cpuarch)
     try:
-        with closing(urlopen(log_url)) as f:
+        with closing(urlopen(log_url, timeout=30)) as f:
             body = f.read()
     except URLError:
         body = b""
