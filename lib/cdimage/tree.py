@@ -1230,11 +1230,14 @@ class Publisher:
                             if os.path.exists(path):
                                 print(
                                     "<dt><a href=\"%s\">%s</a>" %
-                                    (path, imagestr), file=header)
+                                    (os.path.basename(path), imagestr),
+                                    file=header)
                             elif os.path.exists("%s.torrent" % path):
                                 print(
                                     "<dt><a href=\"%s.torrent\">%s</a> "
-                                    "(%s only)" % (path, imagestr, bt_link),
+                                    "(%s only)" % (
+                                        os.path.basename(path), imagestr,
+                                        bt_link),
                                     file=header)
                             else:
                                 continue
