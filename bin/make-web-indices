@@ -38,7 +38,7 @@ def main():
         parser.error("need prefix")
     directory = args[0]
     prefix = args[1]
-    status = args[2] if len(args) >= 2 else "release"
+    status = args[2] if len(args) >= 3 else "release"
     config = Config()
     tree = Tree.get_for_directory(config, directory, status)
     publisher = Publisher(tree, "daily")  # image_type unused
