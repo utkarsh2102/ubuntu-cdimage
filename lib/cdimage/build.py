@@ -35,6 +35,7 @@ from cdimage.build_id import next_build_id
 from cdimage.check_installable import check_installable
 from cdimage.germinate import Germination
 from cdimage.livefs import (
+    LiveBuildsFailed,
     download_live_filesystems,
     live_output_directory,
     run_live_builds,
@@ -649,12 +650,13 @@ def build_image_set_locked(config, options, semaphore_state):
 
         log_marker("Finished")
         return True
-    except Exception:
+    except Exception as e:
         for line in traceback.format_exc().splitlines():
             logger.error(line)
         sys.stdout.flush()
         sys.stderr.flush()
-        notify_failure(config, log_path)
+        if not isinstance(e, LiveBuildsFailed):
+            notify_failure(config, log_path)
         return False
 
 
