@@ -52,8 +52,8 @@ def main():
     config = Config()
     tree = Tree.get_release(config, official)
     # image_type unused
-    publisher = Publisher.get_release(
-        tree, "daily", official, status=status, dry_run=options.dry_run)
+    publisher = tree.get_publisher(
+        "daily", official, status=status, dry_run=options.dry_run)
     publisher.publish_release(source, date, publish_type)
 
 
