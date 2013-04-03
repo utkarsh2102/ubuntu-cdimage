@@ -1542,7 +1542,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>")
         expected = [["Ubuntu Chinese Desktop i386", "20130315", expected_note]]
-        self.assertEqual("raring", isotracker_module.tracker.target)
+        self.assertEqual("china-raring", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
     @mock.patch("cdimage.tree.zsyncmake")

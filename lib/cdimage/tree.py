@@ -2135,6 +2135,9 @@ class DailyTreePublisher(Publisher):
                     image)
                 continue
 
+            if project == 'ubuntu-zh_CN':
+                dist = "china-%s" % dist
+
             # Try to figure out the path to the OVERSIZED indicator for the
             # build.
             iso_path_bits = [self.tree.project_base]
