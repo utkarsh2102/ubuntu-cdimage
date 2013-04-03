@@ -2757,7 +2757,7 @@ class ReleasePublisher(Publisher):
 
         # Copy, to make sure we have a canonical version of this.
         for ext in (
-            "iso", "img", "img.gz", "tar.gz", "img.tar.gz", "tar.xz",
+            "iso", "list", "img", "img.gz", "tar.gz", "img.tar.gz", "tar.xz",
             "bootimg",
         ):
             if not os.path.exists(daily(ext)):
