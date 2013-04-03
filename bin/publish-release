@@ -23,7 +23,7 @@ import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 from cdimage.config import Config
-from cdimage.tree import Publisher, Tree
+from cdimage.tree import Tree
 
 
 def main():
