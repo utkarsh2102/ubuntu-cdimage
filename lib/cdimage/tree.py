@@ -1832,7 +1832,8 @@ class DailyTreePublisher(Publisher):
             "%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
 
         yield os.path.join(
-            self.project, "wubi", "%s-wubi-%s" % (self.config.series, arch))
+            self.project, self.image_type_dir,
+            "%s-wubi-%s" % (self.config.series, arch))
 
     def publish_source(self, date):
         for i in count(1):
