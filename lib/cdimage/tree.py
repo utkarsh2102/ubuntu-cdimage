@@ -2995,9 +2995,13 @@ class ReleasePublisher(Publisher):
                     self.copy(path, os.path.join(target_dir, name))
 
         if self.want_dist:
-            self.make_web_indices(target_dir, prefix_status)
+            self.do(
+                "make-web-indices %s %s" % (target_dir, prefix_status),
+                self.make_web_indices, target_dir, prefix_status)
         if self.want_full:
-            self.make_web_indices(target_dir, prefix)
+            self.do(
+                "make-web-indices %s %s" % (target_dir, prefix),
+                self.make_web_indices, target_dir, prefix)
 
         if self.want_pool:
             logger.info("Checksumming simple tree (pool) ...")
