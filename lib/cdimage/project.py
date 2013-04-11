@@ -49,9 +49,9 @@ project_map = {
 
 def setenv_for_project(project):
     full_project = project
-    if "UBUNTU_DEFAULTS_LOCALE" in os.environ:
-        full_project = "-".join([
-            full_project, os.environ["UBUNTU_DEFAULTS_LOCALE"]])
+    locale = os.environ.get("UBUNTU_DEFAULTS_LOCALE", None)
+    if locale:
+        full_project = "-".join([full_project, locale])
     if full_project not in project_map:
         return False
     os.environ["PROJECT"] = project
