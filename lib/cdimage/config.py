@@ -175,6 +175,7 @@ _whitelisted_keys = (
     "LIVECD_BASE",
     "SUBPROJECT",
     "UBUNTU_DEFAULTS_LOCALE",
+    "SSH_ORIGINAL_COMMAND",
 )
 
 
