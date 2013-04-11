@@ -174,7 +174,7 @@ class TestTree(TestCase):
         pid = os.fork()
         if pid == 0:  # child
             try:
-                Tree.mark_current_trigger(self.config)
+                Tree.mark_current_trigger(self.config, quiet=True)
                 self.assertEqual(0, mock_polish_directory.call_count)
                 mock_trigger_mirrors.assert_called_once_with(self.config)
             except Exception:

@@ -200,7 +200,7 @@ class Tree:
             (self.path_to_manifest(path) for path in self.manifest_files())))
 
     @staticmethod
-    def mark_current_trigger(config, args=None):
+    def mark_current_trigger(config, args=None, quiet=False):
         if not args:
             args = config["SSH_ORIGINAL_COMMAND"].split()[1:]
         if not args:
@@ -251,32 +251,44 @@ class Tree:
             parser.error("need build ID")
         date = parsed_args[0]
 
-        log_path = os.path.join(config.root, "log", "mark-current.log")
-        osextras.ensuredir(os.path.dirname(log_path))
-        log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o666)
-        os.dup2(log, 1)
-        os.close(log)
-        sys.stdout = os.fdopen(1, "w", 1)
-        reset_logging()
-
-        logger.info(
-            "[%s] mark-current %s" % (time.strftime("%F %T"), " ".join(args)))
-
-        tree = Tree.get_daily(config)
-        publisher = Publisher.get_daily(tree, config["IMAGE_TYPE"])
+        old_stdout = os.fdopen(os.dup(1), "w", 1)
         try:
-            for arch in arches:
-                if not publisher.current_uses_trigger(arch):
-                    logger.warning(
-                        "%s is not trigger-controlled; update "
-                        "production/current-triggers" % arch)
-            publisher.mark_current(date, arches)
-            trigger_mirrors(config)
-        except Exception:
-            for line in traceback.format_exc().splitlines():
-                logger.error(line)
-            sys.stdout.flush()
-            raise
+            log_path = os.path.join(config.root, "log", "mark-current.log")
+            osextras.ensuredir(os.path.dirname(log_path))
+            log = os.open(
+                log_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o666)
+            os.dup2(log, 1)
+            os.close(log)
+            sys.stdout = os.fdopen(1, "w", 1)
+            reset_logging()
+
+            logger.info(
+                "[%s] mark-current %s" %
+                (time.strftime("%F %T"), " ".join(args)))
+
+            tree = Tree.get_daily(config)
+            publisher = Publisher.get_daily(tree, config["IMAGE_TYPE"])
+            try:
+                for arch in arches:
+                    if not publisher.current_uses_trigger(arch):
+                        logger.warning(
+                            "%s is not trigger-controlled; update "
+                            "production/current-triggers" % arch)
+                publisher.mark_current(date, arches)
+                trigger_mirrors(config)
+                if not quiet:
+                    print(
+                        "mark-current %s: success" % " ".join(args),
+                        file=old_stdout)
+            except Exception:
+                for line in traceback.format_exc().splitlines():
+                    logger.error(line)
+                    if not quiet:
+                        print(line, file=old_stdout)
+                sys.stdout.flush()
+                raise
+        finally:
+            old_stdout.close()
 
 
 class WebIndicesException(Exception):
