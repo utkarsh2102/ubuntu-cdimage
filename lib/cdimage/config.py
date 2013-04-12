@@ -156,6 +156,7 @@ _whitelisted_keys = (
     "PROJECT",
     "CAPPROJECT",
     "DIST",
+    "PROPOSED",
     "ALL_PROJECTS",
     "ARCHES",
     "CPUARCHES",
