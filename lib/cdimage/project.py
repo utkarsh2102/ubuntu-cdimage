@@ -20,7 +20,8 @@ import os
 
 # Be careful about the values here; in most cases they are passed to
 # debian-cd, which will get upset if they contain a space, hence all the
-# odd-looking hyphens.  ubuntu-zh_CN is an exception to this.
+# odd-looking hyphens.  ubuntu-zh_CN and ubuntu-touch-preview are exceptions
+# to this, because they do not use debian-cd.
 project_map = {
     "ubuntu": "Ubuntu",
     "ubuntu-zh_CN": "Ubuntu Chinese Edition",
@@ -42,6 +43,7 @@ project_map = {
     "ubuntu-moblin-remix": "Ubuntu-Moblin-Remix",
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu-Core",
+    "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "tocd3": "TheOpenCDv3",
     "tocd3.1": "TheOpenCDv3.1",
 }
