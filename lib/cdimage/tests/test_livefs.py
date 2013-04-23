@@ -682,8 +682,8 @@ class TestLiveItemPaths(TestCase):
             self.assertNoPaths("amd64", "wubi", "ubuntu", series)
             self.assertNoPaths("i386", "wubi", "ubuntu", series)
         for series in all_series[6:]:
-            path = ("http://people.canonical.com/~evand/wubi/%s/stable" %
-                    series)
+            path = ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
+                    "stable" % series)
             self.assertPathsEqual([path], "amd64", "wubi", "ubuntu", series)
             self.assertPathsEqual([path], "i386", "wubi", "ubuntu", series)
         self.assertNoPaths("i386", "wubi", "xubuntu", "precise")
@@ -831,7 +831,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(download_live_items(self.config, "i386", "wubi"))
-        url = "http://people.canonical.com/~evand/wubi/raring/stable"
+        url = "http://people.canonical.com/~ubuntu-archive/wubi/raring/stable"
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(

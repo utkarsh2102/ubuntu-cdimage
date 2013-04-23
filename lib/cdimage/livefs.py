@@ -474,8 +474,8 @@ def live_item_paths(config, arch, item):
     elif item == "wubi":
         if (project != "xubuntu" and arch in ("amd64", "i386") and
                 series >= "gutsy"):
-            yield ("http://people.canonical.com/~evand/wubi/%s/stable" %
-                   series)
+            yield ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
+                   "stable" % series)
         else:
             raise NoLiveItem
     elif item == "umenu":
