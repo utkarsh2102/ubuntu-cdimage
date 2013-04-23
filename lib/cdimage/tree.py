@@ -1595,8 +1595,11 @@ class DailyTreePublisher(Publisher):
             return 1024 * 1024 * 1024
         elif (self.project == "ubuntu" and self.publish_type != "dvd" and
               self.config["DIST"] >= "quantal"):
-            # Ubuntu quantal onward has an (arbitrary) 801MB limit.
-            return 801000000
+            # Ubuntu quantal onward has a succession of arbitrary limits.
+            if self.config["DIST"] == "quantal":
+                return 801000000
+            else:
+                return 835000000
         elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
             return 1024 * 1024 * 1024
