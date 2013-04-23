@@ -496,7 +496,7 @@ class GerminateOutput:
 
     def installer_subarches(self, cpuarch):
         if cpuarch == "powerpc":
-            return ["powerpc", "powerpc64", "e500", "e500mc"]
+            return ["powerpc", "powerpc64"]
         else:
             return ["."]
 

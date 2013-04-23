@@ -368,11 +368,8 @@ def flavours(config, arch):
             return ["cell"]
         elif series <= "oneiric":
             return ["powerpc", "powerpc64-smp"]
-        elif series <= "quantal":
-            return ["powerpc-smp", "powerpc64-smp"]
         else:
-            return ["powerpc-smp", "powerpc64-smp",
-                    "powerpc-e500", "powerpc-e500mc"]
+            return ["powerpc-smp", "powerpc64-smp"]
     elif cpuarch == "sparc":
         return ["sparc64"]
     else:
