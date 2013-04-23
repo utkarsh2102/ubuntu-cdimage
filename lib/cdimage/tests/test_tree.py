@@ -656,44 +656,50 @@ class TestDailyTreePublisher(TestCase):
             self.make_publisher("kubuntu", "daily-live").publish_base)
 
     def test_size_limit(self):
-        for project, dist, image_type, size_limit in (
-            ("edubuntu", None, "daily-preinstalled", 4700372992),
-            ("edubuntu", None, "dvd", 4700372992),
-            ("ubuntustudio", None, "dvd", 4700372992),
-            ("ubuntu-mid", None, "daily-live", 1073741824),
-            ("ubuntu-moblin-remix", None, "daily-live", 1073741824),
-            ("kubuntu-active", None, "daily-live", 1073741824),
-            ("kubuntu", None, "daily-live", 1073741824),
-            ("ubuntu", None, "dvd", 4700372992),
-            ("ubuntu", "precise", "daily-live", 736665600),
-            ("ubuntu", "quantal", "daily-live", 801000000),
-            ("ubuntu", "raring", "daily-live", 835000000),
-            ("xubuntu", "quantal", "daily-live", 736665600),
-            ("xubuntu", "raring", "daily-live", 1073741824),
+        for project, dist, image_type, arch, size_limit in (
+            ("edubuntu", None, "daily-preinstalled", "i386", 4700372992),
+            ("edubuntu", None, "dvd", "i386", 4700372992),
+            ("ubuntustudio", None, "dvd", "i386", 4700372992),
+            ("ubuntu-mid", None, "daily-live", "i386", 1073741824),
+            ("ubuntu-moblin-remix", None, "daily-live", "i386", 1073741824),
+            ("kubuntu-active", None, "daily-live", "i386", 1073741824),
+            ("kubuntu", None, "daily-live", "i386", 1073741824),
+            ("ubuntu", None, "dvd", "i386", 4700372992),
+            ("ubuntu", "precise", "daily-live", "i386", 736665600),
+            ("ubuntu", "quantal", "daily-live", "i386", 801000000),
+            ("ubuntu", "raring", "daily-live", "i386", 835000000),
+            ("xubuntu", "quantal", "daily-live", "i386", 736665600),
+            ("xubuntu", "raring", "daily-live", "i386", 1073741824),
         ):
             if dist is not None:
                 self.config["DIST"] = dist
             publisher = self.make_publisher(project, image_type)
-            self.assertEqual(size_limit, publisher.size_limit)
+            self.assertEqual(size_limit, publisher.size_limit(arch))
 
     def test_size_limit_extension(self):
         publisher = self.make_publisher("ubuntu", "daily")
         self.assertEqual(
-            1024 * 1024 * 1024, publisher.size_limit_extension("img"))
+            1024 * 1024 * 1024,
+            publisher.size_limit_extension("armhf+omap4", "img"))
         self.assertEqual(
-            1024 * 1024 * 1024, publisher.size_limit_extension("tar.gz"))
+            1024 * 1024 * 1024,
+            publisher.size_limit_extension("i386", "tar.gz"))
         self.assertEqual(
-            publisher.size_limit, publisher.size_limit_extension("iso"))
+            publisher.size_limit("i386"),
+            publisher.size_limit_extension("i386", "iso"))
 
     def test_size_limit_extension_edubuntu(self):
         # size_limit_extension has special-casing for Edubuntu.
         publisher = self.make_publisher("edubuntu", "daily")
         self.assertEqual(
-            publisher.size_limit, publisher.size_limit_extension("img"))
+            publisher.size_limit("armhf+omap4"),
+            publisher.size_limit_extension("armhf+omap4", "img"))
         self.assertEqual(
-            publisher.size_limit, publisher.size_limit_extension("tar.gz"))
+            publisher.size_limit("i386"),
+            publisher.size_limit_extension("i386", "tar.gz"))
         self.assertEqual(
-            publisher.size_limit, publisher.size_limit_extension("iso"))
+            publisher.size_limit("i386"),
+            publisher.size_limit_extension("i386", "iso"))
 
     def test_new_publish_dir_honours_no_copy(self):
         self.config["CDIMAGE_NOCOPY"] = "1"
@@ -1486,12 +1492,12 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
                 publisher.publish_base)
 
     def test_size_limit(self):
-        for image_type, size_limit in (
-            ("dvd", 4700372992),
-            ("daily-live", 850000000),
+        for image_type, arch, size_limit in (
+            ("dvd", "i386", 4700372992),
+            ("daily-live", "i386", 850000000),
         ):
             publisher = self.make_publisher("ubuntu", image_type)
-            self.assertEqual(size_limit, publisher.size_limit)
+            self.assertEqual(size_limit, publisher.size_limit(arch))
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")

@@ -1581,8 +1581,7 @@ class DailyTreePublisher(Publisher):
     def publish_base(self):
         return os.path.join(self.tree.project_base, self.image_type_dir)
 
-    @property
-    def size_limit(self):
+    def size_limit(self, arch):
         if self.project in ("edubuntu", "ubuntustudio"):
             # All Edubuntu images are DVD sized (including arm).
             # Ubuntu Studio is always DVD-sized for now.
@@ -1615,15 +1614,15 @@ class DailyTreePublisher(Publisher):
                 # check again with ProMese, the CD pressing vendor.
                 return 736665600
 
-    def size_limit_extension(self, extension):
+    def size_limit_extension(self, arch, extension):
         """Some output file types have adjusted limits.  Cope with this."""
         # TODO: Shouldn't this be per-project/publish_type instead?
         if self.project == "edubuntu":
-            return self.size_limit
+            return self.size_limit(arch)
         elif extension == "img" or extension.endswith(".gz"):
             return 1024 * 1024 * 1024
         else:
-            return self.size_limit
+            return self.size_limit(arch)
 
     def new_publish_dir(self, date):
         """Copy previous published tree as a starting point for a new one.
@@ -1777,7 +1776,7 @@ class DailyTreePublisher(Publisher):
                 "%s.%s" % (out_prefix, extension))
 
         size = os.stat("%s.%s" % (target_prefix, extension)).st_size
-        if size > self.size_limit_extension(extension):
+        if size > self.size_limit_extension(arch, extension):
             with open("%s.OVERSIZED" % target_prefix, "a"):
                 pass
         else:
@@ -2395,8 +2394,7 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
         return os.path.join(
             self.config.series, self.image_type.replace("_", "/"))
 
-    @property
-    def size_limit(self):
+    def size_limit(self, arch):
         if self.publish_type == "dvd":
             # http://en.wikipedia.org/wiki/DVD_plus_RW
             return 4700372992

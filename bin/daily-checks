@@ -112,11 +112,14 @@ def check_image(config, project, series, image):
     files = sorted(os.listdir(curdir))
     sizelimit = publisher.size_limit
     for oversized in filter(lambda x: x.endswith('.OVERSIZED'), files):
-        iso = "%s.iso" % oversized[:-10]
+        base = oversized[:-10]
+        iso = "%s.iso" % base
         try:
             size = os.stat(os.path.join(curdir, iso)).st_size
         except OSError:
             continue
+        arch = base.split("-")[-1]
+        sizelimit = publisher.size_limit(arch)
         if size > sizelimit:
             warn(project, image, "%s oversized by %d bytes (%d)" %
                                  (iso, size - sizelimit, size))
