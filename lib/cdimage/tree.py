@@ -2656,14 +2656,15 @@ class ReleasePublisher(Publisher):
 
     def copy(self, source, target):
         self.do("cp -a %s %s" % (source, target), shutil.copy2, source, target)
-        self.remove_checksum(os.path.dirname(target), target)
+        self.remove_checksum(os.path.dirname(target), os.path.basename(target))
 
     def symlink(self, source, link_name):
         relpath = os.path.relpath(source, os.path.dirname(link_name))
         self.do(
             "ln -sf %s %s" % (relpath, link_name),
             osextras.symlink_force, relpath, link_name)
-        self.remove_checksum(os.path.dirname(link_name), link_name)
+        self.remove_checksum(
+            os.path.dirname(link_name), os.path.basename(link_name))
 
     def hardlink(self, source, link_name):
         self.do(
