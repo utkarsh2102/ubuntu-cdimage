@@ -752,9 +752,15 @@ class GerminateOutput:
             project = self.config.project
         tasks_dir = self.tasks_output_dir(project)
         previous_tasks_dir = "%s-previous" % tasks_dir
-        debian_cd_tasks_dir = os.path.join(
-            self.config.root, "debian-cd", "tasks", "auto",
-            self.config.image_type, self.config.project, self.config.series)
+        if self.config.image_type == "source":
+            debian_cd_tasks_dir = os.path.join(
+                self.config.root, "debian-cd", "tasks", "auto",
+                self.config.image_type, self.config.series)
+        else:
+            debian_cd_tasks_dir = os.path.join(
+                self.config.root, "debian-cd", "tasks", "auto",
+                self.config.image_type, self.config.project,
+                self.config.series)
 
         task_recipients = []
         task_mail_path = os.path.join(self.config.root, "etc", "task-mail")
