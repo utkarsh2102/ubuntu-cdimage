@@ -730,7 +730,11 @@ class GerminateOutput:
             self.write_tasks_project(self.config.project)
 
     def diff_tasks(self, output=None):
-        tasks_dir = self.tasks_output_dir(self.config.project)
+        if self.config.image_type == "source":
+            project = "source"
+        else:
+            project = self.config.project
+        tasks_dir = self.tasks_output_dir(project)
         previous_tasks_dir = "%s-previous" % tasks_dir
         for seed in ["MASTER"] + list(self.list_seeds("all")):
             old = os.path.join(previous_tasks_dir, seed)
@@ -742,7 +746,11 @@ class GerminateOutput:
                 subprocess.call(["diff", "-u", old, new], **kwargs)
 
     def update_tasks(self, date):
-        tasks_dir = self.tasks_output_dir(self.config.project)
+        if self.config.image_type == "source":
+            project = "source"
+        else:
+            project = self.config.project
+        tasks_dir = self.tasks_output_dir(project)
         previous_tasks_dir = "%s-previous" % tasks_dir
         debian_cd_tasks_dir = os.path.join(
             self.config.root, "debian-cd", "tasks", "auto",
