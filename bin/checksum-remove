@@ -27,7 +27,7 @@ from cdimage.config import Config
 
 
 def main():
-    parser = OptionParser("%prog [options] DIR FILE")
+    parser = OptionParser("%prog [options] DIR FILE [...]")
     parser.add_option(
         "--no-sign", dest="sign", default=True, action="store_false",
         help="don't re-sign checksums files")
@@ -35,10 +35,11 @@ def main():
     if len(args) < 2:
         parser.error("need directory and filename")
 
-    directory, filename = args[:2]
+    directory = args[0]
     config = Config()
     with ChecksumFileSet(config, directory, sign=options.sign) as files:
-        files.remove(filename)
+        for filename in args[1:]:
+            files.remove(filename)
 
 
 if __name__ == "__main__":
