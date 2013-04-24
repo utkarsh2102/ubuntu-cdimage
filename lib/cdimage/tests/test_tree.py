@@ -668,6 +668,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "precise", "daily-live", "i386", 736665600),
             ("ubuntu", "quantal", "daily-live", "i386", 801000000),
             ("ubuntu", "raring", "daily-live", "i386", 835000000),
+            ("ubuntu", "raring", "daily-live", "powerpc", 850000000),
             ("xubuntu", "quantal", "daily-live", "i386", 736665600),
             ("xubuntu", "raring", "daily-live", "i386", 1073741824),
         ):

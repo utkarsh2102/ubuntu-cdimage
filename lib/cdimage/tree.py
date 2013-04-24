@@ -1597,6 +1597,8 @@ class DailyTreePublisher(Publisher):
             # Ubuntu quantal onward has a succession of arbitrary limits.
             if self.config["DIST"] == "quantal":
                 return 801000000
+            elif arch == "powerpc":
+                return 850000000
             else:
                 return 835000000
         elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
