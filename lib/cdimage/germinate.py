@@ -228,6 +228,9 @@ class Germination:
             self.germinate_project(self.config.project)
 
     def output(self, project):
+        if project == "source":
+            # TODO cjwatson 2013-04-25: Work around layering violation.
+            project = self.config.all_projects[0]
         return GerminateOutput(self.config, self.output_dir(project))
 
 
@@ -410,7 +413,7 @@ class GerminateOutput:
                         if seed not in ("installer", "casper"):
                             yield seed
 
-    def master_task_entries(self, project):
+    def master_task_entries(self, project, source=False):
         series = self.config.series
 
         found = False
@@ -420,7 +423,10 @@ class GerminateOutput:
                     self.config["CDIMAGE_ADDON"] != "1" and
                     seed == "ship-addon"):
                 yield "FORCE-CD-BREAK"
-            yield "#include <%s/%s/%s>" % (project, series, seed)
+            if source:
+                yield "#include <source/%s/%s:%s>" % (series, project, seed)
+            else:
+                yield "#include <%s/%s/%s>" % (project, series, seed)
             found = True
 
         if not found:
@@ -698,7 +704,7 @@ class GerminateOutput:
                         print(pkg, file=important_file)
 
             with open(os.path.join(output_dir, "MASTER"), "w") as master:
-                for entry in self.master_task_entries(project):
+                for entry in self.master_task_entries(project, source=source):
                     print(entry, file=master)
 
     def write_tasks(self):
