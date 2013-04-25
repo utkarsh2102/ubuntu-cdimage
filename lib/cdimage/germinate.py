@@ -714,7 +714,14 @@ class GerminateOutput:
 
             # Generate task output for all source projects.
             for project in self.config.all_projects:
-                self.write_tasks_project(project, source=True)
+                # TODO cjwatson 2013-04-25: Layering violation; refactor.
+                project_output = GerminateOutput(
+                    self.config,
+                    os.path.join(
+                        self.config.root, "scratch", project,
+                        self.config.series, self.config.image_type,
+                        "germinate"))
+                project_output.write_tasks_project(project, source=True)
                 # TODO: write_tasks_project should just write these files
                 # with the names we need in the first place.
                 for entry in os.listdir(output_dir):
