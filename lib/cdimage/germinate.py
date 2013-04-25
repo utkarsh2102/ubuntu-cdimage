@@ -730,11 +730,7 @@ class GerminateOutput:
             self.write_tasks_project(self.config.project)
 
     def diff_tasks(self, output=None):
-        if self.config.image_type == "source":
-            project = "source"
-        else:
-            project = self.config.project
-        tasks_dir = self.tasks_output_dir(project)
+        tasks_dir = self.tasks_output_dir(self.config.project)
         previous_tasks_dir = "%s-previous" % tasks_dir
         for seed in ["MASTER"] + list(self.list_seeds("all")):
             old = os.path.join(previous_tasks_dir, seed)
@@ -746,21 +742,11 @@ class GerminateOutput:
                 subprocess.call(["diff", "-u", old, new], **kwargs)
 
     def update_tasks(self, date):
-        if self.config.image_type == "source":
-            project = "source"
-        else:
-            project = self.config.project
-        tasks_dir = self.tasks_output_dir(project)
+        tasks_dir = self.tasks_output_dir(self.config.project)
         previous_tasks_dir = "%s-previous" % tasks_dir
-        if self.config.image_type == "source":
-            debian_cd_tasks_dir = os.path.join(
-                self.config.root, "debian-cd", "tasks", "auto",
-                self.config.image_type, self.config.series)
-        else:
-            debian_cd_tasks_dir = os.path.join(
-                self.config.root, "debian-cd", "tasks", "auto",
-                self.config.image_type, self.config.project,
-                self.config.series)
+        debian_cd_tasks_dir = os.path.join(
+            self.config.root, "debian-cd", "tasks", "auto",
+            self.config.image_type, self.config.project, self.config.series)
 
         task_recipients = []
         task_mail_path = os.path.join(self.config.root, "etc", "task-mail")
