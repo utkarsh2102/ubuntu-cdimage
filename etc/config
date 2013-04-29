@@ -21,7 +21,7 @@ case $PROJECT in
 		;;
 esac
 export IMAGE_FORMAT
-DIST="${DIST:-raring}"
+DIST="${DIST:-saucy}"
 
 case $DIST in
 	precise)

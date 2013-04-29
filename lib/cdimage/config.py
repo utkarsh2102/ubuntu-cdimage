@@ -149,6 +149,7 @@ all_series.extend([
         ]),
     Series("quantal", "12.10", "Quantal Quetzal"),
     Series("raring", "13.04", "Raring Ringtail"),
+    Series("saucy", "13.10", "Saucy Salamander"),
 ])
 
 

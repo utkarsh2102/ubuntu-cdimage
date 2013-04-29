@@ -224,7 +224,7 @@ def main():
     projects = ('ubuntu', 'ubuntu-server', 'kubuntu', 'edubuntu', 'xubuntu',
                 'ubuntustudio', 'ubuntu-netbook', 'kubuntu-netbook',
                 'ubuntu-moblin-remix')
-    active_series = ('precise', 'raring')
+    active_series = ('precise', 'saucy')
 
     for project in projects:
         for series in active_series:
