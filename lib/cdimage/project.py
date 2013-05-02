@@ -44,6 +44,7 @@ project_map = {
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu-Core",
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
+    "ubuntu-touch": "Ubuntu Touch",
     "tocd3": "TheOpenCDv3",
     "tocd3.1": "TheOpenCDv3.1",
 }

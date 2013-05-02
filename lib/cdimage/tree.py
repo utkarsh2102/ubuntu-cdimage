@@ -2132,6 +2132,11 @@ class DailyTreePublisher(Publisher):
                     publish_type == "preinstalled"):
                 subarch = arch.split("+")[1]
                 return "Ubuntu Touch Preinstalled %s" % subarch
+        elif project == "ubuntu-touch":
+            if (image_type == "daily-preinstalled" and
+                    publish_type == "preinstalled"):
+                subarch = arch.split("+")[1]
+                return "Ubuntu Touch Preinstalled %s" % subarch
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
