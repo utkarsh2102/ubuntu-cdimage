@@ -1156,13 +1156,14 @@ class TestDailyTreePublisher(TestCase):
                 publisher.qa_product(
                     project, image_type, publish_type, "i386"))
 
-    def test_qa_product_ubuntu_touch_preview(self):
-        publisher = self.make_publisher("ubuntu-touch-preview", "daily")
-        self.assertEqual(
-            "Ubuntu Touch Preinstalled grouper",
-            publisher.qa_product(
-                "ubuntu-touch-preview", "daily-preinstalled", "preinstalled",
-                "armel+grouper"))
+    def test_qa_product_ubuntu_touch(self):
+        for project in "ubuntu-touch-preview", "ubuntu-touch":
+            publisher = self.make_publisher(project, "daily")
+            self.assertEqual(
+                "Ubuntu Touch Preinstalled grouper",
+                publisher.qa_product(
+                    project, "daily-preinstalled", "preinstalled",
+                    "armel+grouper"))
 
     @mock_isotracker
     def test_post_qa(self):
