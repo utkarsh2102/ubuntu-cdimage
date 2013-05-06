@@ -125,7 +125,7 @@ def live_build_options(config, arch):
         elif subarch in ("ac100", "nexus7"):
             options.extend(["-f", "plain"])
 
-    if config.project == "ubuntu-core":
+    if config.project in ("ubuntu-core", "ubuntu-touch"):
         options.extend(["-f", "plain"])
 
     if config.subproject == "wubi":
