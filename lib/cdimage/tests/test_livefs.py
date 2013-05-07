@@ -219,6 +219,11 @@ class TestLiveBuildOptions(TestCase):
         self.assertEqual(
             ["-f", "plain"], live_build_options(self.config, "i386"))
 
+    def test_ubuntu_touch(self):
+        self.config["PROJECT"] = "ubuntu-touch"
+        self.assertEqual(
+            ["-f", "plain"], live_build_options(self.config, "armhf"))
+
     def test_wubi(self):
         self.config["SUBPROJECT"] = "wubi"
         for series, fstype in (

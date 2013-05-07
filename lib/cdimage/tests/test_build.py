@@ -275,6 +275,40 @@ class TestBuildLiveCDBase(TestCase):
         with open(os.path.join(output_dir, "raring-core-i386.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
+    @mock.patch("cdimage.osextras.fetch")
+    def test_ubuntu_touch(self, mock_fetch):
+        def fetch_side_effect(config, source, target):
+            if (target.endswith(".manifest") or
+                    target.endswith(".rootfs.tar.gz")):
+                touch(target)
+                return True
+            else:
+                return False
+
+        mock_fetch.side_effect = fetch_side_effect
+        self.config["PROJECT"] = "ubuntu-touch"
+        self.config["DIST"] = "saucy"
+        self.config["IMAGE_TYPE"] = "daily-preinstalled"
+        self.config["ARCHES"] = "armhf"
+        self.capture_logging()
+        build_livecd_base(self.config)
+        self.assertLogEqual([
+            "===== Copying images to debian-cd output directory =====",
+            self.epoch_date,
+        ])
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-touch", "saucy",
+            "daily-preinstalled",
+            "debian-cd", "armhf")
+        self.assertTrue(os.path.isdir(output_dir))
+        self.assertCountEqual([
+            "saucy-touch-armhf.manifest",
+            "saucy-touch-armhf.raw",
+            "saucy-touch-armhf.type",
+        ], os.listdir(output_dir))
+        with open(os.path.join(output_dir, "saucy-touch-armhf.type")) as f:
+            self.assertEqual("tar archive\n", f.read())
+
 
 class TestExtractDebootstrap(TestCase):
     def setUp(self):

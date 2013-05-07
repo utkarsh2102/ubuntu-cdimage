@@ -416,7 +416,7 @@ def build_ubuntu_defaults_locale(config):
 def build_livecd_base(config):
     download_live_filesystems(config)
 
-    if config.project == "ubuntu-core":
+    if config.project in ("ubuntu-core", "ubuntu-touch"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.project, config.series,
@@ -428,8 +428,12 @@ def build_livecd_base(config):
             if os.path.exists(rootfs):
                 output_dir = os.path.join(scratch_dir, "debian-cd", arch)
                 osextras.ensuredir(output_dir)
-                output_prefix = os.path.join(
-                    output_dir, "%s-core-%s" % (config.series, arch))
+                if config.project == "ubuntu-core":
+                    output_prefix = os.path.join(
+                        output_dir, "%s-core-%s" % (config.series, arch))
+                elif config.project == "ubuntu-touch":
+                    output_prefix = os.path.join(
+                        output_dir, "%s-touch-%s" % (config.series, arch))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)
@@ -581,7 +585,7 @@ def build_image_set_locked(config, options, semaphore_state):
     log_path = None
 
     live_fs_only = (
-        config.project in ("livecd-base", "ubuntu-core") or
+        config.project in ("livecd-base", "ubuntu-core", "ubuntu-touch") or
         config.subproject == "wubi")
 
     try:
