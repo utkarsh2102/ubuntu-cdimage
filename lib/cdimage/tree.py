@@ -362,6 +362,8 @@ class Publisher:
                 return "preinstalled-headless"
             elif self.project == "ubuntu-server":
                 return "preinstalled-server"
+            elif self.project == "ubuntu-touch":
+                return "preinstalled-touch"
             else:
                 return "preinstalled-desktop"
         elif self.image_type.endswith("-live"):
@@ -505,6 +507,8 @@ class Publisher:
             return "preinstalled netbook %s" % cd
         elif publish_type == "preinstalled-active":
             return "preview preinstalled active image"
+        elif publish_type == "preinstalled-touch":
+            return "preinstalled touch image"
         elif publish_type == "wubi":
             return "Wubi %s" % cd
         else:
@@ -720,6 +724,10 @@ class Publisher:
             sentences.append(
                 "The Active Image allows you to unpack a preinstalled preview "
                 "of the Plasma Active workspace onto an SD card.")
+        elif publish_type == "preinstalled-touch":
+            sentences.append(
+                "The Preinstalled Touch Image allows you to install a preinstalled "
+                "preview of Ubuntu Touch onto a target device")
         elif publish_type.startswith("preinstalled-"):
             sentences.append(
                 "The %s %s allows you to unpack a preinstalled version of %s "
@@ -1029,7 +1037,7 @@ class Publisher:
             "preinstalled-desktop", "preinstalled-netbook",
             "preinstalled-mobile", "preinstalled-active",
             "preinstalled-headless", "preinstalled-server",
-            "wubi",
+            "preinstalled-touch", "wubi",
         )
 
         all_arches = (
@@ -1038,7 +1046,7 @@ class Publisher:
             "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
             "armel+ac100", "armel+mx5",
             "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
-            "armhf+nexus7",
+            "armhf+nexus7", "armhf", "armel"
             "powerpc",
             "powerpc+ps3",
             "hppa",
@@ -2129,9 +2137,8 @@ class DailyTreePublisher(Publisher):
                 return "Ubuntu GNOME Desktop %s" % arch
         elif project in ("ubuntu-touch-preview", "ubuntu-touch"):
             if (image_type == "daily-preinstalled" and
-                    publish_type == "preinstalled"):
-                subarch = arch.split("+")[1]
-                return "Ubuntu Touch Preinstalled %s" % subarch
+                    publish_type == "preinstalled-touch"):
+                return "Ubuntu Touch Preinstalled %s" % arch
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
