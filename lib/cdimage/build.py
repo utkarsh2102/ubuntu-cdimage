@@ -565,7 +565,9 @@ def notify_failure(config, log_path):
         else:
             body = open(log_path)
         send_mail(
-            "CD image %s/%s/%s failed to build on %s" % (
+            "CD image %s%s/%s/%s failed to build on %s" % (
+                ("(built by %s) " % config["SUDO_USER"]
+                 if config["SUDO_USER"] else ""),
                 project, series, image_type, date),
             "build-image-set", recipients, body)
     finally:
