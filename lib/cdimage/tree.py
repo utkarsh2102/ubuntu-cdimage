@@ -726,8 +726,8 @@ class Publisher:
                 "of the Plasma Active workspace onto an SD card.")
         elif publish_type == "preinstalled-touch":
             sentences.append(
-                "The Preinstalled Touch Image allows you to install a preinstalled "
-                "preview of Ubuntu Touch onto a target device")
+                "The Preinstalled Touch Image allows you to install a "
+                "preinstalled preview of Ubuntu Touch onto a target device.")
         elif publish_type.startswith("preinstalled-"):
             sentences.append(
                 "The %s %s allows you to unpack a preinstalled version of %s "
