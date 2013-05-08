@@ -302,11 +302,11 @@ class TestBuildLiveCDBase(TestCase):
             "debian-cd", "armhf")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "saucy-touch-armhf.manifest",
-            "saucy-touch-armhf.raw",
-            "saucy-touch-armhf.type",
+            "saucy-preinstalled-touch-armhf.manifest",
+            "saucy-preinstalled-touch-armhf.raw",
+            "saucy-preinstalled-touch-armhf.type",
         ], os.listdir(output_dir))
-        with open(os.path.join(output_dir, "saucy-touch-armhf.type")) as f:
+        with open(os.path.join(output_dir, "saucy-preinstalled-touch-armhf.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
 

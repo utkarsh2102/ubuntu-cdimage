@@ -2135,10 +2135,15 @@ class DailyTreePublisher(Publisher):
         elif project == "ubuntu-gnome":
             if image_type == "daily-live" and publish_type == "desktop":
                 return "Ubuntu GNOME Desktop %s" % arch
-        elif project in ("ubuntu-touch-preview", "ubuntu-touch"):
+        elif project == "ubuntu-touch":
             if (image_type == "daily-preinstalled" and
                     publish_type == "preinstalled-touch"):
                 return "Ubuntu Touch Preinstalled %s" % arch
+        elif project == "ubuntu-touch-preview":
+            if (image_type == "daily-preinstalled" and
+                    publish_type == "preinstalled"):
+                    subarch = arch.split("+")[1]
+                    return "Ubuntu Touch Preinstalled %s" % subarch
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
