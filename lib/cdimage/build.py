@@ -433,7 +433,8 @@ def build_livecd_base(config):
                         output_dir, "%s-core-%s" % (config.series, arch))
                 elif config.project == "ubuntu-touch":
                     output_prefix = os.path.join(
-                        output_dir, "%s-preinstalled-touch-%s" % (config.series, arch))
+                        output_dir, "%s-preinstalled-touch-%s" %
+                        (config.series, arch))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)
