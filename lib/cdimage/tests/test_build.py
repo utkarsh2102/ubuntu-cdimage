@@ -306,7 +306,9 @@ class TestBuildLiveCDBase(TestCase):
             "saucy-preinstalled-touch-armhf.raw",
             "saucy-preinstalled-touch-armhf.type",
         ], os.listdir(output_dir))
-        with open(os.path.join(output_dir, "saucy-preinstalled-touch-armhf.type")) as f:
+        with open(os.path.join(
+            output_dir, "saucy-preinstalled-touch-armhf.type")
+        ) as f:
             self.assertEqual("tar archive\n", f.read())
 
 

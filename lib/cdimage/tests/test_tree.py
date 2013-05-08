@@ -1176,6 +1176,7 @@ class TestDailyTreePublisher(TestCase):
                     publisher.qa_product(
                         project, "daily-preinstalled", "preinstalled",
                         "armel+grouper"))
+
     @mock_isotracker
     def test_post_qa(self):
         publisher = self.make_publisher("ubuntu", "daily")
