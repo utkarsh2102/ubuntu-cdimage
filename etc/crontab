@@ -17,7 +17,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 21 20 * * *	DIST=precise for-project mythbuntu cron.daily-live --live
 34 20 * * *	DIST=precise for-project ubuntustudio cron.dvd --live
 5 21 * * *	DIST=precise for-project xubuntu cron.daily; DIST=precise for-project xubuntu cron.daily-live --live
-30 12 * * *	DIST=precise UBUNTU_DEFAULTS_LOCALE=zh_CN for-project ubuntu cron.daily-live --live
 # regular saucy daily builds
 31 7 * * *	for-project ubuntu cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
@@ -36,7 +35,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 32 13 * * *	for-project ubuntu-touch cron.daily-preinstalled --live
 # No Kubuntu Active on ARM until we know it works, jriddell 2012-02
 #45 8 * * *	for-project kubuntu-active cron.daily-preinstalled --live
-47 22 * * *	UBUNTU_DEFAULTS_LOCALE=zh_CN for-project ubuntu cron.daily-live --live
 14 22 * * *	for-project ubuntukylin cron.daily-live --live
 32 15 * * *	for-project ubuntu-gnome cron.daily-live --live
 
