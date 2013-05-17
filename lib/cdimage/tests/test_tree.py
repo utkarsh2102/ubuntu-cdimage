@@ -1119,33 +1119,19 @@ class TestDailyTreePublisher(TestCase):
         for project, image_type, publish_type, product in (
             ("ubuntu", "daily", "alternate", "Ubuntu Alternate"),
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
-            ("ubuntu", "daily-preinstalled", "preinstalled-desktop",
-             "Ubuntu Desktop Preinstalled"),
             ("ubuntu", "dvd", "dvd", "Ubuntu DVD"),
             ("ubuntu", "wubi", "wubi", "Ubuntu Wubi"),
             ("kubuntu", "daily", "alternate", "Kubuntu Alternate"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
-            ("kubuntu", "daily-preinstalled", "preinstalled-desktop",
-             "Kubuntu Desktop"),
-            ("kubuntu", "dvd", "dvd", "Kubuntu DVD"),
             ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
-            ("kubuntu-active", "daily-preinstalled", "preinstalled-mobile",
-             "Kubuntu Active"),
             ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
             ("xubuntu", "daily", "alternate", "Xubuntu Alternate"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
-            ("ubuntu-server", "daily-preinstalled", "preinstalled-server",
-             "Ubuntu Server"),
-            ("ubuntu-touch", "daily-preinstalled", "preinstalled-touch",
-             "Ubuntu Touch Preinstalled"),
-            ("ubuntustudio", "daily", "alternate", "Ubuntu Studio Alternate"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
             ("mythbuntu", "daily-live", "desktop", "Mythbuntu Desktop"),
             ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
             ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
-            ("lubuntu", "daily-preinstalled", "preinstalled-desktop",
-             "Lubuntu Desktop Preinstalled"),
             ("ubuntu-core", "daily", "core", "Ubuntu Core"),
             ("ubuntu-zh_CN", "daily-live", "desktop",
              "Ubuntu Chinese Desktop"),
@@ -1175,6 +1161,22 @@ class TestDailyTreePublisher(TestCase):
             publisher.qa_product(
                 "ubuntu-touch-preview", "daily-preinstalled", "preinstalled",
                 "armel+grouper"))
+
+    def test_qa_product_ubuntu_preinstalled(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        self.assertEqual(
+            "Ubuntu Desktop Preinstalled armhf+nexus7",
+            publisher.qa_product(
+                "ubuntu", "daily-preinstalled", "preinstalled-desktop",
+                "armhf+nexus7"))
+
+    def test_qa_product_lubuntu_preinstalled(self):
+        publisher = self.make_publisher("lubuntu", "daily")
+        self.assertEqual(
+            "Lubuntu Desktop Preinstalled armhf+ac100",
+            publisher.qa_product(
+                "lubuntu", "daily-preinstalled", "preinstalled-desktop",
+                "armhf+ac100"))
 
     @mock_isotracker
     def test_post_qa(self):
@@ -1240,7 +1242,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertRaisesRegex(
             Exception, r"Cannot post images from nonexistent directory: .*",
             publisher.post_qa, "bad-date",
-            ["ubuntu/daily-live/raring-desktop-i386.iso"])
+            ["ubuntu/daily-live/raring-desktop-i386"])
 
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
