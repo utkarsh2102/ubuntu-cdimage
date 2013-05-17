@@ -1267,6 +1267,7 @@ class TestDailyTreePublisher(TestCase):
             publisher.tree.site_name
         ])
 
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
     @mock.patch("cdimage.tree.DailyTreePublisher.make_metalink")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
@@ -1573,6 +1574,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.assertEqual("china-raring", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
     @mock.patch("cdimage.tree.DailyTreePublisher.make_metalink")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")

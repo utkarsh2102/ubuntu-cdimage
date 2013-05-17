@@ -6,8 +6,7 @@
 #  python3,
 #  python3 (>= 3.3) | python3-mock,
 #  procmail,
-#  squashfs-tools,
-#  zsync
+#  squashfs-tools
 
 if [ -z "$*" ]; then
 	set -- discover cdimage.tests
