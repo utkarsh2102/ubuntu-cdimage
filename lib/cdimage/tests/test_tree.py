@@ -27,6 +27,7 @@ try:
 except ImportError:
     from HTMLParser import HTMLParser
 import os
+import shutil
 import sys
 from textwrap import dedent
 import traceback
@@ -611,6 +612,12 @@ class TestDailyTreePublisher(TestCase):
         self.config.root = self.use_temp_dir()
         self.config["DIST"] = Series.latest()
 
+        # Can probably be done in a cleaner way
+        if os.path.exists("etc/qa-products"):
+            osextras.ensuredir(os.path.join(self.config.root, "etc"))
+            product_list = os.path.join(self.config.root, "etc", "qa-products")
+            shutil.copy("etc/qa-products", product_list)
+
     def make_publisher(self, project, image_type, **kwargs):
         self.config["PROJECT"] = project
         self.tree = DailyTree(self.config)
@@ -618,6 +625,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = DailyTreePublisher(self.tree, image_type, **kwargs)
         osextras.ensuredir(publisher.image_output("i386"))
         osextras.ensuredir(publisher.britney_report)
+
         return publisher
 
     def test_image_output(self):
@@ -1115,7 +1123,7 @@ class TestDailyTreePublisher(TestCase):
                 IndexOptions FancyIndexing
                 """))
 
-    def test_qa_product(self):
+    def test_qa_product_main_tracker(self):
         for project, image_type, publish_type, product in (
             ("ubuntu", "daily", "alternate", "Ubuntu Alternate"),
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
@@ -1133,8 +1141,6 @@ class TestDailyTreePublisher(TestCase):
             ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
             ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
             ("ubuntu-core", "daily", "core", "Ubuntu Core"),
-            ("ubuntu-zh_CN", "daily-live", "desktop",
-             "Ubuntu Chinese Desktop"),
             ("ubuntukylin", "daily-live", "desktop", "UbuntuKylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
         ):
@@ -1142,14 +1148,22 @@ class TestDailyTreePublisher(TestCase):
             # use the publisher's image_type at all.
             publisher = self.make_publisher(project, "daily")
             self.assertEqual(
-                "%s i386" % product,
+                ("%s i386" % product, "iso"),
                 publisher.qa_product(
                     project, image_type, publish_type, "i386"))
+
+    def test_qa_product_localized_tracker(self):
+        publisher = self.make_publisher("ubuntu-zh_CN", "daily-live")
+        self.assertEqual(
+            ("Ubuntu Chinese Desktop i386", "localized-iso"),
+            publisher.qa_product(
+                "ubuntu-zh_CN", "daily-live", "desktop",
+                "i386"))
 
     def test_qa_product_ubuntu_touch(self):
         publisher = self.make_publisher("ubuntu-touch", "daily-preinstalled")
         self.assertEqual(
-            "Ubuntu Touch Preinstalled grouper",
+            ("Ubuntu Touch Preinstalled grouper", "iso"),
             publisher.qa_product(
                 "ubuntu-touch", "daily-preinstalled", "preinstalled-touch",
                 "grouper"))
@@ -1157,7 +1171,7 @@ class TestDailyTreePublisher(TestCase):
     def test_qa_product_ubuntu_touch_preview(self):
         publisher = self.make_publisher("ubuntu-touch-preview", "daily")
         self.assertEqual(
-            "Ubuntu Touch Preinstalled grouper",
+            ("Ubuntu Touch Preinstalled grouper", "iso"),
             publisher.qa_product(
                 "ubuntu-touch-preview", "daily-preinstalled", "preinstalled",
                 "armel+grouper"))
@@ -1165,7 +1179,7 @@ class TestDailyTreePublisher(TestCase):
     def test_qa_product_ubuntu_preinstalled(self):
         publisher = self.make_publisher("ubuntu", "daily")
         self.assertEqual(
-            "Ubuntu Desktop Preinstalled armhf+nexus7",
+            ("Ubuntu Desktop Preinstalled armhf+nexus7", "iso"),
             publisher.qa_product(
                 "ubuntu", "daily-preinstalled", "preinstalled-desktop",
                 "armhf+nexus7"))
@@ -1173,10 +1187,46 @@ class TestDailyTreePublisher(TestCase):
     def test_qa_product_lubuntu_preinstalled(self):
         publisher = self.make_publisher("lubuntu", "daily")
         self.assertEqual(
-            "Lubuntu Desktop Preinstalled armhf+ac100",
+            ("Lubuntu Desktop Preinstalled armhf+ac100", "iso"),
             publisher.qa_product(
                 "lubuntu", "daily-preinstalled", "preinstalled-desktop",
                 "armhf+ac100"))
+
+    def test_cdimage_project_main_tracker(self):
+        for project, image_type, publish_type, product in (
+            ("ubuntu", "daily", "alternate", "Ubuntu Alternate"),
+            ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
+            ("ubuntu", "dvd", "dvd", "Ubuntu DVD"),
+            ("ubuntu", "wubi", "wubi", "Ubuntu Wubi"),
+            ("kubuntu", "daily", "alternate", "Kubuntu Alternate"),
+            ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
+            ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
+            ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
+            ("xubuntu", "daily", "alternate", "Xubuntu Alternate"),
+            ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
+            ("ubuntu-server", "daily", "server", "Ubuntu Server"),
+            ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
+            ("mythbuntu", "daily-live", "desktop", "Mythbuntu Desktop"),
+            ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
+            ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
+            ("ubuntu-core", "daily", "core", "Ubuntu Core"),
+            ("ubuntukylin", "daily-live", "desktop", "UbuntuKylin Desktop"),
+            ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
+        ):
+            # Use "daily" here to match bin/post-qa; qa_product shouldn't
+            # use the publisher's image_type at all.
+            publisher = self.make_publisher(project, "daily")
+            self.assertEqual(
+                (project, image_type, publish_type, "i386"),
+                publisher.cdimage_project(
+                    "%s i386" % product, "iso"))
+
+    def test_cdimage_project_localized_tracker(self):
+        publisher = self.make_publisher("ubuntu-zh_CN", "daily-live")
+        self.assertEqual(
+            ("ubuntu-zh_CN", "daily-live", "desktop", "i386"),
+            publisher.cdimage_project(
+                "Ubuntu Chinese Desktop i386", "localized-iso"))
 
     @mock_isotracker
     def test_post_qa(self):
@@ -1286,7 +1336,6 @@ class TestDailyTreePublisher(TestCase):
             source_dir, "%s-desktop-i386.manifest" % self.config.series))
         touch(os.path.join(
             publisher.britney_report, "%s_probs.html" % self.config.series))
-        os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
 
         publisher.publish("20120807")
@@ -1591,7 +1640,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             source_dir, "%s-desktop-i386.list" % self.config.series))
         touch(os.path.join(
             source_dir, "%s-desktop-i386.manifest" % self.config.series))
-        os.mkdir(os.path.join(self.config.root, "etc"))
         self.capture_logging()
 
         publisher.publish("20120807")

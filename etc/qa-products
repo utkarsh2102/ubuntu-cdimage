@@ -1,0 +1,98 @@
+# QA PRODUCT								PROJECT		IMAGE_TYPE		PUBLISH_TYPE					ARCHITECTURE	TRACKER
+
+# FIXME: To be dropped after last 12.04 point release
+Kubuntu Alternate amd64						kubuntu			daily				alternate				amd64			iso
+Kubuntu Alternate amd64+mac					kubuntu			daily				alternate				amd64+mac		iso
+Kubuntu Alternate i386						kubuntu			daily				alternate				i386			iso
+Kubuntu Alternate powerpc					kubuntu			daily				alternate				powerpc			iso
+Ubuntu Alternate amd64						ubuntu			daily				alternate				amd64			iso
+Ubuntu Alternate amd64+mac					ubuntu			daily				alternate				amd64+mac		iso
+Ubuntu Alternate i386						ubuntu			daily				alternate				i386			iso
+Ubuntu Alternate powerpc					ubuntu			daily				alternate				powerpc			iso
+Ubuntu DVD amd64							ubuntu			dvd					dvd						amd64			iso
+Ubuntu DVD i386								ubuntu			dvd					dvd						i386			iso
+Ubuntu Wubi amd64							ubuntu			wubi				wubi					amd64			iso
+Ubuntu Wubi i386							ubuntu			wubi				wubi					i386			iso
+Xubuntu Alternate amd64						xubuntu			daily				alternate				amd64			iso
+Xubuntu Alternate i386						xubuntu			daily				alternate				i386			iso
+
+# FIXME: To be dropped after the touch images are ported to saucy
+Ubuntu Touch Preinstalled grouper			ubuntu-touch-preview	daily-preinstalled	preinstalled	armel+grouper	iso
+Ubuntu Touch Preinstalled maguro			ubuntu-touch-preview	daily-preinstalled	preinstalled	armel+maguro	iso
+Ubuntu Touch Preinstalled mako				ubuntu-touch-preview	daily-preinstalled	preinstalled	armel+mako		iso
+Ubuntu Touch Preinstalled manta				ubuntu-touch-preview	daily-preinstalled	preinstalled	armel+manta		iso
+
+# Edubuntu
+Edubuntu DVD amd64							edubuntu		dvd					dvd						amd64			iso
+Edubuntu DVD i386							edubuntu		dvd					dvd						i386			iso
+
+# Kubuntu
+Kubuntu Active i386							kubuntu-active	daily-live			desktop					i386			iso
+Kubuntu Desktop amd64						kubuntu			daily-live			desktop					amd64			iso
+Kubuntu Desktop amd64+mac					kubuntu			daily-live			desktop					amd64+mac		iso
+Kubuntu Desktop armhf+omap4					kubuntu			daily-live			desktop					armhf+omap4		iso
+Kubuntu Desktop i386						kubuntu			daily-live			desktop					i386			iso
+Kubuntu Desktop powerpc						kubuntu			daily-live			desktop					powerpc			iso
+
+# Lubuntu
+Lubuntu Alternate amd64						lubuntu			daily				alternate				amd64			iso
+Lubuntu Alternate amd64+mac					lubuntu			daily				alternate				amd64+mac		iso
+Lubuntu Alternate i386						lubuntu			daily				alternate				i386			iso
+Lubuntu Alternate powerpc					lubuntu			daily				alternate				powerpc			iso
+Lubuntu Desktop amd64						lubuntu			daily-live			desktop					amd64			iso
+Lubuntu Desktop amd64+mac					lubuntu			daily-live			desktop					amd64+mac		iso
+Lubuntu Desktop i386						lubuntu			daily-live			desktop					i386			iso
+Lubuntu Desktop powerpc						lubuntu			daily-live			desktop					powerpc			iso
+Lubuntu Desktop Preinstalled armhf+ac100	lubuntu			daily-preinstalled	preinstalled-desktop	armhf+ac100		iso
+
+# Mythbuntu
+Mythbuntu Desktop amd64						mythbuntu		daily-live			desktop					amd64			iso
+Mythbuntu Desktop i386						mythbuntu		daily-live			desktop					i386			iso
+
+# Ubuntu Chinese Desktop
+Ubuntu Chinese Desktop amd64				ubuntu-zh_CN	daily-live			desktop					amd64			localized-iso
+Ubuntu Chinese Desktop i386					ubuntu-zh_CN	daily-live			desktop					i386			localized-iso
+
+# Ubuntu Core
+Ubuntu Core amd64							ubuntu-core		daily				core					amd64			iso
+Ubuntu Core armhf							ubuntu-core		daily				core					armhf			iso
+Ubuntu Core i386							ubuntu-core		daily				core					i386			iso
+Ubuntu Core powerpc							ubuntu-core		daily				core					powerpc			iso
+
+# Ubuntu Desktop 
+Ubuntu Desktop amd64						ubuntu			daily-live			desktop					amd64			iso
+Ubuntu Desktop amd64+mac					ubuntu			daily-live			desktop					amd64+mac		iso
+Ubuntu Desktop armhf+omap4					ubuntu			daily-live			desktop					armhf+omap4		iso
+Ubuntu Desktop i386							ubuntu			daily-live			desktop					i386			iso
+Ubuntu Desktop powerpc						ubuntu			daily-live			desktop					powerpc			iso
+Ubuntu Desktop Preinstalled armhf+nexus7	ubuntu			daily-preinstalled	preinstalled-desktop	armhf+nexus7	iso
+
+# Ubuntu Studio
+Ubuntu GNOME Desktop amd64					ubuntu-gnomeo	daily-live			desktop					amd64			iso
+Ubuntu GNOME Desktop i386					ubuntu-gnome	daily-live			desktop					i386			iso
+
+# Ubuntu Server
+Ubuntu Server amd64							ubuntu-server	daily				server					amd64			iso
+Ubuntu Server amd64+mac						ubuntu-server	daily				server					amd64+mac		iso
+Ubuntu Server armhf+omap					ubuntu-server	daily				server					armhf+omap		iso
+Ubuntu Server armhf+omap4					ubuntu-server	daily				server					armhf+omap4		iso
+Ubuntu Server i386							ubuntu-server	daily				server					i386			iso
+Ubuntu Server powerpc						ubuntu-server	daily				server					powerpc			iso
+
+# Ubuntu Studio
+Ubuntu Studio DVD amd64						ubuntustudio	dvd					dvd						amd64			iso
+Ubuntu Studio DVD i386						ubuntustudio	dvd					dvd						i386			iso
+
+# Ubuntu Touch
+Ubuntu Touch Preinstalled grouper			ubuntu-touch	daily-preinstalled	preinstalled-touch		grouper			iso
+Ubuntu Touch Preinstalled maguro			ubuntu-touch	daily-preinstalled	preinstalled-touch		maguro			iso
+Ubuntu Touch Preinstalled mako				ubuntu-touch	daily-preinstalled	preinstalled-touch		mako			iso
+Ubuntu Touch Preinstalled manta				ubuntu-touch	daily-preinstalled	preinstalled-touch		manta			iso
+
+# UbuntuKylin
+UbuntuKylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso
+UbuntuKylin Desktop i386					ubuntukylin		daily-live			desktop					i386			iso
+
+# Xubuntu
+Xubuntu Desktop amd64						xubuntu			daily-live			desktop					amd64			iso
+Xubuntu Desktop i386						xubuntu			daily-live			desktop					i386			iso

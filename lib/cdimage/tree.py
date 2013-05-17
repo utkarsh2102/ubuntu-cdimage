@@ -2059,91 +2059,57 @@ class DailyTreePublisher(Publisher):
                 print("IndexOptions FancyIndexing", file=htaccess)
 
     def qa_product(self, project, image_type, publish_type, arch):
-        """Return the QA tracker product for an image, or None.
+        """Return a tuple of the QA tracker product for an image and the
+        tracker target instance to use, or None.
 
         Any changes here must be coordinated with the tracker
         (iso.qa.ubuntu.com), since we can only return products that exist
         there and they are not necessarily consistently named.
         """
-        if project == "ubuntu":
-            if image_type == "daily" and publish_type == "alternate":
-                return "Ubuntu Alternate %s" % arch
-            elif image_type == "daily-live" and publish_type == "desktop":
-                return "Ubuntu Desktop %s" % arch
-            elif (image_type == "daily-preinstalled" and
-                  publish_type == "preinstalled-desktop"):
-                return "Ubuntu Desktop Preinstalled %s" % arch
-            elif image_type == "dvd" and publish_type == "dvd":
-                return "Ubuntu DVD %s" % arch
-            elif image_type == "wubi" and publish_type == "wubi":
-                return "Ubuntu Wubi %s" % arch
-        elif project == "kubuntu":
-            if image_type == "daily" and publish_type == "alternate":
-                return "Kubuntu Alternate %s" % arch
-            elif image_type == "daily-live" and publish_type == "desktop":
-                return "Kubuntu Desktop %s" % arch
-            elif (image_type == "daily-preinstalled" and
-                  publish_type == "preinstalled-desktop"):
-                return "Kubuntu Desktop %s" % arch
-            elif image_type == "dvd" and publish_type == "dvd":
-                return "Kubuntu DVD %s" % arch
-        elif project == "kubuntu-active":
-            if image_type == "daily-live" and publish_type == "desktop":
-                return "Kubuntu Active %s" % arch
-            elif (image_type == "daily-preinstalled" and
-                  publish_type == "preinstalled-mobile"):
-                return "Kubuntu Active %s" % arch
-        elif project == "edubuntu":
-            if image_type == "dvd" and publish_type == "dvd":
-                return "Edubuntu DVD %s" % arch
-        elif project == "xubuntu":
-            if image_type == "daily" and publish_type == "alternate":
-                return "Xubuntu Alternate %s" % arch
-            elif image_type == "daily-live" and publish_type == "desktop":
-                return "Xubuntu Desktop %s" % arch
-        elif project == "ubuntu-server":
-            if image_type == "daily" and publish_type == "server":
-                return "Ubuntu Server %s" % arch
-            elif (image_type == "daily-preinstalled" and
-                  publish_type == "preinstalled-server"):
-                return "Ubuntu Server %s" % arch
-        elif project == "ubuntustudio":
-            if image_type == "daily" and publish_type == "alternate":
-                return "Ubuntu Studio Alternate %s" % arch
-            elif image_type == "dvd" and publish_type == "dvd":
-                return "Ubuntu Studio DVD %s" % arch
-        elif project == "mythbuntu":
-            if image_type == "daily-live" and publish_type == "desktop":
-                return "Mythbuntu Desktop %s" % arch
-        elif project == "lubuntu":
-            if image_type == "daily" and publish_type == "alternate":
-                return "Lubuntu Alternate %s" % arch
-            elif image_type == "daily-live" and publish_type == "desktop":
-                return "Lubuntu Desktop %s" % arch
-            elif (image_type == "daily-preinstalled" and
-                  publish_type == "preinstalled-desktop"):
-                return "Lubuntu Desktop Preinstalled %s" % arch
-        elif project == "ubuntu-core":
-            if image_type == "daily" and publish_type == "core":
-                return "Ubuntu Core %s" % arch
-        elif project == "ubuntu-zh_CN":
-            if image_type == "daily-live" and publish_type == "desktop":
-                return "Ubuntu Chinese Desktop %s" % arch
-        elif project == "ubuntukylin":
-            if image_type == "daily-live" and publish_type == "desktop":
-                return "UbuntuKylin Desktop %s" % arch
-        elif project == "ubuntu-gnome":
-            if image_type == "daily-live" and publish_type == "desktop":
-                return "Ubuntu GNOME Desktop %s" % arch
-        elif project == "ubuntu-touch":
-            if (image_type == "daily-preinstalled" and
-                    publish_type == "preinstalled-touch"):
-                return "Ubuntu Touch Preinstalled %s" % arch
-        elif project == "ubuntu-touch-preview":
-            if (image_type == "daily-preinstalled" and
-                    publish_type == "preinstalled"):
-                    subarch = arch.split("+")[1]
-                    return "Ubuntu Touch Preinstalled %s" % subarch
+
+        product_list = os.path.join(self.config.root, "etc", "qa-products")
+        with open(product_list, "r") as qaproducts:
+            for line in qaproducts:
+                if line.startswith("#"):
+                    continue
+
+                try:
+                    entry_qaproduct, entry_project, entry_image_type, \
+                        entry_publish_type, entry_arch, entry_qatarget = \
+                        re.sub("\t+", "\t", line).strip().split("\t")
+                except ValueError:
+                    continue
+
+                if (entry_project == project
+                        and entry_image_type == image_type
+                        and entry_publish_type == publish_type
+                        and entry_arch == arch):
+                    return (entry_qaproduct, entry_qatarget)
+
+    def cdimage_project(self, qaproduct, qatarget):
+        """Return a tuple of project, image_type, publish_type and arch
+        for the provided QA tracker product and QA tracker target instance
+        or None.
+
+        This is the opposite of qa_product.
+        """
+
+        product_list = os.path.join(self.config.root, "etc", "qa-products")
+        with open(product_list, "r") as qaproducts:
+            for line in qaproducts:
+                if line.startswith("#"):
+                    continue
+
+                try:
+                    entry_qaproduct, entry_project, entry_image_type, \
+                        entry_publish_type, entry_arch, entry_qatarget = \
+                        re.sub("\t+", "\t", line).strip().split("\t")
+                except ValueError:
+                    continue
+
+                if entry_qaproduct == qaproduct and entry_qatarget == qatarget:
+                    return (entry_project, entry_image_type,
+                            entry_publish_type, entry_arch)
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
@@ -2192,7 +2158,7 @@ class DailyTreePublisher(Publisher):
             if tracker is None or tracker.target != dist:
                 tracker = ISOTracker(target=dist)
             try:
-                tracker.post_build(product, date, note=note)
+                tracker.post_build(product[0], date, note=note)
             except Exception:
                 traceback.print_exc()
 
