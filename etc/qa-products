@@ -68,7 +68,7 @@ Ubuntu Desktop powerpc						ubuntu			daily-live			desktop					powerpc			iso
 Ubuntu Desktop Preinstalled armhf+nexus7	ubuntu			daily-preinstalled	preinstalled-desktop	armhf+nexus7	iso
 
 # Ubuntu Studio
-Ubuntu GNOME Desktop amd64					ubuntu-gnomeo	daily-live			desktop					amd64			iso
+Ubuntu GNOME Desktop amd64					ubuntu-gnome	daily-live			desktop					amd64			iso
 Ubuntu GNOME Desktop i386					ubuntu-gnome	daily-live			desktop					i386			iso
 
 # Ubuntu Server
