@@ -1155,7 +1155,7 @@ class TestDailyTreePublisher(TestCase):
     def test_qa_product_localized_tracker(self):
         publisher = self.make_publisher("ubuntu-zh_CN", "daily-live")
         self.assertEqual(
-            ("Ubuntu Chinese Desktop i386", "localized-iso"),
+            ("Ubuntu Chinese Desktop i386", "localized-iso-china"),
             publisher.qa_product(
                 "ubuntu-zh_CN", "daily-live", "desktop",
                 "i386"))
@@ -1226,7 +1226,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             ("ubuntu-zh_CN", "daily-live", "desktop", "i386"),
             publisher.cdimage_project(
-                "Ubuntu Chinese Desktop i386", "localized-iso"))
+                "Ubuntu Chinese Desktop i386", "localized-iso-china"))
 
     @mock_isotracker
     def test_post_qa(self):
@@ -1241,7 +1241,7 @@ class TestDailyTreePublisher(TestCase):
             ["Ubuntu Alternate i386", "20130221", ""],
             ["Ubuntu Alternate amd64", "20130221", ""],
         ]
-        self.assertEqual("raring", isotracker_module.tracker.target)
+        self.assertEqual("iso-raring", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
         os.makedirs(os.path.join(
@@ -1255,7 +1255,7 @@ class TestDailyTreePublisher(TestCase):
             ["Ubuntu Desktop i386", "20130221", ""],
             ["Ubuntu Desktop amd64", "20130221", ""],
         ]
-        self.assertEqual("precise", isotracker_module.tracker.target)
+        self.assertEqual("iso-precise", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
     @mock_isotracker
@@ -1270,7 +1270,7 @@ class TestDailyTreePublisher(TestCase):
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>")
         expected = [["Ubuntu Desktop i386", "20130315", expected_note]]
-        self.assertEqual("raring", isotracker_module.tracker.target)
+        self.assertEqual("iso-raring", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
         publisher = self.make_publisher("kubuntu", "daily-live")
@@ -1283,7 +1283,7 @@ class TestDailyTreePublisher(TestCase):
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>")
         expected = [["Kubuntu Desktop i386", "20130315", expected_note]]
-        self.assertEqual("precise", isotracker_module.tracker.target)
+        self.assertEqual("iso-precise", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
     @mock_isotracker
@@ -1622,7 +1622,8 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>")
         expected = [["Ubuntu Chinese Desktop i386", "20130315", expected_note]]
-        self.assertEqual("china-raring", isotracker_module.tracker.target)
+        self.assertEqual("localized-iso-china-raring",
+                         isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)

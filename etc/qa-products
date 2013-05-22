@@ -50,8 +50,8 @@ Mythbuntu Desktop amd64						mythbuntu		daily-live			desktop					amd64			iso
 Mythbuntu Desktop i386						mythbuntu		daily-live			desktop					i386			iso
 
 # Ubuntu Chinese Desktop
-Ubuntu Chinese Desktop amd64				ubuntu-zh_CN	daily-live			desktop					amd64			localized-iso
-Ubuntu Chinese Desktop i386					ubuntu-zh_CN	daily-live			desktop					i386			localized-iso
+Ubuntu Chinese Desktop amd64				ubuntu-zh_CN	daily-live			desktop					amd64			localized-iso-china
+Ubuntu Chinese Desktop i386					ubuntu-zh_CN	daily-live			desktop					i386			localized-iso-china
 
 # Ubuntu Core
 Ubuntu Core amd64							ubuntu-core		daily				core					amd64			iso

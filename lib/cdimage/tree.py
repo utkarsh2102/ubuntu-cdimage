@@ -2135,8 +2135,7 @@ class DailyTreePublisher(Publisher):
                     image)
                 continue
 
-            if project == 'ubuntu-zh_CN':
-                dist = "china-%s" % dist
+            target = "%s-%s" % (product[1], dist)
 
             # Try to figure out the path to the OVERSIZED indicator for the
             # build.
@@ -2155,8 +2154,8 @@ class DailyTreePublisher(Publisher):
                     "<strong>WARNING: This image is OVERSIZED. This should "
                     "never happen during milestone testing.</strong>")
 
-            if tracker is None or tracker.target != dist:
-                tracker = ISOTracker(target=dist)
+            if tracker is None or tracker.target != target:
+                tracker = ISOTracker(target=target)
             try:
                 tracker.post_build(product[0], date, note=note)
             except Exception:
