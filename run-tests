@@ -1,6 +1,7 @@
 #! /bin/sh
 
 # Depends:
+#  dctrl-tools,
 #  python,
 #  python-mock,
 #  python3,
