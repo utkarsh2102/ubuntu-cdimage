@@ -459,12 +459,18 @@ def live_item_paths(config, arch, item):
         else:
             yield "%s/livecd.%s.%s" % (root, liveproject_subarch, item)
     elif item in (
-        "kernel", "initrd", "bootimg", "bootimg-maguro",
-        "bootimg-mako", "bootimg-grouper", "bootimg-manta"
+        "kernel", "initrd", "bootimg"
     ):
         for flavour in flavours(config, arch):
             yield "%s/livecd.%s.%s-%s" % (
                 root, liveproject_subarch, item, flavour)
+
+    elif item in (
+        "bootimg-maguro", "bootimg-mako", "bootimg-grouper", "bootimg-manta"
+    ):
+        for flavour in flavours(config, arch):
+            yield "%s/livecd.%s.%s" % (
+                root, liveproject_subarch, item)
     elif item == "kernel-efi-signed":
         if series >= "precise" and arch == "amd64":
             for flavour in flavours(config, arch):
