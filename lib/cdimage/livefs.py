@@ -458,7 +458,10 @@ def live_item_paths(config, arch, item):
                 arch, item)
         else:
             yield "%s/livecd.%s.%s" % (root, liveproject_subarch, item)
-    elif item in ("kernel", "initrd", "bootimg"):
+    elif item in (
+        "kernel", "initrd", "bootimg", "bootimg-maguro",
+        "bootimg-mako", "bootimg-grouper", "bootimg-manta"
+    ):
         for flavour in flavours(config, arch):
             yield "%s/livecd.%s.%s-%s" % (
                 root, liveproject_subarch, item, flavour)
@@ -527,7 +530,10 @@ def download_live_items(config, arch, item):
     except NoLiveItem:
         return False
 
-    if item in ("kernel", "initrd", "bootimg"):
+    if item in (
+        "kernel", "initrd", "bootimg", "bootimg-maguro",
+        "bootimg-mako", "bootimg-grouper", "bootimg-manta"
+    ):
         for url in urls:
             flavour = re.sub(r"^.*?\..*?\..*?-", "", os.path.basename(url))
             target = os.path.join(
@@ -624,6 +630,11 @@ def download_live_filesystems(config):
                 download_live_items(config, arch, "kernel-efi-signed")
                 if config["CDIMAGE_PREINSTALLED"]:
                     download_live_items(config, arch, "bootimg")
+                    if project == "ubuntu-touch":
+                        for utarch in "maguro", "mako", "grouper", "manta":
+                            download_live_items(
+                                config, arch, "bootimg-%s" % utarch
+                            )
             download_live_items(config, arch, "manifest")
             if not download_live_items(config, arch, "manifest-remove"):
                 download_live_items(config, arch, "manifest-desktop")

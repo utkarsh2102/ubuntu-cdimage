@@ -958,7 +958,11 @@ class Publisher:
                 return "Cloud Images tarball"
             else:
                 return "filesystem archive"
-        elif extension == "bootimg":
+        elif (
+                extension == "bootimg" or extension == "bootimg-maguro"
+            or extension == "bootimg-mako" or extension == "bootimg-grouper"
+            or extension == "bootimg-manta"
+        ):
             return "combined Android bootimage"
         elif extension == "tar.xz":
             return "Wubi filesystem archive"
@@ -1285,7 +1289,9 @@ class Publisher:
                                     "jigdo", "list", "manifest",
                                     "manifest-desktop", "manifest-remove",
                                     "template", "tar.gz", "tar.gz.zsync",
-                                    "bootimg", "tar.xz",
+                                    "bootimg", "bootimg-maguro",
+                                    "bootimg-mako", "bootimg-grouper",
+                                    "bootimg-manta", "tar.xz",
                                 )
                             for extension in htaccess_extensions:
                                 extpath = "%s.%s" % (base, extension)
@@ -1771,10 +1777,15 @@ class DailyTreePublisher(Publisher):
             osextras.unlink_force("%s.squashfs" % target_prefix)
 
         # Flashable Android boot images
-        if os.path.exists("%s.bootimg" % source_prefix):
-            logger.info("Publishing %s abootimg bootloader images ..." % arch)
-            shutil.move(
-                "%s.bootimg" % source_prefix, "%s.bootimg" % target_prefix)
+        for abootimg in (
+            "bootimg", "bootimg-maguro", "bootimg-mako", "bootimg-grouper",
+            "bootimg-manta"
+        ):
+            if os.path.exists("%s.%s" % (source_prefix, abootimg)):
+                logger.info("Publishing %s abootimg images ..." % arch)
+                shutil.move(
+                    "%s.%s" % (source_prefix, abootimg), "%s.%s" %
+                    (target_prefix, abootimg))
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):
@@ -2757,7 +2768,8 @@ class ReleasePublisher(Publisher):
         # Copy, to make sure we have a canonical version of this.
         for ext in (
             "iso", "list", "img", "img.gz", "tar.gz", "img.tar.gz", "tar.xz",
-            "bootimg",
+            "bootimg", "bootimg-maguro", "bootimg-mako", "bootimg-grouper",
+            "bootimg-manta"
         ):
             if not os.path.exists(daily(ext)):
                 continue
