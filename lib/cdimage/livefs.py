@@ -531,13 +531,21 @@ def download_live_items(config, arch, item):
         return False
 
     if item in (
-        "kernel", "initrd", "bootimg", "bootimg-maguro",
-        "bootimg-mako", "bootimg-grouper", "bootimg-manta"
+        "kernel", "initrd", "bootimg"
     ):
         for url in urls:
             flavour = re.sub(r"^.*?\..*?\..*?-", "", os.path.basename(url))
             target = os.path.join(
                 output_dir, "%s.%s-%s" % (arch, item, flavour))
+            if osextras.fetch(config, url, target):
+                found = True
+    elif item in (
+        "bootimg-maguro", "bootimg-mako", "bootimg-grouper",
+        "bootimg-manta"
+    ):
+        for url in urls:
+            target = os.path.join(
+                output_dir, "%s.%s" % (arch, item))
             if osextras.fetch(config, url, target):
                 found = True
     elif item == "kernel-efi-signed":
