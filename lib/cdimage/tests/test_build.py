@@ -279,13 +279,18 @@ class TestBuildLiveCDBase(TestCase):
     def test_ubuntu_touch(self, mock_fetch):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
-                    target.endswith(".rootfs.tar.gz")):
+                    target.endswith(".rootfs.tar.gz") or
+                    target.endswith(".bootimg-maguro") or
+                    target.endswith(".bootimg-mako") or
+                    target.endswith(".bootimg-grouper") or
+                    target.endswith(".bootimg-manta")):
                 touch(target)
                 return True
             else:
                 return False
 
         mock_fetch.side_effect = fetch_side_effect
+        self.config["CDIMAGE_PREINSTALLED"] = "1"
         self.config["PROJECT"] = "ubuntu-touch"
         self.config["DIST"] = "saucy"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
@@ -305,6 +310,10 @@ class TestBuildLiveCDBase(TestCase):
             "saucy-preinstalled-touch-armhf.manifest",
             "saucy-preinstalled-touch-armhf.raw",
             "saucy-preinstalled-touch-armhf.type",
+            "saucy-preinstalled-touch-armhf.bootimg-maguro",
+            "saucy-preinstalled-touch-armhf.bootimg-mako",
+            "saucy-preinstalled-touch-armhf.bootimg-grouper",
+            "saucy-preinstalled-touch-armhf.bootimg-manta",
         ], os.listdir(output_dir))
         with open(os.path.join(
             output_dir, "saucy-preinstalled-touch-armhf.type")

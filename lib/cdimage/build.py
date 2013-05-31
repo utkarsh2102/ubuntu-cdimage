@@ -435,6 +435,14 @@ def build_livecd_base(config):
                     output_prefix = os.path.join(
                         output_dir, "%s-preinstalled-touch-%s" %
                         (config.series, arch))
+                    for abootimg in (
+                        "bootimg-maguro", "bootimg-mako",
+                        "bootimg-grouper", "bootimg-manta"
+                    ):
+                        bootimage = "%s.%s" % (live_prefix, abootimg)
+                        shutil.copy2(
+                            bootimage,
+                            "%s.%s" % (output_prefix, abootimg))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)

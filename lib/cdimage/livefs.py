@@ -644,11 +644,7 @@ def download_live_filesystems(config):
                 download_live_items(config, arch, "kernel-efi-signed")
                 if config["CDIMAGE_PREINSTALLED"]:
                     download_live_items(config, arch, "bootimg")
-                    if project == "ubuntu-touch":
-                        for utarch in "maguro", "mako", "grouper", "manta":
-                            download_live_items(
-                                config, arch, "bootimg-%s" % utarch
-                            )
+
             download_live_items(config, arch, "manifest")
             if not download_live_items(config, arch, "manifest-remove"):
                 download_live_items(config, arch, "manifest-desktop")
@@ -699,6 +695,16 @@ def download_live_filesystems(config):
 
         if not got_image:
             raise NoFilesystemImages("No filesystem images found.")
+
+    if config.project == "ubuntu-touch":
+        for arch in config.arches:
+            for abootimg in (
+                "bootimg-maguro", "bootimg-mako",
+                "bootimg-grouper", "bootimg-manta"
+            ):
+                download_live_items(
+                    config, arch, abootimg
+                )
 
     if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and
             series <= "hardy"):
