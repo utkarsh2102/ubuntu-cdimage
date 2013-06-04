@@ -195,9 +195,11 @@ class ChecksumFileSet:
                 "-initrd-" in image or
                 image.endswith(".tar.gz") or
                 image.endswith(".bootimg") or
+                ".bootimg-" in image or
                 image.endswith(".tar.xz") or
                 image.endswith(".cloop") or
-                image.endswith(".squashfs")):
+                image.endswith(".squashfs") or
+                image.endswith(".zip")):
             return True
         else:
             return False
