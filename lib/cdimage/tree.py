@@ -991,6 +991,7 @@ class Publisher:
             heading += " Release Candidate"
         elif prefix == series.name:
             heading += " Daily Build"
+        heading = heading.replace('-', ' ')
         return heading
 
     def find_images(self, directory, prefix, publish_type):
