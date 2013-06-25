@@ -2041,6 +2041,7 @@ class DailyTreePublisher(Publisher):
                     continue
                 try:
                     project, image_type, series, arches = line.split(None, 3)
+                    arches = arches.split()
                 except ValueError:
                     continue
                 if want_project != project:
