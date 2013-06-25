@@ -1,0 +1,100 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2013 Canonical Ltd.
+# Author: Stéphane Graber <stgraber@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Fetches the list of pending rebuilds."""
+
+from optparse import OptionParser
+import os
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+from cdimage.config import Config
+from cdimage.tree import Publisher, Tree
+
+
+def main():
+    parser = OptionParser(usage="Usage: %prog [options] SERIES INSTANCE")
+    parser.add_option('-b', '--build', help="Build any pending product",
+                      action="store_true", default=False)
+    _, args = parser.parse_args()
+
+    if len(args) < 2:
+        parser.error("need series and instance")
+
+    # Only import it here to avoid --help failing from the bzr branch
+    from isotracker import ISOTracker
+
+    config = Config()
+    tree = Tree.get_daily(config)
+    publisher = Publisher.get_daily(tree, "daily")
+
+    tracker = ISOTracker(target="%s-%s" % (args[1], args[0]))
+
+    if not _.build:
+        # List all the pending entries
+        for rebuild in tracker.qatracker.get_rebuilds("Requested"):
+            print(" - %s for %s => %s" %
+                  (rebuild.product_title, rebuild.series_title,
+                   publisher.cdimage_project(rebuild.product_title, args[1])))
+        return
+
+    count = 1
+    rebuilds = {}
+    while 1:
+        queue = tracker.qatracker.get_rebuilds("Requested")
+
+        if not queue:
+            break
+
+        for rebuild in queue:
+            project = publisher.cdimage_project(rebuild.product_title, args[1])
+
+            if project[3] in rebuilds:
+                continue
+
+            rebuilds[project[3]] = [rebuild] + list(project)
+
+        print("Rebuild batch %s" % count)
+        running_builds = []
+        for arch, entry in rebuilds.items():
+            entry[0].status = 1
+            entry[0].save()
+
+            env = dict(os.environ)
+            env['ARCHES'] = arch
+            env['DIST'] = entry[0].series_title.lower()
+            cmd = ["for-project", entry[1], "cron.%s" % entry[2]]
+
+            if entry[2] not in ("daily"):
+                cmd += ["--live"]
+
+            print("ARCHES=%s DIST=%s %s" % (env['ARCHES'], env['DIST'],
+                                            " ".join(cmd)))
+
+            process = subprocess.Popen(cmd, env=env)
+            running_builds.append(process)
+
+        for build in running_builds:
+            build.wait()
+
+        count += 1
+
+
+if __name__ == "__main__":
+    main()
