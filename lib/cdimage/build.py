@@ -44,6 +44,7 @@ from cdimage.log import logger, reset_logging
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.mirror import find_mirror, trigger_mirrors
 from cdimage.semaphore import Semaphore
+from cdimage.tracker import tracker_set_rebuild_status
 from cdimage.tree import Publisher, Tree
 
 
@@ -604,6 +605,8 @@ def build_image_set_locked(config, options, semaphore_state):
         if want_live_builds(options):
             log_marker("Building live filesystems")
             run_live_builds(config)
+        else:
+            tracker_set_rebuild_status(config, [0, 1], 2)
 
         if not live_fs_only:
             sync_local_mirror(config, semaphore_state)

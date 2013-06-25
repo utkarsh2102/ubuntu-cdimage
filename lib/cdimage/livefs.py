@@ -36,6 +36,7 @@ from cdimage import osextras
 from cdimage.config import Series
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
+from cdimage.tracker import tracker_set_rebuild_status
 
 
 class UnknownArchitecture(Exception):
@@ -255,6 +256,7 @@ def run_live_builds(config):
         timestamp = time.strftime("%F %T")
         logger.info(
             "%s on %s starting at %s" % (full_name, machine, timestamp))
+        tracker_set_rebuild_status(config, [0, 1], 2, arch)
         proc = subprocess.Popen(live_build_command(config, arch))
         builds[proc.pid] = (proc, arch, full_name, machine)
 
@@ -268,6 +270,7 @@ def run_live_builds(config):
         text_status = "success" if status == 0 else "failed"
         logger.info("%s on %s finished at %s (%s)" % (
             full_name, machine, timestamp, text_status))
+        tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
         if status == 0:
             success = True
         else:
