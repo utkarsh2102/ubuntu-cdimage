@@ -37,12 +37,12 @@ def main():
     if len(args) < 2:
         parser.error("need series and instance")
 
-    # Only import it here to avoid --help failing from the bzr branch
-    from isotracker import ISOTracker
-
     config = Config()
     tree = Tree.get_daily(config)
     publisher = Publisher.get_daily(tree, "daily")
+
+    # Only import it here to avoid --help failing from the bzr branch
+    from isotracker import ISOTracker
 
     tracker = ISOTracker(target="%s-%s" % (args[1], args[0]))
 
