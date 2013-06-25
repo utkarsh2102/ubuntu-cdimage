@@ -2093,11 +2093,19 @@ class DailyTreePublisher(Publisher):
                 except ValueError:
                     continue
 
-                if (entry_project == project
-                        and entry_image_type == image_type
-                        and entry_publish_type == publish_type
-                        and entry_arch == arch):
-                    return (entry_qaproduct, entry_qatarget)
+                if entry_project and entry_project != project:
+                    continue
+
+                if entry_image_type and entry_image_type != image_type:
+                    continue
+
+                if entry_publish_type and entry_publish_type != publish_type:
+                    continue
+
+                if entry_arch and entry_arch != arch:
+                    continue
+
+                return (entry_qaproduct, entry_qatarget)
 
     def cdimage_project(self, qaproduct, qatarget):
         """Return a tuple of project, image_type, publish_type and arch

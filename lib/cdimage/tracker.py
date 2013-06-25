@@ -40,7 +40,7 @@ def tracker_set_rebuild_status(config, current_state, new_state,
     qa_products = {}
     for arch in arches:
         qaproduct = publisher.qa_product(config.project, config.image_type,
-                                         config.publish_type, arch)
+                                         None, arch)
 
         if not qaproduct:
             continue
