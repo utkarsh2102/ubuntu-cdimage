@@ -32,6 +32,11 @@ def main():
     parser = OptionParser(usage="Usage: %prog [options] SERIES INSTANCE")
     parser.add_option('-b', '--build', help="Build any pending product",
                       action="store_true", default=False)
+    parser.add_option('-n', '--dry-run', help="Print the commands that "
+                                              "would normally be run",
+                      action="store_true", default=False)
+    parser.add_option('-q', '--quiet', help="Hide all info messages",
+                      action="store_true", default=False)
     _, args = parser.parse_args()
 
     if len(args) < 2:
@@ -49,42 +54,56 @@ def main():
     if not _.build:
         # List all the pending entries
         for rebuild in tracker.qatracker.get_rebuilds("Requested"):
+            if rebuild.series_title.lower() != args[0]:
+                continue
+
             print(" - %s for %s (requested by %s) => %s " %
                   (rebuild.product_title, rebuild.series_title,
                    rebuild.requestedby_name,
                    publisher.cdimage_project(rebuild.product_title, args[1])))
         return
 
-    count = 1
-    while 1:
-        rebuilds = {}
-        queue = tracker.qatracker.get_rebuilds("Requested")
+    # Process any pending rebuild
+    rebuilds = {}
+    queue = tracker.qatracker.get_rebuilds("Requested")
+    processes = []
 
-        if not queue:
-            break
+    # Group everything by project+build_type
+    for rebuild in queue:
+        if rebuild.series_title.lower() != args[0]:
+            continue
 
-        for rebuild in queue:
-            project = publisher.cdimage_project(rebuild.product_title, args[1])
+        project = publisher.cdimage_project(rebuild.product_title, args[1])
 
-            project_id = "%s/%s" % (project[0], project[1])
+        if not project:
+            print("Invalid entry '%s' for '%s'" % (rebuild.product_title,
+                                                   args[0]))
+            continue
 
-            if project_id not in rebuilds:
-                rebuilds[project_id] = []
+        project_id = "%s/%s" % (project[0], project[1])
 
-            rebuilds[project_id].append([rebuild] + list(project))
+        if project_id not in rebuilds:
+            rebuilds[project_id] = []
 
-        print("Rebuild batch %s" % count)
-        project_id = rebuilds.keys()[0]
-        entries = rebuilds[project_id]
+        rebuilds[project_id].append([rebuild] + list(project))
+
+    for project_id, entries in rebuilds.items():
+        if not _.quiet:
+            print("Processing rebuilds for: %s" % project_id)
+
         project, build_type = project_id.split("/")
         arches = " ".join([entry[4] for entry in entries])
 
         for entry in entries:
-            entry[0].status = 1
-            entry[0].save()
-            print(" - %s for %s (requested by %s) => %s " %
-                  (entry[0].product_title, entry[0].series_title,
-                   entry[0].requestedby_name, entry[1:]))
+            # Marking the entry as "queued"
+            if not _.dry_run:
+                entry[0].status = 1
+                entry[0].save()
+
+            if not _.quiet:
+                print(" - %s for %s (requested by %s) => %s " %
+                      (entry[0].product_title, entry[0].series_title,
+                       entry[0].requestedby_name, entry[1:]))
 
         env = dict(os.environ)
         env['ARCHES'] = arches
@@ -94,13 +113,21 @@ def main():
         if build_type not in ("daily"):
             cmd += ["--live"]
 
-#        print("ARCHES=%s DIST=%s %s" %
-#              (env['ARCHES'], env['DIST'], " ".join(cmd)))
+        if _.dry_run:
+            if not _.quiet:
+                print("Dry-run: ARCHES=%s DIST=%s %s" % (env['ARCHES'],
+                                                         env['DIST'],
+                                                         " ".join(cmd)))
+        else:
+            processes.append(subprocess.Popen(cmd, env=env))
+        if not _.quiet:
+            print("")
 
-        process = subprocess.Popen(cmd, env=env)
-        print(process.wait())
-
-        count += 1
+    if processes:
+        if not _.quiet:
+            print("Waiting for %s builds to complete." % len(processes))
+        for process in processes:
+            process.wait()
 
 
 if __name__ == "__main__":
