@@ -23,6 +23,9 @@ from cdimage.tree import Publisher, Tree
 def tracker_set_rebuild_status(config, current_state, new_state,
                                arches=None):
 
+    if not isinstance(arches, list):
+        arches = [arches]
+
     # Only import it here as we need to have the right paths in sys.path
     try:
         from isotracker import ISOTracker
@@ -51,8 +54,8 @@ def tracker_set_rebuild_status(config, current_state, new_state,
         qa_products[qaproduct[1]].append(qaproduct[0])
 
     # Iterate through the trackers and set the new status
-    for tracker, products in qa_products.items():
-        tracker = ISOTracker(target="%s-%s" % (tracker, config.series))
+    for instance, products in qa_products.items():
+        tracker = ISOTracker(target="%s-%s" % (instance, config.series))
 
         for rebuild in tracker.qatracker.get_rebuilds(current_state):
             if rebuild.series_title.lower() != config.series:

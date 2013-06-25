@@ -2093,16 +2093,16 @@ class DailyTreePublisher(Publisher):
                 except ValueError:
                     continue
 
-                if entry_project and entry_project != project:
+                if project and entry_project != project:
                     continue
 
-                if entry_image_type and entry_image_type != image_type:
+                if image_type and entry_image_type != image_type:
                     continue
 
-                if entry_publish_type and entry_publish_type != publish_type:
+                if publish_type and entry_publish_type != publish_type:
                     continue
 
-                if entry_arch and entry_arch != arch:
+                if arch and entry_arch != arch:
                     continue
 
                 return (entry_qaproduct, entry_qatarget)
