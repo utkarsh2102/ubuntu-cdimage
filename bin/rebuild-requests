@@ -56,8 +56,8 @@ def main():
         return
 
     count = 1
-    rebuilds = {}
     while 1:
+        rebuilds = {}
         queue = tracker.qatracker.get_rebuilds("Requested")
 
         if not queue:
@@ -66,34 +66,39 @@ def main():
         for rebuild in queue:
             project = publisher.cdimage_project(rebuild.product_title, args[1])
 
-            if project[3] in rebuilds:
-                continue
+            project_id = "%s/%s" % (project[0], project[1])
 
-            rebuilds[project[3]] = [rebuild] + list(project)
+            if project_id not in rebuilds:
+                rebuilds[project_id] = []
+
+            rebuilds[project_id].append([rebuild] + list(project))
 
         print("Rebuild batch %s" % count)
-        running_builds = []
-        for arch, entry in rebuilds.items():
+        project_id = rebuilds.keys()[0]
+        entries = rebuilds[project_id]
+        project, build_type = project_id.split("/")
+        arches = " ".join([entry[4] for entry in entries])
+
+        for entry in entries:
             entry[0].status = 1
             entry[0].save()
+            print(" - %s for %s (requested by %s) => %s " %
+                  (entry[0].product_title, entry[0].series_title,
+                   entry[0].requestedby_name, entry[1:]))
 
-            env = dict(os.environ)
-            env['ARCHES'] = arch
-            env['DIST'] = entry[0].series_title.lower()
-            cmd = ["for-project", entry[1], "cron.%s" % entry[2]]
+        env = dict(os.environ)
+        env['ARCHES'] = arches
+        env['DIST'] = entries[0][0].series_title.lower()
+        cmd = ["for-project", entry[1], "cron.%s" % entry[2]]
 
-            if entry[2] not in ("daily"):
-                cmd += ["--live"]
+        if build_type not in ("daily"):
+            cmd += ["--live"]
 
-            print("ARCHES=%s DIST=%s %s (requested by %s)" %
-                  (env['ARCHES'], env['DIST'], entry[0].requestedby_name,
-                   " ".join(cmd)))
+#        print("ARCHES=%s DIST=%s %s" %
+#              (env['ARCHES'], env['DIST'], " ".join(cmd)))
 
-            process = subprocess.Popen(cmd, env=env)
-            running_builds.append(process)
-
-        for build in running_builds:
-            build.wait()
+        process = subprocess.Popen(cmd, env=env)
+        print(process.wait())
 
         count += 1
 
