@@ -49,8 +49,9 @@ def main():
     if not _.build:
         # List all the pending entries
         for rebuild in tracker.qatracker.get_rebuilds("Requested"):
-            print(" - %s for %s => %s" %
+            print(" - %s for %s (requested by %s) => %s " %
                   (rebuild.product_title, rebuild.series_title,
+                   rebuild.requestedby_name,
                    publisher.cdimage_project(rebuild.product_title, args[1])))
         return
 
@@ -84,8 +85,9 @@ def main():
             if entry[2] not in ("daily"):
                 cmd += ["--live"]
 
-            print("ARCHES=%s DIST=%s %s" % (env['ARCHES'], env['DIST'],
-                                            " ".join(cmd)))
+            print("ARCHES=%s DIST=%s %s (requested by %s)" %
+                  (env['ARCHES'], env['DIST'], entry[0].requestedby_name,
+                   " ".join(cmd)))
 
             process = subprocess.Popen(cmd, env=env)
             running_builds.append(process)
