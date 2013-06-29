@@ -1616,6 +1616,9 @@ class DailyTreePublisher(Publisher):
                 return 850000000
             else:
                 return 835000000
+        elif self.project == "ubuntu-gnome" and self.config["DIST"] >= "saucy":
+            # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
+            return 1024 * 1024 * 1024
         elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
             return 1024 * 1024 * 1024
