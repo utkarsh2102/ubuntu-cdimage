@@ -380,6 +380,7 @@ class TestRunLiveBuilds(TestCase):
             "buildlive", ["foo@example.org"], b"Log data\n")
 
     @mock_strftime(1363355331)
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
     @mock.patch("cdimage.livefs.live_build_command", return_value=["false"])
     @mock.patch("cdimage.livefs.send_mail")
     def test_run_live_builds_notifies_on_failure(self, mock_send_mail, *args):
@@ -414,10 +415,11 @@ class TestRunLiveBuilds(TestCase):
         ], any_order=True)
 
     @mock_strftime(1363355331)
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
     @mock_Popen(["true"])
     @mock.patch("cdimage.livefs.live_build_notify_failure")
     def test_run_live_builds(self, mock_live_build_notify_failure, mock_popen,
-                             *args):
+                             mock_tracker_set_rebuild_status, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
@@ -432,6 +434,13 @@ class TestRunLiveBuilds(TestCase):
             "ubuntu-i386 on cardamom.buildd finished at 2013-03-15 13:48:51 "
             "(success)",
         ], self.captured_log_messages())
+        self.assertEqual(4, mock_tracker_set_rebuild_status.call_count)
+        mock_tracker_set_rebuild_status.assert_has_calls([
+            mock.call(self.config, [0, 1], 2, "amd64"),
+            mock.call(self.config, [0, 1], 2, "i386"),
+            mock.call(self.config, [0, 1, 2], 3, "amd64"),
+            mock.call(self.config, [0, 1, 2], 3, "i386"),
+        ])
         expected_command_base = [
             "ssh", "-n", "-o", "StrictHostKeyChecking=no",
             "-o", "BatchMode=yes",
@@ -450,11 +459,12 @@ class TestRunLiveBuilds(TestCase):
         ])
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
 
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
     @mock_Popen(["true"])
     @mock.patch("cdimage.livefs.live_build_notify_failure")
     def test_run_live_builds_skips_amd64_mac(self,
                                              mock_live_build_notify_failure,
-                                             mock_popen):
+                                             mock_popen, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
