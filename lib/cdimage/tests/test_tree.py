@@ -512,9 +512,11 @@ class TestPublisherWebIndices(TestCase):
                 "IconWidth=22\n"
                 "AddIcon ../../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../../cdicons/iso.png .iso\n"
-                "AddIcon ../../cdicons/img.png .img .tar.gz .tar.xz\n"
+                "AddIcon ../../cdicons/img.png .img .tar.gz .tar.xz .zip "
+                ".bootimg-*\n"
                 "AddIcon ../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
+                ".md5sum "
                 "MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg "
                 "SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../../cdicons/torrent.png .torrent .metalink\n",

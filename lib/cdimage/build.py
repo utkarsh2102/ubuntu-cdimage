@@ -21,6 +21,7 @@ __metaclass__ = type
 
 import contextlib
 import gzip
+import hashlib
 import os
 import shutil
 import socket
@@ -33,6 +34,7 @@ import traceback
 from cdimage import osextras
 from cdimage.build_id import next_build_id
 from cdimage.check_installable import check_installable
+from cdimage.checksums import ChecksumFile
 from cdimage.germinate import Germination
 from cdimage.livefs import (
     LiveBuildsFailed,
@@ -414,6 +416,96 @@ def build_ubuntu_defaults_locale(config):
                         [pi_makelist, entry_path], stdout=list_file)
 
 
+def add_android_support(config, output_dir):
+    """Add Android support to an Ubuntu Touch image.
+
+    This requires running external tools and downloading code from a
+    Canonical-internal Jenkins instance, so it is not yet feasible to run
+    this externally.  Sorry.  This ought to be fixed soon.
+    """
+    phablet_build = os.path.join(
+        config.root, "utouch-android", "phablet-build-scripts")
+    zip_tool = os.path.join(config.root, "utouch-android", "zip")
+    scratch_dir = os.path.join(
+        config.root, "scratch", config.project, config.series,
+        config.image_type, "android")
+    osextras.mkemptydir(scratch_dir)
+    raw_path = os.path.join(
+        output_dir, "%s-preinstalled-touch-armhf.raw" % config.series)
+    tar_path = os.path.join(
+        output_dir, "%s-preinstalled-touch-armhf.tar.gz" % config.series)
+    zip_path = os.path.join(
+        output_dir, "%s-preinstalled-touch-armhf.zip" % config.series)
+    subarches = ["maguro", "manta", "grouper", "mako"]
+    jenkins_base = "http://10.97.2.10:8080"
+    jenkins_project = "ubuntu-touch-image"
+    jenkins_ver = "lastSuccessfulBuild"
+    jenkins_url = "%s/job/%s/%s/artifact/archive" % (
+        jenkins_base, jenkins_project, jenkins_ver)
+
+    osextras.link_force(raw_path, tar_path)
+    osextras.unlink_force(zip_path)
+    subprocess.check_call([
+        os.path.join(phablet_build, "ubuntu_data"),
+        "-m", os.path.join(phablet_build, "META-INF"),
+        "-o", zip_path,
+        tar_path,
+    ])
+    osextras.unlink_force("%s.md5sum" % zip_path)
+    with ChecksumFile(
+            config, output_dir, "%s.md5sum" % zip_path,
+            hashlib.md5, sign=False) as checksum_file:
+        checksum_file.add(zip_path)
+
+    for subarch in subarches:
+        boot_img = "%s-preinstalled-touch-armhf.bootimg-%s" % (
+            config.series, subarch)
+        system_img = "%s-preinstalled-system-armel+%s.img" % (
+            config.series, subarch)
+        recovery_img = "%s-preinstalled-recovery-armel+%s.img" % (
+            config.series, subarch)
+        system_zip_url = "%s-preinstalled-armel+%s.zip" % (
+            config.series, subarch)
+        system_zip = "%s-preinstalled-touch-armel+%s.zip" % (
+            config.series, subarch)
+
+        # Get system and recovery images for "phablet-flash -b".
+        osextras.fetch(
+            config,
+            "%s/%s" % (jenkins_url, system_img),
+            os.path.join(output_dir, system_img))
+        osextras.fetch(
+            config,
+            "%s/%s" % (jenkins_url, recovery_img),
+            os.path.join(output_dir, recovery_img))
+
+        # Get and modify the system zip.
+        osextras.unlink_force(os.path.join(scratch_dir, "boot.img"))
+        shutil.copy(
+            os.path.join(output_dir, boot_img),
+            os.path.join(scratch_dir, "boot.img"))
+        osextras.fetch(
+            config,
+            "%s/%s" % (jenkins_url, system_zip_url),
+            os.path.join(scratch_dir, "system.zip"))
+        subprocess.check_call(
+            [zip_tool, "-u", "system.zip", "boot.img"], cwd=scratch_dir)
+        shutil.move(
+            os.path.join(scratch_dir, "system.zip"),
+            os.path.join(output_dir, system_zip))
+
+        # Create checksums.
+        # TODO: This should go in the normal *SUMS files instead, but
+        # phablet-flash doesn't yet know about these.
+        for name in system_zip, system_img, recovery_img:
+            osextras.unlink_force(os.path.join(output_dir, "%s.md5sum" % name))
+            with ChecksumFile(
+                    config, output_dir,
+                    os.path.join(output_dir, "%s.md5sum" % name),
+                    hashlib.md5, sign=False) as checksum_file:
+                checksum_file.add(name)
+
+
 def build_livecd_base(config):
     download_live_filesystems(config)
 
@@ -449,6 +541,10 @@ def build_livecd_base(config):
                     print("tar archive", file=f)
                 shutil.copy2(
                     "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
+                if config.project == "ubuntu-touch":
+                    os.link(
+                        "%s.raw" % output_prefix, "%s.tar.gz" % output_prefix)
+                    add_android_support(config, output_dir)
 
 
 def _debootstrap_script(config):

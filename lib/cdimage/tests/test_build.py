@@ -275,21 +275,32 @@ class TestBuildLiveCDBase(TestCase):
         with open(os.path.join(output_dir, "raring-core-i386.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
+    @mock.patch("subprocess.check_call")
     @mock.patch("cdimage.osextras.fetch")
-    def test_ubuntu_touch(self, mock_fetch):
+    def test_ubuntu_touch(self, mock_fetch, mock_check_call):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
                     target.endswith(".rootfs.tar.gz") or
                     target.endswith(".bootimg-maguro") or
                     target.endswith(".bootimg-mako") or
                     target.endswith(".bootimg-grouper") or
-                    target.endswith(".bootimg-manta")):
+                    target.endswith(".bootimg-manta") or
+                    target.endswith(".img") or
+                    target.endswith(".zip")):
                 touch(target)
                 return True
             else:
                 return False
 
+        def check_call_side_effect(command, *args, **kwargs):
+            if command[0].split("/")[-1] == "ubuntu_data":
+                for i in range(len(command)):
+                    if command[i] == "-o":
+                        touch(command[i + 1])
+                        break
+
         mock_fetch.side_effect = fetch_side_effect
+        mock_check_call.side_effect = check_call_side_effect
         self.config["CDIMAGE_PREINSTALLED"] = "1"
         self.config["PROJECT"] = "ubuntu-touch"
         self.config["DIST"] = "saucy"
@@ -303,22 +314,104 @@ class TestBuildLiveCDBase(TestCase):
         ])
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-touch", "saucy",
-            "daily-preinstalled",
-            "debian-cd", "armhf")
+            "daily-preinstalled", "debian-cd", "armhf")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "saucy-preinstalled-touch-armhf.manifest",
-            "saucy-preinstalled-touch-armhf.raw",
-            "saucy-preinstalled-touch-armhf.type",
+            "saucy-preinstalled-recovery-armel+grouper.img",
+            "saucy-preinstalled-recovery-armel+grouper.img.md5sum",
+            "saucy-preinstalled-recovery-armel+maguro.img",
+            "saucy-preinstalled-recovery-armel+maguro.img.md5sum",
+            "saucy-preinstalled-recovery-armel+mako.img",
+            "saucy-preinstalled-recovery-armel+mako.img.md5sum",
+            "saucy-preinstalled-recovery-armel+manta.img",
+            "saucy-preinstalled-recovery-armel+manta.img.md5sum",
+            "saucy-preinstalled-system-armel+grouper.img",
+            "saucy-preinstalled-system-armel+grouper.img.md5sum",
+            "saucy-preinstalled-system-armel+maguro.img",
+            "saucy-preinstalled-system-armel+maguro.img.md5sum",
+            "saucy-preinstalled-system-armel+mako.img",
+            "saucy-preinstalled-system-armel+mako.img.md5sum",
+            "saucy-preinstalled-system-armel+manta.img",
+            "saucy-preinstalled-system-armel+manta.img.md5sum",
+            "saucy-preinstalled-touch-armel+grouper.zip",
+            "saucy-preinstalled-touch-armel+grouper.zip.md5sum",
+            "saucy-preinstalled-touch-armel+maguro.zip",
+            "saucy-preinstalled-touch-armel+maguro.zip.md5sum",
+            "saucy-preinstalled-touch-armel+mako.zip",
+            "saucy-preinstalled-touch-armel+mako.zip.md5sum",
+            "saucy-preinstalled-touch-armel+manta.zip",
+            "saucy-preinstalled-touch-armel+manta.zip.md5sum",
             "saucy-preinstalled-touch-armhf.bootimg-maguro",
             "saucy-preinstalled-touch-armhf.bootimg-mako",
             "saucy-preinstalled-touch-armhf.bootimg-grouper",
             "saucy-preinstalled-touch-armhf.bootimg-manta",
+            "saucy-preinstalled-touch-armhf.manifest",
+            "saucy-preinstalled-touch-armhf.raw",
+            "saucy-preinstalled-touch-armhf.type",
+            "saucy-preinstalled-touch-armhf.tar.gz",
+            "saucy-preinstalled-touch-armhf.zip",
+            "saucy-preinstalled-touch-armhf.zip.md5sum",
         ], os.listdir(output_dir))
         with open(os.path.join(
             output_dir, "saucy-preinstalled-touch-armhf.type")
         ) as f:
             self.assertEqual("tar archive\n", f.read())
+        self.assertEqual(5, mock_check_call.call_count)
+        phablet_build = os.path.join(
+            self.temp_dir, "utouch-android", "phablet-build-scripts")
+        zip_tool = os.path.join(self.temp_dir, "utouch-android", "zip")
+        scratch_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-touch", "saucy",
+            "daily-preinstalled", "android")
+        jenkins_url = (
+            "http://10.97.2.10:8080/job/ubuntu-touch-image/"
+            "lastSuccessfulBuild/artifact/archive")
+        mock_check_call.assert_has_calls([
+            mock.call([
+                os.path.join(phablet_build, "ubuntu_data"),
+                "-m", os.path.join(phablet_build, "META-INF"),
+                "-o",
+                os.path.join(output_dir, "saucy-preinstalled-touch-armhf.zip"),
+                os.path.join(
+                    output_dir, "saucy-preinstalled-touch-armhf.tar.gz"),
+            ]),
+            mock.call(
+                [zip_tool, "-u", "system.zip", "boot.img"], cwd=scratch_dir),
+        ])
+        self.assertTrue(os.path.exists(
+            os.path.join(output_dir, "saucy-preinstalled-touch-armhf.zip")))
+        self.assertTrue(os.path.exists(
+            os.path.join(
+                output_dir, "saucy-preinstalled-touch-armhf.zip.md5sum")))
+        for subarch in "maguro", "manta", "grouper", "mako":
+            system_img = "saucy-preinstalled-system-armel+%s.img" % subarch
+            recovery_img = "saucy-preinstalled-recovery-armel+%s.img" % subarch
+            system_zip_url = "saucy-preinstalled-armel+%s.zip" % subarch
+            system_zip = "saucy-preinstalled-touch-armel+%s.zip" % subarch
+            mock_fetch.assert_any_call(
+                self.config,
+                "%s/%s" % (jenkins_url, system_img),
+                os.path.join(output_dir, system_img))
+            self.assertTrue(os.path.exists(
+                os.path.join(output_dir, system_img)))
+            self.assertTrue(os.path.exists(
+                os.path.join(output_dir, "%s.md5sum" % system_img)))
+            mock_fetch.assert_any_call(
+                self.config,
+                "%s/%s" % (jenkins_url, recovery_img),
+                os.path.join(output_dir, recovery_img))
+            self.assertTrue(os.path.exists(
+                os.path.join(output_dir, recovery_img)))
+            self.assertTrue(os.path.exists(
+                os.path.join(output_dir, "%s.md5sum" % recovery_img)))
+            mock_fetch.assert_any_call(
+                self.config,
+                "%s/%s" % (jenkins_url, system_zip_url),
+                os.path.join(scratch_dir, "system.zip"))
+            self.assertTrue(os.path.exists(
+                os.path.join(output_dir, system_zip)))
+            self.assertTrue(os.path.exists(
+                os.path.join(output_dir, "%s.md5sum" % system_zip)))
 
 
 class TestExtractDebootstrap(TestCase):

@@ -994,6 +994,34 @@ class Publisher:
         heading = heading.replace('-', ' ')
         return heading
 
+    def ubuntu_touch_legal_notice(self):
+        yield "<h3>Legal Notice</h3>"
+        yield Paragraph([
+            "Ubuntu Touch is released for free non-commercial use.",
+            "It is provided without warranty, even the implied warranty of "
+            "merchantability, satisfaction or fitness for a particular use.",
+            "See the licence included with each program for details.",
+        ])
+        yield Paragraph([
+            "Some licences may grant additional rights; this notice shall not "
+            "limit your rights under each program's licence.",
+            "Licences for each program are available in the /usr/share/doc "
+            "directory.",
+            "Source code for Ubuntu can be downloaded from %s." % Link(
+                "http://archive.ubuntu.com/", "archive.ubuntu.com"),
+            "Ubuntu, the Ubuntu logo and Canonical are registered trademarks "
+            "of Canonical Ltd.",
+            "All other trademarks are the property of their respective "
+            "owners.",
+        ])
+        yield Paragraph([
+            "Ubuntu Touch is released for limited use due to the inclusion of "
+            "binary hardware support files.",
+            "The original components and licenses can be found at: %s." % Link(
+                "https://developers.google.com/android/nexus/drivers",
+                "https://developers.google.com/android/nexus/drivers"),
+        ])
+
     def find_images(self, directory, prefix, publish_type):
         images = []
         prefix_type = "%s-%s" % (prefix, publish_type)
@@ -1439,6 +1467,11 @@ class Publisher:
             if got_iso or got_img:
                 print(file=header)
 
+            if self.config.project == "ubuntu-touch":
+                for tag in self.ubuntu_touch_legal_notice():
+                    print(tag, file=header)
+                print(file=header)
+
             print("</div></div></body></html>", file=footer)
 
             # We may not be mirrored to the webserver root, so calculate a
@@ -1468,10 +1501,10 @@ class Publisher:
             for icon, patterns in (
                 ("folder.png", "^^DIRECTORY^^"),
                 ("iso.png", ".iso"),
-                ("img.png", ".img .tar.gz .tar.xz"),
+                ("img.png", ".img .tar.gz .tar.xz .zip .bootimg-*"),
                 ("jigdo.png", ".jigdo .template"),
                 ("list.png", (
-                    ".list .manifest .html .zsync "
+                    ".list .manifest .html .zsync .md5sum "
                     "MD5SUMS MD5SUMS.gpg "
                     "MD5SUMS-metalink MD5SUMS-metalink.gpg "
                     "SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg")),
@@ -1781,15 +1814,43 @@ class DailyTreePublisher(Publisher):
             osextras.unlink_force("%s.squashfs" % target_prefix)
 
         # Flashable Android boot images
-        for abootimg in (
-            "bootimg", "bootimg-maguro", "bootimg-mako", "bootimg-grouper",
-            "bootimg-manta"
-        ):
-            if os.path.exists("%s.%s" % (source_prefix, abootimg)):
-                logger.info("Publishing %s abootimg images ..." % arch)
+        if os.path.exists("%s.bootimg" % source_prefix):
+            logger.info("Publishing %s abootimg images ..." % arch)
+            shutil.move(
+                "%s.bootimg" % source_prefix, "%s.bootimg" % target_prefix)
+
+        for android_subarch in "maguro", "mako", "grouper", "manta":
+            boot_img = "bootimg-%s" % android_subarch
+            system_img = "%s-preinstalled-system-armel+%s.img" % (
+                self.config.series, android_subarch)
+            recovery_img = "%s-preinstalled-recovery-armel+%s.img" % (
+                self.config.series, android_subarch)
+            system_zip = "%s-%s-armel+%s.zip" % (
+                self.config.series, publish_type, android_subarch)
+
+            if os.path.exists("%s.%s" % (source_prefix, boot_img)):
+                logger.info(
+                    "Publishing %s abootimg images ..." % android_subarch)
                 shutil.move(
-                    "%s.%s" % (source_prefix, abootimg), "%s.%s" %
-                    (target_prefix, abootimg))
+                    "%s.%s" % (source_prefix, boot_img), "%s.%s" %
+                    (target_prefix, boot_img))
+            for image in system_img, recovery_img, system_zip:
+                if os.path.exists(os.path.join(source_dir, image)):
+                    logger.info("Publishing %s ..." % image)
+                    shutil.move(
+                        os.path.join(source_dir, image),
+                        os.path.join(target_dir, image))
+                    logger.info("Publishing %s md5sum ..." % image)
+                    shutil.move(
+                        os.path.join(source_dir, "%s.md5sum" % image),
+                        os.path.join(target_dir, "%s.md5sum" % image))
+
+        if os.path.exists("%s.zip" % source_prefix):
+            logger.info("Publishing %s zip file ..." % arch)
+            shutil.move("%s.zip" % source_prefix, "%s.zip" % target_prefix)
+            shutil.move(
+                "%s.zip.md5sum" % source_prefix,
+                "%s.zip.md5sum" % target_prefix)
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):
