@@ -234,7 +234,10 @@ class TestBuildLiveCDBase(TestCase):
         self.config["ARCHES"] = "i386"
         self.capture_logging()
         build_livecd_base(self.config)
-        self.assertLogEqual([])
+        self.assertLogEqual([
+            "===== Downloading live filesystem images =====",
+            self.epoch_date,
+        ])
         live_dir = os.path.join(
             self.temp_dir, "scratch", "livecd-base", "raring", "livecd-base",
             "live")
@@ -260,6 +263,8 @@ class TestBuildLiveCDBase(TestCase):
         self.capture_logging()
         build_livecd_base(self.config)
         self.assertLogEqual([
+            "===== Downloading live filesystem images =====",
+            self.epoch_date,
             "===== Copying images to debian-cd output directory =====",
             self.epoch_date,
         ])
@@ -309,6 +314,8 @@ class TestBuildLiveCDBase(TestCase):
         self.capture_logging()
         build_livecd_base(self.config)
         self.assertLogEqual([
+            "===== Downloading live filesystem images =====",
+            self.epoch_date,
             "===== Copying images to debian-cd output directory =====",
             self.epoch_date,
         ])

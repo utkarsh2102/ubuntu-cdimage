@@ -398,6 +398,7 @@ def build_ubuntu_defaults_locale(config):
             else:
                 osextras.unlink_force("%s.%s" % (scratch_prefix, ext))
     else:
+        log_marker("Downloading live filesystem images")
         download_live_filesystems(config)
         scratch = live_output_directory(config)
         for entry in os.listdir(scratch):
@@ -507,6 +508,7 @@ def add_android_support(config, output_dir):
 
 
 def build_livecd_base(config):
+    log_marker("Downloading live filesystem images")
     download_live_filesystems(config)
 
     if config.project in ("ubuntu-core", "ubuntu-touch"):
