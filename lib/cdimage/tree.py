@@ -214,7 +214,13 @@ class Tree:
         parser.add_option("-t", "--publish-type", help="set publish type")
         parser.add_option("-i", "--image-type", help="set image type")
         parser.add_option("-a", "--architecture", help="set architecture")
+        if "SSH_ORIGINAL_COMMAND" not in config:
+            parser.add_option(
+                "--no-log", dest="log", default=True, action="store_false",
+                help="don't write to log file")
         options, parsed_args = parser.parse_args(args)
+        if "SSH_ORIGINAL_COMMAND" in config:
+            options.log = True
 
         if options.subproject:
             config["SUBPROJECT"] = options.subproject
@@ -253,14 +259,15 @@ class Tree:
 
         old_stdout = os.fdopen(os.dup(1), "w", 1)
         try:
-            log_path = os.path.join(config.root, "log", "mark-current.log")
-            osextras.ensuredir(os.path.dirname(log_path))
-            log = os.open(
-                log_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o666)
-            os.dup2(log, 1)
-            os.close(log)
-            sys.stdout = os.fdopen(1, "w", 1)
-            reset_logging()
+            if options.log:
+                log_path = os.path.join(config.root, "log", "mark-current.log")
+                osextras.ensuredir(os.path.dirname(log_path))
+                log = os.open(
+                    log_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o666)
+                os.dup2(log, 1)
+                os.close(log)
+                sys.stdout = os.fdopen(1, "w", 1)
+                reset_logging()
 
             logger.info(
                 "[%s] mark-current %s" %
