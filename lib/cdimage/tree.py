@@ -217,7 +217,7 @@ class Tree:
         if "SSH_ORIGINAL_COMMAND" not in config:
             parser.add_option(
                 "--no-log", dest="log", default=True, action="store_false",
-                help="don't write to log file")
+                help="don't write to log file; don't trigger mirrors")
         options, parsed_args = parser.parse_args(args)
         if "SSH_ORIGINAL_COMMAND" in config:
             options.log = True
@@ -282,7 +282,8 @@ class Tree:
                             "%s is not trigger-controlled; update "
                             "production/current-triggers" % arch)
                 publisher.mark_current(date, arches)
-                trigger_mirrors(config)
+                if options.log:
+                    trigger_mirrors(config)
                 if not quiet:
                     print(
                         "mark-current %s: success" % " ".join(args),
