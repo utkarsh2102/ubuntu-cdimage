@@ -1,0 +1,5 @@
+# Guarded by "if str is bytes", which is never true in Python 3.
+./lib/cdimage/livefs.py:*: undefined name 'unicode'
+# Only executed if sys.version <= "3".
+./lib/cdimage/mail.py:*: undefined name 'file'
+./lib/cdimage/tree.py:*: undefined name 'raw_input'
