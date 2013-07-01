@@ -996,6 +996,7 @@ class TestBuildImageSet(TestCase):
                     print(line, file=f)
 
     @mock.patch("time.strftime", return_value="20130225")
+    @mock.patch("cdimage.build.tracker_set_rebuild_status")
     @mock.patch("cdimage.build.sync_local_mirror")
     @mock.patch("cdimage.build.send_mail")
     def test_build_image_set_locked_notifies_on_failure(
