@@ -317,6 +317,14 @@ class TestBuildLiveCDBase(TestCase):
             "daily-preinstalled", "debian-cd", "armhf")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
+            "saucy-preinstalled-boot-armel+grouper.img",
+            "saucy-preinstalled-boot-armel+grouper.img.md5sum",
+            "saucy-preinstalled-boot-armel+maguro.img",
+            "saucy-preinstalled-boot-armel+maguro.img.md5sum",
+            "saucy-preinstalled-boot-armel+mako.img",
+            "saucy-preinstalled-boot-armel+mako.img.md5sum",
+            "saucy-preinstalled-boot-armel+manta.img",
+            "saucy-preinstalled-boot-armel+manta.img.md5sum",
             "saucy-preinstalled-recovery-armel+grouper.img",
             "saucy-preinstalled-recovery-armel+grouper.img.md5sum",
             "saucy-preinstalled-recovery-armel+maguro.img",
@@ -341,10 +349,6 @@ class TestBuildLiveCDBase(TestCase):
             "saucy-preinstalled-touch-armel+mako.zip.md5sum",
             "saucy-preinstalled-touch-armel+manta.zip",
             "saucy-preinstalled-touch-armel+manta.zip.md5sum",
-            "saucy-preinstalled-touch-armhf.bootimg-maguro",
-            "saucy-preinstalled-touch-armhf.bootimg-mako",
-            "saucy-preinstalled-touch-armhf.bootimg-grouper",
-            "saucy-preinstalled-touch-armhf.bootimg-manta",
             "saucy-preinstalled-touch-armhf.manifest",
             "saucy-preinstalled-touch-armhf.raw",
             "saucy-preinstalled-touch-armhf.type",

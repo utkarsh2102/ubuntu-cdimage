@@ -458,7 +458,7 @@ def add_android_support(config, output_dir):
         checksum_file.add(zip_path)
 
     for subarch in subarches:
-        boot_img = "%s-preinstalled-touch-armhf.bootimg-%s" % (
+        boot_img = "%s-preinstalled-boot-armel+%s.img" % (
             config.series, subarch)
         system_img = "%s-preinstalled-system-armel+%s.img" % (
             config.series, subarch)
@@ -526,16 +526,23 @@ def build_livecd_base(config):
                         output_dir, "%s-core-%s" % (config.series, arch))
                 elif config.project == "ubuntu-touch":
                     output_prefix = os.path.join(
-                        output_dir, "%s-preinstalled-touch-%s" %
-                        (config.series, arch))
-                    for abootimg in (
-                        "bootimg-maguro", "bootimg-mako",
-                        "bootimg-grouper", "bootimg-manta"
+                        output_dir,
+                        "%s-preinstalled-touch-%s" % (config.series, arch))
+                    for android_subarch in (
+                        "maguro", "mako", "grouper", "manta"
                     ):
-                        bootimage = "%s.%s" % (live_prefix, abootimg)
+                        live_boot_img = "%s.bootimg-%s" % (
+                            live_prefix, android_subarch)
+                        boot_img = "%s-preinstalled-boot-armel+%s.img" % (
+                            config.series, android_subarch)
                         shutil.copy2(
-                            bootimage,
-                            "%s.%s" % (output_prefix, abootimg))
+                            live_boot_img, os.path.join(output_dir, boot_img))
+                        with ChecksumFile(
+                                config, output_dir,
+                                os.path.join(
+                                    output_dir, "%s.md5sum" % boot_img),
+                                hashlib.md5, sign=False) as checksum_file:
+                            checksum_file.add(boot_img)
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)

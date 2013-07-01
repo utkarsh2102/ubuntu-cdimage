@@ -966,11 +966,7 @@ class Publisher:
                 return "Cloud Images tarball"
             else:
                 return "filesystem archive"
-        elif (
-                extension == "bootimg" or extension == "bootimg-maguro"
-            or extension == "bootimg-mako" or extension == "bootimg-grouper"
-            or extension == "bootimg-manta"
-        ):
+        elif extension == "bootimg":
             return "combined Android bootimage"
         elif extension == "tar.xz":
             return "Wubi filesystem archive"
@@ -1326,9 +1322,7 @@ class Publisher:
                                     "jigdo", "list", "manifest",
                                     "manifest-desktop", "manifest-remove",
                                     "template", "tar.gz", "tar.gz.zsync",
-                                    "bootimg", "bootimg-maguro",
-                                    "bootimg-mako", "bootimg-grouper",
-                                    "bootimg-manta", "tar.xz",
+                                    "bootimg", "tar.xz",
                                 )
                             for extension in htaccess_extensions:
                                 extpath = "%s.%s" % (base, extension)
@@ -1509,7 +1503,7 @@ class Publisher:
             for icon, patterns in (
                 ("folder.png", "^^DIRECTORY^^"),
                 ("iso.png", ".iso"),
-                ("img.png", ".img .tar.gz .tar.xz .zip *.bootimg-*"),
+                ("img.png", ".img .tar.gz .tar.xz .zip"),
                 ("jigdo.png", ".jigdo .template"),
                 ("list.png", (
                     ".list .manifest .html .zsync .md5sum "
@@ -1828,7 +1822,8 @@ class DailyTreePublisher(Publisher):
                 "%s.bootimg" % source_prefix, "%s.bootimg" % target_prefix)
 
         for android_subarch in "maguro", "mako", "grouper", "manta":
-            boot_img = "bootimg-%s" % android_subarch
+            boot_img = "%s-preinstalled-boot-armel+%s.img" % (
+                self.config.series, android_subarch)
             system_img = "%s-preinstalled-system-armel+%s.img" % (
                 self.config.series, android_subarch)
             recovery_img = "%s-preinstalled-recovery-armel+%s.img" % (
@@ -1836,13 +1831,7 @@ class DailyTreePublisher(Publisher):
             system_zip = "%s-%s-armel+%s.zip" % (
                 self.config.series, publish_type, android_subarch)
 
-            if os.path.exists("%s.%s" % (source_prefix, boot_img)):
-                logger.info(
-                    "Publishing %s abootimg images ..." % android_subarch)
-                shutil.move(
-                    "%s.%s" % (source_prefix, boot_img), "%s.%s" %
-                    (target_prefix, boot_img))
-            for image in system_img, recovery_img, system_zip:
+            for image in boot_img, system_img, recovery_img, system_zip:
                 if os.path.exists(os.path.join(source_dir, image)):
                     logger.info("Publishing %s ..." % image)
                     shutil.move(
