@@ -456,7 +456,7 @@ def add_android_support(config, output_dir):
     with ChecksumFile(
             config, output_dir, "%s.md5sum" % zip_path,
             hashlib.md5, sign=False) as checksum_file:
-        checksum_file.add(zip_path)
+        checksum_file.add(os.path.basename(zip_path))
 
     for subarch in subarches:
         boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
