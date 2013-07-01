@@ -2059,6 +2059,13 @@ class DailyTreePublisher(Publisher):
             image_base = image.split(".", 1)[0]
             for arch in arches:
                 if image_base.endswith("-%s" % arch):
+                    matches = True
+                elif (self.config.project == "ubuntu-touch" and
+                      arch == "armhf" and "-armel+" in image_base):
+                    matches = True
+                else:
+                    matches = False
+                if matches:
                     changed.add(image)
                     existing[image] = date
                     break
