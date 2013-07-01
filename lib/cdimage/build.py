@@ -549,7 +549,7 @@ def build_livecd_base(config):
                 shutil.copy2(
                     "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
                 if config.project == "ubuntu-touch":
-                    os.link(
+                    osextras.link_force(
                         "%s.raw" % output_prefix, "%s.tar.gz" % output_prefix)
                     add_android_support(config, output_dir)
 
