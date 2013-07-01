@@ -513,7 +513,7 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../../cdicons/iso.png .iso\n"
                 "AddIcon ../../cdicons/img.png .img .tar.gz .tar.xz .zip "
-                ".bootimg-*\n"
+                "*.bootimg-*\n"
                 "AddIcon ../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
                 ".md5sum "

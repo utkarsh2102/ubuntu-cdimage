@@ -1509,7 +1509,7 @@ class Publisher:
             for icon, patterns in (
                 ("folder.png", "^^DIRECTORY^^"),
                 ("iso.png", ".iso"),
-                ("img.png", ".img .tar.gz .tar.xz .zip .bootimg-*"),
+                ("img.png", ".img .tar.gz .tar.xz .zip *.bootimg-*"),
                 ("jigdo.png", ".jigdo .template"),
                 ("list.png", (
                     ".list .manifest .html .zsync .md5sum "
