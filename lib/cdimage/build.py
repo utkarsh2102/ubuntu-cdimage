@@ -459,7 +459,7 @@ def add_android_support(config, output_dir):
         checksum_file.add(zip_path)
 
     for subarch in subarches:
-        boot_img = "%s-preinstalled-boot-armel+%s.img" % (
+        boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
             config.series, subarch)
         system_img = "%s-preinstalled-system-armel+%s.img" % (
             config.series, subarch)
@@ -535,7 +535,7 @@ def build_livecd_base(config):
                     ):
                         live_boot_img = "%s.bootimg-%s" % (
                             live_prefix, android_subarch)
-                        boot_img = "%s-preinstalled-boot-armel+%s.img" % (
+                        boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
                             config.series, android_subarch)
                         shutil.copy2(
                             live_boot_img, os.path.join(output_dir, boot_img))

@@ -1822,7 +1822,7 @@ class DailyTreePublisher(Publisher):
                 "%s.bootimg" % source_prefix, "%s.bootimg" % target_prefix)
 
         for android_subarch in "maguro", "mako", "grouper", "manta":
-            boot_img = "%s-preinstalled-boot-armel+%s.img" % (
+            boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
                 self.config.series, android_subarch)
             system_img = "%s-preinstalled-system-armel+%s.img" % (
                 self.config.series, android_subarch)

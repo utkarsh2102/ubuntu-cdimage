@@ -324,14 +324,14 @@ class TestBuildLiveCDBase(TestCase):
             "daily-preinstalled", "debian-cd", "armhf")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "saucy-preinstalled-boot-armel+grouper.img",
-            "saucy-preinstalled-boot-armel+grouper.img.md5sum",
-            "saucy-preinstalled-boot-armel+maguro.img",
-            "saucy-preinstalled-boot-armel+maguro.img.md5sum",
-            "saucy-preinstalled-boot-armel+mako.img",
-            "saucy-preinstalled-boot-armel+mako.img.md5sum",
-            "saucy-preinstalled-boot-armel+manta.img",
-            "saucy-preinstalled-boot-armel+manta.img.md5sum",
+            "saucy-preinstalled-boot-armhf+grouper.img",
+            "saucy-preinstalled-boot-armhf+grouper.img.md5sum",
+            "saucy-preinstalled-boot-armhf+maguro.img",
+            "saucy-preinstalled-boot-armhf+maguro.img.md5sum",
+            "saucy-preinstalled-boot-armhf+mako.img",
+            "saucy-preinstalled-boot-armhf+mako.img.md5sum",
+            "saucy-preinstalled-boot-armhf+manta.img",
+            "saucy-preinstalled-boot-armhf+manta.img.md5sum",
             "saucy-preinstalled-recovery-armel+grouper.img",
             "saucy-preinstalled-recovery-armel+grouper.img.md5sum",
             "saucy-preinstalled-recovery-armel+maguro.img",
