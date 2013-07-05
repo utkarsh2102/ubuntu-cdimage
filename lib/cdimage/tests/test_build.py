@@ -325,43 +325,26 @@ class TestBuildLiveCDBase(TestCase):
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
             "saucy-preinstalled-boot-armhf+grouper.img",
-            "saucy-preinstalled-boot-armhf+grouper.img.md5sum",
             "saucy-preinstalled-boot-armhf+maguro.img",
-            "saucy-preinstalled-boot-armhf+maguro.img.md5sum",
             "saucy-preinstalled-boot-armhf+mako.img",
-            "saucy-preinstalled-boot-armhf+mako.img.md5sum",
             "saucy-preinstalled-boot-armhf+manta.img",
-            "saucy-preinstalled-boot-armhf+manta.img.md5sum",
             "saucy-preinstalled-recovery-armel+grouper.img",
-            "saucy-preinstalled-recovery-armel+grouper.img.md5sum",
             "saucy-preinstalled-recovery-armel+maguro.img",
-            "saucy-preinstalled-recovery-armel+maguro.img.md5sum",
             "saucy-preinstalled-recovery-armel+mako.img",
-            "saucy-preinstalled-recovery-armel+mako.img.md5sum",
             "saucy-preinstalled-recovery-armel+manta.img",
-            "saucy-preinstalled-recovery-armel+manta.img.md5sum",
             "saucy-preinstalled-system-armel+grouper.img",
-            "saucy-preinstalled-system-armel+grouper.img.md5sum",
             "saucy-preinstalled-system-armel+maguro.img",
-            "saucy-preinstalled-system-armel+maguro.img.md5sum",
             "saucy-preinstalled-system-armel+mako.img",
-            "saucy-preinstalled-system-armel+mako.img.md5sum",
             "saucy-preinstalled-system-armel+manta.img",
-            "saucy-preinstalled-system-armel+manta.img.md5sum",
             "saucy-preinstalled-touch-armel+grouper.zip",
-            "saucy-preinstalled-touch-armel+grouper.zip.md5sum",
             "saucy-preinstalled-touch-armel+maguro.zip",
-            "saucy-preinstalled-touch-armel+maguro.zip.md5sum",
             "saucy-preinstalled-touch-armel+mako.zip",
-            "saucy-preinstalled-touch-armel+mako.zip.md5sum",
             "saucy-preinstalled-touch-armel+manta.zip",
-            "saucy-preinstalled-touch-armel+manta.zip.md5sum",
             "saucy-preinstalled-touch-armhf.manifest",
             "saucy-preinstalled-touch-armhf.raw",
             "saucy-preinstalled-touch-armhf.type",
             "saucy-preinstalled-touch-armhf.tar.gz",
             "saucy-preinstalled-touch-armhf.zip",
-            "saucy-preinstalled-touch-armhf.zip.md5sum",
         ], os.listdir(output_dir))
         with open(os.path.join(
             output_dir, "saucy-preinstalled-touch-armhf.type")
@@ -391,9 +374,6 @@ class TestBuildLiveCDBase(TestCase):
         ])
         self.assertTrue(os.path.exists(
             os.path.join(output_dir, "saucy-preinstalled-touch-armhf.zip")))
-        self.assertTrue(os.path.exists(
-            os.path.join(
-                output_dir, "saucy-preinstalled-touch-armhf.zip.md5sum")))
         for subarch in "maguro", "manta", "grouper", "mako":
             system_img = "saucy-preinstalled-system-armel+%s.img" % subarch
             recovery_img = "saucy-preinstalled-recovery-armel+%s.img" % subarch
@@ -405,24 +385,18 @@ class TestBuildLiveCDBase(TestCase):
                 os.path.join(output_dir, system_img))
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_img)))
-            self.assertTrue(os.path.exists(
-                os.path.join(output_dir, "%s.md5sum" % system_img)))
             mock_fetch.assert_any_call(
                 self.config,
                 "%s/%s" % (jenkins_url, recovery_img),
                 os.path.join(output_dir, recovery_img))
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, recovery_img)))
-            self.assertTrue(os.path.exists(
-                os.path.join(output_dir, "%s.md5sum" % recovery_img)))
             mock_fetch.assert_any_call(
                 self.config,
                 "%s/%s" % (jenkins_url, system_zip_url),
                 os.path.join(scratch_dir, "system.zip"))
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_zip)))
-            self.assertTrue(os.path.exists(
-                os.path.join(output_dir, "%s.md5sum" % system_zip)))
 
 
 class TestExtractDebootstrap(TestCase):

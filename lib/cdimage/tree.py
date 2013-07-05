@@ -1509,7 +1509,7 @@ class Publisher:
                 ("img.png", ".img .tar.gz .tar.xz .zip"),
                 ("jigdo.png", ".jigdo .template"),
                 ("list.png", (
-                    ".list .manifest .html .zsync .md5sum "
+                    ".list .manifest .html .zsync "
                     "MD5SUMS MD5SUMS.gpg "
                     "MD5SUMS-metalink MD5SUMS-metalink.gpg "
                     "SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg")),
@@ -1840,17 +1840,10 @@ class DailyTreePublisher(Publisher):
                     shutil.move(
                         os.path.join(source_dir, image),
                         os.path.join(target_dir, image))
-                    logger.info("Publishing %s md5sum ..." % image)
-                    shutil.move(
-                        os.path.join(source_dir, "%s.md5sum" % image),
-                        os.path.join(target_dir, "%s.md5sum" % image))
 
         if os.path.exists("%s.zip" % source_prefix):
             logger.info("Publishing %s zip file ..." % arch)
             shutil.move("%s.zip" % source_prefix, "%s.zip" % target_prefix)
-            shutil.move(
-                "%s.zip.md5sum" % source_prefix,
-                "%s.zip.md5sum" % target_prefix)
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):

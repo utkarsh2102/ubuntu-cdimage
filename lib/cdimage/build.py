@@ -21,7 +21,6 @@ __metaclass__ = type
 
 import contextlib
 import gzip
-import hashlib
 import os
 import shutil
 import socket
@@ -34,7 +33,6 @@ import traceback
 from cdimage import osextras
 from cdimage.build_id import next_build_id
 from cdimage.check_installable import check_installable
-from cdimage.checksums import ChecksumFile
 from cdimage.germinate import Germination
 from cdimage.livefs import (
     LiveBuildsFailed,
@@ -452,11 +450,6 @@ def add_android_support(config, output_dir):
         "-o", zip_path,
         tar_path,
     ])
-    osextras.unlink_force("%s.md5sum" % zip_path)
-    with ChecksumFile(
-            config, output_dir, "%s.md5sum" % zip_path,
-            hashlib.md5, sign=False) as checksum_file:
-        checksum_file.add(os.path.basename(zip_path))
 
     for subarch in subarches:
         boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
@@ -495,17 +488,6 @@ def add_android_support(config, output_dir):
             os.path.join(scratch_dir, "system.zip"),
             os.path.join(output_dir, system_zip))
 
-        # Create checksums.
-        # TODO: This should go in the normal *SUMS files instead, but
-        # phablet-flash doesn't yet know about these.
-        for name in system_zip, system_img, recovery_img:
-            osextras.unlink_force(os.path.join(output_dir, "%s.md5sum" % name))
-            with ChecksumFile(
-                    config, output_dir,
-                    os.path.join(output_dir, "%s.md5sum" % name),
-                    hashlib.md5, sign=False) as checksum_file:
-                checksum_file.add(name)
-
 
 def build_livecd_base(config):
     log_marker("Downloading live filesystem images")
@@ -539,12 +521,6 @@ def build_livecd_base(config):
                             config.series, android_subarch)
                         shutil.copy2(
                             live_boot_img, os.path.join(output_dir, boot_img))
-                        with ChecksumFile(
-                                config, output_dir,
-                                os.path.join(
-                                    output_dir, "%s.md5sum" % boot_img),
-                                hashlib.md5, sign=False) as checksum_file:
-                            checksum_file.add(boot_img)
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)
