@@ -185,8 +185,11 @@ class Tree:
         if (path.endswith(".iso") or path.endswith(".img") or
                 path.endswith(".img.gz") or path.endswith(".tar.gz") or
                 path.endswith(".tar.xz") or path.endswith(".zip")):
-            if stat.S_ISREG(os.stat(path).st_mode):
-                return True
+            try:
+                if stat.S_ISREG(os.stat(path).st_mode):
+                    return True
+            except OSError:
+                return False
         return False
 
     def manifest_files(self):
