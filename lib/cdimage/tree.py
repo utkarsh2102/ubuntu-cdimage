@@ -2053,7 +2053,8 @@ class DailyTreePublisher(Publisher):
                 if image_base.endswith("-%s" % arch):
                     matches = True
                 elif (self.config.project == "ubuntu-touch" and
-                      arch == "armhf" and "-armel+" in image_base):
+                      arch == "armhf" and
+                      ("-armel+" in image_base or "-armhf+" in image_base)):
                     matches = True
                 else:
                     matches = False
