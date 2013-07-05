@@ -2305,9 +2305,7 @@ class DailyTreePublisher(Publisher):
                 manifest_daily, os.stat(manifest_daily).st_mode | stat.S_IWGRP)
 
             # Create timestamps for this run.
-            # TODO cjwatson 20120807: Shouldn't these be in www/full
-            # rather than www/full[/project]?
-            trace_dir = os.path.join(self.tree.project_base, ".trace")
+            trace_dir = os.path.join(self.tree.directory, ".trace")
             osextras.ensuredir(trace_dir)
             fqdn = socket.getfqdn()
             with open(os.path.join(trace_dir, fqdn), "w") as trace_file:
