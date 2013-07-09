@@ -32,7 +32,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 22 0 * * *	for-project kubuntu-active cron.daily-live --live
 # preinstalled armhf images
 35 1 * * *	for-project lubuntu cron.daily-preinstalled --live
-32 13 * * *	for-project ubuntu-touch cron.daily-preinstalled --live
+32 8 * * *	for-project ubuntu-touch cron.daily-preinstalled --live
 # No Kubuntu Active on ARM until we know it works, jriddell 2012-02
 #45 8 * * *	for-project kubuntu-active cron.daily-preinstalled --live
 14 22 * * *	for-project ubuntukylin cron.daily-live --live
