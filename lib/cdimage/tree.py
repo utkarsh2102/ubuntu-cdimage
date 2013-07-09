@@ -2285,7 +2285,8 @@ class DailyTreePublisher(Publisher):
         current_arches = [
             arch for arch in self.config.arches
             if not self.current_uses_trigger(arch)]
-        self.mark_current(date, current_arches)
+        if current_arches:
+            self.mark_current(date, current_arches)
         self.set_link_descriptions()
 
         manifest_lock = os.path.join(
