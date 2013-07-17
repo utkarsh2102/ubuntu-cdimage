@@ -190,6 +190,12 @@ class TestTree(TestCase):
                     "[2013-03-21 00:00:00] %s\n" %
                     self.config["SSH_ORIGINAL_COMMAND"],
                     log.read())
+
+            with open(os.path.join(publish_base, "20130321", ".marked_good"),
+                      "r") as marked_good:
+                self.assertEqual("saucy-desktop-i386.iso\n",
+                                 marked_good.read())
+
             publish_current = os.path.join(publish_base, "current")
             self.assertTrue(os.path.islink(publish_current))
             self.assertEqual("20130321", os.readlink(publish_current))
@@ -1351,6 +1357,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual([], os.listdir(source_dir))
         self.assertCountEqual([
             ".htaccess",
+            ".marked_good",
             "FOOTER.html",
             "HEADER.html",
             "MD5SUMS",
@@ -1656,6 +1663,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.assertEqual([], os.listdir(source_dir))
         self.assertCountEqual([
             ".htaccess",
+            ".marked_good",
             "FOOTER.html",
             "HEADER.html",
             "MD5SUMS",

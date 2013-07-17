@@ -2056,6 +2056,16 @@ class DailyTreePublisher(Publisher):
                     existing[image] = date
                     break
 
+        # Update the list of tested images
+        with open(os.path.join(self.publish_base,
+                               date, ".marked_good"), "a+") as fd:
+            fd.seek(0)
+            current_entries = fd.read().split("\n")
+            for entry in [image for image, image_date in existing.items()
+                          if image_date == date]:
+                if entry not in current_entries:
+                    fd.write("%s\n" % entry)
+
         if (set(existing) == available and
                 set(existing.values()) == set([date])):
             # Everything is consistent and complete.  Replace "current" with
