@@ -228,12 +228,9 @@ def live_build_notify_failure(config, arch):
         livefs_id_bits.append(config["UBUNTU_DEFAULTS_LOCALE"])
     livefs_id = "-".join(livefs_id_bits)
 
-    # TODO: We have to guess the datestamp, which is unreliable.  We could
-    # do better by listing the remote directory.
     datestamp = time.strftime("%Y%m%d")
-    log_url = "http://%s/~buildd/LiveCD/%s/%s/latest/livecd-%s-%s.out" % (
-        live_builder(config, arch), config.series, livefs_id,
-        datestamp, cpuarch)
+    log_url = "http://%s/~buildd/LiveCD/%s/%s/latest/livecd-%s.out" % (
+        live_builder(config, arch), config.series, livefs_id, cpuarch)
     try:
         with closing(urlopen(log_url, timeout=30)) as f:
             body = f.read()

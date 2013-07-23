@@ -373,7 +373,7 @@ class TestRunLiveBuilds(TestCase):
             live_build_notify_failure(self.config, "armhf+omap4")
         mock_urlopen.assert_called_once_with(
             "http://cadejo.buildd/~buildd/LiveCD/raring/kubuntu-omap4/latest/"
-            "livecd-20130315-armhf.out", timeout=30)
+            "livecd-armhf.out", timeout=30)
         mock_send_mail.assert_called_once_with(
             "LiveFS kubuntu-omap4/raring/armhf+omap4 failed to build on "
             "20130315",
