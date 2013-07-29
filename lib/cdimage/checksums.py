@@ -87,7 +87,7 @@ class ChecksumFile:
             this_time = None
         entry_path = os.path.join(self.directory, entry_name)
         try:
-            entry_stat = os.stat(entry_path)
+            entry_stat = os.lstat(entry_path)
             entry_time = max(entry_stat.st_mtime, entry_stat.st_ctime)
         except OSError:
             entry_time = None
