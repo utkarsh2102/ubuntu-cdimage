@@ -80,17 +80,20 @@ class ChecksumFile:
                 hash_obj.update(buf)
             return hash_obj.hexdigest()
 
+    def _entry_time(self, path, default):
+        try:
+            st = os.lstat(path)
+            return max(st.st_mtime, st.st_ctime)
+        except OSError:
+            return default
+
     def add(self, entry_name):
         try:
             this_time = os.stat(self.path).st_mtime
         except OSError:
             this_time = None
         entry_path = os.path.join(self.directory, entry_name)
-        try:
-            entry_stat = os.lstat(entry_path)
-            entry_time = max(entry_stat.st_mtime, entry_stat.st_ctime)
-        except OSError:
-            entry_time = None
+        entry_time = self._entry_time(entry_path, None)
         if (entry_name not in self.entries or
             (this_time is not None and entry_time is not None and
              entry_time > this_time)):
@@ -104,11 +107,8 @@ class ChecksumFile:
     def merge(self, directories, entry_name, possible_entry_names):
         if entry_name in self.entries:
             return
-        try:
-            entry_time = os.stat(
-                os.path.join(self.directory, entry_name)).st_mtime
-        except OSError:
-            entry_time = 0
+        entry_time = self._entry_time(
+            os.path.join(self.directory, entry_name), 0)
         for directory in directories:
             try:
                 dir_time = os.stat(os.path.join(directory, self.name)).st_mtime
