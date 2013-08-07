@@ -358,7 +358,7 @@ class TestBuildLiveCDBase(TestCase):
             self.temp_dir, "scratch", "ubuntu-touch", "saucy",
             "daily-preinstalled", "android")
         jenkins_url = (
-            "http://10.97.2.10:8080/job/ubuntu-touch-image/"
+            "http://10.97.2.10:8080/job/ubuntu-touch-image-phablet-saucy/"
             "lastSuccessfulBuild/artifact/archive")
         mock_check_call.assert_has_calls([
             mock.call([
