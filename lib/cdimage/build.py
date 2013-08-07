@@ -437,7 +437,7 @@ def add_android_support(config, output_dir):
         output_dir, "%s-preinstalled-touch-armhf.zip" % config.series)
     subarches = ["maguro", "manta", "grouper", "mako"]
     jenkins_base = "http://10.97.2.10:8080"
-    jenkins_project = "ubuntu-touch-image-phablet-saucy"
+    jenkins_project = "ubuntu-touch-image-phablet-%s" % config.series
     jenkins_ver = "lastSuccessfulBuild"
     jenkins_url = "%s/job/%s/%s/artifact/archive" % (
         jenkins_base, jenkins_project, jenkins_ver)
