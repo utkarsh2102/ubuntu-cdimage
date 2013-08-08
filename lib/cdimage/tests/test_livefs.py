@@ -139,20 +139,21 @@ class TestLiveBuilder(TestCase):
     def test_armhf(self):
         for series in all_series:
             self.assertBuilderEqual(
-                "cadejo.buildd", "armhf+mx5", series, project="ubuntu")
+                "kishi00.buildd", "armhf+mx5", series, project="ubuntu")
             self.assertBuilderEqual(
-                "cadejo.buildd", "armhf+omap", series, project="ubuntu")
+                "kishi00.buildd", "armhf+omap", series, project="ubuntu")
             self.assertBuilderEqual(
-                "cadejo.buildd", "armhf+omap4", series, project="ubuntu")
+                "kishi00.buildd", "armhf+omap4", series, project="ubuntu")
             self.assertBuilderEqual(
-                "cadejo.buildd", "armhf+omap", series, project="ubuntu-server")
+                "kishi00.buildd", "armhf+omap", series,
+                project="ubuntu-server")
             self.assertBuilderEqual(
                 "celbalrai.buildd", "armhf+omap4", series,
                 project="ubuntu-server")
             self.assertBuilderEqual("celbalrai.buildd", "armhf+ac100", series)
             self.assertBuilderEqual("celbalrai.buildd", "armhf+nexus7", series)
             self.assertBuilderEqual(
-                "cadejo.buildd", "armhf+somethingelse", series)
+                "kishi00.buildd", "armhf+somethingelse", series)
 
     def test_hppa(self):
         for series in all_series:
@@ -372,7 +373,7 @@ class TestRunLiveBuilds(TestCase):
         with mock.patch("cdimage.livefs.urlopen", mock_urlopen):
             live_build_notify_failure(self.config, "armhf+omap4")
         mock_urlopen.assert_called_once_with(
-            "http://cadejo.buildd/~buildd/LiveCD/raring/kubuntu-omap4/latest/"
+            "http://kishi00.buildd/~buildd/LiveCD/raring/kubuntu-omap4/latest/"
             "livecd-armhf.out", timeout=30)
         mock_send_mail.assert_called_once_with(
             "LiveFS kubuntu-omap4/raring/armhf+omap4 failed to build on "
@@ -831,7 +832,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.assertTrue(
             download_live_items(self.config, "armhf+omap4", "bootimg"))
-        url = ("http://cadejo.buildd/~buildd/LiveCD/raring/ubuntu-omap4/"
+        url = ("http://kishi00.buildd/~buildd/LiveCD/raring/ubuntu-omap4/"
                "current/livecd.ubuntu-omap4.bootimg-omap4")
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-preinstalled",

@@ -86,15 +86,15 @@ def live_builder(config, arch):
         # moved into the LP build farm.
         if project == "ubuntu":
             if subarch in ("mx5", "omap", "omap4"):
-                return "cadejo.buildd"
+                return "kishi00.buildd"
         elif project == "ubuntu-server":
             if subarch == "omap":
-                return "cadejo.buildd"
+                return "kishi00.buildd"
             elif subarch == "omap4":
                 return "celbalrai.buildd"
         if subarch in ("ac100", "nexus7"):
             return "celbalrai.buildd"
-        return "cadejo.buildd"
+        return "kishi00.buildd"
     elif cpuarch == "hppa":
         return "castilla.buildd"
     elif cpuarch == "i386":
