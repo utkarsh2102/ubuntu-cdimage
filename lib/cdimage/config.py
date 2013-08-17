@@ -142,7 +142,7 @@ all_series.extend([
     Series("oneiric", "11.10", "Oneiric Ocelot"),
     Series(
         "precise", "12.04", "Precise Pangolin",
-        pointversion="12.04.2",
+        pointversion="12.04.3",
         lts_projects=[
             "ubuntu", "kubuntu", "ubuntu-server", "edubuntu", "xubuntu",
             "mythbuntu", "ubuntustudio",
