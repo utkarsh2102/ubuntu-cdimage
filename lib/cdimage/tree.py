@@ -469,9 +469,9 @@ class Publisher:
                 cd = "image"
             elif self.project == "ubuntustudio":
                 # Ubuntu Studio is expected to be oversized in Gutsy; sigh.
-                cd = "dvd"
+                cd = "DVD"
             else:
-                cd = "cd"
+                cd = "CD"
         else:
             cd = "image"
 
