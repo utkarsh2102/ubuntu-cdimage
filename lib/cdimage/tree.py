@@ -2498,7 +2498,7 @@ class ReleaseTreeMixin:
             return ""
 
     def publish_target(self, source):
-        return self.project_base + self.tree_suffix(source)
+        return self.project_base
 
 
 class FullReleaseTree(DailyTree, ReleaseTreeMixin):
