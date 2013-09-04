@@ -181,9 +181,8 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
             tail = os.path.basename(target).split(".", 1)[1]
             if tail in ("iso", "manifest", "manifest-remove", "size"):
                 touch(target)
-                return True
             else:
-                return False
+                raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["DIST"] = "oneiric"
@@ -223,9 +222,8 @@ class TestBuildLiveCDBase(TestCase):
             tail = os.path.basename(target).split(".", 1)[1]
             if tail in ("manifest", "squashfs"):
                 touch(target)
-                return True
             else:
-                return False
+                raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["PROJECT"] = "livecd-base"
@@ -251,9 +249,8 @@ class TestBuildLiveCDBase(TestCase):
             if (target.endswith(".manifest") or
                     target.endswith(".rootfs.tar.gz")):
                 touch(target)
-                return True
             else:
-                return False
+                raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["PROJECT"] = "ubuntu-core"
@@ -293,9 +290,8 @@ class TestBuildLiveCDBase(TestCase):
                     target.endswith(".img") or
                     target.endswith(".zip")):
                 touch(target)
-                return True
             else:
-                return False
+                raise osextras.FetchError
 
         def check_call_side_effect(command, *args, **kwargs):
             if command[0].split("/")[-1] == "ubuntu_data":

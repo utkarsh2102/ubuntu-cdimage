@@ -134,21 +134,25 @@ def run_bounded(seconds, command, **kwargs):
     os._exit(0)
 
 
+class FetchError(Exception):
+    """An attempt to fetch a file from a remote system failed."""
+
+
 def fetch(config, source, target):
     """Fetch a file from a remote system."""
     if not source:
-        return False
+        raise FetchError("empty source URL (downloading to %s)" % target)
 
     if source.startswith("/"):
         os.link(source, target)
-        return True
+        return
 
     # This should arguably use urllib2/urllib.request or similar instead.
-    if proxy_call(config, "fetch", ["wget", "-nv", source, "-O", target]) == 0:
-        return True
-    else:
+    ret = proxy_call(config, "fetch", ["wget", "-nv", source, "-O", target])
+    if ret != 0:
         unlink_force(target)
-        return False
+        raise FetchError(
+            "wget -nv '%s' -O '%s' returned %d" % (source, target, ret))
 
 
 def shell_escape(arg):

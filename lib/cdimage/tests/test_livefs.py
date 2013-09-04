@@ -30,6 +30,7 @@ try:
 except ImportError:
     import mock
 
+from cdimage import osextras
 from cdimage.config import Config, all_series
 from cdimage.livefs import (
     LiveBuildsFailed,
@@ -754,7 +755,7 @@ class TestDownloadLiveFilesystems(TestCase):
             "live")
         self.assertEqual(expected, live_output_directory(self.config))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_no_item(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -762,7 +763,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assertFalse(download_live_items(self.config, "powerpc", "umenu"))
         self.assertEqual(0, mock_fetch.call_count)
 
-    @mock.patch("cdimage.osextras.fetch", return_value=False)
+    @mock.patch("cdimage.osextras.fetch", side_effect=osextras.FetchError)
     def test_download_live_items_failed_fetch(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -776,7 +777,7 @@ class TestDownloadLiveFilesystems(TestCase):
                 self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
                 "live", "i386.squashfs"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_kernel(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "quantal"
@@ -796,7 +797,7 @@ class TestDownloadLiveFilesystems(TestCase):
                 os.path.join(target_dir, "powerpc.kernel-powerpc64-smp")),
         ])
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_initrd(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -810,7 +811,7 @@ class TestDownloadLiveFilesystems(TestCase):
             self.config, prefix + "generic",
             os.path.join(target_dir, "i386.kernel-generic"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_kernel_efi_signed(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -825,7 +826,7 @@ class TestDownloadLiveFilesystems(TestCase):
             self.config, prefix + "generic.efi.signed",
             os.path.join(target_dir, "amd64.kernel-generic.efi.signed"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_bootimg(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -841,7 +842,7 @@ class TestDownloadLiveFilesystems(TestCase):
             self.config, url,
             os.path.join(target_dir, "armhf+omap4.bootimg-omap4"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_wubi(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -853,7 +854,7 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.wubi.exe"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_umenu(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "hardy"
@@ -865,7 +866,7 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.umenu.exe"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_usb_creator(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -878,7 +879,7 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.usb-creator.exe"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_winfoss(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "gutsy"
@@ -891,7 +892,7 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.winfoss.tgz"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_squashfs(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
@@ -904,7 +905,7 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.squashfs"))
 
-    @mock.patch("cdimage.osextras.fetch", return_value=True)
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_server_squashfs(self, mock_fetch):
         self.config["PROJECT"] = "edubuntu"
         self.config["DIST"] = "raring"
@@ -951,9 +952,8 @@ class TestDownloadLiveFilesystems(TestCase):
                 "wubi.exe",
             ):
                 touch(target)
-                return True
             else:
-                return False
+                raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["PROJECT"] = "ubuntu"

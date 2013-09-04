@@ -173,7 +173,8 @@ class TestOSExtras(TestCase):
     def test_fetch_empty(self):
         config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
-        self.assertFalse(osextras.fetch(config, "", target))
+        self.assertRaises(
+            osextras.FetchError, osextras.fetch, config, "", target)
         self.assertFalse(os.path.exists(target))
 
     def test_fetch_file(self):
@@ -181,7 +182,7 @@ class TestOSExtras(TestCase):
         source = os.path.join(self.temp_dir, "source")
         touch(source)
         target = os.path.join(self.temp_dir, "target")
-        self.assertTrue(osextras.fetch(config, source, target))
+        osextras.fetch(config, source, target)
         self.assertTrue(os.path.exists(target))
         self.assertEqual(os.stat(target), os.stat(source))
 
@@ -190,16 +191,16 @@ class TestOSExtras(TestCase):
         config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
         touch(target)
-        self.assertFalse(
-            osextras.fetch(config, "http://example.org/source", target))
+        self.assertRaises(
+            osextras.FetchError, osextras.fetch, config,
+            "http://example.org/source", target)
         self.assertFalse(os.path.exists(target))
 
     @mock.patch("subprocess.call", return_value=0)
     def test_fetch_url(self, mock_call):
         config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
-        self.assertTrue(
-            osextras.fetch(config, "http://example.org/source", target))
+        osextras.fetch(config, "http://example.org/source", target)
         self.assertEqual(1, mock_call.call_count)
         self.assertEqual(
             ["wget", "-nv", "http://example.org/source", "-O", target],

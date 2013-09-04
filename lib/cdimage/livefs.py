@@ -543,8 +543,11 @@ def download_live_items(config, arch, item):
             flavour = re.sub(r"^.*?\..*?\..*?-", "", os.path.basename(url))
             target = os.path.join(
                 output_dir, "%s.%s-%s" % (arch, item, flavour))
-            if osextras.fetch(config, url, target):
+            try:
+                osextras.fetch(config, url, target)
                 found = True
+            except osextras.FetchError:
+                pass
     elif item in (
         "bootimg-maguro", "bootimg-mako", "bootimg-grouper",
         "bootimg-manta"
@@ -552,8 +555,11 @@ def download_live_items(config, arch, item):
         for url in urls:
             target = os.path.join(
                 output_dir, "%s.%s" % (arch, item))
-            if osextras.fetch(config, url, target):
+            try:
+                osextras.fetch(config, url, target)
                 found = True
+            except osextras.FetchError:
+                pass
     elif item == "kernel-efi-signed":
         for url in urls:
             base = os.path.basename(url)
@@ -562,20 +568,32 @@ def download_live_items(config, arch, item):
             flavour = re.sub(r"^.*?\..*?\..*?-", "", base)
             target = os.path.join(
                 output_dir, "%s.kernel-%s.efi.signed" % (arch, flavour))
-            if osextras.fetch(config, url, target):
+            try:
+                osextras.fetch(config, url, target)
                 found = True
+            except osextras.FetchError:
+                pass
     elif item in ("wubi", "umenu", "usb-creator"):
         target = os.path.join(output_dir, "%s.%s.exe" % (arch, item))
-        if osextras.fetch(config, urls[0], target):
+        try:
+            osextras.fetch(config, urls[0], target)
             found = True
+        except osextras.FetchError:
+            pass
     elif item == "winfoss":
         target = os.path.join(output_dir, "%s.%s.tgz" % (arch, item))
-        if osextras.fetch(config, urls[0], target):
+        try:
+            osextras.fetch(config, urls[0], target)
             found = True
+        except osextras.FetchError:
+            pass
     else:
         target = os.path.join(output_dir, "%s.%s" % (arch, item))
-        if osextras.fetch(config, urls[0], target):
+        try:
+            osextras.fetch(config, urls[0], target)
             found = True
+        except osextras.FetchError:
+            pass
     return found
 
 
