@@ -416,32 +416,23 @@ def build_ubuntu_defaults_locale(config):
 
 
 def add_android_support(config, output_dir):
-    """Add Android support to an Ubuntu Touch image.
-
-    This requires running external tools and downloading code from a
-    Canonical-internal Jenkins instance, so it is not yet feasible to run
-    this externally.  Sorry.  This ought to be fixed soon.
+    """Copy Android support files to an Ubuntu Touch image.
     """
+    live_scratch_dir = os.path.join(
+        config.root, "scratch", config.project, config.series,
+        config.image_type, "live")
+
     phablet_build = os.path.join(
         config.root, "utouch-android", "phablet-build-scripts")
     zip_tool = os.path.join(config.root, "utouch-android", "zip")
-    scratch_dir = os.path.join(
-        config.root, "scratch", config.project, config.series,
-        config.image_type, "android")
-    osextras.mkemptydir(scratch_dir)
     raw_path = os.path.join(
         output_dir, "%s-preinstalled-touch-armhf.raw" % config.series)
     tar_path = os.path.join(
         output_dir, "%s-preinstalled-touch-armhf.tar.gz" % config.series)
     zip_path = os.path.join(
         output_dir, "%s-preinstalled-touch-armhf.zip" % config.series)
-    subarches = ["maguro", "manta", "grouper", "mako"]
-    jenkins_base = "http://10.97.2.10:8080"
-    jenkins_project = "ubuntu-touch-image-phablet-%s" % config.series
-    jenkins_ver = "lastSuccessfulBuild"
-    jenkins_url = "%s/job/%s/%s/artifact/archive" % (
-        jenkins_base, jenkins_project, jenkins_ver)
 
+    # create an android zip file from tarball
     osextras.link_force(raw_path, tar_path)
     osextras.unlink_force(zip_path)
     subprocess.check_call([
@@ -451,41 +442,33 @@ def add_android_support(config, output_dir):
         tar_path,
     ])
 
+    subarches = ["maguro", "manta", "grouper", "mako"]
+    # copy recovery, boot and system imgs in place, copy system.zip too
     for subarch in subarches:
+        boot_img_src = "armhf.bootimg-%s" % (subarch)
         boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
             config.series, subarch)
+        system_img_src = "system-armel+%s.img" % (subarch)
         system_img = "%s-preinstalled-system-armel+%s.img" % (
             config.series, subarch)
+        recovery_img_src = "recovery-armel+%s.img" % (subarch)
         recovery_img = "%s-preinstalled-recovery-armel+%s.img" % (
             config.series, subarch)
-        system_zip_url = "%s-preinstalled-armel+%s.zip" % (
-            config.series, subarch)
+        system_zip_src = "armel+%s.zip" % (subarch)
         system_zip = "%s-preinstalled-touch-armel+%s.zip" % (
             config.series, subarch)
 
-        # Get system and recovery images for "phablet-flash -b".
-        osextras.fetch(
-            config,
-            "%s/%s" % (jenkins_url, system_img),
-            os.path.join(output_dir, system_img))
-        osextras.fetch(
-            config,
-            "%s/%s" % (jenkins_url, recovery_img),
-            os.path.join(output_dir, recovery_img))
-
-        # Get and modify the system zip.
-        osextras.unlink_force(os.path.join(scratch_dir, "boot.img"))
         shutil.copy(
-            os.path.join(output_dir, boot_img),
-            os.path.join(scratch_dir, "boot.img"))
-        osextras.fetch(
-            config,
-            "%s/%s" % (jenkins_url, system_zip_url),
-            os.path.join(scratch_dir, "system.zip"))
-        subprocess.check_call(
-            [zip_tool, "-u", "system.zip", "boot.img"], cwd=scratch_dir)
-        shutil.move(
-            os.path.join(scratch_dir, "system.zip"),
+            os.path.join(live_scratch_dir, boot_img_src),
+            os.path.join(output_dir, boot_img))
+        shutil.copy(
+            os.path.join(live_scratch_dir, system_img_src),
+            os.path.join(output_dir, system_img))
+        shutil.copy(
+            os.path.join(live_scratch_dir, recovery_img_src),
+            os.path.join(output_dir, recovery_img))
+        shutil.copy(
+            os.path.join(live_scratch_dir, system_zip_src),
             os.path.join(output_dir, system_zip))
 
 

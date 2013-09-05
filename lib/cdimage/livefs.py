@@ -471,6 +471,17 @@ def live_item_paths(config, arch, item):
         for flavour in flavours(config, arch):
             yield "%s/livecd.%s.%s" % (
                 root, liveproject_subarch, item)
+    elif item in (
+        "armel+maguro.zip", "armel+mako.zip", "armel+grouper.zip",
+        "armel+manta.zip", "recovery-armel+maguro.img",
+        "recovery-armel+mako.img", "recovery-armel+grouper.img",
+        "recovery-armel+manta.img", "system-armel+maguro.img",
+        "system-armel+mako.img", "system-armel+grouper.img",
+        "system-armel+manta.img"
+    ):
+        for flavour in flavours(config, arch):
+            yield "%s/livecd.%s.%s" % (
+                root, liveproject_subarch, item)
     elif item == "kernel-efi-signed":
         if series >= "precise" and arch == "amd64":
             for flavour in flavours(config, arch):
@@ -555,6 +566,39 @@ def download_live_items(config, arch, item):
         for url in urls:
             target = os.path.join(
                 output_dir, "%s.%s" % (arch, item))
+            try:
+                osextras.fetch(config, url, target)
+                found = True
+            except osextras.FetchError:
+                pass
+    elif item in (
+        "armel+maguro.zip", "armel+mako.zip", "armel+grouper.zip",
+        "armel+manta.zip"
+    ):
+        for url in urls:
+            target = os.path.join(output_dir, item)
+            try:
+                osextras.fetch(config, url, target)
+                found = True
+            except osextras.FetchError:
+                pass
+    elif item in (
+        "recovery-armel+maguro.img", "recovery-armel+mako.img",
+        "recovery-armel+grouper.img", "recovery-armel+manta.img"
+    ):
+        for url in urls:
+            target = os.path.join(output_dir, item)
+            try:
+                osextras.fetch(config, url, target)
+                found = True
+            except osextras.FetchError:
+                pass
+    elif item in (
+        "system-armel+maguro.img", "system-armel+mako.img",
+        "system-armel+grouper.img", "system-armel+manta.img"
+    ):
+        for url in urls:
+            target = os.path.join(output_dir, item)
             try:
                 osextras.fetch(config, url, target)
                 found = True
@@ -722,6 +766,28 @@ def download_live_filesystems(config):
             ):
                 download_live_items(
                     config, arch, abootimg
+                )
+            for androidzip in (
+                "armel+maguro.zip", "armel+mako.zip",
+                "armel+grouper.zip", "armel+manta.zip"
+            ):
+                download_live_items(
+                    config, arch, androidzip
+                )
+            for recoveryimg in (
+                "recovery-armel+maguro.img", "recovery-armel+mako.img",
+                "recovery-armel+grouper.img", "recovery-armel+manta.img"
+
+            ):
+                download_live_items(
+                    config, arch, recoveryimg
+                )
+            for systemimg in (
+                "system-armel+maguro.img", "system-armel+mako.img",
+                "system-armel+grouper.img", "system-armel+manta.img"
+            ):
+                download_live_items(
+                    config, arch, systemimg
                 )
 
     if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and

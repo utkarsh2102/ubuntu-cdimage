@@ -346,16 +346,13 @@ class TestBuildLiveCDBase(TestCase):
             output_dir, "saucy-preinstalled-touch-armhf.type")
         ) as f:
             self.assertEqual("tar archive\n", f.read())
-        self.assertEqual(5, mock_check_call.call_count)
+        self.assertEqual(1, mock_check_call.call_count)
         phablet_build = os.path.join(
             self.temp_dir, "utouch-android", "phablet-build-scripts")
         zip_tool = os.path.join(self.temp_dir, "utouch-android", "zip")
         scratch_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-touch", "saucy",
             "daily-preinstalled", "android")
-        jenkins_url = (
-            "http://10.97.2.10:8080/job/ubuntu-touch-image-phablet-saucy/"
-            "lastSuccessfulBuild/artifact/archive")
         mock_check_call.assert_has_calls([
             mock.call([
                 os.path.join(phablet_build, "ubuntu_data"),
@@ -364,9 +361,7 @@ class TestBuildLiveCDBase(TestCase):
                 os.path.join(output_dir, "saucy-preinstalled-touch-armhf.zip"),
                 os.path.join(
                     output_dir, "saucy-preinstalled-touch-armhf.tar.gz"),
-            ]),
-            mock.call(
-                [zip_tool, "-u", "system.zip", "boot.img"], cwd=scratch_dir),
+            ])
         ])
         self.assertTrue(os.path.exists(
             os.path.join(output_dir, "saucy-preinstalled-touch-armhf.zip")))
@@ -375,22 +370,10 @@ class TestBuildLiveCDBase(TestCase):
             recovery_img = "saucy-preinstalled-recovery-armel+%s.img" % subarch
             system_zip_url = "saucy-preinstalled-armel+%s.zip" % subarch
             system_zip = "saucy-preinstalled-touch-armel+%s.zip" % subarch
-            mock_fetch.assert_any_call(
-                self.config,
-                "%s/%s" % (jenkins_url, system_img),
-                os.path.join(output_dir, system_img))
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_img)))
-            mock_fetch.assert_any_call(
-                self.config,
-                "%s/%s" % (jenkins_url, recovery_img),
-                os.path.join(output_dir, recovery_img))
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, recovery_img)))
-            mock_fetch.assert_any_call(
-                self.config,
-                "%s/%s" % (jenkins_url, system_zip_url),
-                os.path.join(scratch_dir, "system.zip"))
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_zip)))
 
