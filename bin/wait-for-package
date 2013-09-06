@@ -54,6 +54,9 @@ def main():
     parser.add_option(
         "-d", "--suite", default=config.series,
         help="suite to search (default: %s)" % config.series)
+    parser.add_option(
+        "--interval", default=300, type="int",
+        help="interval between mirror syncs (default: 300 seconds)")
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("no package specified")
@@ -81,7 +84,7 @@ def main():
         if not first_time:
             print(".", end="")
             sys.stdout.flush()
-            time.sleep(300)
+            time.sleep(options.interval)
             first_time = True
         anonftpsync = subprocess.Popen(
             ["anonftpsync"], stderr=subprocess.STDOUT)
