@@ -11,13 +11,13 @@ lubuntu			daily-preinstalled	quantal-		armhf+ac100
 *			daily-preinstalled	maverick-oneiric	armel+omap armel+omap4
 ubuntu-server		daily-preinstalled	quantal			armhf+omap4
 
-edubuntu		dvd			quantal-		amd64 i386 armhf+omap4
-edubuntu-dvd		dvd			quantal-		amd64 i386 armhf+omap4
+edubuntu		dvd			quantal-		amd64 armhf+omap4 i386
+edubuntu-dvd		dvd			quantal-		amd64 armhf+omap4 i386
 
-ubuntu-core		daily			oneiric			armel amd64 i386
-ubuntu-core		daily			precise			armhf amd64 i386
-ubuntu-core		daily			quantal-		armhf amd64 i386 powerpc
-*			livecd-base		oneiric-		i386 amd64 powerpc
+ubuntu-core		daily			oneiric			amd64 armel i386
+ubuntu-core		daily			precise			amd64 armhf i386
+ubuntu-core		daily			quantal-		amd64 armhf i386 powerpc
+*			livecd-base		oneiric-		amd64 i386 powerpc
 
 jeos			*			*			i386
 
