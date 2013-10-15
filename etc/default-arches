@@ -16,7 +16,8 @@ edubuntu-dvd		dvd			quantal-		amd64 armhf+omap4 i386
 
 ubuntu-core		daily			oneiric			amd64 armel i386
 ubuntu-core		daily			precise			amd64 armhf i386
-ubuntu-core		daily			quantal-		amd64 armhf i386 powerpc
+ubuntu-core		daily			quantal-raring		amd64 armhf i386 powerpc
+ubuntu-core		daily			saucy-			amd64 arm64 armhf i386 powerpc
 *			livecd-base		oneiric-		amd64 i386 powerpc
 
 jeos			*			*			i386

@@ -79,6 +79,8 @@ def live_builder(config, arch):
 
     if cpuarch == "amd64":
         return "kapok.buildd"
+    elif cpuarch == "arm64":
+        return "magic.buildd"
     elif cpuarch == "armel":
         return "celbalrai.buildd"
     elif cpuarch == "armhf":
@@ -315,6 +317,8 @@ def flavours(config, arch):
                 return ["lowlatency"]
             else:
                 return ["generic"]
+    elif cpuarch == "arm64":
+        return ["generic"]
     elif cpuarch == "armel":
         if series == "jaunty":
             # We don't have any fallback flavour on armel.

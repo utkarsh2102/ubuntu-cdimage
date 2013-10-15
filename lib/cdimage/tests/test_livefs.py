@@ -137,6 +137,10 @@ class TestLiveBuilder(TestCase):
         for series in all_series:
             self.assertBuilderEqual("celbalrai.buildd", "armel", series)
 
+    def test_arm64(self):
+        for series in all_series:
+            self.assertBuilderEqual("magic.buildd", "arm64", series)
+
     def test_armhf(self):
         for series in all_series:
             self.assertBuilderEqual(

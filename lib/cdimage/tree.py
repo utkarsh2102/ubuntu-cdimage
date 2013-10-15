@@ -776,6 +776,7 @@ class Publisher:
     arch_strings = {
         "amd64": "64-bit PC (AMD64)",
         "amd64+mac": "64-bit Mac (AMD64)",
+        "arm64": "64-bit ARM (ARMv8/AArch64)",
         "armel": "ARM EABI",
         "armel+dove": "Marvell Dove",
         "armel+imx51": "Freescale i.MX51",
@@ -812,6 +813,8 @@ class Publisher:
             if arch == "amd64+mac":
                 sentences.append(
                     "This image is adjusted to work properly on Mac systems.")
+        elif arch == "arm64":
+            sentences.append("For 64-bit ARMv8 processors and above.")
         elif arch == "armel":
             sentences.append("For ARMv7 processors and above.")
         elif arch == "armel+dove":
@@ -1086,7 +1089,7 @@ class Publisher:
             "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
             "armel+ac100", "armel+mx5",
             "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
-            "armhf+nexus7", "armhf", "armel"
+            "armhf+nexus7", "armhf", "armel", "arm64",
             "powerpc",
             "powerpc+ps3",
             "hppa",
@@ -1746,7 +1749,7 @@ class DailyTreePublisher(Publisher):
             #   2008-March/000400.html
             if series < "dapper" or series > "gutsy":
                 return True
-        elif cpuarch in ("armel", "armhf", "hppa", "ia64", "lpia"):
+        elif cpuarch in ("arm64", "armel", "armhf", "hppa", "ia64", "lpia"):
             return True
         return False
 
