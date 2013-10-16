@@ -1653,10 +1653,13 @@ class DailyTreePublisher(Publisher):
             # Ubuntu quantal onward has a succession of arbitrary limits.
             if self.config["DIST"] == "quantal":
                 return 801000000
-            elif arch == "powerpc":
-                return 850000000
+            elif self.config["DIST"] == "raring":
+                if arch == "powerpc":
+                    return 850000000
+                else:
+                    return 835000000
             else:
-                return 835000000
+                return 950000000
         elif self.project == "ubuntu-gnome" and self.config["DIST"] >= "saucy":
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             return 1024 * 1024 * 1024
