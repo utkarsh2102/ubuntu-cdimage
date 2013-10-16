@@ -349,10 +349,6 @@ class TestBuildLiveCDBase(TestCase):
         self.assertEqual(1, mock_check_call.call_count)
         phablet_build = os.path.join(
             self.temp_dir, "utouch-android", "phablet-build-scripts")
-        zip_tool = os.path.join(self.temp_dir, "utouch-android", "zip")
-        scratch_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-touch", "saucy",
-            "daily-preinstalled", "android")
         mock_check_call.assert_has_calls([
             mock.call([
                 os.path.join(phablet_build, "ubuntu_data"),
@@ -368,7 +364,6 @@ class TestBuildLiveCDBase(TestCase):
         for subarch in "maguro", "manta", "grouper", "mako":
             system_img = "saucy-preinstalled-system-armel+%s.img" % subarch
             recovery_img = "saucy-preinstalled-recovery-armel+%s.img" % subarch
-            system_zip_url = "saucy-preinstalled-armel+%s.zip" % subarch
             system_zip = "saucy-preinstalled-touch-armel+%s.zip" % subarch
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_img)))

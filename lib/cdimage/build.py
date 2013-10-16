@@ -424,7 +424,6 @@ def add_android_support(config, output_dir):
 
     phablet_build = os.path.join(
         config.root, "utouch-android", "phablet-build-scripts")
-    zip_tool = os.path.join(config.root, "utouch-android", "zip")
     raw_path = os.path.join(
         output_dir, "%s-preinstalled-touch-armhf.raw" % config.series)
     tar_path = os.path.join(
