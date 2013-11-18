@@ -916,6 +916,7 @@ class TestDailyTreePublisher(TestCase):
             os.readlink(os.path.join(publisher.publish_base, "current")))
 
     def test_published_images(self):
+        self.config["DIST"] = "raring"
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
@@ -930,6 +931,7 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_missing_to_single(self, mock_polish_directory):
+        self.config["DIST"] = "raring"
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
@@ -945,6 +947,7 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_missing_to_mixed(self, mock_polish_directory):
+        self.config["DIST"] = "raring"
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
@@ -972,6 +975,7 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_single_to_single(self, mock_polish_directory):
+        self.config["DIST"] = "raring"
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
@@ -988,6 +992,7 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_single_to_mixed(self, mock_polish_directory):
+        self.config["DIST"] = "raring"
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
@@ -1022,6 +1027,7 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_mixed_to_single(self, mock_polish_directory):
+        self.config["DIST"] = "raring"
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
@@ -1047,6 +1053,7 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_mixed_to_mixed(self, mock_polish_directory):
+        self.config["DIST"] = "raring"
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
@@ -1117,6 +1124,29 @@ class TestDailyTreePublisher(TestCase):
             os.path.join(publisher.publish_base, "20130321"),
         ], publisher.checksum_dirs)
         mock_polish_directory.assert_called_once_with("current")
+
+    @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
+    def test_mark_current_ignores_old_series(self, mock_polish_directory):
+        self.config["DIST"] = "saucy"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        old_target_dir = os.path.join(publisher.publish_base, "20130321")
+        for name in (
+            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+        ):
+            touch(os.path.join(old_target_dir, name))
+        target_dir = os.path.join(publisher.publish_base, "20130921")
+        for name in (
+            "saucy-desktop-amd64.iso", "saucy-desktop-amd64.manifest",
+            "saucy-desktop-i386.iso", "saucy-desktop-i386.manifest",
+        ):
+            touch(os.path.join(target_dir, name))
+        publish_current = os.path.join(publisher.publish_base, "current")
+        os.symlink("20130321", publish_current)
+        publisher.mark_current("20130921", ["amd64", "i386"])
+        self.assertTrue(os.path.islink(publish_current))
+        self.assertEqual("20130921", os.readlink(publish_current))
+        self.assertEqual(0, mock_polish_directory.call_count)
 
     def test_set_link_descriptions(self):
         publisher = self.make_publisher("ubuntu", "daily-live")

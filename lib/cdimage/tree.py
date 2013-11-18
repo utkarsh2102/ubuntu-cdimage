@@ -2015,7 +2015,8 @@ class DailyTreePublisher(Publisher):
         publish_dir = os.path.join(self.publish_base, date)
         for entry in osextras.listdir_force(publish_dir):
             entry_path = os.path.join(publish_dir, entry)
-            if self.tree.manifest_file_allowed(entry_path):
+            if (self.tree.manifest_file_allowed(entry_path) and
+                    entry.startswith("%s-" % self.config.series)):
                 images.add(entry)
         return images
 
