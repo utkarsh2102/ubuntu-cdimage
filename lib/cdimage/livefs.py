@@ -33,7 +33,7 @@ except ImportError:
     from urllib2 import URLError, urlopen
 
 from cdimage import osextras
-from cdimage.config import Series
+from cdimage.config import Series, Touch
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.tracker import tracker_set_rebuild_status
@@ -470,18 +470,16 @@ def live_item_paths(config, arch, item):
                 root, liveproject_subarch, item, flavour)
 
     elif item in (
-        "bootimg-maguro", "bootimg-mako", "bootimg-grouper", "bootimg-manta"
-    ):
-        for flavour in flavours(config, arch):
-            yield "%s/livecd.%s.%s" % (
-                root, liveproject_subarch, item)
-    elif item in (
-        "armel+maguro.zip", "armel+mako.zip", "armel+grouper.zip",
-        "armel+manta.zip", "recovery-armel+maguro.img",
-        "recovery-armel+mako.img", "recovery-armel+grouper.img",
-        "recovery-armel+manta.img", "system-armel+maguro.img",
-        "system-armel+mako.img", "system-armel+grouper.img",
-        "system-armel+manta.img"
+        "bootimg-%s" % tsubarch for tsubarch in Touch.list_subarches(arch)
+    ) or item in (
+        "%s+%s.zip" % (target.android_arch, target.subarch)
+            for target in Touch.list_targets_by_ubuntu_arch(arch)
+    ) or item in (
+        "recovery-%s+%s.img" % (target.android_arch, target.subarch)
+            for target in Touch.list_targets_by_ubuntu_arch(arch)
+    ) or item in (
+        "system-%s+%s.img" % (target.android_arch, target.subarch)
+            for target in Touch.list_targets_by_ubuntu_arch(arch)
     ):
         for flavour in flavours(config, arch):
             yield "%s/livecd.%s.%s" % (
@@ -564,8 +562,7 @@ def download_live_items(config, arch, item):
             except osextras.FetchError:
                 pass
     elif item in (
-        "bootimg-maguro", "bootimg-mako", "bootimg-grouper",
-        "bootimg-manta"
+        "bootimg-%s" % tsubarch for tsubarch in Touch.list_subarches(arch)
     ):
         for url in urls:
             target = os.path.join(
@@ -576,8 +573,8 @@ def download_live_items(config, arch, item):
             except osextras.FetchError:
                 pass
     elif item in (
-        "armel+maguro.zip", "armel+mako.zip", "armel+grouper.zip",
-        "armel+manta.zip"
+        "%s+%s.zip" % (target.android_arch, target.subarch)
+            for target in Touch.list_targets_by_ubuntu_arch(arch)
     ):
         for url in urls:
             target = os.path.join(output_dir, item)
@@ -587,8 +584,8 @@ def download_live_items(config, arch, item):
             except osextras.FetchError:
                 pass
     elif item in (
-        "recovery-armel+maguro.img", "recovery-armel+mako.img",
-        "recovery-armel+grouper.img", "recovery-armel+manta.img"
+        "recovery-%s+%s.img" % (target.android_arch, target.subarch)
+            for target in Touch.list_targets_by_ubuntu_arch(arch)
     ):
         for url in urls:
             target = os.path.join(output_dir, item)
@@ -598,8 +595,8 @@ def download_live_items(config, arch, item):
             except osextras.FetchError:
                 pass
     elif item in (
-        "system-armel+maguro.img", "system-armel+mako.img",
-        "system-armel+grouper.img", "system-armel+manta.img"
+        "system-%s+%s.img" % (target.android_arch, target.subarch)
+            for target in Touch.list_targets_by_ubuntu_arch(arch)
     ):
         for url in urls:
             target = os.path.join(output_dir, item)
@@ -765,30 +762,29 @@ def download_live_filesystems(config):
     if config.project == "ubuntu-touch":
         for arch in config.arches:
             for abootimg in (
-                "bootimg-maguro", "bootimg-mako",
-                "bootimg-grouper", "bootimg-manta"
+                "bootimg-%s" % tsubarch for tsubarch in
+                Touch.list_subarches(arch)
             ):
                 download_live_items(
                     config, arch, abootimg
                 )
             for androidzip in (
-                "armel+maguro.zip", "armel+mako.zip",
-                "armel+grouper.zip", "armel+manta.zip"
+                "%s+%s.zip" % (target.android_arch, target.subarch)
+                    for target in Touch.list_targets_by_ubuntu_arch(arch)
             ):
                 download_live_items(
                     config, arch, androidzip
                 )
             for recoveryimg in (
-                "recovery-armel+maguro.img", "recovery-armel+mako.img",
-                "recovery-armel+grouper.img", "recovery-armel+manta.img"
-
+                "recovery-%s+%s.img" % (target.android_arch, target.subarch)
+                    for target in Touch.list_targets_by_ubuntu_arch(arch)
             ):
                 download_live_items(
                     config, arch, recoveryimg
                 )
             for systemimg in (
-                "system-armel+maguro.img", "system-armel+mako.img",
-                "system-armel+grouper.img", "system-armel+manta.img"
+                "system-%s+%s.img" % (target.android_arch, target.subarch)
+                    for target in Touch.list_targets_by_ubuntu_arch(arch)
             ):
                 download_live_items(
                     config, arch, systemimg

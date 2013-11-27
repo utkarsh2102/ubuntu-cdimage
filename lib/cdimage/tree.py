@@ -41,7 +41,7 @@ from cdimage.checksums import (
     checksum_directory,
     metalink_checksum_directory,
 )
-from cdimage.config import Series
+from cdimage.config import Series, Touch
 from cdimage.log import logger, reset_logging
 from cdimage.mirror import trigger_mirrors
 from cdimage import osextras
@@ -1830,15 +1830,20 @@ class DailyTreePublisher(Publisher):
             shutil.move(
                 "%s.bootimg" % source_prefix, "%s.bootimg" % target_prefix)
 
-        for android_subarch in "maguro", "mako", "grouper", "manta":
-            boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
-                self.config.series, android_subarch)
-            system_img = "%s-preinstalled-system-armel+%s.img" % (
-                self.config.series, android_subarch)
-            recovery_img = "%s-preinstalled-recovery-armel+%s.img" % (
-                self.config.series, android_subarch)
-            system_zip = "%s-%s-armel+%s.zip" % (
-                self.config.series, publish_type, android_subarch)
+        for touch_target in Touch.list_targets_by_ubuntu_arch(arch):
+            boot_img = "%s-preinstalled-boot-%s+%s.img" % (
+                self.config.series, touch_target.ubuntu_arch,
+                touch_target.subarch)
+            system_img = "%s-preinstalled-system-%s+%s.img" % (
+                self.config.series, touch_target.android_arch,
+                touch_target.subarch)
+            recovery_img = "%s-preinstalled-recovery-%s+%s.img" % (
+                self.config.series, touch_target.ubuntu_arch,
+                touch_target.subarch)
+            system_zip = "%s-%s-%s+%s.zip" % (
+                self.config.series, publish_type,
+                touch_target.android_arch,
+                touch_target.subarch)
 
             for image in boot_img, system_img, recovery_img, system_zip:
                 if os.path.exists(os.path.join(source_dir, image)):
@@ -2857,11 +2862,11 @@ class ReleasePublisher(Publisher):
             return
 
         # Copy, to make sure we have a canonical version of this.
-        for ext in (
-            "iso", "list", "img", "img.gz", "tar.gz", "img.tar.gz", "tar.xz",
-            "bootimg", "bootimg-maguro", "bootimg-mako", "bootimg-grouper",
-            "bootimg-manta"
-        ):
+        artifacts = ["iso", "list", "img", "img.gz", "tar.gz", "img.tar.gz",
+                     "tar.xz", "bootimg"]
+        artifacts.extend(["bootimg-%s" % tsubarch
+                          for tsubarch in Touch.list_subarches(arch)])
+        for ext in artifacts:
             if not os.path.exists(daily(ext)):
                 continue
             if self.want_pool:

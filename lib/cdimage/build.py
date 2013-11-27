@@ -46,6 +46,7 @@ from cdimage.mirror import find_mirror, trigger_mirrors
 from cdimage.semaphore import Semaphore
 from cdimage.tracker import tracker_set_rebuild_status
 from cdimage.tree import Publisher, Tree
+from cdimage.config import Touch
 
 
 @contextlib.contextmanager
@@ -415,7 +416,7 @@ def build_ubuntu_defaults_locale(config):
                         [pi_makelist, entry_path], stdout=list_file)
 
 
-def add_android_support(config, output_dir):
+def add_android_support(config, arch, output_dir):
     """Copy Android support files to an Ubuntu Touch image.
     """
     live_scratch_dir = os.path.join(
@@ -425,11 +426,11 @@ def add_android_support(config, output_dir):
     phablet_build = os.path.join(
         config.root, "utouch-android", "phablet-build-scripts")
     raw_path = os.path.join(
-        output_dir, "%s-preinstalled-touch-armhf.raw" % config.series)
+        output_dir, "%s-preinstalled-touch-%s.raw" % (config.series, arch))
     tar_path = os.path.join(
-        output_dir, "%s-preinstalled-touch-armhf.tar.gz" % config.series)
+        output_dir, "%s-preinstalled-touch-%s.tar.gz" % (config.series, arch))
     zip_path = os.path.join(
-        output_dir, "%s-preinstalled-touch-armhf.zip" % config.series)
+        output_dir, "%s-preinstalled-touch-%s.zip" % (config.series, arch))
 
     # create an android zip file from tarball
     osextras.link_force(raw_path, tar_path)
@@ -441,21 +442,22 @@ def add_android_support(config, output_dir):
         tar_path,
     ])
 
-    subarches = ["maguro", "manta", "grouper", "mako"]
     # copy recovery, boot and system imgs in place, copy system.zip too
-    for subarch in subarches:
-        boot_img_src = "armhf.bootimg-%s" % (subarch)
-        boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
-            config.series, subarch)
-        system_img_src = "system-armel+%s.img" % (subarch)
-        system_img = "%s-preinstalled-system-armel+%s.img" % (
-            config.series, subarch)
-        recovery_img_src = "recovery-armel+%s.img" % (subarch)
-        recovery_img = "%s-preinstalled-recovery-armel+%s.img" % (
-            config.series, subarch)
-        system_zip_src = "armel+%s.zip" % (subarch)
-        system_zip = "%s-preinstalled-touch-armel+%s.zip" % (
-            config.series, subarch)
+    for target in Touch.list_targets_by_ubuntu_arch(arch):
+        boot_img_src = "%s.bootimg-%s" % (arch, target.subarch)
+        boot_img = "%s-preinstalled-boot-%s+%s.img" % (
+            config.series, arch, target.subarch)
+        system_img_src = "system-%s+%s.img" % (
+            target.android_arch, target.subarch)
+        system_img = "%s-preinstalled-system-%s+%s.img" % (
+            config.series, target.android_arch, target.subarch)
+        recovery_img_src = "recovery-%s+%s.img" % (
+            target.android_arch, target.subarch)
+        recovery_img = "%s-preinstalled-recovery-%s+%s.img" % (
+            config.series, target.android_arch, target.subarch)
+        system_zip_src = "%s+%s.zip" % (target.android_arch, target.subarch)
+        system_zip = "%s-preinstalled-touch-%s+%s.zip" % (
+            config.series, target.android_arch, target.subarch)
 
         shutil.copy(
             os.path.join(live_scratch_dir, boot_img_src),
@@ -494,13 +496,11 @@ def build_livecd_base(config):
                     output_prefix = os.path.join(
                         output_dir,
                         "%s-preinstalled-touch-%s" % (config.series, arch))
-                    for android_subarch in (
-                        "maguro", "mako", "grouper", "manta"
-                    ):
+                    for subarch in Touch.list_subarches(arch):
                         live_boot_img = "%s.bootimg-%s" % (
-                            live_prefix, android_subarch)
-                        boot_img = "%s-preinstalled-boot-armhf+%s.img" % (
-                            config.series, android_subarch)
+                            live_prefix, subarch)
+                        boot_img = "%s-preinstalled-boot-%s+%s.img" % (
+                            config.series, arch, subarch)
                         shutil.copy2(
                             live_boot_img, os.path.join(output_dir, boot_img))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
@@ -511,7 +511,7 @@ def build_livecd_base(config):
                 if config.project == "ubuntu-touch":
                     osextras.link_force(
                         "%s.raw" % output_prefix, "%s.tar.gz" % output_prefix)
-                    add_android_support(config, output_dir)
+                    add_android_support(config, arch, output_dir)
 
 
 def _debootstrap_script(config):

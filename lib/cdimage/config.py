@@ -153,6 +153,44 @@ all_series.extend([
     Series("trusty", "14.04", "Trusty Tahr"),
 ])
 
+all_touch_targets = []
+
+
+class Touch:
+    def __init__(self, subarch, android_arch, ubuntu_arch):
+        self.subarch = subarch
+        self.android_arch = android_arch
+        self.ubuntu_arch = ubuntu_arch
+
+    @classmethod
+    def list_subarches(self, ubuntu_arch=None):
+        if ubuntu_arch:
+            targets = self.list_targets_by_ubuntu_arch(ubuntu_arch)
+        else:
+            targets = all_touch_targets
+        return list(set([touch.subarch for touch in targets]))
+
+    @classmethod
+    def list_android_arches(self):
+        return list(set([touch.android_arch for touch in all_touch_targets]))
+
+    @classmethod
+    def list_ubuntu_arches(self):
+        return list(set([touch.ubuntu_arch for touch in all_touch_targets]))
+
+    @classmethod
+    def list_targets_by_ubuntu_arch(self, arch):
+        return [target for target in all_touch_targets
+                if target.ubuntu_arch == arch]
+
+
+# TODO: This should probably come from a configuration file.
+all_touch_targets.extend([
+    Touch("maguro", "armel", "armhf"),
+    Touch("mako", "armel", "armhf"),
+    Touch("manta", "armel", "armhf"),
+    Touch("grouper", "armel", "armhf"),
+])
 
 _whitelisted_keys = (
     "PROJECT",
