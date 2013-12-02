@@ -1838,7 +1838,7 @@ class DailyTreePublisher(Publisher):
                 self.config.series, touch_target.android_arch,
                 touch_target.subarch)
             recovery_img = "%s-preinstalled-recovery-%s+%s.img" % (
-                self.config.series, touch_target.ubuntu_arch,
+                self.config.series, touch_target.android_arch,
                 touch_target.subarch)
             system_zip = "%s-%s-%s+%s.zip" % (
                 self.config.series, publish_type,
