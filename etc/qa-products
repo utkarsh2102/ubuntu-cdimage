@@ -89,6 +89,7 @@ Ubuntu Touch Preinstalled grouper			ubuntu-touch	daily-preinstalled	preinstalled
 Ubuntu Touch Preinstalled maguro			ubuntu-touch	daily-preinstalled	preinstalled-touch		maguro			iso
 Ubuntu Touch Preinstalled mako				ubuntu-touch	daily-preinstalled	preinstalled-touch		mako			iso
 Ubuntu Touch Preinstalled manta				ubuntu-touch	daily-preinstalled	preinstalled-touch		manta			iso
+Ubuntu Touch Preinstalled goldfish			ubuntu-touch	daily-preinstalled	preinstalled-touch		goldfish		iso
 
 # UbuntuKylin
 UbuntuKylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso

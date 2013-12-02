@@ -62,7 +62,7 @@ from cdimage.build import (
     sync_local_mirror,
     want_live_builds,
 )
-from cdimage.config import Config
+from cdimage.config import Config, Touch
 from cdimage.log import logger
 from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch
@@ -283,12 +283,9 @@ class TestBuildLiveCDBase(TestCase):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
                     target.endswith(".rootfs.tar.gz") or
-                    target.endswith(".bootimg-maguro") or
-                    target.endswith(".bootimg-mako") or
-                    target.endswith(".bootimg-grouper") or
-                    target.endswith(".bootimg-manta") or
                     target.endswith(".img") or
-                    target.endswith(".zip")):
+                    target.endswith(".zip") or
+                    ".bootimg-" in target):
                 touch(target)
             else:
                 raise osextras.FetchError
@@ -319,29 +316,25 @@ class TestBuildLiveCDBase(TestCase):
             self.temp_dir, "scratch", "ubuntu-touch", "saucy",
             "daily-preinstalled", "debian-cd", "armhf")
         self.assertTrue(os.path.isdir(output_dir))
-        self.assertCountEqual([
-            "saucy-preinstalled-boot-armhf+grouper.img",
-            "saucy-preinstalled-boot-armhf+maguro.img",
-            "saucy-preinstalled-boot-armhf+mako.img",
-            "saucy-preinstalled-boot-armhf+manta.img",
-            "saucy-preinstalled-recovery-armel+grouper.img",
-            "saucy-preinstalled-recovery-armel+maguro.img",
-            "saucy-preinstalled-recovery-armel+mako.img",
-            "saucy-preinstalled-recovery-armel+manta.img",
-            "saucy-preinstalled-system-armel+grouper.img",
-            "saucy-preinstalled-system-armel+maguro.img",
-            "saucy-preinstalled-system-armel+mako.img",
-            "saucy-preinstalled-system-armel+manta.img",
-            "saucy-preinstalled-touch-armel+grouper.zip",
-            "saucy-preinstalled-touch-armel+maguro.zip",
-            "saucy-preinstalled-touch-armel+mako.zip",
-            "saucy-preinstalled-touch-armel+manta.zip",
+        touch_files = ["saucy-preinstalled-boot-%s+%s.img" % (
+            touch_target.ubuntu_arch, touch_target.subarch)
+            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")]
+        touch_files.extend(["saucy-preinstalled-recovery-%s+%s.img" % (
+            touch_target.android_arch, touch_target.subarch)
+            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
+        touch_files.extend(["saucy-preinstalled-system-%s+%s.img" % (
+            touch_target.android_arch, touch_target.subarch)
+            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
+        touch_files.extend(["saucy-preinstalled-touch-%s+%s.zip" % (
+            touch_target.android_arch, touch_target.subarch)
+            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
+        touch_files.extend([
             "saucy-preinstalled-touch-armhf.manifest",
             "saucy-preinstalled-touch-armhf.raw",
             "saucy-preinstalled-touch-armhf.type",
             "saucy-preinstalled-touch-armhf.tar.gz",
-            "saucy-preinstalled-touch-armhf.zip",
-        ], os.listdir(output_dir))
+            "saucy-preinstalled-touch-armhf.zip"])
+        self.assertCountEqual(touch_files, os.listdir(output_dir))
         with open(os.path.join(
             output_dir, "saucy-preinstalled-touch-armhf.type")
         ) as f:
@@ -361,10 +354,13 @@ class TestBuildLiveCDBase(TestCase):
         ])
         self.assertTrue(os.path.exists(
             os.path.join(output_dir, "saucy-preinstalled-touch-armhf.zip")))
-        for subarch in "maguro", "manta", "grouper", "mako":
-            system_img = "saucy-preinstalled-system-armel+%s.img" % subarch
-            recovery_img = "saucy-preinstalled-recovery-armel+%s.img" % subarch
-            system_zip = "saucy-preinstalled-touch-armel+%s.zip" % subarch
+        for touch_target in Touch.list_targets_by_ubuntu_arch("armhf"):
+            system_img = "saucy-preinstalled-system-%s+%s.img" % (
+                touch_target.android_arch, touch_target.subarch)
+            recovery_img = "saucy-preinstalled-recovery-%s+%s.img" % (
+                touch_target.android_arch, touch_target.subarch)
+            system_zip = "saucy-preinstalled-touch-%s+%s.zip" % (
+                touch_target.android_arch, touch_target.subarch)
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_img)))
             self.assertTrue(os.path.exists(
