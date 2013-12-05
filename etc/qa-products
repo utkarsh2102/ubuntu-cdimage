@@ -16,12 +16,6 @@ Ubuntu Wubi i386							ubuntu			wubi				wubi					i386			iso
 Xubuntu Alternate amd64						xubuntu			daily				alternate				amd64			iso
 Xubuntu Alternate i386						xubuntu			daily				alternate				i386			iso
 
-# FIXME: To be dropped after the touch images are ported to saucy
-Ubuntu Touch Preinstalled grouper			ubuntu-touch-preview	daily-preinstalled	preinstalled	armel+grouper	iso
-Ubuntu Touch Preinstalled maguro			ubuntu-touch-preview	daily-preinstalled	preinstalled	armel+maguro	iso
-Ubuntu Touch Preinstalled mako				ubuntu-touch-preview	daily-preinstalled	preinstalled	armel+mako		iso
-Ubuntu Touch Preinstalled manta				ubuntu-touch-preview	daily-preinstalled	preinstalled	armel+manta		iso
-
 # Edubuntu
 Edubuntu DVD amd64							edubuntu		dvd					dvd						amd64			iso
 Edubuntu DVD i386							edubuntu		dvd					dvd						i386			iso
@@ -85,11 +79,7 @@ Ubuntu Studio DVD amd64						ubuntustudio	dvd					dvd						amd64			iso
 Ubuntu Studio DVD i386						ubuntustudio	dvd					dvd						i386			iso
 
 # Ubuntu Touch
-Ubuntu Touch Preinstalled grouper			ubuntu-touch	daily-preinstalled	preinstalled-touch		grouper			iso
-Ubuntu Touch Preinstalled maguro			ubuntu-touch	daily-preinstalled	preinstalled-touch		maguro			iso
-Ubuntu Touch Preinstalled mako				ubuntu-touch	daily-preinstalled	preinstalled-touch		mako			iso
-Ubuntu Touch Preinstalled manta				ubuntu-touch	daily-preinstalled	preinstalled-touch		manta			iso
-Ubuntu Touch Preinstalled goldfish			ubuntu-touch	daily-preinstalled	preinstalled-touch		goldfish		iso
+Ubuntu Touch armhf							ubuntu-touch	daily-preinstalled	preinstalled-touch		armhf			iso
 
 # UbuntuKylin
 UbuntuKylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso
