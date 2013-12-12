@@ -2437,7 +2437,7 @@ class ChinaDailyTree(DailyTree):
 
     There isn't really any natural reason for Chinese to be special here,
     but the Chinese edition was initially done as a special-case hack.  Its
-    successor, UbuntuKylin, is implemented more normally.
+    successor, Ubuntu Kylin, is implemented more normally.
     """
 
     def __init__(self, config, directory=None):

@@ -38,7 +38,7 @@ project_map = {
     "ubuntustudio": "Ubuntu-Studio",
     "mythbuntu": "Mythbuntu",
     "lubuntu": "Lubuntu",
-    "ubuntukylin": "UbuntuKylin",
+    "ubuntukylin": "Ubuntu-Kylin",
     "ubuntu-gnome": "Ubuntu-GNOME",
     "ubuntu-moblin-remix": "Ubuntu-Moblin-Remix",
     "livecd-base": "LiveCD-Base",

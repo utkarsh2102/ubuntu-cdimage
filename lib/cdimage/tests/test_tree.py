@@ -1179,7 +1179,7 @@ class TestDailyTreePublisher(TestCase):
             ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
             ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
             ("ubuntu-core", "daily", "core", "Ubuntu Core"),
-            ("ubuntukylin", "daily-live", "desktop", "UbuntuKylin Desktop"),
+            ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
@@ -1240,7 +1240,7 @@ class TestDailyTreePublisher(TestCase):
             ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
             ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
             ("ubuntu-core", "daily", "core", "Ubuntu Core"),
-            ("ubuntukylin", "daily-live", "desktop", "UbuntuKylin Desktop"),
+            ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
