@@ -1201,18 +1201,10 @@ class TestDailyTreePublisher(TestCase):
     def test_qa_product_ubuntu_touch(self):
         publisher = self.make_publisher("ubuntu-touch", "daily-preinstalled")
         self.assertEqual(
-            ("Ubuntu Touch Preinstalled grouper", "iso"),
+            ("Ubuntu Touch armhf", "iso"),
             publisher.qa_product(
                 "ubuntu-touch", "daily-preinstalled", "preinstalled-touch",
-                "grouper"))
-
-    def test_qa_product_ubuntu_touch_preview(self):
-        publisher = self.make_publisher("ubuntu-touch-preview", "daily")
-        self.assertEqual(
-            ("Ubuntu Touch Preinstalled grouper", "iso"),
-            publisher.qa_product(
-                "ubuntu-touch-preview", "daily-preinstalled", "preinstalled",
-                "armel+grouper"))
+                "armhf"))
 
     def test_qa_product_ubuntu_preinstalled(self):
         publisher = self.make_publisher("ubuntu", "daily")
