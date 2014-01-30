@@ -796,6 +796,7 @@ class Publisher:
         "lpia": "Low-Power Intel Architecture",
         "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
         "powerpc+ps3": "PlayStation 3",
+        "ppc64el": "PowerPC64 Little-Endian",
         "sparc": "SPARC",
     }
 
@@ -884,6 +885,8 @@ class Publisher:
                 sentences.append(
                     "An alternative boot option to try %s without changing "
                     "your computer is available.)" % capproject)
+        elif arch == "ppc64el":
+            sentences.append("For PowerPC64 Little-Endian computers.")
         elif arch == "sparc":
             sentences.append(
                 "For Sun UltraSPARC computers, including those based on the "
@@ -1092,6 +1095,7 @@ class Publisher:
             "armhf+nexus7", "armhf", "armel", "arm64",
             "powerpc",
             "powerpc+ps3",
+            "ppc64el",
             "hppa",
             "ia64",
             "lpia",
@@ -1753,7 +1757,8 @@ class DailyTreePublisher(Publisher):
             #   2008-March/000400.html
             if series < "dapper" or series > "gutsy":
                 return True
-        elif cpuarch in ("arm64", "armel", "armhf", "hppa", "ia64", "lpia"):
+        elif cpuarch in (
+                "arm64", "armel", "armhf", "hppa", "ia64", "lpia", "ppc64el"):
             return True
         return False
 

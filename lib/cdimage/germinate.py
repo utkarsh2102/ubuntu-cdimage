@@ -493,7 +493,7 @@ class GerminateOutput:
             return ["cdrom/2.6/initrd.gz", "netboot/2.6/boot.img"]
         elif cpuarch == "ia64":
             return ["cdrom/boot.img", "netboot/netboot.tar.gz"]
-        elif cpuarch == "powerpc":
+        elif cpuarch in ("powerpc", "ppc64el"):
             return ["cdrom/initrd.gz", "netboot/initrd.gz"]
         elif cpuarch == "sparc":
             return ["cdrom/initrd.gz", "netboot/initrd.gz"]

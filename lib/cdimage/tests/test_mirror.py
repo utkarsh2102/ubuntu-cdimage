@@ -74,6 +74,10 @@ class TestChecksumFile(TestCase):
         for series in all_series:
             self.assertMirrorEqual("ftp", "powerpc", series)
 
+    def test_ppc64el(self):
+        for series in all_series:
+            self.assertMirrorEqual("ftp", "ppc64el", series)
+
     def test_sparc(self):
         for series in all_series:
             self.assertMirrorEqual("ftp", "sparc", series)
