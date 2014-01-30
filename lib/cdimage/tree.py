@@ -1716,6 +1716,7 @@ class DailyTreePublisher(Publisher):
         output = subp.communicate()[0].rstrip("\n")
         if output.startswith("# "):
             output = output[2:]
+        output = output.rstrip(" ")
 
         if output.startswith("ISO 9660 CD-ROM filesystem data "):
             return "iso"
