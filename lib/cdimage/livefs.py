@@ -110,6 +110,8 @@ def live_builder(config, arch):
             return "concordia.buildd"
     elif cpuarch == "powerpc":
         return "royal.buildd"
+    elif cpuarch == "ppc64el":
+        return "fisher01.buildd"
     elif cpuarch == "sparc":
         return "vivies.buildd"
     else:
@@ -374,6 +376,8 @@ def flavours(config, arch):
             return ["powerpc", "powerpc64-smp"]
         else:
             return ["powerpc-smp", "powerpc64-smp"]
+    elif cpuarch == "ppc64el":
+        return ["generic"]
     elif cpuarch == "sparc":
         return ["sparc64"]
     else:

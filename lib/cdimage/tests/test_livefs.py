@@ -182,6 +182,10 @@ class TestLiveBuilder(TestCase):
         for series in all_series:
             self.assertBuilderEqual("royal.buildd", "powerpc", series)
 
+    def test_ppc64el(self):
+        for series in all_series:
+            self.assertBuilderEqual("fisher01.buildd", "ppc64el", series)
+
     def test_sparc(self):
         for series in all_series:
             self.assertBuilderEqual("vivies.buildd", "sparc", series)
@@ -613,6 +617,10 @@ class TestFlavours(TestCase):
         for series in all_series[7:15]:
             self.assertFlavoursEqual(
                 "powerpc powerpc64-smp", "powerpc+ps3", "ubuntu", "hardy")
+
+    def test_ppc64el(self):
+        for series in all_series:
+            self.assertFlavoursEqual("generic", "ppc64el", "ubuntu", series)
 
     def test_sparc(self):
         for series in all_series:
