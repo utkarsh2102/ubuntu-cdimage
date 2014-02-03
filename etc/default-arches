@@ -17,7 +17,8 @@ edubuntu-dvd		dvd			quantal-		amd64 armhf+omap4 i386
 ubuntu-core		daily			oneiric			amd64 armel i386
 ubuntu-core		daily			precise			amd64 armhf i386
 ubuntu-core		daily			quantal-raring		amd64 armhf i386 powerpc
-ubuntu-core		daily			saucy-			amd64 arm64 armhf i386 powerpc
+ubuntu-core		daily			saucy			amd64 arm64 armhf i386 powerpc
+ubuntu-core		daily			trusty-			amd64 arm64 armhf i386 powerpc ppc64el
 *			livecd-base		oneiric-		amd64 i386 powerpc
 
 jeos			*			*			i386
@@ -60,7 +61,8 @@ ubuntu-server		*			karmic-lucid		amd64 armel+dove armel+imx51 armel+omap i386 ia
 ubuntu-server		*			maverick		amd64 amd64+mac armel+dove armel+omap armel+omap4 i386 powerpc powerpc+ps3
 ubuntu-server		*			natty-oneiric		amd64 amd64+mac armel+dove armel+omap armel+omap4 i386 powerpc
 ubuntu-server		*			precise			amd64 i386
-ubuntu-server		*			quantal-		amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc
+ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc
+ubuntu-server		*			trusty-			amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc ppc64el
 
 ubuntu-wubi		*			*			amd64 i386
 
