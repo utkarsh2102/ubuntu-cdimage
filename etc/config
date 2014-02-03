@@ -41,8 +41,6 @@ ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu kubuntu-active edubuntu xubuntu ubu
 GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
 SIGNING_KEYID=FBB75451
 
-BRITNEY="$CDIMAGE_ROOT/britney"
-
 #export LOCAL_SEEDS=file:///path/to/local_seeds
 
 # Do not update the local mirror

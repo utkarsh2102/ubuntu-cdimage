@@ -203,7 +203,6 @@ _whitelisted_keys = (
     "CPUARCHES",
     "GNUPG_DIR",
     "SIGNING_KEYID",
-    "BRITNEY",
     "LOCAL",
     "LOCALDEBS",
     "LOCAL_SEEDS",
