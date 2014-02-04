@@ -1926,7 +1926,7 @@ class DailyTreePublisher(Publisher):
     def publish_wubi(self, arch, date):
         source_dir = os.path.join(
             self.config.root, "scratch", self.project, self.config.series,
-            self.image_type)
+            self.image_type, "live")
         source_prefix = os.path.join(source_dir, arch)
         target_dir = os.path.join(self.publish_base, date)
         target_prefix = os.path.join(target_dir, arch)
