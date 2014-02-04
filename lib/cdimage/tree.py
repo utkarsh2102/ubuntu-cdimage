@@ -2026,8 +2026,11 @@ class DailyTreePublisher(Publisher):
         publish_dir = os.path.join(self.publish_base, date)
         for entry in osextras.listdir_force(publish_dir):
             entry_path = os.path.join(publish_dir, entry)
-            if (self.tree.manifest_file_allowed(entry_path) and
-                    entry.startswith("%s-" % self.config.series)):
+            if not self.tree.manifest_file_allowed(entry_path):
+                continue
+            if (entry.startswith("%s-" % self.config.series) or
+                (self.config.subproject == "wubi" and
+                 entry.endswith(".tar.xz"))):
                 images.add(entry)
         return images
 
