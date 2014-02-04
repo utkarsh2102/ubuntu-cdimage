@@ -217,6 +217,8 @@ def main():
     parser.add_option(
         "--stdout", default=False, action="store_true",
         help="write to standard output rather than sending mail")
+    parser.add_option(
+        "--series", action="append", help="restrict checks to this series")
     options, _ = parser.parse_args()
 
     config = Config()
@@ -224,10 +226,11 @@ def main():
     projects = ('ubuntu', 'ubuntu-server', 'kubuntu', 'edubuntu', 'xubuntu',
                 'ubuntustudio', 'ubuntu-netbook', 'kubuntu-netbook',
                 'ubuntu-moblin-remix')
-    active_series = ('precise', 'trusty')
+    if not options.series:
+        options.series = ('precise', 'trusty')
 
     for project in projects:
-        for series in active_series:
+        for series in options.series:
             for image in 'daily-live', 'daily', 'dvd':
                 check_image(config, project, series, image)
 
