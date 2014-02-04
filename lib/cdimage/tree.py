@@ -2067,6 +2067,9 @@ class DailyTreePublisher(Publisher):
                       arch == "armhf" and
                       ("-armel+" in image_base or "-armhf+" in image_base)):
                     matches = True
+                elif (self.config.subproject == "wubi" and
+                      image_base == ("%s.tar.xz" % arch)):
+                    matches = True
                 else:
                     matches = False
                 if matches:
