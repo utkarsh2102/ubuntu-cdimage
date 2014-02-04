@@ -100,7 +100,7 @@ def configure_for_project(config):
 
 
 def open_log(config):
-    if config["DEBUG"]:
+    if config["DEBUG"] or config["CDIMAGE_NOLOG"]:
         return None
 
     project = config.project
@@ -622,7 +622,7 @@ def fix_permissions(config):
 
 
 def notify_failure(config, log_path):
-    if config["DEBUG"]:
+    if config["DEBUG"] or config["CDIMAGE_NOLOG"]:
         return
 
     project = config.project
