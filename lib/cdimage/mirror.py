@@ -78,7 +78,7 @@ def _trigger_mirrors_production_config(config, trigger_type):
 
 def _get_mirrors(config):
     if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        return ["scandium.canonical.com"]
+        return ["strix.canonical.com"]
     elif config["TRIGGER_MIRRORS"]:
         return config["TRIGGER_MIRRORS"].split()
     else:

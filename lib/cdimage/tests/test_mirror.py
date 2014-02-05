@@ -153,7 +153,7 @@ class TestTriggerMirrors(TestCase):
         self.configure_triggers()
         self.assertEqual(["foo", "bar"], _get_mirrors(self.config))
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.assertEqual(["scandium.canonical.com"], _get_mirrors(self.config))
+        self.assertEqual(["strix.canonical.com"], _get_mirrors(self.config))
 
     def test_get_mirrors_async(self):
         config = Config(read=False)
