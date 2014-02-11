@@ -6,7 +6,7 @@
 ubuntu-touch		daily-preinstalled	saucy-			armhf
 ubuntu			daily-preinstalled	oneiric			armel+ac100 armel+mx5 armel+omap armel+omap4
 ubuntu			daily-preinstalled	raring			armhf+nexus7
-lubuntu			daily-preinstalled	quantal-		armhf+ac100
+lubuntu			daily-preinstalled	quantal-saucy		armhf+ac100
 
 *			daily-preinstalled	maverick-oneiric	armel+omap armel+omap4
 ubuntu-server		daily-preinstalled	quantal			armhf+omap4
