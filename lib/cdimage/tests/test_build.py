@@ -325,9 +325,6 @@ class TestBuildLiveCDBase(TestCase):
         touch_files.extend(["saucy-preinstalled-system-%s+%s.img" % (
             touch_target.android_arch, touch_target.subarch)
             for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
-        touch_files.extend(["saucy-preinstalled-touch-%s+%s.zip" % (
-            touch_target.android_arch, touch_target.subarch)
-            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
         touch_files.extend([
             "saucy-preinstalled-touch-armhf.manifest",
             "saucy-preinstalled-touch-armhf.raw",
@@ -359,14 +356,10 @@ class TestBuildLiveCDBase(TestCase):
                 touch_target.android_arch, touch_target.subarch)
             recovery_img = "saucy-preinstalled-recovery-%s+%s.img" % (
                 touch_target.android_arch, touch_target.subarch)
-            system_zip = "saucy-preinstalled-touch-%s+%s.zip" % (
-                touch_target.android_arch, touch_target.subarch)
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_img)))
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, recovery_img)))
-            self.assertTrue(os.path.exists(
-                os.path.join(output_dir, system_zip)))
 
 
 class TestExtractDebootstrap(TestCase):

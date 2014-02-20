@@ -442,7 +442,7 @@ def add_android_support(config, arch, output_dir):
         tar_path,
     ])
 
-    # copy recovery, boot and system imgs in place, copy system.zip too
+    # copy recovery, boot and system imgs in place
     for target in Touch.list_targets_by_ubuntu_arch(arch):
         boot_img_src = "%s.bootimg-%s" % (arch, target.subarch)
         boot_img = "%s-preinstalled-boot-%s+%s.img" % (
@@ -455,9 +455,6 @@ def add_android_support(config, arch, output_dir):
             target.android_arch, target.subarch)
         recovery_img = "%s-preinstalled-recovery-%s+%s.img" % (
             config.series, target.android_arch, target.subarch)
-        system_zip_src = "%s+%s.zip" % (target.android_arch, target.subarch)
-        system_zip = "%s-preinstalled-touch-%s+%s.zip" % (
-            config.series, target.android_arch, target.subarch)
 
         shutil.copy(
             os.path.join(live_scratch_dir, boot_img_src),
@@ -468,9 +465,6 @@ def add_android_support(config, arch, output_dir):
         shutil.copy(
             os.path.join(live_scratch_dir, recovery_img_src),
             os.path.join(output_dir, recovery_img))
-        shutil.copy(
-            os.path.join(live_scratch_dir, system_zip_src),
-            os.path.join(output_dir, system_zip))
 
 
 def build_livecd_base(config):

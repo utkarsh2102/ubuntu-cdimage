@@ -1846,12 +1846,8 @@ class DailyTreePublisher(Publisher):
             recovery_img = "%s-preinstalled-recovery-%s+%s.img" % (
                 self.config.series, touch_target.android_arch,
                 touch_target.subarch)
-            system_zip = "%s-%s-%s+%s.zip" % (
-                self.config.series, publish_type,
-                touch_target.android_arch,
-                touch_target.subarch)
 
-            for image in boot_img, system_img, recovery_img, system_zip:
+            for image in boot_img, system_img, recovery_img:
                 if os.path.exists(os.path.join(source_dir, image)):
                     logger.info("Publishing %s ..." % image)
                     shutil.move(
