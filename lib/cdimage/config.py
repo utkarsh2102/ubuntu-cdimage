@@ -189,8 +189,9 @@ all_touch_targets.extend([
     Touch("maguro", "armel", "armhf"),
     Touch("mako", "armel", "armhf"),
     Touch("manta", "armel", "armhf"),
-    Touch("goldfish", "armel", "armhf"),
+    Touch("generic", "armel", "armhf"),
     Touch("grouper", "armel", "armhf"),
+    Touch("flo", "armel", "armhf"),
 ])
 
 _whitelisted_keys = (
