@@ -62,7 +62,7 @@ ubuntu-server		*			maverick		amd64 amd64+mac armel+dove armel+omap armel+omap4 i
 ubuntu-server		*			natty-oneiric		amd64 amd64+mac armel+dove armel+omap armel+omap4 i386 powerpc
 ubuntu-server		*			precise			amd64 i386
 ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc
-ubuntu-server		*			trusty-			amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc ppc64el
+ubuntu-server		*			trusty-			amd64 amd64+mac i386 powerpc ppc64el
 
 ubuntu-wubi		*			*			amd64 i386
 
