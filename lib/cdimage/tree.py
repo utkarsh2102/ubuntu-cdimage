@@ -1135,6 +1135,7 @@ class Publisher:
                     "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
                     "favicon.ico\">", file=header)
             print(dedent("""\
+                body { margin: 2em; }
                 </style>
                 </head>
                 <body><div id="pageWrapper">
