@@ -53,6 +53,7 @@ Ubuntu Core arm64							ubuntu-core		daily				core					arm64			iso
 Ubuntu Core armhf							ubuntu-core		daily				core					armhf			iso
 Ubuntu Core i386							ubuntu-core		daily				core					i386			iso
 Ubuntu Core powerpc							ubuntu-core		daily				core					powerpc			iso
+Ubuntu Core ppc64el							ubuntu-core		daily				core					ppc64el			iso
 
 # Ubuntu Desktop 
 Ubuntu Desktop amd64						ubuntu			daily-live			desktop					amd64			iso
@@ -73,6 +74,7 @@ Ubuntu Server armhf+omap					ubuntu-server	daily				server					armhf+omap		iso
 Ubuntu Server armhf+omap4					ubuntu-server	daily				server					armhf+omap4		iso
 Ubuntu Server i386							ubuntu-server	daily				server					i386			iso
 Ubuntu Server powerpc						ubuntu-server	daily				server					powerpc			iso
+Ubuntu Server ppc64el						ubuntu-server	daily				server					ppc64el			iso
 
 # Ubuntu Studio
 Ubuntu Studio DVD amd64						ubuntustudio	dvd					dvd						amd64			iso
