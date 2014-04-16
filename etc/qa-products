@@ -82,6 +82,7 @@ Ubuntu Studio DVD i386						ubuntustudio	dvd					dvd						i386			iso
 
 # Ubuntu Touch
 Ubuntu Touch armhf							ubuntu-touch	daily-preinstalled	preinstalled-touch		armhf			iso
+Ubuntu Touch i386							ubuntu-touch	daily-preinstalled	preinstalled-touch		i386			iso
 
 # Ubuntu Kylin
 Ubuntu Kylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso
