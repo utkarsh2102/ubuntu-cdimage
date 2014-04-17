@@ -1663,8 +1663,10 @@ class DailyTreePublisher(Publisher):
                     return 850000000
                 else:
                     return 835000000
-            else:
+            elif self.config["DIST"] == "saucy":
                 return 950000000
+            else:
+                return 1024 * 1024 * 1024
         elif self.project == "ubuntu-gnome" and self.config["DIST"] >= "saucy":
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             return 1024 * 1024 * 1024

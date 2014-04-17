@@ -687,6 +687,8 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "raring", "daily-live", "powerpc", 850000000),
             ("ubuntu", "saucy", "daily-live", "i386", 950000000),
             ("ubuntu", "saucy", "daily-live", "powerpc", 950000000),
+            ("ubuntu", "trusty", "daily-live", "i386", 1073741824),
+            ("ubuntu", "trusty", "daily-live", "powerpc", 1073741824),
             ("xubuntu", "quantal", "daily-live", "i386", 736665600),
             ("xubuntu", "raring", "daily-live", "i386", 1073741824),
         ):
