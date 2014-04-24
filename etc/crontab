@@ -18,7 +18,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 34 20 * * *	DIST=precise for-project ubuntustudio cron.dvd --live
 5 21 * * *	DIST=precise for-project xubuntu cron.daily; DIST=precise for-project xubuntu cron.daily-live --live
 30 12 * * *	DIST=precise UBUNTU_DEFAULTS_LOCALE=zh_CN for-project ubuntu cron.daily-live --live
-# regular trusty daily builds
+# regular utopic daily builds
 31 7 * * *	for-project ubuntu cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
 24 0 * * *	for-project edubuntu cron.dvd --live

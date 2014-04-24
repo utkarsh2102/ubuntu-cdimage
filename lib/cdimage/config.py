@@ -151,6 +151,7 @@ all_series.extend([
     Series("raring", "13.04", "Raring Ringtail"),
     Series("saucy", "13.10", "Saucy Salamander"),
     Series("trusty", "14.04", "Trusty Tahr"),
+    Series("utopic", "14.10", "Utopic Unicorn"),
 ])
 
 all_touch_targets = []

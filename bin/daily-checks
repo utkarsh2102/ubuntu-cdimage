@@ -228,7 +228,7 @@ def main():
                 'ubuntu-moblin-remix', 'kubuntu-active', 'mythbuntu',
                 'lubuntu', 'ubuntu-gnome', 'ubuntukylin')
     if not options.series:
-        options.series = ('precise', 'trusty')
+        options.series = ('precise', 'trusty', 'utopic')
 
     for project in projects:
         for series in options.series:
