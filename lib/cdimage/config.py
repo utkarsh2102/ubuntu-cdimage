@@ -282,7 +282,7 @@ class Config(defaultdict):
         self._add_package("germinate")
         self._add_package("ubuntu-archive-tools")
 
-    def _default_arches_match_series(self, series):
+    def match_series(self, series):
         if series == "*":
             return True
         elif "-" in series:
@@ -325,7 +325,7 @@ class Config(defaultdict):
                     continue
                 if not fnmatch.fnmatchcase(self.image_type, image_type):
                     continue
-                if not self._default_arches_match_series(series):
+                if not self.match_series(series):
                     continue
                 self["ARCHES"] = arches
                 return arches

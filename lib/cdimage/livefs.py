@@ -20,6 +20,7 @@ from __future__ import print_function
 __metaclass__ = type
 
 from contextlib import closing
+import fnmatch
 import io
 import os
 import re
@@ -75,48 +76,31 @@ def split_arch(arch):
 def live_builder(config, arch):
     cpuarch, subarch = split_arch(arch)
     project = config.project
-    series = config["DIST"]
 
-    if cpuarch == "amd64":
-        return "kapok.buildd"
-    elif cpuarch == "arm64":
-        return "magic.buildd"
-    elif cpuarch == "armel":
-        return "celbalrai.buildd"
-    elif cpuarch == "armhf":
-        # TODO: These builders should be separated out again; or, better,
-        # moved into the LP build farm.
-        if project == "ubuntu":
-            if subarch in ("mx5", "omap", "omap4"):
-                return "kishi00.buildd"
-        elif project == "ubuntu-server":
-            if subarch == "omap":
-                return "kishi00.buildd"
-            elif subarch == "omap4":
-                return "celbalrai.buildd"
-        if subarch in ("ac100", "nexus7"):
-            return "celbalrai.buildd"
-        return "kishi00.buildd"
-    elif cpuarch == "hppa":
-        return "castilla.buildd"
-    elif cpuarch == "i386":
-        return "cardamom.buildd"
-    elif cpuarch == "ia64":
-        return "weddell.buildd"
-    elif cpuarch == "lpia":
-        if series <= "hardy":
-            return "cardamom.buildd"
-        else:
-            return "concordia.buildd"
-    elif cpuarch == "powerpc":
-        return "royal.buildd"
-    elif cpuarch == "ppc64el":
-        return "fisher01.buildd"
-    elif cpuarch == "sparc":
-        return "vivies.buildd"
-    else:
-        raise UnknownArchitecture(
-            "No live filesystem builder known for %s" % arch)
+    path = os.path.join(config.root, "production", "livefs-builders")
+    if os.path.exists(path):
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                try:
+                    f_project, f_series, f_arch, builder = line.split(None, 3)
+                except ValueError:
+                    continue
+                if not fnmatch.fnmatchcase(project, f_project):
+                    continue
+                if not config.match_series(f_series):
+                    continue
+                if "+" in f_arch:
+                    want_arch = arch
+                else:
+                    want_arch = cpuarch
+                if not fnmatch.fnmatchcase(want_arch, f_arch):
+                    continue
+                return builder
+
+    raise UnknownArchitecture("No live filesystem builder known for %s" % arch)
 
 
 def live_build_options(config, arch):

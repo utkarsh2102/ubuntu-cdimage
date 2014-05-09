@@ -159,21 +159,21 @@ class TestConfig(TestCase):
         config = Config()
         self.assertEqual("kubuntu", config["PROJECT"])
 
-    def test_default_arches_match_series(self):
+    def test_match_series(self):
         config = Config(read=False)
         config["DIST"] = "precise"
-        self.assertTrue(config._default_arches_match_series("*"))
-        self.assertTrue(config._default_arches_match_series("natty-precise"))
-        self.assertTrue(config._default_arches_match_series("precise-quantal"))
-        self.assertTrue(config._default_arches_match_series("natty-quantal"))
-        self.assertFalse(config._default_arches_match_series("lucid-natty"))
-        self.assertFalse(config._default_arches_match_series("quantal-raring"))
-        self.assertTrue(config._default_arches_match_series("precise-"))
-        self.assertFalse(config._default_arches_match_series("quantal-"))
-        self.assertTrue(config._default_arches_match_series("-precise"))
-        self.assertFalse(config._default_arches_match_series("-oneiric"))
-        self.assertFalse(config._default_arches_match_series("lucid"))
-        self.assertTrue(config._default_arches_match_series("precise"))
+        self.assertTrue(config.match_series("*"))
+        self.assertTrue(config.match_series("natty-precise"))
+        self.assertTrue(config.match_series("precise-quantal"))
+        self.assertTrue(config.match_series("natty-quantal"))
+        self.assertFalse(config.match_series("lucid-natty"))
+        self.assertFalse(config.match_series("quantal-raring"))
+        self.assertTrue(config.match_series("precise-"))
+        self.assertFalse(config.match_series("quantal-"))
+        self.assertTrue(config.match_series("-precise"))
+        self.assertFalse(config.match_series("-oneiric"))
+        self.assertFalse(config.match_series("lucid"))
+        self.assertTrue(config.match_series("precise"))
 
     def test_arches_override(self):
         # If ARCHES is set in the environment, it overrides

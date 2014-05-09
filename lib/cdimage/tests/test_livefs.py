@@ -23,6 +23,7 @@ __metaclass__ = type
 
 import os
 import subprocess
+from textwrap import dedent
 import time
 try:
     from urllib.request import urlopen
@@ -125,13 +126,43 @@ class TestLiveProject(TestCase):
         self.assertProjectEqual("ubuntu", "ubuntu", "intrepid", arch="lpia")
 
 
+def make_livefs_production_config(config):
+    config_path = os.path.join(config.root, "production", "livefs-builders")
+    # TODO: This is just a copy of the current production configuration as
+    # of 2014-05-09; it's not really in the spirit of unit testing, and we
+    # should be writing more specific tests instead.
+    with mkfile(config_path) as f:
+        print(dedent("""\
+            *\t\t*\t\tamd64\t\t\tkapok.buildd
+            *\t\t*\t\tarm64\t\t\tmagic.buildd
+            *\t\t*\t\tarmel\t\t\tcelbalrai.buildd
+            ubuntu-server\t*\t\tarmhf+omap4\t\tcelbalrai.buildd
+            *\t\t*\t\tarmhf+ac100\t\tcelbalrai.buildd
+            *\t\t*\t\tarmhf+nexus7\t\tcelbalrai.buildd
+            *\t\t*\t\tarmhf\t\t\tkishi00.buildd
+            *\t\t*\t\thppa\t\t\tcastilla.buildd
+            *\t\t*\t\ti386\t\t\tcardamom.buildd
+            *\t\t*\t\tia64\t\t\tweddell.buildd
+            *\t\t-hardy\t\tlpia\t\t\tcardamom.buildd
+            *\t\t*\t\tlpia\t\t\tconcordia.buildd
+            *\t\t*\t\tpowerpc\t\t\troyal.buildd
+            *\t\t*\t\tppc64el\t\t\tfisher01.buildd
+            *\t\t*\t\tsparc\t\t\tvivies.buildd
+            """), file=f)
+
+
 class TestLiveBuilder(TestCase):
+    def setUp(self):
+        super(TestLiveBuilder, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        make_livefs_production_config(self.config)
+
     def assertBuilderEqual(self, expected, arch, series, project=None):
-        config = Config(read=False)
-        config["DIST"] = series
+        self.config["DIST"] = series
         if project is not None:
-            config["PROJECT"] = project
-        self.assertEqual(expected, live_builder(config, arch))
+            self.config["PROJECT"] = project
+        self.assertEqual(expected, live_builder(self.config, arch))
 
     def test_amd64(self):
         for series in all_series:
@@ -253,6 +284,8 @@ class TestLiveBuildCommand(TestCase):
     def setUp(self):
         super(TestLiveBuildCommand, self).setUp()
         self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        make_livefs_production_config(self.config)
         self.base_expected = [
             "ssh", "-n", "-o", "StrictHostKeyChecking=no",
             "-o", "BatchMode=yes",
@@ -342,6 +375,7 @@ class TestRunLiveBuilds(TestCase):
         super(TestRunLiveBuilds, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
+        make_livefs_production_config(self.config)
 
     def test_live_build_full_name(self):
         self.config["PROJECT"] = "ubuntu"
@@ -504,13 +538,18 @@ class TestRunLiveBuilds(TestCase):
 
 
 class TestLiveCDBase(TestCase):
+    def setUp(self):
+        super(TestLiveCDBase, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        make_livefs_production_config(self.config)
+
     def assertBaseEqual(self, expected, arch, project, series, **kwargs):
-        config = Config(read=False)
-        config["PROJECT"] = project
-        config["DIST"] = series
+        self.config["PROJECT"] = project
+        self.config["DIST"] = series
         for key, value in kwargs.items():
-            config[key.upper()] = value
-        self.assertEqual(expected, livecd_base(config, arch))
+            self.config[key.upper()] = value
+        self.assertEqual(expected, livecd_base(self.config, arch))
 
     def base(self, builder, project, series):
         return "http://%s/~buildd/LiveCD/%s/%s/current" % (
@@ -640,18 +679,23 @@ class TestFlavours(TestCase):
 
 
 class TestLiveItemPaths(TestCase):
+    def setUp(self):
+        super(TestLiveItemPaths, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        make_livefs_production_config(self.config)
+
     def assertPathsEqual(self, expected, arch, item, project, series):
-        config = Config(read=False)
-        config["PROJECT"] = project
-        config["DIST"] = series
-        self.assertEqual(expected, list(live_item_paths(config, arch, item)))
+        self.config["PROJECT"] = project
+        self.config["DIST"] = series
+        self.assertEqual(
+            expected, list(live_item_paths(self.config, arch, item)))
 
     def assertNoPaths(self, arch, item, project, series):
-        config = Config(read=False)
-        config["PROJECT"] = project
-        config["DIST"] = series
+        self.config["PROJECT"] = project
+        self.config["DIST"] = series
         self.assertRaises(
-            NoLiveItem, next, live_item_paths(config, arch, item))
+            NoLiveItem, next, live_item_paths(self.config, arch, item))
 
     def test_tocd3_fallback(self):
         for item in ("cloop", "manifest"):
@@ -765,6 +809,7 @@ class TestDownloadLiveFilesystems(TestCase):
         super(TestDownloadLiveFilesystems, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
+        make_livefs_production_config(self.config)
 
     def test_live_output_directory(self):
         self.config["PROJECT"] = "ubuntu"

@@ -168,6 +168,9 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         self.config["CDIMAGE_LIVE"] = "1"
+        with mkfile(os.path.join(
+                self.temp_dir, "production", "livefs-builders")) as f:
+            print("* * * mock-builder", file=f)
 
     def test_requires_chinese_locale(self):
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "en"
@@ -211,6 +214,9 @@ class TestBuildLiveCDBase(TestCase):
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
         self.config["CDIMAGE_LIVE"] = "1"
+        with mkfile(os.path.join(
+                self.temp_dir, "production", "livefs-builders")) as f:
+            print("* * * mock-builder", file=f)
         mock_gmtime = mock.patch("time.gmtime", return_value=time.gmtime(0))
         mock_gmtime.start()
         self.addCleanup(mock_gmtime.stop)
