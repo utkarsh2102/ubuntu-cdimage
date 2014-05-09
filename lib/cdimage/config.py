@@ -226,7 +226,9 @@ class Config(defaultdict):
     def __init__(self, read=True, **kwargs):
         super(Config, self).__init__(str)
         if "CDIMAGE_ROOT" not in os.environ:
-            os.environ["CDIMAGE_ROOT"] = "/srv/cdimage.ubuntu.com"
+            root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            root = os.path.realpath(root)
+            os.environ["CDIMAGE_ROOT"] = root
         self.root = os.environ["CDIMAGE_ROOT"]
         self.fix_paths()
         for key, value in kwargs.items():

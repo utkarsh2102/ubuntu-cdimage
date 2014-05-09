@@ -87,7 +87,11 @@ class TestConfig(TestCase):
     def test_default_root(self):
         os.environ.pop("CDIMAGE_ROOT", None)
         config = Config(read=False)
-        self.assertEqual("/srv/cdimage.ubuntu.com", config.root)
+        expected_root = os.path.dirname(__file__)       # lib/cdimage/tests
+        expected_root = os.path.dirname(expected_root)  # lib/cdimage
+        expected_root = os.path.dirname(expected_root)  # lib
+        expected_root = os.path.dirname(expected_root)  # .
+        self.assertEqual(os.path.realpath(expected_root), config.root)
 
     def test_root_from_environment(self):
         os.environ["CDIMAGE_ROOT"] = "/path"
