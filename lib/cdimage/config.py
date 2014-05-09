@@ -335,6 +335,14 @@ class Config(defaultdict):
         self["CPUARCHES"] = " ".join(
             sorted(set(arch.split("+")[0] for arch in self.arches)))
 
+    def limit_arches(self, new_arches):
+        self["ARCHES"] = " ".join(
+            arch for arch in self.arches if arch in new_arches)
+        new_cpuarches = " ".join(
+            sorted(set(arch.split("+")[0] for arch in new_arches)))
+        self["CPUARCHES"] = " ".join(
+            cpuarch for cpuarch in self.cpuarches if cpuarch in new_cpuarches)
+
     @property
     def project(self):
         return self["PROJECT"]

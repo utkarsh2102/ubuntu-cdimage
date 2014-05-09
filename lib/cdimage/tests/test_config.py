@@ -195,6 +195,31 @@ class TestConfig(TestCase):
         self.assertEqual("amd64", config["ARCHES"])
         self.assertEqual("amd64", config["CPUARCHES"])
 
+    def test_limit_arches(self):
+        # limit_arches reduces ARCHES and CPUARCHES to only those items also
+        # present in the iterable passed as a parameter.
+        self.use_temp_dir()
+        os.environ["CDIMAGE_ROOT"] = self.temp_dir
+        os.environ["ARCHES"] = "amd64 amd64+mac i386 powerpc"
+        config = Config()
+        self.assertEqual(
+            ["amd64", "amd64+mac", "i386", "powerpc"], config.arches)
+        self.assertEqual("amd64 amd64+mac i386 powerpc", os.environ["ARCHES"])
+        self.assertEqual(["amd64", "i386", "powerpc"], config.cpuarches)
+        self.assertEqual("amd64 i386 powerpc", os.environ["CPUARCHES"])
+
+        config.limit_arches(["amd64", "amd64+mac", "i386", "sparc"])
+        self.assertEqual(["amd64", "amd64+mac", "i386"], config.arches)
+        self.assertEqual("amd64 amd64+mac i386", os.environ["ARCHES"])
+        self.assertEqual(["amd64", "i386"], config.cpuarches)
+        self.assertEqual("amd64 i386", os.environ["CPUARCHES"])
+
+        config.limit_arches(["amd64"])
+        self.assertEqual(["amd64"], config.arches)
+        self.assertEqual("amd64", os.environ["ARCHES"])
+        self.assertEqual(["amd64"], config.cpuarches)
+        self.assertEqual("amd64", os.environ["CPUARCHES"])
+
     def test_project(self):
         config = Config(read=False)
         config["PROJECT"] = "kubuntu"

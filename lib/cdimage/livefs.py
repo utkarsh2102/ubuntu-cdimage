@@ -245,7 +245,7 @@ def run_live_builds(config):
         proc = subprocess.Popen(live_build_command(config, arch))
         builds[proc.pid] = (proc, arch, full_name, machine)
 
-    success = False
+    successful = set()
     while builds:
         pid, status = os.wait()
         if pid not in builds:
@@ -257,12 +257,15 @@ def run_live_builds(config):
             full_name, machine, timestamp, text_status))
         tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
         if status == 0:
-            success = True
+            successful.add(arch)
+            if arch == "amd64" and "amd64+mac" in config.arches:
+                successful.add("amd64+mac")
         else:
             live_build_notify_failure(config, arch)
 
-    if not success:
+    if not successful:
         raise LiveBuildsFailed("No live filesystem builds succeeded.")
+    return successful
 
 
 def livecd_base(config, arch):

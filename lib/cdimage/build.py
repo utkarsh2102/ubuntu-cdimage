@@ -661,7 +661,8 @@ def build_image_set_locked(config, options, semaphore_state):
 
         if want_live_builds(options):
             log_marker("Building live filesystems")
-            run_live_builds(config)
+            live_successful = run_live_builds(config)
+            config.limit_arches(live_successful)
         else:
             tracker_set_rebuild_status(config, [0, 1], 2)
 

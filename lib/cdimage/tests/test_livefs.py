@@ -481,7 +481,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         self.capture_logging()
-        run_live_builds(self.config)
+        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config))
         self.assertCountEqual([
             "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
             "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
@@ -526,7 +526,8 @@ class TestRunLiveBuilds(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 amd64+mac"
         self.capture_logging()
-        run_live_builds(self.config)
+        self.assertCountEqual(
+            ["amd64", "amd64+mac"], run_live_builds(self.config))
         expected_command = [
             "ssh", "-n", "-o", "StrictHostKeyChecking=no",
             "-o", "BatchMode=yes",
@@ -535,6 +536,59 @@ class TestRunLiveBuilds(TestCase):
         ]
         mock_popen.assert_called_once_with(expected_command)
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
+
+    @mock_strftime(1363355331)
+    @mock.patch("cdimage.livefs.urlopen", mock_urlopen(b"Log data\n"))
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.livefs.send_mail")
+    def test_run_live_builds_partial_success(self, mock_send_mail, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 i386"
+        path = os.path.join(self.temp_dir, "production", "notify-addresses")
+        with mkfile(path) as notify_addresses:
+            print("ALL\tfoo@example.org", file=notify_addresses)
+        self.capture_logging()
+        original_Popen = subprocess.Popen
+        with mock.patch("subprocess.Popen") as mock_popen:
+            def Popen_side_effect(command, *args, **kwargs):
+                if "amd64" in command:
+                    return original_Popen(["true"])
+                else:
+                    return original_Popen(["false"])
+
+            mock_popen.side_effect = Popen_side_effect
+            self.assertCountEqual(["amd64"], run_live_builds(self.config))
+            self.assertCountEqual([
+                "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
+                "ubuntu-i386 on cardamom.buildd starting at "
+                "2013-03-15 13:48:51",
+                "ubuntu-amd64 on kapok.buildd finished at "
+                "2013-03-15 13:48:51 (success)",
+                "ubuntu-i386 on cardamom.buildd finished at "
+                "2013-03-15 13:48:51 (failed)",
+            ], self.captured_log_messages())
+            expected_command_base = [
+                "ssh", "-n", "-o", "StrictHostKeyChecking=no",
+                "-o", "BatchMode=yes",
+            ]
+            mock_popen.assert_has_calls([
+                mock.call(
+                    expected_command_base + [
+                        "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
+                        "-l", "-A", "amd64", "-d", "raring", "ubuntu",
+                    ]),
+                mock.call(
+                    expected_command_base + [
+                        "buildd@cardamom.buildd",
+                        "/home/buildd/bin/BuildLiveCD",
+                        "-l", "-A", "i386", "-d", "raring", "ubuntu",
+                    ]),
+            ])
+            mock_send_mail.assert_called_once_with(
+                "LiveFS ubuntu/raring/i386 failed to build on 20130315",
+                "buildlive", ["foo@example.org"], b"Log data\n")
 
 
 class TestLiveCDBase(TestCase):
