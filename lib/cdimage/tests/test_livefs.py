@@ -24,6 +24,10 @@ __metaclass__ = type
 import os
 import subprocess
 import time
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 
 try:
     from unittest import mock
@@ -324,6 +328,15 @@ def mock_Popen(command):
         side_effect=lambda *args, **kwargs: original_Popen(command))
 
 
+def mock_urlopen(data):
+    mock_obj = mock.MagicMock(name="urlopen", spec=urlopen)
+    handle = mock.MagicMock(spec=["__enter__", "close", "read"])
+    handle.__enter__.return_value = handle
+    handle.read.return_value = data
+    mock_obj.return_value = handle
+    return mock_obj
+
+
 class TestRunLiveBuilds(TestCase):
     def setUp(self):
         super(TestRunLiveBuilds, self).setUp()
@@ -354,7 +367,7 @@ class TestRunLiveBuilds(TestCase):
         self.assertEqual(0, mock_send_mail.call_count)
 
     @mock.patch("time.strftime", return_value="20130315")
-    @mock.patch("cdimage.livefs.urlopen", mock.mock_open(read_data=b""))
+    @mock.patch("cdimage.livefs.urlopen", mock_urlopen(b""))
     @mock.patch("cdimage.livefs.send_mail")
     def test_live_build_notify_failure_no_log(self, mock_send_mail, *args):
         self.config.root = self.use_temp_dir()
@@ -378,10 +391,10 @@ class TestRunLiveBuilds(TestCase):
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
-        mock_urlopen = mock.mock_open(read_data=b"Log data\n")
-        with mock.patch("cdimage.livefs.urlopen", mock_urlopen):
+        mock_urlopen_obj = mock_urlopen(b"Log data\n")
+        with mock.patch("cdimage.livefs.urlopen", mock_urlopen_obj):
             live_build_notify_failure(self.config, "armhf+omap4")
-        mock_urlopen.assert_called_once_with(
+        mock_urlopen_obj.assert_called_once_with(
             "http://kishi00.buildd/~buildd/LiveCD/raring/kubuntu-omap4/latest/"
             "livecd-armhf.out", timeout=30)
         mock_send_mail.assert_called_once_with(
@@ -401,9 +414,8 @@ class TestRunLiveBuilds(TestCase):
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
-        mock_urlopen = mock.mock_open(read_data=b"Log data\n")
         self.capture_logging()
-        with mock.patch("cdimage.livefs.urlopen", mock_urlopen):
+        with mock.patch("cdimage.livefs.urlopen", mock_urlopen(b"Log data\n")):
             self.assertRaisesRegex(
                 LiveBuildsFailed, "No live filesystem builds succeeded.",
                 run_live_builds, self.config)
