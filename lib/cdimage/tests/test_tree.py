@@ -487,7 +487,10 @@ class TestPublisherWebIndices(TestCase):
         header_path = os.path.join(self.directory, "HEADER.html")
         footer_path = os.path.join(self.directory, "FOOTER.html")
         htaccess_path = os.path.join(self.directory, ".htaccess")
-        parser = HTMLParser()
+        parser_kwargs = {}
+        if sys.version >= "3.4":
+            parser_kwargs["convert_charrefs"] = True
+        parser = HTMLParser(**parser_kwargs)
         with open(header_path) as header:
             data = header.read()
             self.assertNotIn("%s", data)

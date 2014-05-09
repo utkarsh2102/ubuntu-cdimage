@@ -30,7 +30,10 @@ class BritneyParser(HTMLParser):
     STATE_DONE = 7
 
     def __init__(self):
-        HTMLParser.__init__(self)
+        parser_kwargs = {}
+        if sys.version >= "3.4":
+            parser_kwargs["convert_charrefs"] = True
+        HTMLParser.__init__(self, **parser_kwargs)
         self.state = self.STATE_BEGIN
         self.formatted = ''
 
