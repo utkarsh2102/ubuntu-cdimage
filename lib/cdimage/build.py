@@ -423,25 +423,6 @@ def add_android_support(config, arch, output_dir):
         config.root, "scratch", config.project, config.series,
         config.image_type, "live")
 
-    phablet_build = os.path.join(
-        config.root, "utouch-android", "phablet-build-scripts")
-    raw_path = os.path.join(
-        output_dir, "%s-preinstalled-touch-%s.raw" % (config.series, arch))
-    tar_path = os.path.join(
-        output_dir, "%s-preinstalled-touch-%s.tar.gz" % (config.series, arch))
-    zip_path = os.path.join(
-        output_dir, "%s-preinstalled-touch-%s.zip" % (config.series, arch))
-
-    # create an android zip file from tarball
-    osextras.link_force(raw_path, tar_path)
-    osextras.unlink_force(zip_path)
-    subprocess.check_call([
-        os.path.join(phablet_build, "ubuntu_data"),
-        "-m", os.path.join(phablet_build, "META-INF"),
-        "-o", zip_path,
-        tar_path,
-    ])
-
     # copy recovery, boot and system imgs in place
     for target in Touch.list_targets_by_ubuntu_arch(arch):
         boot_img_src = "%s.bootimg-%s" % (arch, target.subarch)

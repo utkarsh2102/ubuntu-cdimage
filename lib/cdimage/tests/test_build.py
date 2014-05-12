@@ -283,28 +283,18 @@ class TestBuildLiveCDBase(TestCase):
         with open(os.path.join(output_dir, "raring-core-i386.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
-    @mock.patch("subprocess.check_call")
     @mock.patch("cdimage.osextras.fetch")
-    def test_ubuntu_touch(self, mock_fetch, mock_check_call):
+    def test_ubuntu_touch(self, mock_fetch):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
                     target.endswith(".rootfs.tar.gz") or
                     target.endswith(".img") or
-                    target.endswith(".zip") or
                     ".bootimg-" in target):
                 touch(target)
             else:
                 raise osextras.FetchError
 
-        def check_call_side_effect(command, *args, **kwargs):
-            if command[0].split("/")[-1] == "ubuntu_data":
-                for i in range(len(command)):
-                    if command[i] == "-o":
-                        touch(command[i + 1])
-                        break
-
         mock_fetch.side_effect = fetch_side_effect
-        mock_check_call.side_effect = check_call_side_effect
         self.config["CDIMAGE_PREINSTALLED"] = "1"
         self.config["PROJECT"] = "ubuntu-touch"
         self.config["DIST"] = "saucy"
@@ -335,28 +325,12 @@ class TestBuildLiveCDBase(TestCase):
             "saucy-preinstalled-touch-armhf.manifest",
             "saucy-preinstalled-touch-armhf.raw",
             "saucy-preinstalled-touch-armhf.type",
-            "saucy-preinstalled-touch-armhf.tar.gz",
-            "saucy-preinstalled-touch-armhf.zip"])
+            "saucy-preinstalled-touch-armhf.tar.gz"])
         self.assertCountEqual(touch_files, os.listdir(output_dir))
         with open(os.path.join(
             output_dir, "saucy-preinstalled-touch-armhf.type")
         ) as f:
             self.assertEqual("tar archive\n", f.read())
-        self.assertEqual(1, mock_check_call.call_count)
-        phablet_build = os.path.join(
-            self.temp_dir, "utouch-android", "phablet-build-scripts")
-        mock_check_call.assert_has_calls([
-            mock.call([
-                os.path.join(phablet_build, "ubuntu_data"),
-                "-m", os.path.join(phablet_build, "META-INF"),
-                "-o",
-                os.path.join(output_dir, "saucy-preinstalled-touch-armhf.zip"),
-                os.path.join(
-                    output_dir, "saucy-preinstalled-touch-armhf.tar.gz"),
-            ])
-        ])
-        self.assertTrue(os.path.exists(
-            os.path.join(output_dir, "saucy-preinstalled-touch-armhf.zip")))
         for touch_target in Touch.list_targets_by_ubuntu_arch("armhf"):
             system_img = "saucy-preinstalled-system-%s+%s.img" % (
                 touch_target.android_arch, touch_target.subarch)

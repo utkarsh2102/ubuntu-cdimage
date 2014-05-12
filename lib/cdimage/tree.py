@@ -184,7 +184,7 @@ class Tree:
         """Return true if a given file is allowed in the manifest."""
         if (path.endswith(".iso") or path.endswith(".img") or
                 path.endswith(".img.gz") or path.endswith(".tar.gz") or
-                path.endswith(".tar.xz") or path.endswith(".zip")):
+                path.endswith(".tar.xz")):
             try:
                 if stat.S_ISREG(os.stat(path).st_mode):
                     return True
@@ -1514,7 +1514,7 @@ class Publisher:
             for icon, patterns in (
                 ("folder.png", "^^DIRECTORY^^"),
                 ("iso.png", ".iso"),
-                ("img.png", ".img .tar.gz .tar.xz .zip"),
+                ("img.png", ".img .tar.gz .tar.xz"),
                 ("jigdo.png", ".jigdo .template"),
                 ("list.png", (
                     ".list .manifest .html .zsync "
@@ -1856,10 +1856,6 @@ class DailyTreePublisher(Publisher):
                     shutil.move(
                         os.path.join(source_dir, image),
                         os.path.join(target_dir, image))
-
-        if os.path.exists("%s.zip" % source_prefix):
-            logger.info("Publishing %s zip file ..." % arch)
-            shutil.move("%s.zip" % source_prefix, "%s.zip" % target_prefix)
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):

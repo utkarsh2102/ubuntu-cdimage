@@ -521,7 +521,7 @@ class TestPublisherWebIndices(TestCase):
                 "IconWidth=22\n"
                 "AddIcon ../../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../../cdicons/iso.png .iso\n"
-                "AddIcon ../../cdicons/img.png .img .tar.gz .tar.xz .zip\n"
+                "AddIcon ../../cdicons/img.png .img .tar.gz .tar.xz\n"
                 "AddIcon ../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
                 "MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg "

@@ -197,8 +197,7 @@ class ChecksumFileSet:
                 image.endswith(".bootimg") or
                 image.endswith(".tar.xz") or
                 image.endswith(".cloop") or
-                image.endswith(".squashfs") or
-                image.endswith(".zip")):
+                image.endswith(".squashfs")):
             return True
         else:
             return False
