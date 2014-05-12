@@ -2231,7 +2231,10 @@ class DailyTreePublisher(Publisher):
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
-        from isotracker import ISOTracker
+        try:
+            from isotracker import ISOTracker
+        except ImportError:
+            return
 
         tracker = None
 
