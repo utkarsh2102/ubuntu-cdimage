@@ -2876,8 +2876,6 @@ class ReleasePublisher(Publisher):
         # Copy, to make sure we have a canonical version of this.
         artifacts = ["iso", "list", "img", "img.gz", "tar.gz", "img.tar.gz",
                      "tar.xz", "bootimg"]
-        artifacts.extend(["bootimg-%s" % tsubarch
-                          for tsubarch in Touch.list_subarches(arch)])
         for ext in artifacts:
             if not os.path.exists(daily(ext)):
                 continue

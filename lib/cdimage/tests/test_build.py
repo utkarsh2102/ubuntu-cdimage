@@ -288,8 +288,7 @@ class TestBuildLiveCDBase(TestCase):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
                     target.endswith(".rootfs.tar.gz") or
-                    target.endswith(".img") or
-                    ".bootimg-" in target):
+                    target.endswith(".img")):
                 touch(target)
             else:
                 raise osextras.FetchError

@@ -425,7 +425,7 @@ def add_android_support(config, arch, output_dir):
 
     # copy recovery, boot and system imgs in place
     for target in Touch.list_targets_by_ubuntu_arch(arch):
-        boot_img_src = "%s.bootimg-%s" % (arch, target.subarch)
+        boot_img_src = "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
         boot_img = "%s-preinstalled-boot-%s+%s.img" % (
             config.series, arch, target.subarch)
         system_img_src = "system-%s+%s.img" % (

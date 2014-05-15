@@ -461,7 +461,8 @@ def live_item_paths(config, arch, item):
                 root, liveproject_subarch, item, flavour)
 
     elif item in (
-        "bootimg-%s" % tsubarch for tsubarch in Touch.list_subarches(arch)
+        "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
+            for target in Touch.list_targets_by_ubuntu_arch(arch)
     ) or item in (
         "recovery-%s+%s.img" % (target.android_arch, target.subarch)
             for target in Touch.list_targets_by_ubuntu_arch(arch)
@@ -550,11 +551,11 @@ def download_live_items(config, arch, item):
             except osextras.FetchError:
                 pass
     elif item in (
-        "bootimg-%s" % tsubarch for tsubarch in Touch.list_subarches(arch)
+        "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
+            for target in Touch.list_targets_by_ubuntu_arch(arch)
     ):
         for url in urls:
-            target = os.path.join(
-                output_dir, "%s.%s" % (arch, item))
+            target = os.path.join(output_dir, item)
             try:
                 osextras.fetch(config, url, target)
                 found = True
@@ -739,8 +740,8 @@ def download_live_filesystems(config):
     if config.project == "ubuntu-touch":
         for arch in config.arches:
             for abootimg in (
-                "bootimg-%s" % tsubarch for tsubarch in
-                Touch.list_subarches(arch)
+                "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
+                    for target in Touch.list_targets_by_ubuntu_arch(arch)
             ):
                 download_live_items(
                     config, arch, abootimg

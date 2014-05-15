@@ -164,14 +164,6 @@ class Touch:
         self.ubuntu_arch = ubuntu_arch
 
     @classmethod
-    def list_subarches(self, ubuntu_arch=None):
-        if ubuntu_arch:
-            targets = self.list_targets_by_ubuntu_arch(ubuntu_arch)
-        else:
-            targets = all_touch_targets
-        return list(set([touch.subarch for touch in targets]))
-
-    @classmethod
     def list_android_arches(self):
         return list(set([touch.android_arch for touch in all_touch_targets]))
 
