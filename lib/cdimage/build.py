@@ -437,13 +437,13 @@ def add_android_support(config, arch, output_dir):
         recovery_img = "%s-preinstalled-recovery-%s+%s.img" % (
             config.series, target.android_arch, target.subarch)
 
-        shutil.copy(
+        shutil.copy2(
             os.path.join(live_scratch_dir, boot_img_src),
             os.path.join(output_dir, boot_img))
-        shutil.copy(
+        shutil.copy2(
             os.path.join(live_scratch_dir, system_img_src),
             os.path.join(output_dir, system_img))
-        shutil.copy(
+        shutil.copy2(
             os.path.join(live_scratch_dir, recovery_img_src),
             os.path.join(output_dir, recovery_img))
 
