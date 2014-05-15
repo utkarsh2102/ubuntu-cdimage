@@ -430,6 +430,9 @@ def live_item_path_winfoss(config, arch):
 
 
 def live_item_paths(config, arch, item):
+    if item == "ltsp-squashfs" and arch == "amd64":
+        # use i386 LTSP image on amd64 too
+        arch = "i386"
     cpuarch, subarch = split_arch(arch)
     project = config.project
     series = config["DIST"]
@@ -501,9 +504,6 @@ def live_item_paths(config, arch, item):
         else:
             raise NoLiveItem
     elif item == "ltsp-squashfs":
-        if arch == "amd64":
-            # use i386 LTSP image on amd64 too
-            root = livecd_base(config, "i386")
         if arch in ("amd64", "i386"):
             yield "%s/livecd.%s-ltsp.squashfs" % (root, liveproject)
         else:
