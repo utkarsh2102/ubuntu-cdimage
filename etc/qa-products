@@ -63,6 +63,11 @@ Ubuntu Desktop i386							ubuntu			daily-live			desktop					i386			iso
 Ubuntu Desktop powerpc						ubuntu			daily-live			desktop					powerpc			iso
 Ubuntu Desktop Preinstalled armhf+nexus7	ubuntu			daily-preinstalled	preinstalled-desktop	armhf+nexus7	iso
 
+# Ubuntu Desktop Next
+Ubuntu Desktop (Unity 8) amd64				ubuntu-desktop-next	daily-live		desktop					amd64			iso
+Ubuntu Desktop (Unity 8) i386				ubuntu-desktop-next	daily-live		desktop					i386			iso
+Ubuntu Desktop  (Unity 8) armhf				ubuntu-desktop-next	daily-live		desktop					armhf			iso
+
 # Ubuntu Studio
 Ubuntu GNOME Desktop amd64					ubuntu-gnome	daily-live			desktop					amd64			iso
 Ubuntu GNOME Desktop i386					ubuntu-gnome	daily-live			desktop					i386			iso

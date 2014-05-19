@@ -20,6 +20,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 30 12 * * *	DIST=precise UBUNTU_DEFAULTS_LOCALE=zh_CN for-project ubuntu cron.daily-live --live
 # regular utopic daily builds
 31 7 * * *	for-project ubuntu cron.daily-live --live
+22 3 * * *	for-project ubuntu-deskto-next cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
 24 0 * * *	for-project edubuntu cron.dvd --live
 50 9 * * *	for-project xubuntu cron.daily-live --live
