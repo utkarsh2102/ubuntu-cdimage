@@ -872,7 +872,8 @@ class Publisher:
         elif arch == "powerpc":
             sentences.append(
                 "For Apple Macintosh G3, G4, and G5 computers, including "
-                "iBooks and PowerBooks as well as IBM OpenPower machines.")
+                "iBooks and PowerBooks as well as older IBM OpenPower 7xx "
+                "machines.")
         elif arch == "powerpc+ps3":
             sentences.append("For Sony PlayStation 3 systems.")
             if publish_type == "desktop" and self.config["DIST"] >= "gutsy":
@@ -886,7 +887,9 @@ class Publisher:
                     "An alternative boot option to try %s without changing "
                     "your computer is available.)" % capproject)
         elif arch == "ppc64el":
-            sentences.append("For PowerPC64 Little-Endian computers.")
+            sentences.append(
+                "For POWER8 Little-Endian computers, such as Power Systems "
+                "S8xxL Linux-only servers.")
         elif arch == "sparc":
             sentences.append(
                 "For Sun UltraSPARC computers, including those based on the "
