@@ -48,7 +48,7 @@ ubuntu			daily-live		precise			amd64 amd64+mac i386
 ubuntu			daily-live		quantal			amd64 amd64+mac armhf+omap4 i386 powerpc
 ubuntu			daily-live		raring-			amd64 amd64+mac armhf+omap4 i386
 
-ubuntu-desktop-next	daily	utopic-	armhf i386 amd64
+ubuntu-desktop-next	daily			utopic-			armhf i386 amd64
 
 ubuntu-gnome		*			*			amd64 i386
 
