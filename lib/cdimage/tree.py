@@ -66,6 +66,7 @@ projects = [
     "lubuntu",
     "mythbuntu",
     "ubuntu",
+    "ubuntu-desktop-next",
     "ubuntu-gnome",
     "ubuntu-headless",
     "ubuntu-netbook",

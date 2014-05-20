@@ -226,10 +226,10 @@ def main():
 
     config = Config()
 
-    projects = ('ubuntu', 'ubuntu-server', 'kubuntu', 'edubuntu', 'xubuntu',
-                'ubuntustudio', 'ubuntu-netbook', 'kubuntu-netbook',
-                'ubuntu-moblin-remix', 'kubuntu-active', 'mythbuntu',
-                'lubuntu', 'ubuntu-gnome', 'ubuntukylin')
+    projects = ('ubuntu', 'ubuntu-desktop-next', 'ubuntu-server', 'kubuntu',
+                'edubuntu', 'xubuntu', 'ubuntustudio', 'ubuntu-netbook',
+                'kubuntu-netbook', 'ubuntu-moblin-remix', 'kubuntu-active',
+                'mythbuntu', 'lubuntu', 'ubuntu-gnome', 'ubuntukylin')
     if not options.series:
         options.series = ('precise', 'trusty', 'utopic')
 

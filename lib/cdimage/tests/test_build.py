@@ -449,6 +449,7 @@ class TestBuildImageSet(TestCase):
             ("ubuntukylin", "raring", False, True),
             ("ubuntu-gnome", "raring", False, True),
             ("ubuntu-moblin-remix", "raring", False, True),
+            ("ubuntu-desktop-next", "utopic", False, False),
         ):
             config = Config(read=False)
             config["PROJECT"] = project
