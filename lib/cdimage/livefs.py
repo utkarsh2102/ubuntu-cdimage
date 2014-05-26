@@ -44,10 +44,6 @@ class UnknownArchitecture(Exception):
     pass
 
 
-class NoLiveItem(Exception):
-    pass
-
-
 class UnknownLiveItem(Exception):
     pass
 
@@ -380,7 +376,7 @@ def live_item_path_winfoss(config, arch):
     series = config["DIST"]
 
     if series == "warty" or cpuarch not in ("amd64", "i386"):
-        raise NoLiveItem
+        return
 
     maitri = "http://maitri.ubuntu.com/theopencd"
     henrik = "http://people.canonical.com/~henrik/winfoss"
@@ -388,45 +384,43 @@ def live_item_path_winfoss(config, arch):
     if project == "ubuntu":
         if series == "hoary":
             if cpuarch == "i386":
-                return "%s/ubuntu/winfoss/latest/Hoary-WinFOSS.tgz" % maitri
+                yield "%s/ubuntu/winfoss/latest/Hoary-WinFOSS.tgz" % maitri
             elif cpuarch == "amd64":
-                return ("%s/ubuntu/amd64/latest/"
-                        "Hoary-WinFOSS-amd64.tgz" % maitri)
+                yield ("%s/ubuntu/amd64/latest/"
+                       "Hoary-WinFOSS-amd64.tgz" % maitri)
         elif series == "breezy":
-            return "%s/winfoss/ubuntu/current/Ubuntu-WinFOSS-5.10.tgz" % maitri
+            yield "%s/winfoss/ubuntu/current/Ubuntu-WinFOSS-5.10.tgz" % maitri
         elif series >= "dapper" and series <= "karmic":
             if series > "gutsy":
                 series = Series.find_by_name("gutsy")
-            return "%s/%s/ubuntu/current/ubuntu-winfoss-%s.tar.gz" % (
+            yield "%s/%s/ubuntu/current/ubuntu-winfoss-%s.tar.gz" % (
                 henrik, series, series.version)
     elif project == "kubuntu":
         if series == "hoary" and cpuarch == "i386":
-            return ("%s/kubuntu/winfoss/latest/"
-                    "Kubuntu-WinFOSS-i386.tgz" % maitri)
+            yield ("%s/kubuntu/winfoss/latest/"
+                   "Kubuntu-WinFOSS-i386.tgz" % maitri)
         elif series == "breezy":
             if cpuarch == "i386":
-                return ("%s/winfoss/kubuntu/current/"
-                        "Kubuntu-WinFOSS-5.10.tgz" % maitri)
+                yield ("%s/winfoss/kubuntu/current/"
+                       "Kubuntu-WinFOSS-5.10.tgz" % maitri)
             elif cpuarch == "amd64":
-                return ("%s/winfoss/kubuntu-AMD/current/"
-                        "Kubuntu-WinFOSS-5.10-AMD.tgz" % maitri)
+                yield ("%s/winfoss/kubuntu-AMD/current/"
+                       "Kubuntu-WinFOSS-5.10-AMD.tgz" % maitri)
         elif series >= "dapper" and series <= "karmic":
             if series > "gutsy":
                 series = Series.find_by_name("gutsy")
-            return "%s/%s/kubuntu/current/kubuntu-winfoss-%s.tar.gz" % (
+            yield "%s/%s/kubuntu/current/kubuntu-winfoss-%s.tar.gz" % (
                 henrik, series, series.version)
     elif project == "edubuntu":
         if series >= "feisty" and series <= "karmic":
             if series > "gutsy":
                 series = Series.find_by_name("gutsy")
-            return "%s/%s/edubuntu/current/edubuntu-winfoss-%s.tar.gz" % (
+            yield "%s/%s/edubuntu/current/edubuntu-winfoss-%s.tar.gz" % (
                 henrik, series, series.version)
     elif project == "tocd3" and cpuarch == "i386":
-            return "%s/tocd3/fsm/TOCD3.tgz" % maitri
+        yield "%s/tocd3/fsm/TOCD3.tgz" % maitri
     elif project == "tocd3.1" and cpuarch == "i386":
-            return "%s/winfoss/tocd3.1/current/TOCD-31.tgz" % maitri
-
-    raise NoLiveItem
+        yield "%s/winfoss/tocd3.1/current/TOCD-31.tgz" % maitri
 
 
 def live_item_paths(config, arch, item):
@@ -443,6 +437,9 @@ def live_item_paths(config, arch, item):
     else:
         liveproject_subarch = liveproject
 
+    def urls_for(base):
+        yield "%s/%s" % (root, base)
+
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
         "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "tar.xz", "iso",
@@ -454,14 +451,20 @@ def live_item_paths(config, arch, item):
             # auto-purged - reverting to plan B
             yield "/home/cjwatson/breezy-live/ubuntu/livecd.%s.%s" % (
                 arch, item)
+        elif item == "ext4" and arch == "armhf+nexus7":
+            for url in urls_for(
+                    "livecd.%s.%s-nexus7" % (liveproject_subarch, item)):
+                yield url
         else:
-            yield "%s/livecd.%s.%s" % (root, liveproject_subarch, item)
+            for url in urls_for("livecd.%s.%s" % (liveproject_subarch, item)):
+                yield url
     elif item in (
         "kernel", "initrd", "bootimg"
     ):
         for flavour in flavours(config, arch):
-            yield "%s/livecd.%s.%s-%s" % (
-                root, liveproject_subarch, item, flavour)
+            base = "livecd.%s.%s-%s" % (liveproject_subarch, item, flavour)
+            for url in urls_for(base):
+                yield url
 
     elif item in (
         "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
@@ -474,40 +477,35 @@ def live_item_paths(config, arch, item):
             for target in Touch.list_targets_by_ubuntu_arch(arch)
     ):
         for flavour in flavours(config, arch):
-            yield "%s/livecd.%s.%s" % (
-                root, liveproject_subarch, item)
+            base = "livecd.%s.%s" % (liveproject_subarch, item)
+            for url in urls_for(base):
+                yield url
     elif item == "kernel-efi-signed":
         if series >= "precise" and arch == "amd64":
             for flavour in flavours(config, arch):
-                yield "%s/livecd.%s.kernel-%s.efi.signed" % (
-                    root, liveproject_subarch, flavour)
-        else:
-            raise NoLiveItem
+                base = "livecd.%s.kernel-%s.efi.signed" % (
+                    liveproject_subarch, flavour)
+                for url in urls_for(base):
+                    yield url
     elif item == "winfoss":
-        yield live_item_path_winfoss(config, arch)
+        for path in live_item_path_winfoss(config, arch):
+            yield path
     elif item == "wubi":
         if (project != "xubuntu" and arch in ("amd64", "i386") and
                 series >= "gutsy"):
             yield ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
                    "stable" % series)
-        else:
-            raise NoLiveItem
     elif item == "umenu":
         if arch in ("amd64", "i386") and series == "hardy":
             yield "http://people.canonical.com/~evand/umenu/stable"
-        else:
-            raise NoLiveItem
     elif item == "usb-creator":
         if arch in ("amd64", "i386"):
             yield ("http://people.canonical.com/~evand/usb-creator/%s/"
                    "stable" % series)
-        else:
-            raise NoLiveItem
     elif item == "ltsp-squashfs":
         if arch in ("amd64", "i386"):
-            yield "%s/livecd.%s-ltsp.squashfs" % (root, liveproject)
-        else:
-            raise NoLiveItem
+            for url in urls_for("livecd.%s-ltsp.squashfs" % liveproject):
+                yield url
     else:
         raise UnknownLiveItem("Unknown live filesystem item '%s'" % item)
 
@@ -525,17 +523,16 @@ def download_live_items(config, arch, item):
     output_dir = live_output_directory(config)
     found = False
 
-    try:
-        if item == "server-squashfs":
-            original_project = config.project
-            try:
-                config["PROJECT"] = "ubuntu-server"
-                urls = list(live_item_paths(config, arch, "squashfs"))
-            finally:
-                config["PROJECT"] = original_project
-        else:
-            urls = list(live_item_paths(config, arch, item))
-    except NoLiveItem:
+    if item == "server-squashfs":
+        original_project = config.project
+        try:
+            config["PROJECT"] = "ubuntu-server"
+            urls = list(live_item_paths(config, arch, "squashfs"))
+        finally:
+            config["PROJECT"] = original_project
+    else:
+        urls = list(live_item_paths(config, arch, item))
+    if not urls:
         return False
 
     if item in (

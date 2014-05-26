@@ -39,7 +39,6 @@ from cdimage import osextras
 from cdimage.config import Config, all_series
 from cdimage.livefs import (
     LiveBuildsFailed,
-    NoLiveItem,
     download_live_filesystems,
     download_live_items,
     flavours,
@@ -748,8 +747,7 @@ class TestLiveItemPaths(TestCase):
     def assertNoPaths(self, arch, item, project, series):
         self.config["PROJECT"] = project
         self.config["DIST"] = series
-        self.assertRaises(
-            NoLiveItem, next, live_item_paths(self.config, arch, item))
+        self.assertEqual([], list(live_item_paths(self.config, arch, item)))
 
     def test_tocd3_fallback(self):
         for item in ("cloop", "manifest"):
