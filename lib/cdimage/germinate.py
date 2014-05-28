@@ -137,6 +137,8 @@ class Germination:
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntu-moblin-remix":
             return "moblin.%s" % self.config.series
+        elif project == "ubuntu-desktop-next":
+            return "ubuntu-touch.%s" % self.config.series
         else:
             return "%s.%s" % (project, self.config.series)
 
