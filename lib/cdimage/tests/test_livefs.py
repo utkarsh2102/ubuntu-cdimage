@@ -21,6 +21,8 @@ from __future__ import print_function
 
 __metaclass__ = type
 
+from collections import defaultdict
+from itertools import chain, repeat
 import os
 import subprocess
 from textwrap import dedent
@@ -29,6 +31,7 @@ try:
     from urllib.request import urlopen
 except ImportError:
     from urllib2 import urlopen
+from unittest import skipUnless
 
 try:
     from unittest import mock
@@ -37,6 +40,7 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.config import Config, all_series
+from cdimage.launchpad import get_launchpad, launchpad_available
 from cdimage.livefs import (
     LiveBuildsFailed,
     download_live_filesystems,
@@ -56,6 +60,73 @@ from cdimage.livefs import (
     write_autorun,
 )
 from cdimage.tests.helpers import TestCase, mkfile, touch
+
+
+class MockPeople(defaultdict):
+    def __missing__(self, key):
+        person = mock.MagicMock(name="Person(%s)" % key)
+        person.name = key
+        self[key] = person
+        return person
+
+
+class MockDistroSeries(mock.MagicMock):
+    def getDistroArchSeries(self, archtag=None):
+        return mock.MagicMock(
+            name="DistroArchSeries(%s, %s, %s)" % (
+                self.distribution.name, self.name, archtag))
+
+
+class MockDistribution(mock.MagicMock):
+    def getSeries(self, name_or_version=None, **kwargs):
+        distroseries = MockDistroSeries(
+            name="MockDistroSeries(%s, %s)" % (self.name, name_or_version))
+        distroseries.distribution = self
+        return distroseries
+
+
+class MockDistributions(defaultdict):
+    def __missing__(self, key):
+        distribution = MockDistribution(name="Distribution(%s)" % key)
+        distribution.name = key
+        self[key] = distribution
+        return distribution
+
+
+class MockLiveFSBuild(mock.MagicMock):
+    def __init__(self, *args, **kwargs):
+        super(MockLiveFSBuild, self).__init__(*args, **kwargs)
+        self._buildstates = self._iter_buildstate()
+
+    def _iter_buildstate(self):
+        return repeat("Needs building")
+
+    def lp_refresh(self):
+        self.buildstate = next(self._buildstates)
+
+
+class MockLiveFS(mock.MagicMock):
+    def requestBuild(self, **kwargs):
+        build = MockLiveFSBuild()
+        build.buildstate = "Needs building"
+        return build
+
+
+class MockLiveFSes(mock.MagicMock):
+    def getByName(self, owner=None, distro_series=None, name=None, **kwargs):
+        return MockLiveFS(
+            name="MockLiveFS(%s, %s/%s, %s)" % (
+                owner.name, distro_series.distribution.name,
+                distro_series.name, name))
+
+
+class MockLaunchpad(mock.MagicMock):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("name", "Launchpad")
+        super(MockLaunchpad, self).__init__(*args, **kwargs)
+        self.people = MockPeople()
+        self.distributions = MockDistributions()
+        self.livefses = MockLiveFSes()
 
 
 class TestSplitArch(TestCase):
@@ -588,6 +659,66 @@ class TestRunLiveBuilds(TestCase):
             mock_send_mail.assert_called_once_with(
                 "LiveFS ubuntu/raring/i386 failed to build on 20130315",
                 "buildlive", ["foo@example.org"], b"Log data\n")
+
+    @skipUnless(launchpad_available, "launchpadlib not available")
+    @mock_strftime(1363355331)
+    @mock.patch("time.sleep")
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.livefs.live_build_notify_failure")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFSBuild._iter_buildstate")
+    @mock.patch("cdimage.launchpad.login")
+    def test_run_live_builds_lp(self, mock_login, mock_iter_buildstate,
+                                mock_live_build_notify_failure,
+                                mock_tracker_set_rebuild_status, mock_sleep,
+                                *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "utopic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 i386"
+        with mkfile(os.path.join(
+                self.config.root, "production", "livefs-builders")) as f:
+            print("*\t*\t*\tlaunchpad-buildd", file=f)
+        with mkfile(os.path.join(
+                self.config.root, "production", "livefs-launchpad")) as f:
+            print("*\t*\t*\tubuntu-cdimage/ubuntu-desktop", file=f)
+        self.capture_logging()
+        mock_login.return_value = MockLaunchpad()
+        mock_iter_buildstate.side_effect = lambda: (
+            chain(["Needs building"] * 3, repeat("Successfully built")))
+        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config))
+        self.assertCountEqual([
+            "ubuntu-amd64 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-i386 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-amd64 on Launchpad finished at 2013-03-15 13:48:51 "
+            "(Successfully built)",
+            "ubuntu-i386 on Launchpad finished at 2013-03-15 13:48:51 "
+            "(Successfully built)",
+        ], self.captured_log_messages())
+        self.assertEqual(4, mock_tracker_set_rebuild_status.call_count)
+        mock_tracker_set_rebuild_status.assert_has_calls([
+            mock.call(self.config, [0, 1], 2, "amd64"),
+            mock.call(self.config, [0, 1], 2, "i386"),
+            mock.call(self.config, [0, 1, 2], 3, "amd64"),
+            mock.call(self.config, [0, 1, 2], 3, "i386"),
+        ])
+        self.assertEqual(3, mock_sleep.call_count)
+        mock_sleep.assert_has_calls([mock.call(15)] * 3)
+        lp = get_launchpad()
+        owner = lp.people["ubuntu-cdimage"]
+        ubuntu = lp.distributions["ubuntu"]
+        utopic = ubuntu.getSeries(name_or_version="utopic")
+        dases = [
+            utopic.getDistroArchSeries(archtag)
+            for archtag in ("amd64", "i386")]
+        self.assertEqual(2, len(dases))
+        livefs = lp.livefses.getByName(
+            owner=owner, distro_series=utopic, name="ubuntu-desktop")
+        builds = [
+            livefs.getLatestBuild(distro_arch_series=das) for das in dases]
+        self.assertEqual(2, len(builds))
+        self.assertEqual("Successfully built", builds[0].buildstate)
+        self.assertEqual("Successfully built", builds[1].buildstate)
+        self.assertEqual(0, mock_live_build_notify_failure.call_count)
 
 
 class TestLiveCDBase(TestCase):

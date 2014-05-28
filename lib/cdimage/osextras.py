@@ -147,12 +147,24 @@ def fetch(config, source, target):
         os.link(source, target)
         return
 
+    # Match lazr.restfulclient, for convenience when working with
+    # development instances of Launchpad.
+    no_check_certificate = bool(
+        os.environ.get('LP_DISABLE_SSL_CERTIFICATE_VALIDATION', False))
+
     # This should arguably use urllib2/urllib.request or similar instead.
-    ret = proxy_call(config, "fetch", ["wget", "-nv", source, "-O", target])
+    command = ["wget", "-nv"]
+    if no_check_certificate:
+        command.append("--no-check-certificate")
+    command.extend([source, "-O", target])
+    ret = proxy_call(config, "fetch", command)
     if ret != 0:
         unlink_force(target)
-        raise FetchError(
-            "wget -nv '%s' -O '%s' returned %d" % (source, target, ret))
+        command_str = "wget -nv"
+        if no_check_certificate:
+            command_str += " --no-check-certificate"
+        command_str += " '%s' -O '%s'" % (source, target)
+        raise FetchError("%s returned %d" % (command_str, ret))
 
 
 def shell_escape(arg):

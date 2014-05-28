@@ -29,12 +29,14 @@ from textwrap import dedent
 import time
 try:
     from urllib.error import URLError
+    from urllib.parse import unquote
     from urllib.request import urlopen
 except ImportError:
-    from urllib2 import URLError, urlopen
+    from urllib2 import URLError, unquote, urlopen
 
 from cdimage import osextras
 from cdimage.config import Series, Touch
+from cdimage.launchpad import get_launchpad
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.tracker import tracker_set_rebuild_status
@@ -53,6 +55,14 @@ class NoFilesystemImages(Exception):
 
 
 class LiveBuildsFailed(Exception):
+    pass
+
+
+class UnknownLaunchpadLiveFS(Exception):
+    pass
+
+
+class MissingLaunchpadLiveFS(Exception):
     pass
 
 
@@ -180,6 +190,32 @@ def live_build_command(config, arch):
     return command
 
 
+def live_build_lp_kwargs(config, lp_livefs, arch):
+    cpuarch, subarch = split_arch(arch)
+    kwargs = {}
+    metadata_override = {}
+
+    lp_ds = lp_livefs.distro_series
+    kwargs["archive"] = lp_ds.main_archive
+    kwargs["distro_arch_series"] = lp_ds.getDistroArchSeries(archtag=cpuarch)
+    if subarch:
+        kwargs["unique_key"] = subarch
+
+    if config["PROPOSED"]:
+        kwargs["pocket"] = "Proposed"
+        metadata_override["proposed"] = True
+    else:
+        kwargs["pocket"] = "Release"
+
+    if config["EXTRA_PPAS"]:
+        metadata_override["extra_ppas"] = config["EXTRA_PPAS"].split()
+
+    if metadata_override:
+        kwargs["metadata_override"] = metadata_override
+
+    return kwargs
+
+
 # TODO: This is only used for logging, so it might be worth unifying with
 # live_build_notify_failure.
 def live_build_full_name(config, arch):
@@ -226,8 +262,71 @@ def live_build_notify_failure(config, arch):
     send_mail(subject, "buildlive", recipients, body)
 
 
+def live_lp_info(config, arch):
+    cpuarch, subarch = split_arch(arch)
+    want_project_bits = [config.project]
+    if config.subproject:
+        want_project_bits.append(config.subproject)
+    if config["UBUNTU_DEFAULTS_LOCALE"]:
+        want_project_bits.append(config["UBUNTU_DEFAULTS_LOCALE"])
+    want_project = "-".join(want_project_bits)
+    image_type = config.image_type
+
+    path = os.path.join(config.root, "production", "livefs-launchpad")
+    if os.path.exists(path):
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                try:
+                    f_project, f_image_type, f_arch, lp_info = line.split(
+                        None, 3)
+                except ValueError:
+                    continue
+                if not fnmatch.fnmatchcase(want_project, f_project):
+                    continue
+                if not fnmatch.fnmatchcase(image_type, f_image_type):
+                    continue
+                if "+" in f_arch:
+                    want_arch = arch
+                else:
+                    want_arch = cpuarch
+                if not fnmatch.fnmatchcase(want_arch, f_arch):
+                    continue
+                return lp_info.split("/")
+
+    raise UnknownLaunchpadLiveFS(
+        "No Launchpad live filesystem definition known for %s/%s/%s" %
+        (want_project, image_type, arch))
+
+
+def get_lp_livefs(config, arch):
+    try:
+        lp_info = live_lp_info(config, arch)
+    except UnknownLaunchpadLiveFS:
+        return None
+    if len(lp_info) > 2:
+        instance, owner, name = lp_info
+    else:
+        instance = None
+        owner, name = lp_info
+    lp = get_launchpad(instance)
+    lp_owner = lp.people[owner]
+    lp_distribution = lp.distributions["ubuntu"]
+    lp_ds = lp_distribution.getSeries(name_or_version=config.series)
+    livefs = lp.livefses.getByName(
+        owner=lp_owner, distro_series=lp_ds, name=name)
+    if livefs is None:
+        raise MissingLaunchpadLiveFS(
+            "Live filesystem %s/%s/%s not found on %s" %
+            (owner, config.series, name, lp._root_uri))
+    return livefs
+
+
 def run_live_builds(config):
     builds = {}
+    lp_builds = []
     for arch in config.arches:
         if arch == "amd64+mac":
             # Use normal amd64 live image on amd64+mac.
@@ -235,20 +334,25 @@ def run_live_builds(config):
         full_name = live_build_full_name(config, arch)
         machine = live_builder(config, arch)
         timestamp = time.strftime("%F %T")
+        lp_livefs = get_lp_livefs(config, arch)
+        if lp_livefs is not None:
+            machine = "Launchpad"
         logger.info(
             "%s on %s starting at %s" % (full_name, machine, timestamp))
         tracker_set_rebuild_status(config, [0, 1], 2, arch)
-        proc = subprocess.Popen(live_build_command(config, arch))
-        builds[proc.pid] = (proc, arch, full_name, machine)
+        if lp_livefs is not None:
+            lp_kwargs = live_build_lp_kwargs(config, lp_livefs, arch)
+            lp_build = lp_livefs.requestBuild(**lp_kwargs)
+            lp_builds.append((lp_build, arch, full_name, machine))
+        else:
+            proc = subprocess.Popen(live_build_command(config, arch))
+            builds[proc.pid] = (proc, arch, full_name, machine)
 
     successful = set()
-    while builds:
-        pid, status = os.wait()
-        if pid not in builds:
-            continue
-        proc, arch, full_name, machine = builds.pop(pid)
+
+    def live_build_finished(arch, full_name, machine, status, text_status,
+                            notify_failure):
         timestamp = time.strftime("%F %T")
-        text_status = "success" if status == 0 else "failed"
         logger.info("%s on %s finished at %s (%s)" % (
             full_name, machine, timestamp, text_status))
         tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
@@ -256,8 +360,41 @@ def run_live_builds(config):
             successful.add(arch)
             if arch == "amd64" and "amd64+mac" in config.arches:
                 successful.add("amd64+mac")
-        else:
+        elif notify_failure:
             live_build_notify_failure(config, arch)
+
+    while builds or lp_builds:
+        # Check for non-Launchpad build results.
+        if builds:
+            pid, status = os.waitpid(0, os.WNOHANG)
+            if pid and pid in builds:
+                _, arch, full_name, machine = builds.pop(pid)
+                live_build_finished(
+                    arch, full_name, machine, status,
+                    "success" if status == 0 else "failed", True)
+
+        # Check for Launchpad build results.
+        pending_lp_builds = []
+        for lp_item in lp_builds:
+            lp_build, arch, full_name, machine = lp_item
+            lp_build.lp_refresh()
+            timestamp = time.strftime("%F %T")
+            if lp_build.buildstate in (
+                    "Needs building", "Currently building", "Uploading build"):
+                pending_lp_builds.append(lp_item)
+            elif lp_build.buildstate == "Successfully built":
+                live_build_finished(
+                    arch, full_name, machine, 0, lp_build.buildstate, False)
+            else:
+                live_build_finished(
+                    arch, full_name, machine, 1, lp_build.buildstate, False)
+        lp_builds = pending_lp_builds
+
+        if lp_builds:
+            # Wait a while before polling Launchpad again.  If a
+            # non-Launchpad build completes in the meantime, it will
+            # interrupt this sleep with SIGCHLD.
+            time.sleep(15)
 
     if not successful:
         raise LiveBuildsFailed("No live filesystem builds succeeded.")
@@ -437,8 +574,21 @@ def live_item_paths(config, arch, item):
     else:
         liveproject_subarch = liveproject
 
-    def urls_for(base):
-        yield "%s/%s" % (root, base)
+    lp_livefs = get_lp_livefs(config, arch)
+    if lp_livefs is not None:
+        lp_kwargs = live_build_lp_kwargs(config, lp_livefs, arch)
+        lp_build = lp_livefs.getLatestBuild(
+            lp_kwargs["distro_arch_series"],
+            unique_key=lp_kwargs.get("unique_key"))
+        lp_urls = list(lp_build.getFileUrls())
+
+        def urls_for(base):
+            for url in lp_urls:
+                if unquote(os.path.basename(url)) == base:
+                    yield url
+    else:
+        def urls_for(base):
+            yield "%s/%s" % (root, base)
 
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
@@ -539,7 +689,8 @@ def download_live_items(config, arch, item):
         "kernel", "initrd", "bootimg"
     ):
         for url in urls:
-            flavour = re.sub(r"^.*?\..*?\..*?-", "", os.path.basename(url))
+            flavour = re.sub(
+                r"^.*?\..*?\..*?-", "", unquote(os.path.basename(url)))
             target = os.path.join(
                 output_dir, "%s.%s-%s" % (arch, item, flavour))
             try:
@@ -582,7 +733,7 @@ def download_live_items(config, arch, item):
                 pass
     elif item == "kernel-efi-signed":
         for url in urls:
-            base = os.path.basename(url)
+            base = unquote(os.path.basename(url))
             if base.endswith(".efi.signed"):
                 base = base[:-len(".efi.signed")]
             flavour = re.sub(r"^.*?\..*?\..*?-", "", base)
