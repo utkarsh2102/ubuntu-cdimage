@@ -22,6 +22,11 @@ import os
 # debian-cd, which will get upset if they contain a space, hence all the
 # odd-looking hyphens.  ubuntu-zh_CN and ubuntu-touch-preview are exceptions
 # to this, because they do not use debian-cd.
+# For projects that use debian-cd, it will construct an ISO9660 volume ID
+# as "$(CAPPROJECT) $(DEBVERSION) $(ARCH)", e.g. "Ubuntu 14.10 amd64"; for
+# powerpc, $(ARCH) is abbreviated to "ppc".  The volume ID is limited to 32
+# characters.  This therefore imposes a limit on the length of project_map
+# values of 25 - (length of longest relevant architecture name).
 project_map = {
     "ubuntu": "Ubuntu",
     "ubuntu-desktop-next": "Ubuntu-Desktop-Next",
