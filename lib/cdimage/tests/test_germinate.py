@@ -178,7 +178,8 @@ class TestGermination(TestCase):
             ("ubuntu-mid", "hardy", "mobile.hardy"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
             ("ubuntu-headless", "lucid", "ubuntu.lucid"),
-            ("ubuntu-moblin-remix", "hardy", "moblin.hardy")
+            ("ubuntu-moblin-remix", "hardy", "moblin.hardy"),
+            ("ubuntu-desktop-next", "utopic", "ubuntu-touch.utopic"),
         ):
             self.config["DIST"] = series
             self.assertEqual(seed_dist, self.germination.seed_dist(project))
