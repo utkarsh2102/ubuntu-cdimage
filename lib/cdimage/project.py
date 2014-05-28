@@ -24,7 +24,7 @@ import os
 # to this, because they do not use debian-cd.
 project_map = {
     "ubuntu": "Ubuntu",
-    "ubuntu-desktop-next": "Ubuntu-Desktop-Next-Preview",
+    "ubuntu-desktop-next": "Ubuntu-Desktop-Next",
     "ubuntu-zh_CN": "Ubuntu Chinese Edition",
     "kubuntu": "Kubuntu",
     "kubuntu-active": "Kubuntu-Active",
