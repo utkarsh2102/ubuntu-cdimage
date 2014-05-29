@@ -198,6 +198,23 @@ class TestChecksumFile(TestCase):
         checksum_file.merge([old_dir], "entry", ["other-entry"])
         self.assertEqual({"entry": "checksum"}, checksum_file.entries)
 
+    def test_merge_handles_symlinks(self):
+        old_dir = os.path.join(self.temp_dir, "old")
+        touch(os.path.join(old_dir, "entry"))
+        with mkfile(os.path.join(old_dir, "MD5SUMS")) as old_md5sums:
+            print("correct-checksum *entry", file=old_md5sums)
+        new_dir = os.path.join(self.temp_dir, "new")
+        os.mkdir(new_dir)
+        os.symlink(
+            os.path.join(os.pardir, "old", "entry"),
+            os.path.join(new_dir, "entry"))
+        with mkfile(os.path.join(new_dir, "MD5SUMS")) as new_md5sums:
+            print("wrong-checksum *entry", file=new_md5sums)
+        checksum_file = ChecksumFile(
+            self.config, new_dir, "MD5SUMS", hashlib.md5)
+        checksum_file.merge([new_dir, old_dir], "entry", ["entry"])
+        self.assertEqual({"entry": "correct-checksum"}, checksum_file.entries)
+
     def test_write(self):
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "MD5SUMS", hashlib.md5, sign=False)

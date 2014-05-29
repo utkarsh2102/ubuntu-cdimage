@@ -107,8 +107,32 @@ class ChecksumFile:
     def merge(self, directories, entry_name, possible_entry_names):
         if entry_name in self.entries:
             return
-        entry_time = self._entry_time(
-            os.path.join(self.directory, entry_name), 0)
+
+        # If the entry is a symlink, then we know exactly which checksum to
+        # merge.
+        entry_path = os.path.join(self.directory, entry_name)
+        if os.path.islink(entry_path):
+            target = os.path.realpath(entry_path)
+            target_dir = os.path.dirname(target)
+            target_name = os.path.basename(target)
+            for directory in directories:
+                try:
+                    if os.path.samefile(directory, target_dir):
+                        target_checksum_file = ChecksumFile(
+                            self.config, directory, self.name,
+                            self.hash_method, sign=self.sign)
+                        target_checksum_file.read()
+                        if target_name in target_checksum_file.entries:
+                            self.entries[entry_name] = (
+                                target_checksum_file.entries[target_name])
+                            self.changed = True
+                            return
+                except OSError:
+                    pass
+
+        # Fall back to trying to work out which entry to use based on
+        # timestamps.
+        entry_time = self._entry_time(entry_path, 0)
         for directory in directories:
             try:
                 dir_time = os.stat(os.path.join(directory, self.name)).st_mtime
