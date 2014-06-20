@@ -201,6 +201,7 @@ def live_build_lp_kwargs(config, lp_livefs, arch):
     kwargs["distro_arch_series"] = lp_ds.getDistroArchSeries(archtag=cpuarch)
     if subarch:
         kwargs["unique_key"] = subarch
+        metadata_override["subarch"] = subarch
 
     if config["PROPOSED"]:
         kwargs["pocket"] = "Proposed"
