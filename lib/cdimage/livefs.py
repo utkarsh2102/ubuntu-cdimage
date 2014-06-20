@@ -21,6 +21,7 @@ __metaclass__ = type
 
 from contextlib import closing
 import fnmatch
+from gzip import GzipFile
 import io
 import os
 import re
@@ -229,7 +230,7 @@ def live_build_full_name(config, arch):
     return "-".join(bits)
 
 
-def live_build_notify_failure(config, arch):
+def live_build_notify_failure(config, arch, lp_build=None):
     if config["DEBUG"]:
         return
 
@@ -249,11 +250,17 @@ def live_build_notify_failure(config, arch):
     livefs_id = "-".join(livefs_id_bits)
 
     datestamp = time.strftime("%Y%m%d")
-    log_url = "http://%s/~buildd/LiveCD/%s/%s/latest/livecd-%s.out" % (
-        live_builder(config, arch), config.series, livefs_id, cpuarch)
     try:
-        with closing(urlopen(log_url, timeout=30)) as f:
-            body = f.read()
+        if lp_build is not None:
+            with closing(urlopen(lp_build.build_log_url, timeout=30)) as comp:
+                with closing(io.BytesIO(comp.read())) as comp_bytes:
+                    with closing(GzipFile(fileobj=comp_bytes)) as f:
+                        body = f.read()
+        else:
+            log_url = "http://%s/~buildd/LiveCD/%s/%s/latest/livecd-%s.out" % (
+                live_builder(config, arch), config.series, livefs_id, cpuarch)
+            with closing(urlopen(log_url, timeout=30)) as f:
+                body = f.read()
     except URLError:
         body = b""
     subject = "LiveFS %s%s/%s/%s failed to build on %s" % (
@@ -351,7 +358,7 @@ def run_live_builds(config):
     successful = set()
 
     def live_build_finished(arch, full_name, machine, status, text_status,
-                            notify_failure):
+                            lp_build=None):
         timestamp = time.strftime("%F %T")
         logger.info("%s on %s finished at %s (%s)" % (
             full_name, machine, timestamp, text_status))
@@ -360,8 +367,8 @@ def run_live_builds(config):
             successful.add(arch)
             if arch == "amd64" and "amd64+mac" in config.arches:
                 successful.add("amd64+mac")
-        elif notify_failure:
-            live_build_notify_failure(config, arch)
+        else:
+            live_build_notify_failure(config, arch, lp_build=lp_build)
 
     while builds or lp_builds:
         # Check for non-Launchpad build results.
@@ -371,7 +378,7 @@ def run_live_builds(config):
                 _, arch, full_name, machine = builds.pop(pid)
                 live_build_finished(
                     arch, full_name, machine, status,
-                    "success" if status == 0 else "failed", True)
+                    "success" if status == 0 else "failed")
 
         # Check for Launchpad build results.
         pending_lp_builds = []
@@ -384,10 +391,12 @@ def run_live_builds(config):
                 pending_lp_builds.append(lp_item)
             elif lp_build.buildstate == "Successfully built":
                 live_build_finished(
-                    arch, full_name, machine, 0, lp_build.buildstate, False)
+                    arch, full_name, machine, 0, lp_build.buildstate,
+                    lp_build=lp_build)
             else:
                 live_build_finished(
-                    arch, full_name, machine, 1, lp_build.buildstate, False)
+                    arch, full_name, machine, 1, lp_build.buildstate,
+                    lp_build=lp_build)
         lp_builds = pending_lp_builds
 
         if lp_builds:
