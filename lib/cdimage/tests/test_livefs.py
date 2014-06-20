@@ -680,7 +680,7 @@ class TestRunLiveBuilds(TestCase):
             print("*\t*\t*\tlaunchpad-buildd", file=f)
         with mkfile(os.path.join(
                 self.config.root, "production", "livefs-launchpad")) as f:
-            print("*\t*\t*\tubuntu-cdimage/ubuntu-desktop", file=f)
+            print("*\t*\t*\t*\tubuntu-cdimage/ubuntu-desktop", file=f)
         self.capture_logging()
         mock_login.return_value = MockLaunchpad()
         mock_iter_buildstate.side_effect = lambda: (

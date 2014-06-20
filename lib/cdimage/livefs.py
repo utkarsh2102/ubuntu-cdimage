@@ -287,13 +287,15 @@ def live_lp_info(config, arch):
                 if not line or line.startswith("#"):
                     continue
                 try:
-                    f_project, f_image_type, f_arch, lp_info = line.split(
-                        None, 3)
+                    f_project, f_image_type, f_series, f_arch, lp_info = (
+                        line.split(None, 4))
                 except ValueError:
                     continue
                 if not fnmatch.fnmatchcase(want_project, f_project):
                     continue
                 if not fnmatch.fnmatchcase(image_type, f_image_type):
+                    continue
+                if not config.match_series(f_series):
                     continue
                 if "+" in f_arch:
                     want_arch = arch
@@ -304,8 +306,8 @@ def live_lp_info(config, arch):
                 return lp_info.split("/")
 
     raise UnknownLaunchpadLiveFS(
-        "No Launchpad live filesystem definition known for %s/%s/%s" %
-        (want_project, image_type, arch))
+        "No Launchpad live filesystem definition known for %s/%s/%s/%s" %
+        (want_project, image_type, config.series, arch))
 
 
 def get_lp_livefs(config, arch):
