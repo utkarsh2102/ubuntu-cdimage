@@ -352,6 +352,7 @@ def run_live_builds(config):
         if lp_livefs is not None:
             lp_kwargs = live_build_lp_kwargs(config, lp_livefs, arch)
             lp_build = lp_livefs.requestBuild(**lp_kwargs)
+            logger.info("%s: %s" % (full_name, lp_build.web_link))
             lp_builds.append((lp_build, arch, full_name, machine))
         else:
             proc = subprocess.Popen(live_build_command(config, arch))

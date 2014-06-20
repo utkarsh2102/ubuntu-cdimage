@@ -70,11 +70,22 @@ class MockPeople(defaultdict):
         return person
 
 
+class MockDistroArchSeries(mock.MagicMock):
+    def __init__(self, architecture_tag=None, *args, **kwargs):
+        super(MockDistroArchSeries, self).__init__(*args, **kwargs)
+        self._architecture_tag = architecture_tag
+
+    @property
+    def architecture_tag(self):
+        return self._architecture_tag
+
+
 class MockDistroSeries(mock.MagicMock):
     def getDistroArchSeries(self, archtag=None):
-        return mock.MagicMock(
+        return MockDistroArchSeries(
             name="DistroArchSeries(%s, %s, %s)" % (
-                self.distribution.name, self.name, archtag))
+                self.distribution.name, self.name, archtag),
+            architecture_tag=archtag)
 
 
 class MockDistribution(mock.MagicMock):
@@ -94,9 +105,10 @@ class MockDistributions(defaultdict):
 
 
 class MockLiveFSBuild(mock.MagicMock):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, distro_arch_series=None, *args, **kwargs):
         super(MockLiveFSBuild, self).__init__(*args, **kwargs)
         self._buildstates = self._iter_buildstate()
+        self._distro_arch_series = distro_arch_series
 
     def _iter_buildstate(self):
         return repeat("Needs building")
@@ -104,10 +116,15 @@ class MockLiveFSBuild(mock.MagicMock):
     def lp_refresh(self):
         self.buildstate = next(self._buildstates)
 
+    @property
+    def web_link(self):
+        return "https://launchpad.example/%s-build" % (
+            self._distro_arch_series.architecture_tag)
+
 
 class MockLiveFS(mock.MagicMock):
-    def requestBuild(self, **kwargs):
-        build = MockLiveFSBuild()
+    def requestBuild(self, distro_arch_series=None, **kwargs):
+        build = MockLiveFSBuild(distro_arch_series=distro_arch_series)
         build.buildstate = "Needs building"
         return build
 
@@ -688,7 +705,9 @@ class TestRunLiveBuilds(TestCase):
         self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config))
         self.assertCountEqual([
             "ubuntu-amd64 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-amd64: https://launchpad.example/amd64-build",
             "ubuntu-i386 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-i386: https://launchpad.example/i386-build",
             "ubuntu-amd64 on Launchpad finished at 2013-03-15 13:48:51 "
             "(Successfully built)",
             "ubuntu-i386 on Launchpad finished at 2013-03-15 13:48:51 "
