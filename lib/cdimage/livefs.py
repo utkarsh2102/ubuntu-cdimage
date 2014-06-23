@@ -391,7 +391,6 @@ def run_live_builds(config):
         for lp_item in lp_builds:
             lp_build, arch, full_name, machine, log_timeout = lp_item
             lp_build.lp_refresh()
-            timestamp = time.strftime("%F %T")
             if lp_build.buildstate in (
                     "Needs building", "Currently building", "Uploading build"):
                 pending_lp_builds.append(lp_item)
