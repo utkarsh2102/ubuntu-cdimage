@@ -253,6 +253,8 @@ def live_build_notify_failure(config, arch, lp_build=None):
     datestamp = time.strftime("%Y%m%d")
     try:
         if lp_build is not None:
+            if lp_build.build_log_url is None:
+                raise URLError
             with closing(urlopen(lp_build.build_log_url, timeout=30)) as comp:
                 with closing(io.BytesIO(comp.read())) as comp_bytes:
                     with closing(GzipFile(fileobj=comp_bytes)) as f:
@@ -354,7 +356,7 @@ def run_live_builds(config):
             lp_kwargs = live_build_lp_kwargs(config, lp_livefs, arch)
             lp_build = lp_livefs.requestBuild(**lp_kwargs)
             logger.info("%s: %s" % (full_name, lp_build.web_link))
-            lp_builds.append((lp_build, arch, full_name, machine))
+            lp_builds.append((lp_build, arch, full_name, machine, None))
         else:
             proc = subprocess.Popen(live_build_command(config, arch))
             builds[proc.pid] = (proc, arch, full_name, machine)
@@ -387,7 +389,7 @@ def run_live_builds(config):
         # Check for Launchpad build results.
         pending_lp_builds = []
         for lp_item in lp_builds:
-            lp_build, arch, full_name, machine = lp_item
+            lp_build, arch, full_name, machine, log_timeout = lp_item
             lp_build.lp_refresh()
             timestamp = time.strftime("%F %T")
             if lp_build.buildstate in (
@@ -397,6 +399,15 @@ def run_live_builds(config):
                 live_build_finished(
                     arch, full_name, machine, 0, lp_build.buildstate,
                     lp_build=lp_build)
+            elif (lp_build.build_log_url is None and
+                  (log_timeout is None or time.time() < log_timeout)):
+                # Wait up to five minutes for Launchpad to fetch the build
+                # log from the slave.  We need a timeout since in rare cases
+                # this might fail.
+                if log_timeout is None:
+                    log_timeout = time.time() + 300
+                pending_lp_builds.append(
+                    (lp_build, arch, full_name, machine, log_timeout))
             else:
                 live_build_finished(
                     arch, full_name, machine, 1, lp_build.buildstate,
