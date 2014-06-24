@@ -191,13 +191,19 @@ def live_build_command(config, arch):
     return command
 
 
-def live_build_lp_kwargs(config, lp_livefs, arch):
+def live_build_lp_kwargs(config, lp, lp_livefs, arch):
     cpuarch, subarch = split_arch(arch)
     kwargs = {}
     metadata_override = {}
 
     lp_ds = lp_livefs.distro_series
-    kwargs["archive"] = lp_ds.main_archive
+    if config["EXTRA_PPAS"]:
+        ppa = config["EXTRA_PPAS"].split()[0]
+        ppa_owner_name, ppa_name = ppa.split("/", 1)
+        ppa = lp.people[ppa_owner_name].getPPAByName(name=ppa_name)
+        kwargs["archive"] = ppa
+    else:
+        kwargs["archive"] = lp_ds.main_archive
     kwargs["distro_arch_series"] = lp_ds.getDistroArchSeries(archtag=cpuarch)
     if subarch:
         kwargs["unique_key"] = subarch
@@ -317,7 +323,7 @@ def get_lp_livefs(config, arch):
     try:
         lp_info = live_lp_info(config, arch)
     except UnknownLaunchpadLiveFS:
-        return None
+        return None, None
     if len(lp_info) > 2:
         instance, owner, name = lp_info
     else:
@@ -333,7 +339,7 @@ def get_lp_livefs(config, arch):
         raise MissingLaunchpadLiveFS(
             "Live filesystem %s/%s/%s not found on %s" %
             (owner, config.series, name, lp._root_uri))
-    return livefs
+    return lp, livefs
 
 
 def run_live_builds(config):
@@ -346,14 +352,14 @@ def run_live_builds(config):
         full_name = live_build_full_name(config, arch)
         machine = live_builder(config, arch)
         timestamp = time.strftime("%F %T")
-        lp_livefs = get_lp_livefs(config, arch)
+        lp, lp_livefs = get_lp_livefs(config, arch)
         if lp_livefs is not None:
             machine = "Launchpad"
         logger.info(
             "%s on %s starting at %s" % (full_name, machine, timestamp))
         tracker_set_rebuild_status(config, [0, 1], 2, arch)
         if lp_livefs is not None:
-            lp_kwargs = live_build_lp_kwargs(config, lp_livefs, arch)
+            lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
             lp_build = lp_livefs.requestBuild(**lp_kwargs)
             logger.info("%s: %s" % (full_name, lp_build.web_link))
             lp_builds.append((lp_build, arch, full_name, machine, None))
@@ -597,9 +603,9 @@ def live_item_paths(config, arch, item):
     else:
         liveproject_subarch = liveproject
 
-    lp_livefs = get_lp_livefs(config, arch)
+    lp, lp_livefs = get_lp_livefs(config, arch)
     if lp_livefs is not None:
-        lp_kwargs = live_build_lp_kwargs(config, lp_livefs, arch)
+        lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
         lp_build = lp_livefs.getLatestBuild(
             lp_kwargs["distro_arch_series"],
             unique_key=lp_kwargs.get("unique_key"))
