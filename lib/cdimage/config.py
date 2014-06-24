@@ -211,6 +211,7 @@ _whitelisted_keys = (
     "SUBPROJECT",
     "UBUNTU_DEFAULTS_LOCALE",
     "SSH_ORIGINAL_COMMAND",
+    "EXTRA_PPAS",
 )
 
 
