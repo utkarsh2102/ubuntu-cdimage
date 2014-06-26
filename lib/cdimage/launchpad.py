@@ -114,9 +114,10 @@ class _CachingLiveFS(Resource):
         archtag = distro_arch_series.architecture_tag
         if unique_key not in self._current_build_cache[archtag]:
             # If we didn't run the build ourselves, then use the latest
-            # completed build.
+            # completed build for this DAS.
             for build in self.completed_builds:
-                if build.buildstate == "Successfully built":
+                if (build.distro_arch_series == distro_arch_series and
+                        build.buildstate == "Successfully built"):
                     self._current_build_cache[archtag][unique_key] = build
                     break
             else:
