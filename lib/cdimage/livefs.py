@@ -609,6 +609,8 @@ def live_item_paths(config, arch, item):
         lp_build = lp_livefs.getLatestBuild(
             lp_kwargs["distro_arch_series"],
             unique_key=lp_kwargs.get("unique_key"))
+        logger.info("%s: %s" % (
+            live_build_full_name(config, arch), lp_build.web_link))
         lp_urls = list(lp_build.getFileUrls())
 
         def urls_for(base):
