@@ -584,6 +584,13 @@ class Publisher:
                     cd)
                 self.prefmsg_emitted = True
             sentences.append(desktop_req)
+            if self.project == "ubuntu-desktop-next":
+                sentences.append(
+                    "This is an experimental image. Please %s for caveats and "
+                    "workarounds." %
+                    Link("https://wiki.ubuntu.com/Unity8DesktopIso",
+                         "read this page on the Ubuntu wiki",
+                         show_class=True))
             if self.project == "edubuntu":
                 sentences.append(
                     "You can install additional educational programs using "
