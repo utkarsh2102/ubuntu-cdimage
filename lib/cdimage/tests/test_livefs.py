@@ -692,9 +692,8 @@ class TestRunLiveBuilds(TestCase):
         self.config["DIST"] = "utopic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
-        with mkfile(os.path.join(
-                self.config.root, "production", "livefs-builders")) as f:
-            print("*\t*\t*\tlaunchpad-buildd", file=f)
+        osextras.unlink_force(os.path.join(
+            self.config.root, "production", "livefs-builders"))
         with mkfile(os.path.join(
                 self.config.root, "production", "livefs-launchpad")) as f:
             print("*\t*\t*\t*\tubuntu-cdimage/ubuntu-desktop", file=f)
