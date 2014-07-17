@@ -331,7 +331,7 @@ def get_lp_livefs(config, arch):
         owner, name = lp_info
     lp = get_launchpad(instance)
     lp_owner = lp.people[owner]
-    lp_distribution = lp.distributions["ubuntu"]
+    lp_distribution = lp.distributions[config.distribution]
     lp_ds = lp_distribution.getSeries(name_or_version=config.series)
     livefs = lp.livefses.getByName(
         owner=lp_owner, distro_series=lp_ds, name=name)
