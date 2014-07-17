@@ -282,6 +282,13 @@ class TestConfig(TestCase):
         config["DIST"] = "warty"
         self.assertEqual("warty", config.series)
 
+    def test_full_series(self):
+        config = Config(read=False)
+        config["DIST"] = "utopic"
+        self.assertEqual("utopic", config.full_series)
+        config["DIST"] = "ubuntu-rtm/14.09"
+        self.assertEqual("ubuntu-rtm/14.09", config.full_series)
+
     def test_arches(self):
         config = Config(read=False)
         self.assertEqual([], config.arches)

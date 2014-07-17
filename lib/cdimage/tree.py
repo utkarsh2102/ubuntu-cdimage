@@ -1629,7 +1629,7 @@ class DailyTreePublisher(Publisher):
 
     def image_output(self, arch):
         return os.path.join(
-            self.config.root, "scratch", self.project, self.config.series,
+            self.config.root, "scratch", self.project, self.config.full_series,
             self.image_type, "debian-cd", arch)
 
     @property
@@ -1645,8 +1645,10 @@ class DailyTreePublisher(Publisher):
     @property
     def image_type_dir(self):
         image_type_dir = self.image_type.replace("_", "/")
-        if not self.config["DIST"].is_latest:
-            image_type_dir = os.path.join(self.config.series, image_type_dir)
+        if (self.config.distribution != "ubuntu" or
+                not self.config["DIST"].is_latest):
+            image_type_dir = os.path.join(
+                self.config.full_series, image_type_dir)
         return image_type_dir
 
     @property
@@ -1892,7 +1894,7 @@ class DailyTreePublisher(Publisher):
 
     def publish_livecd_base(self, arch, date):
         source_dir = os.path.join(
-            self.config.root, "scratch", self.project, self.config.series,
+            self.config.root, "scratch", self.project, self.config.full_series,
             self.image_type, "live")
         source_prefix = os.path.join(source_dir, arch)
         target_dir = os.path.join(self.publish_base, date)
@@ -1931,7 +1933,7 @@ class DailyTreePublisher(Publisher):
 
     def publish_wubi(self, arch, date):
         source_dir = os.path.join(
-            self.config.root, "scratch", self.project, self.config.series,
+            self.config.root, "scratch", self.project, self.config.full_series,
             self.image_type, "live")
         source_prefix = os.path.join(source_dir, arch)
         target_dir = os.path.join(self.publish_base, date)
@@ -2155,7 +2157,7 @@ class DailyTreePublisher(Publisher):
                     continue
                 if self.image_type != image_type:
                     continue
-                if self.config.series != series:
+                if self.config.full_series != series:
                     continue
                 if arch in arches:
                     return True
@@ -2484,14 +2486,14 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
         if self.config["DIST"] < "oneiric":
             return os.path.join(
                 self.config.root, "scratch", "ubuntu-chinese-edition",
-                self.config.series)
+                self.config.full_series)
         else:
             project = "ubuntu"
             if self.config["UBUNTU_DEFAULTS_LOCALE"]:
                 project = "-".join([
                     project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
             return os.path.join(
-                self.config.root, "scratch", project, self.config.series,
+                self.config.root, "scratch", project, self.config.full_series,
                 self.image_type, "live")
 
     @property
@@ -2501,7 +2503,7 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
     @property
     def image_type_dir(self):
         return os.path.join(
-            self.config.series, self.image_type.replace("_", "/"))
+            self.config.full_series, self.image_type.replace("_", "/"))
 
     def size_limit(self, arch):
         if self.publish_type == "dvd":
@@ -2719,6 +2721,13 @@ class ReleasePublisher(Publisher):
     def version(self):
         series = self.config["DIST"]
         return getattr(series, "pointversion", series.version)
+
+    @property
+    def full_version(self):
+        if self.config.distribution == "ubuntu":
+            return self.version
+        else:
+            return os.path.join(self.config.distribution, self.version)
 
     @property
     def metalink_version(self):
@@ -3002,11 +3011,12 @@ class ReleasePublisher(Publisher):
         if source.endswith("/source"):
             source = source[:-len("/source")]
 
-        if not series.is_latest:
+        if series.distribution != "ubuntu" or not series.is_latest:
             if source == "ubuntu-server/daily":
-                source = os.path.join("ubuntu-server", series.name, "daily")
+                source = os.path.join(
+                    "ubuntu-server", series.full_name, "daily")
             else:
-                source = os.path.join(series.name, source)
+                source = os.path.join(series.full_name, source)
 
         daily_dir = self.daily_dir(source, date, publish_type)
         target_dir = self.target_dir(source, date, publish_type)
@@ -3158,7 +3168,7 @@ class ReleasePublisher(Publisher):
                 if self.official == "named":
                     metalink_target_dir = os.path.join(
                         self.tree.publish_target(source), "releases",
-                        self.version, self.status)
+                        self.full_version, self.status)
                 else:
                     metalink_target_dir = target_dir
                 self.make_metalink(metalink_target_dir, self.version)
@@ -3216,8 +3226,8 @@ class FullReleasePublisher(ReleasePublisher):
 
     def target_dir(self, source, date, publish_type):
         target_dir = os.path.join(
-            self.tree.publish_target(source), "releases", self.config.series,
-            self.status)
+            self.tree.publish_target(source), "releases",
+            self.config.full_series, self.status)
         if date.endswith("/unpacked"):
             target_dir = os.path.join(target_dir, "unpacked")
         if publish_type == "src":
@@ -3226,13 +3236,13 @@ class FullReleasePublisher(ReleasePublisher):
 
     def version_link(self, source):
         return os.path.join(
-            self.tree.publish_target(source), "releases", self.version)
+            self.tree.publish_target(source), "releases", self.full_version)
 
     def torrent_dir(self, source, publish_type):
         torrent_tree = TorrentTree(self.config)
         return os.path.join(
             torrent_tree.publish_target(source), "releases",
-            self.config.series, self.status, publish_type)
+            self.config.full_series, self.status, publish_type)
 
     def want_torrent(self, publish_type):
         return publish_type not in ("src", "uec", "server-uec")
@@ -3260,13 +3270,14 @@ class SimpleReleasePublisher(ReleasePublisher):
 
     def target_dir(self, source, date, publish_type):
         target_dir = os.path.join(
-            self.tree.publish_target(source), self.config.series)
+            self.tree.publish_target(source), self.config.full_series)
         if publish_type == "src":
             target_dir = os.path.join(target_dir, "source")
         return target_dir
 
     def version_link(self, source):
-        return os.path.join(self.tree.publish_target(source), self.version)
+        return os.path.join(
+            self.tree.publish_target(source), self.full_version)
 
     def pool_dir(self, source):
         return os.path.join(self.tree.publish_target(source), ".pool")
@@ -3274,8 +3285,8 @@ class SimpleReleasePublisher(ReleasePublisher):
     def torrent_dir(self, source, publish_type):
         torrent_tree = TorrentTree(self.config)
         return os.path.join(
-            torrent_tree.publish_target(source), "simple", self.config.series,
-            publish_type)
+            torrent_tree.publish_target(source), "simple",
+            self.config.full_series, publish_type)
 
     def want_torrent(self, publish_type):
         if self.want_dist:

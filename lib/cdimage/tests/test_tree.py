@@ -644,6 +644,13 @@ class TestDailyTreePublisher(TestCase):
                 self.config.root, "scratch", "kubuntu", "hoary", "daily",
                 "debian-cd", "i386"),
             self.make_publisher("kubuntu", "daily").image_output("i386"))
+        self.config["DIST"] = "ubuntu-rtm/14.09"
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "scratch", "ubuntu-touch", "ubuntu-rtm",
+                "14.09", "daily-preinstalled", "debian-cd", "armhf"),
+            self.make_publisher(
+                "ubuntu-touch", "daily-preinstalled").image_output("armhf"))
 
     def test_source_extension(self):
         self.assertEqual(
@@ -673,6 +680,13 @@ class TestDailyTreePublisher(TestCase):
                 self.config.root, "www", "full",
                 "kubuntu", "hoary", "daily-live"),
             self.make_publisher("kubuntu", "daily-live").publish_base)
+        self.config["DIST"] = "ubuntu-rtm/14.09"
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "www", "full",
+                "ubuntu-touch", "ubuntu-rtm", "14.09", "daily-preinstalled"),
+            self.make_publisher(
+                "ubuntu-touch", "daily-preinstalled").publish_base)
 
     def test_size_limit(self):
         for project, dist, image_type, arch, size_limit in (
@@ -1581,6 +1595,8 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
     def test_image_type_dir(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
         for series in all_series:
+            if series.distribution != "ubuntu":
+                continue
             self.config["DIST"] = series
             self.assertEqual(
                 os.path.join(series.name, "daily-live"),
@@ -1589,6 +1605,8 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
     def test_publish_base(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
         for series in all_series:
+            if series.distribution != "ubuntu":
+                continue
             self.config["DIST"] = series
             self.assertEqual(
                 os.path.join(

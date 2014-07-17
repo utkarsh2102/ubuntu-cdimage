@@ -316,7 +316,7 @@ def live_lp_info(config, arch):
 
     raise UnknownLaunchpadLiveFS(
         "No Launchpad live filesystem definition known for %s/%s/%s/%s" %
-        (want_project, image_type, config.series, arch))
+        (want_project, image_type, config.full_series, arch))
 
 
 def get_lp_livefs(config, arch):
@@ -338,7 +338,7 @@ def get_lp_livefs(config, arch):
     if livefs is None:
         raise MissingLaunchpadLiveFS(
             "Live filesystem %s/%s/%s not found on %s" %
-            (owner, config.series, name, lp._root_uri))
+            (owner, config.full_series, name, lp._root_uri))
     return lp, livefs
 
 
@@ -695,7 +695,7 @@ def live_output_directory(config):
     if config["UBUNTU_DEFAULTS_LOCALE"]:
         project = "-".join([project, config["UBUNTU_DEFAULTS_LOCALE"]])
     return os.path.join(
-        config.root, "scratch", project, config.series, config.image_type,
+        config.root, "scratch", project, config.full_series, config.image_type,
         "live")
 
 

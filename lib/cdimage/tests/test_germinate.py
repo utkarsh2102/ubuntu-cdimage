@@ -284,6 +284,7 @@ class TestGermination(TestCase):
 
     def test_output(self):
         self.config.root = self.use_temp_dir()
+        self.config["DIST"] = "precise"
         output_dir = self.germination.output_dir("ubuntu")
         touch(os.path.join(output_dir, "STRUCTURE"))
         output = self.germination.output("ubuntu")

@@ -54,10 +54,14 @@ def lock_build_image_set(config):
     project = config.project
     if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
         project = "ubuntu-chinese-edition"
+    if config.distribution == "ubuntu":
+        full_series = config.series
+    else:
+        full_series = "%s-%s" % (config.distribution, config.series)
     lock_path = os.path.join(
         config.root, "etc",
         ".lock-build-image-set-%s-%s-%s" % (
-            project, config.series, config.image_type))
+            project, full_series, config.image_type))
     try:
         subprocess.check_call(["lockfile", "-l", "7200", "-r", "0", lock_path])
     except subprocess.CalledProcessError:
@@ -107,7 +111,7 @@ def open_log(config):
     if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
         project = "ubuntu-chinese-edition"
     log_path = os.path.join(
-        config.root, "log", project, config.series,
+        config.root, "log", project, config.full_series,
         "%s-%s.log" % (config.image_type, config["CDIMAGE_DATE"]))
     osextras.ensuredir(os.path.dirname(log_path))
     log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666)
@@ -420,7 +424,7 @@ def add_android_support(config, arch, output_dir):
     """Copy Android support files to an Ubuntu Touch image.
     """
     live_scratch_dir = os.path.join(
-        config.root, "scratch", config.project, config.series,
+        config.root, "scratch", config.project, config.full_series,
         config.image_type, "live")
 
     # copy recovery, boot and system imgs in place
@@ -455,7 +459,7 @@ def build_livecd_base(config):
     if config.project in ("ubuntu-core", "ubuntu-touch"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
-            config.root, "scratch", config.project, config.series,
+            config.root, "scratch", config.project, config.full_series,
             config.image_type)
         live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
@@ -490,10 +494,9 @@ def _debootstrap_script(config):
 
 
 def extract_debootstrap(config):
-    series = config["DIST"]
     output_dir = os.path.join(
-        config.root, "scratch", config.project, series.name, config.image_type,
-        "debootstrap")
+        config.root, "scratch", config.project, config.full_series,
+        config.image_type, "debootstrap")
 
     osextras.ensuredir(output_dir)
 
@@ -502,7 +505,7 @@ def extract_debootstrap(config):
         mirror = find_mirror(config, arch)
         # TODO: This might be more sensible with python-debian or python-apt.
         packages_path = os.path.join(
-            mirror, "dists", series.name, "main", "debian-installer",
+            mirror, "dists", config.series, "main", "debian-installer",
             "binary-%s" % arch, "Packages.gz")
         with gzip.GzipFile(packages_path, "rb") as packages:
             grep_dctrl = subprocess.Popen(
@@ -555,7 +558,7 @@ def run_debian_cd(config):
 def fix_permissions(config):
     """Kludge to work around permission-handling problems elsewhere."""
     scratch_dir = os.path.join(
-        config.root, "scratch", config.project, config.series,
+        config.root, "scratch", config.project, config.full_series,
         config.image_type)
     if not os.path.isdir(scratch_dir):
         return
@@ -596,7 +599,7 @@ def notify_failure(config, log_path):
     project = config.project
     if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
         project = "ubuntu-chinese-edition"
-    series = config.series
+    series = config.full_series
     image_type = config.image_type
     date = config["CDIMAGE_DATE"]
 

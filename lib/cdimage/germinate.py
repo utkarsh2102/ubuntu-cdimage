@@ -61,7 +61,7 @@ class Germination:
 
     def output_dir(self, project):
         return os.path.join(
-            self.config.root, "scratch", project, self.config.series,
+            self.config.root, "scratch", project, self.config.full_series,
             self.config.image_type, "germinate")
 
     def seed_sources(self, project):
@@ -436,7 +436,7 @@ class GerminateOutput:
 
     def tasks_output_dir(self, project):
         return os.path.join(
-            self.config.root, "scratch", project, self.config.series,
+            self.config.root, "scratch", project, self.config.full_series,
             self.config.image_type, "tasks")
 
     def task_packages(self, arch, seed, seedsource):
@@ -721,7 +721,7 @@ class GerminateOutput:
                     self.config,
                     os.path.join(
                         self.config.root, "scratch", project,
-                        self.config.series, self.config.image_type,
+                        self.config.full_series, self.config.image_type,
                         "germinate"))
                 project_output.write_tasks_project(project, source=True)
                 # TODO: write_tasks_project should just write these files
@@ -761,7 +761,8 @@ class GerminateOutput:
         previous_tasks_dir = "%s-previous" % tasks_dir
         debian_cd_tasks_dir = os.path.join(
             self.config.root, "debian-cd", "tasks", "auto",
-            self.config.image_type, self.config.project, self.config.series)
+            self.config.image_type, self.config.project,
+            self.config.full_series)
 
         task_recipients = []
         task_mail_path = os.path.join(self.config.root, "etc", "task-mail")
@@ -787,7 +788,7 @@ class GerminateOutput:
                     send_mail(
                         "Task changes for %s %s/%s on %s" % (
                             self.config.capproject, self.config.image_type,
-                            self.config.series, date),
+                            self.config.full_series, date),
                         "update-tasks", task_recipients, read_file)
                 os.waitpid(pid, 0)
 

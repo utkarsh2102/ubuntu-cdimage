@@ -395,6 +395,10 @@ class Config(defaultdict):
         return str(self["DIST"])
 
     @property
+    def full_series(self):
+        return self["DIST"].full_name
+
+    @property
     def arches(self):
         return self["ARCHES"].split()
 

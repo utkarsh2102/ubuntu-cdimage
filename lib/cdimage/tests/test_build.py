@@ -854,6 +854,7 @@ class TestBuildImageSet(TestCase):
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_no_recipients(self, mock_send_mail):
+        self.config["DIST"] = "raring"
         notify_failure(self.config, None)
         self.assertEqual(0, mock_send_mail.call_count)
 

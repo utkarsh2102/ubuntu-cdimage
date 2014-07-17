@@ -78,6 +78,21 @@ class TestNextBuildId(TestCase):
             self.assertEqual("20130225:1\n", stamp_file.read())
 
     @mock.patch("time.strftime", return_value="20130225")
+    def test_ubuntu_rtm(self, *args):
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        config["PROJECT"] = "ubuntu-touch"
+        config["DIST"] = "ubuntu-rtm/14.09"
+        os.mkdir(os.path.join(self.temp_dir, "etc"))
+        stamp = os.path.join(
+            config.root, "etc",
+            ".next-build-suffix-ubuntu-touch-ubuntu-rtm-14.09-daily")
+        self.assertFalse(os.path.exists(stamp))
+        self.assertEqual("20130225", next_build_id(config, ""))
+        with open(stamp) as stamp_file:
+            self.assertEqual("20130225:1\n", stamp_file.read())
+
+    @mock.patch("time.strftime", return_value="20130225")
     def test_date_suffix(self, *args):
         config = Config(read=False)
         config.root = self.use_temp_dir()
