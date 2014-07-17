@@ -738,6 +738,73 @@ class TestRunLiveBuilds(TestCase):
         self.assertEqual("Successfully built", builds[1].buildstate)
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
 
+    @skipUnless(launchpad_available, "launchpadlib not available")
+    @mock_strftime(1363355331)
+    @mock.patch("time.sleep")
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.livefs.live_build_notify_failure")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFSBuild._iter_buildstate")
+    @mock.patch("cdimage.launchpad.login")
+    def test_run_live_builds_lp_ubuntu_rtm(self, mock_login,
+                                           mock_iter_buildstate,
+                                           mock_live_build_notify_failure,
+                                           mock_tracker_set_rebuild_status,
+                                           mock_sleep, *args):
+        self.config["PROJECT"] = "ubuntu-touch"
+        self.config["DIST"] = "ubuntu-rtm/14.09"
+        self.config["IMAGE_TYPE"] = "daily-preinstalled"
+        self.config["ARCHES"] = "armhf i386"
+        osextras.unlink_force(os.path.join(
+            self.config.root, "production", "livefs-builders"))
+        with mkfile(os.path.join(
+                self.config.root, "production", "livefs-launchpad")) as f:
+            print(
+                "ubuntu-touch\tdaily-preinstalled\tubuntu-rtm/*\t*\t"
+                "dogfood/ubuntu-cdimage/ubuntu-touch", file=f)
+            print(
+                "ubuntu-touch\tdaily-preinstalled\t*\t*\t"
+                "ubuntu-cdimage/ubuntu-touch", file=f)
+        self.capture_logging()
+        mock_login.return_value = MockLaunchpad()
+        mock_iter_buildstate.side_effect = lambda: (
+            chain(["Needs building"] * 3, repeat("Successfully built")))
+        self.assertCountEqual(["armhf", "i386"], run_live_builds(self.config))
+        self.assertCountEqual([
+            "ubuntu-touch-armhf on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-touch-armhf: https://launchpad.example/armhf-build",
+            "ubuntu-touch-i386 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-touch-i386: https://launchpad.example/i386-build",
+            "ubuntu-touch-armhf on Launchpad finished at 2013-03-15 13:48:51 "
+            "(Successfully built)",
+            "ubuntu-touch-i386 on Launchpad finished at 2013-03-15 13:48:51 "
+            "(Successfully built)",
+        ], self.captured_log_messages())
+        self.assertEqual(4, mock_tracker_set_rebuild_status.call_count)
+        mock_tracker_set_rebuild_status.assert_has_calls([
+            mock.call(self.config, [0, 1], 2, "armhf"),
+            mock.call(self.config, [0, 1], 2, "i386"),
+            mock.call(self.config, [0, 1, 2], 3, "armhf"),
+            mock.call(self.config, [0, 1, 2], 3, "i386"),
+        ])
+        self.assertEqual(3, mock_sleep.call_count)
+        mock_sleep.assert_has_calls([mock.call(15)] * 3)
+        lp = get_launchpad()
+        owner = lp.people["ubuntu-cdimage"]
+        ubuntu_rtm = lp.distributions["ubuntu-rtm"]
+        series = ubuntu_rtm.getSeries(name_or_version="14.09")
+        dases = [
+            series.getDistroArchSeries(archtag)
+            for archtag in ("armhf", "i386")]
+        self.assertEqual(2, len(dases))
+        livefs = lp.livefses.getByName(
+            owner=owner, distro_series=series, name="ubuntu-touch")
+        builds = [
+            livefs.getLatestBuild(distro_arch_series=das) for das in dases]
+        self.assertEqual(2, len(builds))
+        self.assertEqual("Successfully built", builds[0].buildstate)
+        self.assertEqual("Successfully built", builds[1].buildstate)
+        self.assertEqual(0, mock_live_build_notify_failure.call_count)
+
 
 class TestLiveCDBase(TestCase):
     def setUp(self):
