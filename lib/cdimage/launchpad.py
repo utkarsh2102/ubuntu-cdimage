@@ -155,6 +155,9 @@ class _LaunchpadCache:
         assert launchpad_available
         if not instance:
             instance = "production"
+        if instance == "dogfood":
+            # Work around old service root in some versions of launchpadlib.
+            instance = "https://api.dogfood.paddev.net/"
         self.lp = login(instance)
         self.people = _CachingDict(self.lp.people)
         self.distributions = _CachingDict(
