@@ -39,14 +39,31 @@ class TestSeries(TestCase):
 
     def test_latest(self):
         self.assertTrue(Series.latest().is_latest)
+        self.assertEqual("ubuntu", Series.latest().distribution)
+        self.assertTrue(Series.latest(distribution="ubuntu-rtm").is_latest)
+        self.assertEqual(
+            "ubuntu-rtm",
+            Series.latest(distribution="ubuntu-rtm").distribution)
+        self.assertRaises(
+            ValueError, Series.latest, distribution="nonexistent")
 
     def test_str(self):
         series = Series.find_by_name("warty")
         self.assertEqual("warty", str(series))
+        series = Series.find_by_name("ubuntu-rtm/14.09")
+        self.assertEqual("14.09", str(series))
+
+    def test_full_name(self):
+        series = Series.find_by_name("utopic")
+        self.assertEqual("utopic", series.full_name)
+        series = Series.find_by_name("ubuntu-rtm/14.09")
+        self.assertEqual("ubuntu-rtm/14.09", series.full_name)
 
     def test_format(self):
         series = Series.find_by_name("warty")
         self.assertEqual("warty", "%s" % series)
+        series = Series.find_by_name("ubuntu-rtm/14.09")
+        self.assertEqual("14.09", "%s" % series)
 
     def test_is_latest(self):
         self.assertFalse(all_series[0].is_latest)
@@ -81,6 +98,12 @@ class TestSeries(TestCase):
         series = Series.find_by_name("dapper")
         self.assertEqual("6.06.2 LTS", series.displayversion("ubuntu"))
         self.assertEqual("6.06.2", series.displayversion("xubuntu"))
+
+    def test_distribution(self):
+        series = Series.find_by_name("utopic")
+        self.assertEqual("ubuntu", series.distribution)
+        series = Series.find_by_name("ubuntu-rtm/14.09")
+        self.assertEqual("ubuntu-rtm", series.distribution)
 
 
 class TestConfig(TestCase):
@@ -178,6 +201,14 @@ class TestConfig(TestCase):
         self.assertFalse(config.match_series("-oneiric"))
         self.assertFalse(config.match_series("lucid"))
         self.assertTrue(config.match_series("precise"))
+        self.assertFalse(config.match_series("ubuntu-rtm/*"))
+        self.assertFalse(config.match_series("ubuntu-rtm/14.09-"))
+        config["DIST"] = "ubuntu-rtm/14.09"
+        self.assertTrue(config.match_series("*"))
+        self.assertFalse(config.match_series("ubuntu/*"))
+        self.assertFalse(config.match_series("precise-"))
+        self.assertTrue(config.match_series("ubuntu-rtm/*"))
+        self.assertTrue(config.match_series("ubuntu-rtm/14.09-"))
 
     def test_arches_override(self):
         # If ARCHES is set in the environment, it overrides
@@ -238,6 +269,13 @@ class TestConfig(TestCase):
         config = Config(read=False)
         config["SUBPROJECT"] = "wubi"
         self.assertEqual("wubi", config.subproject)
+
+    def test_distribution(self):
+        config = Config(read=False)
+        config["DIST"] = "utopic"
+        self.assertEqual("ubuntu", config.distribution)
+        config["DIST"] = "ubuntu-rtm/14.09"
+        self.assertEqual("ubuntu-rtm", config.distribution)
 
     def test_series(self):
         config = Config(read=False)

@@ -38,36 +38,58 @@ all_series = []
 
 
 class Series(Iterable):
-    def __init__(self, name, version, displayname, **kwargs):
+    def __init__(self, name, version, displayname, distribution="ubuntu",
+                 **kwargs):
         self.name = name
         self.version = version
         self.displayname = displayname
+        self.distribution = distribution
         self._index = None
         for key, value in kwargs.items():
             setattr(self, key, value)
 
     @classmethod
     def find_by_name(self, name):
+        if "/" in name:
+            distribution, name = name.split("/", 1)
+        else:
+            distribution = "ubuntu"
         for series in all_series:
-            if series.name == name:
+            if series.distribution == distribution and series.name == name:
                 return series
         else:
-            raise ValueError("No series named %s" % name)
+            raise ValueError("No series named %s/%s" % (distribution, name))
 
     @classmethod
     def find_by_version(self, version):
+        if "/" in version:
+            distribution, version = version.split("/", 1)
+        else:
+            distribution = "ubuntu"
         for series in all_series:
-            if series.version == version:
+            if (series.distribution == distribution and
+                    series.version == version):
                 return series
         else:
-            raise ValueError("No series with version %s" % version)
+            raise ValueError(
+                "No series with version %s/%s" % (distribution, version))
 
     @classmethod
-    def latest(self):
-        return all_series[-1]
+    def latest(self, distribution="ubuntu"):
+        for series in reversed(all_series):
+            if series.distribution == distribution:
+                return series
+        raise ValueError("No series with distribution %s" % distribution)
 
     def __str__(self):
         return self.name
+
+    @property
+    def full_name(self):
+        if self.distribution == "ubuntu":
+            return self.name
+        else:
+            return "%s/%s" % (self.distribution, self.name)
 
     def __iter__(self):
         yield self.name
@@ -83,7 +105,10 @@ class Series(Iterable):
 
     @property
     def is_latest(self):
-        return self == all_series[-1]
+        for series in reversed(all_series):
+            if self.distribution == series.distribution:
+                return self == series
+        return False
 
     def _compare(self, other, method):
         if not isinstance(other, Series):
@@ -152,6 +177,8 @@ all_series.extend([
     Series("saucy", "13.10", "Saucy Salamander"),
     Series("trusty", "14.04", "Trusty Tahr"),
     Series("utopic", "14.10", "Utopic Unicorn"),
+
+    Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
 ])
 
 all_touch_targets = []
@@ -278,6 +305,13 @@ class Config(defaultdict):
         self._add_package("ubuntu-archive-tools")
 
     def match_series(self, series):
+        if "/" in series:
+            distribution, series = series.split("/", 1)
+            if distribution != self.distribution:
+                return False
+        else:
+            distribution = "ubuntu"
+
         if series == "*":
             return True
         elif "-" in series:
@@ -286,6 +320,8 @@ class Config(defaultdict):
             if not series_start:
                 in_range = True
             for tryseries in all_series:
+                if tryseries.distribution != distribution:
+                    continue
                 if tryseries.name == series_start:
                     in_range = True
                 if tryseries.name == self.series:
@@ -349,6 +385,10 @@ class Config(defaultdict):
     @property
     def subproject(self):
         return self["SUBPROJECT"]
+
+    @property
+    def distribution(self):
+        return self["DIST"].distribution
 
     @property
     def series(self):
