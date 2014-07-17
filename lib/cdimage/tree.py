@@ -3059,11 +3059,12 @@ class ReleasePublisher(Publisher):
             self.do("mkdir -p %s" % pool_dir, osextras.ensuredir, pool_dir)
         if self.want_dist or self.want_full:
             self.do("mkdir -p %s" % target_dir, osextras.ensuredir, target_dir)
-            version_link = self.version_link(source)
-            if not os.path.islink(version_link):
-                self.do(
-                    "ln -ns %s %s" % (series, version_link),
-                    os.symlink, series.name, version_link)
+            if series.name != series.version:
+                version_link = self.version_link(source)
+                if not os.path.islink(version_link):
+                    self.do(
+                        "ln -ns %s %s" % (series, version_link),
+                        os.symlink, series.name, version_link)
         if self.want_dist and not self.config["CDIMAGE_NO_PURGE"]:
             entries = osextras.listdir_force(target_dir)
             for entry in entries:
