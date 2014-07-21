@@ -260,7 +260,8 @@ def live_build_notify_failure(config, arch, lp_build=None):
     try:
         if lp_build is not None:
             if lp_build.build_log_url is None:
-                raise URLError
+                raise URLError(
+                    "Failed build %s has no build_log_url" % lp_build.web_link)
             with closing(urlopen(lp_build.build_log_url, timeout=30)) as comp:
                 with closing(io.BytesIO(comp.read())) as comp_bytes:
                     with closing(GzipFile(fileobj=comp_bytes)) as f:
