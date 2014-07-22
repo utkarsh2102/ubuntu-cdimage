@@ -135,7 +135,8 @@ class Series(Iterable):
 
     def displayversion(self, project):
         version = getattr(self, "pointversion", self.version)
-        if project in getattr(self, "lts_projects", []):
+        if (project in getattr(self, "lts_projects", []) or
+                getattr(self, "all_lts_projects", False)):
             version += " LTS"
         return version
 
@@ -175,7 +176,10 @@ all_series.extend([
     Series("quantal", "12.10", "Quantal Quetzal"),
     Series("raring", "13.04", "Raring Ringtail"),
     Series("saucy", "13.10", "Saucy Salamander"),
-    Series("trusty", "14.04", "Trusty Tahr"),
+    Series(
+        "trusty", "14.04", "Trusty Tahr",
+        pointversion="14.04.1",
+        all_lts_projects=True),
     Series("utopic", "14.10", "Utopic Unicorn"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
