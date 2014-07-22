@@ -30,7 +30,7 @@ kubuntu			daily-live		jaunty			amd64 armel i386 ia64 powerpc
 kubuntu			daily-live		karmic			amd64 armel+dove armel+imx51 i386 ia64 powerpc
 kubuntu			daily-live		lucid			amd64 i386 ia64 powerpc
 kubuntu			daily-live		precise			amd64 i386
-kubuntu			daily-live		*			amd64 amd64+mac i386 powerpc
+kubuntu			daily-live		*			amd64 amd64+mac i386
 
 kubuntu-active		*			*			i386
 
