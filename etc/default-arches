@@ -5,6 +5,7 @@
 
 ubuntu-touch		daily-preinstalled	saucy			armhf
 ubuntu-touch		daily-preinstalled	trusty-			armhf i386
+ubuntu-touch		daily-preinstalled	ubuntu-rtm/*		armhf i386
 
 ubuntu			daily-preinstalled	oneiric			armel+ac100 armel+mx5 armel+omap armel+omap4
 ubuntu			daily-preinstalled	raring			armhf+nexus7
