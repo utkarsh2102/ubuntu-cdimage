@@ -13,8 +13,8 @@ lubuntu			daily-preinstalled	quantal-saucy		armhf+ac100
 *			daily-preinstalled	maverick-oneiric	armel+omap armel+omap4
 ubuntu-server		daily-preinstalled	quantal			armhf+omap4
 
-edubuntu		dvd			quantal-		amd64 armhf+omap4 i386
-edubuntu-dvd		dvd			quantal-		amd64 armhf+omap4 i386
+edubuntu		dvd			quantal-		amd64 i386
+edubuntu-dvd		dvd			quantal-		amd64 i386
 
 ubuntu-core		daily			oneiric			amd64 armel i386
 ubuntu-core		daily			precise			amd64 armhf i386
@@ -30,7 +30,7 @@ kubuntu			daily-live		jaunty			amd64 armel i386 ia64 powerpc
 kubuntu			daily-live		karmic			amd64 armel+dove armel+imx51 i386 ia64 powerpc
 kubuntu			daily-live		lucid			amd64 i386 ia64 powerpc
 kubuntu			daily-live		precise			amd64 i386
-kubuntu			daily-live		*			amd64 amd64+mac armhf+omap4 i386 powerpc
+kubuntu			daily-live		*			amd64 amd64+mac i386 powerpc
 
 kubuntu-active		*			*			i386
 
@@ -46,7 +46,7 @@ ubuntu			daily-live		karmic			amd64 armel+dove armel+imx51 i386 ia64 powerpc pow
 ubuntu			daily-live		lucid			amd64 i386 ia64 powerpc powerpc+ps3
 ubuntu			daily-live		precise			amd64 amd64+mac i386
 ubuntu			daily-live		quantal			amd64 amd64+mac armhf+omap4 i386 powerpc
-ubuntu			daily-live		raring-			amd64 amd64+mac armhf+omap4 i386
+ubuntu			daily-live		raring-			amd64 amd64+mac i386
 
 ubuntu-desktop-next	*			*			amd64 i386
 
