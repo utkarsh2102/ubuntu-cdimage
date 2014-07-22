@@ -212,8 +212,10 @@ def live_build_lp_kwargs(config, lp, lp_livefs, arch):
     if config["PROPOSED"]:
         kwargs["pocket"] = "Proposed"
         metadata_override["proposed"] = True
-    else:
+    elif config["DIST"].is_latest:
         kwargs["pocket"] = "Release"
+    else:
+        kwargs["pocket"] = "Updates"
 
     if config["EXTRA_PPAS"]:
         metadata_override["extra_ppas"] = config["EXTRA_PPAS"].split()
