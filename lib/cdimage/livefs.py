@@ -277,7 +277,7 @@ def live_build_notify_failure(config, arch, lp_build=None):
         body = b""
     subject = "LiveFS %s%s/%s/%s failed to build on %s" % (
         "(built by %s) " % config["SUDO_USER"] if config["SUDO_USER"] else "",
-        livefs_id, config.series, arch, datestamp)
+        livefs_id, config.full_series, arch, datestamp)
     send_mail(subject, "buildlive", recipients, body)
 
 
