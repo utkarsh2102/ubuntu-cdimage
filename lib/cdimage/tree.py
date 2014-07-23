@@ -2254,9 +2254,14 @@ class DailyTreePublisher(Publisher):
             image_bits = image.split("/")
             if len(image_bits) == 3:
                 project, image_type, base = image_bits
+                image_distribution = None
                 image_series = None
-            else:
+            elif len(image_bits) == 4:
                 project, image_series, image_type, base = image_bits
+                image_distribution = None
+            else:
+                project, image_distribution, image_series, image_type, base = (
+                    image_bits)
             base_match = re.match(r"(.*?)-(.*)-(.*)", base)
             if not base_match:
                 continue
@@ -2274,6 +2279,8 @@ class DailyTreePublisher(Publisher):
             # build.
             iso_path_bits = [self.tree.project_base]
             if image_series is not None:
+                if image_distribution is not None:
+                    iso_path_bits.append(image_distribution)
                 iso_path_bits.append(image_series)
             iso_path_bits.extend([image_type, date, base])
             iso_path = os.path.join(*iso_path_bits)
