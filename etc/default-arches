@@ -22,7 +22,7 @@ ubuntu-core		daily			precise			amd64 armhf i386
 ubuntu-core		daily			quantal-raring		amd64 armhf i386 powerpc
 ubuntu-core		daily			saucy			amd64 arm64 armhf i386 powerpc
 ubuntu-core		daily			trusty-			amd64 arm64 armhf i386 powerpc ppc64el
-ubuntu-core		daily-preinstalled	utopic-			amd64
+ubuntu-core-system-image		daily-preinstalled	utopic-			amd64
 *			livecd-base		oneiric-		amd64 i386 powerpc
 
 jeos			*			*			i386
