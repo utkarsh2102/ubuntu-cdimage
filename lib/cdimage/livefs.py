@@ -858,7 +858,7 @@ def download_live_filesystems(config):
                 got_image = True
             else:
                 continue
-            if (series >= "dapper" and 
+            if (series >= "dapper" and
                     (project != "ubuntu-core" or
                         config.image_type == "daily-preinstalled") and
                     not config["CDIMAGE_SQUASHFS_BASE"] and
