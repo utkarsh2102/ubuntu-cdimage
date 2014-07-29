@@ -469,8 +469,13 @@ def build_livecd_base(config):
                 output_dir = os.path.join(scratch_dir, "debian-cd", arch)
                 osextras.ensuredir(output_dir)
                 if config.project == "ubuntu-core":
-                    output_prefix = os.path.join(
-                        output_dir, "%s-core-%s" % (config.series, arch))
+                    if config.image_type == "daily-preinstalled":
+                        output_prefix = os.path.join(
+                            output_dir,
+                            "%s-preinstalled-core-%s" % (config.series, arch))
+                    else:
+                        output_prefix = os.path.join(
+                            output_dir, "%s-core-%s" % (config.series, arch))
                 elif config.project == "ubuntu-touch":
                     output_prefix = os.path.join(
                         output_dir,

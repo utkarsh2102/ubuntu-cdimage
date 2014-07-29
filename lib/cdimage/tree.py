@@ -376,6 +376,8 @@ class Publisher:
                 return "preinstalled-server"
             elif self.project == "ubuntu-touch":
                 return "preinstalled-touch"
+            elif self.project == "ubuntu-core":
+                return "preinstalled-core"
             else:
                 return "preinstalled-desktop"
         elif self.image_type.endswith("-live"):
@@ -521,6 +523,8 @@ class Publisher:
             return "preview preinstalled active image"
         elif publish_type == "preinstalled-touch":
             return "preinstalled touch image"
+        elif publish_type == "preinstalled-core":
+            return "preinstalled core image"
         elif publish_type == "wubi":
             return "Wubi %s" % cd
         else:
@@ -751,7 +755,7 @@ class Publisher:
             sentences.append(
                 "The %s %s allows you to unpack a preinstalled version of %s "
                 "onto a target device." % (publish_type, cd, capproject))
-        elif publish_type == "ubuntu-core":
+        elif publish_type in ("ubuntu-core", "preinstalled-core"):
             sentences.append(
                 "Ubuntu Core is a minimal rootfs for use in the creation of "
                 "custom images for specific needs.")
@@ -1094,7 +1098,7 @@ class Publisher:
             "preinstalled-desktop", "preinstalled-netbook",
             "preinstalled-mobile", "preinstalled-active",
             "preinstalled-headless", "preinstalled-server",
-            "preinstalled-touch", "wubi",
+            "preinstalled-touch", "preinstalled-core", "wubi",
         )
 
         all_arches = (
