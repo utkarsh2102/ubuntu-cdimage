@@ -96,6 +96,8 @@ def project_title(project):
         return 'Ubuntu Headless'
     elif project == 'kubuntu-active':
         return 'Kubuntu Active'
+    elif project == 'kubuntu-plasma5':
+        return 'Kubuntu Plasma 5'
     elif project == 'ubuntu-moblin-remix':
         return 'Ubuntu Moblin Remix'
     else:
@@ -238,6 +240,7 @@ def main():
         'kubuntu-netbook',
         'ubuntu-moblin-remix',
         'kubuntu-active',
+        'kubuntu-plasma5',
         'mythbuntu',
         'lubuntu',
         'ubuntu-gnome',

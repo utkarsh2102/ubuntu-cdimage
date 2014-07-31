@@ -71,7 +71,7 @@ class Germination:
             pattern = "http://bazaar.launchpad.net/~%s/ubuntu-seeds/"
             series = self.config["DIST"]
             sources = [pattern % "ubuntu-core-dev"]
-            if project in ("kubuntu", "kubuntu-active"):
+            if project in ("kubuntu", "kubuntu-active", "kubuntu-plasma5"):
                 if series >= "oneiric":
                     sources.insert(0, pattern % "kubuntu-dev")
             elif project == "ubuntustudio":

@@ -63,6 +63,7 @@ projects = [
     "kubuntu",
     "kubuntu-active",
     "kubuntu-netbook",
+    "kubuntu-plasma5",
     "lubuntu",
     "mythbuntu",
     "ubuntu",
@@ -459,7 +460,7 @@ class Publisher:
             return ""
 
     def cssincludes(self):
-        if self.project == "kubuntu":
+        if self.project in ("kubuntu", "kubuntu-plasma5"):
             return ["http://releases.ubuntu.com/include/kubuntu.css"]
         else:
             return ["http://releases.ubuntu.com/include/style.css"]
@@ -915,7 +916,9 @@ class Publisher:
             return
 
         usb_projects = (
-            "ubuntu-mid", "ubuntu-moblin-remix", "kubuntu", "kubuntu-active")
+            "ubuntu-mid", "ubuntu-moblin-remix",
+            "kubuntu", "kubuntu-active", "kubuntu-plasma5",
+            )
         series = self.config["DIST"]
 
         yield "<br>"
@@ -1139,7 +1142,7 @@ class Publisher:
                 file=header)
             for css in self.cssincludes():
                 print("  @import url(%s);" % css, file=header)
-            if self.project == "kubuntu":
+            if self.project in ("kubuntu", "kubuntu-plasma5"):
                 # TODO: move this into CSS, as done in /include/style.css?
                 print(
                     "<link "
@@ -1666,7 +1669,8 @@ class DailyTreePublisher(Publisher):
             return 4700372992
         elif self.project in (
                 "ubuntu-mid", "ubuntu-moblin-remix",
-                "kubuntu-active", "kubuntu"):
+                "kubuntu", "kubuntu-active", "kubuntu-plasma5",
+                ):
             # Mobile images are designed for USB drives; arbitrarily pick
             # 1GB as a limit.
             return 1024 * 1024 * 1024

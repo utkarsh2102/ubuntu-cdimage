@@ -87,6 +87,7 @@ class TestGermination(TestCase):
             ("kubuntu", "oneiric", ["kubuntu-dev", "ubuntu-core-dev"]),
             ("kubuntu-active", "natty", ["ubuntu-core-dev"]),
             ("kubuntu-active", "oneiric", ["kubuntu-dev", "ubuntu-core-dev"]),
+            ("kubuntu-plasma5", "utopic", ["kubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntustudio", "raring",
              ["ubuntustudio-dev", "ubuntu-core-dev"]),
             ("mythbuntu", "raring", ["mythbuntu-dev", "ubuntu-core-dev"]),

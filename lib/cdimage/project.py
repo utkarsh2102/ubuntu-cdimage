@@ -33,6 +33,7 @@ project_map = {
     "ubuntu-zh_CN": "Ubuntu Chinese Edition",
     "kubuntu": "Kubuntu",
     "kubuntu-active": "Kubuntu-Active",
+    "kubuntu-plasma5": "Kubuntu-Plasma-5",
     "edubuntu": "Edubuntu",
     "xubuntu": "Xubuntu",
     "gobuntu": "Gobuntu",

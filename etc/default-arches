@@ -36,6 +36,8 @@ kubuntu			daily-live		*			amd64 amd64+mac i386
 
 kubuntu-active		*			*			i386
 
+kubuntu-plasma5		daily-live		utopic-			amd64 i386
+
 mythbuntu		*			warty-edgy		amd64 i386 powerpc
 mythbuntu		*			*			amd64 i386
 

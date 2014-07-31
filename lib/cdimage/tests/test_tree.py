@@ -260,6 +260,7 @@ class TestPublisher(TestCase):
             ("daily-live", "edubuntu", "edgy", "live"),
             ("daily-live", "edubuntu", "feisty", "desktop"),
             ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
+            ("daily-live", "kubuntu-plasma5", "utopic", "desktop"),
             ("daily-live", "ubuntu-mid", "lucid", "mid"),
             ("daily-live", "ubuntu-moblin-remix", "lucid", "moblin-remix"),
             ("daily-live", "ubuntu-netbook", "hardy", "netbook"),
@@ -311,6 +312,8 @@ class TestPublisherWebIndices(TestCase):
         for project, expected in (
             ("ubuntu", ["http://releases.ubuntu.com/include/style.css"]),
             ("kubuntu", ["http://releases.ubuntu.com/include/kubuntu.css"]),
+            ("kubuntu-plasma5",
+             ["http://releases.ubuntu.com/include/kubuntu.css"]),
         ):
             self.config["PROJECT"] = project
             publisher = Publisher(self.tree, "daily")
@@ -695,8 +698,9 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntustudio", None, "dvd", "i386", 4700372992),
             ("ubuntu-mid", None, "daily-live", "i386", 1073741824),
             ("ubuntu-moblin-remix", None, "daily-live", "i386", 1073741824),
-            ("kubuntu-active", None, "daily-live", "i386", 1073741824),
             ("kubuntu", None, "daily-live", "i386", 1073741824),
+            ("kubuntu-active", None, "daily-live", "i386", 1073741824),
+            ("kubuntu-plasma5", None, "daily-live", "i386", 1073741824),
             ("ubuntu", None, "dvd", "i386", 4700372992),
             ("ubuntu", "precise", "daily-live", "i386", 736665600),
             ("ubuntu", "quantal", "daily-live", "i386", 801000000),
@@ -1189,6 +1193,7 @@ class TestDailyTreePublisher(TestCase):
             ("kubuntu", "daily", "alternate", "Kubuntu Alternate"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
+            ("kubuntu-plasma5", "daily-live", "desktop", "Kubuntu Plasma 5"),
             ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
             ("xubuntu", "daily", "alternate", "Xubuntu Alternate"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
@@ -1252,6 +1257,7 @@ class TestDailyTreePublisher(TestCase):
             ("kubuntu", "daily", "alternate", "Kubuntu Alternate"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
+            ("kubuntu-plasma5", "daily-live", "desktop", "Kubuntu Plasma 5"),
             ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
             ("xubuntu", "daily", "alternate", "Xubuntu Alternate"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),

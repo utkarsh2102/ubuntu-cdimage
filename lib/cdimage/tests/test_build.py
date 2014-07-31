@@ -443,6 +443,7 @@ class TestBuildImageSet(TestCase):
             ("kubuntu", "precise", False, False),
             ("kubuntu", "quantal", False, True),
             ("kubuntu-active", "raring", False, True),
+            ("kubuntu-plasma5", "utopic", False, True),
             ("ubuntustudio", "raring", False, True),
             ("mythbuntu", "raring", False, True),
             ("lubuntu", "raring", False, True),
