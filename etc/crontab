@@ -46,6 +46,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 32 4 * * *	for-project ubuntu-core cron.daily-live --live
 56 4 * * *	SUBPROJECT=system-image for-project ubuntu-core cron.daily-preinstalled --live
 22 0 * * *	for-project kubuntu-active cron.daily-live --live
+17 22 * * *	for-project kubuntu-plasma5 cron.daily-live --live
 # preinstalled armhf images
 #35 1 * * *	for-project lubuntu cron.daily-preinstalled --live
 # No Kubuntu Active on ARM until we know it works, jriddell 2012-02
