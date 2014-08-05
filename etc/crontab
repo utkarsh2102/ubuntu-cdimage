@@ -28,7 +28,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 29 9 * * *	DIST=trusty for-project mythbuntu cron.daily-live --live
 29 15 * * *	DIST=trusty for-project lubuntu cron.daily; DIST=trusty for-project lubuntu cron.daily-live --live
 32 3 * * *	DIST=trusty for-project ubuntu-core cron.daily-live --live
-22 23 * * *	DIST=trusty for-project kubuntu-active cron.daily-live --live
 14 21 * * *	DIST=trusty for-project ubuntukylin cron.daily-live --live
 32 14 * * *	DIST=trusty for-project ubuntu-gnome cron.daily-live --live
 # regular utopic daily builds
@@ -45,12 +44,9 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 6 4 * * *	for-project livecd-base cron.daily-live --live
 32 4 * * *	for-project ubuntu-core cron.daily-live --live
 56 4 * * *	SUBPROJECT=system-image for-project ubuntu-core cron.daily-preinstalled --live
-22 0 * * *	for-project kubuntu-active cron.daily-live --live
 17 22 * * *	for-project kubuntu-plasma5 cron.daily-live --live
 # preinstalled armhf images
 #35 1 * * *	for-project lubuntu cron.daily-preinstalled --live
-# No Kubuntu Active on ARM until we know it works, jriddell 2012-02
-#45 8 * * *	for-project kubuntu-active cron.daily-preinstalled --live
 14 22 * * *	for-project ubuntukylin cron.daily-live --live
 32 15 * * *	for-project ubuntu-gnome cron.daily-live --live
 
