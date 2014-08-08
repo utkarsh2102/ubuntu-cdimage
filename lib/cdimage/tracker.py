@@ -55,10 +55,10 @@ def tracker_set_rebuild_status(config, current_state, new_state,
 
     # Iterate through the trackers and set the new status
     for instance, products in qa_products.items():
-        tracker = ISOTracker(target="%s-%s" % (instance, config.series))
+        tracker = ISOTracker(target="%s-%s" % (instance, config.full_series))
 
         for rebuild in tracker.qatracker.get_rebuilds(current_state):
-            if rebuild.series_title.lower() != config.series:
+            if rebuild.series_title.lower() != config.full_series:
                 continue
 
             if rebuild.product_title in products:
