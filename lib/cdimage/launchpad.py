@@ -23,7 +23,6 @@ from collections import defaultdict, Mapping
 
 try:
     from launchpadlib.launchpad import Launchpad
-    from lazr.restfulclient.errors import NotFound
     from lazr.restfulclient.resource import Resource
     launchpad_available = True
 except ImportError:
@@ -121,7 +120,7 @@ class _CachingLiveFS(Resource):
                     self._current_build_cache[archtag][unique_key] = build
                     break
             else:
-                raise NotFound("No successful builds found")
+                raise Exception("No successful builds found")
         return self._current_build_cache[archtag][unique_key]
 
 
