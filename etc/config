@@ -24,7 +24,7 @@ export IMAGE_FORMAT
 DIST="${DIST:-utopic}"
 
 case $DIST in
-	trusty)
+	precise|trusty)
 		export PROPOSED=1
 		;;
 esac
