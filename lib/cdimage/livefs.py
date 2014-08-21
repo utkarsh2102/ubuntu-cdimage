@@ -127,7 +127,7 @@ def live_build_options(config, arch):
     if config.subproject == "wubi":
         if config["DIST"] >= "quantal":
             # TODO: Turn this back on once Wubi's resize2fs supports it.
-            #options.extend(["-f", "ext4"])
+            # options.extend(["-f", "ext4"])
             options.extend(["-f", "ext3"])
         else:
             options.extend(["-f", "ext3"])
@@ -953,9 +953,9 @@ def download_live_filesystems(config):
         for arch in config.arches:
             if arch in ("amd64", "i386"):
                 # TODO: Disabled for raring (LP: #1154601)
-                #if series >= "raring":
-                #    # Fetch the Ubuntu Server squashfs for Edubuntu Server.
-                #    download_live_items(config, arch, "server-squashfs")
+                # if series >= "raring":
+                #     # Fetch the Ubuntu Server squashfs for Edubuntu Server.
+                #     download_live_items(config, arch, "server-squashfs")
 
                 # Fetch the i386 LTSP chroot for Edubuntu Terminal Server.
                 download_live_items(config, arch, "ltsp-squashfs")

@@ -460,9 +460,9 @@ class Publisher:
             return ""
 
     def cssincludes(self):
-        if self.project=="kubuntu":
+        if self.project == "kubuntu":
             return ["http://releases.ubuntu.com/include/kubuntu.css"]
-        if self.project=="kubuntu-plasma5":
+        if self.project == "kubuntu-plasma5":
             return ["http://releases.ubuntu.com/include/kubuntu-plasma5.css"]
         else:
             return ["http://releases.ubuntu.com/include/style.css"]
@@ -1147,7 +1147,7 @@ class Publisher:
             print(dedent("""\
                 body { margin: 2em; }
                 </style>
-                """))
+                """), file=header)
             if self.project in ("kubuntu"):
                 print(
                     "<link "
