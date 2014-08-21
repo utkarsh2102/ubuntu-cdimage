@@ -460,8 +460,10 @@ class Publisher:
             return ""
 
     def cssincludes(self):
-        if self.project in ("kubuntu", "kubuntu-plasma5"):
+        if self.project in ("kubuntu"):
             return ["http://releases.ubuntu.com/include/kubuntu.css"]
+        if self.project in ("kubuntu-plasma5"):
+            return ["http://releases.ubuntu.com/include/kubuntu-plasma5.css"]
         else:
             return ["http://releases.ubuntu.com/include/style.css"]
 
@@ -1142,8 +1144,11 @@ class Publisher:
                 file=header)
             for css in self.cssincludes():
                 print("  @import url(%s);" % css, file=header)
-            if self.project in ("kubuntu", "kubuntu-plasma5"):
-                # TODO: move this into CSS, as done in /include/style.css?
+            print(dedent("""\
+                body { margin: 2em; }
+                </style>
+                """))
+            if self.project in ("kubuntu"):
                 print(
                     "<link "
                     "href='http://fonts.googleapis.com/css?family=Ubuntu' "
@@ -1152,9 +1157,17 @@ class Publisher:
                     "<link rel=\"icon\" type=\"image/png\" "
                     "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
                     "favicon.ico\">", file=header)
+            if self.project in ("kubuntu-plasma5"):
+                print(
+                    "<link "
+                    "href='http://fonts.googleapis.com/css?family=Oxygen' "
+                    "rel='stylesheet' type='text/css'>", file=header)
+            if self.project in ("kubuntu", "kubuntu-plasma5"):
+                print(
+                    "<link rel=\"icon\" type=\"image/png\" "
+                    "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
+                    "favicon.ico\">", file=header)
             print(dedent("""\
-                body { margin: 2em; }
-                </style>
                 </head>
                 <body><div id="pageWrapper">
 
@@ -1669,11 +1682,15 @@ class DailyTreePublisher(Publisher):
             return 4700372992
         elif self.project in (
                 "ubuntu-mid", "ubuntu-moblin-remix",
-                "kubuntu", "kubuntu-active", "kubuntu-plasma5",
                 ):
             # Mobile images are designed for USB drives; arbitrarily pick
             # 1GB as a limit.
             return 1024 * 1024 * 1024
+        elif self.project in (
+                "kubuntu", "kubuntu-active", "kubuntu-plasma5",
+                ):
+            # 1.2GB artitary limit, set jriddell 2014-08-21
+            return (1024 * 1024 * 1024) + (1024 * 200)
         elif (self.project == "ubuntu" and self.publish_type != "dvd" and
               self.config["DIST"] >= "quantal"):
             # Ubuntu quantal onward has a succession of arbitrary limits.
