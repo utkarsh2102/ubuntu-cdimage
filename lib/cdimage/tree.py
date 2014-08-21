@@ -1689,7 +1689,7 @@ class DailyTreePublisher(Publisher):
         elif self.project in (
                 "kubuntu", "kubuntu-active", "kubuntu-plasma5",
                 ):
-            # 1.2GB artitary limit, set jriddell 2014-08-21
+            # 1.2GB arbitrary limit, set jriddell 2014-08-21
             return (1024 * 1024 * 1024) + (1024 * 1024 * 200)
         elif (self.project == "ubuntu" and self.publish_type != "dvd" and
               self.config["DIST"] >= "quantal"):
