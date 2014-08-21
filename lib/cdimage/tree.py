@@ -460,9 +460,9 @@ class Publisher:
             return ""
 
     def cssincludes(self):
-        if self.project in ("kubuntu"):
+        if self.project=="kubuntu":
             return ["http://releases.ubuntu.com/include/kubuntu.css"]
-        if self.project in ("kubuntu-plasma5"):
+        if self.project=="kubuntu-plasma5":
             return ["http://releases.ubuntu.com/include/kubuntu-plasma5.css"]
         else:
             return ["http://releases.ubuntu.com/include/style.css"]
@@ -1690,7 +1690,7 @@ class DailyTreePublisher(Publisher):
                 "kubuntu", "kubuntu-active", "kubuntu-plasma5",
                 ):
             # 1.2GB artitary limit, set jriddell 2014-08-21
-            return (1024 * 1024 * 1024) + (1024 * 200)
+            return (1024 * 1024 * 1024) + (1024 * 1024 * 200)
         elif (self.project == "ubuntu" and self.publish_type != "dvd" and
               self.config["DIST"] >= "quantal"):
             # Ubuntu quantal onward has a succession of arbitrary limits.

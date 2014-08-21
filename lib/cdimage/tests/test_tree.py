@@ -313,7 +313,7 @@ class TestPublisherWebIndices(TestCase):
             ("ubuntu", ["http://releases.ubuntu.com/include/style.css"]),
             ("kubuntu", ["http://releases.ubuntu.com/include/kubuntu.css"]),
             ("kubuntu-plasma5",
-             ["http://releases.ubuntu.com/include/kubuntu.css"]),
+             ["http://releases.ubuntu.com/include/kubuntu-plasma5.css"]),
         ):
             self.config["PROJECT"] = project
             publisher = Publisher(self.tree, "daily")
@@ -698,9 +698,9 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntustudio", None, "dvd", "i386", 4700372992),
             ("ubuntu-mid", None, "daily-live", "i386", 1073741824),
             ("ubuntu-moblin-remix", None, "daily-live", "i386", 1073741824),
-            ("kubuntu", None, "daily-live", "i386", 1073741824),
-            ("kubuntu-active", None, "daily-live", "i386", 1073741824),
-            ("kubuntu-plasma5", None, "daily-live", "i386", 1073741824),
+            ("kubuntu", None, "daily-live", "i386", 1283457024),
+            ("kubuntu-active", None, "daily-live", "i386", 1283457024),
+            ("kubuntu-plasma5", None, "daily-live", "i386", 1283457024),
             ("ubuntu", None, "dvd", "i386", 4700372992),
             ("ubuntu", "precise", "daily-live", "i386", 736665600),
             ("ubuntu", "quantal", "daily-live", "i386", 801000000),
