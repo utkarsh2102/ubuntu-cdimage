@@ -97,6 +97,8 @@ class TestGermination(TestCase):
             ("ubuntu-gnome", "raring",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
             ("ubuntu-moblin-remix", "hardy", ["moblin", "ubuntu-core-dev"]),
+            ("ubuntukylin", "utopic",
+             ["ubuntukylin-members", "ubuntu-core-dev"])
         ):
             self.config["DIST"] = series
             sources = [
