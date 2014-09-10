@@ -97,8 +97,9 @@ class TestGermination(TestCase):
             ("ubuntu-gnome", "raring",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
             ("ubuntu-moblin-remix", "hardy", ["moblin", "ubuntu-core-dev"]),
+            ("ubuntukylin", "trusty", ["ubuntu-core-dev"]),
             ("ubuntukylin", "utopic",
-             ["ubuntukylin-members", "ubuntu-core-dev"])
+             ["ubuntukylin-members", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
             sources = [
@@ -178,6 +179,7 @@ class TestGermination(TestCase):
             ("jeos", "breezy", "jeos.breezy"),
             ("jeos", "hardy", "ubuntu.hardy"),
             ("ubuntukylin", "raring", "ubuntu.raring"),
+            ("ubuntukylin", "utopic", "ubuntukylin.utopic"),
             ("ubuntu-mid", "hardy", "mobile.hardy"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
             ("ubuntu-headless", "lucid", "ubuntu.lucid"),
