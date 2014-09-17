@@ -881,7 +881,8 @@ def download_live_filesystems(config):
 
             if (project not in ("livecd-base", "ubuntu-core",
                                 "kubuntu-active") and
-                    (project != "edubuntu" or series >= "precise")):
+                    (project != "edubuntu" or series >= "precise") and
+                    (project != "ubuntukylin" or series < "utopic")):
                 if series <= "feisty":
                     pass
                 elif series <= "intrepid":
