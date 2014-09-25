@@ -27,8 +27,8 @@ Kubuntu Desktop amd64+mac					kubuntu			daily-live			desktop					amd64+mac		iso
 Kubuntu Desktop armhf+omap4					kubuntu			daily-live			desktop					armhf+omap4		iso
 Kubuntu Desktop i386						kubuntu			daily-live			desktop					i386			iso
 Kubuntu Desktop powerpc						kubuntu			daily-live			desktop					powerpc			iso
-Kubuntu Plasma 5 amd64						kubuntu-plasma5		daily-live			desktop					amd64			iso
-Kubuntu Plasma 5 i386						kubuntu-plasma5		daily-live			desktop					i386			iso
+Kubuntu Plasma 5 Desktop amd64				kubuntu-plasma5		daily-live			desktop					amd64			iso
+Kubuntu Plasma 5 Desktop i386				kubuntu-plasma5		daily-live			desktop					i386			iso
 
 # Lubuntu
 Lubuntu Alternate amd64						lubuntu			daily				alternate				amd64			iso
