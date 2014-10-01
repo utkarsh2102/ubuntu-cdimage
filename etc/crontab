@@ -43,7 +43,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live
 6 4 * * *	for-project livecd-base cron.daily-live --live
 32 4 * * *	for-project ubuntu-core cron.daily-live --live
-56 4 * * *	SUBPROJECT=system-image for-project ubuntu-core cron.daily-preinstalled --live
+56 4 * * *	SUBPROJECT=system-image EXTRA_PPAS=ubuntu-foundations-team/ubuntu-core-system-image for-project ubuntu-core cron.daily-preinstalled --live
 17 22 * * *	for-project kubuntu-plasma5 cron.daily-live --live
 # preinstalled armhf images
 #35 1 * * *	for-project lubuntu cron.daily-preinstalled --live
