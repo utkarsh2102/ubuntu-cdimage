@@ -874,8 +874,6 @@ def download_live_filesystems(config):
             if not download_live_items(config, arch, "manifest-remove"):
                 download_live_items(config, arch, "manifest-desktop")
             download_live_items(config, arch, "size")
-            if project == "ubuntu-touch":
-                download_live_items(config, arch, "custom.tar.gz")
 
             if (config["UBUNTU_DEFAULTS_LOCALE"] or
                     config["CDIMAGE_PREINSTALLED"] or
@@ -947,6 +945,7 @@ def download_live_filesystems(config):
                 download_live_items(
                     config, arch, systemimg
                 )
+            download_live_items(config, arch, "custom.tar.gz")
 
     if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and
             series <= "hardy"):
