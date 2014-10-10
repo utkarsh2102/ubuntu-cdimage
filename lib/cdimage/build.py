@@ -490,6 +490,10 @@ def build_livecd_base(config):
                     osextras.link_force(
                         "%s.raw" % output_prefix, "%s.tar.gz" % output_prefix)
                     add_android_support(config, arch, output_dir)
+                    custom = "%s.custom.tar.gz" % live_prefix
+                    if os.path.exists(custom):
+                        shutil.copy2(
+                            custom, "%s.custom.tar.gz" % output_prefix)
 
 
 def _debootstrap_script(config):

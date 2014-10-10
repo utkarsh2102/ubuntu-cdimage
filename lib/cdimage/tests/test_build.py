@@ -288,6 +288,7 @@ class TestBuildLiveCDBase(TestCase):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
                     target.endswith(".rootfs.tar.gz") or
+                    target.endswith(".custom.tar.gz") or
                     target.endswith(".img")):
                 touch(target)
             else:
@@ -324,7 +325,9 @@ class TestBuildLiveCDBase(TestCase):
             "saucy-preinstalled-touch-armhf.manifest",
             "saucy-preinstalled-touch-armhf.raw",
             "saucy-preinstalled-touch-armhf.type",
-            "saucy-preinstalled-touch-armhf.tar.gz"])
+            "saucy-preinstalled-touch-armhf.tar.gz",
+            "saucy-preinstalled-touch-armhf.custom.tar.gz",
+            ])
         self.assertCountEqual(touch_files, os.listdir(output_dir))
         with open(os.path.join(
             output_dir, "saucy-preinstalled-touch-armhf.type")

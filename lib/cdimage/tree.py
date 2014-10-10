@@ -468,7 +468,7 @@ class Publisher:
             return ["http://releases.ubuntu.com/include/style.css"]
 
     def cdtypestr(self, publish_type, image_format):
-        if image_format in ("tar.gz", "tar.xz"):
+        if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
         elif self.config["DIST"] < "quantal":
             if image_format in ("img", "img.gz"):
@@ -557,7 +557,7 @@ class Publisher:
             else:
                 desktop_ram = 384
 
-        if image_format in ("tar.gz", "tar.xz"):
+        if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
         elif self.config["DIST"] < "quantal":
             if image_format in ("img", "img.gz"):
@@ -990,7 +990,7 @@ class Publisher:
             return "UEC initramfs image"
         elif extension == "img.tar.gz":
             return "UEC/EC2 filesystem image"
-        elif extension == "tar.gz":
+        elif extension in ("tar.gz", "custom.tar.gz"):
             if self.project in ("server-uec", "uec"):
                 return "Cloud Images tarball"
             else:
@@ -1245,7 +1245,7 @@ class Publisher:
 
                     for image_format in (
                         "iso", "img", "img.gz", "img.tar.gz", "tar.gz",
-                        "tar.xz",
+                        "tar.xz", "custom.tar.gz",
                     ):
                         paths = []
                         if image_format == "img":
@@ -1364,7 +1364,7 @@ class Publisher:
                                     "jigdo", "list", "manifest",
                                     "manifest-desktop", "manifest-remove",
                                     "template", "tar.gz", "tar.gz.zsync",
-                                    "bootimg", "tar.xz",
+                                    "bootimg", "tar.xz", "custom.tar.gz",
                                 )
                             for extension in htaccess_extensions:
                                 extpath = "%s.%s" % (base, extension)
@@ -2927,7 +2927,7 @@ class ReleasePublisher(Publisher):
 
         # Copy, to make sure we have a canonical version of this.
         artifacts = ["iso", "list", "img", "img.gz", "tar.gz", "img.tar.gz",
-                     "tar.xz", "bootimg"]
+                     "tar.xz", "bootimg", "custom.tar.gz"]
         for ext in artifacts:
             if not os.path.exists(daily(ext)):
                 continue
