@@ -625,7 +625,8 @@ def live_item_paths(config, arch, item):
 
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
-        "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "tar.xz", "iso",
+        "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "custom.tar.gz",
+        "tar.xz", "iso",
     ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
@@ -873,6 +874,8 @@ def download_live_filesystems(config):
             if not download_live_items(config, arch, "manifest-remove"):
                 download_live_items(config, arch, "manifest-desktop")
             download_live_items(config, arch, "size")
+            if project == "ubuntu-touch":
+                download_live_items(config, arch, "custom.tar.gz"):
 
             if (config["UBUNTU_DEFAULTS_LOCALE"] or
                     config["CDIMAGE_PREINSTALLED"] or
