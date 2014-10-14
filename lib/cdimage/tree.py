@@ -1895,6 +1895,12 @@ class DailyTreePublisher(Publisher):
                         os.path.join(source_dir, image),
                         os.path.join(target_dir, image))
 
+        if os.path.exists("%s.custom.tar.gz" % source_prefix):
+            logger.info("Publishing %s custom tarball ..." % arch)
+            shutil.move(
+                "%s.custom.tar.gz" % source_prefix,
+                "%s.custom.tar.gz" % target_prefix)
+
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):
             logger.info("Making %s zsync metafile ..." % arch)
