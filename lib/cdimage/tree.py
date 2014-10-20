@@ -1148,7 +1148,7 @@ class Publisher:
                 body { margin: 2em; }
                 </style>
                 """), file=header)
-            if self.project in ("kubuntu"):
+            if self.project == "kubuntu":
                 print(
                     "<link "
                     "href='http://fonts.googleapis.com/css?family=Ubuntu' "
@@ -1157,7 +1157,7 @@ class Publisher:
                     "<link rel=\"icon\" type=\"image/png\" "
                     "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
                     "favicon.ico\">", file=header)
-            if self.project in ("kubuntu-plasma5"):
+            if self.project == "kubuntu-plasma5":
                 print(
                     "<link "
                     "href='http://fonts.googleapis.com/css?family=Oxygen' "
