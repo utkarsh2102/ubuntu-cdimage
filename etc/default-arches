@@ -32,7 +32,8 @@ kubuntu			daily-live		jaunty			amd64 armel i386 ia64 powerpc
 kubuntu			daily-live		karmic			amd64 armel+dove armel+imx51 i386 ia64 powerpc
 kubuntu			daily-live		lucid			amd64 i386 ia64 powerpc
 kubuntu			daily-live		precise			amd64 i386
-kubuntu			daily-live		*			amd64 amd64+mac i386
+kubuntu			daily-live		trusty			amd64 amd64+mac i386
+kubuntu			daily-live		utopic-			amd64 i386
 
 kubuntu-active		*			*			i386
 
@@ -50,7 +51,8 @@ ubuntu			daily-live		karmic			amd64 armel+dove armel+imx51 i386 ia64 powerpc pow
 ubuntu			daily-live		lucid			amd64 i386 ia64 powerpc powerpc+ps3
 ubuntu			daily-live		precise			amd64 amd64+mac i386
 ubuntu			daily-live		quantal			amd64 amd64+mac armhf+omap4 i386 powerpc
-ubuntu			daily-live		raring-			amd64 amd64+mac i386
+ubuntu			daily-live		raring-trusty		amd64 amd64+mac i386
+ubuntu			daily-live		utopic-			amd64 i386
 
 ubuntu-desktop-next	*			*			amd64 i386
 
@@ -70,7 +72,8 @@ ubuntu-server		*			maverick		amd64 amd64+mac armel+dove armel+omap armel+omap4 i
 ubuntu-server		*			natty-oneiric		amd64 amd64+mac armel+dove armel+omap armel+omap4 i386 powerpc
 ubuntu-server		*			precise			amd64 i386
 ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc
-ubuntu-server		*			trusty-			amd64 amd64+mac i386 powerpc ppc64el
+ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
+ubuntu-server		*			utopic-			amd64 i386 powerpc ppc64el
 
 ubuntu-wubi		*			*			amd64 i386
 
@@ -102,4 +105,5 @@ xubuntu			*			natty-			amd64 i386
 *			*			karmic			amd64 i386 ia64 lpia powerpc powerpc+ps3 sparc
 *			*			lucid			amd64 i386 ia64 powerpc powerpc+ps3 sparc
 *			*			maverick		amd64 amd64+mac i386 powerpc powerpc+ps3
-*			*			*			amd64 amd64+mac i386 powerpc
+*			*			natty-trusty		amd64 amd64+mac i386 powerpc
+*			*			*			amd64 i386 powerpc
