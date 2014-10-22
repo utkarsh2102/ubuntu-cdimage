@@ -110,7 +110,7 @@ def main():
         env['DIST'] = entries[0][0].series_title.lower()
         cmd = ["for-project", entry[1], "cron.%s" % entry[2]]
 
-        if build_type not in ("daily") or entry[1] in ("ubuntu-core"):
+        if build_type != "daily" or entry[1] == "ubuntu-core":
             cmd += ["--live"]
 
         if options.dry_run:
