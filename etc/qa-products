@@ -50,12 +50,12 @@ Ubuntu Chinese Desktop amd64				ubuntu-zh_CN	daily-live			desktop					amd64			lo
 Ubuntu Chinese Desktop i386					ubuntu-zh_CN	daily-live			desktop					i386			localized-iso-china
 
 # Ubuntu Core
-Ubuntu Core amd64							ubuntu-core		daily				core					amd64			iso
-Ubuntu Core arm64							ubuntu-core		daily				core					arm64			iso
-Ubuntu Core armhf							ubuntu-core		daily				core					armhf			iso
-Ubuntu Core i386							ubuntu-core		daily				core					i386			iso
-Ubuntu Core powerpc							ubuntu-core		daily				core					powerpc			iso
-Ubuntu Core ppc64el							ubuntu-core		daily				core					ppc64el			iso
+Ubuntu Core amd64							ubuntu-core		daily-live			core					amd64			iso
+Ubuntu Core arm64							ubuntu-core		daily-live			core					arm64			iso
+Ubuntu Core armhf							ubuntu-core		daily-live			core					armhf			iso
+Ubuntu Core i386							ubuntu-core		daily-live			core					i386			iso
+Ubuntu Core powerpc							ubuntu-core		daily-live			core					powerpc			iso
+Ubuntu Core ppc64el							ubuntu-core		daily-live			core					ppc64el			iso
 
 # Ubuntu Desktop 
 Ubuntu Desktop amd64						ubuntu			daily-live			desktop					amd64			iso
