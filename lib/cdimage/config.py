@@ -181,6 +181,7 @@ all_series.extend([
         pointversion="14.04.1",
         all_lts_projects=True),
     Series("utopic", "14.10", "Utopic Unicorn"),
+    Series("vivid", "15.04", "Vivid Vervet"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
 ])

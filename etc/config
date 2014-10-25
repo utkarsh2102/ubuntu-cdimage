@@ -21,7 +21,7 @@ case $PROJECT in
 		;;
 esac
 export IMAGE_FORMAT
-DIST="${DIST:-utopic}"
+DIST="${DIST:-vivid}"
 
 case $DIST in
 	precise|trusty)
