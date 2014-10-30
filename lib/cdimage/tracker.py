@@ -17,6 +17,9 @@
 
 """QATracker integration functions."""
 
+import xmlrpclib
+
+from cdimage.log import logger
 from cdimage.tree import Publisher, Tree
 
 
@@ -55,7 +58,12 @@ def tracker_set_rebuild_status(config, current_state, new_state,
 
     # Iterate through the trackers and set the new status
     for instance, products in qa_products.items():
-        tracker = ISOTracker(target="%s-%s" % (instance, config.full_series))
+        try:
+            tracker = ISOTracker(
+                target="%s-%s" % (instance, config.full_series))
+        except xmlrpclib.Error as e:
+            logger.warning("Unable to contact tracker: %s" % e)
+            continue
 
         for rebuild in tracker.qatracker.get_rebuilds(current_state):
             if rebuild.series_title.lower() != config.full_series:
