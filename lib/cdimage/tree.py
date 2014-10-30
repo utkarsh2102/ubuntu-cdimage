@@ -2325,9 +2325,9 @@ class DailyTreePublisher(Publisher):
                     "<strong>WARNING: This image is OVERSIZED. This should "
                     "never happen during milestone testing.</strong>")
 
-            if tracker is None or tracker.target != target:
-                tracker = ISOTracker(target=target)
             try:
+                if tracker is None or tracker.target != target:
+                    tracker = ISOTracker(target=target)
                 tracker.post_build(product[0], date, note=note)
             except Exception:
                 traceback.print_exc()
