@@ -494,7 +494,7 @@ def build_livecd_base(config):
                     if os.path.exists(custom):
                         shutil.copy2(
                             custom, "%s.custom.tar.gz" % output_prefix)
-                if config.project == "ubuntu-device":
+                if config.project == "ubuntu-core":
                     device = "%s.device.tar.gz" % live_prefix
                     if os.path.exists(device):
                         shutil.copy2(
