@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2012, 2013 Canonical Ltd.
 # Author: Colin Watson <cjwatson@ubuntu.com>
@@ -1901,6 +1901,12 @@ class DailyTreePublisher(Publisher):
                 "%s.custom.tar.gz" % source_prefix,
                 "%s.custom.tar.gz" % target_prefix)
 
+        if os.path.exists("%s.device.tar.gz" % source_prefix):
+            logger.info("Publishing %s device tarball ..." % arch)
+            shutil.move(
+                "%s.device.tar.gz" % source_prefix,
+                "%s.device.tar.gz" % target_prefix)
+
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):
             logger.info("Making %s zsync metafile ..." % arch)
@@ -2933,7 +2939,7 @@ class ReleasePublisher(Publisher):
 
         # Copy, to make sure we have a canonical version of this.
         artifacts = ["iso", "list", "img", "img.gz", "tar.gz", "img.tar.gz",
-                     "tar.xz", "bootimg", "custom.tar.gz"]
+                     "tar.xz", "bootimg", "custom.tar.gz", "device.tar.gz"]
         for ext in artifacts:
             if not os.path.exists(daily(ext)):
                 continue
