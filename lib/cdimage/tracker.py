@@ -17,7 +17,10 @@
 
 """QATracker integration functions."""
 
-import xmlrpclib
+try:
+    import xmlrpc.client as xmlrpclib
+except ImportError:
+    import xmlrpclib
 
 from cdimage.log import logger
 from cdimage.tree import Publisher, Tree
