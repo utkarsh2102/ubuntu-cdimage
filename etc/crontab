@@ -6,18 +6,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # CD image cron jobs, run out of cdimage's crontab.
 
-# precise daily builds
-31 8 * * *	DIST=precise for-project ubuntu cron.daily; DIST=precise for-project ubuntu cron.daily-live --live
-29 9 * * *	DIST=precise for-project ubuntu-server cron.daily
-45 9 * * *	DIST=precise for-project ubuntu-core cron.daily-live --live
-56 21 * * *	DIST=precise SUBPROJECT=wubi for-project ubuntu cron.daily-live --live
-34 14 * * 2,6	DIST=precise for-project ubuntu cron.dvd --live
-19 19 * * *	DIST=precise for-project edubuntu cron.dvd --live
-28 11 * * *	DIST=precise for-project kubuntu cron.daily; DIST=precise for-project kubuntu cron.daily-live --live
-21 20 * * *	DIST=precise for-project mythbuntu cron.daily-live --live
-34 20 * * *	DIST=precise for-project ubuntustudio cron.dvd --live
-5 21 * * *	DIST=precise for-project xubuntu cron.daily; DIST=precise for-project xubuntu cron.daily-live --live
-30 12 * * *	DIST=precise UBUNTU_DEFAULTS_LOCALE=zh_CN for-project ubuntu cron.daily-live --live
 # trusty daily builds
 31 6 * * *	DIST=trusty for-project ubuntu cron.daily-live --live
 14 4 * * *	DIST=trusty for-project kubuntu cron.daily-live --live
