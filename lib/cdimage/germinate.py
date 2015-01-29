@@ -85,6 +85,8 @@ class Germination:
                 sources.insert(0, pattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
                 sources.insert(0, pattern % "ubuntu-gnome-dev")
+            elif project == "ubuntu-mate":
+                sources.insert(0, pattern % "ubuntu-mate-dev")
             elif project == "ubuntu-moblin-remix":
                 sources.insert(0, pattern % "moblin")
             elif project == "ubuntukylin":

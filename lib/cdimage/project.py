@@ -47,6 +47,7 @@ project_map = {
     "lubuntu": "Lubuntu",
     "ubuntukylin": "Ubuntu-Kylin",
     "ubuntu-gnome": "Ubuntu-GNOME",
+    "ubuntu-mate": "Ubuntu-MATE",
     "ubuntu-moblin-remix": "Ubuntu-Moblin-Remix",
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu-Core",

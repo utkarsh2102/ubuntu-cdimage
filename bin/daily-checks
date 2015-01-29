@@ -244,6 +244,7 @@ def main():
         'mythbuntu',
         'lubuntu',
         'ubuntu-gnome',
+        'ubuntu-mate',
         'ubuntukylin',
         )
     if not options.series:
