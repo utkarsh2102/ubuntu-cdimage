@@ -184,6 +184,9 @@ all_series.extend([
     Series("vivid", "15.04", "Vivid Vervet"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
+    Series(
+        "14.09-factory", "14.09.1", "RTM 14.09-factory",
+        distribution="ubuntu-rtm"),
 ])
 
 all_touch_targets = []
