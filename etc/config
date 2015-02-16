@@ -25,7 +25,7 @@ DIST="${DIST:-vivid}"
 
 case $DIST in
 	trusty)
-		export PROPOSED=1
+		#export PROPOSED=1
 		;;
 esac
 
