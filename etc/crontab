@@ -44,6 +44,5 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 */15 * * * *	mirror-image-build-logs
 
 # Self-rebuilds
-#*/5 * * * *	rebuild-requests -b -q precise iso
 */5 * * * *	rebuild-requests -b -q trusty iso
 */5 * * * *	rebuild-requests -b -q vivid iso
