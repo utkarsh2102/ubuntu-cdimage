@@ -24,7 +24,7 @@ export IMAGE_FORMAT
 DIST="${DIST:-vivid}"
 
 case $DIST in
-	precise|trusty)
+	trusty)
 		export PROPOSED=1
 		;;
 esac
