@@ -69,6 +69,7 @@ projects = [
     "ubuntu",
     "ubuntu-desktop-next",
     "ubuntu-gnome",
+    "ubuntu-mate",
     "ubuntu-headless",
     "ubuntu-netbook",
     "ubuntu-server",
@@ -1710,6 +1711,8 @@ class DailyTreePublisher(Publisher):
             return 1024 * 1024 * 1024
         elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
+            return 1024 * 1024 * 1024
+        elif self.project == "ubuntu-mate":
             return 1024 * 1024 * 1024
         else:
             if self.publish_type == "dvd":
