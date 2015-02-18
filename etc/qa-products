@@ -1,21 +1,5 @@
 # QA PRODUCT								PROJECT		IMAGE_TYPE		PUBLISH_TYPE					ARCHITECTURE	TRACKER
 
-# FIXME: To be dropped after last 12.04 point release
-Kubuntu Alternate amd64						kubuntu			daily				alternate				amd64			iso
-Kubuntu Alternate amd64+mac					kubuntu			daily				alternate				amd64+mac		iso
-Kubuntu Alternate i386						kubuntu			daily				alternate				i386			iso
-Kubuntu Alternate powerpc					kubuntu			daily				alternate				powerpc			iso
-Ubuntu Alternate amd64						ubuntu			daily				alternate				amd64			iso
-Ubuntu Alternate amd64+mac					ubuntu			daily				alternate				amd64+mac		iso
-Ubuntu Alternate i386						ubuntu			daily				alternate				i386			iso
-Ubuntu Alternate powerpc					ubuntu			daily				alternate				powerpc			iso
-Ubuntu DVD amd64							ubuntu			dvd					dvd						amd64			iso
-Ubuntu DVD i386								ubuntu			dvd					dvd						i386			iso
-Ubuntu Wubi amd64							ubuntu			wubi				wubi					amd64			iso
-Ubuntu Wubi i386							ubuntu			wubi				wubi					i386			iso
-Xubuntu Alternate amd64						xubuntu			daily				alternate				amd64			iso
-Xubuntu Alternate i386						xubuntu			daily				alternate				i386			iso
-
 # Edubuntu
 Edubuntu DVD amd64							edubuntu		dvd					dvd						amd64			iso
 Edubuntu DVD i386							edubuntu		dvd					dvd						i386			iso
