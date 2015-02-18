@@ -36,6 +36,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #35 1 * * *	for-project lubuntu cron.daily-preinstalled --live
 14 22 * * *	for-project ubuntukylin cron.daily-live --live
 32 15 * * *	for-project ubuntu-gnome cron.daily-live --live
+#46 2 * * *	for-project ubuntu-mate cron.daily-live --live
 
 # Also built on demand by touch release team.
 02 2 * * *	for-project ubuntu-touch cron.daily-preinstalled --live

@@ -712,6 +712,8 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "trusty", "daily-live", "powerpc", 1073741824),
             ("xubuntu", "quantal", "daily-live", "i386", 736665600),
             ("xubuntu", "raring", "daily-live", "i386", 1073741824),
+            ("ubuntu-gnome", "saucy", "daily-live", "i386", 1073741824),
+            ("ubuntu-mate", None, "daily-live", "amd64", 1073741824),
         ):
             if dist is not None:
                 self.config["DIST"] = dist
@@ -1206,6 +1208,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-core", "daily", "core", "Ubuntu Core"),
             ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
+            ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
             ("ubuntu-desktop-next", "daily-live", "desktop",
                 "Ubuntu Desktop (Unity 8)"),
         ):
@@ -1271,6 +1274,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-core", "daily", "core", "Ubuntu Core"),
             ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
+            ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
             ("ubuntu-desktop-next", "daily-live", "desktop",
                 "Ubuntu Desktop (Unity 8)"),
         ):
