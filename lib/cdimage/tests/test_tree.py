@@ -1188,17 +1188,12 @@ class TestDailyTreePublisher(TestCase):
 
     def test_qa_product_main_tracker(self):
         for project, image_type, publish_type, product in (
-            ("ubuntu", "daily", "alternate", "Ubuntu Alternate"),
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
-            ("ubuntu", "dvd", "dvd", "Ubuntu DVD"),
-            ("ubuntu", "wubi", "wubi", "Ubuntu Wubi"),
-            ("kubuntu", "daily", "alternate", "Kubuntu Alternate"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
             ("kubuntu-plasma5", "daily-live", "desktop",
                 "Kubuntu Plasma 5 Desktop"),
             ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
-            ("xubuntu", "daily", "alternate", "Xubuntu Alternate"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
@@ -1254,17 +1249,12 @@ class TestDailyTreePublisher(TestCase):
 
     def test_cdimage_project_main_tracker(self):
         for project, image_type, publish_type, product in (
-            ("ubuntu", "daily", "alternate", "Ubuntu Alternate"),
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
-            ("ubuntu", "dvd", "dvd", "Ubuntu DVD"),
-            ("ubuntu", "wubi", "wubi", "Ubuntu Wubi"),
-            ("kubuntu", "daily", "alternate", "Kubuntu Alternate"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
             ("kubuntu-plasma5", "daily-live", "desktop",
                 "Kubuntu Plasma 5 Desktop"),
             ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
-            ("xubuntu", "daily", "alternate", "Xubuntu Alternate"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
@@ -1295,16 +1285,16 @@ class TestDailyTreePublisher(TestCase):
 
     @mock_isotracker
     def test_post_qa(self):
-        publisher = self.make_publisher("ubuntu", "daily")
+        publisher = self.make_publisher("ubuntu", "daily-live")
         os.makedirs(os.path.join(publisher.publish_base, "20130221"))
         publisher.post_qa(
             "20130221", [
-                "ubuntu/daily/raring-alternate-i386",
-                "ubuntu/daily/raring-alternate-amd64",
+                "ubuntu/daily-live/raring-desktop-i386",
+                "ubuntu/daily-live/raring-desktop-amd64",
             ])
         expected = [
-            ["Ubuntu Alternate i386", "20130221", ""],
-            ["Ubuntu Alternate amd64", "20130221", ""],
+            ["Ubuntu Desktop i386", "20130221", ""],
+            ["Ubuntu Desktop amd64", "20130221", ""],
         ]
         self.assertEqual("iso-raring", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
