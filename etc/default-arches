@@ -58,7 +58,7 @@ ubuntu-desktop-next	*			*			amd64 i386
 
 ubuntu-gnome		*			*			amd64 i386
 
-ubuntu-mate		*			*			amd64 i386
+ubuntu-mate		*			*			amd64 i386 powerpc
 
 ubuntu-mid		*			*			lpia
 
