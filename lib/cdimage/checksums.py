@@ -213,7 +213,9 @@ class ChecksumFileSet:
         if (image.endswith(".img") or
                 image.endswith(".iso") or
                 image.endswith(".exe") or
+                image.endswith(".img.xz") or
                 image.endswith(".img.gz") or
+                image.endswith(".img.tar.xz") or
                 image.endswith(".img.tar.gz") or
                 "-vmlinuz-" in image or
                 "-initrd-" in image or
