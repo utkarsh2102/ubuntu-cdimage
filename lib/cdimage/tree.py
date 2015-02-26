@@ -921,6 +921,7 @@ class Publisher:
         usb_projects = (
             "ubuntu-mid", "ubuntu-moblin-remix",
             "kubuntu", "kubuntu-active", "kubuntu-plasma5",
+            "ubuntu-mate",
             )
         series = self.config["DIST"]
 
@@ -934,7 +935,8 @@ class Publisher:
                 "However, you may still test it using a larger USB drive or a "
                 "virtual machine.")
         elif (self.project in usb_projects or
-                (self.project == "xubuntu" and series >= "raring")):
+                (self.project == "xubuntu" and series >= "raring") or
+                (self.project == "ubuntu-gnome" and series >= "saucy")):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 1GB USB stick.")
