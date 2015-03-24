@@ -32,6 +32,8 @@ def main():
     parser = OptionParser(usage="Usage: %prog [options] SERIES INSTANCE")
     parser.add_option('-b', '--build', help="Build any pending product",
                       action="store_true", default=False)
+    parser.add_option('-c', '--cancel', help="Cancel any pending/stuck build",
+                      action="store_true", default=False)
     parser.add_option('-n', '--dry-run', help="Print the commands that "
                                               "would normally be run",
                       action="store_true", default=False)
@@ -51,7 +53,7 @@ def main():
 
     tracker = ISOTracker(target="%s-%s" % (args[1], args[0]))
 
-    if not options.build:
+    if not options.build and not options.cancel:
         # List all the pending entries
         for rebuild in tracker.qatracker.get_rebuilds("Requested"):
             if rebuild.series_title.lower() != args[0]:
@@ -61,6 +63,23 @@ def main():
                   (rebuild.product_title, rebuild.series_title,
                    rebuild.requestedby_name,
                    publisher.cdimage_project(rebuild.product_title, args[1])))
+        return
+
+    if options.cancel:
+        # Iterate through all non-final states
+        for rebuild in tracker.qatracker.get_rebuilds(
+                ["Requested", "Queued", "Building", "Built"]):
+            if rebuild.series_title.lower() != args[0]:
+                continue
+
+            print(" - %s for %s (requested by %s) => %s " %
+                  (rebuild.product_title, rebuild.series_title,
+                   rebuild.requestedby_name,
+                   publisher.cdimage_project(rebuild.product_title, args[1])))
+
+            if not options.dry_run:
+                rebuild.status = 5
+                rebuild.save()
         return
 
     # Process any pending rebuild
