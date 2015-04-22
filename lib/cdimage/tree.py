@@ -380,6 +380,8 @@ class Publisher:
                 return "preinstalled-touch"
             elif self.project == "ubuntu-core":
                 return "preinstalled-core"
+            elif self.project == "ubuntu-desktop-next":
+                return "preinstalled-desktop-next"
             else:
                 return "preinstalled-desktop"
         elif self.image_type.endswith("-live"):
@@ -529,6 +531,8 @@ class Publisher:
             return "preinstalled touch image"
         elif publish_type == "preinstalled-core":
             return "preinstalled core image"
+        elif publish_type == "preinstalled-desktop-next":
+            return "preinstalled desktop next image"
         elif publish_type == "wubi":
             return "Wubi %s" % cd
         else:
@@ -1107,6 +1111,7 @@ class Publisher:
             "preinstalled-mobile", "preinstalled-active",
             "preinstalled-headless", "preinstalled-server",
             "preinstalled-touch", "preinstalled-core", "wubi",
+            "preinstalled-destkop-next"
         )
 
         all_arches = (

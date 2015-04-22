@@ -121,7 +121,7 @@ def live_build_options(config, arch):
         elif subarch in ("ac100", "nexus7"):
             options.extend(["-f", "plain"])
 
-    if config.project in ("ubuntu-core", "ubuntu-touch"):
+    if config.project in ("ubuntu-core", "ubuntu-touch", "ubuntu-desktop-next"):
         options.extend(["-f", "plain"])
 
     if config.subproject == "wubi":
@@ -860,7 +860,7 @@ def download_live_filesystems(config):
             else:
                 continue
             if (series >= "dapper" and
-                    (project != "ubuntu-core" or
+                    ((project != "ubuntu-core" and project != "ubuntu-desktop-next") or
                         config.image_type == "daily-preinstalled") and
                     not config["CDIMAGE_SQUASHFS_BASE"] and
                     config.subproject != "wubi"):
@@ -880,7 +880,7 @@ def download_live_filesystems(config):
                     config.subproject == "wubi"):
                 continue
 
-            if (project not in ("livecd-base", "ubuntu-core",
+            if (project not in ("livecd-base", "ubuntu-core", "ubuntu-desktop-next",
                                 "kubuntu-active") and
                     (project != "edubuntu" or series >= "precise") and
                     (project != "ubuntukylin" or series < "utopic")):
@@ -912,7 +912,7 @@ def download_live_filesystems(config):
                             config, arch, "wubi.exe",
                             "Install %s" % autorun_project)
 
-            if project not in ("livecd-base", "ubuntu-core", "edubuntu"):
+            if project not in ("livecd-base", "ubuntu-core", "ubuntu-desktop-next", "edubuntu"):
                 if (project in ("kubuntu-active", "ubuntu-netbook",
                                 "ubuntu-moblin-remix") or
                         config["CDIMAGE_DVD"] or
@@ -947,7 +947,7 @@ def download_live_filesystems(config):
                 )
             download_live_items(config, arch, "custom.tar.gz")
 
-    if config.project == "ubuntu-core":
+    if config.project == "ubuntu-core" or config.project == "ubuntu-desktop-next":
         for arch in config.arches:
             download_live_items(config, arch, "device.tar.gz")
 
