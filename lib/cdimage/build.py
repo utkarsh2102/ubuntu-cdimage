@@ -458,7 +458,8 @@ def build_livecd_base(config):
     log_marker("Downloading live filesystem images")
     download_live_filesystems(config)
 
-    if config.project in ("ubuntu-core", "ubuntu-touch", "ubuntu-desktop-next"):
+    if config.project in ("ubuntu-core", "ubuntu-touch",
+                          "ubuntu-desktop-next"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.project, config.full_series,
@@ -486,10 +487,12 @@ def build_livecd_base(config):
                     if config.image_type == "daily-preinstalled":
                         output_prefix = os.path.join(
                             output_dir,
-                            "%s-preinstalled-desktop-next-%s" % (config.series, arch))
+                            "%s-preinstalled-desktop-next-%s" %
+                            (config.series, arch))
                     else:
                         output_prefix = os.path.join(
-                            output_dir, "%s-desktop-next-%s" % (config.series, arch))
+                            output_dir, "%s-desktop-next-%s" %
+                            (config.series, arch))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)
@@ -651,7 +654,8 @@ def is_live_fs_only(config):
     live_fs_only = False
     if config.project in ("livecd-base", "ubuntu-core", "ubuntu-touch"):
         live_fs_only = True
-    elif config.project == "ubuntu-desktop-next" and config.subproject == "system-image":
+    elif (config.project == "ubuntu-desktop-next" and
+          config.subproject == "system-image"):
         live_fs_only = True
     elif config.subproject == "wubi":
         live_fs_only = True
@@ -674,7 +678,7 @@ def build_image_set_locked(config, options, semaphore_state):
         else:
             tracker_set_rebuild_status(config, [0, 1], 2)
 
-        if not is_live_fs_only():
+        if not is_live_fs_only(config):
             sync_local_mirror(config, semaphore_state)
 
             if config["LOCAL"]:
@@ -688,7 +692,7 @@ def build_image_set_locked(config, options, semaphore_state):
 
         if config["UBUNTU_DEFAULTS_LOCALE"]:
             build_ubuntu_defaults_locale(config)
-        elif is_live_fs_only():
+        elif is_live_fs_only(config):
             build_livecd_base(config)
         else:
             if not config["CDIMAGE_PREINSTALLED"]:
