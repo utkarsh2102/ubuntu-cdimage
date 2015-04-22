@@ -458,8 +458,9 @@ def build_livecd_base(config):
     log_marker("Downloading live filesystem images")
     download_live_filesystems(config)
 
-    if config.project in ("ubuntu-core", "ubuntu-touch",
-                          "ubuntu-desktop-next"):
+    if (config.project in ("ubuntu-core", "ubuntu-touch") or
+        (config.project == "ubuntu-desktop-next" and
+         config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.project, config.full_series,
