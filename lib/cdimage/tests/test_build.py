@@ -372,6 +372,38 @@ class TestBuildLiveCDBase(TestCase):
             "i386.rootfs.tar.gz",
         ], os.listdir(output_dir))
 
+    @mock.patch("cdimage.osextras.fetch")
+    def test_ubuntu_desktop_next_system_image(self, mock_fetch):
+        def fetch_side_effect(config, source, target):
+            if (target.endswith(".manifest") or
+                    target.endswith(".rootfs.tar.gz")):
+                touch(target)
+            else:
+                raise osextras.FetchError
+
+        mock_fetch.side_effect = fetch_side_effect
+        self.config["PROJECT"] = "ubuntu-desktop-next"
+        self.config["SUBPROJECT"] = "system-image"
+        self.config["DIST"] = "utopic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "i386"
+        self.capture_logging()
+        build_livecd_base(self.config)
+        self.assertLogEqual([
+            "===== Downloading live filesystem images =====",
+            self.epoch_date,
+            "===== Copying images to debian-cd output directory =====",
+            self.epoch_date,
+        ])
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-desktop-next", "utopic", "daily",
+            "live")
+        self.assertTrue(os.path.isdir(output_dir))
+        self.assertCountEqual([
+            "i386.manifest",
+            "i386.rootfs.tar.gz",
+        ], os.listdir(output_dir))
+
 
 class TestExtractDebootstrap(TestCase):
     def setUp(self):
