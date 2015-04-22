@@ -1111,7 +1111,7 @@ class Publisher:
             "preinstalled-mobile", "preinstalled-active",
             "preinstalled-headless", "preinstalled-server",
             "preinstalled-touch", "preinstalled-core", "wubi",
-            "preinstalled-destkop-next"
+            "preinstalled-desktop-next",
         )
 
         all_arches = (

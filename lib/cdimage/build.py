@@ -503,7 +503,7 @@ def build_livecd_base(config):
                     if os.path.exists(custom):
                         shutil.copy2(
                             custom, "%s.custom.tar.gz" % output_prefix)
-                if config.project == "ubuntu-core" or config.project == "ubuntu-desktop-next":
+                if config.project in ("ubuntu-core", "ubuntu-desktop-next"):
                     device = "%s.device.tar.gz" % live_prefix
                     if os.path.exists(device):
                         shutil.copy2(
@@ -647,14 +647,21 @@ def notify_failure(config, log_path):
             body.close()
 
 
+def is_live_fs_only(config):
+    live_fs_only = False
+    if config.project in ("livecd-base", "ubuntu-core", "ubuntu-touch"):
+        live_fs_only = True
+    elif config.project == "ubuntu-desktop-next" and config.subproject == "system-image":
+        live_fs_only = True
+    elif config.subproject == "wubi":
+        live_fs_only = True
+    return live_fs_only
+
+
 def build_image_set_locked(config, options, semaphore_state):
     image_type = config.image_type
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
-
-    live_fs_only = (
-        config.project in ("livecd-base", "ubuntu-core", "ubuntu-touch", "ubuntu-desktop-next") or
-        config.subproject == "wubi")
 
     try:
         configure_for_project(config)
@@ -667,7 +674,7 @@ def build_image_set_locked(config, options, semaphore_state):
         else:
             tracker_set_rebuild_status(config, [0, 1], 2)
 
-        if not live_fs_only:
+        if not is_live_fs_only():
             sync_local_mirror(config, semaphore_state)
 
             if config["LOCAL"]:
@@ -681,7 +688,7 @@ def build_image_set_locked(config, options, semaphore_state):
 
         if config["UBUNTU_DEFAULTS_LOCALE"]:
             build_ubuntu_defaults_locale(config)
-        elif live_fs_only:
+        elif is_live_fs_only():
             build_livecd_base(config)
         else:
             if not config["CDIMAGE_PREINSTALLED"]:
