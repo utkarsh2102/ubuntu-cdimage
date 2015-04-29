@@ -199,6 +199,7 @@ def live_build_lp_kwargs(config, lp, lp_livefs, arch):
     lp_ds = lp_livefs.distro_series
     if config["EXTRA_PPAS"]:
         ppa = config["EXTRA_PPAS"].split()[0]
+        ppa = ppa.split(":", 1)[0]
         ppa_owner_name, ppa_name = ppa.split("/", 1)
         ppa = lp.people[ppa_owner_name].getPPAByName(name=ppa_name)
         kwargs["archive"] = ppa
