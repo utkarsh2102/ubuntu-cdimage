@@ -248,7 +248,7 @@ def main():
         'ubuntukylin',
         )
     if not options.series:
-        options.series = ('precise', 'trusty', 'vivid')
+        options.series = ('precise', 'trusty', 'wily')
 
     for project in projects:
         for series in options.series:
