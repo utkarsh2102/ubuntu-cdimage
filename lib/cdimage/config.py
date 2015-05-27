@@ -219,7 +219,6 @@ all_touch_targets.extend([
     Touch("manta", "armel", "armhf"),
     Touch("generic", "armel", "armhf"),
     Touch("generic_x86", "i386", "i386"),
-    Touch("grouper", "armel", "armhf"),
     Touch("flo", "armel", "armhf"),
 ])
 
