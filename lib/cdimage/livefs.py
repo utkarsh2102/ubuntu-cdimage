@@ -122,8 +122,8 @@ def live_build_options(config, arch):
             options.extend(["-f", "plain"])
 
     if (config.project in ("ubuntu-core", "ubuntu-touch") or
-       (config.project == "ubuntu-desktop-next" and
-       config.subproject == "system-image")):
+        (config.project == "ubuntu-desktop-next" and
+         config.subproject == "system-image")):
         options.extend(["-f", "plain"])
 
     if config.subproject == "wubi":
