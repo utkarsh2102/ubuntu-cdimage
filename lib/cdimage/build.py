@@ -458,7 +458,9 @@ def build_livecd_base(config):
     log_marker("Downloading live filesystem images")
     download_live_filesystems(config)
 
-    if config.project in ("ubuntu-core", "ubuntu-touch"):
+    if (config.project in ("ubuntu-core", "ubuntu-touch") or
+        (config.project == "ubuntu-desktop-next" and
+         config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.project, config.full_series,
@@ -482,6 +484,16 @@ def build_livecd_base(config):
                     output_prefix = os.path.join(
                         output_dir,
                         "%s-preinstalled-touch-%s" % (config.series, arch))
+                elif config.project == "ubuntu-desktop-next":
+                    if config.image_type == "daily-preinstalled":
+                        output_prefix = os.path.join(
+                            output_dir,
+                            "%s-preinstalled-desktop-next-%s" %
+                            (config.series, arch))
+                    else:
+                        output_prefix = os.path.join(
+                            output_dir, "%s-desktop-next-%s" %
+                            (config.series, arch))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)
@@ -495,7 +507,7 @@ def build_livecd_base(config):
                     if os.path.exists(custom):
                         shutil.copy2(
                             custom, "%s.custom.tar.gz" % output_prefix)
-                if config.project == "ubuntu-core":
+                if config.project in ("ubuntu-core", "ubuntu-desktop-next"):
                     device = "%s.device.tar.gz" % live_prefix
                     if os.path.exists(device):
                         shutil.copy2(
@@ -639,14 +651,22 @@ def notify_failure(config, log_path):
             body.close()
 
 
+def is_live_fs_only(config):
+    live_fs_only = False
+    if config.project in ("livecd-base", "ubuntu-core", "ubuntu-touch"):
+        live_fs_only = True
+    elif (config.project == "ubuntu-desktop-next" and
+          config.subproject == "system-image"):
+        live_fs_only = True
+    elif config.subproject == "wubi":
+        live_fs_only = True
+    return live_fs_only
+
+
 def build_image_set_locked(config, options, semaphore_state):
     image_type = config.image_type
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
-
-    live_fs_only = (
-        config.project in ("livecd-base", "ubuntu-core", "ubuntu-touch") or
-        config.subproject == "wubi")
 
     try:
         configure_for_project(config)
@@ -659,7 +679,7 @@ def build_image_set_locked(config, options, semaphore_state):
         else:
             tracker_set_rebuild_status(config, [0, 1], 2)
 
-        if not live_fs_only:
+        if not is_live_fs_only(config):
             sync_local_mirror(config, semaphore_state)
 
             if config["LOCAL"]:
@@ -673,7 +693,7 @@ def build_image_set_locked(config, options, semaphore_state):
 
         if config["UBUNTU_DEFAULTS_LOCALE"]:
             build_ubuntu_defaults_locale(config)
-        elif live_fs_only:
+        elif is_live_fs_only(config):
             build_livecd_base(config)
         else:
             if not config["CDIMAGE_PREINSTALLED"]:
