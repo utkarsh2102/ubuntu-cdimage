@@ -505,15 +505,15 @@ class TestPublisherWebIndices(TestCase):
         parser.close()
         with open(htaccess_path) as htaccess:
             self.assertEqual(
-                "AddDescription \"Desktop image for PC (Intel x86) computers "
-                "(standard download)\" raring-desktop-i386.iso\n"
-                "AddDescription \"Desktop image for PC (Intel x86) computers "
-                "(file listing)\" raring-desktop-i386.list\n"
                 "AddDescription \"Desktop image for 64-bit PC (AMD64) "
                 "computers (<a href=\\\"http://zsync.moria.org.uk/\\\">"
                 "zsync</a> metafile)\" raring-desktop-amd64.iso.zsync\n"
                 "AddDescription \"Desktop image for 64-bit PC (AMD64) "
                 "computers (standard download)\" raring-desktop-amd64.iso\n"
+                "AddDescription \"Desktop image for 32-bit PC (i386) computers "
+                "(standard download)\" raring-desktop-i386.iso\n"
+                "AddDescription \"Desktop image for 32-bit PC (i386) computers "
+                "(file listing)\" raring-desktop-i386.list\n"
                 "\n"
                 "HeaderName HEADER.html\n"
                 "ReadmeName FOOTER.html\n"

@@ -811,7 +811,7 @@ class Publisher:
         "armhf+mx5": "Freescale i.MX5x (Hard-Float)",
         "armhf+nexus7": "Asus/Google Nexus7 Tablet",
         "hppa": "HP PA-RISC",
-        "i386": "PC (Intel x86)",
+        "i386": "32-bit PC (i386)",
         "ia64": "IA-64",
         "lpia": "Low-Power Intel Architecture",
         "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
@@ -829,7 +829,7 @@ class Publisher:
                 "Xeon, Core 2).")
             sentences.append(
                 "If you have a non-64-bit processor made by AMD, or if you "
-                "need full support for 32-bit code, use the Intel x86 images "
+                "need full support for 32-bit code, use the i386 images "
                 "instead.")
             if arch == "amd64+mac":
                 sentences.append(
@@ -1115,8 +1115,8 @@ class Publisher:
         )
 
         all_arches = (
-            "i386",
             "amd64", "amd64+mac",
+            "i386",
             "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
             "armel+ac100", "armel+mx5",
             "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
