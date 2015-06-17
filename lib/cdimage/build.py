@@ -508,10 +508,11 @@ def build_livecd_base(config):
                         shutil.copy2(
                             custom, "%s.custom.tar.gz" % output_prefix)
                 if config.project in ("ubuntu-core", "ubuntu-desktop-next"):
-                    device = "%s.device.tar.gz" % live_prefix
-                    if os.path.exists(device):
-                        shutil.copy2(
-                            device, "%s.device.tar.gz" % output_prefix)
+                    for dev in ("azure.device", "device"):
+                        device = "%s.%s.tar.gz" % (live_prefix, dev)
+                        if os.path.exists(device):
+                            shutil.copy2(
+                                device, "%s.%s.tar.gz" % (output_prefix, dev))
 
 
 def _debootstrap_script(config):
