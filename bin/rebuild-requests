@@ -113,7 +113,7 @@ def main():
         project, build_type = project_id.rsplit("/", 1)
         sub_project = None
         if "/" in project:
-            sub_project = project.split("/", 1)[1]
+            project, sub_project = project.split("/", 1)
 
         arches = " ".join([entry[4] for entry in entries])
 
@@ -130,7 +130,7 @@ def main():
 
         env = dict(os.environ)
         if sub_project:
-            env['SUB_PROJECT'] = sub_project
+            env['SUBPROJECT'] = sub_project
         env['ARCHES'] = arches
         env['DIST'] = entries[0][0].series_title.lower()
         cmd = ["for-project", entry[1], "cron.%s" % entry[2]]
@@ -142,8 +142,8 @@ def main():
         if options.dry_run:
             if not options.quiet:
                 if sub_project:
-                    print("Dry-run: SUB_PROJECT=%s ARCHES=%s DIST=%s %s" %
-                          (env['SUB_PROJECT'], env['ARCHES'], env['DIST'],
+                    print("Dry-run: SUBPROJECT=%s ARCHES=%s DIST=%s %s" %
+                          (env['SUBPROJECT'], env['ARCHES'], env['DIST'],
                            " ".join(cmd)))
                 else:
                     print("Dry-run: ARCHES=%s DIST=%s %s" %
