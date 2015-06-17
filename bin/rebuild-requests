@@ -110,7 +110,7 @@ def main():
         if not options.quiet:
             print("Processing rebuilds for: %s" % project_id)
 
-        project, build_type = project_id.split("/")
+        project, build_type = project_id.rsplit("/", 1)
         sub_project = None
         if "/" in project:
             sub_project = project.split("/", 1)[1]
