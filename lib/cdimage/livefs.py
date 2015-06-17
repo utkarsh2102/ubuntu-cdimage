@@ -957,8 +957,8 @@ def download_live_filesystems(config):
         for arch in config.arches:
             download_live_items(config, arch, "device.tar.gz")
 
-    if config.project in ("ubuntu-core", ):
-            download_live_items(config, arch, "azure.device.tar.gz")
+    if config.project == "ubuntu-core":
+        download_live_items(config, "amd64", "azure.device.tar.gz")
 
     if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and
             series <= "hardy"):
