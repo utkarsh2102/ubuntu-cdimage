@@ -111,6 +111,10 @@ def main():
             print("Processing rebuilds for: %s" % project_id)
 
         project, build_type = project_id.split("/")
+        sub_project = None
+        if "/" in project:
+            sub_project = project.split("/", 1)[1]
+
         arches = " ".join([entry[4] for entry in entries])
 
         for entry in entries:
@@ -125,6 +129,8 @@ def main():
                        entry[0].requestedby_name, entry[1:]))
 
         env = dict(os.environ)
+        if sub_project:
+            env['SUB_PROJECT'] = sub_project
         env['ARCHES'] = arches
         env['DIST'] = entries[0][0].series_title.lower()
         cmd = ["for-project", entry[1], "cron.%s" % entry[2]]
@@ -135,9 +141,13 @@ def main():
 
         if options.dry_run:
             if not options.quiet:
-                print("Dry-run: ARCHES=%s DIST=%s %s" % (env['ARCHES'],
-                                                         env['DIST'],
-                                                         " ".join(cmd)))
+                if sub_project:
+                    print("Dry-run: SUB_PROJECT=%s ARCHES=%s DIST=%s %s" %
+                          (env['SUB_PROJECT'], env['ARCHES'], env['DIST'],
+                           " ".join(cmd)))
+                else:
+                    print("Dry-run: ARCHES=%s DIST=%s %s" %
+                          (env['ARCHES'], env['DIST'], " ".join(cmd)))
         else:
             processes.append(subprocess.Popen(cmd, env=env))
         if not options.quiet:

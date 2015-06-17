@@ -2249,7 +2249,7 @@ class DailyTreePublisher(Publisher):
                 except ValueError:
                     continue
 
-                if project and entry_project != project:
+                if project and entry_project.split("/", 1)[0] != project:
                     continue
 
                 if image_type and entry_image_type != image_type:
