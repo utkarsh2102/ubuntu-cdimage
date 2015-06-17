@@ -629,7 +629,7 @@ def live_item_paths(config, arch, item):
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
         "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "custom.tar.gz",
-        "device.tar.gz", "tar.xz", "iso",
+        "device.tar.gz", "azure.device.tar.gz", "tar.xz", "iso",
     ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
@@ -956,6 +956,9 @@ def download_live_filesystems(config):
     if config.project in ("ubuntu-core", "ubuntu-desktop-next"):
         for arch in config.arches:
             download_live_items(config, arch, "device.tar.gz")
+
+    if config.project in ("ubuntu-core", ):
+            download_live_items(config, arch, "azure.device.tar.gz")
 
     if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and
             series <= "hardy"):
