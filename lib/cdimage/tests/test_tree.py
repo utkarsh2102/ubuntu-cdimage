@@ -1204,7 +1204,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
             ("ubuntu-mate", "daily-live", "desktop", "Ubuntu Mate Desktop"),
-            ("ubuntu-desktop-next", "daily-live", "desktop",
+            ("ubuntu-desktop-next", "daily-preinstalled", "preinstalled-desktop-next",
                 "Ubuntu Desktop (Unity 8)"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
@@ -1265,7 +1265,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
             ("ubuntu-mate", "daily-live", "desktop", "Ubuntu Mate Desktop"),
-            ("ubuntu-desktop-next", "daily-live", "desktop",
+            ("ubuntu-desktop-next/system-image", "daily-preinstalled", "preinstalled-desktop-next",
                 "Ubuntu Desktop (Unity 8)"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
