@@ -194,7 +194,7 @@ def anonftpsync(config):
         with open(log_path, "w") as log:
             command_base = [
                 "rsync", "--recursive", "--links", "--hard-links", "--times",
-                "--verbose", "--stats", "--chmod=Dg+s,g+rwX", "--compress",
+                "--verbose", "--stats", "--chmod=Dg+s,g+rwX",
                 "--exclude", lock_base,
                 "--exclude", "project/trace/%s" % fqdn,
             ]

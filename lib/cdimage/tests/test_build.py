@@ -656,7 +656,7 @@ class TestBuildImageSet(TestCase):
         self.assertEqual(5, mock_call.call_count)
         expected_rsync_base = [
             "rsync", "--recursive", "--links", "--hard-links", "--times",
-            "--verbose", "--stats", "--chmod=Dg+s,g+rwX", "--compress",
+            "--verbose", "--stats", "--chmod=Dg+s,g+rwX",
             "--exclude", os.path.basename(lock),
             "--exclude", "project/trace/cdimage.example.org",
         ]
