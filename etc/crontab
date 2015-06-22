@@ -38,9 +38,8 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 46 2 * * *	for-project ubuntu-mate cron.daily-live --live
 
 # Also built on demand by touch release team.
-# do not build RTM on weekends, so we get two days of testing without forced reboots
-02 2 * * 1-5	DIST=ubuntu-rtm/14.09 for-project ubuntu-touch cron.daily-preinstalled --live
-03 2 * * *	DIST=vivid EXTRA_PPAS=ci-train-ppa-service/stable-phone-overlay:1001 for-project ubuntu-touch cron.daily-preinstalled --live
+# do not build rc on weekends, so we get two days of testing without forced reboots
+03 2 * * 1-5	DIST=vivid EXTRA_PPAS=ci-train-ppa-service/stable-phone-overlay:1001 for-project ubuntu-touch cron.daily-preinstalled --live
 04 2 * * *	for-project ubuntu-touch cron.daily-preinstalled --live
 
 */15 * * * *	mirror-image-build-logs
