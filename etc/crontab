@@ -32,13 +32,12 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 6 4 * * *	for-project livecd-base cron.daily-live --live
 32 4 * * *	for-project ubuntu-core cron.daily-live --live
 56 4 * * *	SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
-57 4 * * *	DIST=vivid SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
+#57 4 * * *	DIST=vivid SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
 14 22 * * *	for-project ubuntukylin cron.daily-live --live
 32 15 * * *	for-project ubuntu-gnome cron.daily-live --live
 46 2 * * *	for-project ubuntu-mate cron.daily-live --live
 
-# Also built on demand by touch release team.
-# do not build rc on weekends, so we get two days of testing without forced reboots
+# XXX: Note that the EXTRA_PPAS bit here also needs to be mirrored in rebuild-requests:
 03 2 * * 1-5	DIST=vivid EXTRA_PPAS=ci-train-ppa-service/stable-phone-overlay:1001 for-project ubuntu-touch cron.daily-preinstalled --live
 04 2 * * *	for-project ubuntu-touch cron.daily-preinstalled --live
 
@@ -46,4 +45,5 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q trusty iso
+*/5 * * * *	rebuild-requests -b -q vivid iso
 */5 * * * *	rebuild-requests -b -q wily iso
