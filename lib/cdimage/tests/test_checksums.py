@@ -129,7 +129,7 @@ class TestChecksumFile(TestCase):
         with mkfile(path) as entry:
             pass
         checksum_file = ChecksumFile(
-            self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
+            self.config, self.temp_dir, "MD5SUMS", hashlib.md5, sign=False)
         checksum_file.add("entry")
         checksum_file.write()
         self.rewind_mtime(checksum_file.path)
@@ -146,7 +146,7 @@ class TestChecksumFile(TestCase):
         with mkfile(path) as entry:
             print("ctime", end="", file=entry)
         checksum_file = ChecksumFile(
-            self.config, self.temp_dir, "MD5SUMS", hashlib.md5)
+            self.config, self.temp_dir, "MD5SUMS", hashlib.md5, sign=False)
         checksum_file.entries["entry"] = ""
         checksum_file.changed = True
         checksum_file.write()
@@ -424,7 +424,7 @@ class TestChecksumFileSet(TestCase):
         shutil.copy(
             old_iso_i386_path, os.path.join(self.temp_dir, "foo-i386.iso"))
         checksum_directory(
-            self.config, self.temp_dir, old_directories=[old_dir],
+            self.config, self.temp_dir, old_directories=[old_dir], sign=False,
             map_expr=r"s/\.iso$/.raw/")
         with open(os.path.join(self.temp_dir, "MD5SUMS")) as md5sums:
             digests = (
@@ -518,7 +518,7 @@ class TestMetalinkChecksumFileSet(TestChecksumFileSet):
             old_metalink_i386_path,
             os.path.join(self.temp_dir, "foo-i386.metalink"))
         metalink_checksum_directory(
-            self.config, self.temp_dir, old_directories=[old_dir])
+            self.config, self.temp_dir, old_directories=[old_dir], sign=False)
         with open(os.path.join(self.temp_dir, "MD5SUMS-metalink")) as md5sums:
             digests = (
                 hashlib.md5(b"foo-amd64.metalink").hexdigest(),
