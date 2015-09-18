@@ -132,7 +132,7 @@ def main():
         if sub_project:
             env['SUBPROJECT'] = sub_project
 
-        if project == "ubuntu-touch" and args[0] == "vivid":
+        if project in ("ubuntu-touch", "ubuntu-pd") and args[0] == "vivid":
             env['EXTRA_PPAS'] = \
                 "ci-train-ppa-service/stable-phone-overlay:1001"
 
