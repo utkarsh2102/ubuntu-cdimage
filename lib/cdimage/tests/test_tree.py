@@ -257,6 +257,8 @@ class TestPublisher(TestCase):
              "preinstalled-desktop"),
             ("daily-preinstalled", "ubuntu-touch", "saucy",
              "preinstalled-touch"),
+            ("daily-preinstalled", "ubuntu-pd", "vivid",
+             "preinstalled-pd"),
             ("daily-live", "edubuntu", "edgy", "live"),
             ("daily-live", "edubuntu", "feisty", "desktop"),
             ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
