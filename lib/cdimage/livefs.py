@@ -121,7 +121,7 @@ def live_build_options(config, arch):
         elif subarch in ("ac100", "nexus7"):
             options.extend(["-f", "plain"])
 
-    if (config.project in ("ubuntu-core", "ubuntu-touch") or
+    if (config.project in ("ubuntu-core", "ubuntu-touch", "ubuntu-pd") or
         (config.project == "ubuntu-desktop-next" and
          config.subproject == "system-image")):
         options.extend(["-f", "plain"])
@@ -928,7 +928,7 @@ def download_live_filesystems(config):
         if not got_image:
             raise NoFilesystemImages("No filesystem images found.")
 
-    if config.project == "ubuntu-touch":
+    if config.project in ("ubuntu-touch", "ubuntu-pd"):
         for arch in config.arches:
             for abootimg in (
                 "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)

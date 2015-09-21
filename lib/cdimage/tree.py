@@ -378,6 +378,8 @@ class Publisher:
                 return "preinstalled-server"
             elif self.project == "ubuntu-touch":
                 return "preinstalled-touch"
+            elif self.project == "ubuntu-pd":
+                return "preinstalled-pd"
             elif self.project == "ubuntu-core":
                 return "preinstalled-core"
             elif self.project == "ubuntu-desktop-next":
@@ -1519,7 +1521,7 @@ class Publisher:
             if got_iso or got_img:
                 print(file=header)
 
-            if self.config.project == "ubuntu-touch":
+            if self.config.project in ("ubuntu-touch", "ubuntu-pd"):
                 for tag in self.ubuntu_touch_legal_notice():
                     print(tag, file=header)
                 print(file=header)
@@ -2127,11 +2129,11 @@ class DailyTreePublisher(Publisher):
             for arch in arches:
                 if image_base.endswith("-%s" % arch):
                     matches = True
-                elif (self.config.project == "ubuntu-touch" and
+                elif (self.config.project in ("ubuntu-touch", "ubuntu-pd") and
                       arch == "armhf" and
                       ("-armel+" in image_base or "-armhf+" in image_base)):
                     matches = True
-                elif (self.config.project == "ubuntu-touch" and
+                elif (self.config.project in ("ubuntu-touch", "ubuntu-pd") and
                       arch == "i386" and "-i386+" in image_base):
                     matches = True
                 elif self.config.subproject == "wubi" and image_base == arch:
