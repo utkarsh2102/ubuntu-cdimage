@@ -2467,6 +2467,7 @@ class DailyTreePublisher(Publisher):
             (project_image_type, days, "day" if days == 1 else "days"))
         oldest = time.strftime(
             "%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days))
+        to_purge = []
 
         for entry in sorted(osextras.listdir_force(self.publish_base)):
             entry_path = os.path.join(self.publish_base, entry)
@@ -2508,7 +2509,9 @@ class DailyTreePublisher(Publisher):
                             break
                 if found_current:
                     continue
+            to_purge.append((entry, entry_path))
 
+        for entry, entry_path in to_purge:
             if self.config["DEBUG"] or self.config["CDIMAGE_NOPURGE"]:
                 logger.info(
                     "Would purge %s/%s/%s" %
@@ -2516,7 +2519,10 @@ class DailyTreePublisher(Publisher):
             else:
                 logger.info(
                     "Purging %s/%s/%s" % (project, self.image_type_dir, entry))
-                shutil.rmtree(entry_path)
+                if os.path.islink(entry_path):
+                    osextras.unlink_force(entry_path)
+                else:
+                    shutil.rmtree(entry_path)
 
 
 class ChinaDailyTree(DailyTree):
