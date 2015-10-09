@@ -39,6 +39,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # XXX: Note that the EXTRA_PPAS bit here also needs to be mirrored in rebuild-requests:
 03 2 * * 1-5	DIST=vivid EXTRA_PPAS=ci-train-ppa-service/stable-phone-overlay:1001 for-project ubuntu-touch cron.daily-preinstalled --live
+05 2 * * 1-5	DIST=vivid EXTRA_PPAS=ci-train-ppa-service/stable-phone-overlay:1001 for-project ubuntu-pd cron.daily-preinstalled --live
 04 2 * * *	EXTRA_PPAS=ci-train-ppa-service/stable-phone-overlay:1001 for-project ubuntu-touch cron.daily-preinstalled --live
 
 */15 * * * *	mirror-image-build-logs
