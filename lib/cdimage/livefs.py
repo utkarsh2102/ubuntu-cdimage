@@ -899,7 +899,7 @@ def download_live_filesystems(config):
                         output_dir, "%s.umenu.exe" % arch)
                     if os.path.exists(umenu_path):
                         write_autorun(config, arch, "umenu.exe", "Install")
-                else:
+                elif series <= "vivid":
                     # TODO: We still have to do something about not
                     # including Wubi on the DVDs.
                     download_live_items(config, arch, "wubi")
