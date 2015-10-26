@@ -183,6 +183,7 @@ all_series.extend([
     Series("utopic", "14.10", "Utopic Unicorn"),
     Series("vivid", "15.04", "Vivid Vervet"),
     Series("wily", "15.10", "Wily Werewolf"),
+    Series("xenial", "16.04", "Xenial Xerus"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
