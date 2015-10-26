@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import os
 import subprocess
 
@@ -36,6 +34,8 @@ from cdimage.mail import (
     send_mail,
 )
 from cdimage.tests.helpers import TestCase, mkfile, touch
+
+__metaclass__ = type
 
 
 class TestNotify(TestCase):

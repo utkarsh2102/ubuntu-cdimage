@@ -17,14 +17,14 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import contextlib
 import errno
 import os
 import subprocess
 
 from cdimage import osextras
+
+__metaclass__ = type
 
 
 class SemaphoreError(Exception):

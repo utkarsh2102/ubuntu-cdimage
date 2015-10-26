@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import hashlib
 import os
 import shutil
@@ -38,6 +36,8 @@ from cdimage.checksums import (
 )
 from cdimage.config import Config
 from cdimage.tests.helpers import TestCase, mkfile, touch
+
+__metaclass__ = type
 
 
 class TestApplySed(TestCase):

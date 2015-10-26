@@ -26,10 +26,11 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import Config
 
 
 def main():
+    from cdimage.config import Config
+
     parser = OptionParser("%prog")
     parser.parse_args()
 

@@ -23,11 +23,12 @@ import socket
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import Config
-from cdimage.cloudfront import verify_cloudfront
 
 
 def main():
+    from cdimage.config import Config
+    from cdimage.cloudfront import verify_cloudfront
+
     parser = OptionParser("%prog URL-ROOT FILE [...]")
     _, args = parser.parse_args()
     if len(args) < 1:

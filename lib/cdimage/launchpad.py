@@ -17,8 +17,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 from collections import defaultdict, Mapping
 
 try:
@@ -29,12 +27,15 @@ except ImportError:
     Resource = type
     launchpad_available = False
 
+__metaclass__ = type
+
 
 class _CachingDict(Mapping):
     def __init__(self, lp_mapping, item_factory=None):
         self._lp_mapping = lp_mapping
         if item_factory is None:
-            item_factory = lambda v: v
+            def item_factory(v):
+                return v
         self._item_factory = item_factory
         self._cache = {}
 

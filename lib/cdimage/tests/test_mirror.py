@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import os
 
 try:
@@ -41,6 +39,8 @@ from cdimage.mirror import (
     trigger_mirrors,
 )
 from cdimage.tests.helpers import TestCase, mkfile, touch
+
+__metaclass__ = type
 
 
 class TestChecksumFile(TestCase):

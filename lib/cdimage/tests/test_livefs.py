@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 from collections import defaultdict
 from itertools import chain, repeat
 import os
@@ -60,6 +58,8 @@ from cdimage.livefs import (
     write_autorun,
 )
 from cdimage.tests.helpers import TestCase, mkfile, touch
+
+__metaclass__ = type
 
 
 class MockPeople(defaultdict):

@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 from functools import wraps
 try:
     from html.parser import HTMLParser
@@ -57,6 +55,8 @@ from cdimage.tree import (
     Tree,
     UnorderedList,
 )
+
+__metaclass__ = type
 
 
 class TestTree(TestCase):

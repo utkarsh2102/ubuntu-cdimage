@@ -17,8 +17,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import os
 import sys
 try:
@@ -31,6 +29,8 @@ except ImportError:
 
 from cdimage.checksums import ChecksumFile
 from cdimage.tree import SimpleReleaseTree
+
+__metaclass__ = type
 
 
 class HeadRequest(Request):

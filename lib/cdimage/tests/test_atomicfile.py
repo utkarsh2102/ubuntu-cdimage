@@ -17,12 +17,12 @@
 
 """Unit tests for cdimage.atomicfile."""
 
-__metaclass__ = type
-
 import os
 
 from cdimage.atomicfile import AtomicFile
 from cdimage.tests.helpers import TestCase
+
+__metaclass__ = type
 
 
 class TestAtomicFile(TestCase):

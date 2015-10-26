@@ -15,10 +15,10 @@
 
 """Logging for cdimage programs."""
 
-__metaclass__ = type
-
 import logging
 import sys
+
+__metaclass__ = type
 
 
 class CDImageLogger(logging.Formatter):

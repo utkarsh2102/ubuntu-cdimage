@@ -24,11 +24,12 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import Config
-from cdimage.tree import Publisher, Tree
 
 
 def main():
+    from cdimage.config import Config
+    from cdimage.tree import Publisher, Tree
+
     parser = OptionParser(usage="Usage: %prog [options] SERIES INSTANCE")
     parser.add_option('-b', '--build', help="Build any pending product",
                       action="store_true", default=False)

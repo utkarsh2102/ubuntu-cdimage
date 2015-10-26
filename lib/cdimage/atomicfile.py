@@ -15,12 +15,12 @@
 
 """Atomic writing of files."""
 
-__metaclass__ = type
-
 import codecs
 import io
 import os
 import sys
+
+__metaclass__ = type
 
 
 class AtomicFile:

@@ -17,8 +17,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 from contextlib import closing
 import fnmatch
 from gzip import GzipFile
@@ -41,6 +39,8 @@ from cdimage.launchpad import get_launchpad
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.tracker import tracker_set_rebuild_status
+
+__metaclass__ = type
 
 
 class UnknownArchitecture(Exception):
@@ -810,9 +810,11 @@ def write_autorun(config, arch, name, label):
     autorun_path = os.path.join(output_dir, "%s.autorun.inf" % arch)
     with io.open(autorun_path, "w", newline="\r\n") as autorun:
         if str is bytes:
-            u = lambda s: unicode(s, "unicode_escape")
+            def u(s):
+                return unicode(s, "unicode_escape")
         else:
-            u = lambda s: s
+            def u(s):
+                return s
         print(u(dedent("""\
             [autorun]
             open=%s

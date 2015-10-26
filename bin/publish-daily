@@ -22,11 +22,12 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import Config
-from cdimage.tree import Publisher, Tree
 
 
 def main():
+    from cdimage.config import Config
+    from cdimage.tree import Publisher, Tree
+
     parser = OptionParser("%prog DATE [IMAGE_TYPE]")
     _, args = parser.parse_args()
     if len(args) < 1:

@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import errno
 from itertools import count
 from optparse import OptionParser
@@ -46,6 +44,8 @@ from cdimage.log import logger, reset_logging
 from cdimage.mirror import trigger_mirrors
 from cdimage import osextras
 from cdimage.project import setenv_for_project
+
+__metaclass__ = type
 
 
 if sys.version < "3":

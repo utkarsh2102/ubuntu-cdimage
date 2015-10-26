@@ -17,8 +17,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import calendar
 import contextlib
 import errno
@@ -36,6 +34,8 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.log import logger
+
+__metaclass__ = type
 
 
 class UnlimitedBufferHandler(BufferingHandler):

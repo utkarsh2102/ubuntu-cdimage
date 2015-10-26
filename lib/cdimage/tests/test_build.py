@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 from functools import partial
 import gzip
 import optparse
@@ -66,6 +64,8 @@ from cdimage.config import Config, Touch
 from cdimage.log import logger
 from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch
+
+__metaclass__ = type
 
 
 class TestUpdateLocalIndices(TestCase):

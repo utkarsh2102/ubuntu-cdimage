@@ -17,13 +17,13 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import os
 import subprocess
 import sys
 
 from cdimage.log import logger
+
+__metaclass__ = type
 
 
 if sys.version >= "3":

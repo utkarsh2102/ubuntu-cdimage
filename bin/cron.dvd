@@ -22,11 +22,12 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.build import build_image_set
-from cdimage.config import Config
 
 
 def main():
+    from cdimage.build import build_image_set
+    from cdimage.config import Config
+
     parser = OptionParser("%prog")
     parser.add_option(
         "--live", default=False, action="store_true",

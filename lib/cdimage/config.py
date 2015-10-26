@@ -19,8 +19,6 @@ Most of this is a transitional measure to permit shell and Python programs
 to co-exist until such time as the whole of cdimage is rewritten.
 """
 
-__metaclass__ = type
-
 from collections import Iterable, defaultdict
 import fnmatch
 import operator
@@ -28,6 +26,8 @@ import os
 import sys
 
 from cdimage import osextras
+
+__metaclass__ = type
 
 
 class UnknownSeries(Exception):

@@ -17,8 +17,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 from collections import OrderedDict, defaultdict
 import errno
 import gzip
@@ -33,6 +31,8 @@ from cdimage.log import logger
 from cdimage.mail import send_mail
 from cdimage.mirror import find_mirror
 from cdimage.proxy import proxy_check_call
+
+__metaclass__ = type
 
 
 class GerminateNotInstalled(Exception):

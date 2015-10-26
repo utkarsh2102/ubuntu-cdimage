@@ -19,13 +19,13 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import os
 from textwrap import dedent
 
 from cdimage.config import Config, Series, all_series
 from cdimage.tests.helpers import TestCase, mkfile
+
+__metaclass__ = type
 
 
 class TestSeries(TestCase):

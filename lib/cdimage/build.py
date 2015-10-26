@@ -17,8 +17,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import contextlib
 import gzip
 import os
@@ -47,6 +45,8 @@ from cdimage.semaphore import Semaphore
 from cdimage.tracker import tracker_set_rebuild_status
 from cdimage.tree import Publisher, Tree
 from cdimage.config import Touch
+
+__metaclass__ = type
 
 
 @contextlib.contextmanager

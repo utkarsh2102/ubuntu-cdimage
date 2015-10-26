@@ -17,13 +17,13 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import errno
 import os
 import subprocess
 
 from cdimage.log import logger
+
+__metaclass__ = type
 
 
 def find_mirror(config, arch):

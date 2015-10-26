@@ -17,12 +17,12 @@
 
 """Test that all top-level scripts work."""
 
-__metaclass__ = type
-
 import os
 import subprocess
 
 from cdimage.tests.helpers import TestCase
+
+__metaclass__ = type
 
 
 class TestScripts(TestCase):

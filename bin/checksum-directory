@@ -22,11 +22,15 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.checksums import checksum_directory, metalink_checksum_directory
-from cdimage.config import Config
 
 
 def main():
+    from cdimage.checksums import (
+        checksum_directory,
+        metalink_checksum_directory,
+    )
+    from cdimage.config import Config
+
     parser = OptionParser("%prog [options] DIR [OLD_DIR ...]")
     parser.add_option(
         "--map", metavar="s/REGEXP/REPLACEMENT/",

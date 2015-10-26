@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 from functools import partial
 import gzip
 import os
@@ -41,6 +39,8 @@ from cdimage.germinate import (
 )
 from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch
+
+__metaclass__ = type
 
 
 class TestGermination(TestCase):

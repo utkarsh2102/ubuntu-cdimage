@@ -25,11 +25,12 @@ import stat
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import Config
-from cdimage.tree import Tree
 
 
 def main():
+    from cdimage.config import Config
+    from cdimage.tree import Tree
+
     parser = OptionParser("%prog DIRECTORY [FILE]")
     _, args = parser.parse_args()
     if len(args) < 1:

@@ -9,9 +9,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
-from cdimage.config import Config
-from cdimage.mail import get_notify_addresses, send_mail
-from cdimage.tree import Publisher, Tree
 
 
 warnings = {}
@@ -105,6 +102,8 @@ def project_title(project):
 
 
 def check_image(config, project, series, image):
+    from cdimage.tree import Publisher, Tree
+
     config["PROJECT"] = project
     config["DIST"] = series
     tree = Tree.get_daily(config)
@@ -144,6 +143,8 @@ def check_image(config, project, series, image):
 
 
 def check_uninstallables(config, project, series, image):
+    from cdimage.tree import Publisher, Tree
+
     config["PROJECT"] = project
     config["DIST"] = series
     tree = Tree.get_daily(config)
@@ -184,6 +185,8 @@ def get_all_warnings(projects):
 
 
 def send_warnings(config, options, projects):
+    from cdimage.mail import get_notify_addresses, send_mail
+
     releasers = get_notify_addresses(config)
     all_warnings = get_all_warnings(projects)
     if all_warnings == '':
@@ -218,6 +221,8 @@ If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
 
 
 def main():
+    from cdimage.config import Config
+
     parser = OptionParser("%prog [options]")
     parser.add_option(
         "--stdout", default=False, action="store_true",

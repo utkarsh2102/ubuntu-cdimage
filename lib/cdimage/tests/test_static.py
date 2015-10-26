@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import os
 import re
 import subprocess
@@ -28,6 +26,8 @@ import sys
 
 from cdimage import osextras
 from cdimage.tests.helpers import TestCase
+
+__metaclass__ = type
 
 
 class TestStatic(TestCase):

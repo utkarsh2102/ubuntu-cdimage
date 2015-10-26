@@ -19,8 +19,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import os
 
 try:
@@ -30,6 +28,8 @@ except ImportError:
 
 from cdimage.semaphore import Semaphore, SemaphoreError
 from cdimage.tests.helpers import TestCase, mkfile
+
+__metaclass__ = type
 
 
 class TestSemaphore(TestCase):

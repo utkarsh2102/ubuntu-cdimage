@@ -17,8 +17,6 @@
 
 from __future__ import print_function
 
-__metaclass__ = type
-
 import hashlib
 import os
 import re
@@ -26,6 +24,8 @@ import subprocess
 
 from cdimage.atomicfile import AtomicFile
 from cdimage.sign import can_sign, sign_cdimage
+
+__metaclass__ = type
 
 
 def apply_sed(text, expression):
