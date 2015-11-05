@@ -911,7 +911,7 @@ class Publisher:
         elif arch == "ppc64el":
             sentences.append(
                 "For POWER8 Little-Endian computers, such as Power Systems "
-                "S8xxL Linux-only servers.")
+                "S8xxL/LC Linux-only servers.")
         elif arch == "sparc":
             sentences.append(
                 "For Sun UltraSPARC computers, including those based on the "
