@@ -50,7 +50,7 @@ case $DIST in
 esac
 
 GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
-SIGNING_KEYID=FBB75451
+SIGNING_KEYID='FBB75451 EFE21092'
 
 #export LOCAL_SEEDS=file:///path/to/local_seeds
 
