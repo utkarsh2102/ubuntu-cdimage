@@ -51,9 +51,27 @@ class TestSign(TestCase):
             "--secret-keyring", "/path/secring.gpg",
             "--keyring", "/path/pubring.gpg",
             "--trustdb-name", "/path/trustdb.gpg",
-            "--default-key", "01234567",
             "--no-options", "--batch", "--no-tty",
             "--armour", "--detach-sign",
+            "--digest-algo", "SHA512",
+            "-u", "01234567",
+        ], command)
+
+    def test_signing_command_two_keys(self):
+        config = Config(read=False)
+        config["GNUPG_DIR"] = "/path"
+        config["SIGNING_KEYID"] = "01234567 89ABCDEF"
+        command = _signing_command(config)
+        self.assertEqual([
+            "gpg", "--options", "/path/gpg.conf",
+            "--no-default-keyring",
+            "--secret-keyring", "/path/secring.gpg",
+            "--keyring", "/path/pubring.gpg",
+            "--trustdb-name", "/path/trustdb.gpg",
+            "--no-options", "--batch", "--no-tty",
+            "--armour", "--detach-sign",
+            "--digest-algo", "SHA512",
+            "-u", "01234567", "-u", "89ABCDEF",
         ], command)
 
     def test_sign_cdimage_missing_gnupg_files(self):
@@ -92,9 +110,10 @@ class TestSign(TestCase):
             "--secret-keyring", secring,
             "--keyring", pubring,
             "--trustdb-name", trustdb,
-            "--default-key", "01234567",
             "--no-options", "--batch", "--no-tty",
             "--armour", "--detach-sign",
+            "--digest-algo", "SHA512",
+            "-u", "01234567",
         ]
         mock_check_call.assert_called_once_with(
             expected_command, stdin=mock.ANY, stdout=mock.ANY)

@@ -41,16 +41,25 @@ def can_sign(config):
 
 def _signing_command(config):
     gpgconf, secring, pubring, trustdb = _gnupg_files(config)
-    return [
+    cmd = [
         "gpg", "--options", gpgconf,
         "--no-default-keyring",
         "--secret-keyring", secring,
         "--keyring", pubring,
         "--trustdb-name", trustdb,
-        "--default-key", config["SIGNING_KEYID"],
         "--no-options", "--batch", "--no-tty",
         "--armour", "--detach-sign",
+        # FBB75451 and EFE21092 have different digest preferences.  GnuPG
+        # refuses to consider multiple signatures unless they use the same
+        # signature class and digest algorithm.  We must therefore force the
+        # digest algorithm to something both keys can do.  Fortunately, gpg
+        # supports SHA-512 hashes with 1024-bit DSA keys by way of taking
+        # the leftmost 160 bits of the hash; so we can use SHA-512 for both.
+        "--digest-algo", "SHA512",
     ]
+    for key_id in config["SIGNING_KEYID"].split():
+        cmd.extend(["-u", key_id])
+    return cmd
 
 
 def sign_cdimage(config, path):
