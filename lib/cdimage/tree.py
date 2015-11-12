@@ -1919,11 +1919,14 @@ class DailyTreePublisher(Publisher):
                 "%s.device.tar.gz" % source_prefix,
                 "%s.device.tar.gz" % target_prefix)
 
-        if os.path.exists("%s.azure.device.tar.gz" % source_prefix):
-            logger.info("Publishing %s azure device tarball ..." % arch)
-            shutil.move(
-                "%s.azure.device.tar.gz" % source_prefix,
-                "%s.azure.device.tar.gz" % target_prefix)
+            for devarch in ("azure", "plano", "raspi2"):
+                if os.path.exists("%s.%s.device.tar.gz" % (source_prefix,
+                                                           devarch)):
+                    logger.info("Publishing %s %s device tarball ..." %
+                                (arch, devarch))
+                    shutil.move(
+                        "%s.%.device.tar.gz" % (source_prefix, devarch),
+                        "%s.%.device.tar.gz" % (target_prefix, devarch))
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):

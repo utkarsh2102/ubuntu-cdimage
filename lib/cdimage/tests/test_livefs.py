@@ -989,7 +989,8 @@ class TestLiveItemPaths(TestCase):
             "cloop", "squashfs", "manifest", "manifest-desktop",
             "manifest-remove", "size", "ext2", "ext3", "ext4", "rootfs.tar.gz",
             "custom.tar.gz", "tar.xz", "iso", "device.tar.gz",
-            "azure.device.tar.gz",
+            "azure.device.tar.gz", "plano.device.tar.gz",
+            "raspi2.device.tar.gz",
         ):
             self.assertPathsEqual(
                 ["http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/"
