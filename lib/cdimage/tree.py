@@ -1925,8 +1925,8 @@ class DailyTreePublisher(Publisher):
                     logger.info("Publishing %s %s device tarball ..." %
                                 (arch, devarch))
                     shutil.move(
-                        "%s.%.device.tar.gz" % (source_prefix, devarch),
-                        "%s.%.device.tar.gz" % (target_prefix, devarch))
+                        "%s.%s.device.tar.gz" % (source_prefix, devarch),
+                        "%s.%s.device.tar.gz" % (target_prefix, devarch))
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):
