@@ -534,6 +534,8 @@ def flavours(config, arch):
             return ["powerpc-smp", "powerpc64-smp"]
     elif cpuarch == "ppc64el":
         return ["generic"]
+    elif cpuarch == "s390x":
+        return ["generic"]
     elif cpuarch == "sparc":
         return ["sparc64"]
     else:

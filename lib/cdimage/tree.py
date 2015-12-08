@@ -819,6 +819,7 @@ class Publisher:
         "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
         "powerpc+ps3": "PlayStation 3",
         "ppc64el": "PowerPC64 Little-Endian",
+        "s390x": "IBM System z",
         "sparc": "SPARC",
     }
 
@@ -912,6 +913,9 @@ class Publisher:
             sentences.append(
                 "For POWER8 Little-Endian computers, such as Power Systems "
                 "S8xxL/LC Linux-only servers.")
+        elif arch == "s390x":
+            sentences.append(
+                "For IBM System z series mainframes, such as IBM LinuxONE.")
         elif arch == "sparc":
             sentences.append(
                 "For Sun UltraSPARC computers, including those based on the "
@@ -1129,6 +1133,7 @@ class Publisher:
             "hppa",
             "ia64",
             "lpia",
+            "s390x",
             "sparc",
         )
 
@@ -1811,7 +1816,8 @@ class DailyTreePublisher(Publisher):
             if series < "dapper" or series > "gutsy":
                 return True
         elif cpuarch in (
-                "arm64", "armel", "armhf", "hppa", "ia64", "lpia", "ppc64el"):
+                "arm64", "armel", "armhf", "hppa", "ia64", "lpia", "ppc64el",
+                "s390x"):
             return True
         return False
 

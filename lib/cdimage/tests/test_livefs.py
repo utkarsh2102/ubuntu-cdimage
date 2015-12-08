@@ -947,6 +947,10 @@ class TestFlavours(TestCase):
         for series in all_series:
             self.assertFlavoursEqual("generic", "ppc64el", "ubuntu", series)
 
+    def test_s390x(self):
+        for series in all_series:
+            self.assertFlavoursEqual("generic", "s390x", "ubuntu", series)
+
     def test_sparc(self):
         for series in all_series:
             self.assertFlavoursEqual("sparc64", "sparc", "ubuntu", series)
