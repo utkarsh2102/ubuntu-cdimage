@@ -811,7 +811,8 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily")
         for arch in ("amd64", "i386"):
             self.assertFalse(publisher.jigdo_ports(arch))
-        for arch in ("armel", "armhf", "hppa", "ia64", "lpia", "ppc64el"):
+        for arch in ("armel", "armhf", "hppa", "ia64", "lpia", "ppc64el",
+                     "s390x"):
             self.assertTrue(publisher.jigdo_ports(arch))
 
     def test_replace_jigdo_mirror(self):

@@ -79,7 +79,8 @@ ubuntu-server		*			natty-oneiric		amd64 amd64+mac armel+dove armel+omap armel+om
 ubuntu-server		*			precise			amd64 i386
 ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
-ubuntu-server		*			utopic-			amd64 i386 powerpc ppc64el
+ubuntu-server		*			utopic-wily		amd64 i386 powerpc ppc64el
+ubuntu-server		*			xenial-			amd64 i386 powerpc ppc64el s390x
 
 ubuntu-wubi		*			*			amd64 i386
 
