@@ -605,7 +605,6 @@ def live_item_paths(config, arch, item):
     cpuarch, subarch = split_arch(arch)
     project = config.project
     series = config["DIST"]
-    root = livecd_base(config, arch)
     liveproject = live_project(config, arch)
     if subarch:
         liveproject_subarch = "%s-%s" % (liveproject, subarch)
@@ -625,6 +624,8 @@ def live_item_paths(config, arch, item):
                 if unquote(os.path.basename(url)) == base:
                     yield url
     else:
+        root = livecd_base(config, arch)
+
         def urls_for(base):
             yield "%s/%s" % (root, base)
 
