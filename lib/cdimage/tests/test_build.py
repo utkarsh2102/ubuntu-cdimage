@@ -23,6 +23,7 @@ from functools import partial
 import gzip
 import optparse
 import os
+import signal
 import stat
 import subprocess
 import sys
@@ -1210,6 +1211,29 @@ class TestBuildImageSet(TestCase):
             KeyboardInterrupt, build_image_set, self.config, None)
         self.assertFalse(os.path.exists(lock_path))
         self.assertFalse(os.path.exists(semaphore_path))
+
+    @mock.patch("cdimage.build.build_image_set_locked")
+    def test_build_image_set_terminated(self, mock_build_image_set_locked):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "raring"
+        self.config["IMAGE_TYPE"] = "daily"
+        lock_path = os.path.join(
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
+        semaphore_path = os.path.join(
+            self.temp_dir, "etc", ".sem-build-image-set")
+        os.makedirs(os.path.dirname(lock_path))
+
+        def side_effect(config, options, semaphore_state):
+            os.kill(os.getpid(), signal.SIGTERM)
+
+        mock_build_image_set_locked.side_effect = side_effect
+        pid = os.fork()
+        if pid == 0:  # child
+            build_image_set(self.config, None)
+            os._exit(1)
+        else:  # parent
+            self.wait_for_pid(pid, signal.SIGTERM)
+            self.assertFalse(os.path.exists(semaphore_path))
 
     @mock.patch("cdimage.build.build_image_set_locked")
     def test_build_image_set(self, mock_build_image_set_locked):

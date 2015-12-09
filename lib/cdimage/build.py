@@ -21,6 +21,7 @@ import contextlib
 import gzip
 import os
 import shutil
+import signal
 import socket
 import stat
 import subprocess
@@ -756,9 +757,42 @@ def build_image_set_locked(config, options, semaphore_state):
         return False
 
 
+class SignalExit(SystemExit):
+    """A variant of SystemExit indicating receipt of a signal."""
+
+    def __init__(self, signum):
+        self.signum = signum
+
+
+@contextlib.contextmanager
+def handle_signals():
+    """Handle some extra signals that cdimage might receive.
+
+    These need to turn into Python exceptions so that we have an opportunity
+    to release locks.
+    """
+    def handler(signum, frame):
+        raise SignalExit(signum)
+
+    old_handlers = []
+    for signum in signal.SIGQUIT, signal.SIGTERM:
+        old_handlers.append((signum, signal.signal(signum, handler)))
+    try:
+        try:
+            yield
+        finally:
+            for signum, old_handler in old_handlers:
+                signal.signal(signum, old_handler)
+    except SignalExit as e:
+        # In order to get a correct exit code, resend the signal now that
+        # we've removed our handlers.
+        os.kill(os.getpid(), e.signum)
+
+
 def build_image_set(config, options):
     """Master entry point for building images."""
-    semaphore = Semaphore(
-        os.path.join(config.root, "etc", ".sem-build-image-set"))
-    with lock_build_image_set(config), semaphore.held() as semaphore_state:
-        return build_image_set_locked(config, options, semaphore_state)
+    with handle_signals():
+        semaphore = Semaphore(
+            os.path.join(config.root, "etc", ".sem-build-image-set"))
+        with lock_build_image_set(config), semaphore.held() as semaphore_state:
+            return build_image_set_locked(config, options, semaphore_state)
