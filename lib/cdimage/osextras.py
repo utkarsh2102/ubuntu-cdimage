@@ -200,3 +200,13 @@ def read_shell_config(config_path=None, whitelisted_keys=[]):
     env = _read_nullsep_output(["sh", "-c", "; ".join(commands)])
     for key, value in env.items():
         yield key, value
+
+
+def pid_exists(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError as e:
+        if e.errno == errno.ESRCH:
+            return False
+        raise

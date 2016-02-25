@@ -225,3 +225,12 @@ class TestOSExtras(TestCase):
         self.assertEqual("one two three", config_dict["ONE"])
         self.assertEqual("two", config_dict["TWO"])
         self.assertNotIn("three", config_dict)
+
+    def test_pid_exists(self):
+        self.assertTrue(osextras.pid_exists(os.getpid()))
+        esrch = OSError(errno.ESRCH, "No such process")
+        with mock.patch("os.kill", side_effect=esrch):
+            self.assertFalse(osextras.pid_exists(os.getpid()))
+        enoent = OSError(errno.ENOENT, "No such file or directory")
+        with mock.patch("os.kill", side_effect=enoent):
+            self.assertRaises(OSError, osextras.pid_exists, os.getpid())

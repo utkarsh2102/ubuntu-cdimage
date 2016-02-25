@@ -1204,13 +1204,13 @@ class TestBuildImageSet(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
             self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
-        semaphore_path = os.path.join(
-            self.temp_dir, "etc", ".sem-build-image-set")
+        multipidfile_path = os.path.join(
+            self.temp_dir, "etc", ".build-image-set-pids")
         os.makedirs(os.path.dirname(lock_path))
         self.assertRaises(
             KeyboardInterrupt, build_image_set, self.config, None)
         self.assertFalse(os.path.exists(lock_path))
-        self.assertFalse(os.path.exists(semaphore_path))
+        self.assertFalse(os.path.exists(multipidfile_path))
 
     @mock.patch("cdimage.build.build_image_set_locked")
     def test_build_image_set_terminated(self, mock_build_image_set_locked):
@@ -1219,11 +1219,11 @@ class TestBuildImageSet(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
             self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
-        semaphore_path = os.path.join(
-            self.temp_dir, "etc", ".sem-build-image-set")
+        multipidfile_path = os.path.join(
+            self.temp_dir, "etc", ".build-image-set-pids")
         os.makedirs(os.path.dirname(lock_path))
 
-        def side_effect(config, options, semaphore_state):
+        def side_effect(config, options, multipidfile_state):
             os.kill(os.getpid(), signal.SIGTERM)
 
         mock_build_image_set_locked.side_effect = side_effect
@@ -1233,7 +1233,7 @@ class TestBuildImageSet(TestCase):
             os._exit(1)
         else:  # parent
             self.wait_for_pid(pid, signal.SIGTERM)
-            self.assertFalse(os.path.exists(semaphore_path))
+            self.assertFalse(os.path.exists(multipidfile_path))
 
     @mock.patch("cdimage.build.build_image_set_locked")
     def test_build_image_set(self, mock_build_image_set_locked):
@@ -1242,16 +1242,16 @@ class TestBuildImageSet(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
             self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
-        semaphore_path = os.path.join(
-            self.temp_dir, "etc", ".sem-build-image-set")
+        multipidfile_path = os.path.join(
+            self.temp_dir, "etc", ".build-image-set-pids")
         os.makedirs(os.path.dirname(lock_path))
 
-        def side_effect(config, options, semaphore_state):
+        def side_effect(config, options, multipidfile_state):
             self.assertTrue(os.path.exists(lock_path))
             self.assertIsNone(options)
-            self.assertEqual(0, semaphore_state)
-            with open(semaphore_path) as semaphore:
-                self.assertEqual("1\n", semaphore.read())
+            self.assertEqual(set(), multipidfile_state)
+            with open(multipidfile_path) as multipidfile:
+                self.assertEqual("%d\n" % os.getpid(), multipidfile.read())
 
         mock_build_image_set_locked.side_effect = side_effect
         build_image_set(self.config, None)

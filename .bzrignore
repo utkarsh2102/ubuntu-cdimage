@@ -13,7 +13,7 @@
 ./ubuntu-archive-tools
 ./www
 __pycache__
+etc/.build-image-set-pids
 etc/.lock*
 etc/.next-build-suffix*
-etc/.sem-build-image-set
 etc/task-mail
