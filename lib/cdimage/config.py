@@ -217,7 +217,6 @@ class Touch:
 # TODO: This should probably come from a configuration file.
 all_touch_targets.extend([
     Touch("mako", "armel", "armhf"),
-    Touch("manta", "armel", "armhf"),
     Touch("generic", "armel", "armhf"),
     Touch("generic_x86", "i386", "i386"),
     Touch("flo", "armel", "armhf"),
