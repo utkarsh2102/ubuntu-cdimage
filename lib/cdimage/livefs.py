@@ -633,7 +633,8 @@ def live_item_paths(config, arch, item):
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
         "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "custom.tar.gz",
         "device.tar.gz", "azure.device.tar.gz", "raspi2.device.tar.gz",
-        "plano.device.tar.gz", "tar.xz", "iso",
+        "plano.device.tar.gz", "tar.xz", "iso", "os.snap", "kernel.snap",
+        "dragonboard.kernel.snap", "raspi2.kernel.snap"
     ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
@@ -965,12 +966,17 @@ def download_live_filesystems(config):
 
     if config.project == "ubuntu-core":
         for arch in config.arches:
+            download_live_items(config, arch, "os.snap")
+            download_live_items(config, arch, "kernel.snap")
             if arch == "amd64":
                 for devarch in ("azure", "plano"):
                     download_live_items(config, arch, "%s.device.tar.gz" %
                                         devarch)
             if arch == "armhf":
                 download_live_items(config, arch, "raspi2.device.tar.gz")
+                download_live_items(config, arch, "raspi2.kernel.snap")
+            if arch == "arm64":
+                download_live_items(config, arch, "dragonboard.kernel.snap")
 
     if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and
             series <= "hardy"):

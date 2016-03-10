@@ -1724,7 +1724,7 @@ class DailyTreePublisher(Publisher):
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             return 1024 * 1024 * 1024
         elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
-            # http://irclogs.ubuntu.com/2016/03/09/%23ubuntu-release.html#t12:11
+            #http://irclogs.ubuntu.com/2016/03/09/%23ubuntu-release.html#t12:11
             return 1460000000
         elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
@@ -1936,6 +1936,29 @@ class DailyTreePublisher(Publisher):
                     shutil.move(
                         "%s.%s.device.tar.gz" % (source_prefix, devarch),
                         "%s.%s.device.tar.gz" % (target_prefix, devarch))
+
+        # os snap packages
+        if os.path.exists("%s.os.snap" % source_prefix):
+            logger.info("Publishing %s os snap package ..." % arch)
+            shutil.move(
+                "%s.os.snap" % source_prefix,
+                "%s.os.snap" % target_prefix)
+
+        # kernel snap packages
+        if os.path.exists("%s.kernel.snap" % source_prefix):
+            logger.info("Publishing %s kernel snap package ..." % arch)
+            shutil.move(
+                "%s.kernel.snap" % source_prefix,
+                "%s.kernel.snap" % target_prefix)
+
+            for devarch in ("dragonboard", "raspi2"):
+                if os.path.exists("%s.%s.kernel.snap" % (source_prefix,
+                                                         devarch)):
+                    logger.info("Publishing %s %s kernel snap package ..." %
+                                (arch, devarch))
+                    shutil.move(
+                        "%s.%s.kernel.snap" % (source_prefix, devarch),
+                        "%s.%s.kernel.snap" % (target_prefix, devarch))
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):

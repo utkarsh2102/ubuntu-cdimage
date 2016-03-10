@@ -519,6 +519,12 @@ def build_livecd_base(config):
                         if os.path.exists(device):
                             shutil.copy2(
                                 device, "%s.%s.tar.gz" % (output_prefix, dev))
+                    for snaptype in ("os", "kernel", "raspi2.kernel",
+                                     "dragonboard.kernel"):
+                        snap = "%s.%s.snap" % (live_prefix, snaptype)
+                        if os.path.exists(snap):
+                            shutil.copy2(
+                                snap, "%s.%s.snap" % (output_prefix, snaptype))
 
 
 def _debootstrap_script(config):
