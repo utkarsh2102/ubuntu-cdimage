@@ -73,6 +73,7 @@ projects = [
     "ubuntu-headless",
     "ubuntu-netbook",
     "ubuntu-server",
+    "ubuntu-cpc",
     "ubuntukylin",
     "ubuntustudio",
     "xubuntu",
@@ -375,6 +376,8 @@ class Publisher:
             elif self.project == "ubuntu-headless":
                 return "preinstalled-headless"
             elif self.project == "ubuntu-server":
+                return "preinstalled-server"
+            elif self.project == "ubuntu-cpc":
                 return "preinstalled-server"
             elif self.project == "ubuntu-touch":
                 return "preinstalled-touch"
@@ -1072,7 +1075,8 @@ class Publisher:
         images = []
         prefix_type = "%s-%s" % (prefix, publish_type)
         for entry in os.listdir(directory):
-            if entry == ("%s.img" % prefix_type):
+            if entry == ("%s.img" % prefix_type) or
+               entry == ("%s.img.xz" % prefix_type):
                 images.append(entry)
             elif publish_type == "wubi" and entry.endswith(".tar.xz"):
                 # Wubi images are just "ARCH.tar.xz", with no prefix.
@@ -1126,6 +1130,7 @@ class Publisher:
             "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
             "armel+ac100", "armel+mx5",
             "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
+            "armhf+raspi2",
             "armhf+nexus7", "armhf", "armel", "arm64",
             "powerpc",
             "powerpc+ps3",
@@ -1259,11 +1264,11 @@ class Publisher:
                         arches = all_arches
 
                     for image_format in (
-                        "iso", "img", "img.gz", "img.tar.gz", "tar.gz",
-                        "tar.xz", "custom.tar.gz",
+                        "iso", "img", "img.gz", "img.xz", "img.tar.gz",
+                        "tar.gz", "tar.xz", "custom.tar.gz",
                     ):
                         paths = []
-                        if image_format == "img":
+                        if image_format == "img" or image_format == "img.xz":
                             path = os.path.join(
                                 directory,
                                 "%s-%s.%s" % (
@@ -1374,6 +1379,7 @@ class Publisher:
                             else:
                                 htaccess_extensions = (
                                     "img.gz.torrent", "img.gz.zsync", "img.gz",
+                                    "img.xz",
                                     "img.tar.gz", "img.torrent", "img.zsync",
                                     "img", "iso.torrent", "iso.zsync", "iso",
                                     "jigdo", "list", "manifest",
@@ -2933,6 +2939,8 @@ class ReleasePublisher(Publisher):
             "uec", "server-uec", "core", "wubi",
         ):
             return True
+        elif publish_type.startswith("preinstalled") and os.path.exists(path):
+            return True
         elif publish_type == "dvd" and os.path.exists(path):
             # DVDs are allowed to not have .manifest files, but may have
             # them depending on configuration.
@@ -3064,7 +3072,7 @@ class ReleasePublisher(Publisher):
             if self.want_full:
                 self.copy(daily("manifest"), full("manifest"))
 
-        for ext in "iso", "img", "img.gz", "tar.gz":
+        for ext in "iso", "img", "img.gz", "img.xz", "tar.gz":
             zsyncext = "%s.zsync" % ext
             if not os.path.exists(daily(zsyncext)):
                 continue

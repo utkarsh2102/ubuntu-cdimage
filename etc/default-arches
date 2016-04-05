@@ -28,6 +28,8 @@ ubuntu-core-system-image		daily-preinstalled	utopic			amd64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	vivid-			amd64 arm64 armhf i386
 *			livecd-base		oneiric-		amd64 i386 powerpc
 
+ubuntu-cpc		daily-preinstalled	xenial			armhf+raspi2
+
 jeos			*			*			i386
 
 kubuntu			daily-live		feisty-intrepid		amd64 i386 ia64 powerpc

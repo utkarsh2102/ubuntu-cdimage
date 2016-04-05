@@ -54,6 +54,7 @@ project_map = {
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "ubuntu-touch": "Ubuntu Touch",
     "ubuntu-pd": "Ubuntu Pocket Desktop",
+    "ubuntu-cpc": "Ubuntu CPC",
     "tocd3": "TheOpenCDv3",
     "tocd3.1": "TheOpenCDv3.1",
 }
