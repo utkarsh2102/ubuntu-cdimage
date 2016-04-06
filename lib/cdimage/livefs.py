@@ -33,7 +33,7 @@ try:
 except ImportError:
     from urllib2 import URLError, unquote, urlopen
 
-from cdimage import osextras
+from cdimage import osextras, sign
 from cdimage.config import Series, Touch
 from cdimage.launchpad import get_launchpad
 from cdimage.log import logger
@@ -804,6 +804,8 @@ def download_live_items(config, arch, item):
         target = os.path.join(output_dir, "%s.%s" % (arch, item))
         try:
             osextras.fetch(config, urls[0], target)
+            if item in ["squashfs", "server-squashfs"]:
+                sign.sign_cdimage(config, target)
             found = True
         except osextras.FetchError:
             pass
