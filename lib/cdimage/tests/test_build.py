@@ -726,6 +726,7 @@ class TestBuildImageSet(TestCase):
             mock.call(expected_rsync_base + [
                 "--exclude", "Packages*", "--exclude", "Sources*",
                 "--exclude", "Release*", "--exclude", "InRelease",
+                "--include", "i18n/by-hash/**", "--exclude", "i18n/*",
                 "--exclude", "foo",
                 "rsync.example.org::ubuntu/", "%s/" % target,
             ], stdout=mock.ANY, stderr=subprocess.STDOUT, env=mock.ANY),

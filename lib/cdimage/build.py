@@ -206,6 +206,7 @@ def anonftpsync(config):
                 command_base + [
                     "--exclude", "Packages*", "--exclude", "Sources*",
                     "--exclude", "Release*", "--exclude", "InRelease",
+                    "--include", "i18n/by-hash/**", "--exclude", "i18n/*",
                 ] + exclude + source_target,
                 stdout=log, stderr=subprocess.STDOUT, env=env)
 
