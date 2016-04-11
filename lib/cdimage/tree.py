@@ -1724,7 +1724,8 @@ class DailyTreePublisher(Publisher):
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             return 1024 * 1024 * 1024
         elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
-            #http://irclogs.ubuntu.com/2016/03/09/%23ubuntu-release.html#t12:11
+            # http://irclogs.ubuntu.com/2016/03/09/
+            #   %23ubuntu-release.html#t12:11
             return 1460000000
         elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48

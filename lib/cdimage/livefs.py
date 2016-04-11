@@ -634,7 +634,7 @@ def live_item_paths(config, arch, item):
         "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "custom.tar.gz",
         "device.tar.gz", "azure.device.tar.gz", "raspi2.device.tar.gz",
         "plano.device.tar.gz", "tar.xz", "iso", "os.snap", "kernel.snap",
-        "dragonboard.kernel.snap", "raspi2.kernel.snap"
+        "dragonboard.kernel.snap", "raspi2.kernel.snap",
     ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
