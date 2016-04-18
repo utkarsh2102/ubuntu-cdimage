@@ -1151,20 +1151,14 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["DIST"] = "xenial"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.assertTrue(download_live_items(self.config, "armhf+raspi2",
-                                            "disk.img.xz"))
-        prefix = ("http://royal.buildd/~buildd/LiveCD/xenial/ubuntu-cpc/current/"
-                  "livecd.ubuntu-cpc.disk1.img.xz")
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-server", "xenial", "daily-preinstalled",
-            "preinstalled-server")
-        mock_fetch.assert_has_calls([
-            mock.call(
-                self.config, prefix + "armhf+raspi2",
-                os.path.join(target_dir, "armhf+raspi2.-ubuntu-cpc")),
-            mock.call(
-                self.config, prefix + "armhf+raspi2",
-                os.path.join(target_dir, "armhf+raspi2.-ubuntu-cpc")),
-        ])
+                                            "disk1.img.xz"))
+        mock_fetch.assert_called_once_with(
+            self.config,
+            "http://kishi00.buildd/~buildd/LiveCD/xenial/ubuntu-cpc-raspi2"
+            "/current/livecd.ubuntu-cpc.disk1.img.xz",
+            os.path.join(
+                self.temp_dir, "scratch", "ubuntu-cpc", "xenial",
+                "daily-preinstalled", "live", "armhf+raspi2.disk1.img.xz"))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_initrd(self, mock_fetch):

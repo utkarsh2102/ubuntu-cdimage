@@ -465,12 +465,12 @@ def build_livecd_base(config):
         scratch_dir = os.path.join(
             config.root, "scratch", config.project, config.full_series,
             config.image_type)
-        img_dir = os.path.join(scratch_dir, "live")
+        live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
             output_dir = os.path.join(scratch_dir, "debian-cd", arch)
             osextras.ensuredir(output_dir)
-            img_prefix = os.path.join(img_dir, config.project)
-            image = "%s-%s.img.xz" % (img_prefix, arch)
+            live_prefix = os.path.join(live_dir, arch)
+            rootfs = "%s.disk1.img.xz" % (live_prefix)
             if config.project == "ubuntu-cpc":
                 if config.image_type == "daily-preinstalled":
                     output_prefix = os.path.join(

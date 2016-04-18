@@ -1075,8 +1075,7 @@ class Publisher:
         images = []
         prefix_type = "%s-%s" % (prefix, publish_type)
         for entry in os.listdir(directory):
-            if entry == ("%s.img" % prefix_type) or
-               entry == ("%s.img.xz" % prefix_type):
+            if entry in ("%s.img" % prefix_type, "%s.img.xz" % prefix_type):
                 images.append(entry)
             elif publish_type == "wubi" and entry.endswith(".tar.xz"):
                 # Wubi images are just "ARCH.tar.xz", with no prefix.
@@ -1127,11 +1126,11 @@ class Publisher:
         all_arches = (
             "amd64", "amd64+mac",
             "i386",
-            "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
+            "armel", "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
             "armel+ac100", "armel+mx5",
-            "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
-            "armhf+raspi2",
-            "armhf+nexus7", "armhf", "armel", "arm64",
+            "armhf", "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
+            "armhf+nexus7", "armhf+raspi2",
+            "arm64",
             "powerpc",
             "powerpc+ps3",
             "ppc64el",
@@ -1379,13 +1378,13 @@ class Publisher:
                             else:
                                 htaccess_extensions = (
                                     "img.gz.torrent", "img.gz.zsync", "img.gz",
-                                    "img.xz",
-                                    "img.tar.gz", "img.torrent", "img.zsync",
-                                    "img", "iso.torrent", "iso.zsync", "iso",
-                                    "jigdo", "list", "manifest",
-                                    "manifest-desktop", "manifest-remove",
-                                    "template", "tar.gz", "tar.gz.zsync",
-                                    "bootimg", "tar.xz", "custom.tar.gz",
+                                    "img.xz", "img.tar.gz", "img.torrent",
+                                    "img.zsync", "img", "iso.torrent",
+                                    "iso.zsync", "iso", "jigdo", "list",
+                                    "manifest", "manifest-desktop",
+                                    "manifest-remove", "template", "tar.gz",
+                                    "tar.gz.zsync", "bootimg", "tar.xz",
+                                    "custom.tar.gz",
                                 )
                             for extension in htaccess_extensions:
                                 extpath = "%s.%s" % (base, extension)

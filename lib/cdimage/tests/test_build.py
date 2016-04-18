@@ -298,12 +298,13 @@ class TestBuildLiveCDBase(TestCase):
     def test_ubuntu_cpc(self, mock_fetch):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
-                    target.endswith(".img.xz")):
+                    target.endswith(".disk1.img.xz")):
                 touch(target)
             else:
                 raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
+        self.config["CDIMAGE_PREINSTALLED"] = "1"
         self.config["PROJECT"] = "ubuntu-cpc"
         self.config["DIST"] = "xenial"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
@@ -317,12 +318,12 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-cpc", "xenial", "daily-preinstalled",
-            "debian-cd", "armhf+raspi2")
+            self.temp_dir, "scratch", "ubuntu-cpc", "xenial",
+            "daily-preinstalled", "debian-cd", "armhf+raspi2")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "xenial-ubuntu-cpc-armhf+raspi2.manifest",
-            "xenial-ubuntu-cpc-armhf+raspi2.img.xz",
+            "xenial-server-armhf+raspi2.manifest",
+            "xenial-server-armhf+raspi2.img.xz",
         ], os.listdir(output_dir))
 
     @mock.patch("cdimage.osextras.fetch")
