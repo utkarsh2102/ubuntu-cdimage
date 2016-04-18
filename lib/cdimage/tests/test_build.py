@@ -223,8 +223,9 @@ class TestBuildLiveCDBase(TestCase):
         self.addCleanup(mock_gmtime.stop)
         self.epoch_date = "Thu Jan  1 00:00:00 UTC 1970"
 
+    @mock.patch("cdimage.sign.sign_cdimage")
     @mock.patch("cdimage.osextras.fetch")
-    def test_livecd_base(self, mock_fetch):
+    def test_livecd_base(self, mock_fetch, mock_sign):
         def fetch_side_effect(config, source, target):
             tail = os.path.basename(target).split(".", 1)[1]
             if tail in ("manifest", "squashfs"):
@@ -232,7 +233,15 @@ class TestBuildLiveCDBase(TestCase):
             else:
                 raise osextras.FetchError
 
+        def sign_side_effect(config, target):
+            tail = os.path.basename(target).split(".", 1)[1]
+            if tail in ("manifest", "squashfs"):
+                touch(target + ".gpg")
+            else:
+                return False
+
         mock_fetch.side_effect = fetch_side_effect
+        mock_sign.side_effect = sign_side_effect
         self.config["PROJECT"] = "livecd-base"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "livecd-base"
@@ -248,7 +257,8 @@ class TestBuildLiveCDBase(TestCase):
             "live")
         self.assertTrue(os.path.isdir(live_dir))
         self.assertCountEqual(
-            ["i386.manifest", "i386.squashfs"], os.listdir(live_dir))
+            ["i386.manifest", "i386.squashfs", "i386.squashfs.gpg"],
+            os.listdir(live_dir))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_core(self, mock_fetch):
