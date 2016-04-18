@@ -322,8 +322,9 @@ class TestBuildLiveCDBase(TestCase):
             "daily-preinstalled", "debian-cd", "armhf+raspi2")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "xenial-server-armhf+raspi2.manifest",
-            "xenial-server-armhf+raspi2.img.xz",
+            "xenial-preinstalled-server-armhf+raspi2.manifest",
+            "xenial-preinstalled-server-armhf+raspi2.raw",
+            "xenial-preinstalled-server-armhf+raspi2.type",
         ], os.listdir(output_dir))
 
     @mock.patch("cdimage.osextras.fetch")

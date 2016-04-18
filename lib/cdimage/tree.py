@@ -1793,20 +1793,24 @@ class DailyTreePublisher(Publisher):
             return "iso"
         elif output.startswith("x86 boot sector"):
             return "img"
-        elif output.startswith("gzip compressed data"):
+        elif output.startswith(("gzip compressed data", "XZ compressed data")):
+            if output.startswith("gzip compressed data"):
+                compressed_extension = "gz"
+            if output.startswith("XZ compressed data"):
+                compressed_extension = "xz"
             with open("%s.type" % source_prefix) as compressed_type:
                 real_output = compressed_type.readline().rstrip("\n")
             if real_output.startswith("ISO 9660 CD-ROM filesystem data "):
-                return "iso.gz"
+                return "iso.%s" % compressed_extension
             elif real_output.startswith("x86 boot sector"):
-                return "img.gz"
+                return "img.%s" % compressed_extension
             elif real_output.startswith("tar archive"):
-                return "tar.gz"
+                return "tar.%s" % compressed_extension
             else:
                 logger.warning(
-                    "Unknown compressed file type '%s'; assuming .img.gz" %
-                    real_output)
-                return "img.gz"
+                    "Unknown compressed file type '%s'; assuming .img.%s" %
+                    (real_output, compressed_extension))
+                return "img.%s" % compressed_extension
         else:
             logger.warning("Unknown file type '%s'; assuming .iso" % output)
             return "iso"

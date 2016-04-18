@@ -475,11 +475,13 @@ def build_livecd_base(config):
                 if config.image_type == "daily-preinstalled":
                     output_prefix = os.path.join(
                         output_dir,
-                        "%s-server-%s" % (config.series, arch))
+                        "%s-preinstalled-server-%s" % (config.series, arch))
                 else:
                     output_prefix = os.path.join(
                         output_dir, "%s-server-%s" % (config.series, arch))
-            shutil.copy2(rootfs, "%s.img.xz" % output_prefix)
+            with open("%s.type" % output_prefix, "w") as f:
+                print("EXT4 Filesystem Image", file=f)
+            shutil.copy2(rootfs, "%s.raw" % output_prefix)
             shutil.copy2(
                 "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
@@ -691,7 +693,8 @@ def notify_failure(config, log_path):
 def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
-            "livecd-base", "ubuntu-core", "ubuntu-touch", "ubuntu-pd"):
+            "livecd-base", "ubuntu-core", "ubuntu-touch", "ubuntu-pd",
+            "ubuntu-cpc"):
         live_fs_only = True
     elif (config.project == "ubuntu-desktop-next" and
           config.subproject == "system-image"):
