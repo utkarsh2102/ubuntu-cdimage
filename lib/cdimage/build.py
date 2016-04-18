@@ -460,6 +460,29 @@ def build_livecd_base(config):
     log_marker("Downloading live filesystem images")
     download_live_filesystems(config)
 
+    if config.project in ("ubuntu-cpc"):
+        log_marker("Copying images to debian-cd output directory")
+        scratch_dir = os.path.join(
+            config.root, "scratch", config.project, config.full_series,
+            config.image_type)
+        img_dir = os.path.join(scratch_dir, "live")
+        for arch in config.arches:
+            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+            osextras.ensuredir(output_dir)
+            img_prefix = os.path.join(img_dir, config.project)
+            image = "%s-%s.img.xz" % (img_prefix, arch)
+            if config.project == "ubuntu-cpc":
+                if config.image_type == "daily-preinstalled":
+                    output_prefix = os.path.join(
+                        output_dir,
+                        "%s-server-%s" % (config.series, arch))
+                else:
+                    output_prefix = os.path.join(
+                        output_dir, "%s-server-%s" % (config.series, arch))
+            shutil.copy2(rootfs, "%s.img.xz" % output_prefix)
+            shutil.copy2(
+                "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
+
     if (config.project in ("ubuntu-core", "ubuntu-touch", "ubuntu-pd") or
         (config.project == "ubuntu-desktop-next" and
          config.subproject == "system-image")):

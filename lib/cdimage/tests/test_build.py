@@ -295,6 +295,37 @@ class TestBuildLiveCDBase(TestCase):
             self.assertEqual("tar archive\n", f.read())
 
     @mock.patch("cdimage.osextras.fetch")
+    def test_ubuntu_cpc(self, mock_fetch):
+        def fetch_side_effect(config, source, target):
+            if (target.endswith(".manifest") or
+                    target.endswith(".img.xz")):
+                touch(target)
+            else:
+                raise osextras.FetchError
+
+        mock_fetch.side_effect = fetch_side_effect
+        self.config["PROJECT"] = "ubuntu-cpc"
+        self.config["DIST"] = "xenial"
+        self.config["IMAGE_TYPE"] = "daily-preinstalled"
+        self.config["ARCHES"] = "armhf+raspi2"
+        self.capture_logging()
+        build_livecd_base(self.config)
+        self.assertLogEqual([
+            "===== Downloading live filesystem images =====",
+            self.epoch_date,
+            "===== Copying images to debian-cd output directory =====",
+            self.epoch_date,
+        ])
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-cpc", "xenial", "daily-preinstalled",
+            "debian-cd", "armhf+raspi2")
+        self.assertTrue(os.path.isdir(output_dir))
+        self.assertCountEqual([
+            "xenial-ubuntu-cpc-armhf+raspi2.manifest",
+            "xenial-ubuntu-cpc-armhf+raspi2.img.xz",
+        ], os.listdir(output_dir))
+
+    @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_touch(self, mock_fetch):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or

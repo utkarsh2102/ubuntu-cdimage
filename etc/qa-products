@@ -85,6 +85,9 @@ Ubuntu Touch i386							ubuntu-touch	daily-preinstalled	preinstalled-touch		i386
 Ubuntu Pocket Desktop armhf                 ubuntu-pd       daily-preinstalled  preinstalled-touch      armhf           iso
 Ubuntu Pocket Desktop i386                  ubuntu-pd       daily-preinstalled  preinstalled-touch      i386            iso
 
+# Ubuntu CPC
+Ubuntu CPC armhf+raspi2                 ubuntu-cpc       daily-preinstalled  preinstalled-server      armhf+raspi2           img.xz
+
 # Ubuntu Kylin
 Ubuntu Kylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso
 Ubuntu Kylin Desktop i386					ubuntukylin		daily-live			desktop					i386			iso

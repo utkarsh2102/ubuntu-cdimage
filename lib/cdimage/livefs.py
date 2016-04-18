@@ -657,7 +657,10 @@ def live_item_paths(config, arch, item):
             base = "livecd.%s.%s-%s" % (liveproject_subarch, item, flavour)
             for url in urls_for(base):
                 yield url
-
+    elif item in (
+        "img.xz"):
+        if project == "ubuntu-cpc":
+            yield "livecd.ubuntu-cpc.disk1.%s" % (item)
     elif item in (
         "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
             for target in Touch.list_targets_by_ubuntu_arch(arch)
@@ -735,6 +738,18 @@ def download_live_items(config, arch, item):
                 r"^.*?\..*?\..*?-", "", unquote(os.path.basename(url)))
             target = os.path.join(
                 output_dir, "%s.%s-%s" % (arch, item, flavour))
+            try:
+                osextras.fetch(config, url, target)
+                found = True
+            except osextras.FetchError:
+                pass
+    elif item in (
+        "img.xz"):
+        for url in urls:
+            flavour = re.sub(r"^[^.]*\.([^.]*)\..*", "\g<1>",
+                             unquote(os.path.basename(url)))
+            target = os.path.join(
+                output_dir, "%s-%s.%s" % (flavour, arch, item))
             try:
                 osextras.fetch(config, url, target)
                 found = True
@@ -853,6 +868,8 @@ def download_live_filesystems(config):
                 elif download_live_items(config, arch, "ext2"):
                     got_image = True
                 elif download_live_items(config, arch, "rootfs.tar.gz"):
+                    got_image = True
+                elif download_live_items(config, arch, "img.gz"):
                     got_image = True
                 else:
                     continue
