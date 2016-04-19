@@ -259,6 +259,8 @@ class TestPublisher(TestCase):
              "preinstalled-touch"),
             ("daily-preinstalled", "ubuntu-pd", "vivid",
              "preinstalled-pd"),
+            ("daily-preinstalled", "ubuntu-cpc", "xenial",
+             "preinstalled-server"),
             ("daily-live", "edubuntu", "edgy", "live"),
             ("daily-live", "edubuntu", "feisty", "desktop"),
             ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
@@ -675,6 +677,12 @@ class TestDailyTreePublisher(TestCase):
             os.path.join("hoary", "daily-live"), publisher.image_type_dir)
 
     def test_publish_base(self):
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "www", "full",
+                "ubuntu-server", "daily-preinstalled"),
+            self.make_publisher("ubuntu-cpc",
+                                "daily-preinstalled").publish_base)
         self.assertEqual(
             os.path.join(
                 self.config.root, "www", "full", "kubuntu", "daily-live"),
