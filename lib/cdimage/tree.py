@@ -156,6 +156,8 @@ class Tree:
         """Return the per-project base directory within this tree."""
         if self.config.project == "ubuntu":
             return self.directory
+        elif self.config.project == "ubuntu-cpc":
+            return os.path.join(self.directory, "ubuntu-server")
         else:
             return os.path.join(self.directory, self.config.project)
 
