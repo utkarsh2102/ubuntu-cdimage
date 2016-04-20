@@ -198,6 +198,8 @@ class Germination:
         ]
         if self.use_bzr:
             command.append("--bzr")
+        if self.config.image_type == "source":
+            command.append("--always-follow-build-depends")
         proxy_check_call(
             self.config, "germinate", command, cwd=arch_output_dir)
         output_structure = os.path.join(self.output_dir(project), "STRUCTURE")
