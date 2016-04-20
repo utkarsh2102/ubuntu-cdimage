@@ -24,7 +24,7 @@ ubuntu-core		daily			precise			amd64 armhf i386
 ubuntu-core		daily			quantal-raring		amd64 armhf i386 powerpc
 ubuntu-core		daily			saucy			amd64 arm64 armhf i386 powerpc
 ubuntu-core		daily			trusty-wily		amd64 arm64 armhf i386 powerpc ppc64el
-ubuntu-core		daily			xenial			md64 arm64 armhf i386 powerpc ppc64el s390x
+ubuntu-core		daily			xenial			amd64 arm64 armhf i386 powerpc ppc64el s390x
 ubuntu-core-system-image		daily-preinstalled	utopic			amd64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	vivid-wily			amd64 arm64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	xenial-			amd64 arm64 armhf i386 ppc64el s390x
