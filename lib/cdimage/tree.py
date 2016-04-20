@@ -1725,8 +1725,11 @@ class DailyTreePublisher(Publisher):
                     return 835000000
             elif self.config["DIST"] == "saucy":
                 return 950000000
-            else:
+            elif self.config["DIST"] in ("trusty","utopic","vivid","wily"):
                 return 1024 * 1024 * 1024
+            else:
+                # next relevant size limit is a 2GB (not 2GiB) USB stick
+                return 2 * 1000 * 1000 * 1000
         elif self.project == "ubuntu-gnome" and self.config["DIST"] >= "saucy":
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             return 1024 * 1024 * 1024
