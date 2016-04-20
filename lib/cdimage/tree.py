@@ -1725,7 +1725,7 @@ class DailyTreePublisher(Publisher):
                     return 835000000
             elif self.config["DIST"] == "saucy":
                 return 950000000
-            elif self.config["DIST"] in ("trusty","utopic","vivid","wily"):
+            elif self.config["DIST"] in ("trusty", "utopic", "vivid", "wily"):
                 return 1024 * 1024 * 1024
             else:
                 # next relevant size limit is a 2GB (not 2GiB) USB stick
