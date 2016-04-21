@@ -1592,7 +1592,7 @@ class Publisher:
                         "AddType %s .%s" % (mimetype, extension),
                         file=htaccess)
 
-    def make_metalink(self, directory, version):
+    def make_metalink(self, directory, version, dry_run=False):
         """Create and publish metalink files."""
         osextras.unlink_force(os.path.join(directory, "MD5SUMS-metalink"))
         osextras.unlink_force(os.path.join(directory, "MD5SUMS-metalink.gpg"))
@@ -1604,18 +1604,23 @@ class Publisher:
             metalink_builder, self.tree.directory, version, reldir,
             self.tree.site_name,
         ]
-        try:
-            if subprocess.call(command) == 0:
-                metalink_checksum_directory(self.config, directory)
-                return
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
+        if dry_run:
+            logger.info(
+                " ".join(osextras.shell_escape(arg) for arg in command))
+        else:
+            try:
+                if subprocess.call(command) == 0:
+                    metalink_checksum_directory(self.config, directory)
+                    return
+            except OSError as e:
+                if e.errno != errno.ENOENT:
+                    raise
 
-        # Metalink creation failed.  Remove any stale .metalink files.
-        for name in os.listdir(directory):
-            if name.endswith(".metalink"):
-                osextras.unlink_force(os.path.join(directory, name))
+        if not dry_run:
+            # Metalink creation failed.  Remove any stale .metalink files.
+            for name in os.listdir(directory):
+                if name.endswith(".metalink"):
+                    osextras.unlink_force(os.path.join(directory, name))
 
 
 class DailyTree(Tree):
@@ -3276,7 +3281,8 @@ class ReleasePublisher(Publisher):
                 logger.info(
                     "Creating and publishing metalink files for the simple "
                     "tree (%s) ..." % series)
-                self.make_metalink(target_dir, self.metalink_version)
+                self.make_metalink(
+                    target_dir, self.metalink_version, dry_run=self.dry_run)
         if self.want_full:
             logger.info("Checksumming full tree ...")
             self.checksum_directory(
@@ -3292,7 +3298,8 @@ class ReleasePublisher(Publisher):
                         self.full_version, self.status)
                 else:
                     metalink_target_dir = target_dir
-                self.make_metalink(metalink_target_dir, self.version)
+                self.make_metalink(
+                    metalink_target_dir, self.version, dry_run=self.dry_run)
 
         if self.want_dist or self.want_pool:
             if self.dry_run:
