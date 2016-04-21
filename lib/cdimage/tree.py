@@ -3012,16 +3012,17 @@ class ReleasePublisher(Publisher):
                 return os.path.join(
                     torrent_dir, "%s%s%s" % (base_plain, sep, ext))
 
-        for ext in "iso", "img", "img.gz", "tar.gz", "img.tar.gz", "tar.xz":
+        for ext in ("iso", "img", "img.gz", "img.xz", "tar.gz", "img.tar.gz",
+                    "tar.xz"):
             if os.path.exists(daily(ext)):
                 break
         else:
             return
 
         # Copy, to make sure we have a canonical version of this.
-        artifacts = ["iso", "list", "img", "img.gz", "tar.gz", "img.tar.gz",
-                     "tar.xz", "bootimg", "custom.tar.gz", "device.tar.gz",
-                     "azure.device.tar.gz"]
+        artifacts = ["iso", "list", "img", "img.gz", "img.xz", "tar.gz",
+                     "img.tar.gz", "tar.xz", "bootimg", "custom.tar.gz",
+                     "device.tar.gz", "azure.device.tar.gz"]
         for ext in artifacts:
             if not os.path.exists(daily(ext)):
                 continue
@@ -3169,7 +3170,8 @@ class ReleasePublisher(Publisher):
         if publish_type not in ("netbook", "mid", "src"):
             for arch in arches:
                 paths = []
-                for ext in "iso", "img", "img.gz", "img.tar.gz", "tar.gz":
+                for ext in ("iso", "img", "img.gz", "img.xz", "img.tar.gz",
+                            "tar.gz"):
                     paths.append(os.path.join(
                         daily_dir,
                         "%s-%s-%s.%s" % (series, publish_type, arch, ext)))
