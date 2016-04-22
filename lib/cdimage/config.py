@@ -184,6 +184,7 @@ all_series.extend([
     Series("vivid", "15.04", "Vivid Vervet"),
     Series("wily", "15.10", "Wily Werewolf"),
     Series("xenial", "16.04", "Xenial Xerus"),
+    Series("yakkety", "16.10", "Yakkety Yak"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
