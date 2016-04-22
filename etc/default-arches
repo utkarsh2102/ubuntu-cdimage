@@ -28,7 +28,6 @@ ubuntu-core		daily			xenial-			amd64 arm64 armhf i386 powerpc ppc64el s390x
 ubuntu-core-system-image		daily-preinstalled	utopic			amd64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	vivid-wily			amd64 arm64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	xenial-			amd64 arm64 armhf i386 ppc64el s390x
-*			livecd-base		oneiric-		amd64 i386 powerpc
 
 ubuntu-cpc		daily-preinstalled	xenial			armhf+raspi2
 

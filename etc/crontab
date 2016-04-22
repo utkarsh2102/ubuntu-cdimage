@@ -28,7 +28,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # mythbuntu will only release for LTS releases, but we keep daily builds around to ensure it remains working
 29 10 * * *	for-project mythbuntu cron.daily-live --live
 29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live
-6 4 * * *	for-project livecd-base cron.daily-live --live
 32 4 * * *	for-project ubuntu-core cron.daily-live --live
 56 4 * * *	SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
 #57 4 * * *	DIST=vivid SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
