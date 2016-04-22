@@ -29,7 +29,7 @@ ubuntu-core-system-image		daily-preinstalled	utopic			amd64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	vivid-wily			amd64 arm64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	xenial-			amd64 arm64 armhf i386 ppc64el s390x
 
-ubuntu-cpc		daily-preinstalled	xenial			armhf+raspi2
+ubuntu-cpc		daily-preinstalled	xenial-			armhf+raspi2
 
 jeos			*			*			i386
 
