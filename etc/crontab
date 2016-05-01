@@ -10,7 +10,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 31 6 * * *	DIST=trusty for-project ubuntu cron.daily-live --live
 14 4 * * *	DIST=trusty for-project kubuntu cron.daily-live --live
 24 23 * * *	DIST=trusty for-project edubuntu cron.dvd --live
-50 8 * * *	DIST=trusty for-project xubuntu cron.daily-live --live
+00 2 * * *	DIST=trusty for-project xubuntu cron.daily-live --live
 29 5 * * *	DIST=trusty for-project ubuntu-server cron.daily --live
 17 17 * * *	DIST=trusty for-project ubuntustudio cron.dvd --live
 29 9 * * *	DIST=trusty for-project mythbuntu cron.daily-live --live
@@ -22,7 +22,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 31 7 * * *	for-project ubuntu cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
 24 0 * * *	for-project edubuntu cron.dvd --live
-50 9 * * *	for-project xubuntu cron.daily-live --live
+00 1 * * *	for-project xubuntu cron.daily-live --live
 29 6 * * *	for-project ubuntu-server cron.daily --live
 17 18 * * *	for-project ubuntustudio cron.dvd --live
 # mythbuntu will only release for LTS releases, but we keep daily builds around to ensure it remains working
