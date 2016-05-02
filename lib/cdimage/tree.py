@@ -949,7 +949,7 @@ class Publisher:
             sentences.append(
                 "However, you may still test it using a larger USB drive or a "
                 "virtual machine.")
-        elif (self.project in ("ubuntu-gnome","kubuntu","ubuntu-mate") and
+        elif (self.project in ("ubuntu-gnome", "kubuntu", "ubuntu-mate") and
               series >= "xenial"):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
@@ -1726,7 +1726,8 @@ class DailyTreePublisher(Publisher):
                 "kubuntu", "kubuntu-active", "kubuntu-plasma5",
                 ):
             if self.config["DIST"] >= "xenial":
-                # Per https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003749.html
+                # Per https://lists.ubuntu.com/archives/
+                # ... ubuntu-release/2016-May/003749.html
                 return 2 * 1000 * 1000 * 1000
             # 1.2GB arbitrary limit, set jriddell 2014-08-21
             return (1024 * 1024 * 1024) + (1024 * 1024 * 200)
@@ -1748,7 +1749,8 @@ class DailyTreePublisher(Publisher):
                 # next relevant size limit is a 2GB (not 2GiB) USB stick
                 return 2 * 1000 * 1000 * 1000
         elif self.project == "ubuntu-gnome" and self.config["DIST"] >= "saucy":
-            # Per https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003740.html
+            # Per https://lists.ubuntu.com/archives/
+            # ... ubuntu-release/2016-May/003740.html
             if self.config["DIST"] >= "xenial":
                 return 2 * 1000 * 1000 * 1000
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
