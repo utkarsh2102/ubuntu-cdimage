@@ -951,10 +951,18 @@ class Publisher:
                 "virtual machine.")
         elif (self.project in usb_projects or
                 (self.project == "xubuntu" and series >= "raring") or
-                (self.project == "ubuntu-gnome" and series >= "saucy")):
+                (self.project == "ubuntu-gnome" and series >= "saucy" and
+                 series << "xenial")):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 1GB USB stick.")
+            sentences.append(
+                "However, you may still test it using a DVD, a larger USB "
+                "drive, or a virtual machine.")
+        elif (self.project == "ubuntu-gnome" and series >= "xenial"):
+            sentences.append(
+                "Warning: This image is oversized (which is a bug) and will "
+                "not fit onto a 2GB USB stick.")
             sentences.append(
                 "However, you may still test it using a DVD, a larger USB "
                 "drive, or a virtual machine.")
@@ -1736,6 +1744,9 @@ class DailyTreePublisher(Publisher):
                 # next relevant size limit is a 2GB (not 2GiB) USB stick
                 return 2 * 1000 * 1000 * 1000
         elif self.project == "ubuntu-gnome" and self.config["DIST"] >= "saucy":
+            # Per https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003740.html
+            if self.config["DIST"] >= "xenial":
+                return 2 * 1000 * 1000 * 1000
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             return 1024 * 1024 * 1024
         elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":

@@ -725,6 +725,7 @@ class TestDailyTreePublisher(TestCase):
             ("xubuntu", "raring", "daily-live", "i386", 1073741824),
             ("xubuntu", "xenial", "daily-live", "i386", 1460000000),
             ("ubuntu-gnome", "saucy", "daily-live", "i386", 1073741824),
+            ("ubuntu-gnome", "xenial", "daily-live", "i386", 2000000000),
             ("ubuntu-mate", None, "daily-live", "amd64", 1073741824),
         ):
             if dist is not None:
