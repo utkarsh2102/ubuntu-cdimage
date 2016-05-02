@@ -959,7 +959,7 @@ class Publisher:
             sentences.append(
                 "However, you may still test it using a DVD, a larger USB "
                 "drive, or a virtual machine.")
-        elif (self.project == "ubuntu-gnome" and series >= "xenial"):
+        elif (self.project in ("ubuntu-gnome","kubuntu") and series >= "xenial"):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 2GB USB stick.")
@@ -1724,6 +1724,9 @@ class DailyTreePublisher(Publisher):
         elif self.project in (
                 "kubuntu", "kubuntu-active", "kubuntu-plasma5",
                 ):
+            if self.config["DIST"] >= "xenial":
+                # Per https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003749.html
+                return 2 * 1000 * 1000 * 1000
             # 1.2GB arbitrary limit, set jriddell 2014-08-21
             return (1024 * 1024 * 1024) + (1024 * 1024 * 200)
         elif (self.project == "ubuntu" and self.publish_type != "dvd" and
