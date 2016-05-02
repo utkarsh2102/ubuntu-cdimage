@@ -729,7 +729,8 @@ class TestDailyTreePublisher(TestCase):
             ("xubuntu", "xenial", "daily-live", "i386", 1460000000),
             ("ubuntu-gnome", "saucy", "daily-live", "i386", 1073741824),
             ("ubuntu-gnome", "xenial", "daily-live", "i386", 2000000000),
-            ("ubuntu-mate", None, "daily-live", "amd64", 1073741824),
+            ("ubuntu-mate", "trusty", "daily-live", "amd64", 1073741824),
+            ("ubuntu-mate", "xenial", "daily-live", "amd64", 2000000000),
         ):
             if dist is not None:
                 self.config["DIST"] = dist

@@ -949,7 +949,8 @@ class Publisher:
             sentences.append(
                 "However, you may still test it using a larger USB drive or a "
                 "virtual machine.")
-        elif (self.project in ("ubuntu-gnome","kubuntu") and series >= "xenial"):
+        elif (self.project in ("ubuntu-gnome","kubuntu","ubuntu-mate") and
+              series >= "xenial"):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 2GB USB stick.")
@@ -1760,6 +1761,9 @@ class DailyTreePublisher(Publisher):
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-mate":
+            if self.config["DIST"] >= "xenial":
+                # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
+                return 2 * 1000 * 1000 * 1000
             return 1024 * 1024 * 1024
         else:
             if self.publish_type == "dvd":
