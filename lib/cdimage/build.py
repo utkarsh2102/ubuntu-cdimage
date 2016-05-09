@@ -485,7 +485,8 @@ def build_livecd_base(config):
             shutil.copy2(
                 "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
-    if (config.project in ("ubuntu-core", "ubuntu-touch", "ubuntu-pd") or
+    if (config.project in ("ubuntu-core", "ubuntu-base", "ubuntu-touch",
+                           "ubuntu-pd") or
         (config.project == "ubuntu-desktop-next" and
          config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
@@ -500,13 +501,12 @@ def build_livecd_base(config):
                 output_dir = os.path.join(scratch_dir, "debian-cd", arch)
                 osextras.ensuredir(output_dir)
                 if config.project == "ubuntu-core":
-                    if config.image_type == "daily-preinstalled":
-                        output_prefix = os.path.join(
-                            output_dir,
-                            "%s-preinstalled-core-%s" % (config.series, arch))
-                    else:
-                        output_prefix = os.path.join(
-                            output_dir, "%s-core-%s" % (config.series, arch))
+                    output_prefix = os.path.join(
+                        output_dir,
+                        "%s-preinstalled-core-%s" % (config.series, arch))
+                elif config.project == "ubuntu-base":
+                    output_prefix = os.path.join(
+                        output_dir, "%s-base-%s" % (config.series, arch))
                 elif config.project == "ubuntu-touch":
                     output_prefix = os.path.join(
                         output_dir,
@@ -693,8 +693,8 @@ def notify_failure(config, log_path):
 def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
-            "livecd-base", "ubuntu-core", "ubuntu-touch", "ubuntu-pd",
-            "ubuntu-cpc"):
+            "livecd-base", "ubuntu-base", "ubuntu-core", "ubuntu-touch",
+            "ubuntu-pd", "ubuntu-cpc"):
         live_fs_only = True
     elif (config.project == "ubuntu-desktop-next" and
           config.subproject == "system-image"):

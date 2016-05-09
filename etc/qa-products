@@ -33,14 +33,14 @@ Mythbuntu Desktop i386						mythbuntu		daily-live			desktop					i386			iso
 Ubuntu Chinese Desktop amd64				ubuntu-zh_CN	daily-live			desktop					amd64			localized-iso-china
 Ubuntu Chinese Desktop i386					ubuntu-zh_CN	daily-live			desktop					i386			localized-iso-china
 
-# Ubuntu Core
-Ubuntu Core amd64							ubuntu-core		daily				core					amd64			iso
-Ubuntu Core arm64							ubuntu-core		daily				core					arm64			iso
-Ubuntu Core armhf							ubuntu-core		daily				core					armhf			iso
-Ubuntu Core i386							ubuntu-core		daily				core					i386			iso
-Ubuntu Core powerpc							ubuntu-core		daily				core					powerpc			iso
-Ubuntu Core ppc64el							ubuntu-core		daily				core					ppc64el			iso
-Ubuntu Core s390x							ubuntu-core		daily				core					s390x			iso
+# Ubuntu Base
+Ubuntu Base amd64							ubuntu-base		daily				base					amd64			iso
+Ubuntu Base arm64							ubuntu-base		daily				base					arm64			iso
+Ubuntu Base armhf							ubuntu-base		daily				base					armhf			iso
+Ubuntu Base i386							ubuntu-base		daily				base					i386			iso
+Ubuntu Base powerpc							ubuntu-base		daily				base					powerpc			iso
+Ubuntu Base ppc64el							ubuntu-base		daily				base					ppc64el			iso
+Ubuntu Base s390x							ubuntu-base		daily				base					s390x			iso
 
 # Ubuntu Desktop 
 Ubuntu Desktop amd64						ubuntu			daily-live			desktop					amd64			iso

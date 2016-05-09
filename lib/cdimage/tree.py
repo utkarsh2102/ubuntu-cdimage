@@ -427,8 +427,8 @@ class Publisher:
                     return "server"
             elif self.project == "jeos":
                 return "jeos"
-            elif self.project == "ubuntu-core":
-                return "core"
+            elif self.project == "ubuntu-base":
+                return "base"
             else:
                 if self.config["DIST"] <= "breezy":
                     return "install"
@@ -446,7 +446,7 @@ class Publisher:
         elif publish_type == "dvd":
             return "dvd"
         elif publish_type in (
-                "addon", "alternate", "core", "install", "jeos", "server"):
+                "addon", "alternate", "base", "install", "jeos", "server"):
             return "daily"
         else:
             return None

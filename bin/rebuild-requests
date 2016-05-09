@@ -143,7 +143,7 @@ def main():
         cmd = ["for-project", project, "cron.%s" % entry[2]]
 
         if (build_type != "daily" or
-                project in ("ubuntu-core", "ubuntu-server")):
+                project in ("ubuntu-core", "ubuntu-base", "ubuntu-server")):
             cmd += ["--live"]
 
         if options.dry_run:

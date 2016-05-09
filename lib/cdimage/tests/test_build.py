@@ -261,7 +261,7 @@ class TestBuildLiveCDBase(TestCase):
             os.listdir(live_dir))
 
     @mock.patch("cdimage.osextras.fetch")
-    def test_ubuntu_core(self, mock_fetch):
+    def test_ubuntu_base(self, mock_fetch):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
                     target.endswith(".rootfs.tar.gz")):
@@ -270,7 +270,7 @@ class TestBuildLiveCDBase(TestCase):
                 raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
-        self.config["PROJECT"] = "ubuntu-core"
+        self.config["PROJECT"] = "ubuntu-base"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "i386"
@@ -283,15 +283,15 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-core", "raring", "daily",
+            self.temp_dir, "scratch", "ubuntu-base", "raring", "daily",
             "debian-cd", "i386")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "raring-core-i386.manifest",
-            "raring-core-i386.raw",
-            "raring-core-i386.type",
+            "raring-base-i386.manifest",
+            "raring-base-i386.raw",
+            "raring-base-i386.type",
         ], os.listdir(output_dir))
-        with open(os.path.join(output_dir, "raring-core-i386.type")) as f:
+        with open(os.path.join(output_dir, "raring-base-i386.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
     @mock.patch("cdimage.osextras.fetch")

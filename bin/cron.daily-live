@@ -38,7 +38,7 @@ def main():
     subproject = os.environ.get("SUBPROJECT", None)
     if project == "livecd-base":
         image_type = "livecd-base"
-    elif project == "ubuntu-core":
+    elif project == "ubuntu-base":
         image_type = "daily"
     elif subproject == "wubi":
         image_type = "wubi"

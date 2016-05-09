@@ -51,6 +51,7 @@ project_map = {
     "ubuntu-moblin-remix": "Ubuntu-Moblin-Remix",
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu-Core",
+    "ubuntu-base": "Ubuntu-Base",
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "ubuntu-touch": "Ubuntu Touch",
     "ubuntu-pd": "Ubuntu Pocket Desktop",

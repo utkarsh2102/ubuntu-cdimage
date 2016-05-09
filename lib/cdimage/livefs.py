@@ -121,7 +121,8 @@ def live_build_options(config, arch):
         elif subarch in ("ac100", "nexus7"):
             options.extend(["-f", "plain"])
 
-    if (config.project in ("ubuntu-core", "ubuntu-touch", "ubuntu-pd") or
+    if (config.project in ("ubuntu-base", "ubuntu-core", "ubuntu-touch",
+                           "ubuntu-pd") or
         (config.project == "ubuntu-desktop-next" and
          config.subproject == "system-image")):
         options.extend(["-f", "plain"])
@@ -880,8 +881,7 @@ def download_live_filesystems(config):
             else:
                 continue
             if (series >= "dapper" and
-                    (project != "ubuntu-core" or
-                        config.image_type == "daily-preinstalled") and
+                    project != "ubuntu-base" and
                     not config["CDIMAGE_SQUASHFS_BASE"] and
                     config.subproject != "wubi"):
                 download_live_items(config, arch, "kernel")
@@ -900,7 +900,7 @@ def download_live_filesystems(config):
                     config.subproject == "wubi"):
                 continue
 
-            if (project not in ("livecd-base", "ubuntu-core",
+            if (project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
                                 "kubuntu-active") and
                     (project != "ubuntu-desktop-next" or
                      config.subproject == "system-image") and
@@ -934,7 +934,7 @@ def download_live_filesystems(config):
                             config, arch, "wubi.exe",
                             "Install %s" % autorun_project)
 
-            if project not in ("livecd-base", "ubuntu-core",
+            if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
                                "ubuntu-desktop-next", "edubuntu"):
                 if (project in ("kubuntu-active", "ubuntu-netbook",
                                 "ubuntu-moblin-remix") or
