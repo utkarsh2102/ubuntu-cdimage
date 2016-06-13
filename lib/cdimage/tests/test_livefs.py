@@ -361,11 +361,6 @@ class TestLiveBuildOptions(TestCase):
         self.assertEqual(
             ["-f", "plain"], live_build_options(self.config, "armhf"))
 
-    def test_ubuntu_pd(self):
-        self.config["PROJECT"] = "ubuntu-pd"
-        self.assertEqual(
-            ["-f", "plain"], live_build_options(self.config, "armhf"))
-
     def test_wubi(self):
         self.config["SUBPROJECT"] = "wubi"
         for series, fstype in (

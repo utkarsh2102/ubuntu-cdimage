@@ -388,66 +388,6 @@ class TestBuildLiveCDBase(TestCase):
                 os.path.join(output_dir, recovery_img)))
 
     @mock.patch("cdimage.osextras.fetch")
-    def test_ubuntu_pd(self, mock_fetch):
-        def fetch_side_effect(config, source, target):
-            if (target.endswith(".manifest") or
-                    target.endswith(".rootfs.tar.gz") or
-                    target.endswith(".custom.tar.gz") or
-                    target.endswith(".img")):
-                touch(target)
-            else:
-                raise osextras.FetchError
-
-        mock_fetch.side_effect = fetch_side_effect
-        self.config["CDIMAGE_PREINSTALLED"] = "1"
-        self.config["PROJECT"] = "ubuntu-pd"
-        self.config["DIST"] = "vivid"
-        self.config["IMAGE_TYPE"] = "daily-preinstalled"
-        self.config["ARCHES"] = "armhf"
-        self.capture_logging()
-        build_livecd_base(self.config)
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-            "===== Copying images to debian-cd output directory =====",
-            self.epoch_date,
-        ])
-        output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-pd", "vivid",
-            "daily-preinstalled", "debian-cd", "armhf")
-        self.assertTrue(os.path.isdir(output_dir))
-        touch_files = ["vivid-preinstalled-boot-%s+%s.img" % (
-            touch_target.ubuntu_arch, touch_target.subarch)
-            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")]
-        touch_files.extend(["vivid-preinstalled-recovery-%s+%s.img" % (
-            touch_target.android_arch, touch_target.subarch)
-            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
-        touch_files.extend(["vivid-preinstalled-system-%s+%s.img" % (
-            touch_target.android_arch, touch_target.subarch)
-            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
-        touch_files.extend([
-            "vivid-preinstalled-pd-armhf.manifest",
-            "vivid-preinstalled-pd-armhf.raw",
-            "vivid-preinstalled-pd-armhf.type",
-            "vivid-preinstalled-pd-armhf.tar.gz",
-            "vivid-preinstalled-pd-armhf.custom.tar.gz",
-            ])
-        self.assertCountEqual(touch_files, os.listdir(output_dir))
-        with open(os.path.join(
-            output_dir, "vivid-preinstalled-pd-armhf.type")
-        ) as f:
-            self.assertEqual("tar archive\n", f.read())
-        for touch_target in Touch.list_targets_by_ubuntu_arch("armhf"):
-            system_img = "vivid-preinstalled-system-%s+%s.img" % (
-                touch_target.android_arch, touch_target.subarch)
-            recovery_img = "vivid-preinstalled-recovery-%s+%s.img" % (
-                touch_target.android_arch, touch_target.subarch)
-            self.assertTrue(os.path.exists(
-                os.path.join(output_dir, system_img)))
-            self.assertTrue(os.path.exists(
-                os.path.join(output_dir, recovery_img)))
-
-    @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_desktop_next_system_image(self, mock_fetch):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
