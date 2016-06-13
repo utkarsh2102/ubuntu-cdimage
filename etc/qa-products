@@ -60,9 +60,9 @@ Ubuntu GNOME Desktop amd64					ubuntu-gnome	daily-live			desktop					amd64			iso
 Ubuntu GNOME Desktop i386					ubuntu-gnome	daily-live			desktop					i386			iso
 
 # Ubuntu Mate
-Ubuntu Mate Desktop amd64					ubuntu-mate	daily-live			desktop					amd64			iso
-Ubuntu Mate Desktop i386					ubuntu-mate	daily-live			desktop					i386			iso
-Ubuntu Mate Desktop powerpc					ubuntu-mate	daily-live			desktop					powerpc			iso
+Ubuntu MATE Desktop amd64					ubuntu-mate	daily-live			desktop					amd64			iso
+Ubuntu MATE Desktop i386					ubuntu-mate	daily-live			desktop					i386			iso
+Ubuntu MATE Desktop powerpc					ubuntu-mate	daily-live			desktop					powerpc			iso
 
 # Ubuntu Server
 Ubuntu Server amd64							ubuntu-server	daily				server					amd64			iso
