@@ -1219,7 +1219,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-base", "daily", "base", "Ubuntu Base"),
             ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
-            ("ubuntu-mate", "daily-live", "desktop", "Ubuntu Mate Desktop"),
+            ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
             ("ubuntu-desktop-next", "daily-preinstalled",
                 "preinstalled-desktop-next", "Ubuntu Desktop (Unity 8)"),
         ):
@@ -1280,7 +1280,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-base", "daily", "base", "Ubuntu Base"),
             ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
             ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
-            ("ubuntu-mate", "daily-live", "desktop", "Ubuntu Mate Desktop"),
+            ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
             ("ubuntu-desktop-next/system-image", "daily-preinstalled",
                 "preinstalled-desktop-next", "Ubuntu Desktop (Unity 8)"),
         ):
