@@ -25,10 +25,12 @@ DIST="${DIST:-yakkety}"
 
 case $DIST in
 	trusty)
-		export PROPOSED=1
+		PROPOSED="${PROPOSED:-1}"
+		export PROPOSED
 		;;
 	xenial)
-		export PROPOSED=1
+		PROPOSED="${PROPOSED:-1}"
+		export PROPOSED
 		;;
 esac
 
