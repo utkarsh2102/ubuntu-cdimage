@@ -181,7 +181,7 @@ def live_build_command(config, arch):
     if subarch:
         command.extend(["-s", subarch])
 
-    if config["PROPOSED"]:
+    if config.get("PROPOSED", "0") not in ("", "0"):
         command.append("-p")
     if config.series:
         command.extend(["-d", config.series])
@@ -212,7 +212,7 @@ def live_build_lp_kwargs(config, lp, lp_livefs, arch):
         kwargs["unique_key"] = subarch
         metadata_override["subarch"] = subarch
 
-    if config["PROPOSED"]:
+    if config.get("PROPOSED", "0") not in ("", "0"):
         kwargs["pocket"] = "Proposed"
         metadata_override["proposed"] = True
     elif config["DIST"].is_latest:
