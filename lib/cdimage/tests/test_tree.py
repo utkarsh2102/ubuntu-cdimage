@@ -257,6 +257,8 @@ class TestPublisher(TestCase):
              "preinstalled-desktop"),
             ("daily-preinstalled", "ubuntu-touch", "saucy",
              "preinstalled-touch"),
+            ("daily-preinstalled", "ubuntu-touch-custom", "vivid",
+             "preinstalled-touch"),
             ("daily-preinstalled", "ubuntu-cpc", "xenial",
              "preinstalled-server"),
             ("daily-live", "edubuntu", "edgy", "live"),
@@ -1246,6 +1248,15 @@ class TestDailyTreePublisher(TestCase):
             publisher.qa_product(
                 "ubuntu-touch", "daily-preinstalled", "preinstalled-touch",
                 "armhf"))
+
+    def test_qa_product_ubuntu_touch_custom(self):
+        publisher = self.make_publisher(
+            "ubuntu-touch-custom", "daily-preinstalled")
+        self.assertEqual(
+            ("Ubuntu Touch Custom armhf", "iso"),
+            publisher.qa_product(
+                "ubuntu-touch-custom", "daily-preinstalled",
+                "preinstalled-touch", "armhf"))
 
     def test_qa_product_ubuntu_preinstalled(self):
         publisher = self.make_publisher("ubuntu", "daily")

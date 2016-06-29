@@ -485,7 +485,8 @@ def build_livecd_base(config):
             shutil.copy2(
                 "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
-    if (config.project in ("ubuntu-core", "ubuntu-base", "ubuntu-touch") or
+    if (config.project in ("ubuntu-core", "ubuntu-base", "ubuntu-touch",
+                           "ubuntu-touch-custom") or
         (config.project == "ubuntu-desktop-next" and
          config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
@@ -506,7 +507,7 @@ def build_livecd_base(config):
                 elif config.project == "ubuntu-base":
                     output_prefix = os.path.join(
                         output_dir, "%s-base-%s" % (config.series, arch))
-                elif config.project == "ubuntu-touch":
+                elif config.project in ("ubuntu-touch", "ubuntu-touch-custom"):
                     output_prefix = os.path.join(
                         output_dir,
                         "%s-preinstalled-touch-%s" % (config.series, arch))
@@ -525,7 +526,7 @@ def build_livecd_base(config):
                     print("tar archive", file=f)
                 shutil.copy2(
                     "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
-                if config.project == "ubuntu-touch":
+                if config.project in ("ubuntu-touch", "ubuntu-touch-custom"):
                     osextras.link_force(
                         "%s.raw" % output_prefix, "%s.tar.gz" % output_prefix)
                     add_android_support(config, arch, output_dir)
@@ -689,7 +690,7 @@ def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
             "livecd-base", "ubuntu-base", "ubuntu-core", "ubuntu-touch",
-            "ubuntu-cpc"):
+            "ubuntu-touch-custom", "ubuntu-cpc"):
         live_fs_only = True
     elif (config.project == "ubuntu-desktop-next" and
           config.subproject == "system-image"):
