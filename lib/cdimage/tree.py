@@ -840,6 +840,8 @@ class Publisher:
             if arch == "amd64+mac":
                 sentences.append(
                     "This image is adjusted to work properly on Mac systems.")
+            else:
+                sentences.append("Choose this if you are at all unsure.")
         elif arch == "arm64":
             sentences.append("For 64-bit ARMv8 processors and above.")
         elif arch == "armel":
@@ -888,7 +890,6 @@ class Publisher:
                 "processors and almost all computers that run Microsoft "
                 "Windows, as well as newer Apple Macintosh systems based on "
                 "Intel processors.")
-            sentences.append("Choose this if you are at all unsure.")
         elif arch == "ia64":
             sentences.append("For Intel Itanium and Itanium 2 computers.")
         elif arch == "lpia":

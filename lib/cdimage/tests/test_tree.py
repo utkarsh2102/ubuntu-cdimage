@@ -378,9 +378,16 @@ class TestPublisherWebIndices(TestCase):
             "For almost all PCs.  This includes most machines with "
             "Intel/AMD/etc type processors and almost all computers that run "
             "Microsoft Windows, as well as newer Apple Macintosh systems "
-            "based on Intel processors.  Choose this if you are at all "
-            "unsure.",
+            "based on Intel processors.",
             publisher.archdesc("i386", "desktop"))
+
+        self.assertEqual(
+            "Choose this to take full advantage of computers based on the "
+            "AMD64 or EM64T architecture (e.g., Athlon64, Opteron, EM64T "
+            "Xeon, Core 2).  If you have a non-64-bit processor made by AMD, "
+            "or if you need full support for 32-bit code, use the i386 images "
+            "instead.  Choose this if you are at all unsure.",
+            publisher.archdesc("amd64", "desktop"))
 
     def test_maybe_oversized(self):
         self.config["DIST"] = "precise"
