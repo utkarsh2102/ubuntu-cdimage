@@ -82,6 +82,10 @@ Ubuntu Studio DVD i386						ubuntustudio	dvd					dvd						i386			iso
 Ubuntu Touch armhf							ubuntu-touch	daily-preinstalled	preinstalled-touch		armhf			iso
 Ubuntu Touch i386							ubuntu-touch	daily-preinstalled	preinstalled-touch		i386			iso
 
+# Ubuntu Touch Custom
+Ubuntu Touch Custom armhf					ubuntu-touch-custom	daily-preinstalled	preinstalled-touch	armhf			iso
+Ubuntu Touch Custom i386					ubuntu-touch-custom	daily-preinstalled	preinstalled-touch	i386			iso
+
 # Ubuntu CPC
 Ubuntu CPC armhf+raspi2                 ubuntu-cpc       daily-preinstalled  preinstalled-server      armhf+raspi2           iso
 

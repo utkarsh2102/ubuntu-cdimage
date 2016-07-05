@@ -328,7 +328,8 @@ class TestBuildLiveCDBase(TestCase):
         ], os.listdir(output_dir))
 
     @mock.patch("cdimage.osextras.fetch")
-    def test_ubuntu_touch(self, mock_fetch):
+    def _perform_ubuntu_touch_testing(self, project, mock_fetch):
+        '''Convenience function for testing ubuntu-touch* builds.'''
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
                     target.endswith(".rootfs.tar.gz") or
@@ -340,7 +341,7 @@ class TestBuildLiveCDBase(TestCase):
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["CDIMAGE_PREINSTALLED"] = "1"
-        self.config["PROJECT"] = "ubuntu-touch"
+        self.config["PROJECT"] = project
         self.config["DIST"] = "saucy"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.config["ARCHES"] = "armhf"
@@ -353,7 +354,7 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-touch", "saucy",
+            self.temp_dir, "scratch", project, "saucy",
             "daily-preinstalled", "debian-cd", "armhf")
         self.assertTrue(os.path.isdir(output_dir))
         touch_files = ["saucy-preinstalled-boot-%s+%s.img" % (
@@ -386,6 +387,12 @@ class TestBuildLiveCDBase(TestCase):
                 os.path.join(output_dir, system_img)))
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, recovery_img)))
+
+    def test_ubuntu_touch(self):
+        self._perform_ubuntu_touch_testing("ubuntu-touch")
+
+    def test_ubuntu_touch_custom(self):
+        self._perform_ubuntu_touch_testing("ubuntu-touch-custom")
 
     @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_desktop_next_system_image(self, mock_fetch):
