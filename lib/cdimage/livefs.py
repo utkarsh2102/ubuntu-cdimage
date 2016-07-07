@@ -146,6 +146,8 @@ def live_project(config, arch):
         liveproject = "base"
     elif project == "tocd3.1":
         liveproject = "tocd"
+    elif project == "ubuntu-touch-custom":
+        liveproject = "ubuntu-touch"
     else:
         liveproject = project
 

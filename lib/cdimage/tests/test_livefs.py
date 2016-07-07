@@ -176,6 +176,9 @@ class TestLiveProject(TestCase):
     def test_project_tocd3_1(self):
         self.assertProjectEqual("tocd", "tocd3.1", "breezy")
 
+    def test_project_ubuntu_touch_custom(self):
+        self.assertProjectEqual("ubuntu-touch", "ubuntu-touch-custom", "vivid")
+
     def test_ubuntu_dvd(self):
         for series in all_series[:7]:
             self.assertProjectEqual(
