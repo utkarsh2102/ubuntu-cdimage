@@ -4,7 +4,9 @@
 *			source			*			i386
 
 ubuntu-touch		daily-preinstalled	saucy			armhf
-ubuntu-touch		daily-preinstalled	trusty-			armhf i386
+ubuntu-touch		daily-preinstalled	trusty-vivid			armhf i386
+ubuntu-touch		daily-preinstalled	xenial			armhf i386 arm64
+ubuntu-touch		daily-preinstalled	yakkety-			armhf i386
 ubuntu-touch		daily-preinstalled	ubuntu-rtm/*		armhf i386
 
 ubuntu-touch-custom	daily-preinstalled	trusty-			armhf i386
