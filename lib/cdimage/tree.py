@@ -2212,6 +2212,10 @@ class DailyTreePublisher(Publisher):
                                               "ubuntu-touch-custom") and
                       arch == "i386" and "-i386+" in image_base):
                     matches = True
+                elif (self.config.project in ("ubuntu-touch",
+                                              "ubuntu-touch-custom") and
+                      arch == "arm64" and "-arm64+" in image_base):
+                    matches = True
                 elif self.config.subproject == "wubi" and image_base == arch:
                     matches = True
                 else:
