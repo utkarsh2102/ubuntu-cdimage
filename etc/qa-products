@@ -67,6 +67,7 @@ Ubuntu MATE Desktop powerpc					ubuntu-mate	daily-live			desktop					powerpc			i
 # Ubuntu Server
 Ubuntu Server amd64							ubuntu-server	daily				server					amd64			iso
 Ubuntu Server amd64+mac						ubuntu-server	daily				server					amd64+mac		iso
+Ubuntu Server arm64							ubuntu-server	daily				server					arm64			iso
 Ubuntu Server armhf+omap					ubuntu-server	daily				server					armhf+omap		iso
 Ubuntu Server armhf+omap4					ubuntu-server	daily				server					armhf+omap4		iso
 Ubuntu Server i386							ubuntu-server	daily				server					i386			iso
