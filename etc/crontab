@@ -21,12 +21,13 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # regular yakkety daily builds
 31 7 * * *	for-project ubuntu cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
-24 0 * * *	for-project edubuntu cron.dvd --live
+# Probably dead for good; keeping entry in case minds are changed:
+#24 0 * * *	for-project edubuntu cron.dvd --live
 50 1 * * *	for-project xubuntu cron.daily-live --live
 29 6 * * *	for-project ubuntu-server cron.daily --live
 17 18 * * *	for-project ubuntustudio cron.dvd --live
-# mythbuntu will only release for LTS releases, but we keep daily builds around to ensure it remains working
-29 10 * * *	for-project mythbuntu cron.daily-live --live
+# Probably dead for good; keeping entry in case minds are changed:
+#29 10 * * *	for-project mythbuntu cron.daily-live --live
 29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live
 32 4 * * *	for-project ubuntu-base cron.daily-live --live
 56 4 * * *	SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
