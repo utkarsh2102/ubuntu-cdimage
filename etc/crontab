@@ -6,18 +6,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # CD image cron jobs, run out of cdimage's crontab.
 
-# trusty daily builds
-31 6 * * *	DIST=trusty for-project ubuntu cron.daily-live --live
-14 4 * * *	DIST=trusty for-project kubuntu cron.daily-live --live
-24 23 * * *	DIST=trusty for-project edubuntu cron.dvd --live
-50 0 * * *	DIST=trusty for-project xubuntu cron.daily-live --live
-29 5 * * *	DIST=trusty for-project ubuntu-server cron.daily --live
-17 17 * * *	DIST=trusty for-project ubuntustudio cron.dvd --live
-29 9 * * *	DIST=trusty for-project mythbuntu cron.daily-live --live
-29 15 * * *	DIST=trusty for-project lubuntu cron.daily; DIST=trusty for-project lubuntu cron.daily-live --live
-32 3 * * *	DIST=trusty for-project ubuntu-base cron.daily-live --live
-14 21 * * *	DIST=trusty for-project ubuntukylin cron.daily-live --live
-32 14 * * *	DIST=trusty for-project ubuntu-gnome cron.daily-live --live
 # xenial daily builds
 41 6 * * *	DIST=xenial for-project ubuntu cron.daily-live --live
 24 4 * * *	DIST=xenial for-project kubuntu cron.daily-live --live
@@ -55,7 +43,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 */15 * * * *	mirror-image-build-logs
 
 # Self-rebuilds
-*/5 * * * *	rebuild-requests -b -q trusty iso
 */5 * * * *	rebuild-requests -b -q vivid iso
 */5 * * * *	rebuild-requests -b -q xenial iso
 */5 * * * *	rebuild-requests -b -q yakkety iso
