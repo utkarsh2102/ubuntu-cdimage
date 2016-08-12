@@ -248,6 +248,7 @@ def main():
         'kubuntu-plasma5',
         'mythbuntu',
         'lubuntu',
+        'lubuntu-next',
         'ubuntu-gnome',
         'ubuntu-mate',
         'ubuntukylin',

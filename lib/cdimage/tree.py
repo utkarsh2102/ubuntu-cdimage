@@ -65,6 +65,7 @@ projects = [
     "kubuntu-netbook",
     "kubuntu-plasma5",
     "lubuntu",
+    "lubuntu-next",
     "mythbuntu",
     "ubuntu",
     "ubuntu-desktop-next",

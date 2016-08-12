@@ -28,7 +28,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 17 18 * * *	for-project ubuntustudio cron.dvd --live
 # Probably dead for good; keeping entry in case minds are changed:
 #29 10 * * *	for-project mythbuntu cron.daily-live --live
-29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live
+29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live; for-project lubuntu-next cron.daily-live --live
 32 4 * * *	for-project ubuntu-base cron.daily-live --live
 56 4 * * *	SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
 #57 4 * * *	DIST=vivid SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live

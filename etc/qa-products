@@ -23,6 +23,9 @@ Lubuntu Desktop amd64						lubuntu			daily-live			desktop					amd64			iso
 Lubuntu Desktop amd64+mac					lubuntu			daily-live			desktop					amd64+mac		iso
 Lubuntu Desktop i386						lubuntu			daily-live			desktop					i386			iso
 Lubuntu Desktop powerpc						lubuntu			daily-live			desktop					powerpc			iso
+Lubuntu Next Desktop amd64						lubuntu-next			daily-live			desktop					amd64			iso
+Lubuntu Next Desktop i386						lubuntu-next			daily-live			desktop					i386			iso
+Lubuntu Next Desktop powerpc						lubuntu-next			daily-live			desktop					powerpc			iso
 Lubuntu Desktop Preinstalled armhf+ac100	lubuntu			daily-preinstalled	preinstalled-desktop	armhf+ac100		iso
 
 # Mythbuntu
