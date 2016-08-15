@@ -45,6 +45,7 @@ project_map = {
     "ubuntustudio": "Ubuntu-Studio",
     "mythbuntu": "Mythbuntu",
     "lubuntu": "Lubuntu",
+    "lubuntu-next": "Lubuntu Next",
     "ubuntukylin": "Ubuntu-Kylin",
     "ubuntu-gnome": "Ubuntu-GNOME",
     "ubuntu-mate": "Ubuntu-MATE",
