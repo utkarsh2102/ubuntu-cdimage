@@ -45,7 +45,7 @@ project_map = {
     "ubuntustudio": "Ubuntu-Studio",
     "mythbuntu": "Mythbuntu",
     "lubuntu": "Lubuntu",
-    "lubuntu-next": "Lubuntu Next",
+    "lubuntu-next": "Lubuntu-Next",
     "ubuntukylin": "Ubuntu-Kylin",
     "ubuntu-gnome": "Ubuntu-GNOME",
     "ubuntu-mate": "Ubuntu-MATE",
@@ -56,7 +56,7 @@ project_map = {
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "ubuntu-touch": "Ubuntu Touch",
     "ubuntu-touch-custom": "Ubuntu Touch Custom Build",
-    "ubuntu-cpc": "Ubuntu Server",
+    "ubuntu-cpc": "Ubuntu-Server",
     "tocd3": "TheOpenCDv3",
     "tocd3.1": "TheOpenCDv3.1",
 }
