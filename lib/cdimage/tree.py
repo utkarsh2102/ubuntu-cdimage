@@ -1731,7 +1731,8 @@ class DailyTreePublisher(Publisher):
                 return 2 * 1000 * 1000 * 1000
             # 1.2GB arbitrary limit, set jriddell 2014-08-21
             return (1024 * 1024 * 1024) + (1024 * 1024 * 200)
-        elif (self.project == "ubuntu" and self.publish_type != "dvd" and
+        elif (self.project in ("ubuntu", "ubuntukylin") and
+              self.publish_type != "dvd" and
               self.config["DIST"] >= "quantal"):
             # Ubuntu quantal onward has a succession of arbitrary limits.
             if self.config["DIST"] == "quantal":
