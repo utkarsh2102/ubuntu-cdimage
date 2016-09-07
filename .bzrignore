@@ -11,6 +11,7 @@
 ./scratch
 ./secret
 ./ubuntu-archive-tools
+./ubuntu-image
 ./www
 __pycache__
 etc/.build-image-set-pids
