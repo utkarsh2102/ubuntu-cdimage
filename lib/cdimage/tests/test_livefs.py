@@ -943,9 +943,12 @@ class TestFlavours(TestCase):
         for series in all_series[:15]:
             self.assertFlavoursEqual(
                 "powerpc powerpc64-smp", "powerpc", "ubuntu", series)
-        for series in all_series[15:]:
+        for series in all_series[15:24]:
             self.assertFlavoursEqual(
                 "powerpc-smp powerpc64-smp", "powerpc", "ubuntu", series)
+        for series in all_series[24:]:
+            self.assertFlavoursEqual(
+                "powerpc-smp generic", "powerpc", "ubuntu", series)
         self.assertFlavoursEqual("cell", "powerpc+ps3", "ubuntu", "gutsy")
         for series in all_series[7:15]:
             self.assertFlavoursEqual(
