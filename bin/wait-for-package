@@ -69,19 +69,19 @@ def main():
         mirror = find_mirror(config, "i386")
         target = os.path.join(
             mirror, "dists", options.suite, options.component,
-            "source", "Sources.gz")
+            "source", "Sources.xz")
     else:
         mirror = find_mirror(config, options.architecture)
         target = os.path.join(
             mirror, "dists", options.suite, options.component,
-            "binary-%s" % options.architecture, "Packages.gz")
+            "binary-%s" % options.architecture, "Packages.xz")
 
     print("Waiting for %s." % package, end="")
     sys.stdout.flush()
 
     first_time = True
     while subprocess.call(
-            ["zgrep", "-q", package, target], preexec_fn=reset_sigpipe) != 0:
+            ["xzgrep", "-q", package, target], preexec_fn=reset_sigpipe) != 0:
         if not first_time:
             print(".", end="")
             sys.stdout.flush()
