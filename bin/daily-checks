@@ -125,8 +125,9 @@ def check_image(config, project, series, image):
         arch = base.split("-")[-1]
         sizelimit = publisher.size_limit(arch)
         if size > sizelimit:
-            warn(project, image, "%s oversized by %d bytes (%d)" %
-                                 (iso, size - sizelimit, size))
+            warn(project, image, "%s oversized by %d megabytes (%d)" %
+                                 (iso, bytes_to_megabytes(size - sizelimit),
+                                 bytes_to_megabytes(size)))
 
     if project == 'xubuntu':
         for manifest in filter(
@@ -182,6 +183,10 @@ def get_all_warnings(projects):
         if text:
             texts.append(text)
     return '\n\n\n'.join(texts)
+
+
+def bytes_to_megabytes(size):
+    return round(size / 1048576.0)
 
 
 def send_warnings(config, options, projects):
