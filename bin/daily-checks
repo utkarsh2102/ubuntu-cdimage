@@ -127,7 +127,7 @@ def check_image(config, project, series, image):
         if size > sizelimit:
             warn(project, image, "%s oversized by %d megabytes (%d)" %
                                  (iso, bytes_to_megabytes(size - sizelimit),
-                                 bytes_to_megabytes(size)))
+                                  bytes_to_megabytes(size)))
 
     if project == 'xubuntu':
         for manifest in filter(
