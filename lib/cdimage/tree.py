@@ -1768,6 +1768,10 @@ class DailyTreePublisher(Publisher):
                 # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
                 return 2 * 1000 * 1000 * 1000
             return 1024 * 1024 * 1024
+        elif self.project == "lubuntu" and self.config["DIST"] >= "trusty":
+            # provisional;
+            # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
+            return 1024 * 1024 * 1024
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW
