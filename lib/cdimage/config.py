@@ -188,6 +188,7 @@ all_series.extend([
         pointversion="16.04.1",
         all_lts_projects=True),
     Series("yakkety", "16.10", "Yakkety Yak"),
+    Series("zesty", "17.04", "Zesty Zapus"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(

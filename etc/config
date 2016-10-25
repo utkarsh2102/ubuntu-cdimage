@@ -21,7 +21,7 @@ case $PROJECT in
 		;;
 esac
 export IMAGE_FORMAT
-DIST="${DIST:-yakkety}"
+DIST="${DIST:-zesty}"
 
 case $DIST in
 	trusty)
