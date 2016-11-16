@@ -149,7 +149,7 @@ def live_project(config, arch):
     elif project == "ubuntu-touch-custom":
         liveproject = "ubuntu-touch"
     elif (project == "ubuntu-server" and
-          arch == "armhf+raspi2"):
+          config.image_type == "daily-preinstalled"):
         liveproject = "ubuntu-cpc"
     else:
         liveproject = project
