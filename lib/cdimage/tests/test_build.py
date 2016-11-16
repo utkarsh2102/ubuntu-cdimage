@@ -295,7 +295,7 @@ class TestBuildLiveCDBase(TestCase):
             self.assertEqual("tar archive\n", f.read())
 
     @mock.patch("cdimage.osextras.fetch")
-    def test_ubuntu_cpc(self, mock_fetch):
+    def test_ubuntu_server_preinstalled_raspi2(self, mock_fetch):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".manifest") or
                     target.endswith(".disk1.img.xz")):
