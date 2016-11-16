@@ -305,7 +305,7 @@ class TestBuildLiveCDBase(TestCase):
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["CDIMAGE_PREINSTALLED"] = "1"
-        self.config["PROJECT"] = "ubuntu-cpc"
+        self.config["PROJECT"] = "ubuntu-server"
         self.config["DIST"] = "xenial"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.config["ARCHES"] = "armhf+raspi2"
@@ -318,7 +318,7 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-cpc", "xenial",
+            self.temp_dir, "scratch", "ubuntu-server", "xenial",
             "daily-preinstalled", "debian-cd", "armhf+raspi2")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([

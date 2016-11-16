@@ -148,6 +148,9 @@ def live_project(config, arch):
         liveproject = "tocd"
     elif project == "ubuntu-touch-custom":
         liveproject = "ubuntu-touch"
+    elif (project == "ubuntu-server" and
+          arch == "armhf+raspi2"):
+        liveproject = "ubuntu-cpc"
     else:
         liveproject = project
 
@@ -854,7 +857,7 @@ def download_live_filesystems(config):
         got_image = False
         for arch in config.arches:
             if config["CDIMAGE_PREINSTALLED"]:
-                if project == "ubuntu-cpc":
+                if project == "ubuntu-server":
                     if download_live_items(config, arch, "disk1.img.xz"):
                         got_image = True
                     else:

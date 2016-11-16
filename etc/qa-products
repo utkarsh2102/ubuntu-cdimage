@@ -73,10 +73,12 @@ Ubuntu Server amd64+mac						ubuntu-server	daily				server					amd64+mac		iso
 Ubuntu Server arm64							ubuntu-server	daily				server					arm64			iso
 Ubuntu Server armhf+omap					ubuntu-server	daily				server					armhf+omap		iso
 Ubuntu Server armhf+omap4					ubuntu-server	daily				server					armhf+omap4		iso
+Ubuntu Server armhf+raspi2					ubuntu-server	daily-preinstalled		preinstalled-server			armhf+raspi2		iso
 Ubuntu Server i386							ubuntu-server	daily				server					i386			iso
 Ubuntu Server powerpc						ubuntu-server	daily				server					powerpc			iso
 Ubuntu Server ppc64el						ubuntu-server	daily				server					ppc64el			iso
 Ubuntu Server s390x						ubuntu-server	daily				server					s390x			iso
+
 
 # Ubuntu Studio
 Ubuntu Studio DVD amd64						ubuntustudio	dvd					dvd						amd64			iso
@@ -89,9 +91,6 @@ Ubuntu Touch i386							ubuntu-touch	daily-preinstalled	preinstalled-touch		i386
 # Ubuntu Touch Custom
 Ubuntu Touch Custom armhf					ubuntu-touch-custom	daily-preinstalled	preinstalled-touch	armhf			iso
 Ubuntu Touch Custom i386					ubuntu-touch-custom	daily-preinstalled	preinstalled-touch	i386			iso
-
-# Ubuntu CPC
-Ubuntu CPC armhf+raspi2                 ubuntu-cpc       daily-preinstalled  preinstalled-server      armhf+raspi2           iso
 
 # Ubuntu Kylin
 Ubuntu Kylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso

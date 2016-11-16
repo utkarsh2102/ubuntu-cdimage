@@ -30,7 +30,6 @@ ubuntu-core-system-image		daily-preinstalled	utopic			amd64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	vivid-wily			amd64 arm64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	xenial-			amd64 arm64 armhf i386 ppc64el s390x
 
-ubuntu-cpc		daily-preinstalled	xenial-			armhf+raspi2
 
 jeos			*			*			i386
 
@@ -85,6 +84,7 @@ ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 po
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
 ubuntu-server		*			utopic-wily		amd64 i386 powerpc ppc64el
 ubuntu-server		*			xenial-			amd64 arm64 i386 powerpc ppc64el s390x
+ubuntu-server		daily-preinstalled	xenial-			armhf+raspi2
 
 ubuntu-wubi		*			*			amd64 i386
 
