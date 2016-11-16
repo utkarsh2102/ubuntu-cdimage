@@ -253,14 +253,14 @@ class TestPublisher(TestCase):
              "preinstalled-headless"),
             ("daily-preinstalled", "ubuntu-server", "precise",
              "preinstalled-server"),
+            ("daily-preinstalled", "ubuntu-server", "xenial",
+             "preinstalled-server"),
             ("daily-preinstalled", "ubuntu", "precise",
              "preinstalled-desktop"),
             ("daily-preinstalled", "ubuntu-touch", "saucy",
              "preinstalled-touch"),
             ("daily-preinstalled", "ubuntu-touch-custom", "vivid",
              "preinstalled-touch"),
-            ("daily-preinstalled", "ubuntu-cpc", "xenial",
-             "preinstalled-server"),
             ("daily-live", "edubuntu", "edgy", "live"),
             ("daily-live", "edubuntu", "feisty", "desktop"),
             ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
@@ -688,7 +688,7 @@ class TestDailyTreePublisher(TestCase):
             os.path.join(
                 self.config.root, "www", "full",
                 "ubuntu-server", "daily-preinstalled"),
-            self.make_publisher("ubuntu-cpc",
+            self.make_publisher("ubuntu-server",
                                 "daily-preinstalled").publish_base)
         self.assertEqual(
             os.path.join(
@@ -1806,6 +1806,8 @@ class TestFullReleaseTree(TestCase):
         self.assertEqual(
             "/ports", self.tree.tree_suffix("ubuntu-server/ports/daily"))
         self.assertEqual("", self.tree.tree_suffix("ubuntu-server/daily"))
+        self.assertEqual(
+            "", self.tree.tree_suffix("ubuntu-server/daily-preinstalled"))
         self.assertEqual("/ports", self.tree.tree_suffix("ports/daily"))
         self.assertEqual("", self.tree.tree_suffix("daily"))
 
@@ -1827,6 +1829,8 @@ class TestSimpleReleaseTree(TestCase):
         self.assertEqual(
             "/ports", self.tree.tree_suffix("ubuntu-server/ports/daily"))
         self.assertEqual("", self.tree.tree_suffix("ubuntu-server/daily"))
+        self.assertEqual(
+            "", self.tree.tree_suffix("ubuntu-server/daily-preinstalled"))
         self.assertEqual("/ports", self.tree.tree_suffix("ports/daily"))
         self.assertEqual("", self.tree.tree_suffix("daily"))
 
@@ -1930,6 +1934,13 @@ class TestReleasePublisherMixin:
                 "20130327"),
             self.get_publisher().daily_dir(
                 "daily", "ubuntu-server/daily/20130327", "server"))
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir, "www", "full", "ubuntu-server",
+                "daily-preinstalled", "20130327"),
+            self.get_publisher().daily_dir(
+                "daily-preinstalled",
+                "ubuntu-server/daily-preinstalled/20130327", "server"))
 
     def test_daily_dir_source(self):
         self.config["PROJECT"] = "ubuntu"

@@ -460,7 +460,8 @@ def build_livecd_base(config):
     log_marker("Downloading live filesystem images")
     download_live_filesystems(config)
 
-    if config.project in ("ubuntu-cpc"):
+    if (config.project in ("ubuntu-server") and
+            config.image_type == "daily-preinstalled"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.project, config.full_series,
@@ -471,14 +472,9 @@ def build_livecd_base(config):
             osextras.ensuredir(output_dir)
             live_prefix = os.path.join(live_dir, arch)
             rootfs = "%s.disk1.img.xz" % (live_prefix)
-            if config.project == "ubuntu-cpc":
-                if config.image_type == "daily-preinstalled":
-                    output_prefix = os.path.join(
-                        output_dir,
-                        "%s-preinstalled-server-%s" % (config.series, arch))
-                else:
-                    output_prefix = os.path.join(
-                        output_dir, "%s-server-%s" % (config.series, arch))
+            output_prefix = os.path.join(output_dir,
+                                         "%s-preinstalled-server-%s" %
+                                         (config.series, arch))
             with open("%s.type" % output_prefix, "w") as f:
                 print("EXT4 Filesystem Image", file=f)
             shutil.copy2(rootfs, "%s.raw" % output_prefix)
@@ -690,7 +686,10 @@ def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
             "livecd-base", "ubuntu-base", "ubuntu-core", "ubuntu-touch",
-            "ubuntu-touch-custom", "ubuntu-cpc"):
+            "ubuntu-touch-custom"):
+        live_fs_only = True
+    elif (config.project == "ubuntu-server" and
+          config.image_type == "daily-preinstalled"):
         live_fs_only = True
     elif (config.project == "ubuntu-desktop-next" and
           config.subproject == "system-image"):

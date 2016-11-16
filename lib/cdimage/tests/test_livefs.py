@@ -1158,7 +1158,7 @@ class TestDownloadLiveFilesystems(TestCase):
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_diskimg(self, mock_fetch):
-        self.config["PROJECT"] = "ubuntu-cpc"
+        self.config["PROJECT"] = "ubuntu-server"
         self.config["DIST"] = "xenial"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.assertTrue(download_live_items(self.config, "armhf+raspi2",
@@ -1168,7 +1168,7 @@ class TestDownloadLiveFilesystems(TestCase):
             "http://kishi00.buildd/~buildd/LiveCD/xenial/ubuntu-cpc-raspi2"
             "/current/livecd.ubuntu-cpc.disk1.img.xz",
             os.path.join(
-                self.temp_dir, "scratch", "ubuntu-cpc", "xenial",
+                self.temp_dir, "scratch", "ubuntu-server", "xenial",
                 "daily-preinstalled", "live", "armhf+raspi2.disk1.img.xz"))
 
     @mock.patch("cdimage.osextras.fetch")

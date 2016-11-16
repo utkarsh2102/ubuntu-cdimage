@@ -74,7 +74,6 @@ projects = [
     "ubuntu-headless",
     "ubuntu-netbook",
     "ubuntu-server",
-    "ubuntu-cpc",
     "ubuntukylin",
     "ubuntustudio",
     "xubuntu",
@@ -157,8 +156,6 @@ class Tree:
         """Return the per-project base directory within this tree."""
         if self.config.project == "ubuntu":
             return self.directory
-        elif self.config.project == "ubuntu-cpc":
-            return os.path.join(self.directory, "ubuntu-server")
         else:
             return os.path.join(self.directory, self.config.project)
 
@@ -379,8 +376,6 @@ class Publisher:
             elif self.project == "ubuntu-headless":
                 return "preinstalled-headless"
             elif self.project == "ubuntu-server":
-                return "preinstalled-server"
-            elif self.project == "ubuntu-cpc":
                 return "preinstalled-server"
             elif self.project in ("ubuntu-touch", "ubuntu-touch-custom"):
                 return "preinstalled-touch"
