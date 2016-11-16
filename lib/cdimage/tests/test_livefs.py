@@ -278,9 +278,6 @@ class TestLiveBuilder(TestCase):
                 "kishi00.buildd", "armhf+omap", series,
                 project="ubuntu-server")
             self.assertBuilderEqual(
-                "kishi00.buildd", "armhf+raspi2", series,
-                project="ubuntu-server")
-            self.assertBuilderEqual(
                 "celbalrai.buildd", "armhf+omap4", series,
                 project="ubuntu-server")
             self.assertBuilderEqual("celbalrai.buildd", "armhf+ac100", series)
