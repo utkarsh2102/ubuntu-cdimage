@@ -74,6 +74,7 @@ ubuntu-moblin-remix	*			*			i386
 ubuntu-netbook		daily-live		lucid			armel+imx51 armel+dove armel+omap i386
 ubuntu-netbook		daily-live		maverick		armel+dove i386
 
+ubuntu-server		daily-preinstalled	xenial-			armhf+raspi2
 ubuntu-server		*			intrepid		amd64 hppa i386 ia64 powerpc powerpc+ps3 sparc
 ubuntu-server		*			jaunty			amd64 armel hppa i386 ia64 powerpc powerpc+ps3 sparc
 ubuntu-server		*			karmic-lucid		amd64 armel+dove armel+imx51 armel+omap i386 ia64 powerpc powerpc+ps3 sparc
@@ -84,7 +85,6 @@ ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 po
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
 ubuntu-server		*			utopic-wily		amd64 i386 powerpc ppc64el
 ubuntu-server		*			xenial-			amd64 arm64 i386 powerpc ppc64el s390x
-ubuntu-server		daily-preinstalled	xenial-			armhf+raspi2
 
 ubuntu-wubi		*			*			amd64 i386
 
