@@ -62,6 +62,10 @@ Ubuntu Desktop (Unity 8) i386					ubuntu-desktop-next/system-image	daily-preinst
 Ubuntu GNOME Desktop amd64					ubuntu-gnome	daily-live			desktop					amd64			iso
 Ubuntu GNOME Desktop i386					ubuntu-gnome	daily-live			desktop					i386			iso
 
+# Ubuntu Budgie
+Ubuntu Budgie Desktop amd64					ubuntu-budgie	daily-live			desktop					amd64			iso
+Ubuntu Budgie Desktop i386					ubuntu-budgie	daily-live			desktop					i386			iso
+
 # Ubuntu Mate
 Ubuntu MATE Desktop amd64					ubuntu-mate	daily-live			desktop					amd64			iso
 Ubuntu MATE Desktop i386					ubuntu-mate	daily-live			desktop					i386			iso
