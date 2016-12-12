@@ -535,7 +535,7 @@ class TestBuildImageSet(TestCase):
             ("lubuntu", "raring", False, True),
             ("ubuntukylin", "raring", False, True),
             ("ubuntu-gnome", "raring", False, True),
-            ("ubuntu-budgie", "zesty", False, False),
+            ("ubuntu-budgie", "zesty", False, True),
             ("ubuntu-mate", "vivid", False, True),
             ("ubuntu-moblin-remix", "raring", False, True),
             ("ubuntu-desktop-next", "utopic", False, False),
