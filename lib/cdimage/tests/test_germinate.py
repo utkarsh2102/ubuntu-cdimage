@@ -97,7 +97,7 @@ class TestGermination(TestCase):
             ("ubuntu-gnome", "raring",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
             ("ubuntu-budgie", "zesty",
-             ["fossfreedom", "ubuntu-core-dev"]),
+             ["ubuntubudgie", "ubuntu-core-dev"]),
             ("ubuntu-mate", "vivid",
              ["ubuntu-mate-dev", "ubuntu-core-dev"]),
             ("ubuntu-moblin-remix", "hardy", ["moblin", "ubuntu-core-dev"]),
