@@ -1754,8 +1754,8 @@ class DailyTreePublisher(Publisher):
                 return 2 * 1000 * 1000 * 1000
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             return 1024 * 1024 * 1024
-        elif self.project == "ubuntu-budgie" and
-        self.config["DIST"] >= "zesty":
+        elif self.project == "ubuntu-budgie" and \
+                self.config["DIST"] >= "zesty":
             return 2 * 1000 * 1000 * 1000
         elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
             # http://irclogs.ubuntu.com/2016/03/09/
