@@ -65,6 +65,8 @@ ubuntu-desktop-next-system-image	daily-preinstalled			wily-			amd64 i386 armhf
 
 ubuntu-gnome		*			*			amd64 i386
 
+ubuntu-budgie		*			*			amd64 i386
+
 ubuntu-mate		*			*			amd64 i386 powerpc
 
 ubuntu-mid		*			*			lpia

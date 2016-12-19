@@ -96,6 +96,7 @@ def configure_for_project(config):
         "lubuntu",
         "ubuntukylin",
         "ubuntu-gnome",
+        "ubuntu-budgie",
         "ubuntu-mate",
         "ubuntu-moblin-remix",
         "ubuntu-mid",
