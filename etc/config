@@ -29,7 +29,7 @@ case $DIST in
 		export PROPOSED
 		;;
 	xenial)
-		PROPOSED="${PROPOSED:-1}"
+		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
 esac
