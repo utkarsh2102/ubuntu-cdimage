@@ -49,6 +49,9 @@ case $DIST in
     trusty)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu edubuntu xubuntu ubuntustudio mythbuntu lubuntu ubuntu-gnome ubuntukylin}"
         ;;
+    xenial)
+        ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio mythbuntu lubuntu ubuntu-gnome ubuntukylin ubuntu-mate}"
+        ;;
     *)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio mythbuntu lubuntu ubuntu-gnome ubuntukylin ubuntu-mate ubuntu-budgie}"
         ;;
