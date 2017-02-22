@@ -25,7 +25,8 @@ ubuntu-base		daily			precise			amd64 armhf i386
 ubuntu-base		daily			quantal-raring		amd64 armhf i386 powerpc
 ubuntu-base		daily			saucy			amd64 arm64 armhf i386 powerpc
 ubuntu-base		daily			trusty-wily		amd64 arm64 armhf i386 powerpc ppc64el
-ubuntu-base		daily			xenial-			amd64 arm64 armhf i386 powerpc ppc64el s390x
+ubuntu-base		daily			xenial-yakkety		amd64 arm64 armhf i386 powerpc ppc64el s390x
+ubuntu-base		daily			zesty-			amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-core-system-image		daily-preinstalled	utopic			amd64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	vivid-wily			amd64 arm64 armhf i386
 ubuntu-core-system-image		daily-preinstalled	xenial-			amd64 arm64 armhf i386 ppc64el s390x
@@ -67,7 +68,8 @@ ubuntu-gnome		*			*			amd64 i386
 
 ubuntu-budgie		*			*			amd64 i386
 
-ubuntu-mate		*			*			amd64 i386 powerpc
+ubuntu-mate		*			-yakkety		amd64 i386 powerpc
+ubuntu-mate		*			zesty-			amd64 i386
 
 ubuntu-mid		*			*			lpia
 
@@ -86,7 +88,8 @@ ubuntu-server		*			precise			amd64 i386
 ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
 ubuntu-server		*			utopic-wily		amd64 i386 powerpc ppc64el
-ubuntu-server		*			xenial-			amd64 arm64 i386 powerpc ppc64el s390x
+ubuntu-server		*			xenial-yakkety		amd64 arm64 i386 powerpc ppc64el s390x
+ubuntu-server		*			zesty-			amd64 arm64 i386 ppc64el s390x
 
 ubuntu-wubi		*			*			amd64 i386
 
@@ -119,4 +122,5 @@ xubuntu			*			natty-			amd64 i386
 *			*			lucid			amd64 i386 ia64 powerpc powerpc+ps3 sparc
 *			*			maverick		amd64 amd64+mac i386 powerpc powerpc+ps3
 *			*			natty-trusty		amd64 amd64+mac i386 powerpc
-*			*			*			amd64 i386 powerpc
+*			*			utopic-yakkety		amd64 i386 powerpc
+*			*			*			amd64 i386
