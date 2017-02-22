@@ -68,8 +68,7 @@ ubuntu-gnome		*			*			amd64 i386
 
 ubuntu-budgie		*			*			amd64 i386
 
-ubuntu-mate		*			-yakkety		amd64 i386 powerpc
-ubuntu-mate		*			zesty-			amd64 i386
+ubuntu-mate		*			*			amd64 i386
 
 ubuntu-mid		*			*			lpia
 
@@ -122,5 +121,4 @@ xubuntu			*			natty-			amd64 i386
 *			*			lucid			amd64 i386 ia64 powerpc powerpc+ps3 sparc
 *			*			maverick		amd64 amd64+mac i386 powerpc powerpc+ps3
 *			*			natty-trusty		amd64 amd64+mac i386 powerpc
-*			*			utopic-yakkety		amd64 i386 powerpc
 *			*			*			amd64 i386
