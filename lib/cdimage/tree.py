@@ -1776,8 +1776,10 @@ class DailyTreePublisher(Publisher):
         elif self.project == "ubuntu-server":
             if self.config["DIST"] == "xenial":
                 return 1024 * 1024 * 1024
-            if self.config["DIST"] == "zesty" and arch == "ppc64el":
+            elif self.config["DIST"] >= "zesty" and arch == "ppc64el":
                 return 1024 * 1024 * 1024
+            else:
+                return 736665600
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW
