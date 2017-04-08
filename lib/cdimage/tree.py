@@ -1773,9 +1773,13 @@ class DailyTreePublisher(Publisher):
             # provisional;
             # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
             return 1024 * 1024 * 1024
-        elif self.project == "ubuntu-server" and \
-                self.config["DIST"] == "xenial":
-            return 1024 * 1024 * 1024
+        elif self.project == "ubuntu-server":
+            if self.config["DIST"] == "xenial":
+                return 1024 * 1024 * 1024
+            elif self.config["DIST"] >= "zesty" and arch == "ppc64el":
+                return 1024 * 1024 * 1024
+            else:
+                return 736665600
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW
