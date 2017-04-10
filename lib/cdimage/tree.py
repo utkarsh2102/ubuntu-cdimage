@@ -1754,8 +1754,12 @@ class DailyTreePublisher(Publisher):
                 return 2 * 1000 * 1000 * 1000
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             return 1024 * 1024 * 1024
-        elif self.project == "ubuntu-budgie" and \
-                self.config["DIST"] >= "zesty":
+        elif (self.project in ("ubuntu-budgie", "mythbuntu") and
+              self.config["DIST"] >= "xenial"):
+            # mythbuntu project has disbanded per
+            # https://bugs.launchpad.net/bugs/1639445, xenial images were
+            # oversized; executive decision by vorlon to raise the limit
+            # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
         elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
             # http://irclogs.ubuntu.com/2016/03/09/
