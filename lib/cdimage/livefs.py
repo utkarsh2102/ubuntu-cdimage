@@ -151,9 +151,6 @@ def live_project(config, arch):
     elif (project == "ubuntu-server" and
           config.image_type == "daily-preinstalled"):
         liveproject = "ubuntu-cpc"
-    elif (project == "ubuntu-server" and
-          config.image_type == "daily-live"):
-        liveproject = "ubuntu-server-live"
     else:
         liveproject = project
 
