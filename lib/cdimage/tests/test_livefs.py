@@ -1300,8 +1300,8 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(
             download_live_items(self.config, "amd64", "installer.squashfs"))
-        url = ("http://kapok.buildd/~buildd/LiveCD/xenial/ubuntu-server-live/"
-               "current/livecd.ubuntu-server-live.installer.squashfs")
+        url = ("http://kapok.buildd/~buildd/LiveCD/xenial/ubuntu-server/"
+               "current/livecd.ubuntu-server.installer.squashfs")
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-server", "xenial", "daily-live",
             "live")
