@@ -1293,6 +1293,22 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.server-squashfs"))
 
+    @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_items_installer_squashfs(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu-server"
+        self.config["DIST"] = "xenial"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(
+            download_live_items(self.config, "amd64", "installer.squashfs"))
+        url = ("http://kapok.buildd/~buildd/LiveCD/xenial/ubuntu-server-live/"
+               "current/livecd.ubuntu-server-live.installer.squashfs")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-server", "xenial", "daily-live",
+            "live")
+        mock_fetch.assert_called_once_with(
+            self.config, url, os.path.join(target_dir,
+                                           "amd64.installer.squashfs"))
+
     def test_write_autorun(self):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"

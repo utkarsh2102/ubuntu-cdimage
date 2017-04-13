@@ -24,7 +24,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Probably dead for good; keeping entry in case minds are changed:
 #24 0 * * *	for-project edubuntu cron.dvd --live
 50 1 * * *	for-project xubuntu cron.daily-live --live
-29 6 * * *	for-project ubuntu-server cron.daily --live; for-project ubuntu-server cron.daily-preinstalled --live
+29 6 * * *	for-project ubuntu-server cron.daily --live; for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
 17 18 * * *	for-project ubuntustudio cron.dvd --live
 29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live; for-project lubuntu-next cron.daily-live --live
 32 4 * * *	for-project ubuntu-base cron.daily-live --live
