@@ -189,8 +189,10 @@ def send_warnings(config, options, projects):
 
     releasers = get_notify_addresses(config)
     all_warnings = get_all_warnings(projects)
+    subj = 'Daily CD health checks'
     if all_warnings == '':
         all_warnings = 'No problems found!'
+        subj = subj + ' - OK'
     body = """\
 This is a daily health check report on all CD images.
 If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
@@ -198,7 +200,7 @@ If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
 %s
 """ % all_warnings
     send_mail(
-        "Daily CD health checks", "daily-checks", releasers, body,
+        subj, "daily-checks", releasers, body,
         dry_run=options.stdout)
 
     for project in projects:
