@@ -189,6 +189,7 @@ all_series.extend([
         all_lts_projects=True),
     Series("yakkety", "16.10", "Yakkety Yak"),
     Series("zesty", "17.04", "Zesty Zapus"),
+    Series("artful", "17.10", "Artful Aardvark"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
