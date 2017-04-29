@@ -1016,6 +1016,17 @@ class TestLiveItemPaths(TestCase):
                  "current/livecd.ubuntu-ps3.%s" % item],
                 "powerpc+ps3", item, "ubuntu", "hardy")
 
+    def test_imgxz(self):
+        for item in ("img.xz", "model-assertion"):
+            self.assertPathsEqual(
+                ["http://kapok.buildd/~buildd/LiveCD/artful/ubuntu-core/"
+                 "current/livecd.ubuntu-core.%s" % item],
+                "amd64", item, "ubuntu-core", "artful")
+            self.assertPathsEqual(
+                ["http://kishi00.buildd/~buildd/LiveCD/artful/"
+                 "ubuntu-core-raspi2/current/livecd.ubuntu-core.%s" % item],
+                "armhf+raspi2", item, "ubuntu-core", "artful")
+
     def test_kernel_items(self):
         for item in ("kernel", "initrd", "bootimg"):
             root = "http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/current"
