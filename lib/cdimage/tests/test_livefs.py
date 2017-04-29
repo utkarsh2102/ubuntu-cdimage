@@ -1172,6 +1172,21 @@ class TestDownloadLiveFilesystems(TestCase):
                 "daily-preinstalled", "live", "armhf+raspi2.disk1.img.xz"))
 
     @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_items_xzimg(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu-core"
+        self.config["DIST"] = "xenial"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(download_live_items(self.config, "armhf+raspi3",
+                                            "img.xz"))
+        mock_fetch.assert_called_once_with(
+            self.config,
+            "http://kishi00.buildd/~buildd/LiveCD/xenial/ubuntu-core-raspi3"
+            "/current/livecd.ubuntu-core.img.xz",
+            os.path.join(
+                self.temp_dir, "scratch", "ubuntu-core", "xenial",
+                "daily-live", "live", "armhf+raspi3.img.xz"))
+
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_initrd(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"

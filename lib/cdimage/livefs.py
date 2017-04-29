@@ -643,7 +643,7 @@ def live_item_paths(config, arch, item):
         "device.tar.gz", "azure.device.tar.gz", "raspi2.device.tar.gz",
         "plano.device.tar.gz", "tar.xz", "iso", "os.snap", "kernel.snap",
         "disk1.img.xz", "dragonboard.kernel.snap", "raspi2.kernel.snap",
-        "installer.squashfs",
+        "installer.squashfs", "img.xz",
     ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
@@ -656,7 +656,7 @@ def live_item_paths(config, arch, item):
             for url in urls_for(
                     "livecd.%s.%s-nexus7" % (liveproject_subarch, item)):
                 yield url
-        elif item == "disk1.img.xz":
+        elif item in ("disk1.img.xz", "img.xz"):
             for url in urls_for(
                     "livecd.%s.%s" % (liveproject, item)):
                 yield url
@@ -878,6 +878,8 @@ def download_live_filesystems(config):
                     got_image = True
                 else:
                     continue
+            elif download_live_items(config, arch, "img.xz"):
+                got_image = True
             elif download_live_items(config, arch, "cloop"):
                 got_image = True
             elif download_live_items(config, arch, "squashfs"):
