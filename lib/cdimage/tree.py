@@ -400,6 +400,8 @@ class Publisher:
                 return "netbook"
             elif self.project == "ubuntu-server":
                 return "live"
+            elif self.project == "ubuntu-core":
+                return "live-core"
             else:
                 if self.config["DIST"] <= "breezy":
                     return "live"
@@ -436,7 +438,8 @@ class Publisher:
         if publish_type.startswith("preinstalled-"):
             return "daily-preinstalled"
         elif publish_type in (
-                "desktop", "live", "mid", "moblin-remix", "netbook"):
+                "desktop", "live", "mid", "moblin-remix", "netbook",
+                "live-core"):
             return "daily-live"
         elif publish_type == "dvd":
             return "dvd"
@@ -488,6 +491,8 @@ class Publisher:
 
         if publish_type == "live":
             return "live %s" % cd
+        elif publish_type == "live-core":
+            return "Ubuntu Core %s" % cd
         elif publish_type == "desktop":
             return "desktop %s" % cd
         elif publish_type == "install":
@@ -1129,7 +1134,7 @@ class Publisher:
             "preinstalled-mobile", "preinstalled-active",
             "preinstalled-headless", "preinstalled-server",
             "preinstalled-touch", "preinstalled-core", "wubi",
-            "preinstalled-desktop-next",
+            "preinstalled-desktop-next", "live-core",
         )
 
         all_arches = (

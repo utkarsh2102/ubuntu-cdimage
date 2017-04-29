@@ -272,6 +272,7 @@ class TestPublisher(TestCase):
             ("daily-live", "ubuntu", "breezy", "live"),
             ("daily-live", "ubuntu", "dapper", "desktop"),
             ("daily-live", "ubuntu-zh_CN", "raring", "desktop"),
+            ("daily-live", "ubuntu-core", "xenial", "live-core"),
             ("ports_dvd", "ubuntu", "hardy", "dvd"),
             ("dvd", "kubuntu", "hardy", "dvd"),
             ("daily", "edubuntu", "edgy", "install"),
