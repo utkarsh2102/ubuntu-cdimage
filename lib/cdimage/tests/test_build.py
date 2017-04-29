@@ -328,6 +328,38 @@ class TestBuildLiveCDBase(TestCase):
         ], os.listdir(output_dir))
 
     @mock.patch("cdimage.osextras.fetch")
+    def test_ubuntu_core_raspi3(self, mock_fetch):
+        def fetch_side_effect(config, source, target):
+            if (target.endswith(".model-assertion") or
+                    target.endswith(".img.xz")):
+                touch(target)
+            else:
+                raise osextras.FetchError
+
+        mock_fetch.side_effect = fetch_side_effect
+        self.config["CDIMAGE_LIVE"] = "1"
+        self.config["PROJECT"] = "ubuntu-core"
+        self.config["DIST"] = "xenial"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.config["ARCHES"] = "armhf+raspi3"
+        self.capture_logging()
+        build_livecd_base(self.config)
+        self.assertLogEqual([
+            "===== Downloading live filesystem images =====",
+            self.epoch_date,
+            "===== Copying images to debian-cd output directory =====",
+            self.epoch_date,
+        ])
+        output_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-core", "xenial",
+            "daily-live", "live")
+        self.assertTrue(os.path.isdir(output_dir))
+        self.assertCountEqual([
+            "armhf+raspi3.img.xz",
+            "armhf+raspi3.model-assertion",
+        ], os.listdir(output_dir))
+
+    @mock.patch("cdimage.osextras.fetch")
     def _perform_ubuntu_touch_testing(self, project, mock_fetch):
         '''Convenience function for testing ubuntu-touch* builds.'''
         def fetch_side_effect(config, source, target):

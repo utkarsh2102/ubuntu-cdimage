@@ -643,7 +643,7 @@ def live_item_paths(config, arch, item):
         "device.tar.gz", "azure.device.tar.gz", "raspi2.device.tar.gz",
         "plano.device.tar.gz", "tar.xz", "iso", "os.snap", "kernel.snap",
         "disk1.img.xz", "dragonboard.kernel.snap", "raspi2.kernel.snap",
-        "installer.squashfs", "img.xz",
+        "installer.squashfs", "img.xz", "model-assertion"
     ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
@@ -656,7 +656,7 @@ def live_item_paths(config, arch, item):
             for url in urls_for(
                     "livecd.%s.%s-nexus7" % (liveproject_subarch, item)):
                 yield url
-        elif item in ("disk1.img.xz", "img.xz"):
+        elif item in ("disk1.img.xz", "img.xz", "model-assertion"):
             for url in urls_for(
                     "livecd.%s.%s" % (liveproject, item)):
                 yield url
@@ -952,6 +952,8 @@ def download_live_filesystems(config):
                         config["CDIMAGE_DVD"] or
                         series >= "maverick"):
                     download_live_items(config, arch, "usb-creator")
+            if project == "ubuntu-core" and config["CDIMAGE_LIVE"]:
+                download_live_items(config, arch, "model-assertion")
 
         if not got_image:
             raise NoFilesystemImages("No filesystem images found.")
