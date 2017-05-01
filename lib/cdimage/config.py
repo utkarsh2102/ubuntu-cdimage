@@ -428,6 +428,12 @@ class Config(defaultdict):
     def all_projects(self):
         return self["ALL_PROJECTS"].split()
 
+    @property
+    def core_series(self):
+        if self["DIST"] >= "xenial" and self["DIST"] <= "artful":
+            return '16'
+        return None
+
     def export(self):
         ret = dict(os.environ)
         for key, value in self.items():

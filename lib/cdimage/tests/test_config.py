@@ -289,6 +289,19 @@ class TestConfig(TestCase):
         config["DIST"] = "ubuntu-rtm/14.09"
         self.assertEqual("ubuntu-rtm/14.09", config.full_series)
 
+    def test_core_series(self):
+        config = Config(read=False)
+        config["DIST"] = "utopic"
+        self.assertEqual(None, config.core_series)
+        config["DIST"] = "xenial"
+        self.assertEqual("16", config.core_series)
+        config["DIST"] = "yakkety"
+        self.assertEqual("16", config.core_series)
+        config["DIST"] = "zesty"
+        self.assertEqual("16", config.core_series)
+        config["DIST"] = "artful"
+        self.assertEqual("16", config.core_series)
+
     def test_arches(self):
         config = Config(read=False)
         self.assertEqual([], config.arches)
