@@ -482,9 +482,28 @@ def build_livecd_base(config):
             shutil.copy2(
                 "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
-    if (config.project in ("ubuntu-core", "ubuntu-base", "ubuntu-touch",
+    if (config.project == "ubuntu-core" and
+            config.image_type == "daily-live"):
+        log_marker("Copying images to debian-cd output directory")
+        scratch_dir = os.path.join(
+            config.root, "scratch", config.project, config.full_series,
+            config.image_type)
+        live_dir = os.path.join(scratch_dir, "live")
+        for arch in config.arches:
+            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+            osextras.ensuredir(output_dir)
+            live_prefix = os.path.join(live_dir, arch)
+            rootfs = "%s.img.xz" % (live_prefix)
+            output_prefix = os.path.join(output_dir,
+                                         "%s-live-core-%s" %
+                                         (config.series, arch))
+            with open("%s.type" % output_prefix, "w") as f:
+                print("Disk Image", file=f)
+            shutil.copy2(rootfs, "%s.raw" % output_prefix)
+
+    if (config.project in ("ubuntu-base", "ubuntu-touch",
                            "ubuntu-touch-custom") or
-        (config.project == "ubuntu-desktop-next" and
+        (config.project in ("ubuntu-desktop-next", "ubuntu-core") and
          config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(

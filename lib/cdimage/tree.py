@@ -1703,6 +1703,9 @@ class DailyTreePublisher(Publisher):
 
     @property
     def image_type_dir(self):
+        if (self.config.project == "ubuntu-core" and
+                self.image_type == 'daily-live'):
+            return os.path.join(self.config.core_series, 'edge')
         image_type_dir = self.image_type.replace("_", "/")
         if (self.config.distribution != "ubuntu" or
                 not self.config["DIST"].is_latest):
@@ -1896,7 +1899,10 @@ class DailyTreePublisher(Publisher):
 
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
-        out_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
+        if publish_type == "live-core":
+            out_prefix = "ubuntu-core-%s-%s" % (self.config.core_series, arch)
+        else:
+            out_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         source_dir = self.image_output(arch)
         source_prefix = os.path.join(source_dir, in_prefix)
         target_dir = os.path.join(self.publish_base, date)
@@ -2021,6 +2027,13 @@ class DailyTreePublisher(Publisher):
                     shutil.move(
                         "%s.%s.kernel.snap" % (source_prefix, devarch),
                         "%s.%s.kernel.snap" % (target_prefix, devarch))
+
+        # snappy model assertions
+        if os.path.exists("%s.model-assertion" % source_prefix):
+            logger.info("Publishing %s model assertion ..." % arch)
+            shutil.move(
+                "%s.model-assertion" % source_prefix,
+                "%s.model-assertion" % target_prefix)
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):
@@ -2190,7 +2203,10 @@ class DailyTreePublisher(Publisher):
                 continue
             if (entry.startswith("%s-" % self.config.series) or
                 (self.config.subproject == "wubi" and
-                 entry.endswith(".tar.xz"))):
+                 entry.endswith(".tar.xz")) or
+                (self.config.project == "ubuntu-core" and
+                 self.image_type == "daily-live" and
+                 entry.endswith(".img.xz"))):
                 images.add(entry)
         return images
 
