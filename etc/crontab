@@ -20,7 +20,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 56 2 * * *	DIST=xenial for-project ubuntu-mate cron.daily-live --live
 # regular artful daily builds
 31 7 * * *	for-project ubuntu cron.daily-live --live
-30 8 * * *	for-project ubuntu-core cron.daily --live
+30 8 * * *	for-project ubuntu-core cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
 # Probably dead for good; keeping entry in case minds are changed:
 #24 0 * * *	for-project edubuntu cron.dvd --live
