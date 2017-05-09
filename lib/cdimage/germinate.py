@@ -387,6 +387,8 @@ class GerminateOutput:
                 elif project == "ubuntustudio" and series >= "precise":
                     # no inheritance; most of this goes on the live filesystem
                     yield "dvd"
+                    if series >= "artful":
+                        yield "ship-live"
                 else:
                     for seed in self._inheritance("dvd"):
                         yield seed
