@@ -301,6 +301,8 @@ def live_lp_info(config, arch):
     image_type = config.image_type
 
     path = os.path.join(config.root, "production", "livefs-launchpad")
+    if not os.path.exists(path):
+        path = os.path.join(config.root, "etc", "livefs-launchpad")
     if os.path.exists(path):
         with open(path) as f:
             for line in f:
