@@ -2331,7 +2331,7 @@ class DailyTreePublisher(Publisher):
                     continue
                 if self.image_type != image_type:
                     continue
-                if self.config.full_series != series:
+                if not self.config.match_series(series):
                     continue
                 if arch in arches:
                     return True

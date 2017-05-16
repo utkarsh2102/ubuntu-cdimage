@@ -159,6 +159,7 @@ class TestTree(TestCase):
         publish_base = os.path.join(self.temp_dir, "www", "full", "daily-live")
         target_dir = os.path.join(publish_base, "20130321")
         series = Series.latest().name
+        prev_series = all_series[Series.latest().index - 1]
         for name in (
             "%s-desktop-i386.iso" % series,
             "%s-desktop-i386.manifest" % series,
@@ -168,7 +169,8 @@ class TestTree(TestCase):
             self.temp_dir, "production", "current-triggers")
         with mkfile(current_triggers_path) as current_triggers:
             print(
-                "ubuntu\tdaily-live\t%s\ti386" % series, file=current_triggers)
+                "ubuntu\tdaily-live\t%s-\ti386" % prev_series,
+                file=current_triggers)
         self.config["SSH_ORIGINAL_COMMAND"] = (
             "mark-current --project=ubuntu --series=%s --publish-type=desktop "
             "--architecture=i386 20130321" % series)
