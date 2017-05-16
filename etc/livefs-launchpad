@@ -1,0 +1,34 @@
+# PROJECT		IMAGE_TYPE		DIST		ARCH		[INSTANCE/]OWNER/NAME
+# Put more specific matches first.
+# Like etc/default-arches, "PROJECT" is in fact PROJECT[-SUBPROJECT][-LOCALE].
+
+ubuntu			daily-live		*		*		ubuntu-cdimage/ubuntu
+ubuntu-desktop-next	daily-live		-vivid		*		ubuntu-cdimage/ubuntu-desktop-next
+ubuntu-desktop-next-system-image	daily-preinstalled	wily-	*	ubuntu-cdimage/ubuntu-desktop-next
+kubuntu			daily-live		*		*		ubuntu-cdimage/kubuntu
+kubuntu-plasma5		daily-live		*		*		ubuntu-cdimage/kubuntu-plasma5
+edubuntu		dvd			*		*		ubuntu-cdimage/edubuntu
+xubuntu			daily-live		*		*		ubuntu-cdimage/xubuntu
+ubuntu-server		daily			quantal-	*		ubuntu-cdimage/ubuntu-server
+ubuntu-server		daily-preinstalled	xenial-		*		ubuntu-cdimage/cpc
+ubuntu-server-live	daily-live		zesty-		*		ubuntu-cdimage/ubuntu-server-live
+ubuntustudio		dvd			*		*		ubuntu-cdimage/ubuntustudio
+mythbuntu		daily-live		*		*		ubuntu-cdimage/mythbuntu
+lubuntu-next		daily-live		*		*		ubuntu-cdimage/lubuntu-next
+lubuntu			daily-live		*		*		ubuntu-cdimage/lubuntu
+livecd-base		livecd-base		*		*		ubuntu-cdimage/livecd-base
+ubuntu-base		daily			*		*		ubuntu-cdimage/ubuntu-base
+ubuntu-core		daily-live		*		*		ubuntu-cdimage/ubuntu-core
+ubuntu-core-system-image daily-preinstalled	*		*		ubuntu-cdimage/ubuntu-core-system-image
+kubuntu-active		daily-live		*		*		ubuntu-cdimage/kubuntu-active
+ubuntukylin		daily-live		*		*		ubuntu-cdimage/ubuntukylin
+ubuntu-gnome		daily-live		*		*		ubuntu-cdimage/ubuntu-gnome
+ubuntu-mate		daily-live		*		*		ubuntu-cdimage/ubuntu-mate
+ubuntu-budgie		daily-live		*		*		ubuntu-cdimage/ubuntu-budgie
+ubuntu-touch		daily-preinstalled	ubuntu-rtm/*	*		ubuntu-cdimage/ubuntu-touch
+ubuntu-touch		daily-preinstalled	trusty-		*		ubuntu-cdimage/ubuntu-touch
+ubuntu-touch-custom	daily-preinstalled	vivid-		*		ubuntu-cdimage/ubuntu-touch-custom
+ubuntu-pd		daily-preinstalled	*		*		ubuntu-cdimage/ubuntu-pd
+ubuntu			dvd			-precise	*		ubuntu-cdimage/ubuntu-dvd
+ubuntu-wubi		wubi			*		*		ubuntu-cdimage/ubuntu-wubi
+ubuntu-zh_CN		daily-live		-raring		*		ubuntu-cdimage/ubuntu-zh-cn
