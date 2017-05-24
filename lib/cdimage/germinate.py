@@ -81,7 +81,7 @@ class Germination:
             elif project == "xubuntu":
                 if series >= "intrepid":
                     sources.insert(0, pattern % "xubuntu-dev")
-            elif project == "lubuntu":
+            elif project == "lubuntu" or "lubuntu-next":
                 sources.insert(0, pattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
                 sources.insert(0, pattern % "ubuntu-gnome-dev")
@@ -149,6 +149,8 @@ class Germination:
             return "moblin.%s" % self.config.series
         elif project == "ubuntu-desktop-next":
             return "ubuntu-touch.%s" % self.config.series
+        elif project == "lubuntu-next":
+            return "lubuntu.%s" % self.config.series
         else:
             return "%s.%s" % (project, self.config.series)
 
