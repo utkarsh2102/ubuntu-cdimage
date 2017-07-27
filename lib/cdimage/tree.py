@@ -1781,6 +1781,10 @@ class DailyTreePublisher(Publisher):
                 # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
                 return 2 * 1000 * 1000 * 1000
             return 1024 * 1024 * 1024
+        elif (self.project in ("lubuntu", "lubuntu-next") and
+              self.config["DIST"] >= "artful"):
+            # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
+            return int(1.5 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "trusty":
             # provisional;
             # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
