@@ -19,10 +19,8 @@ import errno
 import os
 import re
 import shutil
-import signal
 import subprocess
 
-from cdimage.log import logger
 from cdimage.proxy import proxy_call
 
 
@@ -91,47 +89,6 @@ def waitpid_retry(*args):
         except OSError as e:
             if e.errno != errno.EINTR:
                 raise
-
-
-def run_bounded(seconds, command, **kwargs):
-    # Fork first, to make sure that the controlling process only has a
-    # single child to worry about.
-    control_pid = os.fork()
-    if control_pid:
-        waitpid_retry(control_pid, 0)
-        return
-
-    def sigchld_handler(signum, frame):
-        _, status = os.waitpid(-1, 0)
-        if os.WIFEXITED(status):
-            os._exit(status)
-        else:
-            logger.error("child exited with signal %d" % os.WTERMSIG(status))
-            os._exit(os.WTERMSIG(status) + 128)
-
-    old_sigchld = signal.signal(signal.SIGCHLD, sigchld_handler)
-
-    def preexec():
-        signal.signal(signal.SIGCHLD, old_sigchld)
-        os.setpgid(0, 0)
-
-    subp = subprocess.Popen(command, preexec_fn=preexec, **kwargs)
-
-    # prevent race by setting process group on either side; cf. Stevens 1993
-    try:
-        os.setpgid(subp.pid, 0)
-    except OSError:
-        pass  # may fail if the child has already execed
-
-    def sigalrm_handler(signum, frame):
-        logger.error("%s took too long, terminating ..." % command[0])
-        os.kill(-subp.pid, signal.SIGTERM)
-
-    signal.signal(signal.SIGALRM, sigalrm_handler)
-    signal.setitimer(signal.ITIMER_REAL, seconds)
-    while True:
-        signal.pause()
-    os._exit(0)
 
 
 class FetchError(Exception):

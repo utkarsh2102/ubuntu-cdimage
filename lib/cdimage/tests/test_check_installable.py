@@ -122,6 +122,7 @@ class TestCheckInstallable(TestCase):
         britney, _, _, data = _check_installable_dirs(self.config)
         command = _check_installable_command(self.config)
         self.assertEqual([
+            "timeout", "30",
             os.path.join(britney, "rptprobs.sh"), data,
             os.path.join(
                 britney, "report", "ubuntu", "daily", "warty_probs.html"),

@@ -25,7 +25,7 @@ import subprocess
 import tempfile
 
 from cdimage.log import logger
-from cdimage.osextras import mkemptydir, run_bounded
+from cdimage.osextras import mkemptydir
 
 
 def _check_installable_dirs(config):
@@ -105,6 +105,9 @@ def _check_installable_command(config):
         britney, "report", config.project, config.image_type)
     mkemptydir(report_dir)
     return [
+        # Sometimes this inexplicably hangs on a futex.  We'll give it
+        # thirty seconds and then kill it.
+        "timeout", "30",
         os.path.join(britney, "rptprobs.sh"), data,
         os.path.join(report_dir, "%s_probs.html" % config.series),
         "%s %s" % (config.capproject, config.series),
@@ -115,4 +118,4 @@ def check_installable(config):
     _prepare_check_installable(config)
     # Sometimes this inexplicably hangs on a futex. We'll give it thirty
     # seconds and then kill it.
-    run_bounded(30, _check_installable_command(config))
+    subprocess.check_call(_check_installable_command(config))

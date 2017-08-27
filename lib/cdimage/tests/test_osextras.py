@@ -162,14 +162,6 @@ class TestOSExtras(TestCase):
         mock_waitpid.side_effect = waitpid_side_effect
         self.assertRaises(Completed, osextras.waitpid_retry, -1, 0)
 
-    def test_run_bounded_runs(self):
-        sentinel = os.path.join(self.temp_dir, "foo")
-        osextras.run_bounded(3600, ["touch", sentinel])
-        self.assertTrue(os.path.exists(sentinel))
-
-    def test_run_bounded_finite(self):
-        osextras.run_bounded(.1, ["sh", "-c", "while :; do sleep 3600; done"])
-
     def test_fetch_empty(self):
         config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
