@@ -90,6 +90,8 @@ ubuntu-server		*			utopic-wily		amd64 i386 powerpc ppc64el
 ubuntu-server		*			xenial-yakkety		amd64 arm64 i386 powerpc ppc64el s390x
 ubuntu-server		*			zesty-			amd64 arm64 i386 ppc64el s390x
 
+ubuntu-server-live	*			artful-			amd64 arm64 i386 ppc64el s390x
+
 ubuntu-wubi		*			*			amd64 i386
 
 ubuntu-zh_CN		*			maverick-natty		i386
