@@ -59,7 +59,8 @@ ubuntu			daily-live		lucid			amd64 i386 ia64 powerpc powerpc+ps3
 ubuntu			daily-live		precise			amd64 amd64+mac i386
 ubuntu			daily-live		quantal			amd64 amd64+mac armhf+omap4 i386 powerpc
 ubuntu			daily-live		raring-trusty		amd64 amd64+mac i386
-ubuntu			daily-live		utopic-			amd64 i386
+ubuntu			daily-live		utopic-zesty		amd64 i386
+ubuntu			daily-live		artful-			amd64
 
 ubuntu-desktop-next	*			-vivid			amd64 i386 armhf
 ubuntu-desktop-next-system-image	daily-preinstalled			wily-			amd64 i386 armhf
