@@ -83,6 +83,8 @@ Ubuntu Server powerpc						ubuntu-server	daily				server					powerpc			iso
 Ubuntu Server ppc64el						ubuntu-server	daily				server					ppc64el			iso
 Ubuntu Server s390x						ubuntu-server	daily				server					s390x			iso
 
+# Subiquity builds
+Ubuntu Server Subiquity amd64					ubuntu-server	daily-live			live-server				amd64			iso
 
 # Ubuntu Studio
 Ubuntu Studio DVD amd64						ubuntustudio	dvd					dvd						amd64			iso
