@@ -399,7 +399,7 @@ class Publisher:
             elif self.project in ("ubuntu-netbook", "kubuntu-netbook"):
                 return "netbook"
             elif self.project == "ubuntu-server":
-                return "live"
+                return "live-server"
             elif self.project == "ubuntu-core":
                 return "live-core"
             else:
@@ -439,7 +439,7 @@ class Publisher:
             return "daily-preinstalled"
         elif publish_type in (
                 "desktop", "live", "mid", "moblin-remix", "netbook",
-                "live-core"):
+                "live-core", "live-server"):
             return "daily-live"
         elif publish_type == "dvd":
             return "dvd"
@@ -499,7 +499,7 @@ class Publisher:
             return "install %s" % cd
         elif publish_type == "alternate":
             return "alternate install %s" % cd
-        elif publish_type == "server":
+        elif publish_type == "server" or publish_type == "live-server":
             if self.project == "edubuntu":
                 return "classroom server %s" % cd
             else:
@@ -660,7 +660,7 @@ class Publisher:
                 "This live %s is optimized for netbooks with screens up to "
                 "10\"." % cd)
             sentences.append(desktop_req)
-        elif publish_type == "server":
+        elif publish_type == "server" or publish_type == "live-server":
             if self.project == "edubuntu":
                 sentences.append(
                     "The classroom server %s allows you to install %s "
@@ -1124,6 +1124,7 @@ class Publisher:
 
         all_publish_types = (
             "live", "desktop",
+            "live-server",
             "server", "install", "alternate",
             "serveraddon", "addon",
             "dvd",

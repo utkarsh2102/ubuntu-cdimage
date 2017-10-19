@@ -268,7 +268,7 @@ class TestPublisher(TestCase):
             ("daily-live", "ubuntu-mid", "lucid", "mid"),
             ("daily-live", "ubuntu-moblin-remix", "lucid", "moblin-remix"),
             ("daily-live", "ubuntu-netbook", "hardy", "netbook"),
-            ("daily-live", "ubuntu-server", "hardy", "live"),
+            ("daily-live", "ubuntu-server", "hardy", "live-server"),
             ("daily-live", "ubuntu", "breezy", "live"),
             ("daily-live", "ubuntu", "dapper", "desktop"),
             ("daily-live", "ubuntu-zh_CN", "raring", "desktop"),
