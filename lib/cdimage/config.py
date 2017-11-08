@@ -190,6 +190,9 @@ all_series.extend([
     Series("yakkety", "16.10", "Yakkety Yak"),
     Series("zesty", "17.04", "Zesty Zapus"),
     Series("artful", "17.10", "Artful Aardvark"),
+    Series(
+        "bionic", "18.04", "Bionic Beaver",
+        all_lts_projects=True),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
@@ -432,6 +435,8 @@ class Config(defaultdict):
     def core_series(self):
         if self["DIST"] >= "xenial" and self["DIST"] <= "artful":
             return '16'
+        if self["DIST"] >= "bionic":
+            return '18'
         return None
 
     def export(self):

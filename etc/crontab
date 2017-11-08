@@ -20,7 +20,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 24 21 * * *	DIST=xenial for-project ubuntukylin cron.daily-live --live
 42 14 * * *	DIST=xenial for-project ubuntu-gnome cron.daily-live --live
 56 2 * * *	DIST=xenial for-project ubuntu-mate cron.daily-live --live
-# regular artful daily builds
+# regular bionic daily builds
 31 7 * * *	for-project ubuntu cron.daily-live --live
 30 8 * * *	for-project ubuntu-core cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
@@ -46,4 +46,4 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q vivid iso
 */5 * * * *	rebuild-requests -b -q xenial iso
-*/5 * * * *	rebuild-requests -b -q artful iso
+*/5 * * * *	rebuild-requests -b -q bionic iso
