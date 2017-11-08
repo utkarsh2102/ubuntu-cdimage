@@ -901,9 +901,9 @@ class TestDailyTreePublisher(TestCase):
                 return_value="img.xz")
     @mock.patch("cdimage.tree.zsyncmake")
     def test_publish_core_binary(self, mock_zsyncmake, *args):
+        self.config["DIST"] = "artful"
         publisher = self.make_publisher("ubuntu-core", "daily-live")
         source_dir = publisher.image_output("amd64")
-        self.config["DIST"] = "artful"
         touch(os.path.join(
             source_dir, "%s-live-core-amd64.raw" % self.config.series))
         touch(os.path.join(
