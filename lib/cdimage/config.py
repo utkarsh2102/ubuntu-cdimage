@@ -436,7 +436,7 @@ class Config(defaultdict):
         if self["DIST"] >= "xenial" and self["DIST"] <= "artful":
             return '16'
         if self["DIST"] >= "bionic":
-            return '18'
+            return '16'
         return None
 
     def export(self):
