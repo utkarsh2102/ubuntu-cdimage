@@ -17,7 +17,10 @@
 
 import errno
 import os
-import re
+try:
+    from shlex import quote as shell_quote
+except ImportError:
+    from pipes import quote as shell_quote
 import shutil
 import subprocess
 
@@ -124,13 +127,6 @@ def fetch(config, source, target):
         raise FetchError("%s returned %d" % (command_str, ret))
 
 
-def shell_escape(arg):
-    if re.match(r"^[a-zA-Z0-9+,./:=@_-]+$", arg):
-        return arg
-    else:
-        return "'%s'" % arg.replace("'", "'\\''")
-
-
 def _read_nullsep_output(command):
     raw = subprocess.Popen(
         command, stdout=subprocess.PIPE,
@@ -148,7 +144,7 @@ def _read_nullsep_output(command):
 def read_shell_config(config_path=None, whitelisted_keys=[]):
     commands = []
     if config_path is not None:
-        commands.append(". %s" % shell_escape(config_path))
+        commands.append(". %s" % shell_quote(config_path))
     commands.append("cat /proc/self/environ")
     for key in whitelisted_keys:
         commands.append(

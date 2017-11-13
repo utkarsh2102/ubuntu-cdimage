@@ -24,6 +24,10 @@ from itertools import count
 from optparse import OptionParser
 import os
 import re
+try:
+    from shlex import quote as shell_quote
+except ImportError:
+    from pipes import quote as shell_quote
 import shutil
 import socket
 import stat
@@ -1618,8 +1622,7 @@ class Publisher:
             self.tree.site_name,
         ]
         if dry_run:
-            logger.info(
-                " ".join(osextras.shell_escape(arg) for arg in command))
+            logger.info(" ".join(shell_quote(arg) for arg in command))
         else:
             try:
                 if subprocess.call(command) == 0:
@@ -2890,8 +2893,7 @@ class ReleasePublisher(Publisher):
             path,
         ])
         if self.dry_run:
-            logger.info(
-                " ".join(osextras.shell_escape(arg) for arg in command))
+            logger.info(" ".join(shell_quote(arg) for arg in command))
         else:
             with open("/dev/null", "w") as devnull:
                 subprocess.check_call(command, stdout=devnull)

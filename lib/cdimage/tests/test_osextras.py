@@ -198,12 +198,6 @@ class TestOSExtras(TestCase):
             ["wget", "-nv", "http://example.org/source", "-O", target],
             mock_call.call_args[0][0])
 
-    def test_shell_escape(self):
-        self.assertEqual("foo", osextras.shell_escape("foo"))
-        self.assertEqual("'  '", osextras.shell_escape("  "))
-        self.assertEqual(
-            "'shell'\\''s great'", osextras.shell_escape("shell's great"))
-
     def test_read_shell_config(self):
         os.environ["ONE"] = "one"
         config_path = os.path.join(self.temp_dir, "config")
