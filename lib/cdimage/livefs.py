@@ -658,7 +658,7 @@ def live_item_paths(config, arch, item):
             for url in urls_for(
                     "livecd.%s.%s-nexus7" % (liveproject_subarch, item)):
                 yield url
-        elif item in ("disk1.img.xz", "img.xz", "model-assertion"):
+        elif item == "disk1.img.xz":
             for url in urls_for(
                     "livecd.%s.%s" % (liveproject, item)):
                 yield url

@@ -1024,7 +1024,8 @@ class TestLiveItemPaths(TestCase):
                 "amd64", item, "ubuntu-core", "artful")
             self.assertPathsEqual(
                 ["http://kishi00.buildd/~buildd/LiveCD/artful/"
-                 "ubuntu-core-raspi2/current/livecd.ubuntu-core.%s" % item],
+                 "ubuntu-core-raspi2/current/"
+                 "livecd.ubuntu-core-raspi2.%s" % item],
                 "armhf+raspi2", item, "ubuntu-core", "artful")
 
     def test_kernel_items(self):
@@ -1192,7 +1193,7 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config,
             "http://kishi00.buildd/~buildd/LiveCD/xenial/ubuntu-core-raspi3"
-            "/current/livecd.ubuntu-core.img.xz",
+            "/current/livecd.ubuntu-core-raspi3.img.xz",
             os.path.join(
                 self.temp_dir, "scratch", "ubuntu-core", "xenial",
                 "daily-live", "live", "armhf+raspi3.img.xz"))
