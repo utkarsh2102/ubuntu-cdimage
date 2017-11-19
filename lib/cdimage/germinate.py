@@ -363,8 +363,10 @@ class GerminateOutput:
                 yield "ship-active-live"
             elif project == "lubuntu" and series >= "artful":
                 yield "ship-live-gtk"
+                yield "ship-live-share"
             elif project == "lubuntu-next" and series >= "artful":
                 yield "ship-live-qt"
+                yield "ship-live-share"
             else:
                 if series >= "dapper":
                     yield "ship-live"
