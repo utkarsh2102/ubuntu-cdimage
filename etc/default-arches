@@ -89,7 +89,8 @@ ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 po
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
 ubuntu-server		*			utopic-wily		amd64 i386 powerpc ppc64el
 ubuntu-server		*			xenial-yakkety		amd64 arm64 i386 powerpc ppc64el s390x
-ubuntu-server		*			zesty-			amd64 arm64 i386 ppc64el s390x
+ubuntu-server		*			zesty-artful		amd64 arm64 i386 ppc64el s390x
+ubuntu-server		*			bionic-			amd64 arm64 ppc64el s390x
 
 ubuntu-server-live	*			artful-			amd64 arm64 ppc64el
 
