@@ -68,7 +68,8 @@ class Germination:
         if self.config["LOCAL_SEEDS"]:
             return [self.config["LOCAL_SEEDS"]]
         elif self.prefer_bzr:
-            pattern = "http://bazaar.launchpad.net/~%s/ubuntu-seeds/"
+            pattern = "https://bazaar.launchpad.net/~%s/ubuntu-seeds/"
+            gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             series = self.config["DIST"]
             sources = [pattern % "ubuntu-core-dev"]
             if project in ("kubuntu", "kubuntu-active", "kubuntu-plasma5"):
@@ -82,7 +83,7 @@ class Germination:
                 if series >= "intrepid":
                     sources.insert(0, pattern % "xubuntu-dev")
             elif project in ("lubuntu", "lubuntu-next"):
-                sources.insert(0, pattern % "lubuntu-dev")
+                sources.insert(0, gitpattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
                 sources.insert(0, pattern % "ubuntu-gnome-dev")
             elif project == "ubuntu-budgie":
@@ -201,7 +202,7 @@ class Germination:
             "--no-rdepends",
         ]
         if self.use_bzr:
-            command.append("--bzr")
+            command.append("--vcs")
         if self.config.image_type == "source":
             command.append("--always-follow-build-depends")
         proxy_check_call(
