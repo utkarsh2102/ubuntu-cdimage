@@ -40,10 +40,10 @@ class GerminateNotInstalled(Exception):
 
 
 class Germination:
-    def __init__(self, config, prefer_bzr=True):
+    def __init__(self, config, prefer_vcs=True):
         self.config = config
         # Set to False to use old-style seed checkouts.
-        self.prefer_bzr = prefer_bzr
+        self.prefer_vcs = prefer_vcs
 
     @property
     def germinate_path(self):
@@ -67,44 +67,45 @@ class Germination:
     def seed_sources(self, project):
         if self.config["LOCAL_SEEDS"]:
             return [self.config["LOCAL_SEEDS"]]
-        elif self.prefer_bzr:
-            pattern = "http://bazaar.launchpad.net/~%s/ubuntu-seeds/"
+        elif self.prefer_vcs:
+            bzrpattern = "https://bazaar.launchpad.net/~%s/ubuntu-seeds/"
+            gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             series = self.config["DIST"]
             sources = [pattern % "ubuntu-core-dev"]
             if project in ("kubuntu", "kubuntu-active", "kubuntu-plasma5"):
                 if series >= "oneiric":
-                    sources.insert(0, pattern % "kubuntu-dev")
+                    sources.insert(0, bzrpattern % "kubuntu-dev")
             elif project == "ubuntustudio":
-                sources.insert(0, pattern % "ubuntustudio-dev")
+                sources.insert(0, bzrpattern % "ubuntustudio-dev")
             elif project == "mythbuntu":
-                sources.insert(0, pattern % "mythbuntu-dev")
+                sources.insert(0, bzrpattern % "mythbuntu-dev")
             elif project == "xubuntu":
                 if series >= "intrepid":
-                    sources.insert(0, pattern % "xubuntu-dev")
+                    sources.insert(0, bzrpattern % "xubuntu-dev")
             elif project in ("lubuntu", "lubuntu-next"):
-                sources.insert(0, pattern % "lubuntu-dev")
+                sources.insert(0, gitpattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
-                sources.insert(0, pattern % "ubuntu-gnome-dev")
+                sources.insert(0, bzrpattern % "ubuntu-gnome-dev")
             elif project == "ubuntu-budgie":
-                sources.insert(0, pattern % "ubuntubudgie-dev")
+                sources.insert(0, bzrpattern % "ubuntubudgie-dev")
             elif project == "ubuntu-mate":
-                sources.insert(0, pattern % "ubuntu-mate-dev")
+                sources.insert(0, bzrpattern % "ubuntu-mate-dev")
             elif project == "ubuntu-moblin-remix":
-                sources.insert(0, pattern % "moblin")
+                sources.insert(0, bzrpattern % "moblin")
             elif project == "ubuntukylin":
                 if series >= "utopic":
-                    sources.insert(0, pattern % "ubuntukylin-members")
+                    sources.insert(0, bzrpattern % "ubuntukylin-members")
             return sources
         else:
             return ["http://people.canonical.com/~ubuntu-archive/seeds/"]
 
     @property
-    def use_bzr(self):
+    def use_vcs(self):
         if self.config["LOCAL_SEEDS"]:
             # Local changes may well not be committed.
             return False
         else:
-            return self.prefer_bzr
+            return self.prefer_vcs
 
     def make_index(self, project, arch, rel_target, rel_paths):
         target = os.path.join(self.output_dir(project), rel_target)
@@ -200,8 +201,8 @@ class Germination:
             "--components", "main",
             "--no-rdepends",
         ]
-        if self.use_bzr:
-            command.append("--bzr")
+        if self.use_vcs:
+            command.append("--vcs")
         if self.config.image_type == "source":
             command.append("--always-follow-build-depends")
         proxy_check_call(
