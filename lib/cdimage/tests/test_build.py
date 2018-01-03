@@ -1153,7 +1153,7 @@ class TestBuildImageSet(TestCase):
                         "--arch", arch,
                         "--components", "main",
                         "--no-rdepends",
-                        "--bzr",
+                        "--vcs",
                     ], cwd=os.path.join(germinate_output, arch))
 
                 mock_call.assert_has_calls([
