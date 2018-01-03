@@ -202,7 +202,7 @@ class Germination:
             "--no-rdepends",
         ]
         if self.use_vcs:
-            command.append("--vcs")
+            command.append("--vcs=auto")
         if self.config.image_type == "source":
             command.append("--always-follow-build-depends")
         proxy_check_call(
