@@ -93,7 +93,6 @@ class TestGermination(TestCase):
             ("mythbuntu", "raring", ["mythbuntu-dev", "ubuntu-core-dev"]),
             ("xubuntu", "hardy", ["ubuntu-core-dev"]),
             ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
-            ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntu-gnome", "raring",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
             ("ubuntu-budgie", "zesty",
@@ -107,8 +106,21 @@ class TestGermination(TestCase):
         ):
             self.config["DIST"] = series
             sources = [
-                "http://bazaar.launchpad.net/~%s/ubuntu-seeds/" % owner
+                "https://bazaar.launchpad.net/~%s/ubuntu-seeds/" % owner
                 for owner in owners]
+            self.assertEqual(sources, self.germination.seed_sources(project))
+
+        for project, series, owners in (
+            ("lubuntu", "raring", ["lubuntu-dev"]),
+        ):
+            self.config["DIST"] = series
+            sources = [
+                "https://git.launchpad.net/~%s/ubuntu-seeds/+git/" % owner
+                for owner in owners]
+            if "ubuntu-core-dev" not in owners:
+                sources.append(
+                    "https://bazaar.launchpad.net/~ubuntu-core-dev/"
+                    "ubuntu-seeds/")
             self.assertEqual(sources, self.germination.seed_sources(project))
 
     def test_seed_sources_non_bzr(self):
@@ -244,14 +256,14 @@ class TestGermination(TestCase):
         expected_command = [
             germinate_path,
             "--seed-source",
-            "http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/",
+            "https://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/",
             "--mirror", "file://%s/" % output_dir,
             "--seed-dist", "ubuntu.raring",
             "--dist", "raring,raring-security,raring-updates",
             "--arch", "amd64",
             "--components", "main",
             "--no-rdepends",
-            "--bzr",
+            "--vcs",
         ]
         self.assertEqual(1, mock_check_call.call_count)
         self.assertEqual(expected_command, mock_check_call.call_args[0][0])
