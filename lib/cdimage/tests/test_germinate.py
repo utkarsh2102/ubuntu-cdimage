@@ -263,7 +263,7 @@ class TestGermination(TestCase):
             "--arch", "amd64",
             "--components", "main",
             "--no-rdepends",
-            "--vcs",
+            "--vcs=auto",
         ]
         self.assertEqual(1, mock_check_call.call_count)
         self.assertEqual(expected_command, mock_check_call.call_args[0][0])
