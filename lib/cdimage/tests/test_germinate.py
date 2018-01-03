@@ -112,21 +112,21 @@ class TestGermination(TestCase):
             self.assertEqual(sources, self.germination.seed_sources(project))
 
     def test_seed_sources_non_bzr(self):
-        self.germination = Germination(self.config, prefer_bzr=False)
+        self.germination = Germination(self.config, prefer_vcs=False)
         self.config["DIST"] = "raring"
         self.assertEqual(
             ["http://people.canonical.com/~ubuntu-archive/seeds/"],
             self.germination.seed_sources("ubuntu"))
 
-    def test_use_bzr_local_seeds(self):
+    def test_use_vcs_local_seeds(self):
         self.config["LOCAL_SEEDS"] = "http://www.example.org/"
-        self.assertFalse(self.germination.use_bzr)
+        self.assertFalse(self.germination.use_vcs)
 
-    def test_use_bzr_honours_preference(self):
-        self.assertTrue(self.germination.prefer_bzr)
-        self.assertTrue(self.germination.use_bzr)
-        self.germination.prefer_bzr = False
-        self.assertFalse(self.germination.use_bzr)
+    def test_use_vcs_honours_preference(self):
+        self.assertTrue(self.germination.prefer_vcs)
+        self.assertTrue(self.germination.use_vcs)
+        self.germination.prefer_vcs = False
+        self.assertFalse(self.germination.use_vcs)
 
     def test_make_index(self):
         self.config.root = self.use_temp_dir()

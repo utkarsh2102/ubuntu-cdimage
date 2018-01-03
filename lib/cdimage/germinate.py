@@ -40,10 +40,10 @@ class GerminateNotInstalled(Exception):
 
 
 class Germination:
-    def __init__(self, config, prefer_bzr=True):
+    def __init__(self, config, prefer_vcs=True):
         self.config = config
         # Set to False to use old-style seed checkouts.
-        self.prefer_bzr = prefer_bzr
+        self.prefer_vcs = prefer_vcs
 
     @property
     def germinate_path(self):
@@ -67,7 +67,7 @@ class Germination:
     def seed_sources(self, project):
         if self.config["LOCAL_SEEDS"]:
             return [self.config["LOCAL_SEEDS"]]
-        elif self.prefer_bzr:
+        elif self.prefer_vcs:
             bzrpattern = "https://bazaar.launchpad.net/~%s/ubuntu-seeds/"
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             series = self.config["DIST"]
@@ -100,12 +100,12 @@ class Germination:
             return ["http://people.canonical.com/~ubuntu-archive/seeds/"]
 
     @property
-    def use_bzr(self):
+    def use_vcs(self):
         if self.config["LOCAL_SEEDS"]:
             # Local changes may well not be committed.
             return False
         else:
-            return self.prefer_bzr
+            return self.prefer_vcs
 
     def make_index(self, project, arch, rel_target, rel_paths):
         target = os.path.join(self.output_dir(project), rel_target)
@@ -201,7 +201,7 @@ class Germination:
             "--components", "main",
             "--no-rdepends",
         ]
-        if self.use_bzr:
+        if self.use_vcs:
             command.append("--vcs")
         if self.config.image_type == "source":
             command.append("--always-follow-build-depends")
