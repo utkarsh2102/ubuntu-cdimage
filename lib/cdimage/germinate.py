@@ -68,7 +68,7 @@ class Germination:
         if self.config["LOCAL_SEEDS"]:
             return [self.config["LOCAL_SEEDS"]]
         elif self.prefer_vcs:
-            bzrpattern = "https://bazaar.launchpad.net/~%s/ubuntu-seeds/"
+            bzrpattern = "http://bazaar.launchpad.net/~%s/ubuntu-seeds/"
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             series = self.config["DIST"]
             sources = [bzrpattern % "ubuntu-core-dev"]

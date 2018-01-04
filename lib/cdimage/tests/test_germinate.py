@@ -106,7 +106,7 @@ class TestGermination(TestCase):
         ):
             self.config["DIST"] = series
             sources = [
-                "https://bazaar.launchpad.net/~%s/ubuntu-seeds/" % owner
+                "http://bazaar.launchpad.net/~%s/ubuntu-seeds/" % owner
                 for owner in owners]
             self.assertEqual(sources, self.germination.seed_sources(project))
 
@@ -119,7 +119,7 @@ class TestGermination(TestCase):
                 for owner in owners]
             if "ubuntu-core-dev" not in owners:
                 sources.append(
-                    "https://bazaar.launchpad.net/~ubuntu-core-dev/"
+                    "http://bazaar.launchpad.net/~ubuntu-core-dev/"
                     "ubuntu-seeds/")
             self.assertEqual(sources, self.germination.seed_sources(project))
 
@@ -256,7 +256,7 @@ class TestGermination(TestCase):
         expected_command = [
             germinate_path,
             "--seed-source",
-            "https://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/",
+            "http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/",
             "--mirror", "file://%s/" % output_dir,
             "--seed-dist", "ubuntu.raring",
             "--dist", "raring,raring-security,raring-updates",
