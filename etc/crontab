@@ -32,18 +32,15 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live; for-project lubuntu-next cron.daily-live --live
 32 4 * * *	for-project ubuntu-base cron.daily-live --live
 56 4 * * *	SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
-#57 4 * * *	DIST=vivid SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
 14 22 * * *	for-project ubuntukylin cron.daily-live --live
 00 15 * * *	for-project ubuntu-budgie cron.daily-live --live
 46 2 * * *	for-project ubuntu-mate cron.daily-live --live
 
 # XXX: Note that the EXTRA_PPAS bit here also needs to be mirrored in rebuild-requests:
-#03 2 * * 2-6	DIST=vivid EXTRA_PPAS=ci-train-ppa-service/stable-phone-overlay:1001 for-project ubuntu-touch cron.daily-preinstalled --live
 04 2 * * 2-6	PROPOSED=0 DIST=xenial EXTRA_PPAS=ci-train-ppa-service/stable-phone-overlay:1001 for-project ubuntu-touch cron.daily-preinstalled --live
 
 */15 * * * *	mirror-image-build-logs
 
 # Self-rebuilds
-*/5 * * * *	rebuild-requests -b -q vivid iso
 */5 * * * *	rebuild-requests -b -q xenial iso
 */5 * * * *	rebuild-requests -b -q bionic iso
