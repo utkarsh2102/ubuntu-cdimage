@@ -1154,7 +1154,7 @@ class TestBuildImageSet(TestCase):
                         "--components", "main",
                         "--no-rdepends",
                         "--vcs=auto",
-                    ], cwd=os.path.join(germinate_output, arch))
+                    ], cwd=os.path.join(germinate_output, arch), env=mock.ANY)
 
                 mock_call.assert_has_calls([
                     mock.call([
