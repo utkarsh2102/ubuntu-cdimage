@@ -207,7 +207,7 @@ class Germination:
             command.append("--always-follow-build-depends")
         proxy_check_call(
             self.config, "germinate", command, cwd=arch_output_dir,
-            env=dict(os.environ, GIT_TERMINAL_PROMPT=0))
+            env=dict(os.environ, GIT_TERMINAL_PROMPT="0"))
         output_structure = os.path.join(self.output_dir(project), "STRUCTURE")
         shutil.copy2(
             os.path.join(arch_output_dir, "structure"), output_structure)
