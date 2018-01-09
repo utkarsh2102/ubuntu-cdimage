@@ -331,6 +331,7 @@ class TestBuildLiveCDBase(TestCase):
     def test_ubuntu_core_raspi3(self, mock_fetch):
         def fetch_side_effect(config, source, target):
             if (target.endswith(".model-assertion") or
+                    target.endswith(".manifest") or
                     target.endswith(".img.xz")):
                 touch(target)
             else:
@@ -357,6 +358,7 @@ class TestBuildLiveCDBase(TestCase):
         self.assertCountEqual([
             "armhf+raspi3.img.xz",
             "armhf+raspi3.model-assertion",
+            "armhf+raspi3.manifest",
         ], os.listdir(output_dir))
 
     @mock.patch("cdimage.osextras.fetch")

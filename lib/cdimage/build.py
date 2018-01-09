@@ -500,6 +500,11 @@ def build_livecd_base(config):
             with open("%s.type" % output_prefix, "w") as f:
                 print("Disk Image", file=f)
             shutil.copy2(rootfs, "%s.raw" % output_prefix)
+            shutil.copy2(
+                "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
+            shutil.copy2(
+                "%s.model-assertion" % live_prefix,
+                "%s.model-assertion" % output_prefix)
 
     if (config.project in ("ubuntu-base", "ubuntu-touch",
                            "ubuntu-touch-custom") or
