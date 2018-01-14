@@ -229,6 +229,14 @@ def live_build_lp_kwargs(config, lp, lp_livefs, arch):
     if config["EXTRA_PPAS"]:
         metadata_override["extra_ppas"] = config["EXTRA_PPAS"].split()
 
+    if config["CHANNEL"]:
+        try:
+            kwargs["unique_key"] += "_" + config["CHANNEL"]
+        except KeyError:
+            kwargs["unique_key"] = config["CHANNEL"]
+
+        metadata_override["channel"] = config["CHANNEL"]
+
     if metadata_override:
         kwargs["metadata_override"] = metadata_override
 

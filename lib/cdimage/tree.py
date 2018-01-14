@@ -1709,7 +1709,8 @@ class DailyTreePublisher(Publisher):
     def image_type_dir(self):
         if (self.config.project == "ubuntu-core" and
                 self.image_type == 'daily-live'):
-            return os.path.join(self.config.core_series, 'edge')
+            channel = self.config.get("CHANNEL", "edge")
+            return os.path.join(self.config.core_series, channel)
         image_type_dir = self.image_type.replace("_", "/")
         if (self.config.distribution != "ubuntu" or
                 not self.config["DIST"].is_latest):
