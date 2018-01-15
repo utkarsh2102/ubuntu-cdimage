@@ -256,6 +256,7 @@ _whitelisted_keys = (
     "UBUNTU_DEFAULTS_LOCALE",
     "SSH_ORIGINAL_COMMAND",
     "EXTRA_PPAS",
+    "CHANNEL",
 )
 
 
