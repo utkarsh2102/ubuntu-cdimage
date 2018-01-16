@@ -696,6 +696,12 @@ class TestDailyTreePublisher(TestCase):
                 self.config.root, "www", "full", "ubuntu-core",
                 self.config.core_series, "edge"),
             self.make_publisher("ubuntu-core", "daily-live").publish_base)
+        self.config["CHANNEL"] = 'stable'
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "www", "full", "ubuntu-core",
+                self.config.core_series, "stable"),
+            self.make_publisher("ubuntu-core", "daily-live").publish_base)
         self.assertEqual(
             os.path.join(
                 self.config.root, "www", "full", "kubuntu", "daily-live"),
