@@ -476,6 +476,8 @@ class Publisher:
             return ["http://releases.ubuntu.com/include/kubuntu.css"]
         if self.project == "kubuntu-plasma5":
             return ["http://releases.ubuntu.com/include/kubuntu-plasma5.css"]
+        if self.project == "lubuntu" or self.project == "lubuntu-next":
+            return ["http://cdimage.ubuntu.com/include/lubuntu/style.css"]
         else:
             return ["http://releases.ubuntu.com/include/style.css"]
 
