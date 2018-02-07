@@ -1193,10 +1193,6 @@ class Publisher:
                     "<link "
                     "href='http://fonts.googleapis.com/css?family=Ubuntu' "
                     "rel='stylesheet' type='text/css'>", file=header)
-                print(
-                    "<link rel=\"icon\" type=\"image/png\" "
-                    "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
-                    "favicon.ico\">", file=header)
             if self.project == "kubuntu-plasma5":
                 print(
                     "<link "
