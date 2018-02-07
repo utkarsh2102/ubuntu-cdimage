@@ -1208,27 +1208,20 @@ class Publisher:
                     "<link rel=\"icon\" type=\"image/png\" "
                     "href=\"http://cdimage.ubuntu.com/include/lubuntu/"
                     "favicon.png\" />", file=header)
+                header_href = 'https://lubuntu.me'
+            else:
+                header_href = 'http://www.ubuntu.com'
+
             print(dedent("""\
                 </head>
                 <body><div id="pageWrapper">
 
-                """), file=header)
-
-            if self.project in ("lubuntu", "lubuntu-next"):
-                print(
-                    "<div id=\"header\"><a href=\"https://lubuntu.me\">"
-                    "</a></div>", file=header)
-            else:
-                print(
-                    "<div id=\"header\"><a href=\"http://www.ubuntu.com\">"
-                    "</a></div>", file=header)
-
-            print(dedent("""\
+                <div id="header"><a href="%s"></a></div>
 
                 <h1>%s</h1>
 
                 <div id="main">
-                """) % heading, file=header)
+                """) % (header_href, heading), file=header)
 
             mirrors_url = "http://www.ubuntu.com/getubuntu/downloadmirrors"
             reldir = os.path.realpath(directory)
