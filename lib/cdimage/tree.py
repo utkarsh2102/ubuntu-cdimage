@@ -1207,11 +1207,27 @@ class Publisher:
                     "<link rel=\"icon\" type=\"image/png\" "
                     "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
                     "favicon.ico\">", file=header)
+            if self.project in ("lubuntu", "lubuntu-next"):
+                print(
+                    "<link rel=\"icon\" type=\"image/png\" "
+                    "href=\"http://cdimage.ubuntu.com/include/lubuntu/"
+                    "favicon.png\" />", file=header)
             print(dedent("""\
                 </head>
                 <body><div id="pageWrapper">
 
-                <div id="header"><a href="http://www.ubuntu.com/"></a></div>
+                """), file=header)
+
+            if self.project in ("lubuntu", "lubuntu-next"):
+                print(
+                    "<div id=\"header\"><a href=\"https://lubuntu.me\">"
+                    "</a></div>", file=header)
+            else:
+                print(
+                    "<div id=\"header\"><a href=\"http://www.ubuntu.com\">"
+                    "</a></div>", file=header)
+
+            print(dedent("""\
 
                 <h1>%s</h1>
 
