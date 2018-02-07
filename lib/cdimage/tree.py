@@ -1208,9 +1208,9 @@ class Publisher:
                     "<link rel=\"icon\" type=\"image/png\" "
                     "href=\"http://cdimage.ubuntu.com/include/lubuntu/"
                     "favicon.png\" />", file=header)
-                header_href = 'https://lubuntu.me'
+                header_href = 'https://lubuntu.me/'
             else:
-                header_href = 'http://www.ubuntu.com'
+                header_href = 'http://www.ubuntu.com/'
 
             print(dedent("""\
                 </head>
