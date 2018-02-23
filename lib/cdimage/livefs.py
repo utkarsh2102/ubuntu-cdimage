@@ -649,11 +649,12 @@ def live_item_paths(config, arch, item):
 
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
-        "size", "ext2", "ext3", "ext4", "rootfs.tar.gz", "custom.tar.gz",
-        "device.tar.gz", "azure.device.tar.gz", "raspi2.device.tar.gz",
-        "plano.device.tar.gz", "tar.xz", "iso", "os.snap", "kernel.snap",
-        "disk1.img.xz", "dragonboard.kernel.snap", "raspi2.kernel.snap",
-        "installer.squashfs", "img.xz", "model-assertion"
+        "manifest-minimal-remove", "size", "ext2", "ext3", "ext4",
+        "rootfs.tar.gz", "custom.tar.gz", "device.tar.gz",
+        "azure.device.tar.gz", "raspi2.device.tar.gz", "plano.device.tar.gz",
+        "tar.xz", "iso", "os.snap", "kernel.snap", "disk1.img.xz",
+        "dragonboard.kernel.snap", "raspi2.kernel.snap", "installer.squashfs",
+        "img.xz", "model-assertion"
     ):
         if project == "tocd3":
             # auto-purged - reverting to plan B
@@ -914,6 +915,7 @@ def download_live_filesystems(config):
             download_live_items(config, arch, "manifest")
             if not download_live_items(config, arch, "manifest-remove"):
                 download_live_items(config, arch, "manifest-desktop")
+            download_live_items(config, arch, "manifest-minimal-remove")
             download_live_items(config, arch, "size")
 
             if (config["UBUNTU_DEFAULTS_LOCALE"] or

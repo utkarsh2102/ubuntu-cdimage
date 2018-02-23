@@ -1002,9 +1002,9 @@ class TestLiveItemPaths(TestCase):
     def test_desktop_items(self):
         for item in (
             "cloop", "squashfs", "manifest", "manifest-desktop",
-            "manifest-remove", "size", "ext2", "ext3", "ext4", "rootfs.tar.gz",
-            "custom.tar.gz", "tar.xz", "iso", "device.tar.gz",
-            "azure.device.tar.gz", "plano.device.tar.gz",
+            "manifest-remove", "manifest-minimal-remove", "size", "ext2",
+            "ext3", "ext4", "rootfs.tar.gz", "custom.tar.gz", "tar.xz", "iso",
+            "device.tar.gz", "azure.device.tar.gz", "plano.device.tar.gz",
             "raspi2.device.tar.gz",
         ):
             self.assertPathsEqual(
@@ -1366,8 +1366,8 @@ class TestDownloadLiveFilesystems(TestCase):
             tail = os.path.basename(target).split(".", 1)[1]
             if tail in (
                 "squashfs", "kernel-generic", "kernel-generic.efi.signed",
-                "initrd-generic", "manifest", "manifest-remove", "size",
-                "wubi.exe",
+                "initrd-generic", "manifest", "manifest-remove",
+                "manifest-minimal-remove", "size", "wubi.exe",
             ):
                 touch(target)
             else:
@@ -1389,6 +1389,7 @@ class TestDownloadLiveFilesystems(TestCase):
             "amd64.kernel-generic.efi.signed",
             "amd64.manifest",
             "amd64.manifest-remove",
+            "amd64.manifest-minimal-remove",
             "amd64.size",
             "amd64.squashfs",
             "amd64.wubi.exe",
@@ -1397,6 +1398,7 @@ class TestDownloadLiveFilesystems(TestCase):
             "i386.kernel-generic",
             "i386.manifest",
             "i386.manifest-remove",
+            "i386.manifest-minimal-remove",
             "i386.size",
             "i386.squashfs",
             "i386.wubi.exe",

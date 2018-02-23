@@ -1012,6 +1012,9 @@ class Publisher:
             return "contents of desktop part of live filesystem"
         elif extension == "manifest-remove":
             return "packages to remove from live filesystem on installation"
+        elif extension == "manifest-minimal-remove":
+            return "packages to remove from live filesystem on " + \
+                   " installation when performing a minimal install"
         elif extension == "template":
             return "%s template" % Link("http://atterer.org/jigdo", "jigdo")
         elif extension.endswith(".zsync"):
@@ -1408,9 +1411,10 @@ class Publisher:
                                     "img.zsync", "img", "iso.torrent",
                                     "iso.zsync", "iso", "jigdo", "list",
                                     "manifest", "manifest-desktop",
-                                    "manifest-remove", "template", "tar.gz",
-                                    "tar.gz.zsync", "bootimg", "tar.xz",
-                                    "custom.tar.gz",
+                                    "manifest-remove",
+                                    "manifest-minimal-remove",
+                                    "template", "tar.gz", "tar.gz.zsync",
+                                    "bootimg", "tar.xz", "custom.tar.gz",
                                 )
                             for extension in htaccess_extensions:
                                 extpath = "%s.%s" % (base, extension)
@@ -1607,7 +1611,8 @@ class Publisher:
             for extension in (
                 "img.gz.torrent", "img.gz", "img.torrent", "img",
                 "iso.torrent", "iso", "jigdo", "list", "manifest",
-                "manifest-desktop", "manifest-remove", "template",
+                "manifest-desktop", "manifest-remove",
+                "manifest-minimal-remove", "template",
             ):
                 mimetype = self.mimetypestr(extension)
                 if (mimetype and
@@ -2105,6 +2110,10 @@ class DailyTreePublisher(Publisher):
             shutil.copy2(
                 "%s.manifest-remove" % source_prefix,
                 "%s.manifest-remove" % target_prefix)
+        if os.path.exists("%s.manifest-minimal-remove" % source_prefix):
+            shutil.copy2(
+                "%s.manifest-minimal-remove" % source_prefix,
+                "%s.manifest-minimal-remove" % target_prefix)
         elif os.path.exists("%s.manifest-desktop" % source_prefix):
             shutil.copy2(
                 "%s.manifest-desktop" % source_prefix,

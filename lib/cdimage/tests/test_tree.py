@@ -940,6 +940,7 @@ class TestDailyTreePublisher(TestCase):
             "livecd-base", "live")
         for ext in (
             "squashfs", "kernel", "initrd", "manifest", "manifest-remove",
+            "manifest-minimal-remove",
         ):
             touch(os.path.join(source_dir, "i386.%s" % ext))
         self.capture_logging()
@@ -951,6 +952,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertCountEqual([
             "i386.squashfs", "i386.kernel", "i386.initrd",
             "i386.manifest", "i386.manifest-remove",
+            "i386.manifest-minimal-remove",
         ], os.listdir(target_dir))
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
