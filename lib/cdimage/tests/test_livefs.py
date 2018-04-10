@@ -1321,6 +1321,40 @@ class TestDownloadLiveFilesystems(TestCase):
             self.config, url, os.path.join(target_dir, "i386.server-squashfs"))
 
     @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_items_maas_rack_squashfs(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu-server"
+        self.config["SUBPROJECT"] = "live"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(
+            download_live_items(self.config, "amd64", "maas-rack.squashfs"))
+        url = ("http://kapok.buildd/~buildd/LiveCD/bionic/ubuntu-server-live/"
+               "current/livecd.ubuntu-server.maas-rack.squashfs")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-server", "bionic", "daily-live",
+            "live")
+        mock_fetch.assert_called_once_with(
+            self.config, url, os.path.join(target_dir,
+                                           "amd64.maas-rack.squashfs"))
+
+    @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_items_maas_region_squashfs(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu-server"
+        self.config["SUBPROJECT"] = "live"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(
+            download_live_items(self.config, "amd64", "maas-region.squashfs"))
+        url = ("http://kapok.buildd/~buildd/LiveCD/bionic/ubuntu-server-live/"
+               "current/livecd.ubuntu-server.maas-region.squashfs")
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu-server", "bionic", "daily-live",
+            "live")
+        mock_fetch.assert_called_once_with(
+            self.config, url, os.path.join(target_dir,
+                                           "amd64.maas-region.squashfs"))
+
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_installer_squashfs(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu-server"
         self.config["SUBPROJECT"] = "live"

@@ -654,6 +654,7 @@ def live_item_paths(config, arch, item):
         "azure.device.tar.gz", "raspi2.device.tar.gz", "plano.device.tar.gz",
         "tar.xz", "iso", "os.snap", "kernel.snap", "disk1.img.xz",
         "dragonboard.kernel.snap", "raspi2.kernel.snap", "installer.squashfs",
+        "maas-rack.squashfs", "maas-region.squashfs",
         "img.xz", "model-assertion"
     ):
         if project == "tocd3":
@@ -895,6 +896,8 @@ def download_live_filesystems(config):
                 got_image = True
             elif download_live_items(config, arch, "squashfs"):
                 download_live_items(config, arch, "installer.squashfs")
+                download_live_items(config, arch, "maas-rack.squashfs")
+                download_live_items(config, arch, "maas-region.squashfs")
                 got_image = True
             elif download_live_items(config, arch, "rootfs.tar.gz"):
                 got_image = True
