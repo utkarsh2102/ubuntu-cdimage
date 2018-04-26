@@ -840,13 +840,14 @@ class Publisher:
         sentences = []
         if arch in ("amd64", "amd64+mac"):
             sentences.append(
-                "Choose this to take full advantage of computers based on the "
-                "AMD64 or EM64T architecture (e.g., Athlon64, Opteron, EM64T "
+                "Choose this if you have a computer based on the AMD64 or "
+                "EM64T architecture (e.g., Athlon64, Opteron, EM64T "
                 "Xeon, Core 2).")
-            sentences.append(
-                "If you have a non-64-bit processor made by AMD, or if you "
-                "need full support for 32-bit code, use the i386 images "
-                "instead.")
+            if publish_type != "server" or self.config["DIST"] <= "artful":
+                sentences.append(
+                    "If you have a non-64-bit processor made by AMD, or if "
+                    "you need full support for 32-bit code, use the i386 "
+                    "images instead.")
             if arch == "amd64+mac":
                 sentences.append(
                     "This image is adjusted to work properly on Mac systems.")
