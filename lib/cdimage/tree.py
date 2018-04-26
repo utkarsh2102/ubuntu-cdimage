@@ -572,8 +572,10 @@ class Publisher:
                 desktop_ram = 384
             elif series <= "maverick":
                 desktop_ram = 256
-            else:
+            elif series <= "artful":
                 desktop_ram = 384
+            else:
+                desktop_ram = 1024
 
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
