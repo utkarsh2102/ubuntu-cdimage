@@ -135,7 +135,7 @@ def main():
 
         if (project == "ubuntu-touch" and
                 args[0] in ("vivid", "wily", "xenial", "yakkety", "zesty",
-                            "artful", "bionic")):
+                            "artful", "bionic", "cosmic")):
             env['EXTRA_PPAS'] = \
                 "ci-train-ppa-service/stable-phone-overlay:1001"
             env['PROPOSED'] = "0"

@@ -193,6 +193,7 @@ all_series.extend([
     Series(
         "bionic", "18.04", "Bionic Beaver",
         all_lts_projects=True),
+    Series("cosmic", "18.10", "Cosmic CANIMAL"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(

@@ -18,7 +18,17 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 24 21 * * *	DIST=xenial for-project ubuntukylin cron.daily-live --live
 42 14 * * *	DIST=xenial for-project ubuntu-gnome cron.daily-live --live
 56 2 * * *	DIST=xenial for-project ubuntu-mate cron.daily-live --live
-# regular bionic daily builds
+# bionic daily builds
+51 7 * * *	DIST=bionic for-project ubuntu cron.daily-live --live
+34 5 * * *	DIST=bionic for-project kubuntu cron.daily-live --live
+30 1 * * *	DIST=bionic for-project xubuntu cron.daily-live --live
+59 6 * * *	DIST=bionic for-project ubuntu-server cron.daily --live; DIST=bionic for-project ubuntu-server cron.daily-preinstalled --live; DIST=bionic SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
+59 16 * * *	DIST=bionic for-project lubuntu cron.daily-live --live; DIST=bionic for-project lubuntu-next cron.daily-live --live
+52 4 * * *	DIST=bionic for-project ubuntu-base cron.daily-live --live
+34 22 * * *	DIST=bionic for-project ubuntukylin cron.daily-live --live
+20 15 * * *	DIST=bionic for-project ubuntu-budgie cron.daily-live --live
+26 2 * * *	DIST=bionic for-project ubuntu-mate cron.daily-live --live
+# regular cosmic daily builds
 31 7 * * *	for-project ubuntu cron.daily-live --live
 30 8 * * *	for-project ubuntu-core cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
@@ -40,3 +50,4 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q xenial iso
 */5 * * * *	rebuild-requests -b -q bionic iso
+*/5 * * * *	rebuild-requests -b -q cosmic iso
