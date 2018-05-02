@@ -13,8 +13,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 39 5 * * *	DIST=xenial for-project ubuntu-server cron.daily --live; DIST=xenial for-project ubuntu-server cron.daily-preinstalled --live
 27 17 * * *	DIST=xenial for-project ubuntustudio cron.dvd --live
 39 9 * * *	DIST=xenial for-project mythbuntu cron.daily-live --live
-## No HWE point releases for Lubuntu Alternate:
-#39 15 * * *	DIST=xenial for-project lubuntu cron.daily
 39 15 * * *	DIST=xenial for-project lubuntu cron.daily-live --live
 42 3 * * *	DIST=xenial for-project ubuntu-base cron.daily-live --live
 24 21 * * *	DIST=xenial for-project ubuntukylin cron.daily-live --live
@@ -24,12 +22,10 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 31 7 * * *	for-project ubuntu cron.daily-live --live
 30 8 * * *	for-project ubuntu-core cron.daily-live --live
 14 5 * * *	for-project kubuntu cron.daily-live --live
-# Probably dead for good; keeping entry in case minds are changed:
-#24 0 * * *	for-project edubuntu cron.dvd --live
 50 1 * * *	for-project xubuntu cron.daily-live --live
 29 6 * * *	for-project ubuntu-server cron.daily --live; for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
 17 18 * * *	for-project ubuntustudio cron.dvd --live
-29 16 * * *	for-project lubuntu cron.daily; for-project lubuntu cron.daily-live --live; for-project lubuntu-next cron.daily-live --live
+29 16 * * *	for-project lubuntu cron.daily-live --live; for-project lubuntu-next cron.daily-live --live
 32 4 * * *	for-project ubuntu-base cron.daily-live --live
 56 4 * * *	SUBPROJECT=system-image EXTRA_PPAS=snappy-dev/image for-project ubuntu-core cron.daily-preinstalled --live
 14 22 * * *	for-project ubuntukylin cron.daily-live --live
