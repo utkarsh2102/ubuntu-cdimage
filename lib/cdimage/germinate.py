@@ -363,10 +363,10 @@ class GerminateOutput:
         elif mode == "ship-live":
             if project == "kubuntu-active":
                 yield "ship-active-live"
-            elif project == "lubuntu" and series >= "artful":
+            elif project == "lubuntu" and series >= "artful" and series <= "bionic":
                 yield "ship-live-gtk"
                 yield "ship-live-share"
-            elif project == "lubuntu-next" and series >= "artful":
+            elif project == "lubuntu-next" and series >= "artful" and series <= "bionic":
                 yield "ship-live-qt"
                 yield "ship-live-share"
             else:
