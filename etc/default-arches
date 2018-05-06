@@ -103,7 +103,8 @@ ubuntu-zh_CN		*			oneiric-		amd64 i386
 ubuntukylin		*			*			amd64 i386
 
 ubuntustudio		*			warty-edgy		amd64 i386 powerpc
-ubuntustudio		*			*			amd64 i386
+ubuntustudio		*			feisty-bionic		amd64 i386
+ubuntustudio		*			cosmic-			amd64
 
 xubuntu			daily-live		jaunty			armel powerpc powerpc+ps3
 xubuntu			daily-live		karmic			armel+dove armel+imx51 powerpc powerpc+ps3
