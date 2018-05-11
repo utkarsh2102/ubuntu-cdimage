@@ -24,11 +24,11 @@ export IMAGE_FORMAT
 DIST="${DIST:-cosmic}"
 
 case $DIST in
-	trusty)
+	xenial)
 		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
-	xenial)
+	bionic)
 		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
