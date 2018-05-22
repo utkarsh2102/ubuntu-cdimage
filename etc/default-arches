@@ -40,7 +40,8 @@ kubuntu			daily-live		karmic			amd64 armel+dove armel+imx51 i386 ia64 powerpc
 kubuntu			daily-live		lucid			amd64 i386 ia64 powerpc
 kubuntu			daily-live		precise			amd64 i386
 kubuntu			daily-live		trusty			amd64 amd64+mac i386
-kubuntu			daily-live		utopic-			amd64 i386
+kubuntu			daily-live		utopic-bionic		amd64 i386
+kubuntu			daily-live		cosmic-			amd64
 
 kubuntu-active		*			*			i386
 
