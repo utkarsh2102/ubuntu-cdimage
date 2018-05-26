@@ -75,6 +75,8 @@ class Germination:
             if project in ("kubuntu", "kubuntu-active", "kubuntu-plasma5"):
                 if series >= "oneiric":
                     sources.insert(0, bzrpattern % "kubuntu-dev")
+                else:
+                    sources.insert(0, bzrpattern % "ubuntu-core-dev")
             elif project == "ubuntustudio":
                 sources.insert(0, bzrpattern % "ubuntustudio-dev")
             elif project == "mythbuntu":
@@ -82,6 +84,8 @@ class Germination:
             elif project == "xubuntu":
                 if series >= "intrepid":
                     sources.insert(0, bzrpattern % "xubuntu-dev")
+                else:
+                    sources.insert(0, bzrpattern % "ubuntu-core-dev")
             elif project in ("lubuntu", "lubuntu-next"):
                 sources.insert(0, gitpattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
@@ -95,6 +99,8 @@ class Germination:
             elif project == "ubuntukylin":
                 if series >= "utopic":
                     sources.insert(0, bzrpattern % "ubuntukylin-members")
+                else:
+                    sources.insert(0, bzrpattern % "ubuntu-core-dev")
             return sources
         else:
             return ["http://people.canonical.com/~ubuntu-archive/seeds/"]
