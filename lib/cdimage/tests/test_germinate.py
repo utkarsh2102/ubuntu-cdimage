@@ -82,45 +82,44 @@ class TestGermination(TestCase):
 
     def test_seed_sources_bzr(self):
         for project, series, owners in (
-            ("ubuntu", "raring", ["ubuntu-core-dev"]),
             ("kubuntu", "natty", ["ubuntu-core-dev"]),
-            ("kubuntu", "oneiric", ["kubuntu-dev", "ubuntu-core-dev"]),
+            ("kubuntu", "oneiric", ["kubuntu-dev"]),
             ("kubuntu-active", "natty", ["ubuntu-core-dev"]),
-            ("kubuntu-active", "oneiric", ["kubuntu-dev", "ubuntu-core-dev"]),
-            ("kubuntu-plasma5", "utopic", ["kubuntu-dev", "ubuntu-core-dev"]),
+            ("kubuntu-active", "oneiric", ["kubuntu-dev"]),
+            ("kubuntu-plasma5", "utopic", ["kubuntu-dev"]),
             ("ubuntustudio", "raring",
-             ["ubuntustudio-dev", "ubuntu-core-dev"]),
-            ("mythbuntu", "raring", ["mythbuntu-dev", "ubuntu-core-dev"]),
+             ["ubuntustudio-dev"]),
+            ("mythbuntu", "raring", ["mythbuntu-dev"]),
             ("xubuntu", "hardy", ["ubuntu-core-dev"]),
-            ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
+            ("xubuntu", "intrepid", ["xubuntu-dev"]),
             ("ubuntu-gnome", "raring",
-             ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
+             ["ubuntu-gnome-dev"]),
             ("ubuntu-budgie", "zesty",
-             ["ubuntubudgie-dev", "ubuntu-core-dev"]),
+             ["ubuntubudgie-dev"]),
             ("ubuntu-mate", "vivid",
-             ["ubuntu-mate-dev", "ubuntu-core-dev"]),
-            ("ubuntu-moblin-remix", "hardy", ["moblin", "ubuntu-core-dev"]),
+             ["ubuntu-mate-dev"]),
+            ("ubuntu-moblin-remix", "hardy", ["moblin"]),
             ("ubuntukylin", "trusty", ["ubuntu-core-dev"]),
             ("ubuntukylin", "utopic",
-             ["ubuntukylin-members", "ubuntu-core-dev"]),
+             ["ubuntukylin-members"]),
         ):
             self.config["DIST"] = series
             sources = [
                 "http://bazaar.launchpad.net/~%s/ubuntu-seeds/" % owner
                 for owner in owners]
+            sources.append(
+                "https://git.launchpad.net/~ubuntu-core-dev/"
+                "ubuntu-seeds/+git/")
             self.assertEqual(sources, self.germination.seed_sources(project))
 
         for project, series, owners in (
-            ("lubuntu", "raring", ["lubuntu-dev"]),
+            ("ubuntu", "raring", ["ubuntu-core-dev"]),
+            ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
             sources = [
                 "https://git.launchpad.net/~%s/ubuntu-seeds/+git/" % owner
                 for owner in owners]
-            if "ubuntu-core-dev" not in owners:
-                sources.append(
-                    "http://bazaar.launchpad.net/~ubuntu-core-dev/"
-                    "ubuntu-seeds/")
             self.assertEqual(sources, self.germination.seed_sources(project))
 
     def test_seed_sources_non_bzr(self):
@@ -256,7 +255,7 @@ class TestGermination(TestCase):
         expected_command = [
             germinate_path,
             "--seed-source",
-            "http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/",
+            "https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/",
             "--mirror", "file://%s/" % output_dir,
             "--seed-dist", "ubuntu.raring",
             "--dist", "raring,raring-security,raring-updates",
