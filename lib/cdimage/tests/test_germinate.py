@@ -115,6 +115,7 @@ class TestGermination(TestCase):
         for project, series, owners in (
             ("ubuntu", "raring", ["ubuntu-core-dev"]),
             ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
+            ("xubuntu", "cosmic", ["xubuntu-dev", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
             sources = [
