@@ -71,7 +71,7 @@ class Germination:
             bzrpattern = "http://bazaar.launchpad.net/~%s/ubuntu-seeds/"
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             series = self.config["DIST"]
-            sources = [bzrpattern % "ubuntu-core-dev"]
+            sources = [gitpattern % "ubuntu-core-dev"]
             if project in ("kubuntu", "kubuntu-active", "kubuntu-plasma5"):
                 if series >= "oneiric":
                     sources.insert(0, bzrpattern % "kubuntu-dev")
