@@ -98,7 +98,7 @@ class Germination:
                 sources.insert(0, bzrpattern % "moblin")
             elif project == "ubuntukylin":
                 if series >= "utopic":
-                    sources.insert(0, bzrpattern % "ubuntukylin-members")
+                    sources.insert(0, gitpattern % "ubuntukylin-members")
                 else:
                     sources.insert(0, bzrpattern % "ubuntu-core-dev")
             return sources
