@@ -91,7 +91,6 @@ class TestGermination(TestCase):
              ["ubuntustudio-dev"]),
             ("mythbuntu", "raring", ["mythbuntu-dev"]),
             ("xubuntu", "hardy", ["ubuntu-core-dev"]),
-            ("xubuntu", "intrepid", ["xubuntu-dev"]),
             ("ubuntu-gnome", "raring",
              ["ubuntu-gnome-dev"]),
             ("ubuntu-budgie", "zesty",
@@ -115,7 +114,7 @@ class TestGermination(TestCase):
         for project, series, owners in (
             ("ubuntu", "raring", ["ubuntu-core-dev"]),
             ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
-            ("xubuntu", "cosmic", ["xubuntu-dev", "ubuntu-core-dev"]),
+            ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
             sources = [
