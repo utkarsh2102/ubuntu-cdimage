@@ -99,8 +99,6 @@ class TestGermination(TestCase):
              ["ubuntu-mate-dev"]),
             ("ubuntu-moblin-remix", "hardy", ["moblin"]),
             ("ubuntukylin", "trusty", ["ubuntu-core-dev"]),
-            ("ubuntukylin", "utopic",
-             ["ubuntukylin-members"]),
         ):
             self.config["DIST"] = series
             sources = [
@@ -115,6 +113,7 @@ class TestGermination(TestCase):
             ("ubuntu", "raring", ["ubuntu-core-dev"]),
             ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
             ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
+            ("ubuntukylin", "utopic", ["ubuntukylin-members", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
             sources = [
