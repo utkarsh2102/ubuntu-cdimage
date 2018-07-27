@@ -52,6 +52,9 @@ case $DIST in
     xenial)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio mythbuntu lubuntu ubuntu-gnome ubuntukylin ubuntu-mate}"
         ;;
+    bionic)
+        ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu lubuntu ubuntukylin ubuntu-mate ubuntu-budgie}"
+        ;;
     *)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio lubuntu ubuntukylin ubuntu-mate ubuntu-budgie}"
         ;;
