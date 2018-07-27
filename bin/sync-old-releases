@@ -31,7 +31,7 @@ def main():
     parser = OptionParser("%prog")
     parser.parse_args()
     config = Config()
-    config["TRIGGER_MIRRORS"] = "cocoplum.canonical.com"
+    config["TRIGGER_MIRRORS"] = "bridgman.canonical.com"
     config["TRIGGER_MIRRORS_ASYNC"] = ""
     trigger_mirrors(config)
 
