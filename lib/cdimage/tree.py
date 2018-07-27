@@ -3233,6 +3233,9 @@ class ReleasePublisher(Publisher):
             if source == "ubuntu-server/daily":
                 source = os.path.join(
                     "ubuntu-server", series.full_name, "daily")
+            elif source == "ubuntu-server/daily-live":
+                source = os.path.join(
+                    "ubuntu-server", series.full_name, "daily-live")
             elif source == "ubuntu-server/daily-preinstalled":
                 source = os.path.join(
                     "ubuntu-server", series.full_name, "daily-preinstalled")
