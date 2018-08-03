@@ -25,7 +25,7 @@ DIST="${DIST:-cosmic}"
 
 case $DIST in
 	xenial)
-		PROPOSED="${PROPOSED:-0}"
+		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
 	bionic)
