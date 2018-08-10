@@ -6,18 +6,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # CD image cron jobs, run out of cdimage's crontab.
 
-# xenial daily builds
-41 6 * * *	DIST=xenial for-project ubuntu cron.daily-live --live
-24 4 * * *	DIST=xenial for-project kubuntu cron.daily-live --live
-00 1 * * *	DIST=xenial for-project xubuntu cron.daily-live --live
-39 5 * * *	DIST=xenial for-project ubuntu-server cron.daily --live; DIST=xenial for-project ubuntu-server cron.daily-preinstalled --live
-27 17 * * *	DIST=xenial for-project ubuntustudio cron.dvd --live
-39 9 * * *	DIST=xenial for-project mythbuntu cron.daily-live --live
-39 15 * * *	DIST=xenial for-project lubuntu cron.daily-live --live
-42 3 * * *	DIST=xenial for-project ubuntu-base cron.daily-live --live
-24 21 * * *	DIST=xenial for-project ubuntukylin cron.daily-live --live
-42 14 * * *	DIST=xenial for-project ubuntu-gnome cron.daily-live --live
-56 2 * * *	DIST=xenial for-project ubuntu-mate cron.daily-live --live
 # bionic daily builds
 51 7 * * *	DIST=bionic for-project ubuntu cron.daily-live --live
 34 5 * * *	DIST=bionic for-project kubuntu cron.daily-live --live
@@ -44,6 +32,5 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 */15 * * * *	mirror-image-build-logs
 
 # Self-rebuilds
-*/5 * * * *	rebuild-requests -b -q xenial iso
 */5 * * * *	rebuild-requests -b -q bionic iso
 */5 * * * *	rebuild-requests -b -q cosmic iso
