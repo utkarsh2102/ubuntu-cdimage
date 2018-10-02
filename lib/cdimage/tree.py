@@ -473,13 +473,13 @@ class Publisher:
 
     def cssincludes(self):
         if self.project == "kubuntu":
-            return ["http://releases.ubuntu.com/include/kubuntu.css"]
+            return ["//releases.ubuntu.com/include/kubuntu.css"]
         if self.project == "kubuntu-plasma5":
-            return ["http://releases.ubuntu.com/include/kubuntu-plasma5.css"]
+            return ["//releases.ubuntu.com/include/kubuntu-plasma5.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
-            return ["http://cdimage.ubuntu.com/include/lubuntu/style.css"]
+            return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
         else:
-            return ["http://releases.ubuntu.com/include/style.css"]
+            return ["//releases.ubuntu.com/include/style.css"]
 
     def cdtypestr(self, publish_type, image_format):
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):

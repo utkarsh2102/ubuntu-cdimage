@@ -315,14 +315,14 @@ class TestPublisherWebIndices(TestCase):
 
     def test_cssincludes(self):
         for project, expected in (
-            ("ubuntu", ["http://releases.ubuntu.com/include/style.css"]),
-            ("kubuntu", ["http://releases.ubuntu.com/include/kubuntu.css"]),
+            ("ubuntu", ["//releases.ubuntu.com/include/style.css"]),
+            ("kubuntu", ["//releases.ubuntu.com/include/kubuntu.css"]),
             ("kubuntu-plasma5",
-             ["http://releases.ubuntu.com/include/kubuntu-plasma5.css"]),
+             ["//releases.ubuntu.com/include/kubuntu-plasma5.css"]),
             ("lubuntu",
-             ["http://cdimage.ubuntu.com/include/lubuntu/style.css"]),
+             ["//cdimage.ubuntu.com/include/lubuntu/style.css"]),
             ("lubuntu-next",
-             ["http://cdimage.ubuntu.com/include/lubuntu/style.css"]),
+             ["//cdimage.ubuntu.com/include/lubuntu/style.css"]),
         ):
             self.config["PROJECT"] = project
             publisher = Publisher(self.tree, "daily")
