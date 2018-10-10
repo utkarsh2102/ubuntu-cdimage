@@ -473,11 +473,11 @@ class Publisher:
 
     def cssincludes(self):
         if self.project == "kubuntu":
-            return ["http://releases.ubuntu.com/include/kubuntu.css"]
+            return ["//releases.ubuntu.com/include/kubuntu.css"]
         if self.project == "kubuntu-plasma5":
-            return ["http://releases.ubuntu.com/include/kubuntu-plasma5.css"]
+            return ["//releases.ubuntu.com/include/kubuntu-plasma5.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
-            return ["http://cdimage.ubuntu.com/include/lubuntu/style.css"]
+            return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
         else:
             return ["https://assets.ubuntu.com/v1/vanilla-framework-version-1.8.0.min.css"]
 
@@ -1602,10 +1602,10 @@ class Publisher:
                   <nav class="p-footer__nav">
                     <ul class="p-footer__links">
                       <li class="p-footer__item">
-                        <a class="p-footer__link" href="#">Legal information</a>
+                        <a class="p-footer__link" href="https://www.ubuntu.com/legal">Legal information</a>
                       </li>
                       <li class="p-footer__item">
-                        <a class="p-footer__link" href="#">Report a bug on this site</a>
+                        <a class="p-footer__link" href="https://bugs.launchpad.net/ubuntu-cdimage/+filebug">Report a bug on this site</a>
                       </li>
                     </ul>
                     <span class="u-off-screen">
@@ -1846,6 +1846,9 @@ class DailyTreePublisher(Publisher):
                 # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
                 return 2 * 1000 * 1000 * 1000
             return 1024 * 1024 * 1024
+        elif self.project == "lubuntu" and self.config["DIST"] >= "cosmic":
+            # https://bugs.launchpad.net/bugs/1796368
+            return 2 * 1000 * 1000 * 1000
         elif (self.project in ("lubuntu", "lubuntu-next") and
               self.config["DIST"] >= "artful"):
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
