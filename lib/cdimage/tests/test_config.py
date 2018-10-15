@@ -301,6 +301,10 @@ class TestConfig(TestCase):
         self.assertEqual("16", config.core_series)
         config["DIST"] = "artful"
         self.assertEqual("16", config.core_series)
+        config["DIST"] = "bionic"
+        self.assertEqual("18", config.core_series)
+        config["DIST"] = "cosmic"
+        self.assertEqual("18", config.core_series)
 
     def test_arches(self):
         config = Config(read=False)
