@@ -87,8 +87,6 @@ class TestGermination(TestCase):
             ("kubuntu-active", "natty", ["ubuntu-core-dev"]),
             ("kubuntu-active", "oneiric", ["kubuntu-dev"]),
             ("kubuntu-plasma5", "utopic", ["kubuntu-dev"]),
-            ("ubuntustudio", "raring",
-             ["ubuntustudio-dev"]),
             ("mythbuntu", "raring", ["mythbuntu-dev"]),
             ("xubuntu", "hardy", ["ubuntu-core-dev"]),
             ("ubuntu-gnome", "raring",
@@ -115,6 +113,8 @@ class TestGermination(TestCase):
             ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntukylin", "utopic",
              ["ubuntukylin-members", "ubuntu-core-dev"]),
+            ("ubuntustudio", "raring",
+             ["ubuntustudio-dev", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
             sources = [
