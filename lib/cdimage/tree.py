@@ -1240,8 +1240,8 @@ class Publisher:
                               <a href="#pageWrapper">Jump to main content</a>
                             </span>
                           </nav>
-                        </header>
-                    </div>
+                        </div>
+                    </header>
                     <section class="p-strip--image is-dark" style="background-image: url('https://assets.ubuntu.com/v1/775cc62b-vanilla-grad-background.png'); background-position: 75% 50%;">
                         <div class="row">
                             <div id="header"><a href="%s"></a></div>
