@@ -1245,7 +1245,7 @@ class Publisher:
                     <section class="p-strip--image is-dark" style="background-image: url('https://assets.ubuntu.com/v1/775cc62b-vanilla-grad-background.png'); background-position: 75% 50%;">
                         <div class="row">
                             <div id="header"><a href="%s"></a></div>
-                            <h1>%s</h1>
+                            <h1 class="u-no-margin--bottom">%s</h1>
                         </div>
                     </section>
                     <div id="pageWrapper" class="p-strip">
@@ -1306,10 +1306,10 @@ class Publisher:
             foundtorrent = False
             bt_link = Link(
                 "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
+####################################
 
-            display_counter = 0
             for prefix in prefixes:
-                print('<div class="row">', file=header)
+                print('<div class="row p-divider">', file=header)
                 for publish_type in all_publish_types:
                     if not self.find_images(directory, prefix, publish_type):
                         continue
@@ -1347,7 +1347,7 @@ class Publisher:
                             continue
 
                         cdtypestr = self.cdtypestr(publish_type, image_format)
-                        print('<div class="col-6">', file=header)
+                        print('<div class="col-6 p-divider__block">', file=header)
                         print(
                             "<h3>%s</h3>" % self.titlecase(cdtypestr),
                             file=header)
@@ -1399,6 +1399,10 @@ class Publisher:
                                 htaccessimagestr = "%s for %s computers" % (
                                     self.titlecase(cdtypestr), archstr)
                                 archdesc = self.archdesc(arch, publish_type)
+
+                            print('</div>', file=header)
+                            print('<div class="col-6 p-divider__block">', file=header)
+
                             print("<div class='p-card'>", file=header)
                             if os.path.exists(path):
                                 print(
@@ -1425,7 +1429,7 @@ class Publisher:
                                 for tag in self.maybe_oversized(
                                         status, oversized_path, publish_type):
                                     desc += "\n%s" % tag
-                                print("<dd>%s</dd>" % desc, file=header)
+                                print("<p>%s</p>" % desc, file=header)
                                 print(file=header)
 
                             if arch is None:
@@ -1469,9 +1473,6 @@ class Publisher:
                                     file=htaccess)
                             print("</div>", file=header)
                         print('</div>', file=header)
-                        if (display_counter % 2):
-                            print('</div><div class="row">', file=header)
-                        display_counter += 1
                 print('</div>', file=header)
             published_ec2_path = os.path.join(
                 directory, "published-ec2-%s.txt" % status)
@@ -1598,20 +1599,22 @@ class Publisher:
                 dedent("""\
                 </div></div></div>
                 <footer class="p-footer">
-                  <p>&copy; 2018 Company name and logo are registered trademarks of Company Ltd.</p>
-                  <nav class="p-footer__nav">
-                    <ul class="p-footer__links">
-                      <li class="p-footer__item">
-                        <a class="p-footer__link" href="https://www.ubuntu.com/legal">Legal information</a>
-                      </li>
-                      <li class="p-footer__item">
-                        <a class="p-footer__link" href="https://bugs.launchpad.net/ubuntu-cdimage/+filebug">Report a bug on this site</a>
-                      </li>
-                    </ul>
-                    <span class="u-off-screen">
-                      <a href="#">Go to the top of the page</a>
-                    </span>
-                  </nav>
+                  <div class="row">
+                    <p><small>&copy; 2018 Canonical Ltd. Ubuntu and Canonical are registered trademarks of Canonical Ltd.</small></p>
+                    <nav class="p-footer__nav">
+                      <ul class="p-footer__links">
+                        <li class="p-footer__item">
+                          <a class="p-footer__link" href="https://www.ubuntu.com/legal"><small>Legal information</small></a>
+                        </li>
+                        <li class="p-footer__item">
+                          <a class="p-footer__link" href="https://bugs.launchpad.net/ubuntu-cdimage/+filebug"><small>Report a bug on this site</small></a>
+                        </li>
+                      </ul>
+                      <span class="u-off-screen">
+                        <a href="#">Go to the top of the page</a>
+                      </span>
+                    </nav>
+                  </div>
                 </footer>
                 </body></html>"""),
                 file=footer)
