@@ -1315,7 +1315,7 @@ class Publisher:
 ####################################
 
             for prefix in prefixes:
-                print('<div class="row p-divider">', file=header)
+                print('<div class="row p-divider"><div class="p-card">', file=header)
                 for publish_type in all_publish_types:
                     if not self.find_images(directory, prefix, publish_type):
                         continue
@@ -1411,7 +1411,7 @@ class Publisher:
 
 
 
-                            print("<div class='p-card'>", file=header)
+                            print("<div>", file=header)
                             if os.path.exists(path):
                                 print(
                                     "<a href=\"%s\">%s</a>" %
@@ -1481,7 +1481,7 @@ class Publisher:
                                     file=htaccess)
                             print("</div>", file=header)
                         print('</div>', file=header)
-                print('</div>', file=header)
+                print('</div></div>', file=header)
             published_ec2_path = os.path.join(
                 directory, "published-ec2-%s.txt" % status)
             if os.path.exists(published_ec2_path):
