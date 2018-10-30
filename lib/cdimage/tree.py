@@ -1191,11 +1191,17 @@ class Publisher:
                 print("  @import url(%s);" % css, file=header)
             print(dedent("""\
                     table {
-                        width: auto;
+                        width: 100%;
                     }
 
-                    th[colspan="5"] {
+                    th[colspan="5"],
+                    th[colspan="4"] {
                         display: none;
+                    }
+
+                    th:first-child,
+                    td:first-child {
+                        width: 5%;
                     }
                 </style>
                 """), file=header)
@@ -1372,6 +1378,9 @@ class Publisher:
 
                         print(file=header)
 
+                        print('</div>', file=header)
+                        print('<div class="col-6 p-divider__block">', file=header)
+
                         for path, arch in paths:
                             base = path.rsplit(".", 1)[0]
                             if arch is None:
@@ -1400,8 +1409,7 @@ class Publisher:
                                     self.titlecase(cdtypestr), archstr)
                                 archdesc = self.archdesc(arch, publish_type)
 
-                            print('</div>', file=header)
-                            print('<div class="col-6 p-divider__block">', file=header)
+
 
                             print("<div class='p-card'>", file=header)
                             if os.path.exists(path):
