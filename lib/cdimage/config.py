@@ -195,6 +195,7 @@ all_series.extend([
         pointversion="18.04.1",
         all_lts_projects=True),
     Series("cosmic", "18.10", "Cosmic Cuttlefish"),
+    Series("disco", "19.04", "Disco Dingo"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
