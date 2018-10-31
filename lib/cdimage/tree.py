@@ -1181,11 +1181,15 @@ class Publisher:
             print(
                 dedent("""\
                     <!doctype html>
-                    <html>
+                    <html lang="en">
                     <head>
                     <title>%s</title>
+                    <meta charset="UTF-8" />
+                    <meta name="description" content="CD images for %s" />
+                    <meta name="author" content="Canonical" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
                     <!-- Main style sheets for CSS2 capable browsers -->
-                    <style type="text/css" media="screen">""") % heading,
+                    <style type="text/css" media="screen">""") % (heading, heading),
                 file=header)
             for css in self.cssincludes():
                 print("  @import url(%s);" % css, file=header)
@@ -1312,7 +1316,6 @@ class Publisher:
             foundtorrent = False
             bt_link = Link(
                 "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
-####################################
 
             for prefix in prefixes:
                 print('<div class="row p-divider"><div class="p-card">', file=header)
