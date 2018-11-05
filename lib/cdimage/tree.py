@@ -479,7 +479,7 @@ class Publisher:
         if self.project in ("lubuntu", "lubuntu-next"):
             return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
         else:
-            return ["//releases.ubuntu.com/include/style.css"]
+            return ["https://assets.ubuntu.com/v1/vanilla-framework-version-1.8.0.min.css"]
 
     def cdtypestr(self, publish_type, image_format):
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
@@ -1180,18 +1180,33 @@ class Publisher:
             heading = self.web_heading(base_prefix)
             print(
                 dedent("""\
-                    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-                     "http://www.w3.org/TR/html4/strict.dtd">
-                    <html>
+                    <!doctype html>
+                    <html lang="en">
                     <head>
                     <title>%s</title>
+                    <meta charset="UTF-8" />
+                    <meta name="description" content="CD images for %s" />
+                    <meta name="author" content="Canonical" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
                     <!-- Main style sheets for CSS2 capable browsers -->
-                    <style type="text/css" media="screen">""") % heading,
+                    <style type="text/css" media="screen">""") % (heading, heading),
                 file=header)
             for css in self.cssincludes():
                 print("  @import url(%s);" % css, file=header)
             print(dedent("""\
-                body { margin: 2em; }
+                    table {
+                        width: 100%;
+                    }
+
+                    th[colspan="5"],
+                    th[colspan="4"] {
+                        display: none;
+                    }
+
+                    th:first-child,
+                    td:first-child {
+                        width: 5%;
+                    }
                 </style>
                 """), file=header)
             if self.project == "kubuntu":
@@ -1220,13 +1235,32 @@ class Publisher:
 
             print(dedent("""\
                 </head>
-                <body><div id="pageWrapper">
-
-                <div id="header"><a href="%s"></a></div>
-
-                <h1>%s</h1>
-
-                <div id="main">
+                <body>
+                    <header id="navigation" class="p-navigation">
+                        <div class="row">
+                          <div class="p-navigation__banner">
+                            <div class="p-navigation__logo">
+                              <a class="p-navigation__link" href="/">
+                                <img class="p-navigation__image" src="https://assets.ubuntu.com/v1/411e1474-releases-lockup.svg" alt="">
+                              </a>
+                            </div>
+                          </div>
+                          <nav class="p-navigation__nav" role="menubar">
+                            <span class="u-off-screen">
+                              <a href="#pageWrapper">Jump to main content</a>
+                            </span>
+                          </nav>
+                        </div>
+                    </header>
+                    <section class="p-strip--image is-dark" style="background-image: url('https://assets.ubuntu.com/v1/775cc62b-vanilla-grad-background.png'); background-position: 75% 50%;">
+                        <div class="row">
+                            <div id="header"><a href="%s"></a></div>
+                            <h1 class="u-no-margin--bottom">%s</h1>
+                        </div>
+                    </section>
+                    <div id="pageWrapper" class="p-strip">
+                        <div class="row">
+                            <div id="main">
                 """) % (header_href, heading), file=header)
 
             mirrors_url = "http://www.ubuntu.com/getubuntu/downloadmirrors"
@@ -1284,6 +1318,7 @@ class Publisher:
                 "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
 
             for prefix in prefixes:
+                print('<div class="row p-divider"><div class="p-card">', file=header)
                 for publish_type in all_publish_types:
                     if not self.find_images(directory, prefix, publish_type):
                         continue
@@ -1293,11 +1328,9 @@ class Publisher:
                         arches = self.find_source_images(directory, prefix)
                     else:
                         arches = all_arches
-
                     for image_format in (
                         "iso", "img", "img.gz", "img.xz", "img.tar.gz",
-                        "tar.gz", "tar.xz", "custom.tar.gz",
-                    ):
+                        "tar.gz", "tar.xz", "custom.tar.gz" ):
                         paths = []
                         if image_format == "img" or image_format == "img.xz":
                             path = os.path.join(
@@ -1323,7 +1356,7 @@ class Publisher:
                             continue
 
                         cdtypestr = self.cdtypestr(publish_type, image_format)
-
+                        print('<div class="col-6 p-divider__block">', file=header)
                         print(
                             "<h3>%s</h3>" % self.titlecase(cdtypestr),
                             file=header)
@@ -1347,7 +1380,9 @@ class Publisher:
                                 self.numbers[len(paths)], file=header)
 
                         print(file=header)
-                        print("<dl>", file=header)
+
+                        print('</div>', file=header)
+                        print('<div class="col-6 p-divider__block">', file=header)
 
                         for path, arch in paths:
                             base = path.rsplit(".", 1)[0]
@@ -1377,14 +1412,17 @@ class Publisher:
                                     self.titlecase(cdtypestr), archstr)
                                 archdesc = self.archdesc(arch, publish_type)
 
+
+
+                            print("<div>", file=header)
                             if os.path.exists(path):
                                 print(
-                                    "<dt><a href=\"%s\">%s</a>" %
+                                    "<a href=\"%s\">%s</a>" %
                                     (os.path.basename(path), imagestr),
                                     file=header)
                             elif os.path.exists("%s.torrent" % path):
                                 print(
-                                    "<dt><a href=\"%s.torrent\">%s</a> "
+                                    "<a href=\"%s.torrent\">%s</a> "
                                     "(%s only)" % (
                                         os.path.basename(path), imagestr,
                                         bt_link),
@@ -1402,7 +1440,7 @@ class Publisher:
                                 for tag in self.maybe_oversized(
                                         status, oversized_path, publish_type):
                                     desc += "\n%s" % tag
-                                print("<dd>%s</dd>" % desc, file=header)
+                                print("<p>%s</p>" % desc, file=header)
                                 print(file=header)
 
                             if arch is None:
@@ -1444,10 +1482,9 @@ class Publisher:
                                         htaccessimagestr, extstr,
                                         os.path.basename(extpath)),
                                     file=htaccess)
-
-                        print("</dl>", file=header)
-                        print(file=header)
-
+                            print("</div>", file=header)
+                        print('</div>', file=header)
+                print('</div></div>', file=header)
             published_ec2_path = os.path.join(
                 directory, "published-ec2-%s.txt" % status)
             if os.path.exists(published_ec2_path):
@@ -1569,7 +1606,29 @@ class Publisher:
                     print(tag, file=header)
                 print(file=header)
 
-            print("</div></div></body></html>", file=footer)
+            print(
+                dedent("""\
+                </div></div></div>
+                <footer class="p-footer">
+                  <div class="row">
+                    <p><small>&copy; 2018 Canonical Ltd. Ubuntu and Canonical are registered trademarks of Canonical Ltd.</small></p>
+                    <nav class="p-footer__nav">
+                      <ul class="p-footer__links">
+                        <li class="p-footer__item">
+                          <a class="p-footer__link" href="https://www.ubuntu.com/legal"><small>Legal information</small></a>
+                        </li>
+                        <li class="p-footer__item">
+                          <a class="p-footer__link" href="https://bugs.launchpad.net/ubuntu-cdimage/+filebug"><small>Report a bug on this site</small></a>
+                        </li>
+                      </ul>
+                      <span class="u-off-screen">
+                        <a href="#">Go to the top of the page</a>
+                      </span>
+                    </nav>
+                  </div>
+                </footer>
+                </body></html>"""),
+                file=footer)
 
             # We may not be mirrored to the webserver root, so calculate a
             # relative path for the icons.
