@@ -377,6 +377,8 @@ class GerminateOutput:
                   and series <= "bionic"):
                 yield "ship-live-qt"
                 yield "ship-live-share"
+            elif project == "ubuntu-server" and series >= "disco":
+                yield "server-ship-live"
             else:
                 if series >= "dapper":
                     yield "ship-live"
