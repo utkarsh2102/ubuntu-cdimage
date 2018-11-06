@@ -538,7 +538,7 @@ class TestPublisherWebIndices(TestCase):
                 "published-ec2-daily.txt published-ec2-release.txt\n"
                 "IndexOptions NameWidth=* DescriptionWidth=* "
                 "SuppressHTMLPreamble FancyIndexing IconHeight=22 "
-                "IconWidth=22\n"
+                "IconWidth=22 HTMLTable\n"
                 "AddIcon ../../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../../cdicons/iso.png .iso\n"
                 "AddIcon ../../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
