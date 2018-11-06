@@ -1652,7 +1652,7 @@ class Publisher:
             print(
                 "IndexOptions NameWidth=* DescriptionWidth=* "
                 "SuppressHTMLPreamble FancyIndexing "
-                "IconHeight=22 IconWidth=22",
+                "IconHeight=22 IconWidth=22 HTMLTable",
                 file=htaccess)
             for icon, patterns in (
                 ("folder.png", "^^DIRECTORY^^"),
