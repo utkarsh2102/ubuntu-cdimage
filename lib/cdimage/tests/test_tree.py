@@ -314,8 +314,9 @@ class TestPublisherWebIndices(TestCase):
         self.assertEqual("Desktop image", publisher.titlecase("desktop image"))
 
     def test_cssincludes(self):
+        assets = 'https://assets.ubuntu.com/v1'
         for project, expected in (
-            ("ubuntu", ["//releases.ubuntu.com/include/style.css"]),
+            ("ubuntu", [assets + "/vanilla-framework-version-1.8.0.min.css"]),
             ("kubuntu", ["//releases.ubuntu.com/include/kubuntu.css"]),
             ("kubuntu-plasma5",
              ["//releases.ubuntu.com/include/kubuntu-plasma5.css"]),
