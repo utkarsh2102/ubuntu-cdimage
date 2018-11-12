@@ -1234,7 +1234,7 @@ class Publisher:
             else:
                 header_href = 'http://www.ubuntu.com/'
 
-            assets = 'https://assets.ubuntu.com/v1'
+            assets = 'https://assets.ubuntu.com/v1/'
             print(dedent("""\
             </head>
             <body>
@@ -1245,7 +1245,7 @@ class Publisher:
                           <a class="p-navigation__link" href="/">
                           <img class="p-navigation__image"
                            src=" """ + assets
-                  + """/411e1474-releases-lockup.svg"
+                  + """411e1474-releases-lockup.svg"
                            alt="">
                           </a>
                         </div>
@@ -1259,7 +1259,7 @@ class Publisher:
                 </header>
                 <section class="p-strip--image is-dark"
                  style="background-image: url('""" + assets
-                  + """/v1/775cc62b-vanilla-grad-background.png');
+                  + """775cc62b-vanilla-grad-background.png');
                  background-position: 75% 50%;">
                     <div class="row">
                         <div id="header"><a href="%s"></a></div>
