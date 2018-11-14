@@ -193,7 +193,7 @@ class TestTree(TestCase):
 
             with open(os.path.join(publish_base, "20130321", ".marked_good"),
                       "r") as marked_good:
-                self.assertEqual("cosmic-desktop-i386.iso\n",
+                self.assertEqual("disco-desktop-i386.iso\n",
                                  marked_good.read())
 
             publish_current = os.path.join(publish_base, "current")
@@ -314,8 +314,9 @@ class TestPublisherWebIndices(TestCase):
         self.assertEqual("Desktop image", publisher.titlecase("desktop image"))
 
     def test_cssincludes(self):
+        assets = 'https://assets.ubuntu.com/v1'
         for project, expected in (
-            ("ubuntu", ["//releases.ubuntu.com/include/style.css"]),
+            ("ubuntu", [assets + "/vanilla-framework-version-1.8.0.min.css"]),
             ("kubuntu", ["//releases.ubuntu.com/include/kubuntu.css"]),
             ("kubuntu-plasma5",
              ["//releases.ubuntu.com/include/kubuntu-plasma5.css"]),
@@ -537,7 +538,7 @@ class TestPublisherWebIndices(TestCase):
                 "published-ec2-daily.txt published-ec2-release.txt\n"
                 "IndexOptions NameWidth=* DescriptionWidth=* "
                 "SuppressHTMLPreamble FancyIndexing IconHeight=22 "
-                "IconWidth=22\n"
+                "IconWidth=22 HTMLTable\n"
                 "AddIcon ../../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../../cdicons/iso.png .iso\n"
                 "AddIcon ../../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"

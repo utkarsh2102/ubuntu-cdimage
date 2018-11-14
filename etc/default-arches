@@ -95,7 +95,8 @@ ubuntu-server		*			xenial-yakkety		amd64 arm64 i386 powerpc ppc64el s390x
 ubuntu-server		*			zesty-artful		amd64 arm64 i386 ppc64el s390x
 ubuntu-server		*			bionic-			amd64 arm64 ppc64el s390x
 
-ubuntu-server-live	*			artful-			amd64 arm64 ppc64el
+ubuntu-server-live	*			artful-cosmic		amd64 arm64 ppc64el
+ubuntu-server-live	*			disco-			amd64 arm64 ppc64el s390x
 
 ubuntu-wubi		*			*			amd64 i386
 

@@ -78,7 +78,7 @@ class Germination:
                 else:
                     sources.insert(0, bzrpattern % "ubuntu-core-dev")
             elif project == "ubuntustudio":
-                sources.insert(0, bzrpattern % "ubuntustudio-dev")
+                sources.insert(0, gitpattern % "ubuntustudio-dev")
             elif project == "mythbuntu":
                 sources.insert(0, bzrpattern % "mythbuntu-dev")
             elif project == "xubuntu":
@@ -377,6 +377,8 @@ class GerminateOutput:
                   and series <= "bionic"):
                 yield "ship-live-qt"
                 yield "ship-live-share"
+            elif project == "ubuntu-server" and series >= "disco":
+                yield "server-ship-live"
             else:
                 if series >= "dapper":
                     yield "ship-live"
