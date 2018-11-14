@@ -1492,7 +1492,8 @@ class Publisher:
                                     file=htaccess)
                             print("</div>", file=header)
                         print('</div>', file=header)
-                        print('</div></div>', file=header) #wrapper
+                        print('</div></div>', file=header)
+
             published_ec2_path = os.path.join(
                 directory, "published-ec2-%s.txt" % status)
             if os.path.exists(published_ec2_path):
