@@ -1318,7 +1318,6 @@ class Publisher:
                 "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
 
             for prefix in prefixes:
-                print('<div class="row p-divider"><div class="p-card">', file=header)
                 for publish_type in all_publish_types:
                     if not self.find_images(directory, prefix, publish_type):
                         continue
@@ -1331,6 +1330,7 @@ class Publisher:
                     for image_format in (
                         "iso", "img", "img.gz", "img.xz", "img.tar.gz",
                         "tar.gz", "tar.xz", "custom.tar.gz" ):
+                        print('<div class="row p-divider"><div class="p-card">', file=header)
                         paths = []
                         if image_format == "img" or image_format == "img.xz":
                             path = os.path.join(
@@ -1484,7 +1484,7 @@ class Publisher:
                                     file=htaccess)
                             print("</div>", file=header)
                         print('</div>', file=header)
-                print('</div></div>', file=header)
+                        print('</div></div>', file=header) #wrapper
             published_ec2_path = os.path.join(
                 directory, "published-ec2-%s.txt" % status)
             if os.path.exists(published_ec2_path):
