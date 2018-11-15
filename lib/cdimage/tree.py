@@ -1338,7 +1338,6 @@ class Publisher:
                     for image_format in (
                         "iso", "img", "img.gz", "img.xz", "img.tar.gz",
                         "tar.gz", "tar.xz", "custom.tar.gz" ):
-                        print('<div class="row p-divider"><div class="p-card">', file=header)
                         paths = []
                         if image_format == "img" or image_format == "img.xz":
                             path = os.path.join(
@@ -1363,6 +1362,8 @@ class Publisher:
                         if not paths:
                             continue
 
+                        print('<div class="row p-divider"><div class="p-card">',
+                            file=header)
                         cdtypestr = self.cdtypestr(publish_type, image_format)
                         print('<div class="col-6 p-divider__block">',
                               file=header)
@@ -1422,7 +1423,6 @@ class Publisher:
                                     self.titlecase(cdtypestr), archstr)
                                 archdesc = self.archdesc(arch, publish_type)
 
-                            print("<div>", file=header)
                             if os.path.exists(path):
                                 print(
                                     "<a href=\"%s\">%s</a>" %
@@ -1491,7 +1491,6 @@ class Publisher:
                                         os.path.basename(extpath)),
                                     file=htaccess)
                             print("</div>", file=header)
-                        print('</div>', file=header)
                         print('</div></div>', file=header)
 
             published_ec2_path = os.path.join(
