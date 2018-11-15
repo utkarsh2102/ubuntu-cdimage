@@ -1376,20 +1376,6 @@ class Publisher:
                             print(tag, file=header)
                             print(file=header)
 
-                        if len(paths) == 1:
-                            print(
-                                "<p>There is one image available:</p>",
-                                file=header)
-                        elif publish_type == "src":
-                            print(
-                                "<p>There are %s images available:</p>" %
-                                self.numbers[len(paths)], file=header)
-                        else:
-                            print(
-                                "<p>There are %s images available, each for a "
-                                "different type of computer:</p>" %
-                                self.numbers[len(paths)], file=header)
-
                         print(file=header)
 
                         print('</div>', file=header)
@@ -1491,7 +1477,7 @@ class Publisher:
                                         htaccessimagestr, extstr,
                                         os.path.basename(extpath)),
                                     file=htaccess)
-                            print("</div>", file=header)
+                        print('</div>', file=header)
                         print('</div></div>', file=header)
 
             published_ec2_path = os.path.join(
