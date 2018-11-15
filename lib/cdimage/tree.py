@@ -1337,7 +1337,8 @@ class Publisher:
                         arches = all_arches
                     for image_format in (
                         "iso", "img", "img.gz", "img.xz", "img.tar.gz",
-                        "tar.gz", "tar.xz", "custom.tar.gz" ):
+                        "tar.gz", "tar.xz", "custom.tar.gz"
+                    ):
                         paths = []
                         if image_format == "img" or image_format == "img.xz":
                             path = os.path.join(
