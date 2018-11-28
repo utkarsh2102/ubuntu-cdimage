@@ -1195,9 +1195,12 @@ class Publisher:
             for css in self.cssincludes():
                 print("  @import url(%s);" % css, file=header)
             print(dedent("""\
+                    .p-table-wrapper {
+                        overflow-x: scroll;
+                    }
+
                     table {
                         min-width: 984px;
-                        overflow-x: scroll;
                         width: 100%;
                     }
 
@@ -1222,14 +1225,10 @@ class Publisher:
                         width: 12em;
                     }
 
-
-
                     th:nth-of-type(4),
                     td:nth-of-type(4) {
                         width: 6em;
                     }
-
-
 
                     th:nth-of-type(5),
                     td:nth-of-type(5) {
@@ -1627,9 +1626,11 @@ class Publisher:
                     print(tag, file=header)
                 print(file=header)
 
+            print("<div class='p-table-wrapper'>", file=header)
+
             print(
                 dedent("""\
-         </div></div></div>
+         </div></div></div></div>
          <footer class="p-footer">
            <div class="row">
              <p><small>&copy; 2018 Canonical Ltd. Ubuntu and Canonical
