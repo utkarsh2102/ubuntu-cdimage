@@ -1196,6 +1196,8 @@ class Publisher:
                 print("  @import url(%s);" % css, file=header)
             print(dedent("""\
                     table {
+                        min-width: 984px;
+                        overflow-x: scroll;
                         width: 100%;
                     }
 
@@ -1206,7 +1208,31 @@ class Publisher:
 
                     th:first-child,
                     td:first-child {
+                        vertical-align: inherit;
                         width: 5%;
+                    }
+
+                    th:nth-of-type(2),
+                    td:nth-of-type(2) {
+                        width: 20em;
+                    }
+
+                    th:nth-of-type(3),
+                    td:nth-of-type(3) {
+                        width: 12em;
+                    }
+
+
+
+                    th:nth-of-type(4),
+                    td:nth-of-type(4) {
+                        width: 6em;
+                    }
+
+
+
+                    th:nth-of-type(5),
+                    td:nth-of-type(5) {
                     }
                 </style>
                 """), file=header)
