@@ -1195,7 +1195,12 @@ class Publisher:
             for css in self.cssincludes():
                 print("  @import url(%s);" % css, file=header)
             print(dedent("""\
+                    .p-table-wrapper {
+                        overflow-x: scroll;
+                    }
+
                     table {
+                        min-width: 984px;
                         width: 100%;
                     }
 
@@ -1206,7 +1211,27 @@ class Publisher:
 
                     th:first-child,
                     td:first-child {
+                        vertical-align: inherit;
                         width: 5%;
+                    }
+
+                    th:nth-of-type(2),
+                    td:nth-of-type(2) {
+                        width: 20em;
+                    }
+
+                    th:nth-of-type(3),
+                    td:nth-of-type(3) {
+                        width: 12em;
+                    }
+
+                    th:nth-of-type(4),
+                    td:nth-of-type(4) {
+                        width: 6em;
+                    }
+
+                    th:nth-of-type(5),
+                    td:nth-of-type(5) {
                     }
                 </style>
                 """), file=header)
@@ -1326,8 +1351,6 @@ class Publisher:
                 "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
 
             for prefix in prefixes:
-                print('<div class="row p-divider"><div class="p-card">',
-                      file=header)
                 for publish_type in all_publish_types:
                     if not self.find_images(directory, prefix, publish_type):
                         continue
@@ -1365,6 +1388,8 @@ class Publisher:
                         if not paths:
                             continue
 
+                        print('<div class="row p-divider"><div class="p-card">',
+                            file=header)
                         cdtypestr = self.cdtypestr(publish_type, image_format)
                         print('<div class="col-6 p-divider__block">',
                               file=header)
@@ -1375,20 +1400,6 @@ class Publisher:
                         for tag in self.cdtypedesc(publish_type, image_format):
                             print(tag, file=header)
                             print(file=header)
-
-                        if len(paths) == 1:
-                            print(
-                                "<p>There is one image available:</p>",
-                                file=header)
-                        elif publish_type == "src":
-                            print(
-                                "<p>There are %s images available:</p>" %
-                                self.numbers[len(paths)], file=header)
-                        else:
-                            print(
-                                "<p>There are %s images available, each for a "
-                                "different type of computer:</p>" %
-                                self.numbers[len(paths)], file=header)
 
                         print(file=header)
 
@@ -1424,7 +1435,6 @@ class Publisher:
                                     self.titlecase(cdtypestr), archstr)
                                 archdesc = self.archdesc(arch, publish_type)
 
-                            print("<div>", file=header)
                             if os.path.exists(path):
                                 print(
                                     "<a href=\"%s\">%s</a>" %
@@ -1492,9 +1502,9 @@ class Publisher:
                                         htaccessimagestr, extstr,
                                         os.path.basename(extpath)),
                                     file=htaccess)
-                            print("</div>", file=header)
                         print('</div>', file=header)
-                print('</div></div>', file=header)
+                        print('</div></div>', file=header)
+
             published_ec2_path = os.path.join(
                 directory, "published-ec2-%s.txt" % status)
             if os.path.exists(published_ec2_path):
@@ -1616,9 +1626,11 @@ class Publisher:
                     print(tag, file=header)
                 print(file=header)
 
+            print("<div class='p-table-wrapper'>", file=header)
+
             print(
                 dedent("""\
-         </div></div></div>
+         </div></div></div></div>
          <footer class="p-footer">
            <div class="row">
              <p><small>&copy; 2018 Canonical Ltd. Ubuntu and Canonical
