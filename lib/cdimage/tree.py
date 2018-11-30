@@ -1388,8 +1388,9 @@ class Publisher:
                         if not paths:
                             continue
 
-                        print('<div class="row p-divider"><div class="p-card">',
-                            file=header)
+                        print('<div class="row p-divider">'
+                              + '<div class="p-card">',
+                              file=header)
                         cdtypestr = self.cdtypestr(publish_type, image_format)
                         print('<div class="col-6 p-divider__block">',
                               file=header)
