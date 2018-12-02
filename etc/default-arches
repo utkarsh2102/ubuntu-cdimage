@@ -113,7 +113,8 @@ xubuntu			daily-live		jaunty			armel powerpc powerpc+ps3
 xubuntu			daily-live		karmic			armel+dove armel+imx51 powerpc powerpc+ps3
 
 xubuntu			*			feisty-maverick		amd64 i386 powerpc powerpc+ps3
-xubuntu			*			natty-			amd64 i386
+xubuntu			*			natty-cosmic		amd64 i386
+xubuntu			*			disco-			amd64
 
 *			daily-live		gutsy-intrepid		amd64 i386 ia64 powerpc powerpc+ps3 sparc
 *			daily-live		jaunty			amd64 armel i386 ia64 powerpc powerpc+ps3 sparc
