@@ -678,8 +678,23 @@ def live_item_paths(config, arch, item):
     elif item in (
         "kernel", "initrd", "bootimg"
     ):
-        for flavour in flavours(config, arch):
+        our_flavours = flavours(config, arch)
+        if series.has_hwe_kernel:
+            our_flavours.extend(
+                ["%s-hwe-%s" % (f, series.version) for f in our_flavours])
+        for flavour in our_flavours:
             base = "livecd.%s.%s-%s" % (liveproject_subarch, item, flavour)
+            for url in urls_for(base):
+                yield url
+    elif item in (
+        "modules.squashfs"
+    ):
+        base = "livecd.%s.%s" % (liveproject_subarch, item)
+        items = [item]
+        if series.has_hwe_kernel:
+            items.append("modules-hwe-%s.squashfs" % series.version)
+        for item in items:
+            base = "livecd.%s.%s" % (liveproject_subarch, item)
             for url in urls_for(base):
                 yield url
     elif item in (
@@ -770,6 +785,18 @@ def download_live_items(config, arch, item):
     ):
         for url in urls:
             target = os.path.join(output_dir, item)
+            try:
+                osextras.fetch(config, url, target)
+                found = True
+            except osextras.FetchError:
+                pass
+    elif item in (
+        "modules.squashfs",
+    ):
+        for url in urls:
+            base = unquote(os.path.basename(url))
+            base = "%s.%s" % (arch, base.split('.', 2)[2])
+            target = os.path.join(output_dir, base)
             try:
                 osextras.fetch(config, url, target)
                 found = True

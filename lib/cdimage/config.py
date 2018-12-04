@@ -39,11 +39,12 @@ all_series = []
 
 class Series(Iterable):
     def __init__(self, name, version, displayname, distribution="ubuntu",
-                 **kwargs):
+                 has_hwe_kernel=False, **kwargs):
         self.name = name
         self.version = version
         self.displayname = displayname
         self.distribution = distribution
+        self.has_hwe_kernel = has_hwe_kernel
         self._index = None
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -193,7 +194,7 @@ all_series.extend([
     Series(
         "bionic", "18.04", "Bionic Beaver",
         pointversion="18.04.1.0",
-        all_lts_projects=True),
+        all_lts_projects=True, has_hwe_kernel=True),
     Series("cosmic", "18.10", "Cosmic Cuttlefish"),
     Series("disco", "19.04", "Disco Dingo"),
 
