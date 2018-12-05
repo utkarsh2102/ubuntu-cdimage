@@ -1032,13 +1032,16 @@ class TestLiveItemPaths(TestCase):
         for item in ("kernel", "initrd", "bootimg"):
             root = "http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/current"
             self.assertPathsEqual(
-                ["%s/livecd.kubuntu.%s-generic" % (root, item)],
+                ["%s/livecd.kubuntu.%s-generic" % (root, item),
+                 "%s/livecd.kubuntu.%s-generic-hwe" % (root, item)],
                 "amd64", item, "kubuntu", "precise")
             root = ("http://royal.buildd/~buildd/LiveCD/hardy/ubuntu-ps3/"
                     "current")
             self.assertPathsEqual(
                 ["%s/livecd.ubuntu-ps3.%s-powerpc" % (root, item),
-                 "%s/livecd.ubuntu-ps3.%s-powerpc64-smp" % (root, item)],
+                 "%s/livecd.ubuntu-ps3.%s-powerpc64-smp" % (root, item),
+                 "%s/livecd.ubuntu-ps3.%s-powerpc-hwe" % (root, item),
+                 "%s/livecd.ubuntu-ps3.%s-powerpc64-smp-hwe" % (root, item)],
                 "powerpc+ps3", item, "ubuntu", "hardy")
 
     def test_kernel_efi_signed(self):
@@ -1206,11 +1209,16 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assertTrue(download_live_items(self.config, "i386", "kernel"))
         prefix = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/"
                   "current/livecd.ubuntu.kernel-")
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
-        mock_fetch.assert_called_once_with(
-            self.config, prefix + "generic",
-            os.path.join(target_dir, "i386.kernel-generic"))
+        calls = []
+        for suffix in '', '-hwe':
+            target_dir = os.path.join(
+                self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+                "live")
+            calls.append(
+                mock.call(
+                    self.config, prefix + "generic" + suffix,
+                    os.path.join(target_dir, "i386.kernel-generic" + suffix)))
+        self.assertCountEqual(mock_fetch.call_args_list, calls)
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_kernel_efi_signed(self, mock_fetch):
@@ -1236,12 +1244,17 @@ class TestDownloadLiveFilesystems(TestCase):
             download_live_items(self.config, "armhf+omap4", "bootimg"))
         url = ("http://kishi00.buildd/~buildd/LiveCD/raring/ubuntu-omap4/"
                "current/livecd.ubuntu-omap4.bootimg-omap4")
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-preinstalled",
-            "live")
-        mock_fetch.assert_called_once_with(
-            self.config, url,
-            os.path.join(target_dir, "armhf+omap4.bootimg-omap4"))
+        calls = []
+        for suffix in '', '-hwe':
+            target_dir = os.path.join(
+                self.temp_dir, "scratch", "ubuntu", "raring",
+                "daily-preinstalled", "live")
+            calls.append(
+                mock.call(
+                    self.config, url + suffix,
+                    os.path.join(
+                        target_dir, "armhf+omap4.bootimg-omap4" + suffix)))
+        self.assertCountEqual(mock_fetch.call_args_list, calls)
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_wubi(self, mock_fetch):
@@ -1351,24 +1364,16 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assert_server_live_download_items(
             "bionic", "maas-region.squashfs", ["maas-region.squashfs"])
 
-    def test_download_live_server_boot_items_no_hwe(self):
-        self.assert_server_live_download_items(
-            "cosmic", "kernel", ["kernel-generic"])
-        self.assert_server_live_download_items(
-            "cosmic", "initrd", ["initrd-generic"])
-        self.assert_server_live_download_items(
-            "cosmic", "modules.squashfs", ["modules.squashfs"])
-
-    def test_download_live_server_boot_items_hwe(self):
+    def test_download_live_server_boot_items(self):
         self.assert_server_live_download_items(
             "bionic", "kernel",
-            ["kernel-generic", "kernel-generic-hwe-18.04"])
+            ["kernel-generic", "kernel-generic-hwe"])
         self.assert_server_live_download_items(
             "bionic", "initrd",
-            ["initrd-generic", "initrd-generic-hwe-18.04"])
+            ["initrd-generic", "initrd-generic-hwe"])
         self.assert_server_live_download_items(
             "bionic", "modules.squashfs",
-            ["modules.squashfs", "modules-hwe-18.04.squashfs"])
+            ["modules.squashfs", "modules-hwe.squashfs"])
 
     def test_write_autorun(self):
         self.config["PROJECT"] = "ubuntu"
