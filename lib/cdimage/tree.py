@@ -1904,7 +1904,7 @@ class DailyTreePublisher(Publisher):
                 return 1024 * 1024 * 1024
             elif self.config["DIST"] >= "zesty" and arch == "ppc64el":
                 return 1024 * 1024 * 1024
-            elif self.config["DIST"] >= "disco":
+            elif self.config["DIST"] >= "bionic":
                 return 1024 * 1024 * 1024
             else:
                 return 736665600
