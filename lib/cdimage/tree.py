@@ -827,6 +827,7 @@ class Publisher:
         "armhf+ac100": "Toshiba AC100 / Dynabook AZ (Hard-Float)",
         "armhf+mx5": "Freescale i.MX5x (Hard-Float)",
         "armhf+nexus7": "Asus/Google Nexus7 Tablet",
+        "armhf+raspi2": "Raspberry Pi 2",
         "armhf+raspi3": "Raspberry Pi 3 (Hard-Float)",
         "hppa": "HP PA-RISC",
         "i386": "32-bit PC (i386)",
@@ -858,6 +859,8 @@ class Publisher:
                 sentences.append("Choose this if you are at all unsure.")
         elif arch == "arm64":
             sentences.append("For 64-bit ARMv8 processors and above.")
+        elif arch == "armhf+raspi2":
+            sentences.append("For Raspberry Pi 2 boards.")
         elif arch in ("arm64+raspi3", "armhf+raspi3"):
             sentences.append("For Raspberry Pi 3 boards.")
         elif arch == "armel":
