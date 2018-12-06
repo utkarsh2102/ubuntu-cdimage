@@ -813,6 +813,7 @@ class Publisher:
         "amd64": "64-bit PC (AMD64)",
         "amd64+mac": "64-bit Mac (AMD64)",
         "arm64": "64-bit ARM (ARMv8/AArch64)",
+        "arm64+raspi3": "Raspberry Pi 3 (64-bit ARM)",
         "armel": "ARM EABI",
         "armel+dove": "Marvell Dove",
         "armel+imx51": "Freescale i.MX51",
@@ -826,6 +827,7 @@ class Publisher:
         "armhf+ac100": "Toshiba AC100 / Dynabook AZ (Hard-Float)",
         "armhf+mx5": "Freescale i.MX5x (Hard-Float)",
         "armhf+nexus7": "Asus/Google Nexus7 Tablet",
+        "armhf+raspi3": "Raspberry Pi 3 (Hard-Float)",
         "hppa": "HP PA-RISC",
         "i386": "32-bit PC (i386)",
         "ia64": "IA-64",
@@ -856,6 +858,8 @@ class Publisher:
                 sentences.append("Choose this if you are at all unsure.")
         elif arch == "arm64":
             sentences.append("For 64-bit ARMv8 processors and above.")
+        elif arch in ("arm64+raspi3", "armhf+raspi3"):
+            sentences.append("For Raspberry Pi 3 boards.")
         elif arch == "armel":
             sentences.append("For ARMv7 processors and above.")
         elif arch == "armel+dove":
@@ -999,7 +1003,7 @@ class Publisher:
     def extensionstr(self, extension):
         if extension == "img":
             return "USB image"
-        elif extension == "img.gz":
+        elif extension in ("img.gz", "img.xz"):
             return "preinstalled SD Card image"
         elif extension == "iso":
             return "standard download"
@@ -1110,7 +1114,8 @@ class Publisher:
             elif entry.startswith("%s-" % prefix_type):
                 if (entry.endswith(".list") or
                         entry.endswith(".img.gz") or
-                        entry.endswith(".tar.gz")):
+                        entry.endswith(".tar.gz") or
+                        entry.endswith(".img.xz")):
                     images.append(entry)
         return images
 
@@ -1157,8 +1162,8 @@ class Publisher:
             "armel", "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
             "armel+ac100", "armel+mx5",
             "armhf", "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
-            "armhf+nexus7", "armhf+raspi2",
-            "arm64",
+            "armhf+nexus7", "armhf+raspi2", "armhf+raspi3",
+            "arm64", "arm64+raspi3",
             "powerpc",
             "powerpc+ps3",
             "ppc64el",
@@ -1366,25 +1371,25 @@ class Publisher:
                     ):
                         paths = []
                         if image_format == "img" or image_format == "img.xz":
-                            path = os.path.join(
+                            base = os.path.join(
                                 directory,
-                                "%s-%s.%s" % (
-                                    prefix, publish_type, image_format))
+                                "%s-%s" % (prefix, publish_type))
+                            path = "%s.%s" % (base, image_format)
                             if os.path.exists(path):
-                                paths.append((path, None))
+                                paths.append((path, None, base))
                         elif image_format == "tar.xz":
                             for arch in arches:
-                                path = os.path.join(
-                                    directory, "%s.%s" % (arch, image_format))
+                                base = os.path.join(directory, arch)
+                                path = "%s.%s" % (base, image_format)
                                 if os.path.exists(path):
-                                    paths.append((path, arch))
+                                    paths.append((path, arch, base))
                         for arch in arches:
-                            path = os.path.join(
+                            base = os.path.join(
                                 directory,
-                                "%s-%s-%s.%s" % (
-                                    prefix, publish_type, arch, image_format))
+                                "%s-%s-%s" % (prefix, publish_type, arch))
+                            path = "%s.%s" % (base, image_format)
                             if os.path.exists(path):
-                                paths.append((path, arch))
+                                paths.append((path, arch, base))
                         if not paths:
                             continue
 
@@ -1408,8 +1413,7 @@ class Publisher:
                         print('<div class="col-6 p-divider__block">',
                               file=header)
 
-                        for path, arch in paths:
-                            base = path.rsplit(".", 1)[0]
+                        for path, arch, base in paths:
                             if arch is None:
                                 if publish_type == "mid":
                                     imgarch = "lpia"
