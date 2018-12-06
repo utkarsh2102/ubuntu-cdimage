@@ -920,6 +920,7 @@ def download_live_filesystems(config):
                 download_live_items(config, arch, "installer.squashfs")
                 download_live_items(config, arch, "maas-rack.squashfs")
                 download_live_items(config, arch, "maas-region.squashfs")
+                download_live_items(config, arch, "modules.squashfs")
                 got_image = True
             elif download_live_items(config, arch, "rootfs.tar.gz"):
                 got_image = True
