@@ -195,7 +195,7 @@ def send_warnings(config, options, projects):
         subj = subj + ' - OK'
     body = """\
 This is a daily health check report on all CD images.
-If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
+If you have any questions, contact Steve Langasek <steve.langasek@canonical.com>.
 
 %s
 """ % all_warnings
