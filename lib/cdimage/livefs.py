@@ -676,20 +676,12 @@ def live_item_paths(config, arch, item):
             for url in urls_for("livecd.%s.%s" % (liveproject_subarch, item)):
                 yield url
     elif item in (
-        "kernel", "initrd", "bootimg"
+        "kernel", "initrd", "bootimg", "modules.squashfs"
     ):
         our_flavours = flavours(config, arch)
         our_flavours.extend(["%s-hwe" % (f,) for f in our_flavours])
         for flavour in our_flavours:
             base = "livecd.%s.%s-%s" % (liveproject_subarch, item, flavour)
-            for url in urls_for(base):
-                yield url
-    elif item in (
-        "modules.squashfs"
-    ):
-        for suffix in ['', '-hwe']:
-            base = "livecd.%s.modules%s.squashfs" % (
-                liveproject_subarch, suffix)
             for url in urls_for(base):
                 yield url
     elif item in (

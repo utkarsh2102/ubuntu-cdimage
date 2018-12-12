@@ -1373,7 +1373,7 @@ class TestDownloadLiveFilesystems(TestCase):
             ["initrd-generic", "initrd-generic-hwe"])
         self.assert_server_live_download_items(
             "bionic", "modules.squashfs",
-            ["modules.squashfs", "modules-hwe.squashfs"])
+            ["modules.squashfs-generic", "modules.squashfs-generic-hwe"])
 
     def test_write_autorun(self):
         self.config["PROJECT"] = "ubuntu"
