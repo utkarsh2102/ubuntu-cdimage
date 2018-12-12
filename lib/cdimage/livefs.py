@@ -676,9 +676,11 @@ def live_item_paths(config, arch, item):
             for url in urls_for("livecd.%s.%s" % (liveproject_subarch, item)):
                 yield url
     elif item in (
-        "kernel", "initrd", "bootimg"
+        "kernel", "initrd", "bootimg", "modules.squashfs"
     ):
-        for flavour in flavours(config, arch):
+        our_flavours = flavours(config, arch)
+        our_flavours.extend(["%s-hwe" % (f,) for f in our_flavours])
+        for flavour in our_flavours:
             base = "livecd.%s.%s-%s" % (liveproject_subarch, item, flavour)
             for url in urls_for(base):
                 yield url
@@ -770,6 +772,18 @@ def download_live_items(config, arch, item):
     ):
         for url in urls:
             target = os.path.join(output_dir, item)
+            try:
+                osextras.fetch(config, url, target)
+                found = True
+            except osextras.FetchError:
+                pass
+    elif item in (
+        "modules.squashfs",
+    ):
+        for url in urls:
+            base = unquote(os.path.basename(url))
+            base = "%s.%s" % (arch, base.split('.', 2)[2])
+            target = os.path.join(output_dir, base)
             try:
                 osextras.fetch(config, url, target)
                 found = True
@@ -898,6 +912,7 @@ def download_live_filesystems(config):
                 download_live_items(config, arch, "installer.squashfs")
                 download_live_items(config, arch, "maas-rack.squashfs")
                 download_live_items(config, arch, "maas-region.squashfs")
+                download_live_items(config, arch, "modules.squashfs")
                 got_image = True
             elif download_live_items(config, arch, "rootfs.tar.gz"):
                 got_image = True
