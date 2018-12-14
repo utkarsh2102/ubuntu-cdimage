@@ -630,31 +630,31 @@ def live_item_paths(config, arch, item):
         liveproject_subarch = liveproject
 
     lp, lp_livefs = get_lp_livefs(config, arch)
+    uris = []
     if lp_livefs is not None:
         lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
         lp_build = lp_livefs.getLatestBuild(
             lp_kwargs["distro_arch_series"],
             unique_key=lp_kwargs.get("unique_key"))
-        lp_urls = list(lp_build.getFileUrls())
-
-        def urls_for(base):
-            for url in lp_urls:
-                if unquote(os.path.basename(url)) == base:
-                    yield url
+        uris = list(lp_build.getFileUrls())
     else:
         root = livecd_base(config, arch)
+        uris = [ os.path.join(root, u) for u in os.listdir(root) ]
 
-        def urls_for(base):
-            yield "%s/%s" % (root, base)
+    def urls_for(base):
+        regexp = re.compile(base)
+        for uri in uris:
+            filename = unquote(os.path.basename(uri))
+            if re.match(regexp, filename):
+                yield uri
 
     if item in (
-        "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
-        "manifest-minimal-remove", "size", "ext2", "ext3", "ext4",
+        "cloop", ".*squashfs$", ".*manifest$", "manifest-desktop", "manifest-remove",
+        "manifest-minimal-remove", ".*size$", "ext2", "ext3", "ext4",
         "rootfs.tar.gz", "custom.tar.gz", "device.tar.gz",
         "azure.device.tar.gz", "raspi2.device.tar.gz", "plano.device.tar.gz",
         "tar.xz", "iso", "os.snap", "kernel.snap", "disk1.img.xz",
-        "dragonboard.kernel.snap", "raspi2.kernel.snap", "installer.squashfs",
-        "maas-rack.squashfs", "maas-region.squashfs",
+        "dragonboard.kernel.snap", "raspi2.kernel.snap",
         "img.xz", "model-assertion"
     ):
         if project == "tocd3":
@@ -674,6 +674,9 @@ def live_item_paths(config, arch, item):
                 yield url
         else:
             for url in urls_for("livecd.%s.%s" % (liveproject_subarch, item)):
+                # filter out redundant artefacts
+                if url.endswith("modules.squashfs"):
+                    continue
                 yield url
     elif item in (
         "kernel", "initrd", "bootimg", "modules.squashfs"
@@ -745,7 +748,7 @@ def download_live_items(config, arch, item):
         original_project = config.project
         try:
             config["PROJECT"] = "ubuntu-server"
-            urls = list(live_item_paths(config, arch, "squashfs"))
+            urls = list(live_item_paths(config, arch, ".*squashfs$"))
         finally:
             config["PROJECT"] = original_project
     else:
@@ -839,14 +842,17 @@ def download_live_items(config, arch, item):
         except osextras.FetchError:
             pass
     else:
-        target = os.path.join(output_dir, "%s.%s" % (arch, item))
-        try:
-            osextras.fetch(config, urls[0], target)
-            if item in ["squashfs", "server-squashfs"]:
-                sign.sign_cdimage(config, target)
-            found = True
-        except osextras.FetchError:
-            pass
+        for url in urls:
+            # strip livecd.<PROJECT> and replace by arch
+            filename = unquote(os.path.basename(url)).split('.', 2)[-1]
+            target = os.path.join(output_dir, "%s.%s" % (arch, filename))
+            try:
+                osextras.fetch(config, url, target)
+                if target.endswith("squashfs"):
+                    sign.sign_cdimage(config, target)
+                found = True
+            except osextras.FetchError:
+                pass
     return found
 
 
@@ -908,10 +914,7 @@ def download_live_filesystems(config):
                 got_image = True
             elif download_live_items(config, arch, "cloop"):
                 got_image = True
-            elif download_live_items(config, arch, "squashfs"):
-                download_live_items(config, arch, "installer.squashfs")
-                download_live_items(config, arch, "maas-rack.squashfs")
-                download_live_items(config, arch, "maas-region.squashfs")
+            elif download_live_items(config, arch, ".*squashfs$"):
                 download_live_items(config, arch, "modules.squashfs")
                 got_image = True
             elif download_live_items(config, arch, "rootfs.tar.gz"):
@@ -930,11 +933,11 @@ def download_live_filesystems(config):
                 if config["CDIMAGE_PREINSTALLED"]:
                     download_live_items(config, arch, "bootimg")
 
-            download_live_items(config, arch, "manifest")
+            download_live_items(config, arch, ".*manifest$")
             if not download_live_items(config, arch, "manifest-remove"):
                 download_live_items(config, arch, "manifest-desktop")
             download_live_items(config, arch, "manifest-minimal-remove")
-            download_live_items(config, arch, "size")
+            download_live_items(config, arch, ".*size$")
 
             if (config["UBUNTU_DEFAULTS_LOCALE"] or
                     config["CDIMAGE_PREINSTALLED"] or
