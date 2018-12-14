@@ -986,34 +986,26 @@ class TestLiveItemPaths(TestCase):
         self.assertEqual([], list(live_item_paths(self.config, arch, item)))
 
     def test_tocd3_fallback(self):
-        for item in ("cloop", "manifest"):
+        for item in ("cloop", ".*manifest$"):
             self.assertPathsEqual(
                 ["/home/cjwatson/tocd3/livecd.tocd3.%s" % item],
                 "i386", item, "tocd3", "hoary")
 
-    def test_ubuntu_breezy_fallback(self):
-        for item in ("cloop", "manifest"):
-            for arch in ("amd64", "i386", "powerpc"):
-                self.assertPathsEqual(
-                    ["/home/cjwatson/breezy-live/ubuntu/livecd.%s.%s" %
-                     (arch, item)],
-                    arch, item, "ubuntu", "breezy")
-
     def test_desktop_items(self):
         for item in (
-            "cloop", "squashfs", "manifest", "manifest-desktop",
-            "manifest-remove", "manifest-minimal-remove", "size", "ext2",
+            "cloop", ".*squashfs$", ".*manifest$", "manifest-desktop",
+            "manifest-remove", "manifest-minimal-remove", ".*size$", "ext2",
             "ext3", "ext4", "rootfs.tar.gz", "custom.tar.gz", "tar.xz", "iso",
             "device.tar.gz", "azure.device.tar.gz", "plano.device.tar.gz",
             "raspi2.device.tar.gz",
         ):
             self.assertPathsEqual(
                 ["http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/"
-                 "current/livecd.kubuntu.%s" % item],
+                 "current/livecd.kubuntu.%s" % item.replace(".*", "").replace("$", "")],
                 "amd64", item, "kubuntu", "precise")
             self.assertPathsEqual(
                 ["http://royal.buildd/~buildd/LiveCD/hardy/ubuntu-ps3/"
-                 "current/livecd.ubuntu-ps3.%s" % item],
+                 "current/livecd.ubuntu-ps3.%s" % item.replace(".*", "").replace("$", "")],
                 "powerpc+ps3", item, "ubuntu", "hardy")
 
     def test_imgxz(self):
@@ -1142,7 +1134,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertFalse(download_live_items(self.config, "i386", "squashfs"))
+        self.assertFalse(download_live_items(self.config, "i386", ".*squashfs$"))
         mock_fetch.assert_called_once_with(
             self.config,
             "http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/current/"
@@ -1311,27 +1303,13 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "i386", "squashfs"))
+        self.assertTrue(download_live_items(self.config, "i386", ".*squashfs$"))
         url = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/"
                "current/livecd.ubuntu.squashfs")
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.squashfs"))
-
-    @mock.patch("cdimage.osextras.fetch")
-    def test_download_live_items_server_squashfs(self, mock_fetch):
-        self.config["PROJECT"] = "edubuntu"
-        self.config["DIST"] = "raring"
-        self.config["IMAGE_TYPE"] = "dvd"
-        self.assertTrue(
-            download_live_items(self.config, "i386", "server-squashfs"))
-        url = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu-server/"
-               "current/livecd.ubuntu-server.squashfs")
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "edubuntu", "raring", "dvd", "live")
-        mock_fetch.assert_called_once_with(
-            self.config, url, os.path.join(target_dir, "i386.server-squashfs"))
 
     @mock.patch("cdimage.osextras.fetch")
     def assert_server_live_download_items(self, series, item, filenames,

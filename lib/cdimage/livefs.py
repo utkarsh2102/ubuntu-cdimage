@@ -631,6 +631,7 @@ def live_item_paths(config, arch, item):
 
     lp, lp_livefs = get_lp_livefs(config, arch)
     uris = []
+    root = ""
     if lp_livefs is not None:
         lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
         lp_build = lp_livefs.getLatestBuild(
@@ -639,14 +640,23 @@ def live_item_paths(config, arch, item):
         uris = list(lp_build.getFileUrls())
     else:
         root = livecd_base(config, arch)
-        uris = [ os.path.join(root, u) for u in os.listdir(root) ]
+        try:
+            uris = [ os.path.join(root, u) for u in os.listdir(root) ]
+        except OSError:
+            # fallback to exact given uri (for http://) in url_for as we can't
+            # list content.
+            pass
 
     def urls_for(base):
-        regexp = re.compile(base)
-        for uri in uris:
-            filename = unquote(os.path.basename(uri))
-            if re.match(regexp, filename):
-                yield uri
+        if uris:
+            regexp = re.compile(base)
+            for uri in uris:
+                filename = unquote(os.path.basename(uri))
+                if re.match(regexp, filename):
+                    yield uri
+        else:
+            # remove regexp expression from base for direct download
+            yield os.path.join(root, base.replace(".*", "").replace("$", ""))
 
     if item in (
         "cloop", ".*squashfs$", ".*manifest$", "manifest-desktop", "manifest-remove",
@@ -660,10 +670,6 @@ def live_item_paths(config, arch, item):
         if project == "tocd3":
             # auto-purged - reverting to plan B
             yield "/home/cjwatson/tocd3/livecd.tocd3.%s" % item
-        elif project == "ubuntu" and series == "breezy":
-            # auto-purged - reverting to plan B
-            yield "/home/cjwatson/breezy-live/ubuntu/livecd.%s.%s" % (
-                arch, item)
         elif item == "ext4" and arch == "armhf+nexus7":
             for url in urls_for(
                     "livecd.%s.%s-nexus7" % (liveproject_subarch, item)):
@@ -728,7 +734,12 @@ def live_item_paths(config, arch, item):
             for url in urls_for("livecd.%s-ltsp.squashfs" % liveproject):
                 yield url
     else:
-        raise UnknownLiveItem("Unknown live filesystem item '%s'" % item)
+        # if fully qualified name given matching regexp, just pass it directly to urls_for()
+        if item.endswith("squashfs") or item.endswith("manifest") or item.endswith("size"):
+            for url in urls_for("livecd.%s.%s" % (liveproject_subarch, item)):
+                yield url
+        else:
+            raise UnknownLiveItem("Unknown live filesystem item '%s'" % item)
 
 
 def live_output_directory(config):
