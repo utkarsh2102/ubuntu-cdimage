@@ -847,7 +847,7 @@ class Publisher:
                 "Choose this if you have a computer based on the AMD64 or "
                 "EM64T architecture (e.g., Athlon64, Opteron, EM64T "
                 "Xeon, Core 2).")
-            if publish_type != "server" or self.config["DIST"] <= "artful":
+            if 'i386' in self.config.arches:
                 sentences.append(
                     "If you have a non-64-bit processor made by AMD, or if "
                     "you need full support for 32-bit code, use the i386 "

@@ -381,6 +381,7 @@ class TestPublisherWebIndices(TestCase):
             "\n".join(map(str, desc)))
 
     def test_archdesc(self):
+        self.config["ARCHES"] = "amd64 i386"
         publisher = Publisher(self.tree, "daily-live")
         self.assertEqual(
             "For almost all PCs.  This includes most machines with "
@@ -394,6 +395,14 @@ class TestPublisherWebIndices(TestCase):
             "architecture (e.g., Athlon64, Opteron, EM64T Xeon, Core 2).  "
             "If you have a non-64-bit processor made by AMD, or if you need "
             "full support for 32-bit code, use the i386 images instead.  "
+            "Choose this if you are at all unsure.",
+            publisher.archdesc("amd64", "desktop"))
+
+        self.config["ARCHES"] = "amd64"
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertEqual(
+            "Choose this if you have a computer based on the AMD64 or EM64T "
+            "architecture (e.g., Athlon64, Opteron, EM64T Xeon, Core 2).  "
             "Choose this if you are at all unsure.",
             publisher.archdesc("amd64", "desktop"))
 
