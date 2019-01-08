@@ -78,6 +78,8 @@ Ubuntu Server arm64							ubuntu-server	daily				server					arm64			iso
 Ubuntu Server armhf+omap					ubuntu-server	daily				server					armhf+omap		iso
 Ubuntu Server armhf+omap4					ubuntu-server	daily				server					armhf+omap4		iso
 Ubuntu Server armhf+raspi2					ubuntu-server	daily-preinstalled		preinstalled-server			armhf+raspi2		iso
+Ubuntu Server armhf+raspi3					ubuntu-server	daily-preinstalled		preinstalled-server			armhf+raspi3		iso
+Ubuntu Server arm64+raspi3					ubuntu-server	daily-preinstalled		preinstalled-server			arm64+raspi3		iso
 Ubuntu Server i386							ubuntu-server	daily				server					i386			iso
 Ubuntu Server powerpc						ubuntu-server	daily				server					powerpc			iso
 Ubuntu Server ppc64el						ubuntu-server	daily				server					ppc64el			iso
