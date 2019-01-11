@@ -117,6 +117,7 @@ class _CachingLiveFS(Resource):
             # completed build for this DAS.
             for build in self.completed_builds:
                 if (build.distro_arch_series == distro_arch_series and
+                        (not unique_key or build.unique_key == unique_key) and
                         build.buildstate == "Successfully built"):
                     self._current_build_cache[archtag][unique_key] = build
                     break
