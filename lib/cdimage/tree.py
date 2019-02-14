@@ -1380,7 +1380,10 @@ class Publisher:
                             path = "%s.%s" % (base, image_format)
                             if os.path.exists(path):
                                 paths.append((path, None, base))
-                        elif image_format == "tar.xz":
+                        elif (image_format == "tar.xz" and
+                              # skip source images explicitly, which are
+                              # always .iso and have bodged arches
+                              publish_type != "src"):
                             for arch in arches:
                                 base = os.path.join(directory, arch)
                                 path = "%s.%s" % (base, image_format)
