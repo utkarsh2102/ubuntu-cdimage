@@ -980,9 +980,9 @@ class Publisher:
                 "drive, or a virtual machine.")
         elif (self.project in usb_projects or
                 (self.project == "xubuntu" and series >= "raring" and
-                 series << "xenial") or
+                 series < "xenial") or
                 (self.project == "ubuntu-gnome" and series >= "saucy" and
-                 series << "xenial")):
+                 series < "xenial")):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 1GB USB stick.")
