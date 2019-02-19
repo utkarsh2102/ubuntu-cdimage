@@ -1059,9 +1059,15 @@ class Publisher:
         full_project = "-".join(full_project_bits)
         series = self.config["DIST"]
 
-        heading = "%s %s (%s)" % (
-            self.config.capproject, series.displayversion(full_project),
-            series.displayname)
+        if self.project == "ubuntu-core":
+            channel = self.config.get("CHANNEL", "edge")
+            heading = "%s %s (%s)" % (
+                self.config.capproject, self.config.core_series, channel)
+        else:
+            heading = "%s %s (%s)" % (
+                self.config.capproject, series.displayversion(full_project),
+                series.displayname)
+
         if "-alpha-" in prefix:
             heading += " Alpha %s" % re.sub(r"^.*-alpha-", "", prefix)
         elif prefix.endswith("-preview"):
