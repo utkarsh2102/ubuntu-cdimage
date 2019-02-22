@@ -25,7 +25,7 @@ DIST="${DIST:-disco}"
 
 case $DIST in
 	xenial)
-		PROPOSED="${PROPOSED:-1}"
+		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
 	bionic)
