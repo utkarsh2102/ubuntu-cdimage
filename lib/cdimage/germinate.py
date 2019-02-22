@@ -89,7 +89,7 @@ class Germination:
             elif project in ("lubuntu", "lubuntu-next"):
                 sources.insert(0, gitpattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
-                sources.insert(0, bzrpattern % "ubuntu-gnome-dev")
+                sources.insert(0, gitpattern % "ubuntu-gnome-dev")
             elif project == "ubuntu-budgie":
                 sources.insert(0, bzrpattern % "ubuntubudgie-dev")
             elif project == "ubuntu-mate":
