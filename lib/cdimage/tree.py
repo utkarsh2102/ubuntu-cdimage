@@ -1886,12 +1886,9 @@ class DailyTreePublisher(Publisher):
             # oversized; executive decision by vorlon to raise the limit
             # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
-        elif self.project == "xubuntu" and self.config["DIST"] >= "bionic":
+        elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
             return 2 * 1000 * 1000 * 1000
-        elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
-            # http://irclogs.ubuntu.com/2016/03/09/%23ubuntu-release.html#t12:11
-            return 1460000000
         elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
             return 1024 * 1024 * 1024
