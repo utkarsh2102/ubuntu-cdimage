@@ -249,8 +249,6 @@ class TestPublisher(TestCase):
         for image_type, project, dist, publish_type in (
             ("daily-preinstalled", "ubuntu-netbook", "precise",
              "preinstalled-netbook"),
-            ("daily-preinstalled", "ubuntu-headless", "precise",
-             "preinstalled-headless"),
             ("daily-preinstalled", "ubuntu-server", "precise",
              "preinstalled-server"),
             ("daily-preinstalled", "ubuntu-server", "xenial",

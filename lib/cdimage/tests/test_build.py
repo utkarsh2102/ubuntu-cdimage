@@ -556,8 +556,7 @@ class TestBuildImageSet(TestCase):
         for project, series, onlyfree, unsupported in (
             ("ubuntu", "raring", False, False),
             ("gobuntu", "hardy", True, False),
-            ("edubuntu", "jaunty", False, False),
-            ("edubuntu", "karmic", False, True),
+            ("edubuntu", "precise", False, True),
             ("xubuntu", "precise", False, True),
             ("kubuntu", "precise", False, False),
             ("kubuntu", "trusty", False, True),

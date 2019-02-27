@@ -482,16 +482,12 @@ def flavours(config, arch):
     elif cpuarch == "arm64":
         return ["generic"]
     elif cpuarch == "armel":
-        if series == "jaunty":
-            # We don't have any fallback flavour on armel.
-            return ["imx51"]
+        if subarch == "mx5":
+            return ["linaro-lt-mx5"]
         else:
-            if subarch == "mx5":
-                return ["linaro-lt-mx5"]
-            else:
-                # Assume one kernel flavour for each subarch named like the
-                # subarch.
-                return [subarch]
+            # Assume one kernel flavour for each subarch named like the
+            # subarch.
+            return [subarch]
     elif cpuarch == "armhf":
         if subarch == "mx5":
             return ["linaro-lt-mx5"]

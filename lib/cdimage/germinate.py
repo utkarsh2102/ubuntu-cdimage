@@ -144,8 +144,6 @@ class Germination:
                 return "ubuntu.%s" % self.config.series
         elif project == "ubuntu-netbook":
             return "netbook.%s" % self.config.series
-        elif project == "ubuntu-headless":
-            return "ubuntu.%s" % self.config.series
         elif project == "ubuntu-moblin-remix":
             return "moblin.%s" % self.config.series
         elif project == "ubuntu-desktop-next":
@@ -493,16 +491,15 @@ class GerminateOutput:
 
     def common_initrd_packages(self, arch):
         initrd_packages_sets = []
-        if self.config["DIST"] >= "jaunty":
-            # Remove installer packages that are in both the cdrom and
-            # netboot initrds; there's no point duplicating these.
-            cpuarch = arch.split("+")[0]
-            initrds = self.installer_initrds(cpuarch)
-            subarches = self.installer_subarches(cpuarch)
-            for initrd in initrds:
-                for subarch in subarches:
-                    initrd_packages_sets.append(self.initrd_packages(
-                        "%s/%s" % (subarch, initrd), cpuarch))
+        # Remove installer packages that are in both the cdrom and
+        # netboot initrds; there's no point duplicating these.
+        cpuarch = arch.split("+")[0]
+        initrds = self.installer_initrds(cpuarch)
+        subarches = self.installer_subarches(cpuarch)
+        for initrd in initrds:
+            for subarch in subarches:
+                initrd_packages_sets.append(self.initrd_packages(
+                    "%s/%s" % (subarch, initrd), cpuarch))
         if initrd_packages_sets:
             return set.intersection(*initrd_packages_sets)
         else:

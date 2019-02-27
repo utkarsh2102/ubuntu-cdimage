@@ -76,7 +76,6 @@ projects = [
     "ubuntu-gnome",
     "ubuntu-budgie",
     "ubuntu-mate",
-    "ubuntu-headless",
     "ubuntu-netbook",
     "ubuntu-server",
     "ubuntukylin",
@@ -378,8 +377,6 @@ class Publisher:
         if self.image_type.endswith("-preinstalled"):
             if self.project == "ubuntu-netbook":
                 return "preinstalled-netbook"
-            elif self.project == "ubuntu-headless":
-                return "preinstalled-headless"
             elif self.project == "ubuntu-server":
                 return "preinstalled-server"
             elif self.project in ("ubuntu-touch", "ubuntu-touch-custom"):
@@ -511,8 +508,6 @@ class Publisher:
             return "UEC image"
         elif publish_type == "preinstalled-desktop":
             return "preinstalled desktop %s" % cd
-        elif publish_type == "preinstalled-headless":
-            return "preinstalled headless %s" % cd
         elif publish_type == "preinstalled-server":
             return "preinstalled server %s" % cd
         elif publish_type == "preinstalled-netbook":
@@ -1109,7 +1104,7 @@ class Publisher:
             "uec", "server-uec",
             "preinstalled-desktop", "preinstalled-netbook",
             "preinstalled-mobile", "preinstalled-active",
-            "preinstalled-headless", "preinstalled-server",
+            "preinstalled-server",
             "preinstalled-touch", "preinstalled-core", "wubi",
             "preinstalled-desktop-next", "live-core",
         )
@@ -2778,7 +2773,7 @@ class ReleaseTreeMixin:
     def tree_suffix(self, source):
         # Publish ports/daily to ports/releases/..., etc.
         ubuntu_projects = (
-            "ubuntu-server", "ubuntu-netbook", "ubuntu-headless")
+            "ubuntu-server", "ubuntu-netbook")
         if "/" in source:
             project, tail = source.split("/", 1)
             if project in ubuntu_projects:

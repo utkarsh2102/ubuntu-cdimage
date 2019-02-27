@@ -80,8 +80,7 @@ def configure_for_project(config):
     if project == "gobuntu":
         config["CDIMAGE_ONLYFREE"] = "1"
     elif project == "edubuntu":
-        if series >= "karmic":
-            config["CDIMAGE_UNSUPPORTED"] = "1"
+        config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project == "xubuntu":
         config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project == "kubuntu":
