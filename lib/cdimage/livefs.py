@@ -140,7 +140,6 @@ def live_build_options(config, arch):
 
 def live_project(config, arch):
     project = config.project
-    series = config["DIST"]
 
     if project == "livecd-base":
         liveproject = "base"
@@ -153,13 +152,9 @@ def live_project(config, arch):
         liveproject = project
 
     cpuarch, subarch = split_arch(arch)
-    if cpuarch == "lpia" and series <= "hardy":
-        liveproject = "%s-lpia" % liveproject
 
     if config["CDIMAGE_DVD"]:
-        if ((project in ("ubuntu", "kubuntu") and series >= "hardy") or
-                (project == "edubuntu" and series >= "karmic") or
-                (project == "ubuntustudio" and series >= "precise")):
+        if project in ("ubuntu", "kubuntu", "edubuntu", "ubuntustudio"):
             liveproject += "-dvd"
 
     return liveproject
@@ -480,15 +475,10 @@ def flavours(config, arch):
     series = config["DIST"]
 
     if cpuarch == "amd64":
-        if series <= "dapper":
-            return ["amd64-generic"]
-        elif series <= "oneiric":
-            return ["generic"]
+        if project == "ubuntustudio":
+            return ["lowlatency"]
         else:
-            if project == "ubuntustudio":
-                return ["lowlatency"]
-            else:
-                return ["generic"]
+            return ["generic"]
     elif cpuarch == "arm64":
         return ["generic"]
     elif cpuarch == "armel":
@@ -510,11 +500,7 @@ def flavours(config, arch):
     elif cpuarch == "hppa":
         return ["hppa32", "hppa64"]
     elif cpuarch == "i386":
-        if series <= "dapper":
-            return ["i386"]
-        elif series <= "oneiric":
-            return ["generic"]
-        elif series <= "precise":
+        if series <= "precise":
             if project in ("ubuntu", "edubuntu", "mythbuntu"):
                 # lts-quantal
                 return ["generic"]
@@ -531,12 +517,7 @@ def flavours(config, arch):
             else:
                 return ["generic"]
     elif cpuarch == "ia64":
-        if series <= "dapper":
-            return ["itanium-smp", "mckinley-smp"]
-        elif series <= "jaunty":
-            return ["itanium", "mckinley"]
-        else:
-            return ["ia64"]
+        return ["ia64"]
     elif cpuarch == "lpia":
         return ["lpia"]
     elif cpuarch == "powerpc":
@@ -641,9 +622,6 @@ def live_item_paths(config, arch, item):
         if (project != "xubuntu" and arch in ("amd64", "i386")):
             yield ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
                    "stable" % series)
-    elif item == "umenu":
-        if arch in ("amd64", "i386") and series == "hardy":
-            yield "http://people.canonical.com/~evand/umenu/stable"
     elif item == "usb-creator":
         if arch in ("amd64", "i386"):
             yield ("http://people.canonical.com/~evand/usb-creator/%s/"
@@ -752,7 +730,7 @@ def download_live_items(config, arch, item):
                 found = True
             except osextras.FetchError:
                 pass
-    elif item in ("wubi", "umenu", "usb-creator"):
+    elif item in ("wubi", "usb-creator"):
         target = os.path.join(output_dir, "%s.%s.exe" % (arch, item))
         try:
             osextras.fetch(config, urls[0], target)
@@ -841,8 +819,7 @@ def download_live_filesystems(config):
                 got_image = True
             else:
                 continue
-            if (series >= "dapper" and
-                    project != "ubuntu-base" and
+            if (project != "ubuntu-base" and
                     not config["CDIMAGE_SQUASHFS_BASE"] and
                     config.subproject != "wubi"):
                 download_live_items(config, arch, "kernel")
@@ -868,17 +845,7 @@ def download_live_filesystems(config):
                      config.subproject == "system-image") and
                     (project != "edubuntu" or series >= "precise") and
                     (project != "ubuntukylin" or series < "utopic")):
-                if series <= "feisty":
-                    pass
-                elif series <= "intrepid":
-                    if config["CDIMAGE_DVD"] != "1":
-                        download_live_items(config, arch, "wubi")
-                    download_live_items(config, arch, "umenu")
-                    umenu_path = os.path.join(
-                        output_dir, "%s.umenu.exe" % arch)
-                    if os.path.exists(umenu_path):
-                        write_autorun(config, arch, "umenu.exe", "Install")
-                elif series <= "vivid":
+                if series <= "trusty":
                     # TODO: We still have to do something about not
                     # including Wubi on the DVDs.
                     download_live_items(config, arch, "wubi")

@@ -836,9 +836,6 @@ class TestDailyTreePublisher(TestCase):
 
     def test_jigdo_ports_powerpc(self):
         publisher = self.make_publisher("ubuntu", "daily")
-        for series in all_series[:5]:
-            publisher.config["DIST"] = series
-            self.assertFalse(publisher.jigdo_ports("powerpc"))
         for series in all_series[5:]:
             publisher.config["DIST"] = series
             self.assertTrue(publisher.jigdo_ports("powerpc"))

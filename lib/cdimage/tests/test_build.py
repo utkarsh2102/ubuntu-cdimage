@@ -560,7 +560,7 @@ class TestBuildImageSet(TestCase):
             ("edubuntu", "karmic", False, True),
             ("xubuntu", "precise", False, True),
             ("kubuntu", "precise", False, False),
-            ("kubuntu", "quantal", False, True),
+            ("kubuntu", "trusty", False, True),
             ("kubuntu-active", "raring", False, True),
             ("kubuntu-plasma5", "utopic", False, True),
             ("ubuntustudio", "raring", False, True),

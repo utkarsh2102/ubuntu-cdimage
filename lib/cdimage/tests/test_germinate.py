@@ -82,18 +82,16 @@ class TestGermination(TestCase):
 
     def test_seed_sources_bzr(self):
         for project, series, owners in (
-            ("kubuntu", "natty", ["ubuntu-core-dev"]),
             ("kubuntu", "oneiric", ["kubuntu-dev"]),
             ("kubuntu-active", "natty", ["ubuntu-core-dev"]),
             ("kubuntu-active", "oneiric", ["kubuntu-dev"]),
             ("kubuntu-plasma5", "utopic", ["kubuntu-dev"]),
             ("mythbuntu", "raring", ["mythbuntu-dev"]),
-            ("xubuntu", "hardy", ["ubuntu-core-dev"]),
             ("ubuntu-budgie", "zesty",
              ["ubuntubudgie-dev"]),
             ("ubuntu-mate", "vivid",
              ["ubuntu-mate-dev"]),
-            ("ubuntu-moblin-remix", "hardy", ["moblin"]),
+            ("ubuntu-moblin-remix", "precise", ["moblin"]),
             ("ubuntukylin", "trusty", ["ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
@@ -193,10 +191,10 @@ class TestGermination(TestCase):
             ("jeos", "precise", "ubuntu.precise"),
             ("ubuntukylin", "raring", "ubuntu.raring"),
             ("ubuntukylin", "utopic", "ubuntukylin.utopic"),
-            ("ubuntu-mid", "hardy", "mobile.hardy"),
+            ("ubuntu-mid", "precise", "mobile.precise"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
             ("ubuntu-headless", "lucid", "ubuntu.lucid"),
-            ("ubuntu-moblin-remix", "hardy", "moblin.hardy"),
+            ("ubuntu-moblin-remix", "precise", "moblin.precise"),
             ("ubuntu-desktop-next", "utopic", "ubuntu-touch.utopic"),
         ):
             self.config["DIST"] = series

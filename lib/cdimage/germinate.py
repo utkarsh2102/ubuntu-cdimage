@@ -309,10 +309,9 @@ class GerminateOutput:
             for seed in seeds:
                 yield seed
             if self.config["CDIMAGE_DVD"]:
-                if series >= "edgy":
-                    # TODO cjwatson 2007-04-18: hideous hack to fix DVD tasks
-                    yield "dns-server"
-                    yield "lamp-server"
+                # TODO cjwatson 2007-04-18: hideous hack to fix DVD tasks
+                yield "dns-server"
+                yield "lamp-server"
         elif mode == "installer":
             if self.config["CDIMAGE_INSTALL_BASE"]:
                 yield "installer"
@@ -338,8 +337,7 @@ class GerminateOutput:
             elif project == "ubuntu-server" and series >= "bionic":
                 yield "server-ship-live"
             else:
-                if series >= "dapper":
-                    yield "ship-live"
+                yield "ship-live"
         elif mode == "addon":
             ship = self._inheritance("ship")
             ship_addon = self._inheritance("ship-addon")
@@ -540,42 +538,24 @@ class GerminateOutput:
         return headers
 
     def seed_task_mapping(self, project, arch):
-        series = self.config["DIST"]
         task_project = self.task_project(project)
         for seed in self.list_seeds("all"):
-            if series <= "dapper":
-                # Tasks implemented by hand.
-                if seed in ("boot", "required", "server-ship"):
-                    continue
-                elif seed == "server" and project != "edubuntu":
-                    continue
-                elif seed == "ship" and series >= "dapper":
-                    continue
-
-                if seed in (
-                    "base", "minimal", "standard", "desktop", "server", "ship",
-                ):
-                    task = "%s-%s" % (task_project, seed)
+            # Tasks implemented via tasksel, with Task-Seeds to indicate
+            # task/seed mapping.
+            task = seed
+            headers = self.task_headers(arch, seed)
+            if not headers:
+                continue
+            input_seeds = [seed] + headers.get("seeds", "").split()
+            if "per-derivative" in headers:
+                # Edubuntu is odd; it's structured as an add-on to
+                # Ubuntu, so sometimes we need to create ubuntu-* tasks.
+                # At the moment I don't see a better approach than
+                # hardcoding the task names.
+                if project == "edubuntu" and task in ("desktop", "live"):
+                    task = "ubuntu-%s" % task
                 else:
-                    task = seed
-                input_seeds = [seed]
-            else:
-                # Tasks implemented via tasksel, with Task-Seeds to indicate
-                # task/seed mapping.
-                task = seed
-                headers = self.task_headers(arch, seed)
-                if not headers:
-                    continue
-                input_seeds = [seed] + headers.get("seeds", "").split()
-                if "per-derivative" in headers:
-                    # Edubuntu is odd; it's structured as an add-on to
-                    # Ubuntu, so sometimes we need to create ubuntu-* tasks.
-                    # At the moment I don't see a better approach than
-                    # hardcoding the task names.
-                    if project == "edubuntu" and task in ("desktop", "live"):
-                        task = "ubuntu-%s" % task
-                    else:
-                        task = "%s-%s" % (task_project, task)
+                    task = "%s-%s" % (task_project, task)
 
             yield input_seeds, task
 

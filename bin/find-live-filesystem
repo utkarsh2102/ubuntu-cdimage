@@ -33,7 +33,7 @@ def main():
     parser = OptionParser(
         "%prog ARCH cloop|squashfs|kernel|kernel-efi-signed|initrd|bootimg|"
         "manifest|manifest-desktop|manifest-remove|manifest-minimal-remove|"
-        "disk1.img.xz|img.xz|size|wubi|umenu|usb-creator|"
+        "disk1.img.xz|img.xz|size|wubi|usb-creator|"
         "ltsp-squashfs|ext2|ext3|ext4|rootfs.tar.gz|custom.tar.gz|"
         "device.tar.gz|tar.xz|iso")
     _, args = parser.parse_args()

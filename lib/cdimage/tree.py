@@ -392,10 +392,7 @@ class Publisher:
                 return "preinstalled-desktop"
         elif self.image_type.endswith("-live"):
             if self.project == "edubuntu":
-                if self.config["DIST"] <= "edgy":
-                    return "live"
-                else:
-                    return "desktop"
+                return "desktop"
             elif self.project == "ubuntu-mid":
                 return "mid"
             elif self.project == "ubuntu-moblin-remix":
@@ -1978,13 +1975,11 @@ class DailyTreePublisher(Publisher):
             return "iso"
 
     def jigdo_ports(self, arch):
-        series = self.config["DIST"]
         cpuarch = arch.split("+")[0]
         if cpuarch == "powerpc":
             # https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/
             #   000098.html
-            if series > "edgy":
-                return True
+            return True
         elif cpuarch == "sparc":
             # https://lists.ubuntu.com/archives/ubuntu-devel-announce/
             #   2008-March/000400.html

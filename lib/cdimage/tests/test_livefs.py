@@ -177,39 +177,26 @@ class TestLiveProject(TestCase):
         self.assertProjectEqual("ubuntu-touch", "ubuntu-touch-custom", "vivid")
 
     def test_ubuntu_dvd(self):
-        for series in all_series[:7]:
-            self.assertProjectEqual(
-                "ubuntu", "ubuntu", series, cdimage_dvd="1")
         for series in all_series[7:]:
             self.assertProjectEqual(
                 "ubuntu-dvd", "ubuntu", series, cdimage_dvd="1")
 
     def test_kubuntu_dvd(self):
-        for series in all_series[:7]:
-            self.assertProjectEqual(
-                "kubuntu", "kubuntu", series, cdimage_dvd="1")
         for series in all_series[7:]:
             self.assertProjectEqual(
                 "kubuntu-dvd", "kubuntu", series, cdimage_dvd="1")
 
     def test_edubuntu_dvd(self):
-        for series in all_series[:10]:
-            self.assertProjectEqual(
-                "edubuntu", "edubuntu", series, cdimage_dvd="1")
         for series in all_series[10:]:
             self.assertProjectEqual(
                 "edubuntu-dvd", "edubuntu", series, cdimage_dvd="1")
 
     def test_ubuntustudio_dvd(self):
-        for series in all_series[:15]:
-            self.assertProjectEqual(
-                "ubuntustudio", "ubuntustudio", series, cdimage_dvd="1")
         for series in all_series[15:]:
             self.assertProjectEqual(
                 "ubuntustudio-dvd", "ubuntustudio", series, cdimage_dvd="1")
 
     def test_lpia(self):
-        self.assertProjectEqual("ubuntu-lpia", "ubuntu", "hardy", arch="lpia")
         self.assertProjectEqual("ubuntu", "ubuntu", "intrepid", arch="lpia")
 
 
@@ -879,9 +866,6 @@ class TestFlavours(TestCase):
         self.assertEqual(expected.split(), flavours(config, arch))
 
     def test_amd64(self):
-        for series in all_series[:4]:
-            self.assertFlavoursEqual(
-                "amd64-generic", "amd64", "ubuntu", series)
         for series in all_series[4:]:
             self.assertFlavoursEqual(
                 "generic", "amd64", "ubuntu", series)
@@ -908,11 +892,8 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual("hppa32 hppa64", "hppa", "ubuntu", series)
 
     def test_i386(self):
-        for series in all_series[:4]:
-            self.assertFlavoursEqual("i386", "i386", "ubuntu", series)
-        for series in all_series[4:15] + all_series[17:]:
+        for series in all_series[4:]:
             self.assertFlavoursEqual("generic", "i386", "ubuntu", series)
-        self.assertFlavoursEqual("generic", "i386", "ubuntu", "precise")
         for series in all_series[4:]:
             self.assertFlavoursEqual("generic", "i386", "xubuntu", series)
             self.assertFlavoursEqual("generic", "i386", "lubuntu", series)
@@ -923,12 +904,6 @@ class TestFlavours(TestCase):
                 "lowlatency", "i386", "ubuntustudio", series)
 
     def test_ia64(self):
-        for series in all_series[:4]:
-            self.assertFlavoursEqual(
-                "itanium-smp mckinley-smp", "ia64", "ubuntu", series)
-        for series in all_series[4:10]:
-            self.assertFlavoursEqual(
-                "itanium mckinley", "ia64", "ubuntu", series)
         for series in all_series[10:]:
             self.assertFlavoursEqual("ia64", "ia64", "ubuntu", series)
 
@@ -1043,15 +1018,6 @@ class TestLiveItemPaths(TestCase):
         self.assertNoPaths("i386", "wubi", "xubuntu", "precise")
         self.assertNoPaths("powerpc", "wubi", "ubuntu", "precise")
 
-    def test_umenu(self):
-        for series in all_series[:7] + all_series[8:]:
-            self.assertNoPaths("amd64", "umenu", "ubuntu", series)
-            self.assertNoPaths("i386", "umenu", "ubuntu", series)
-        path = "http://people.canonical.com/~evand/umenu/stable"
-        self.assertPathsEqual([path], "amd64", "umenu", "ubuntu", "hardy")
-        self.assertPathsEqual([path], "i386", "umenu", "ubuntu", "hardy")
-        self.assertNoPaths("powerpc", "umenu", "ubuntu", "hardy")
-
     def test_usb_creator(self):
         for series in all_series:
             path = ("http://people.canonical.com/~evand/usb-creator/%s/"
@@ -1098,7 +1064,8 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertFalse(download_live_items(self.config, "powerpc", "umenu"))
+        self.assertFalse(download_live_items(self.config, "powerpc",
+                         "usb-creator"))
         self.assertEqual(0, mock_fetch.call_count)
 
     @mock.patch("cdimage.osextras.fetch", side_effect=osextras.FetchError)
@@ -1231,18 +1198,6 @@ class TestDownloadLiveFilesystems(TestCase):
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.wubi.exe"))
-
-    @mock.patch("cdimage.osextras.fetch")
-    def test_download_live_items_umenu(self, mock_fetch):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "hardy"
-        self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "i386", "umenu"))
-        url = "http://people.canonical.com/~evand/umenu/stable"
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "hardy", "daily-live", "live")
-        mock_fetch.assert_called_once_with(
-            self.config, url, os.path.join(target_dir, "i386.umenu.exe"))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_usb_creator(self, mock_fetch):

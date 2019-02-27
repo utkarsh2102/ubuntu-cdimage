@@ -83,10 +83,9 @@ def configure_for_project(config):
         if series >= "karmic":
             config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project == "xubuntu":
-        if series >= "hardy":
-            config["CDIMAGE_UNSUPPORTED"] = "1"
+        config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project == "kubuntu":
-        if series >= "quantal":
+        if series >= "trusty":
             config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project in (
         "kubuntu-active",
