@@ -469,8 +469,8 @@ class TestExtractDebootstrap(TestCase):
 
     def test_debootstrap_script(self):
         for series, script in (
-            ("gutsy", "usr/lib/debootstrap/scripts/gutsy"),
-            ("hardy", "usr/share/debootstrap/scripts/hardy"),
+            ("precise", "usr/share/debootstrap/scripts/precise"),
+            ("bionic", "usr/share/debootstrap/scripts/bionic"),
         ):
             self.config["DIST"] = series
             self.assertEqual(script, _debootstrap_script(self.config))
@@ -558,8 +558,7 @@ class TestBuildImageSet(TestCase):
             ("gobuntu", "hardy", True, False),
             ("edubuntu", "jaunty", False, False),
             ("edubuntu", "karmic", False, True),
-            ("xubuntu", "gutsy", False, False),
-            ("xubuntu", "hardy", False, True),
+            ("xubuntu", "precise", False, True),
             ("kubuntu", "precise", False, False),
             ("kubuntu", "quantal", False, True),
             ("kubuntu-active", "raring", False, True),

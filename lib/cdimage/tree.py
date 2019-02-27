@@ -415,26 +415,15 @@ class Publisher:
             return "dvd"
         else:
             if self.project == "edubuntu":
-                if self.config["DIST"] <= "edgy":
-                    return "install"
-                elif self.config["DIST"] <= "gutsy":
-                    return "server"
-                else:
-                    return "addon"
+                return "addon"
             elif self.project == "ubuntu-server":
-                if self.config["DIST"] <= "breezy":
-                    return "install"
-                else:
-                    return "server"
+                return "server"
             elif self.project == "jeos":
                 return "jeos"
             elif self.project == "ubuntu-base":
                 return "base"
             else:
-                if self.config["DIST"] <= "breezy":
-                    return "install"
-                else:
-                    return "alternate"
+                return "alternate"
 
     # Keep this in sync with publish_type above.
     @staticmethod
@@ -485,11 +474,10 @@ class Publisher:
     def cdtypestr(self, publish_type, image_format):
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
-        elif self.config["DIST"] < "quantal":
+        elif self.config["DIST"] < "trusty":
             if image_format in ("img", "img.gz"):
                 cd = "image"
             elif self.project == "ubuntustudio":
-                # Ubuntu Studio is expected to be oversized in Gutsy; sigh.
                 cd = "DVD"
             else:
                 cd = "CD"
@@ -565,15 +553,7 @@ class Publisher:
             else:
                 desktop_ram = 192
         else:
-            if series <= "feisty":
-                desktop_ram = 256
-            elif series <= "gutsy":
-                desktop_ram = 320
-            elif series <= "hardy":
-                desktop_ram = 384
-            elif series <= "maverick":
-                desktop_ram = 256
-            elif series <= "artful":
+            if series <= "xenial":
                 desktop_ram = 384
             else:
                 desktop_ram = 1024
@@ -584,7 +564,6 @@ class Publisher:
             if image_format in ("img", "img.gz"):
                 cd = "image"
             elif self.project == "ubuntustudio":
-                # Ubuntu Studio is expected to be oversized in Gutsy; sigh.
                 cd = "dvd"
             else:
                 cd = "cd"
@@ -922,7 +901,7 @@ class Publisher:
                 "machines.")
         elif arch == "powerpc+ps3":
             sentences.append("For Sony PlayStation 3 systems.")
-            if publish_type == "desktop" and self.config["DIST"] >= "gutsy":
+            if publish_type == "desktop":
                 capproject = self.config.capproject
                 sentences.append(
                     "(This defaults to installing %s permanently, since there "
@@ -2012,8 +1991,7 @@ class DailyTreePublisher(Publisher):
         elif cpuarch == "sparc":
             # https://lists.ubuntu.com/archives/ubuntu-devel-announce/
             #   2008-March/000400.html
-            if series < "dapper" or series > "gutsy":
-                return True
+            return True
         elif cpuarch in (
                 "arm64", "armel", "armhf", "hppa", "ia64", "lpia", "ppc64el",
                 "s390x"):

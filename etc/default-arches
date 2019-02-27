@@ -3,69 +3,44 @@
 
 *			source			*			i386
 
-ubuntu-touch		daily-preinstalled	saucy			armhf
-ubuntu-touch		daily-preinstalled	trusty-wily			armhf i386
+ubuntu-touch		daily-preinstalled	trusty			armhf i386
 ubuntu-touch		daily-preinstalled	xenial-			armhf i386 arm64
-ubuntu-touch		daily-preinstalled	ubuntu-rtm/*		armhf i386
 
 ubuntu-touch-custom	daily-preinstalled	trusty-			armhf i386
 
-ubuntu			daily-preinstalled	oneiric			armel+ac100 armel+mx5 armel+omap armel+omap4
-ubuntu			daily-preinstalled	raring			armhf+nexus7
-lubuntu			daily-preinstalled	quantal-saucy		armhf+ac100
+edubuntu		dvd			trusty-		amd64 i386
+edubuntu-dvd		dvd			trusty-		amd64 i386
 
-*			daily-preinstalled	maverick-oneiric	armel+omap armel+omap4
-ubuntu-server		daily-preinstalled	quantal			armhf+omap4
-
-edubuntu		dvd			quantal-		amd64 i386
-edubuntu-dvd		dvd			quantal-		amd64 i386
-
-ubuntu-base		daily			oneiric			amd64 armel i386
 ubuntu-base		daily			precise			amd64 armhf i386
-ubuntu-base		daily			quantal-raring		amd64 armhf i386 powerpc
-ubuntu-base		daily			saucy			amd64 arm64 armhf i386 powerpc
-ubuntu-base		daily			trusty-wily		amd64 arm64 armhf i386 powerpc ppc64el
-ubuntu-base		daily			xenial-yakkety		amd64 arm64 armhf i386 powerpc ppc64el s390x
-ubuntu-base		daily			zesty-			amd64 arm64 armhf i386 ppc64el s390x
-ubuntu-core-system-image	daily-preinstalled	utopic		amd64 armhf i386
-ubuntu-core-system-image	daily-preinstalled	vivid-wily	amd64 arm64 armhf i386
+ubuntu-base		daily			trusty			amd64 arm64 armhf i386 powerpc ppc64el
+ubuntu-base		daily			xenial			amd64 arm64 armhf i386 powerpc ppc64el s390x
+ubuntu-base		daily			bionic-			amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-core-system-image	daily-preinstalled	xenial-		amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-core		daily-live		xenial-cosmic		amd64 arm64+snapdragon armhf+cm3 armhf+raspi2 armhf+raspi3 i386
 ubuntu-core		daily-live		disco-			amd64 arm64+snapdragon armhf+cm3 armhf+raspi2 armhf+raspi3 arm64+raspi3 i386
 
 jeos			*			*			i386
 
-kubuntu			daily-live		feisty-intrepid		amd64 i386 ia64 powerpc
-kubuntu			daily-live		jaunty			amd64 armel i386 ia64 powerpc
-kubuntu			daily-live		karmic			amd64 armel+dove armel+imx51 i386 ia64 powerpc
-kubuntu			daily-live		lucid			amd64 i386 ia64 powerpc
 kubuntu			daily-live		precise			amd64 i386
 kubuntu			daily-live		trusty			amd64 amd64+mac i386
-kubuntu			daily-live		utopic-bionic		amd64 i386
+kubuntu			daily-live		xenial-bionic		amd64 i386
 kubuntu			daily-live		cosmic-			amd64
 
 kubuntu-active		*			*			i386
 
-kubuntu-plasma5		daily-live		utopic-			amd64 i386
+kubuntu-plasma5		daily-live		xenial-			amd64 i386
 
-mythbuntu		*			warty-edgy		amd64 i386 powerpc
 mythbuntu		*			*			amd64 i386
 
-ubuntu			daily			karmic			amd64 armel+dove armel+imx51 i386 ia64 lpia powerpc powerpc+ps3 sparc
 ubuntu			daily			precise			amd64 amd64+mac i386
 
-ubuntu			daily-live		feisty-intrepid		amd64 i386 ia64 powerpc powerpc+ps3
-ubuntu			daily-live		jaunty			amd64 armel i386 ia64 powerpc powerpc+ps3
-ubuntu			daily-live		karmic			amd64 armel+dove armel+imx51 i386 ia64 powerpc powerpc+ps3
-ubuntu			daily-live		lucid			amd64 i386 ia64 powerpc powerpc+ps3
 ubuntu			daily-live		precise			amd64 amd64+mac i386
-ubuntu			daily-live		quantal			amd64 amd64+mac armhf+omap4 i386 powerpc
-ubuntu			daily-live		raring-trusty		amd64 amd64+mac i386
-ubuntu			daily-live		utopic-zesty		amd64 i386
-ubuntu			daily-live		artful-			amd64
+ubuntu			daily-live		trusty			amd64 amd64+mac i386
+ubuntu			daily-live		xenial			amd64 i386
+ubuntu			daily-live		bionic-			amd64
 
-ubuntu-desktop-next	*			-vivid			amd64 i386 armhf
-ubuntu-desktop-next-system-image	daily-preinstalled			wily-			amd64 i386 armhf
+ubuntu-desktop-next	*			-trusty			amd64 i386 armhf
+ubuntu-desktop-next-system-image	daily-preinstalled			xenial-			amd64 i386 armhf
 
 ubuntu-gnome		*			*			amd64 i386
 
@@ -79,61 +54,31 @@ ubuntu-mid		*			*			lpia
 
 ubuntu-moblin-remix	*			*			i386
 
-ubuntu-netbook		daily-live		lucid			armel+imx51 armel+dove armel+omap i386
-ubuntu-netbook		daily-live		maverick		armel+dove i386
-
-ubuntu-server		daily-preinstalled	xenial-artful		armhf+raspi2
+ubuntu-server		daily-preinstalled	xenial			armhf+raspi2
 ubuntu-server		daily-preinstalled	bionic-			armhf+raspi2 armhf+raspi3 arm64+raspi3
-ubuntu-server		*			intrepid		amd64 hppa i386 ia64 powerpc powerpc+ps3 sparc
-ubuntu-server		*			jaunty			amd64 armel hppa i386 ia64 powerpc powerpc+ps3 sparc
-ubuntu-server		*			karmic-lucid		amd64 armel+dove armel+imx51 armel+omap i386 ia64 powerpc powerpc+ps3 sparc
-ubuntu-server		*			maverick		amd64 amd64+mac armel+dove armel+omap armel+omap4 i386 powerpc powerpc+ps3
-ubuntu-server		*			natty-oneiric		amd64 amd64+mac armel+dove armel+omap armel+omap4 i386 powerpc
 ubuntu-server		*			precise			amd64 i386
-ubuntu-server		*			quantal-saucy		amd64 amd64+mac armhf+omap armhf+omap4 i386 powerpc
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
-ubuntu-server		*			utopic-wily		amd64 i386 powerpc ppc64el
-ubuntu-server		*			xenial-yakkety		amd64 arm64 i386 powerpc ppc64el s390x
-ubuntu-server		*			zesty-artful		amd64 arm64 i386 ppc64el s390x
+ubuntu-server		*			xenial			amd64 arm64 i386 powerpc ppc64el s390x
 ubuntu-server		*			bionic-			amd64 arm64 ppc64el s390x
 
-ubuntu-server-live	*			artful-cosmic		amd64 arm64 ppc64el
+ubuntu-server-live	*			bionic-cosmic		amd64 arm64 ppc64el
 ubuntu-server-live	*			disco-			amd64 arm64 ppc64el s390x
 
 ubuntu-wubi		*			*			amd64 i386
 
-ubuntu-zh_CN		*			maverick-natty		i386
-ubuntu-zh_CN		*			oneiric-		amd64 i386
+ubuntu-zh_CN		*			precise-		amd64 i386
 ubuntukylin		*			-bionic			amd64 i386
 ubuntukylin		*			cosmic-			amd64
 
-ubuntustudio		*			warty-edgy		amd64 i386 powerpc
-ubuntustudio		*			feisty-bionic		amd64 i386
+ubuntustudio		*			precise-bionic		amd64 i386
 ubuntustudio		*			cosmic-			amd64
 
-xubuntu			daily-live		jaunty			armel powerpc powerpc+ps3
-xubuntu			daily-live		karmic			armel+dove armel+imx51 powerpc powerpc+ps3
-
-xubuntu			*			feisty-maverick		amd64 i386 powerpc powerpc+ps3
-xubuntu			*			natty-cosmic		amd64 i386
+xubuntu			*			precise-cosmic		amd64 i386
 xubuntu			*			disco-			amd64
 
-*			daily-live		gutsy-intrepid		amd64 i386 ia64 powerpc powerpc+ps3 sparc
-*			daily-live		jaunty			amd64 armel i386 ia64 powerpc powerpc+ps3 sparc
-*			daily-live		karmic			amd64 i386 ia64 powerpc powerpc+ps3 sparc
-
-*			dvd			warty-edgy		amd64 i386 powerpc
-*			dvd			feisty-cosmic		amd64 i386
+*			dvd			precise-cosmic		amd64 i386
 *			dvd			*			amd64
 
-*			*			warty-dapper		amd64 hppa i386 ia64 powerpc sparc
-*			*			edgy			amd64 i386 ia64 powerpc sparc
-*			*			feisty			amd64 i386 ia64 powerpc powerpc+ps3 sparc
-*			*			gutsy-hardy		amd64 hppa i386 ia64 powerpc powerpc+ps3 sparc
-*			*			intrepid-jaunty		amd64 hppa i386 ia64 lpia powerpc powerpc+ps3 sparc
-*			*			karmic			amd64 i386 ia64 lpia powerpc powerpc+ps3 sparc
-*			*			lucid			amd64 i386 ia64 powerpc powerpc+ps3 sparc
-*			*			maverick		amd64 amd64+mac i386 powerpc powerpc+ps3
-*			*			natty-trusty		amd64 amd64+mac i386 powerpc
-*			*			utopic-cosmic		amd64 i386
+*			*			precise-trusty		amd64 amd64+mac i386 powerpc
+*			*			xenial-cosmic		amd64 i386
 *			*			*			amd64

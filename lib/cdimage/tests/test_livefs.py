@@ -861,8 +861,8 @@ class TestLiveCDBase(TestCase):
 
     def test_subarch(self):
         self.assertBaseEqual(
-            self.base("royal.buildd", "ubuntu-ps3", "gutsy"),
-            "powerpc+ps3", "ubuntu", "gutsy")
+            self.base("royal.buildd", "ubuntu-ps3", "precise"),
+            "powerpc+ps3", "ubuntu", "precise")
         self.assertBaseEqual(
             self.base("celbalrai.buildd", "ubuntu-server-omap", "oneiric"),
             "armel+omap", "ubuntu-server", "oneiric")
@@ -940,19 +940,14 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual("lpia", "lpia", "ubuntu", series)
 
     def test_powerpc(self):
-        for series in all_series[:15]:
-            self.assertFlavoursEqual(
-                "powerpc powerpc64-smp", "powerpc", "ubuntu", series)
         for series in all_series[15:24]:
             self.assertFlavoursEqual(
                 "powerpc-smp powerpc64-smp", "powerpc", "ubuntu", series)
         for series in all_series[24:]:
             self.assertFlavoursEqual(
                 "powerpc-smp generic", "powerpc", "ubuntu", series)
-        self.assertFlavoursEqual("cell", "powerpc+ps3", "ubuntu", "gutsy")
-        for series in all_series[7:15]:
-            self.assertFlavoursEqual(
-                "powerpc powerpc64-smp", "powerpc+ps3", "ubuntu", "hardy")
+        self.assertFlavoursEqual(
+            "powerpc-smp powerpc64-smp", "powerpc+ps3", "ubuntu", "precise")
 
     def test_ppc64el(self):
         for series in all_series:
@@ -1035,14 +1030,14 @@ class TestLiveItemPaths(TestCase):
                 ["%s/livecd.kubuntu.%s-generic" % (root, item),
                  "%s/livecd.kubuntu.%s-generic-hwe" % (root, item)],
                 "amd64", item, "kubuntu", "precise")
-            root = ("http://royal.buildd/~buildd/LiveCD/hardy/ubuntu-ps3/"
+            root = ("http://royal.buildd/~buildd/LiveCD/precise/ubuntu-ps3/"
                     "current")
             self.assertPathsEqual(
-                ["%s/livecd.ubuntu-ps3.%s-powerpc" % (root, item),
+                ["%s/livecd.ubuntu-ps3.%s-powerpc-smp" % (root, item),
                  "%s/livecd.ubuntu-ps3.%s-powerpc64-smp" % (root, item),
-                 "%s/livecd.ubuntu-ps3.%s-powerpc-hwe" % (root, item),
+                 "%s/livecd.ubuntu-ps3.%s-powerpc-smp-hwe" % (root, item),
                  "%s/livecd.ubuntu-ps3.%s-powerpc64-smp-hwe" % (root, item)],
-                "powerpc+ps3", item, "ubuntu", "hardy")
+                "powerpc+ps3", item, "ubuntu", "precise")
 
     def test_kernel_efi_signed(self):
         self.assertNoPaths("i386", "kernel-efi-signed", "ubuntu", "quantal")
@@ -1061,16 +1056,9 @@ class TestLiveItemPaths(TestCase):
     def test_winfoss(self):
         self.assertNoPaths("i386", "winfoss", "ubuntu", "warty")
         self.assertNoPaths("powerpc", "winfoss", "ubuntu", "hardy")
-        self.assertPathsEqual(
-            ["http://people.canonical.com/~henrik/winfoss/gutsy/"
-             "ubuntu/current/ubuntu-winfoss-7.10.tar.gz"],
-            "i386", "winfoss", "ubuntu", "karmic")
         self.assertNoPaths("i386", "winfoss", "ubuntu", "precise")
 
     def test_wubi(self):
-        for series in all_series[:6]:
-            self.assertNoPaths("amd64", "wubi", "ubuntu", series)
-            self.assertNoPaths("i386", "wubi", "ubuntu", series)
         for series in all_series[6:]:
             path = ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
                     "stable" % series)
@@ -1295,14 +1283,14 @@ class TestDownloadLiveFilesystems(TestCase):
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_winfoss(self, mock_fetch):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "gutsy"
+        self.config["PROJECT"] = "tocd3"
+        self.config["DIST"] = "precise"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(download_live_items(self.config, "i386", "winfoss"))
-        url = ("http://people.canonical.com/~henrik/winfoss/gutsy/ubuntu/"
-               "current/ubuntu-winfoss-7.10.tar.gz")
+        url = ("http://maitri.ubuntu.com/theopencd/tocd3/fsm/TOCD3.tgz")
         target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "gutsy", "daily-live", "live")
+            self.temp_dir, "scratch", "tocd3", "precise", "daily-live",
+            "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.winfoss.tgz"))
 

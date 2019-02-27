@@ -257,34 +257,27 @@ class TestPublisher(TestCase):
              "preinstalled-server"),
             ("daily-preinstalled", "ubuntu", "precise",
              "preinstalled-desktop"),
-            ("daily-preinstalled", "ubuntu-touch", "saucy",
+            ("daily-preinstalled", "ubuntu-touch", "trusty",
              "preinstalled-touch"),
-            ("daily-preinstalled", "ubuntu-touch-custom", "vivid",
+            ("daily-preinstalled", "ubuntu-touch-custom", "xenial",
              "preinstalled-touch"),
-            ("daily-live", "edubuntu", "edgy", "live"),
-            ("daily-live", "edubuntu", "feisty", "desktop"),
-            ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
-            ("daily-live", "kubuntu-plasma5", "utopic", "desktop"),
-            ("daily-live", "ubuntu-mid", "lucid", "mid"),
-            ("daily-live", "ubuntu-moblin-remix", "lucid", "moblin-remix"),
-            ("daily-live", "ubuntu-netbook", "hardy", "netbook"),
-            ("daily-live", "ubuntu-server", "hardy", "live-server"),
-            ("daily-live", "ubuntu", "breezy", "live"),
-            ("daily-live", "ubuntu", "dapper", "desktop"),
-            ("daily-live", "ubuntu-zh_CN", "raring", "desktop"),
+            ("daily-live", "edubuntu", "precise", "desktop"),
+            ("daily-live", "kubuntu-netbook", "precise", "netbook"),
+            ("daily-live", "kubuntu-plasma5", "xenial", "desktop"),
+            ("daily-live", "ubuntu-mid", "precise", "mid"),
+            ("daily-live", "ubuntu-moblin-remix", "precise", "moblin-remix"),
+            ("daily-live", "ubuntu-netbook", "precise", "netbook"),
+            ("daily-live", "ubuntu-server", "precise", "live-server"),
+            ("daily-live", "ubuntu", "precise", "desktop"),
+            ("daily-live", "ubuntu-zh_CN", "trusty", "desktop"),
             ("daily-live", "ubuntu-core", "xenial", "live-core"),
-            ("ports_dvd", "ubuntu", "hardy", "dvd"),
-            ("dvd", "kubuntu", "hardy", "dvd"),
-            ("daily", "edubuntu", "edgy", "install"),
-            ("daily", "edubuntu", "feisty", "server"),
-            ("daily", "edubuntu", "gutsy", "server"),
-            ("daily", "edubuntu", "hardy", "addon"),
-            ("daily", "jeos", "hardy", "jeos"),
+            ("ports_dvd", "ubuntu", "precise", "dvd"),
+            ("dvd", "kubuntu", "precise", "dvd"),
+            ("daily", "edubuntu", "precise", "addon"),
+            ("daily", "jeos", "precise", "jeos"),
             ("daily", "ubuntu-base", "precise", "base"),
-            ("daily", "ubuntu-server", "breezy", "install"),
-            ("daily", "ubuntu-server", "dapper", "server"),
-            ("daily", "ubuntu", "breezy", "install"),
-            ("daily", "ubuntu", "dapper", "alternate"),
+            ("daily", "ubuntu-server", "precise", "server"),
+            ("daily", "ubuntu", "precise", "alternate"),
         ):
             self.config["PROJECT"] = project
             self.config["DIST"] = dist
@@ -330,7 +323,7 @@ class TestPublisherWebIndices(TestCase):
             self.assertEqual(expected, publisher.cssincludes())
 
     def test_cdtypestr(self):
-        self.config["DIST"] = "quantal"
+        self.config["DIST"] = "trusty"
         publisher = Publisher(self.tree, "daily-live")
         self.assertEqual(
             "desktop image", publisher.cdtypestr("desktop", "iso"))
@@ -496,21 +489,21 @@ class TestPublisherWebIndices(TestCase):
         # upgrading to XHTML so that we can use an XML parser.
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         for name in (
             "MD5SUMS",
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.iso.zsync",
-            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.iso.zsync",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ):
             touch(os.path.join(self.directory, name))
         publisher = Publisher(self.tree, "daily-live")
-        publisher.make_web_indices(self.directory, "raring", status="daily")
+        publisher.make_web_indices(self.directory, "trusty", status="daily")
 
         self.assertCountEqual([
             "HEADER.html", "FOOTER.html", ".htaccess",
             "MD5SUMS",
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.iso.zsync",
-            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.iso.zsync",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ], os.listdir(self.directory))
 
         header_path = os.path.join(self.directory, "HEADER.html")
@@ -533,13 +526,13 @@ class TestPublisherWebIndices(TestCase):
             self.assertEqual(
                 "AddDescription \"Desktop image for 64-bit PC (AMD64) "
                 "computers (<a href=\\\"http://zsync.moria.org.uk/\\\">"
-                "zsync</a> metafile)\" raring-desktop-amd64.iso.zsync\n"
+                "zsync</a> metafile)\" trusty-desktop-amd64.iso.zsync\n"
                 "AddDescription \"Desktop image for 64-bit PC (AMD64) "
-                "computers (standard download)\" raring-desktop-amd64.iso\n"
+                "computers (standard download)\" trusty-desktop-amd64.iso\n"
                 "AddDescription \"Desktop image for 32-bit PC (i386) "
-                "computers (standard download)\" raring-desktop-i386.iso\n"
+                "computers (standard download)\" trusty-desktop-i386.iso\n"
                 "AddDescription \"Desktop image for 32-bit PC (i386) "
-                "computers (file listing)\" raring-desktop-i386.list\n"
+                "computers (file listing)\" trusty-desktop-i386.list\n"
                 "\n"
                 "HeaderName HEADER.html\n"
                 "ReadmeName FOOTER.html\n"
@@ -852,12 +845,9 @@ class TestDailyTreePublisher(TestCase):
 
     def test_jigdo_ports_sparc(self):
         publisher = self.make_publisher("ubuntu", "daily")
-        for series in all_series[:3] + all_series[7:]:
+        for series in all_series[7:]:
             publisher.config["DIST"] = series
             self.assertTrue(publisher.jigdo_ports("sparc"))
-        for series in all_series[3:7]:
-            publisher.config["DIST"] = series
-            self.assertFalse(publisher.jigdo_ports("sparc"))
 
     def test_jigdo_ports(self):
         publisher = self.make_publisher("ubuntu", "daily")

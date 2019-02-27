@@ -389,29 +389,22 @@ class GerminateOutput:
                 if seed not in ship:
                     yield seed
         elif mode == "dvd":
-            if series <= "gutsy":
-                for seed in self._inheritance("supported"):
-                    yield seed
-            elif series <= "karmic":
+            if project == "edubuntu":
+                # no inheritance; most of this goes on the live filesystem
+                yield "dvd"
+                yield "ship-live"
+            elif project == "ubuntu":
+                # no inheritance; most of this goes on the live filesystem
+                yield "usb-langsupport"
+                yield "usb-ship-live"
+            elif project == "ubuntustudio":
+                # no inheritance; most of this goes on the live filesystem
+                yield "dvd"
+                if series >= "bionic":
+                    yield "ship-live"
+            else:
                 for seed in self._inheritance("dvd"):
                     yield seed
-            else:
-                if project == "edubuntu":
-                    # no inheritance; most of this goes on the live filesystem
-                    yield "dvd"
-                    yield "ship-live"
-                elif project == "ubuntu" and series >= "oneiric":
-                    # no inheritance; most of this goes on the live filesystem
-                    yield "usb-langsupport"
-                    yield "usb-ship-live"
-                elif project == "ubuntustudio" and series >= "precise":
-                    # no inheritance; most of this goes on the live filesystem
-                    yield "dvd"
-                    if series >= "artful":
-                        yield "ship-live"
-                else:
-                    for seed in self._inheritance("dvd"):
-                        yield seed
 
     def seed_path(self, arch, seed):
         return os.path.join(self.directory, arch, seed)
@@ -491,24 +484,6 @@ class GerminateOutput:
             if self.config["CDIMAGE_SQUASHFS_BASE"]:
                 if package == "bootstrap-base":
                     package = "live-installer"
-
-            # germinate doesn't yet support subarchitecture specifications
-            # (and it's not entirely clear what they would mean if it did),
-            # so we need to hack the boot and installer seeds a bit for
-            # powerpc+ps3 (only gutsy).
-            if self.config.series == "gutsy" and arch == "powerpc+ps3":
-                if seed in installer_seeds:
-                    if "-powerpc-di" in package:
-                        continue
-                    package = package.replace("-powerpc64-smp-di", "-cell-di")
-                if seed == "boot":
-                    if package.startswith("linux-restricted-modules"):
-                        continue
-                    if package.startswith("linux-ubuntu-modules"):
-                        continue
-                    if package.endswith("-powerpc"):
-                        continue
-                    package = package.replace("-powerpc64-smp", "-cell")
 
             # For precise, some flavours use a different kernel on i386.
             # germinate doesn't currently support this without duplicating
@@ -625,19 +600,6 @@ class GerminateOutput:
                     task = "%s-%s" % (task_project, seed)
                 else:
                     task = seed
-                input_seeds = [seed]
-            elif series <= "gutsy":
-                # Tasks implemented via tasksel, but without Task-Seeds;
-                # hacks required for seed/task mapping.
-                if seed == "required":
-                    task = "minimal"
-                else:
-                    task = seed
-                headers = self.task_headers(arch, seed)
-                if not headers:
-                    continue
-                if "per-derivative" in headers:
-                    task = "%s-%s" % (task_project, task)
                 input_seeds = [seed]
             else:
                 # Tasks implemented via tasksel, with Task-Seeds to indicate

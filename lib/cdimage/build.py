@@ -571,10 +571,7 @@ def build_livecd_base(config):
 
 
 def _debootstrap_script(config):
-    if config["DIST"] <= "gutsy":
-        return "usr/lib/debootstrap/scripts/%s" % config.series
-    else:
-        return "usr/share/debootstrap/scripts/%s" % config.series
+    return "usr/share/debootstrap/scripts/%s" % config.series
 
 
 def extract_debootstrap(config):

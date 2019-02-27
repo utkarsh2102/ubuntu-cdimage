@@ -34,7 +34,7 @@ except ImportError:
     from urllib2 import URLError, unquote, urlopen
 
 from cdimage import osextras, sign
-from cdimage.config import Series, Touch
+from cdimage.config import Touch
 from cdimage.launchpad import get_launchpad
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
@@ -542,11 +542,7 @@ def flavours(config, arch):
     elif cpuarch == "lpia":
         return ["lpia"]
     elif cpuarch == "powerpc":
-        if subarch == "ps3" and series <= "gutsy":
-            return ["cell"]
-        elif series <= "oneiric":
-            return ["powerpc", "powerpc64-smp"]
-        elif series <= "xenial":
+        if series <= "xenial":
             return ["powerpc-smp", "powerpc64-smp"]
         else:
             return ["powerpc-smp", "generic"]
@@ -572,45 +568,8 @@ def live_item_path_winfoss(config, arch):
         return
 
     maitri = "http://maitri.ubuntu.com/theopencd"
-    henrik = "http://people.canonical.com/~henrik/winfoss"
 
-    if project == "ubuntu":
-        if series == "hoary":
-            if cpuarch == "i386":
-                yield "%s/ubuntu/winfoss/latest/Hoary-WinFOSS.tgz" % maitri
-            elif cpuarch == "amd64":
-                yield ("%s/ubuntu/amd64/latest/"
-                       "Hoary-WinFOSS-amd64.tgz" % maitri)
-        elif series == "breezy":
-            yield "%s/winfoss/ubuntu/current/Ubuntu-WinFOSS-5.10.tgz" % maitri
-        elif series >= "dapper" and series <= "karmic":
-            if series > "gutsy":
-                series = Series.find_by_name("gutsy")
-            yield "%s/%s/ubuntu/current/ubuntu-winfoss-%s.tar.gz" % (
-                henrik, series, series.version)
-    elif project == "kubuntu":
-        if series == "hoary" and cpuarch == "i386":
-            yield ("%s/kubuntu/winfoss/latest/"
-                   "Kubuntu-WinFOSS-i386.tgz" % maitri)
-        elif series == "breezy":
-            if cpuarch == "i386":
-                yield ("%s/winfoss/kubuntu/current/"
-                       "Kubuntu-WinFOSS-5.10.tgz" % maitri)
-            elif cpuarch == "amd64":
-                yield ("%s/winfoss/kubuntu-AMD/current/"
-                       "Kubuntu-WinFOSS-5.10-AMD.tgz" % maitri)
-        elif series >= "dapper" and series <= "karmic":
-            if series > "gutsy":
-                series = Series.find_by_name("gutsy")
-            yield "%s/%s/kubuntu/current/kubuntu-winfoss-%s.tar.gz" % (
-                henrik, series, series.version)
-    elif project == "edubuntu":
-        if series >= "feisty" and series <= "karmic":
-            if series > "gutsy":
-                series = Series.find_by_name("gutsy")
-            yield "%s/%s/edubuntu/current/edubuntu-winfoss-%s.tar.gz" % (
-                henrik, series, series.version)
-    elif project == "tocd3" and cpuarch == "i386":
+    if project == "tocd3" and cpuarch == "i386":
         yield "%s/tocd3/fsm/TOCD3.tgz" % maitri
     elif project == "tocd3.1" and cpuarch == "i386":
         yield "%s/winfoss/tocd3.1/current/TOCD-31.tgz" % maitri
@@ -709,8 +668,7 @@ def live_item_paths(config, arch, item):
         for path in live_item_path_winfoss(config, arch):
             yield path
     elif item == "wubi":
-        if (project != "xubuntu" and arch in ("amd64", "i386") and
-                series >= "gutsy"):
+        if (project != "xubuntu" and arch in ("amd64", "i386")):
             yield ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
                    "stable" % series)
     elif item == "umenu":

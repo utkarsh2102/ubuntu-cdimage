@@ -765,26 +765,6 @@ class TestGerminateOutput(TestCase):
             ["base-installer", "live-installer"],
             list(output.task_packages("i386", "installer", "installer")))
 
-    def test_task_packages_gutsy_ps3_hack(self):
-        self.write_structure([["boot", []], ["installer", []]])
-        self.write_seed_output(
-            "powerpc+ps3", "boot", ["linux-image-2.6.22-14-powerpc64-smp"])
-        self.write_seed_output(
-            "powerpc+ps3", "installer", [
-                "block-modules-2.6.22-14-powerpc-di",
-                "block-modules-2.6.22-14-powerpc64-smp-di",
-            ])
-        self.config["DIST"] = "gutsy"
-        self.config["CDIMAGE_INSTALL_BASE"] = "1"
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(
-            ["linux-image-2.6.22-14-cell"],
-            list(output.task_packages("powerpc+ps3", "boot", "boot")))
-        self.assertEqual(
-            ["block-modules-2.6.22-14-cell-di"],
-            list(output.task_packages(
-                "powerpc+ps3", "installer", "installer")))
-
     def test_task_packages_precise_kernels(self):
         self.write_structure([["boot", []], ["installer", []]])
         self.write_seed_output(
@@ -869,8 +849,6 @@ class TestGerminateOutput(TestCase):
         }
         self.assertEqual(expected, output.task_headers("i386", "desktop"))
         self.assertEqual({}, output.task_headers("i386", "missing"))
-
-    # TODO: seed_task_mapping <= gutsy untested
 
     def test_seed_task_mapping(self):
         self.write_ubuntu_structure()
