@@ -106,7 +106,7 @@ class TestGermination(TestCase):
         for project, series, owners in (
             ("ubuntu", "raring", ["ubuntu-core-dev"]),
             ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
-            ("xubuntu", "intrepid", ["xubuntu-dev", "ubuntu-core-dev"]),
+            ("xubuntu", "precise", ["xubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntu-gnome", "raring",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
             ("ubuntukylin", "utopic",
@@ -191,7 +191,6 @@ class TestGermination(TestCase):
             ("jeos", "precise", "ubuntu.precise"),
             ("ubuntukylin", "raring", "ubuntu.raring"),
             ("ubuntukylin", "utopic", "ubuntukylin.utopic"),
-            ("ubuntu-mid", "precise", "mobile.precise"),
             ("ubuntu-netbook", "maverick", "netbook.maverick"),
             ("ubuntu-headless", "lucid", "ubuntu.lucid"),
             ("ubuntu-moblin-remix", "precise", "moblin.precise"),

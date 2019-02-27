@@ -518,8 +518,6 @@ def flavours(config, arch):
                 return ["generic"]
     elif cpuarch == "ia64":
         return ["ia64"]
-    elif cpuarch == "lpia":
-        return ["lpia"]
     elif cpuarch == "powerpc":
         if series <= "xenial":
             return ["powerpc-smp", "powerpc64-smp"]

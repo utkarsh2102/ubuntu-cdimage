@@ -393,8 +393,6 @@ class Publisher:
         elif self.image_type.endswith("-live"):
             if self.project == "edubuntu":
                 return "desktop"
-            elif self.project == "ubuntu-mid":
-                return "mid"
             elif self.project == "ubuntu-moblin-remix":
                 return "moblin-remix"
             elif self.project in ("ubuntu-netbook", "kubuntu-netbook"):
@@ -425,7 +423,7 @@ class Publisher:
         if publish_type.startswith("preinstalled-"):
             return "daily-preinstalled"
         elif publish_type in (
-                "desktop", "live", "mid", "moblin-remix", "netbook",
+                "desktop", "live", "moblin-remix", "netbook",
                 "live-core", "live-server"):
             return "daily-live"
         elif publish_type == "dvd":
@@ -505,8 +503,6 @@ class Publisher:
             return "source %s" % cd
         elif publish_type == "netbook":
             return "netbook live %s" % cd
-        elif publish_type == "mid":
-            return "MID USB image"
         elif publish_type == "moblin-remix":
             return "Moblin live CD"
         elif publish_type == "active":
@@ -538,14 +534,8 @@ class Publisher:
         capproject = self.config.capproject
         series = self.config["DIST"]
 
-        if self.project == "mid":
-            # MID has lower memory requirements than others
-            desktop_ram = 128
         if self.project == "xubuntu":
-            if series <= "intrepid":
-                desktop_ram = 128
-            else:
-                desktop_ram = 192
+            desktop_ram = 192
         else:
             if series <= "xenial":
                 desktop_ram = 384
@@ -624,15 +614,6 @@ class Publisher:
                 "installer, please file a bug on the %s package." % bug_link,
             ])
             return
-        elif publish_type == "mid":
-            sentences.append(
-                "The MID USB image allows you to try %s without changing your "
-                "computer at all, and at your option to install it "
-                "permanently later." % capproject)
-            sentences.append(
-                "This USB image is optimized for handheld devices with 4-7\" "
-                "touchscreens and limited processing power.")
-            sentences.append(desktop_req)
         elif publish_type == "moblin-remix":
             sentences.append(
                 "The live %s allows you to try Ubuntu Moblin Remix without "
@@ -805,7 +786,6 @@ class Publisher:
         "hppa": "HP PA-RISC",
         "i386": "32-bit PC (i386)",
         "ia64": "IA-64",
-        "lpia": "Low-Power Intel Architecture",
         "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
         "powerpc+ps3": "PlayStation 3",
         "ppc64el": "PowerPC64 Little-Endian",
@@ -884,10 +864,6 @@ class Publisher:
                 "Intel processors.")
         elif arch == "ia64":
             sentences.append("For Intel Itanium and Itanium 2 computers.")
-        elif arch == "lpia":
-            sentences.append(
-                "For devices using the Low-Power Intel Architecture, "
-                "including the A1xx and Atom processors.")
         elif arch == "powerpc":
             sentences.append(
                 "For Apple Macintosh G3, G4, and G5 computers, including "
@@ -925,7 +901,7 @@ class Publisher:
             return
 
         usb_projects = (
-            "ubuntu-mid", "ubuntu-moblin-remix",
+            "ubuntu-moblin-remix",
             "kubuntu", "kubuntu-active", "kubuntu-plasma5",
             "ubuntu-mate",
             )
@@ -1129,7 +1105,7 @@ class Publisher:
             "serveraddon", "addon",
             "dvd",
             "src",
-            "netbook", "mid", "moblin-remix", "mobile", "active",
+            "netbook", "moblin-remix", "mobile", "active",
             "uec", "server-uec",
             "preinstalled-desktop", "preinstalled-netbook",
             "preinstalled-mobile", "preinstalled-active",
@@ -1151,7 +1127,6 @@ class Publisher:
             "ppc64el",
             "hppa",
             "ia64",
-            "lpia",
             "s390x",
             "sparc",
         )
@@ -1400,17 +1375,9 @@ class Publisher:
 
                         for path, arch, base in paths:
                             if arch is None:
-                                if publish_type == "mid":
-                                    imgarch = "lpia"
-                                else:
-                                    raise WebIndicesException(
-                                        "Unknown image type %s!" %
-                                        publish_type)
-                                archstr = self.arch_strings[imgarch]
-                                imagestr = "%s %s" % (archstr, cdtypestr)
-                                htaccessimagestr = "%s for %s computers" % (
-                                    self.titlecase(cdtypestr), archstr)
-                                archdesc = self.archdesc(imgarch, publish_type)
+                                raise WebIndicesException(
+                                    "Unknown image type %s!" %
+                                    publish_type)
                             elif publish_type == "src":
                                 imagestr = "%s %s" % (
                                     self.titlecase(cdtypestr), arch)
@@ -1818,9 +1785,7 @@ class DailyTreePublisher(Publisher):
             # All Edubuntu images are DVD sized (including arm).
             # Ubuntu Studio is always DVD-sized for now.
             return 4700372992
-        elif self.project in (
-                "ubuntu-mid", "ubuntu-moblin-remix",
-                ):
+        elif self.project == "ubuntu-moblin-remix":
             # Mobile images are designed for USB drives; arbitrarily pick
             # 1GB as a limit.
             return 1024 * 1024 * 1024
@@ -1985,7 +1950,7 @@ class DailyTreePublisher(Publisher):
             #   2008-March/000400.html
             return True
         elif cpuarch in (
-                "arm64", "armel", "armhf", "hppa", "ia64", "lpia", "ppc64el",
+                "arm64", "armel", "armhf", "hppa", "ia64", "ppc64el",
                 "s390x"):
             return True
         return False
@@ -2813,7 +2778,7 @@ class ReleaseTreeMixin:
     def tree_suffix(self, source):
         # Publish ports/daily to ports/releases/..., etc.
         ubuntu_projects = (
-            "ubuntu-server", "ubuntu-netbook", "ubuntu-mid", "ubuntu-headless")
+            "ubuntu-server", "ubuntu-netbook", "ubuntu-headless")
         if "/" in source:
             project, tail = source.split("/", 1)
             if project in ubuntu_projects:
@@ -2950,10 +2915,7 @@ class ReleasePublisher(Publisher):
     def daily_base(self, source, date, publish_type, arch):
         series = self.config["DIST"]
         daily_dir = self.daily_dir(source, date, publish_type)
-        if publish_type in ("netbook", "mid") and series <= "intrepid":
-            return os.path.join(
-                daily_dir, "%s-%s" % (self.project, publish_type))
-        elif publish_type == "wubi":
+        if publish_type == "wubi":
             return os.path.join(daily_dir, arch)
         else:
             return os.path.join(
@@ -3117,7 +3079,7 @@ class ReleasePublisher(Publisher):
 
     def want_manifest(self, publish_type, path):
         if publish_type in (
-            "live", "desktop", "netbook", "mid", "moblin-remix",
+            "live", "desktop", "netbook", "moblin-remix",
             "uec", "server-uec", "core", "wubi", "server", "live-server",
         ):
             return True
@@ -3136,7 +3098,7 @@ class ReleasePublisher(Publisher):
     def want_metalink(self, publish_type):
         # TODO: maybe others?  metalink is only supported for Wubi
         if publish_type in (
-            "netbook", "mid", "moblin-remix", "uec", "server-uec",
+            "netbook", "moblin-remix", "uec", "server-uec",
         ):
             return False
         elif publish_type.startswith("preinstalled-"):
@@ -3337,11 +3299,9 @@ class ReleasePublisher(Publisher):
         if (publish_type in ("netbook", "moblin-remix") and
                 not [arch for arch in arches if arch.startswith("armel")]):
             arches = ["i386"]
-        elif publish_type == "mid":
-            arches = ["lpia"]
 
         # Sanity-check.
-        if publish_type not in ("netbook", "mid", "src"):
+        if publish_type not in ("netbook", "src"):
             for arch in arches:
                 paths = []
                 for ext in ("iso", "img", "img.gz", "img.xz", "img.tar.gz",

@@ -98,7 +98,6 @@ def configure_for_project(config):
         "ubuntu-budgie",
         "ubuntu-mate",
         "ubuntu-moblin-remix",
-        "ubuntu-mid",
     ):
         config["CDIMAGE_UNSUPPORTED"] = "1"
 

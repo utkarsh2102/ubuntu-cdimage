@@ -196,9 +196,6 @@ class TestLiveProject(TestCase):
             self.assertProjectEqual(
                 "ubuntustudio-dvd", "ubuntustudio", series, cdimage_dvd="1")
 
-    def test_lpia(self):
-        self.assertProjectEqual("ubuntu", "ubuntu", "intrepid", arch="lpia")
-
 
 def make_livefs_production_config(config):
     config_path = os.path.join(config.root, "production", "livefs-builders")
@@ -217,8 +214,6 @@ def make_livefs_production_config(config):
             *\t\t*\t\thppa\t\t\tcastilla.buildd
             *\t\t*\t\ti386\t\t\tcardamom.buildd
             *\t\t*\t\tia64\t\t\tweddell.buildd
-            *\t\t-hardy\t\tlpia\t\t\tcardamom.buildd
-            *\t\t*\t\tlpia\t\t\tconcordia.buildd
             *\t\t*\t\tpowerpc\t\t\troyal.buildd
             *\t\t*\t\tppc64el\t\t\tfisher01.buildd
             *\t\t*\t\tsparc\t\t\tvivies.buildd
@@ -280,12 +275,6 @@ class TestLiveBuilder(TestCase):
     def test_ia64(self):
         for series in all_series:
             self.assertBuilderEqual("weddell.buildd", "ia64", series)
-
-    def test_lpia(self):
-        for series in all_series[:8]:
-            self.assertBuilderEqual("cardamom.buildd", "lpia", series)
-        for series in all_series[8:]:
-            self.assertBuilderEqual("concordia.buildd", "lpia", series)
 
     def test_powerpc(self):
         for series in all_series:
@@ -906,10 +895,6 @@ class TestFlavours(TestCase):
     def test_ia64(self):
         for series in all_series[10:]:
             self.assertFlavoursEqual("ia64", "ia64", "ubuntu", series)
-
-    def test_lpia(self):
-        for series in all_series:
-            self.assertFlavoursEqual("lpia", "lpia", "ubuntu", series)
 
     def test_powerpc(self):
         for series in all_series[15:24]:

@@ -5,7 +5,6 @@ daily-preinstalled 1
 dvd 2
 # Only purge ubuntu-core images manually.
 ubuntu-core 0
-ubuntu-mid 3
 ubuntu-netbook 3
 ubuntu-touch 7
 ubuntu-touch-custom 7

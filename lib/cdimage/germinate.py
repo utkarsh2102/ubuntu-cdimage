@@ -82,10 +82,7 @@ class Germination:
             elif project == "mythbuntu":
                 sources.insert(0, bzrpattern % "mythbuntu-dev")
             elif project == "xubuntu":
-                if series >= "intrepid":
-                    sources.insert(0, gitpattern % "xubuntu-dev")
-                else:
-                    sources.insert(0, bzrpattern % "ubuntu-core-dev")
+                sources.insert(0, gitpattern % "xubuntu-dev")
             elif project in ("lubuntu", "lubuntu-next"):
                 sources.insert(0, gitpattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
@@ -145,8 +142,6 @@ class Germination:
                 return "ubuntukylin.%s" % self.config.series
             else:
                 return "ubuntu.%s" % self.config.series
-        elif project == "ubuntu-mid":
-            return "mobile.%s" % self.config.series
         elif project == "ubuntu-netbook":
             return "netbook.%s" % self.config.series
         elif project == "ubuntu-headless":
@@ -454,7 +449,7 @@ class GerminateOutput:
             yield package
 
     def installer_initrds(self, cpuarch):
-        if cpuarch in ("amd64", "i386", "lpia"):
+        if cpuarch in ("amd64", "i386"):
             return ["cdrom/initrd.gz", "netboot/netboot.tar.gz"]
         elif cpuarch == "hppa":
             return ["cdrom/2.6/initrd.gz", "netboot/2.6/boot.img"]

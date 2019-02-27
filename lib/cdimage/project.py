@@ -39,7 +39,6 @@ project_map = {
     "gobuntu": "Gobuntu",
     "ubuntu-server": "Ubuntu-Server",
     "jeos": "Ubuntu-JeOS",
-    "ubuntu-mid": "Ubuntu-MID",
     "ubuntu-netbook": "Ubuntu-Netbook",
     "ubuntu-headless": "Ubuntu-Headless",
     "ubuntustudio": "Ubuntu-Studio",

@@ -264,7 +264,6 @@ class TestPublisher(TestCase):
             ("daily-live", "edubuntu", "precise", "desktop"),
             ("daily-live", "kubuntu-netbook", "precise", "netbook"),
             ("daily-live", "kubuntu-plasma5", "xenial", "desktop"),
-            ("daily-live", "ubuntu-mid", "precise", "mid"),
             ("daily-live", "ubuntu-moblin-remix", "precise", "moblin-remix"),
             ("daily-live", "ubuntu-netbook", "precise", "netbook"),
             ("daily-live", "ubuntu-server", "precise", "live-server"),
@@ -732,7 +731,6 @@ class TestDailyTreePublisher(TestCase):
             ("edubuntu", None, "daily-preinstalled", "i386", 4700372992),
             ("edubuntu", None, "dvd", "i386", 4700372992),
             ("ubuntustudio", None, "dvd", "i386", 4700372992),
-            ("ubuntu-mid", None, "daily-live", "i386", 1073741824),
             ("ubuntu-moblin-remix", None, "daily-live", "i386", 1073741824),
             ("kubuntu", "trusty", "daily-live", "i386", 1283457024),
             ("kubuntu", "xenial", "daily-live", "i386", 2000000000),
@@ -850,7 +848,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily")
         for arch in ("amd64", "i386"):
             self.assertFalse(publisher.jigdo_ports(arch))
-        for arch in ("armel", "armhf", "hppa", "ia64", "lpia", "ppc64el",
+        for arch in ("armel", "armhf", "hppa", "ia64", "ppc64el",
                      "s390x"):
             self.assertTrue(publisher.jigdo_ports(arch))
 

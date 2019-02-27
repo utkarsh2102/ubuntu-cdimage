@@ -50,8 +50,6 @@ ubuntu-budgie		*			cosmic-			amd64
 ubuntu-mate		*			-bionic			amd64 i386
 ubuntu-mate		*			cosmic-			amd64
 
-ubuntu-mid		*			*			lpia
-
 ubuntu-moblin-remix	*			*			i386
 
 ubuntu-server		daily-preinstalled	xenial			armhf+raspi2
