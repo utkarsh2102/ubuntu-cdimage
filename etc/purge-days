@@ -3,8 +3,6 @@ daily-live 1
 daily-preinstalled 1
 # Purge images older than 2 days => keep the most recent build.
 dvd 2
-# Only purge TheOpenCDv3 images manually.
-tocd3/daily-live 0
 # Only purge ubuntu-core images manually.
 ubuntu-core 0
 ubuntu-mid 3

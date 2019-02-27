@@ -407,10 +407,7 @@ class Publisher:
             elif self.project == "ubuntu-core":
                 return "live-core"
             else:
-                if self.config["DIST"] <= "breezy":
-                    return "live"
-                else:
-                    return "desktop"
+                return "desktop"
         elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
             return "dvd"
         else:

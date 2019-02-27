@@ -138,8 +138,7 @@ class Germination:
             return [pattern % self.config.series for pattern in dist_patterns]
 
     def seed_dist(self, project):
-        if (project in ("ubuntu-server", "jeos") and
-                self.config.series != "breezy"):
+        if (project in ("ubuntu-server", "jeos")):
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntukylin":
             if self.config["DIST"] >= "utopic":
@@ -217,24 +216,6 @@ class Germination:
         output_structure = os.path.join(self.output_dir(project), "STRUCTURE")
         shutil.copy2(
             os.path.join(arch_output_dir, "structure"), output_structure)
-
-        if self.config.series == "breezy":
-            # Unfortunately, we now need a second germinate run to figure
-            # out the dependencies of language packs and the like.
-            extras = []
-            with open(os.path.join(
-                    arch_output_dir, "ship.acsets"), "w") as ship_acsets:
-                output = GerminateOutput(self.config, output_structure)
-                for pkg in output.seed_packages(arch, "ship.seed"):
-                    extras.append("desktop/%s" % pkg)
-                    print(pkg, file=ship_acsets)
-            if extras:
-                logger.info(
-                    "Re-germinating for %s/%s language pack dependencies ..." %
-                    (self.config.series, arch))
-                command.extend(["--seed-packages", ",".join(extras)])
-                proxy_check_call(
-                    self.config, "germinate", command, cwd=arch_output_dir)
 
     def germinate_project(self, project):
         osextras.mkemptydir(self.output_dir(project))
@@ -314,12 +295,7 @@ class GerminateOutput:
                 ship = "ship-addon"
             in_squashfs = None
             if project == "ubuntu-server":
-                if series <= "breezy":
-                    pass
-                elif series <= "dapper":
-                    ship = "server"
-                else:
-                    ship = "server-ship"
+                ship = "server-ship"
                 in_squashfs = ["minimal"]
             elif project == "kubuntu-active":
                 ship = "active-ship"
@@ -340,32 +316,14 @@ class GerminateOutput:
         elif mode == "installer":
             if self.config["CDIMAGE_INSTALL_BASE"]:
                 yield "installer"
-            if self.config["CDIMAGE_LIVE"]:
-                if series >= "hoary" and series <= "breezy":
-                    yield "casper"
         elif mode == "debootstrap":
-            if series <= "hoary":
-                yield "base"
-            elif series <= "feisty":
-                yield "minimal"
-            else:
-                yield "required"
-                yield "minimal"
+            yield "required"
+            yield "minimal"
         elif mode == "base":
-            if series <= "hoary":
-                yield "base"
-            elif series <= "breezy":
-                yield "minimal"
-                yield "standard"
-            elif series <= "feisty":
-                yield "boot"
-                yield "minimal"
-                yield "standard"
-            else:
-                yield "boot"
-                yield "required"
-                yield "minimal"
-                yield "standard"
+            yield "boot"
+            yield "required"
+            yield "minimal"
+            yield "standard"
         elif mode == "ship-live":
             if project == "kubuntu-active":
                 yield "ship-active-live"
@@ -626,7 +584,6 @@ class GerminateOutput:
             master_project = "source"
         else:
             master_project = project
-        series = self.config["DIST"]
         output_dir = self.tasks_output_dir(master_project)
         osextras.ensuredir(output_dir)
 
@@ -668,27 +625,6 @@ class GerminateOutput:
                     print(
                         "%s  Task  %s" % (pkg, ", ".join(tasknames)),
                         file=override)
-            if series == "breezy":
-                # In breezy, also generate Archive-Copier-Set headers for
-                # sets of packages that archive-copier needs to know to copy
-                # but that shouldn't appear as tasks in aptitude et al.
-                ship_acsets_path = self.seed_path(arch, "ship.acsets")
-                all_acsets = defaultdict(list)
-                try:
-                    with open(ship_acsets_path) as ship_acsets:
-                        for acset in ship_acsets:
-                            acset = acset.rstrip("\n")
-                            for package in self.seed_packages(arch, acset):
-                                all_acsets[package].append(acset)
-                except IOError as e:
-                    if e.errno != errno.ENOENT:
-                        raise
-                for pkg, acsetnames in sorted(all_acsets.items()):
-                    print(
-                        "%s  Archive-Copier-Set  %s" % (
-                            pkg, ", ".join(acsetnames)),
-                        file=override)
-
             # Help debian-cd to get priorities in sync with the current base
             # system, so that debootstrap >= 0.3.1 can work out the correct
             # set of packages to install.

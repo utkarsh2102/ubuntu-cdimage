@@ -188,11 +188,9 @@ class TestGermination(TestCase):
 
     def test_seed_dist(self):
         for project, series, seed_dist in (
-            ("ubuntu", "raring", "ubuntu.raring"),
-            ("ubuntu-server", "breezy", "ubuntu-server.breezy"),
-            ("ubuntu-server", "raring", "ubuntu.raring"),
-            ("jeos", "breezy", "jeos.breezy"),
-            ("jeos", "hardy", "ubuntu.hardy"),
+            ("ubuntu", "trusty", "ubuntu.trusty"),
+            ("ubuntu-server", "trusty", "ubuntu.trusty"),
+            ("jeos", "precise", "ubuntu.precise"),
             ("ubuntukylin", "raring", "ubuntu.raring"),
             ("ubuntukylin", "utopic", "ubuntukylin.utopic"),
             ("ubuntu-mid", "hardy", "mobile.hardy"),
@@ -367,45 +365,6 @@ class TestGerminateOutput(TestCase):
             ["usb-ship-live", ["usb-langsupport"]],
         ])
 
-    def write_ubuntu_hoary_structure(self):
-        """Write the Ubuntu 5.04 STRUCTURE file."""
-        self.write_structure([
-            ["base", []],
-            ["desktop", ["base"]],
-            ["ship", ["base", "desktop"]],
-            ["live", ["base", "desktop"]],
-            ["installer", []],
-            ["casper", []],
-            ["supported", ["base", "desktop", "ship", "live"]],
-        ])
-
-    def write_ubuntu_breezy_structure(self):
-        """Write the Ubuntu 5.10 STRUCTURE file."""
-        self.write_structure([
-            ["minimal", []],
-            ["standard", ["minimal"]],
-            ["desktop", ["minimal", "standard"]],
-            ["ship", ["minimal", "standard", "desktop"]],
-            ["live", ["minimal", "standard", "desktop"]],
-            ["installer", []],
-            ["casper", []],
-            ["supported", ["minimal", "standard", "desktop", "ship", "live"]],
-        ])
-
-    def write_ubuntu_dapper_structure(self):
-        """Write a reduced version of the Ubuntu 6.06 LTS STRUCTURE file."""
-        self.write_structure([
-            ["minimal", []],
-            ["boot", []],
-            ["standard", ["minimal"]],
-            ["desktop", ["minimal", "standard"]],
-            ["server", ["boot", "minimal", "standard"]],
-            ["ship", ["boot", "minimal", "standard", "desktop"]],
-            ["live", ["minimal", "standard", "desktop"]],
-            ["ship-live", ["boot", "minimal", "standard", "desktop", "live"]],
-            ["installer", []],
-        ])
-
     def write_kubuntu_structure(self):
         """Write a reduced version of the Kubuntu STRUCTURE file.
 
@@ -487,16 +446,6 @@ class TestGerminateOutput(TestCase):
         self.config["PROJECT"] = "ubuntu-server"
         expected = [
             "boot", "installer", "required", "minimal", "standard",
-            "desktop-common", "desktop", "d-i-requirements", "ship",
-        ]
-        for series in all_series[:3]:
-            self.config["DIST"] = series
-            self.assertEqual(expected, list(output.list_seeds("tasks")))
-        expected = ["required", "minimal", "standard", "server"]
-        self.config["DIST"] = all_series[3]
-        self.assertEqual(expected, list(output.list_seeds("tasks")))
-        expected = [
-            "boot", "installer", "required", "minimal", "standard",
             "dns-server", "lamp-server", "openssh-server", "print-server",
             "samba-server", "postgresql-server", "mail-server", "server",
             "tomcat-server", "virt-host", "d-i-requirements", "server-ship",
@@ -543,32 +492,16 @@ class TestGerminateOutput(TestCase):
             ["required", "minimal", "jeos"], list(output.list_seeds("tasks")))
 
     def test_list_seeds_installer(self):
-        self.write_ubuntu_breezy_structure()
         self.write_structure([["installer", []], ["casper", []]])
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
         self.assertEqual(["installer"], list(output.list_seeds("installer")))
         del self.config["CDIMAGE_INSTALL_BASE"]
         self.config["CDIMAGE_LIVE"] = "1"
-        self.config["DIST"] = "hoary"
-        self.assertEqual(["casper"], list(output.list_seeds("installer")))
-        self.config["DIST"] = "breezy"
-        self.assertEqual(["casper"], list(output.list_seeds("installer")))
-        self.config["DIST"] = "dapper"
+        self.config["DIST"] = "precise"
         self.assertEqual([], list(output.list_seeds("installer")))
 
     def test_list_seeds_debootstrap(self):
-        self.write_ubuntu_hoary_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        for series in all_series[:2]:
-            self.config["DIST"] = series
-            self.assertEqual(["base"], list(output.list_seeds("debootstrap")))
-        self.write_ubuntu_breezy_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        for series in all_series[2:6]:
-            self.config["DIST"] = series
-            self.assertEqual(
-                ["minimal"], list(output.list_seeds("debootstrap")))
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         for series in all_series[6:]:
@@ -578,23 +511,6 @@ class TestGerminateOutput(TestCase):
                 list(output.list_seeds("debootstrap")))
 
     def test_list_seeds_base(self):
-        self.write_ubuntu_hoary_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        for series in all_series[:2]:
-            self.config["DIST"] = series
-            self.assertEqual(["base"], list(output.list_seeds("base")))
-        self.write_ubuntu_breezy_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["DIST"] = all_series[2]
-        self.assertEqual(
-            ["minimal", "standard"], list(output.list_seeds("base")))
-        self.write_ubuntu_dapper_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        for series in all_series[3:6]:
-            self.config["DIST"] = series
-            self.assertEqual(
-                ["boot", "minimal", "standard"],
-                list(output.list_seeds("base")))
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         for series in all_series[6:]:

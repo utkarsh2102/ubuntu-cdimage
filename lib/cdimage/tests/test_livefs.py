@@ -173,9 +173,6 @@ class TestLiveProject(TestCase):
     def test_project_livecd_base(self):
         self.assertProjectEqual("base", "livecd-base", "dapper")
 
-    def test_project_tocd3_1(self):
-        self.assertProjectEqual("tocd", "tocd3.1", "breezy")
-
     def test_project_ubuntu_touch_custom(self):
         self.assertProjectEqual("ubuntu-touch", "ubuntu-touch-custom", "vivid")
 
@@ -979,20 +976,6 @@ class TestLiveItemPaths(TestCase):
         self.config["PROJECT"] = project
         self.config["DIST"] = series
         self.assertEqual([], list(live_item_paths(self.config, arch, item)))
-
-    def test_tocd3_fallback(self):
-        for item in ("cloop", "manifest"):
-            self.assertPathsEqual(
-                ["/home/cjwatson/tocd3/livecd.tocd3.%s" % item],
-                "i386", item, "tocd3", "hoary")
-
-    def test_ubuntu_breezy_fallback(self):
-        for item in ("cloop", "manifest"):
-            for arch in ("amd64", "i386", "powerpc"):
-                self.assertPathsEqual(
-                    ["/home/cjwatson/breezy-live/ubuntu/livecd.%s.%s" %
-                     (arch, item)],
-                    arch, item, "ubuntu", "breezy")
 
     def test_desktop_items(self):
         for item in (

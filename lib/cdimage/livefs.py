@@ -144,8 +144,6 @@ def live_project(config, arch):
 
     if project == "livecd-base":
         liveproject = "base"
-    elif project == "tocd3.1":
-        liveproject = "tocd"
     elif project == "ubuntu-touch-custom":
         liveproject = "ubuntu-touch"
     elif (project == "ubuntu-server" and
@@ -598,14 +596,7 @@ def live_item_paths(config, arch, item):
         "maas-rack.squashfs", "maas-region.squashfs",
         "img.xz", "model-assertion"
     ):
-        if project == "tocd3":
-            # auto-purged - reverting to plan B
-            yield "/home/cjwatson/tocd3/livecd.tocd3.%s" % item
-        elif project == "ubuntu" and series == "breezy":
-            # auto-purged - reverting to plan B
-            yield "/home/cjwatson/breezy-live/ubuntu/livecd.%s.%s" % (
-                arch, item)
-        elif item == "ext4" and arch == "armhf+nexus7":
+        if item == "ext4" and arch == "armhf+nexus7":
             for url in urls_for(
                     "livecd.%s.%s-nexus7" % (liveproject_subarch, item)):
                 yield url

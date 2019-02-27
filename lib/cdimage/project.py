@@ -57,8 +57,6 @@ project_map = {
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "ubuntu-touch": "Ubuntu Touch",
     "ubuntu-touch-custom": "Ubuntu Touch Custom Build",
-    "tocd3": "TheOpenCDv3",
-    "tocd3.1": "TheOpenCDv3.1",
 }
 
 
