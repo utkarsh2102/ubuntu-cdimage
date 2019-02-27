@@ -1051,13 +1051,6 @@ class TestLiveItemPaths(TestCase):
             ["%s/livecd.ubuntu.kernel-generic.efi.signed" % root],
             "amd64", "kernel-efi-signed", "ubuntu", "quantal")
 
-    # TODO: Since this is only of historical interest, we only test a small
-    # number of cases at the moment.
-    def test_winfoss(self):
-        self.assertNoPaths("i386", "winfoss", "ubuntu", "warty")
-        self.assertNoPaths("powerpc", "winfoss", "ubuntu", "hardy")
-        self.assertNoPaths("i386", "winfoss", "ubuntu", "precise")
-
     def test_wubi(self):
         for series in all_series[6:]:
             path = ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
@@ -1280,19 +1273,6 @@ class TestDownloadLiveFilesystems(TestCase):
             self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.usb-creator.exe"))
-
-    @mock.patch("cdimage.osextras.fetch")
-    def test_download_live_items_winfoss(self, mock_fetch):
-        self.config["PROJECT"] = "tocd3"
-        self.config["DIST"] = "precise"
-        self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "i386", "winfoss"))
-        url = ("http://maitri.ubuntu.com/theopencd/tocd3/fsm/TOCD3.tgz")
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "tocd3", "precise", "daily-live",
-            "live")
-        mock_fetch.assert_called_once_with(
-            self.config, url, os.path.join(target_dir, "i386.winfoss.tgz"))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_squashfs(self, mock_fetch):

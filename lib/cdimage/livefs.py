@@ -557,24 +557,6 @@ def flavours(config, arch):
             "No live filesystem source known for %s" % arch)
 
 
-def live_item_path_winfoss(config, arch):
-    # This is a mess of special cases.  Fortunately it is now only of
-    # historical interest.
-    cpuarch, subarch = split_arch(arch)
-    project = config.project
-    series = config["DIST"]
-
-    if series == "warty" or cpuarch not in ("amd64", "i386"):
-        return
-
-    maitri = "http://maitri.ubuntu.com/theopencd"
-
-    if project == "tocd3" and cpuarch == "i386":
-        yield "%s/tocd3/fsm/TOCD3.tgz" % maitri
-    elif project == "tocd3.1" and cpuarch == "i386":
-        yield "%s/winfoss/tocd3.1/current/TOCD-31.tgz" % maitri
-
-
 def live_item_paths(config, arch, item):
     if item == "ltsp-squashfs" and arch == "amd64":
         # use i386 LTSP image on amd64 too
@@ -664,9 +646,6 @@ def live_item_paths(config, arch, item):
                     liveproject_subarch, flavour)
                 for url in urls_for(base):
                     yield url
-    elif item == "winfoss":
-        for path in live_item_path_winfoss(config, arch):
-            yield path
     elif item == "wubi":
         if (project != "xubuntu" and arch in ("amd64", "i386")):
             yield ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
@@ -784,13 +763,6 @@ def download_live_items(config, arch, item):
                 pass
     elif item in ("wubi", "umenu", "usb-creator"):
         target = os.path.join(output_dir, "%s.%s.exe" % (arch, item))
-        try:
-            osextras.fetch(config, urls[0], target)
-            found = True
-        except osextras.FetchError:
-            pass
-    elif item == "winfoss":
-        target = os.path.join(output_dir, "%s.%s.tgz" % (arch, item))
         try:
             osextras.fetch(config, urls[0], target)
             found = True
@@ -989,12 +961,7 @@ def download_live_filesystems(config):
             if arch == "arm64":
                 download_live_items(config, arch, "dragonboard.kernel.snap")
 
-    if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and
-            series <= "hardy"):
-        for cpuarch in config.cpuarches:
-            download_live_items(config, arch, "winfoss")
-
-    if project == "edubuntu" and config["CDIMAGE_DVD"] and series >= "lucid":
+    if project == "edubuntu" and config["CDIMAGE_DVD"]:
         for arch in config.arches:
             if arch in ("amd64", "i386"):
                 # TODO: Disabled for raring (LP: #1154601)
