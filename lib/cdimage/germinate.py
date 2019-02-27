@@ -142,8 +142,6 @@ class Germination:
                 return "ubuntukylin.%s" % self.config.series
             else:
                 return "ubuntu.%s" % self.config.series
-        elif project == "ubuntu-netbook":
-            return "netbook.%s" % self.config.series
         elif project == "ubuntu-moblin-remix":
             return "moblin.%s" % self.config.series
         elif project == "ubuntu-desktop-next":

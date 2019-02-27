@@ -247,8 +247,6 @@ class TestPublisher(TestCase):
 
     def test_publish_type(self):
         for image_type, project, dist, publish_type in (
-            ("daily-preinstalled", "ubuntu-netbook", "precise",
-             "preinstalled-netbook"),
             ("daily-preinstalled", "ubuntu-server", "precise",
              "preinstalled-server"),
             ("daily-preinstalled", "ubuntu-server", "xenial",
@@ -263,7 +261,6 @@ class TestPublisher(TestCase):
             ("daily-live", "kubuntu-netbook", "precise", "netbook"),
             ("daily-live", "kubuntu-plasma5", "xenial", "desktop"),
             ("daily-live", "ubuntu-moblin-remix", "precise", "moblin-remix"),
-            ("daily-live", "ubuntu-netbook", "precise", "netbook"),
             ("daily-live", "ubuntu-server", "precise", "live-server"),
             ("daily-live", "ubuntu", "precise", "desktop"),
             ("daily-live", "ubuntu-zh_CN", "trusty", "desktop"),

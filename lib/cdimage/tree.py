@@ -76,7 +76,6 @@ projects = [
     "ubuntu-gnome",
     "ubuntu-budgie",
     "ubuntu-mate",
-    "ubuntu-netbook",
     "ubuntu-server",
     "ubuntukylin",
     "ubuntustudio",
@@ -375,9 +374,7 @@ class Publisher:
     @property
     def publish_type(self):
         if self.image_type.endswith("-preinstalled"):
-            if self.project == "ubuntu-netbook":
-                return "preinstalled-netbook"
-            elif self.project == "ubuntu-server":
+            if self.project == "ubuntu-server":
                 return "preinstalled-server"
             elif self.project in ("ubuntu-touch", "ubuntu-touch-custom"):
                 return "preinstalled-touch"
@@ -392,7 +389,7 @@ class Publisher:
                 return "desktop"
             elif self.project == "ubuntu-moblin-remix":
                 return "moblin-remix"
-            elif self.project in ("ubuntu-netbook", "kubuntu-netbook"):
+            elif self.project == "kubuntu-netbook":
                 return "netbook"
             elif self.project == "ubuntu-server":
                 return "live-server"
@@ -1258,8 +1255,7 @@ class Publisher:
             if ("full" in reldir.split(os.pardir) and
                     "-alpha-" not in base_prefix and
                     base_prefix != self.config.series):
-                if self.project in (
-                        "ubuntu", "ubuntu-server", "ubuntu-netbook"):
+                if self.project in ("ubuntu", "ubuntu-server"):
                     url = "http://releases.ubuntu.com/"
                 elif self.project == "kubuntu" and series <= "oneiric":
                     url = "http://releases.ubuntu.com/kubuntu/"
@@ -2772,8 +2768,7 @@ class ReleaseTreeMixin:
 
     def tree_suffix(self, source):
         # Publish ports/daily to ports/releases/..., etc.
-        ubuntu_projects = (
-            "ubuntu-server", "ubuntu-netbook")
+        ubuntu_projects = ("ubuntu-server", )
         if "/" in source:
             project, tail = source.split("/", 1)
             if project in ubuntu_projects:

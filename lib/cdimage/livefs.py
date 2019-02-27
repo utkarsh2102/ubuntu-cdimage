@@ -859,11 +859,7 @@ def download_live_filesystems(config):
 
             if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
                                "ubuntu-desktop-next", "edubuntu"):
-                if (project in ("kubuntu-active", "ubuntu-netbook",
-                                "ubuntu-moblin-remix") or
-                        config["CDIMAGE_DVD"] or
-                        series >= "maverick"):
-                    download_live_items(config, arch, "usb-creator")
+                download_live_items(config, arch, "usb-creator")
             if project == "ubuntu-core" and config["CDIMAGE_LIVE"]:
                 download_live_items(config, arch, "model-assertion")
 

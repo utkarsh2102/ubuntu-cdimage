@@ -87,8 +87,6 @@ def project_title(project):
         return 'Ubuntu JeOS'
     elif project == 'ubuntustudio':
         return 'Ubuntu Studio'
-    elif project == 'ubuntu-netbook':
-        return 'Ubuntu Netbook'
     elif project == 'kubuntu-active':
         return 'Kubuntu Active'
     elif project == 'kubuntu-plasma5':
@@ -241,7 +239,6 @@ def main():
         'edubuntu',
         'xubuntu',
         'ubuntustudio',
-        'ubuntu-netbook',
         'kubuntu-netbook',
         'ubuntu-moblin-remix',
         'kubuntu-active',

@@ -191,7 +191,6 @@ class TestGermination(TestCase):
             ("jeos", "precise", "ubuntu.precise"),
             ("ubuntukylin", "raring", "ubuntu.raring"),
             ("ubuntukylin", "utopic", "ubuntukylin.utopic"),
-            ("ubuntu-netbook", "maverick", "netbook.maverick"),
             ("ubuntu-moblin-remix", "precise", "moblin.precise"),
             ("ubuntu-desktop-next", "utopic", "ubuntu-touch.utopic"),
         ):
