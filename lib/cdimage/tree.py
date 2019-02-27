@@ -1257,8 +1257,6 @@ class Publisher:
                     base_prefix != self.config.series):
                 if self.project in ("ubuntu", "ubuntu-server"):
                     url = "http://releases.ubuntu.com/"
-                elif self.project == "kubuntu" and series <= "oneiric":
-                    url = "http://releases.ubuntu.com/kubuntu/"
                 else:
                     url = None
                 if url:
@@ -2731,18 +2729,13 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
     """An object that can publish daily builds of the Chinese edition."""
 
     def image_output(self, arch):
-        if self.config["DIST"] < "oneiric":
-            return os.path.join(
-                self.config.root, "scratch", "ubuntu-chinese-edition",
-                self.config.full_series)
-        else:
-            project = "ubuntu"
-            if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-                project = "-".join([
-                    project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
-            return os.path.join(
-                self.config.root, "scratch", project, self.config.full_series,
-                self.image_type, "live")
+        project = "ubuntu"
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "-".join([
+                project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
+        return os.path.join(
+            self.config.root, "scratch", project, self.config.full_series,
+            self.image_type, "live")
 
     @property
     def source_extension(self):

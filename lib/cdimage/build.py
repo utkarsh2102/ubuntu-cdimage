@@ -360,66 +360,23 @@ def build_ubuntu_defaults_locale(config):
             "UBUNTU_DEFAULTS_LOCALE='%s' not currently supported!" % locale)
 
     series = config["DIST"]
-    if series < "oneiric":
-        # Original hack: repack an existing image.
-        iso = config["ISO"]
-        if not iso:
-            raise Exception(
-                "Pass ISO=<path to Ubuntu image> in the environment.")
-
-        scratch = os.path.join(
-            config.root, "scratch", "ubuntu-chinese-edition", series.name)
-        bsdtar_tree = os.path.join(scratch, "bsdtar-tree")
-
-        log_marker("Unpacking")
-        if os.path.isdir(bsdtar_tree):
-            subprocess.check_call(["chmod", "-R", "+w", bsdtar_tree])
-        osextras.mkemptydir(bsdtar_tree)
-        subprocess.check_call(["bsdtar", "-xf", iso, "-C", bsdtar_tree])
-        subprocess.check_call(["chmod", "-R", "+w", bsdtar_tree])
-
-        log_marker("Transforming (robots in disguise)")
-        with open(os.path.join(bsdtar_tree, "isolinux", "lang"), "w") as lang:
-            print(locale, file=lang)
-        subprocess.call([
-            "mkisofs",
-            "-r", "-V", "Ubuntu Chinese %s i386" % series.version,
-            "-o", os.path.join(scratch, os.path.basename(iso)),
-            "-cache-inodes", "-J", "-l",
-            "-b", "isolinux/isolinux.bin", "-c", "isolinux/boot.cat",
-            "-no-emul-boot", "-boot-load-size", "4", "-boot-info-table",
-            bsdtar_tree,
-        ])
-
-        iso_prefix = iso.rsplit(".", 1)[0]
-        scratch_prefix = os.path.join(
-            scratch, os.path.basename(iso).rsplit(".", 1)[0])
-
-        for ext in "list", "manifest":
-            if os.path.exists("%s.%s" % (iso_prefix, ext)):
-                shutil.copy2(
-                    "%s.%s" % (iso_prefix, ext),
-                    "%s.%s" % (scratch_prefix, ext))
-            else:
-                osextras.unlink_force("%s.%s" % (scratch_prefix, ext))
-    else:
-        log_marker("Downloading live filesystem images")
-        download_live_filesystems(config)
-        scratch = live_output_directory(config)
-        for entry in os.listdir(scratch):
-            if "." in entry:
-                os.rename(
-                    os.path.join(scratch, entry),
-                    os.path.join(scratch, "%s-desktop-%s" % (series, entry)))
-        pi_makelist = os.path.join(
-            config.root, "debian-cd", "tools", "pi-makelist")
-        for entry in os.listdir(scratch):
-            if entry.endswith(".iso"):
-                entry_path = os.path.join(scratch, entry)
-                list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
-                with open(list_path, "w") as list_file:
-                    subprocess.check_call(
-                        [pi_makelist, entry_path], stdout=list_file)
+    log_marker("Downloading live filesystem images")
+    download_live_filesystems(config)
+    scratch = live_output_directory(config)
+    for entry in os.listdir(scratch):
+        if "." in entry:
+            os.rename(
+                os.path.join(scratch, entry),
+                os.path.join(scratch, "%s-desktop-%s" % (series, entry)))
+    pi_makelist = os.path.join(
+        config.root, "debian-cd", "tools", "pi-makelist")
+    for entry in os.listdir(scratch):
+        if entry.endswith(".iso"):
+            entry_path = os.path.join(scratch, entry)
+            list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
+            with open(list_path, "w") as list_file:
+                subprocess.check_call(
+                    [pi_makelist, entry_path], stdout=list_file)
 
 
 def add_android_support(config, arch, output_dir):

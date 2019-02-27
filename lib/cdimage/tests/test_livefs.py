@@ -390,8 +390,8 @@ class TestLiveBuildCommand(TestCase):
         self.assertCommandContains(["-u", "zh_CN"], "i386")
 
     def test_pre_live_build(self):
-        self.config["DIST"] = "natty"
-        self.assertNotIn("-l", live_build_command(self.config, "i386"))
+        self.config["DIST"] = "precise"
+        self.assertIn("-l", live_build_command(self.config, "i386"))
 
     @mock.patch(
         "cdimage.livefs.live_build_options", return_value=["-f", "plain"])
@@ -837,8 +837,8 @@ class TestLiveCDBase(TestCase):
             self.base("royal.buildd", "ubuntu-ps3", "precise"),
             "powerpc+ps3", "ubuntu", "precise")
         self.assertBaseEqual(
-            self.base("celbalrai.buildd", "ubuntu-server-omap", "oneiric"),
-            "armel+omap", "ubuntu-server", "oneiric")
+            self.base("celbalrai.buildd", "ubuntu-server-omap", "precise"),
+            "armel+omap", "ubuntu-server", "precise")
 
     def test_ubuntu_defaults_locale(self):
         for series in all_series:

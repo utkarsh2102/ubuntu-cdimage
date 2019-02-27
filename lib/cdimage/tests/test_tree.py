@@ -1696,16 +1696,10 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         return publisher
 
     def test_image_output(self):
-        self.config["DIST"] = "natty"
+        self.config["DIST"] = "precise"
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu-chinese-edition",
-                "natty"),
-            self.make_publisher("ubuntu", "daily-live").image_output("i386"))
-        self.config["DIST"] = "oneiric"
-        self.assertEqual(
-            os.path.join(
-                self.config.root, "scratch", "ubuntu-zh_CN", "oneiric",
+                self.config.root, "scratch", "ubuntu-zh_CN", "precise",
                 "daily-live", "live"),
             self.make_publisher("ubuntu", "daily-live").image_output("i386"))
 

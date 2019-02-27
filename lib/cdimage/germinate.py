@@ -73,10 +73,7 @@ class Germination:
             series = self.config["DIST"]
             sources = [gitpattern % "ubuntu-core-dev"]
             if project in ("kubuntu", "kubuntu-active", "kubuntu-plasma5"):
-                if series >= "oneiric":
-                    sources.insert(0, bzrpattern % "kubuntu-dev")
-                else:
-                    sources.insert(0, bzrpattern % "ubuntu-core-dev")
+                sources.insert(0, bzrpattern % "kubuntu-dev")
             elif project == "ubuntustudio":
                 sources.insert(0, gitpattern % "ubuntustudio-dev")
             elif project == "mythbuntu":

@@ -82,9 +82,8 @@ class TestGermination(TestCase):
 
     def test_seed_sources_bzr(self):
         for project, series, owners in (
-            ("kubuntu", "oneiric", ["kubuntu-dev"]),
-            ("kubuntu-active", "natty", ["ubuntu-core-dev"]),
-            ("kubuntu-active", "oneiric", ["kubuntu-dev"]),
+            ("kubuntu", "precise", ["kubuntu-dev"]),
+            ("kubuntu-active", "precise", ["kubuntu-dev"]),
             ("kubuntu-plasma5", "utopic", ["kubuntu-dev"]),
             ("mythbuntu", "raring", ["mythbuntu-dev"]),
             ("ubuntu-budgie", "zesty",

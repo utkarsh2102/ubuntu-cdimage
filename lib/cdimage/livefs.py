@@ -169,8 +169,7 @@ def live_build_command(config, arch):
 
     if config["UBUNTU_DEFAULTS_LOCALE"]:
         command.extend(["-u", config["UBUNTU_DEFAULTS_LOCALE"]])
-    elif config["DIST"] >= "oneiric":
-        command.append("-l")
+    command.append("-l")
 
     command.extend(live_build_options(config, arch))
 

@@ -189,23 +189,23 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
                 raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
-        self.config["DIST"] = "oneiric"
+        self.config["DIST"] = "precise"
         self.config["ARCHES"] = "i386"
         build_ubuntu_defaults_locale(self.config)
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-zh_CN", "oneiric", "daily-live",
+            self.temp_dir, "scratch", "ubuntu-zh_CN", "precise", "daily-live",
             "live")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "oneiric-desktop-i386.iso",
-            "oneiric-desktop-i386.list",
-            "oneiric-desktop-i386.manifest",
-            "oneiric-desktop-i386.manifest-remove",
-            "oneiric-desktop-i386.size",
+            "precise-desktop-i386.iso",
+            "precise-desktop-i386.list",
+            "precise-desktop-i386.manifest",
+            "precise-desktop-i386.manifest-remove",
+            "precise-desktop-i386.size",
         ], os.listdir(output_dir))
         mock_check_call.assert_called_once_with([
             os.path.join(self.temp_dir, "debian-cd", "tools", "pi-makelist"),
-            os.path.join(output_dir, "oneiric-desktop-i386.iso"),
+            os.path.join(output_dir, "precise-desktop-i386.iso"),
         ], stdout=mock.ANY)
 
 
