@@ -86,7 +86,7 @@ class TestGermination(TestCase):
             ("kubuntu-active", "precise", ["kubuntu-dev"]),
             ("kubuntu-plasma5", "xenial", ["kubuntu-dev"]),
             ("mythbuntu", "trusty", ["mythbuntu-dev"]),
-            ("ubuntu-budgie", "zesty", ["ubuntubudgie-dev"]),
+            ("ubuntu-budgie", "bionic", ["ubuntubudgie-dev"]),
             ("ubuntu-mate", "xenial", ["ubuntu-mate-dev"]),
             ("ubuntu-moblin-remix", "precise", ["moblin"]),
             ("ubuntukylin", "trusty", ["ubuntu-core-dev"]),

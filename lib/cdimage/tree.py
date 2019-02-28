@@ -1813,7 +1813,7 @@ class DailyTreePublisher(Publisher):
             # https://bugs.launchpad.net/bugs/1796368
             return 2 * 1000 * 1000 * 1000
         elif (self.project in ("lubuntu", "lubuntu-next") and
-              self.config["DIST"] >= "artful"):
+              self.config["DIST"] >= "bionic"):
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "trusty":
@@ -1821,11 +1821,7 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] == "xenial":
-                return 1024 * 1024 * 1024
-            elif self.config["DIST"] >= "zesty" and arch == "ppc64el":
-                return 1024 * 1024 * 1024
-            elif self.config["DIST"] >= "bionic":
+            if self.config["DIST"] >= "xenial":
                 return 1024 * 1024 * 1024
             else:
                 return 736665600

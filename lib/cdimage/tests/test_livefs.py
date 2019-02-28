@@ -948,14 +948,14 @@ class TestLiveItemPaths(TestCase):
     def test_imgxz(self):
         for item in ("img.xz", "model-assertion"):
             self.assertPathsEqual(
-                ["http://kapok.buildd/~buildd/LiveCD/artful/ubuntu-core/"
+                ["http://kapok.buildd/~buildd/LiveCD/xenial/ubuntu-core/"
                  "current/livecd.ubuntu-core.%s" % item],
-                "amd64", item, "ubuntu-core", "artful")
+                "amd64", item, "ubuntu-core", "xenial")
             self.assertPathsEqual(
-                ["http://kishi00.buildd/~buildd/LiveCD/artful/"
+                ["http://kishi00.buildd/~buildd/LiveCD/xenial/"
                  "ubuntu-core-raspi2/current/"
                  "livecd.ubuntu-core-raspi2.%s" % item],
-                "armhf+raspi2", item, "ubuntu-core", "artful")
+                "armhf+raspi2", item, "ubuntu-core", "xenial")
 
     def test_kernel_items(self):
         for item in ("kernel", "initrd", "bootimg"):

@@ -295,12 +295,6 @@ class TestConfig(TestCase):
         self.assertEqual(None, config.core_series)
         config["DIST"] = "xenial"
         self.assertEqual("16", config.core_series)
-        config["DIST"] = "yakkety"
-        self.assertEqual("16", config.core_series)
-        config["DIST"] = "zesty"
-        self.assertEqual("16", config.core_series)
-        config["DIST"] = "artful"
-        self.assertEqual("16", config.core_series)
         config["DIST"] = "bionic"
         self.assertEqual("18", config.core_series)
         config["DIST"] = "cosmic"

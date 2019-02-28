@@ -532,7 +532,7 @@ class TestBuildImageSet(TestCase):
             ("lubuntu", "trusty", False, True),
             ("ubuntukylin", "trusty", False, True),
             ("ubuntu-gnome", "trusty", False, True),
-            ("ubuntu-budgie", "zesty", False, True),
+            ("ubuntu-budgie", "bionic", False, True),
             ("ubuntu-mate", "xenial", False, True),
             ("ubuntu-moblin-remix", "trusty", False, True),
         ):

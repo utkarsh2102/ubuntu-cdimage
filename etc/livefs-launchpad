@@ -9,7 +9,7 @@ edubuntu		dvd			*		*		ubuntu-cdimage/edubuntu
 xubuntu			daily-live		*		*		ubuntu-cdimage/xubuntu
 ubuntu-server		daily			trusty-		*		ubuntu-cdimage/ubuntu-server
 ubuntu-server		daily-preinstalled	xenial-		*		ubuntu-cdimage/cpc
-ubuntu-server-live	daily-live		zesty-		*		ubuntu-cdimage/ubuntu-server-live
+ubuntu-server-live	daily-live		bionic-		*		ubuntu-cdimage/ubuntu-server-live
 ubuntustudio		dvd			*		*		ubuntu-cdimage/ubuntustudio
 mythbuntu		daily-live		*		*		ubuntu-cdimage/mythbuntu
 lubuntu-next		daily-live		*		*		ubuntu-cdimage/lubuntu-next

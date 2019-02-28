@@ -739,12 +739,12 @@ class TestDailyTreePublisher(TestCase):
             ("xubuntu", "xenial", "daily-live", "i386", 2000000000),
             ("ubuntu-gnome", "trusty", "daily-live", "i386", 1073741824),
             ("ubuntu-gnome", "xenial", "daily-live", "i386", 2000000000),
-            ("ubuntu-budgie", "zesty", "daily-live", "i386", 2000000000),
+            ("ubuntu-budgie", "bionic", "daily-live", "i386", 2000000000),
             ("ubuntu-mate", "trusty", "daily-live", "amd64", 1073741824),
             ("ubuntu-mate", "xenial", "daily-live", "amd64", 2000000000),
             ("ubuntu-server", "xenial", "daily", "amd64", 1073741824),
-            ("ubuntu-server", "zesty", "daily", "amd64", 736665600),
-            ("ubuntu-server", "zesty", "daily", "ppc64el", 1073741824),
+            ("ubuntu-server", "bionic", "daily", "amd64", 1073741824),
+            ("ubuntu-server", "bionic", "daily", "ppc64el", 1073741824),
         ):
             if dist is not None:
                 self.config["DIST"] = dist
@@ -892,7 +892,7 @@ class TestDailyTreePublisher(TestCase):
                 return_value="img.xz")
     @mock.patch("cdimage.tree.zsyncmake")
     def test_publish_core_binary(self, mock_zsyncmake, *args):
-        self.config["DIST"] = "artful"
+        self.config["DIST"] = "xenial"
         publisher = self.make_publisher("ubuntu-core", "daily-live")
         source_dir = publisher.image_output("amd64")
         touch(os.path.join(
