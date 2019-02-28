@@ -44,7 +44,6 @@ project_map = {
     "ubuntu-gnome": "Ubuntu-GNOME",
     "ubuntu-budgie": "Ubuntu-Budgie",
     "ubuntu-mate": "Ubuntu-MATE",
-    "ubuntu-moblin-remix": "Ubuntu-Moblin-Remix",
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu Core",
     "ubuntu-base": "Ubuntu-Base",

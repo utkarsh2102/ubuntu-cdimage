@@ -87,8 +87,6 @@ def project_title(project):
         return 'Ubuntu Studio'
     elif project == 'kubuntu-active':
         return 'Kubuntu Active'
-    elif project == 'ubuntu-moblin-remix':
-        return 'Ubuntu Moblin Remix'
     else:
         return project.title()
 
@@ -235,7 +233,6 @@ def main():
         'xubuntu',
         'ubuntustudio',
         'kubuntu-netbook',
-        'ubuntu-moblin-remix',
         'kubuntu-active',
         'mythbuntu',
         'lubuntu',

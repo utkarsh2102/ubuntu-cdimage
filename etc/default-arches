@@ -41,8 +41,6 @@ ubuntu-budgie		*			cosmic-			amd64
 ubuntu-mate		*			-bionic			amd64 i386
 ubuntu-mate		*			cosmic-			amd64
 
-ubuntu-moblin-remix	*			*			i386
-
 ubuntu-server		daily-preinstalled	xenial			armhf+raspi2
 ubuntu-server		daily-preinstalled	bionic-			armhf+raspi2 armhf+raspi3 arm64+raspi3
 ubuntu-server		*			precise			amd64 i386

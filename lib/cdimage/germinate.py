@@ -88,8 +88,6 @@ class Germination:
                 sources.insert(0, bzrpattern % "ubuntubudgie-dev")
             elif project == "ubuntu-mate":
                 sources.insert(0, bzrpattern % "ubuntu-mate-dev")
-            elif project == "ubuntu-moblin-remix":
-                sources.insert(0, bzrpattern % "moblin")
             elif project == "ubuntukylin":
                 if series >= "xenial":
                     sources.insert(0, gitpattern % "ubuntukylin-members")
@@ -139,8 +137,6 @@ class Germination:
                 return "ubuntukylin.%s" % self.config.series
             else:
                 return "ubuntu.%s" % self.config.series
-        elif project == "ubuntu-moblin-remix":
-            return "moblin.%s" % self.config.series
         elif project == "lubuntu-next":
             return "lubuntu.%s" % self.config.series
         else:

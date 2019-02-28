@@ -87,7 +87,6 @@ class TestGermination(TestCase):
             ("mythbuntu", "trusty", ["mythbuntu-dev"]),
             ("ubuntu-budgie", "bionic", ["ubuntubudgie-dev"]),
             ("ubuntu-mate", "xenial", ["ubuntu-mate-dev"]),
-            ("ubuntu-moblin-remix", "precise", ["moblin"]),
             ("ubuntukylin", "trusty", ["ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
@@ -186,7 +185,6 @@ class TestGermination(TestCase):
             ("ubuntu-server", "trusty", "ubuntu.trusty"),
             ("ubuntukylin", "trusty", "ubuntu.trusty"),
             ("ubuntukylin", "xenial", "ubuntukylin.xenial"),
-            ("ubuntu-moblin-remix", "precise", "moblin.precise"),
         ):
             self.config["DIST"] = series
             self.assertEqual(seed_dist, self.germination.seed_dist(project))

@@ -533,7 +533,6 @@ class TestBuildImageSet(TestCase):
             ("ubuntu-gnome", "trusty", False, True),
             ("ubuntu-budgie", "bionic", False, True),
             ("ubuntu-mate", "xenial", False, True),
-            ("ubuntu-moblin-remix", "trusty", False, True),
         ):
             config = Config(read=False)
             config["PROJECT"] = project

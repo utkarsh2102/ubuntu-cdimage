@@ -382,8 +382,6 @@ class Publisher:
         elif self.image_type.endswith("-live"):
             if self.project == "edubuntu":
                 return "desktop"
-            elif self.project == "ubuntu-moblin-remix":
-                return "moblin-remix"
             elif self.project == "kubuntu-netbook":
                 return "netbook"
             elif self.project == "ubuntu-server":
@@ -410,7 +408,7 @@ class Publisher:
         if publish_type.startswith("preinstalled-"):
             return "daily-preinstalled"
         elif publish_type in (
-                "desktop", "live", "moblin-remix", "netbook",
+                "desktop", "live", "netbook",
                 "live-core", "live-server"):
             return "daily-live"
         elif publish_type == "dvd":
@@ -488,8 +486,6 @@ class Publisher:
             return "source %s" % cd
         elif publish_type == "netbook":
             return "netbook live %s" % cd
-        elif publish_type == "moblin-remix":
-            return "Moblin live CD"
         elif publish_type == "active":
             return "preview active image"
         elif publish_type in ("server-uec", "uec"):
@@ -588,15 +584,6 @@ class Publisher:
                 "installer, please file a bug on the %s package." % bug_link,
             ])
             return
-        elif publish_type == "moblin-remix":
-            sentences.append(
-                "The live %s allows you to try Ubuntu Moblin Remix without "
-                "changing your computer at all, and at your option to install "
-                "it permanently later." % cd)
-            sentences.append(
-                "This live %s is optimized for netbooks with screens up to "
-                "10\"." % cd)
-            sentences.append(desktop_req)
         elif publish_type == "server" or publish_type == "live-server":
             if self.project == "edubuntu":
                 sentences.append(
@@ -875,7 +862,6 @@ class Publisher:
             return
 
         usb_projects = (
-            "ubuntu-moblin-remix",
             "kubuntu", "kubuntu-active",
             "ubuntu-mate",
             )
@@ -1079,7 +1065,7 @@ class Publisher:
             "serveraddon", "addon",
             "dvd",
             "src",
-            "netbook", "moblin-remix", "mobile", "active",
+            "netbook", "mobile", "active",
             "uec", "server-uec",
             "preinstalled-desktop", "preinstalled-netbook",
             "preinstalled-mobile", "preinstalled-active",
@@ -1750,10 +1736,6 @@ class DailyTreePublisher(Publisher):
             # All Edubuntu images are DVD sized (including arm).
             # Ubuntu Studio is always DVD-sized for now.
             return 4700372992
-        elif self.project == "ubuntu-moblin-remix":
-            # Mobile images are designed for USB drives; arbitrarily pick
-            # 1GB as a limit.
-            return 1024 * 1024 * 1024
         elif self.project in ("kubuntu", "kubuntu-active"):
             if self.config["DIST"] >= "xenial":
                 # Per https://lists.ubuntu.com/archives/
@@ -3020,7 +3002,7 @@ class ReleasePublisher(Publisher):
 
     def want_manifest(self, publish_type, path):
         if publish_type in (
-            "live", "desktop", "netbook", "moblin-remix",
+            "live", "desktop", "netbook",
             "uec", "server-uec", "core", "wubi", "server", "live-server",
         ):
             return True
@@ -3039,7 +3021,7 @@ class ReleasePublisher(Publisher):
     def want_metalink(self, publish_type):
         # TODO: maybe others?  metalink is only supported for Wubi
         if publish_type in (
-            "netbook", "moblin-remix", "uec", "server-uec",
+            "netbook", "uec", "server-uec",
         ):
             return False
         elif publish_type.startswith("preinstalled-"):
@@ -3237,7 +3219,7 @@ class ReleasePublisher(Publisher):
 
         # Override the architecture list for these types unconditionally.
         # TODO: should reset default-arches for the source project instead
-        if (publish_type in ("netbook", "moblin-remix") and
+        if (publish_type == "netbook" and
                 not [arch for arch in arches if arch.startswith("armel")]):
             arches = ["i386"]
 
