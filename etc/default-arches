@@ -6,8 +6,6 @@
 ubuntu-touch		daily-preinstalled	trusty			armhf i386
 ubuntu-touch		daily-preinstalled	xenial-			armhf i386 arm64
 
-ubuntu-touch-custom	daily-preinstalled	trusty-			armhf i386
-
 edubuntu		dvd			trusty-		amd64 i386
 edubuntu-dvd		dvd			trusty-		amd64 i386
 

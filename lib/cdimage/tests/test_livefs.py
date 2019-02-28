@@ -173,9 +173,6 @@ class TestLiveProject(TestCase):
     def test_project_livecd_base(self):
         self.assertProjectEqual("base", "livecd-base", "dapper")
 
-    def test_project_ubuntu_touch_custom(self):
-        self.assertProjectEqual("ubuntu-touch", "ubuntu-touch-custom", "vivid")
-
     def test_ubuntu_dvd(self):
         for series in all_series[7:]:
             self.assertProjectEqual(
@@ -334,11 +331,6 @@ class TestLiveBuildOptions(TestCase):
 
     def test_ubuntu_touch(self):
         self.config["PROJECT"] = "ubuntu-touch"
-        self.assertEqual(
-            ["-f", "plain"], live_build_options(self.config, "armhf"))
-
-    def test_ubuntu_touch_custom(self):
-        self.config["PROJECT"] = "ubuntu-touch-custom"
         self.assertEqual(
             ["-f", "plain"], live_build_options(self.config, "armhf"))
 

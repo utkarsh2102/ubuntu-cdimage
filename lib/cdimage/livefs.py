@@ -121,8 +121,7 @@ def live_build_options(config, arch):
         elif subarch in ("ac100", "nexus7"):
             options.extend(["-f", "plain"])
 
-    if config.project in ("ubuntu-base", "ubuntu-core", "ubuntu-touch",
-                          "ubuntu-touch-custom"):
+    if config.project in ("ubuntu-base", "ubuntu-core", "ubuntu-touch"):
         options.extend(["-f", "plain"])
 
     if config.subproject == "wubi":
@@ -141,8 +140,6 @@ def live_project(config, arch):
 
     if project == "livecd-base":
         liveproject = "base"
-    elif project == "ubuntu-touch-custom":
-        liveproject = "ubuntu-touch"
     elif (project == "ubuntu-server" and
           config.image_type == "daily-preinstalled"):
         liveproject = "ubuntu-cpc"
@@ -861,7 +858,7 @@ def download_live_filesystems(config):
         if not got_image:
             raise NoFilesystemImages("No filesystem images found.")
 
-    if config.project in ("ubuntu-touch", "ubuntu-touch-custom"):
+    if config.project == "ubuntu-touch":
         for arch in config.arches:
             for abootimg in (
                 "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)

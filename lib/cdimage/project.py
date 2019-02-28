@@ -52,7 +52,6 @@ project_map = {
     "ubuntu-base": "Ubuntu-Base",
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "ubuntu-touch": "Ubuntu Touch",
-    "ubuntu-touch-custom": "Ubuntu Touch Custom Build",
 }
 
 

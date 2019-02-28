@@ -375,7 +375,7 @@ class Publisher:
         if self.image_type.endswith("-preinstalled"):
             if self.project == "ubuntu-server":
                 return "preinstalled-server"
-            elif self.project in ("ubuntu-touch", "ubuntu-touch-custom"):
+            elif self.project == "ubuntu-touch":
                 return "preinstalled-touch"
             elif self.project == "ubuntu-core":
                 return "preinstalled-core"
@@ -1555,7 +1555,7 @@ class Publisher:
             if got_iso or got_img:
                 print(file=header)
 
-            if self.config.project in ("ubuntu-touch", "ubuntu-touch-custom"):
+            if self.config.project == "ubuntu-touch":
                 for tag in self.ubuntu_touch_legal_notice():
                     print(tag, file=header)
                 print(file=header)
@@ -2280,17 +2280,14 @@ class DailyTreePublisher(Publisher):
             for arch in arches:
                 if image_base.endswith("-%s" % arch):
                     matches = True
-                elif (self.config.project in ("ubuntu-touch",
-                                              "ubuntu-touch-custom") and
+                elif (self.config.project == "ubuntu-touch" and
                       arch == "armhf" and
                       ("-armel+" in image_base or "-armhf+" in image_base)):
                     matches = True
-                elif (self.config.project in ("ubuntu-touch",
-                                              "ubuntu-touch-custom") and
+                elif (self.config.project == "ubuntu-touch" and
                       arch == "i386" and "-i386+" in image_base):
                     matches = True
-                elif (self.config.project in ("ubuntu-touch",
-                                              "ubuntu-touch-custom") and
+                elif (self.config.project == "ubuntu-touch" and
                       arch == "arm64" and "-arm64+" in image_base):
                     matches = True
                 elif self.config.subproject == "wubi" and image_base == arch:

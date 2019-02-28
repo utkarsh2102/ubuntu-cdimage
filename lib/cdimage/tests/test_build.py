@@ -425,9 +425,6 @@ class TestBuildLiveCDBase(TestCase):
     def test_ubuntu_touch(self):
         self._perform_ubuntu_touch_testing("ubuntu-touch")
 
-    def test_ubuntu_touch_custom(self):
-        self._perform_ubuntu_touch_testing("ubuntu-touch-custom")
-
 
 class TestExtractDebootstrap(TestCase):
     def setUp(self):
@@ -536,7 +533,7 @@ class TestBuildImageSet(TestCase):
             ("ubuntukylin", "trusty", False, True),
             ("ubuntu-gnome", "trusty", False, True),
             ("ubuntu-budgie", "zesty", False, True),
-            ("ubuntu-mate", "vivid", False, True),
+            ("ubuntu-mate", "xenial", False, True),
             ("ubuntu-moblin-remix", "trusty", False, True),
         ):
             config = Config(read=False)
