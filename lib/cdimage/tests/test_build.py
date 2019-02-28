@@ -526,7 +526,6 @@ class TestBuildImageSet(TestCase):
             ("kubuntu", "precise", False, False),
             ("kubuntu", "trusty", False, True),
             ("kubuntu-active", "trusty", False, True),
-            ("kubuntu-plasma5", "xenial", False, True),
             ("ubuntustudio", "trusty", False, True),
             ("mythbuntu", "trusty", False, True),
             ("lubuntu", "trusty", False, True),

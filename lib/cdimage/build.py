@@ -88,7 +88,6 @@ def configure_for_project(config):
             config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project in (
         "kubuntu-active",
-        "kubuntu-plasma5",
         "ubuntustudio",
         "mythbuntu",
         "lubuntu",

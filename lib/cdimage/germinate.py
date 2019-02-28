@@ -72,7 +72,7 @@ class Germination:
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             series = self.config["DIST"]
             sources = [gitpattern % "ubuntu-core-dev"]
-            if project in ("kubuntu", "kubuntu-active", "kubuntu-plasma5"):
+            if project in ("kubuntu", "kubuntu-active"):
                 sources.insert(0, bzrpattern % "kubuntu-dev")
             elif project == "ubuntustudio":
                 sources.insert(0, gitpattern % "ubuntustudio-dev")

@@ -26,8 +26,6 @@ kubuntu			daily-live		cosmic-			amd64
 
 kubuntu-active		*			*			i386
 
-kubuntu-plasma5		daily-live		xenial-			amd64 i386
-
 mythbuntu		*			*			amd64 i386
 
 ubuntu			daily			precise			amd64 amd64+mac i386

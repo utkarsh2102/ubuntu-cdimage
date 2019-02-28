@@ -4,7 +4,6 @@
 
 ubuntu			daily-live		*		*		ubuntu-cdimage/ubuntu
 kubuntu			daily-live		*		*		ubuntu-cdimage/kubuntu
-kubuntu-plasma5		daily-live		*		*		ubuntu-cdimage/kubuntu-plasma5
 edubuntu		dvd			*		*		ubuntu-cdimage/edubuntu
 xubuntu			daily-live		*		*		ubuntu-cdimage/xubuntu
 ubuntu-server		daily			trusty-		*		ubuntu-cdimage/ubuntu-server

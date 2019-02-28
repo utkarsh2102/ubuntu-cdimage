@@ -67,7 +67,6 @@ projects = [
     "kubuntu",
     "kubuntu-active",
     "kubuntu-netbook",
-    "kubuntu-plasma5",
     "lubuntu",
     "lubuntu-next",
     "mythbuntu",
@@ -446,8 +445,6 @@ class Publisher:
     def cssincludes(self):
         if self.project == "kubuntu":
             return ["//releases.ubuntu.com/include/kubuntu.css"]
-        if self.project == "kubuntu-plasma5":
-            return ["//releases.ubuntu.com/include/kubuntu-plasma5.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
             return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
         else:
@@ -882,7 +879,7 @@ class Publisher:
 
         usb_projects = (
             "ubuntu-moblin-remix",
-            "kubuntu", "kubuntu-active", "kubuntu-plasma5",
+            "kubuntu", "kubuntu-active",
             "ubuntu-mate",
             )
         series = self.config["DIST"]
@@ -1182,12 +1179,6 @@ class Publisher:
                     "<link "
                     "href='http://fonts.googleapis.com/css?family=Ubuntu' "
                     "rel='stylesheet' type='text/css'>", file=header)
-            if self.project == "kubuntu-plasma5":
-                print(
-                    "<link "
-                    "href='http://fonts.googleapis.com/css?family=Oxygen' "
-                    "rel='stylesheet' type='text/css'>", file=header)
-            if self.project in ("kubuntu", "kubuntu-plasma5"):
                 print(
                     "<link rel=\"icon\" type=\"image/png\" "
                     "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
@@ -1766,9 +1757,7 @@ class DailyTreePublisher(Publisher):
             # Mobile images are designed for USB drives; arbitrarily pick
             # 1GB as a limit.
             return 1024 * 1024 * 1024
-        elif self.project in (
-                "kubuntu", "kubuntu-active", "kubuntu-plasma5",
-                ):
+        elif self.project in ("kubuntu", "kubuntu-active"):
             if self.config["DIST"] >= "xenial":
                 # Per https://lists.ubuntu.com/archives/
                 # ... ubuntu-release/2016-May/003749.html

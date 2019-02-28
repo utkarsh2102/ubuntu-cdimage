@@ -84,7 +84,6 @@ class TestGermination(TestCase):
         for project, series, owners in (
             ("kubuntu", "precise", ["kubuntu-dev"]),
             ("kubuntu-active", "precise", ["kubuntu-dev"]),
-            ("kubuntu-plasma5", "xenial", ["kubuntu-dev"]),
             ("mythbuntu", "trusty", ["mythbuntu-dev"]),
             ("ubuntu-budgie", "bionic", ["ubuntubudgie-dev"]),
             ("ubuntu-mate", "xenial", ["ubuntu-mate-dev"]),
