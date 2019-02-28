@@ -29,7 +29,6 @@ import os
 # values of 25 - (length of longest relevant architecture name).
 project_map = {
     "ubuntu": "Ubuntu",
-    "ubuntu-desktop-next": "Ubuntu-Desktop-Next",
     "ubuntu-zh_CN": "Ubuntu Chinese Edition",
     "kubuntu": "Kubuntu",
     "kubuntu-active": "Kubuntu-Active",

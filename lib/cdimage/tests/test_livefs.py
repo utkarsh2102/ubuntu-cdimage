@@ -346,7 +346,7 @@ class TestLiveBuildOptions(TestCase):
         self.config["SUBPROJECT"] = "wubi"
         for series, fstype in (
             ("precise", "ext3"),
-            ("quantal", "ext3"),  # ext4
+            ("trusty", "ext3"),  # ext4
         ):
             self.config["DIST"] = series
             self.assertEqual(
@@ -378,10 +378,10 @@ class TestLiveBuildCommand(TestCase):
 
     def test_basic(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         expected = self.base_expected + [
             "buildd@cardamom.buildd", "/home/buildd/bin/BuildLiveCD",
-            "-l", "-A", "i386", "-d", "raring", "ubuntu",
+            "-l", "-A", "i386", "-d", "trusty", "ubuntu",
         ]
         self.assertEqual(expected, live_build_command(self.config, "i386"))
 
@@ -479,21 +479,21 @@ class TestRunLiveBuilds(TestCase):
     def test_live_build_notify_failure_no_log(self, mock_send_mail, *args):
         self.config.root = self.use_temp_dir()
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         live_build_notify_failure(self.config, "i386")
         mock_send_mail.assert_called_once_with(
-            "LiveFS ubuntu/raring/i386 failed to build on 20130315",
+            "LiveFS ubuntu/trusty/i386 failed to build on 20130315",
             "buildlive", ["foo@example.org"], b"")
 
     @mock.patch("time.strftime", return_value="20130315")
     @mock.patch("cdimage.livefs.send_mail")
     def test_live_build_notify_failure_log(self, mock_send_mail, *args):
         self.config["PROJECT"] = "kubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path) as notify_addresses:
@@ -502,10 +502,10 @@ class TestRunLiveBuilds(TestCase):
         with mock.patch("cdimage.livefs.urlopen", mock_urlopen_obj):
             live_build_notify_failure(self.config, "armhf+omap4")
         mock_urlopen_obj.assert_called_once_with(
-            "http://kishi00.buildd/~buildd/LiveCD/raring/kubuntu-omap4/latest/"
+            "http://kishi00.buildd/~buildd/LiveCD/trusty/kubuntu-omap4/latest/"
             "livecd-armhf.out", timeout=30)
         mock_send_mail.assert_called_once_with(
-            "LiveFS kubuntu-omap4/raring/armhf+omap4 failed to build on "
+            "LiveFS kubuntu-omap4/trusty/armhf+omap4 failed to build on "
             "20130315",
             "buildlive", ["foo@example.org"], b"Log data\n")
 
@@ -515,7 +515,7 @@ class TestRunLiveBuilds(TestCase):
     @mock.patch("cdimage.livefs.send_mail")
     def test_run_live_builds_notifies_on_failure(self, mock_send_mail, *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
@@ -536,10 +536,10 @@ class TestRunLiveBuilds(TestCase):
         ], self.captured_log_messages())
         mock_send_mail.assert_has_calls([
             mock.call(
-                "LiveFS ubuntu/raring/amd64 failed to build on 20130315",
+                "LiveFS ubuntu/trusty/amd64 failed to build on 20130315",
                 "buildlive", ["foo@example.org"], b"Log data\n"),
             mock.call(
-                "LiveFS ubuntu/raring/i386 failed to build on 20130315",
+                "LiveFS ubuntu/trusty/i386 failed to build on 20130315",
                 "buildlive", ["foo@example.org"], b"Log data\n"),
         ], any_order=True)
 
@@ -550,7 +550,7 @@ class TestRunLiveBuilds(TestCase):
     def test_run_live_builds(self, mock_live_build_notify_failure, mock_popen,
                              mock_tracker_set_rebuild_status, *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         self.capture_logging()
@@ -578,12 +578,12 @@ class TestRunLiveBuilds(TestCase):
             mock.call(
                 expected_command_base + [
                     "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
-                    "-l", "-A", "amd64", "-d", "raring", "ubuntu",
+                    "-l", "-A", "amd64", "-d", "trusty", "ubuntu",
                 ]),
             mock.call(
                 expected_command_base + [
                     "buildd@cardamom.buildd", "/home/buildd/bin/BuildLiveCD",
-                    "-l", "-A", "i386", "-d", "raring", "ubuntu",
+                    "-l", "-A", "i386", "-d", "trusty", "ubuntu",
                 ])
         ])
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
@@ -595,7 +595,7 @@ class TestRunLiveBuilds(TestCase):
                                              mock_live_build_notify_failure,
                                              mock_popen, *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 amd64+mac"
         self.capture_logging()
@@ -605,7 +605,7 @@ class TestRunLiveBuilds(TestCase):
             "ssh", "-n", "-o", "StrictHostKeyChecking=no",
             "-o", "BatchMode=yes",
             "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
-            "-l", "-A", "amd64", "-d", "raring", "ubuntu",
+            "-l", "-A", "amd64", "-d", "trusty", "ubuntu",
         ]
         mock_popen.assert_called_once_with(expected_command)
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
@@ -616,7 +616,7 @@ class TestRunLiveBuilds(TestCase):
     @mock.patch("cdimage.livefs.send_mail")
     def test_run_live_builds_partial_success(self, mock_send_mail, *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
@@ -650,17 +650,17 @@ class TestRunLiveBuilds(TestCase):
                 mock.call(
                     expected_command_base + [
                         "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
-                        "-l", "-A", "amd64", "-d", "raring", "ubuntu",
+                        "-l", "-A", "amd64", "-d", "trusty", "ubuntu",
                     ]),
                 mock.call(
                     expected_command_base + [
                         "buildd@cardamom.buildd",
                         "/home/buildd/bin/BuildLiveCD",
-                        "-l", "-A", "i386", "-d", "raring", "ubuntu",
+                        "-l", "-A", "i386", "-d", "trusty", "ubuntu",
                     ]),
             ])
             mock_send_mail.assert_called_once_with(
-                "LiveFS ubuntu/raring/i386 failed to build on 20130315",
+                "LiveFS ubuntu/trusty/i386 failed to build on 20130315",
                 "buildlive", ["foo@example.org"], b"Log data\n")
 
     @skipUnless(launchpad_available, "launchpadlib not available")
@@ -675,7 +675,7 @@ class TestRunLiveBuilds(TestCase):
                                 mock_tracker_set_rebuild_status, mock_sleep,
                                 *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "utopic"
+        self.config["DIST"] = "xenial"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         osextras.unlink_force(os.path.join(
@@ -710,13 +710,13 @@ class TestRunLiveBuilds(TestCase):
         lp = get_launchpad()
         owner = lp.people["ubuntu-cdimage"]
         ubuntu = lp.distributions["ubuntu"]
-        utopic = ubuntu.getSeries(name_or_version="utopic")
+        xenial = ubuntu.getSeries(name_or_version="xenial")
         dases = [
-            utopic.getDistroArchSeries(archtag)
+            xenial.getDistroArchSeries(archtag)
             for archtag in ("amd64", "i386")]
         self.assertEqual(2, len(dases))
         livefs = lp.livefses.getByName(
-            owner=owner, distro_series=utopic, name="ubuntu-desktop")
+            owner=owner, distro_series=xenial, name="ubuntu-desktop")
         builds = [
             livefs.getLatestBuild(distro_arch_series=das) for das in dases]
         self.assertEqual(2, len(builds))
@@ -817,7 +817,7 @@ class TestLiveCDBase(TestCase):
 
     def test_livecd_override(self):
         self.assertBaseEqual(
-            "ftp://blah/quantal/ubuntu/current", "i386", "ubuntu", "quantal",
+            "ftp://blah/trusty/ubuntu/current", "i386", "ubuntu", "trusty",
             livecd="ftp://blah")
 
     def test_subproject(self):
@@ -1032,21 +1032,21 @@ class TestDownloadLiveFilesystems(TestCase):
 
     def test_live_output_directory(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         expected = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         self.assertEqual(expected, live_output_directory(self.config))
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         expected = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-zh_CN", "raring", "daily-live",
+            self.temp_dir, "scratch", "ubuntu-zh_CN", "trusty", "daily-live",
             "live")
         self.assertEqual(expected, live_output_directory(self.config))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_no_item(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertFalse(download_live_items(self.config, "powerpc",
                          "usb-creator"))
@@ -1055,27 +1055,27 @@ class TestDownloadLiveFilesystems(TestCase):
     @mock.patch("cdimage.osextras.fetch", side_effect=osextras.FetchError)
     def test_download_live_items_failed_fetch(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertFalse(download_live_items(self.config, "i386", "squashfs"))
         mock_fetch.assert_called_once_with(
             self.config,
-            "http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/current/"
+            "http://cardamom.buildd/~buildd/LiveCD/trusty/ubuntu/current/"
             "livecd.ubuntu.squashfs",
             os.path.join(
-                self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+                self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
                 "live", "i386.squashfs"))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_kernel(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "quantal"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(download_live_items(self.config, "powerpc", "kernel"))
-        prefix = ("http://royal.buildd/~buildd/LiveCD/quantal/ubuntu/current/"
+        prefix = ("http://royal.buildd/~buildd/LiveCD/trusty/ubuntu/current/"
                   "livecd.ubuntu.kernel-")
         target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "quantal", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
             "live")
         mock_fetch.assert_has_calls([
             mock.call(
@@ -1119,15 +1119,15 @@ class TestDownloadLiveFilesystems(TestCase):
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_initrd(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(download_live_items(self.config, "i386", "kernel"))
-        prefix = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/"
+        prefix = ("http://cardamom.buildd/~buildd/LiveCD/trusty/ubuntu/"
                   "current/livecd.ubuntu.kernel-")
         calls = []
         for suffix in '', '-hwe':
             target_dir = os.path.join(
-                self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+                self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
                 "live")
             calls.append(
                 mock.call(
@@ -1138,14 +1138,14 @@ class TestDownloadLiveFilesystems(TestCase):
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_kernel_efi_signed(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(
             download_live_items(self.config, "amd64", "kernel-efi-signed"))
-        prefix = ("http://kapok.buildd/~buildd/LiveCD/raring/ubuntu/"
+        prefix = ("http://kapok.buildd/~buildd/LiveCD/trusty/ubuntu/"
                   "current/livecd.ubuntu.kernel-")
         target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         mock_fetch.assert_called_once_with(
             self.config, prefix + "generic.efi.signed",
             os.path.join(target_dir, "amd64.kernel-generic.efi.signed"))
@@ -1153,16 +1153,16 @@ class TestDownloadLiveFilesystems(TestCase):
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_bootimg(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.assertTrue(
             download_live_items(self.config, "armhf+omap4", "bootimg"))
-        url = ("http://kishi00.buildd/~buildd/LiveCD/raring/ubuntu-omap4/"
+        url = ("http://kishi00.buildd/~buildd/LiveCD/trusty/ubuntu-omap4/"
                "current/livecd.ubuntu-omap4.bootimg-omap4")
         calls = []
         for suffix in '', '-hwe':
             target_dir = os.path.join(
-                self.temp_dir, "scratch", "ubuntu", "raring",
+                self.temp_dir, "scratch", "ubuntu", "trusty",
                 "daily-preinstalled", "live")
             calls.append(
                 mock.call(
@@ -1174,52 +1174,52 @@ class TestDownloadLiveFilesystems(TestCase):
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_wubi(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(download_live_items(self.config, "i386", "wubi"))
-        url = "http://people.canonical.com/~ubuntu-archive/wubi/raring/stable"
+        url = "http://people.canonical.com/~ubuntu-archive/wubi/trusty/stable"
         target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.wubi.exe"))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_usb_creator(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(
             download_live_items(self.config, "i386", "usb-creator"))
-        url = "http://people.canonical.com/~evand/usb-creator/raring/stable"
+        url = "http://people.canonical.com/~evand/usb-creator/trusty/stable"
         target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.usb-creator.exe"))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_squashfs(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(download_live_items(self.config, "i386", "squashfs"))
-        url = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu/"
+        url = ("http://cardamom.buildd/~buildd/LiveCD/trusty/ubuntu/"
                "current/livecd.ubuntu.squashfs")
         target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.squashfs"))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_server_squashfs(self, mock_fetch):
         self.config["PROJECT"] = "edubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "dvd"
         self.assertTrue(
             download_live_items(self.config, "i386", "server-squashfs"))
-        url = ("http://cardamom.buildd/~buildd/LiveCD/raring/ubuntu-server/"
+        url = ("http://cardamom.buildd/~buildd/LiveCD/trusty/ubuntu-server/"
                "current/livecd.ubuntu-server.squashfs")
         target_dir = os.path.join(
-            self.temp_dir, "scratch", "edubuntu", "raring", "dvd", "live")
+            self.temp_dir, "scratch", "edubuntu", "trusty", "dvd", "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.server-squashfs"))
 
@@ -1267,10 +1267,10 @@ class TestDownloadLiveFilesystems(TestCase):
 
     def test_write_autorun(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         os.makedirs(output_dir)
         write_autorun(self.config, "i386", "wubi.exe", "Install Ubuntu")
         autorun_path = os.path.join(output_dir, "i386.autorun.inf")
@@ -1303,13 +1303,13 @@ class TestDownloadLiveFilesystems(TestCase):
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "amd64 i386"
         self.config["CDIMAGE_LIVE"] = "1"
         download_live_filesystems(self.config)
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         self.assertCountEqual([
             "amd64.autorun.inf",
             "amd64.initrd-generic",

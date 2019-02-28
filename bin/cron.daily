@@ -39,7 +39,7 @@ def main():
     series = config["DIST"]
     if project == "edubuntu":
         config["CDIMAGE_ADDON"] = "1"
-    elif (project == "ubuntu-server" and series >= "quantal" and
+    elif (project == "ubuntu-server" and series >= "trusty" and
           not config["CDIMAGE_NO_SQUASHFS_BASE"]):
         config["CDIMAGE_SQUASHFS_BASE"] = "1"
     if not build_image_set(config, options):

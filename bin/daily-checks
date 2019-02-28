@@ -233,7 +233,6 @@ def main():
 
     projects = (
         'ubuntu',
-        'ubuntu-desktop-next',
         'ubuntu-server',
         'kubuntu',
         'edubuntu',

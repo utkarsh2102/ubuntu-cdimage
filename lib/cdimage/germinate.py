@@ -91,7 +91,7 @@ class Germination:
             elif project == "ubuntu-moblin-remix":
                 sources.insert(0, bzrpattern % "moblin")
             elif project == "ubuntukylin":
-                if series >= "utopic":
+                if series >= "xenial":
                     sources.insert(0, gitpattern % "ubuntukylin-members")
                 else:
                     sources.insert(0, bzrpattern % "ubuntu-core-dev")
@@ -135,14 +135,12 @@ class Germination:
         if (project in ("ubuntu-server", "jeos")):
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntukylin":
-            if self.config["DIST"] >= "utopic":
+            if self.config["DIST"] >= "xenial":
                 return "ubuntukylin.%s" % self.config.series
             else:
                 return "ubuntu.%s" % self.config.series
         elif project == "ubuntu-moblin-remix":
             return "moblin.%s" % self.config.series
-        elif project == "ubuntu-desktop-next":
-            return "ubuntu-touch.%s" % self.config.series
         elif project == "lubuntu-next":
             return "lubuntu.%s" % self.config.series
         else:

@@ -3,13 +3,11 @@
 # Like etc/default-arches, "PROJECT" is in fact PROJECT[-SUBPROJECT][-LOCALE].
 
 ubuntu			daily-live		*		*		ubuntu-cdimage/ubuntu
-ubuntu-desktop-next	daily-live		-vivid		*		ubuntu-cdimage/ubuntu-desktop-next
-ubuntu-desktop-next-system-image	daily-preinstalled	wily-	*	ubuntu-cdimage/ubuntu-desktop-next
 kubuntu			daily-live		*		*		ubuntu-cdimage/kubuntu
 kubuntu-plasma5		daily-live		*		*		ubuntu-cdimage/kubuntu-plasma5
 edubuntu		dvd			*		*		ubuntu-cdimage/edubuntu
 xubuntu			daily-live		*		*		ubuntu-cdimage/xubuntu
-ubuntu-server		daily			quantal-	*		ubuntu-cdimage/ubuntu-server
+ubuntu-server		daily			trusty-		*		ubuntu-cdimage/ubuntu-server
 ubuntu-server		daily-preinstalled	xenial-		*		ubuntu-cdimage/cpc
 ubuntu-server-live	daily-live		zesty-		*		ubuntu-cdimage/ubuntu-server-live
 ubuntustudio		dvd			*		*		ubuntu-cdimage/ubuntustudio
@@ -31,4 +29,4 @@ ubuntu-touch-custom	daily-preinstalled	vivid-		*		ubuntu-cdimage/ubuntu-touch-cu
 ubuntu-pd		daily-preinstalled	*		*		ubuntu-cdimage/ubuntu-pd
 ubuntu			dvd			-precise	*		ubuntu-cdimage/ubuntu-dvd
 ubuntu-wubi		wubi			*		*		ubuntu-cdimage/ubuntu-wubi
-ubuntu-zh_CN		daily-live		-raring		*		ubuntu-cdimage/ubuntu-zh-cn
+ubuntu-zh_CN		daily-live		-precise	*		ubuntu-cdimage/ubuntu-zh-cn

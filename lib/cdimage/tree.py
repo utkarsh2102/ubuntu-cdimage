@@ -72,7 +72,6 @@ projects = [
     "lubuntu-next",
     "mythbuntu",
     "ubuntu",
-    "ubuntu-desktop-next",
     "ubuntu-gnome",
     "ubuntu-budgie",
     "ubuntu-mate",
@@ -380,8 +379,6 @@ class Publisher:
                 return "preinstalled-touch"
             elif self.project == "ubuntu-core":
                 return "preinstalled-core"
-            elif self.project == "ubuntu-desktop-next":
-                return "preinstalled-desktop-next"
             else:
                 return "preinstalled-desktop"
         elif self.image_type.endswith("-live"):
@@ -515,8 +512,6 @@ class Publisher:
             return "preinstalled touch image"
         elif publish_type == "preinstalled-core":
             return "preinstalled core image"
-        elif publish_type == "preinstalled-desktop-next":
-            return "preinstalled desktop next image"
         elif publish_type == "wubi":
             return "Wubi %s" % cd
         else:
@@ -536,7 +531,7 @@ class Publisher:
 
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
-        elif self.config["DIST"] < "quantal":
+        elif self.config["DIST"] <= "precise":
             if image_format in ("img", "img.gz"):
                 cd = "image"
             elif self.project == "ubuntustudio":
@@ -567,13 +562,6 @@ class Publisher:
                     cd)
                 self.prefmsg_emitted = True
             sentences.append(desktop_req)
-            if self.project == "ubuntu-desktop-next":
-                sentences.append(
-                    "This is an experimental image. Please %s for caveats and "
-                    "workarounds." %
-                    Link("https://wiki.ubuntu.com/Unity8DesktopIso",
-                         "read this page on the Ubuntu wiki",
-                         show_class=True))
             if self.project == "edubuntu":
                 sentences.append(
                     "You can install additional educational programs using "
@@ -920,8 +908,8 @@ class Publisher:
                 "However, you may still test it using a DVD, a larger USB "
                 "drive, or a virtual machine.")
         elif (self.project in usb_projects or
-                (self.project == "xubuntu" and series >= "raring") or
-                (self.project == "ubuntu-gnome" and series >= "saucy")):
+                (self.project == "xubuntu" and series >= "trusty") or
+                (self.project == "ubuntu-gnome" and series >= "trusty")):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 1GB USB stick.")
@@ -1103,7 +1091,7 @@ class Publisher:
             "preinstalled-mobile", "preinstalled-active",
             "preinstalled-server",
             "preinstalled-touch", "preinstalled-core", "wubi",
-            "preinstalled-desktop-next", "live-core",
+            "live-core",
         )
 
         all_arches = (
@@ -1789,23 +1777,14 @@ class DailyTreePublisher(Publisher):
             return (1024 * 1024 * 1024) + (1024 * 1024 * 200)
         elif (self.project in ("ubuntu", "ubuntukylin") and
               self.publish_type != "dvd" and
-              self.config["DIST"] >= "quantal"):
-            # Ubuntu quantal onward has a succession of arbitrary limits.
-            if self.config["DIST"] == "quantal":
-                return 801000000
-            elif self.config["DIST"] == "raring":
-                if arch == "powerpc":
-                    return 850000000
-                else:
-                    return 835000000
-            elif self.config["DIST"] == "saucy":
-                return 950000000
-            elif self.config["DIST"] in ("trusty", "utopic", "vivid", "wily"):
+              self.config["DIST"] >= "trusty"):
+            if self.config["DIST"] == "trusty":
                 return 1.2 * 1000 * 1000 * 1000
             else:
                 # next relevant size limit is a 2GB (not 2GiB) USB stick
                 return 2 * 1000 * 1000 * 1000
-        elif self.project == "ubuntu-gnome" and self.config["DIST"] >= "saucy":
+        elif (self.project == "ubuntu-gnome" and
+              self.config["DIST"] >= "trusty"):
             # Per https://lists.ubuntu.com/archives/
             # ... ubuntu-release/2016-May/003740.html
             if self.config["DIST"] >= "xenial":
@@ -1822,7 +1801,7 @@ class DailyTreePublisher(Publisher):
         elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
             return 2 * 1000 * 1000 * 1000
-        elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
+        elif self.project == "xubuntu" and self.config["DIST"] >= "trusty":
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-mate":

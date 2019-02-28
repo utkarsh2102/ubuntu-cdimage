@@ -462,7 +462,7 @@ def build_livecd_base(config):
 
     if (config.project in ("ubuntu-base", "ubuntu-touch",
                            "ubuntu-touch-custom") or
-        (config.project in ("ubuntu-desktop-next", "ubuntu-core") and
+        (config.project == "ubuntu-core" and
          config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
@@ -486,16 +486,6 @@ def build_livecd_base(config):
                     output_prefix = os.path.join(
                         output_dir,
                         "%s-preinstalled-touch-%s" % (config.series, arch))
-                elif config.project == "ubuntu-desktop-next":
-                    if config.image_type == "daily-preinstalled":
-                        output_prefix = os.path.join(
-                            output_dir,
-                            "%s-preinstalled-desktop-next-%s" %
-                            (config.series, arch))
-                    else:
-                        output_prefix = os.path.join(
-                            output_dir, "%s-desktop-next-%s" %
-                            (config.series, arch))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)
@@ -509,7 +499,7 @@ def build_livecd_base(config):
                     if os.path.exists(custom):
                         shutil.copy2(
                             custom, "%s.custom.tar.gz" % output_prefix)
-                if config.project in ("ubuntu-core", "ubuntu-desktop-next"):
+                if config.project == "ubuntu-core":
                     for dev in ("azure.device", "device", "raspi2.device",
                                 "plano.device"):
                         device = "%s.%s.tar.gz" % (live_prefix, dev)
@@ -666,9 +656,6 @@ def is_live_fs_only(config):
         live_fs_only = True
     elif (config.project == "ubuntu-server" and
           config.image_type == "daily-preinstalled"):
-        live_fs_only = True
-    elif (config.project == "ubuntu-desktop-next" and
-          config.subproject == "system-image"):
         live_fs_only = True
     elif config.subproject == "wubi":
         live_fs_only = True

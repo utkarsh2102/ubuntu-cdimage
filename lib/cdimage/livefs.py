@@ -121,14 +121,12 @@ def live_build_options(config, arch):
         elif subarch in ("ac100", "nexus7"):
             options.extend(["-f", "plain"])
 
-    if (config.project in ("ubuntu-base", "ubuntu-core", "ubuntu-touch",
-                           "ubuntu-touch-custom") or
-        (config.project == "ubuntu-desktop-next" and
-         config.subproject == "system-image")):
+    if config.project in ("ubuntu-base", "ubuntu-core", "ubuntu-touch",
+                          "ubuntu-touch-custom"):
         options.extend(["-f", "plain"])
 
     if config.subproject == "wubi":
-        if config["DIST"] >= "quantal":
+        if config["DIST"] >= "trusty":
             # TODO: Turn this back on once Wubi's resize2fs supports it.
             # options.extend(["-f", "ext4"])
             options.extend(["-f", "ext3"])
@@ -834,10 +832,8 @@ def download_live_filesystems(config):
 
             if (project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
                                 "kubuntu-active") and
-                    (project != "ubuntu-desktop-next" or
-                     config.subproject == "system-image") and
                     (project != "edubuntu" or series >= "precise") and
-                    (project != "ubuntukylin" or series < "utopic")):
+                    (project != "ubuntukylin" or series <= "trusty")):
                 if series <= "trusty":
                     # TODO: We still have to do something about not
                     # including Wubi on the DVDs.
@@ -857,7 +853,7 @@ def download_live_filesystems(config):
                             "Install %s" % autorun_project)
 
             if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                               "ubuntu-desktop-next", "edubuntu"):
+                               "edubuntu"):
                 download_live_items(config, arch, "usb-creator")
             if project == "ubuntu-core" and config["CDIMAGE_LIVE"]:
                 download_live_items(config, arch, "model-assertion")
@@ -890,7 +886,7 @@ def download_live_filesystems(config):
                 )
             download_live_items(config, arch, "custom.tar.gz")
 
-    if config.project in ("ubuntu-core", "ubuntu-desktop-next"):
+    if config.project == "ubuntu-core":
         for arch in config.arches:
             download_live_items(config, arch, "device.tar.gz")
 

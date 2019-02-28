@@ -68,10 +68,10 @@ class TestGermination(TestCase):
 
     def test_output_dir(self):
         self.config.root = "/cdimage"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.assertEqual(
-            "/cdimage/scratch/ubuntu/raring/daily/germinate",
+            "/cdimage/scratch/ubuntu/bionic/daily/germinate",
             self.germination.output_dir("ubuntu"))
 
     def test_seed_sources_local_seeds(self):
@@ -84,8 +84,8 @@ class TestGermination(TestCase):
         for project, series, owners in (
             ("kubuntu", "precise", ["kubuntu-dev"]),
             ("kubuntu-active", "precise", ["kubuntu-dev"]),
-            ("kubuntu-plasma5", "utopic", ["kubuntu-dev"]),
-            ("mythbuntu", "raring", ["mythbuntu-dev"]),
+            ("kubuntu-plasma5", "xenial", ["kubuntu-dev"]),
+            ("mythbuntu", "trusty", ["mythbuntu-dev"]),
             ("ubuntu-budgie", "zesty",
              ["ubuntubudgie-dev"]),
             ("ubuntu-mate", "vivid",
@@ -103,14 +103,14 @@ class TestGermination(TestCase):
             self.assertEqual(sources, self.germination.seed_sources(project))
 
         for project, series, owners in (
-            ("ubuntu", "raring", ["ubuntu-core-dev"]),
-            ("lubuntu", "raring", ["lubuntu-dev", "ubuntu-core-dev"]),
+            ("ubuntu", "trusty", ["ubuntu-core-dev"]),
+            ("lubuntu", "trusty", ["lubuntu-dev", "ubuntu-core-dev"]),
             ("xubuntu", "precise", ["xubuntu-dev", "ubuntu-core-dev"]),
-            ("ubuntu-gnome", "raring",
+            ("ubuntu-gnome", "trusty",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
-            ("ubuntukylin", "utopic",
+            ("ubuntukylin", "xenial",
              ["ubuntukylin-members", "ubuntu-core-dev"]),
-            ("ubuntustudio", "raring",
+            ("ubuntustudio", "trusty",
              ["ubuntustudio-dev", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
@@ -121,7 +121,7 @@ class TestGermination(TestCase):
 
     def test_seed_sources_non_bzr(self):
         self.germination = Germination(self.config, prefer_vcs=False)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             ["http://people.canonical.com/~ubuntu-archive/seeds/"],
             self.germination.seed_sources("ubuntu"))
@@ -138,22 +138,22 @@ class TestGermination(TestCase):
 
     def test_make_index(self):
         self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         files = []
         for component in "main", "restricted", "universe", "multiverse":
             source_dir = os.path.join(
-                self.temp_dir, "ftp", "dists", "raring", component, "source")
+                self.temp_dir, "ftp", "dists", "trusty", component, "source")
             os.makedirs(source_dir)
             with gzip.GzipFile(
                     os.path.join(source_dir, "Sources.gz"), "wb") as sources:
                 sources.write(component.encode("UTF-8"))
                 sources.write(b"\n")
-            files.append("dists/raring/%s/source/Sources.gz" % component)
+            files.append("dists/trusty/%s/source/Sources.gz" % component)
         self.germination.make_index("ubuntu", "i386", files[0], files)
         output_file = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily", "germinate",
-            "dists", "raring", "main", "source", "Sources.gz")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily", "germinate",
+            "dists", "trusty", "main", "source", "Sources.gz")
         self.assertTrue(os.path.exists(output_file))
         with gzip.GzipFile(output_file, "rb") as output_sources:
             self.assertEqual(
@@ -176,11 +176,11 @@ class TestGermination(TestCase):
         ], self.germination.germinate_dists)
 
     def test_germinate_dists_no_proposed(self):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual([
-            "raring",
-            "raring-security",
-            "raring-updates",
+            "trusty",
+            "trusty-security",
+            "trusty-updates",
         ], self.germination.germinate_dists)
 
     def test_seed_dist(self):
@@ -188,10 +188,9 @@ class TestGermination(TestCase):
             ("ubuntu", "trusty", "ubuntu.trusty"),
             ("ubuntu-server", "trusty", "ubuntu.trusty"),
             ("jeos", "precise", "ubuntu.precise"),
-            ("ubuntukylin", "raring", "ubuntu.raring"),
-            ("ubuntukylin", "utopic", "ubuntukylin.utopic"),
+            ("ubuntukylin", "trusty", "ubuntu.trusty"),
+            ("ubuntukylin", "xenial", "ubuntukylin.xenial"),
             ("ubuntu-moblin-remix", "precise", "moblin.precise"),
-            ("ubuntu-desktop-next", "utopic", "ubuntu-touch.utopic"),
         ):
             self.config["DIST"] = series
             self.assertEqual(seed_dist, self.germination.seed_dist(project))
@@ -216,13 +215,13 @@ class TestGermination(TestCase):
             self.temp_dir, "germinate", "bin", "germinate")
         touch(germinate_path)
         os.chmod(germinate_path, 0o755)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
 
-        output_dir = "%s/scratch/ubuntu/raring/daily/germinate" % self.temp_dir
+        output_dir = "%s/scratch/ubuntu/trusty/daily/germinate" % self.temp_dir
         expected_files = []
 
-        for dist in "raring", "raring-security", "raring-updates":
+        for dist in "trusty", "trusty-security", "trusty-updates":
             for suffix in (
                 "binary-amd64/Packages.gz",
                 "source/Sources.gz",
@@ -249,8 +248,8 @@ class TestGermination(TestCase):
             "--seed-source",
             "https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/",
             "--mirror", "file://%s/" % output_dir,
-            "--seed-dist", "ubuntu.raring",
-            "--dist", "raring,raring-security,raring-updates",
+            "--seed-dist", "ubuntu.trusty",
+            "--dist", "trusty,trusty-security,trusty-updates",
             "--arch", "amd64",
             "--components", "main",
             "--no-rdepends",
@@ -264,19 +263,19 @@ class TestGermination(TestCase):
     @mock.patch("cdimage.germinate.Germination.germinate_arch")
     def test_germinate_project(self, mock_germinate_arch):
         self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["ARCHES"] = "amd64 i386"
         self.config["IMAGE_TYPE"] = "daily"
         self.capture_logging()
         self.germination.germinate_project("ubuntu")
         self.assertTrue(os.path.isdir(os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily",
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily",
             "germinate")))
         mock_germinate_arch.assert_has_calls(
             [mock.call("ubuntu", "amd64"), mock.call("ubuntu", "i386")])
         self.assertLogEqual([
-            "Germinating for raring/amd64 ...",
-            "Germinating for raring/i386 ...",
+            "Germinating for trusty/amd64 ...",
+            "Germinating for trusty/i386 ...",
         ])
 
     @mock.patch("cdimage.germinate.Germination.germinate_project")
@@ -424,7 +423,7 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         expected = [
             "boot", "installer", "required", "minimal", "standard",
             "desktop-common", "desktop", "d-i-requirements", "ship",
@@ -452,7 +451,7 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu-server"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["CDIMAGE_SQUASHFS_BASE"] = "1"
         expected = [
             "boot", "installer", "standard", "dns-server", "lamp-server",
@@ -466,7 +465,7 @@ class TestGerminateOutput(TestCase):
         self.write_kubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "kubuntu-active"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         expected = [
             "boot", "installer", "required", "minimal", "standard",
             "desktop-common", "desktop", "d-i-requirements", "ship",
@@ -525,7 +524,7 @@ class TestGerminateOutput(TestCase):
     def write_seed_output(self, arch, seed, packages):
         """Write a simplified Germinate output file, enough for testing."""
         with mkfile(os.path.join(self.temp_dir, arch, seed)) as f:
-            why = "Ubuntu.Raring %s seed" % seed
+            why = "Ubuntu.Trusty %s seed" % seed
             pkg_len = max(len("Package"), max(map(len, packages)))
             src_len = max(len("Source"), max(map(len, packages)))
             why_len = len(why)
@@ -570,20 +569,20 @@ class TestGerminateOutput(TestCase):
             "usb-ship-live",
         ], list(output.master_seeds()))
 
-    def test_master_seeds_dvd_ubuntu_raring(self):
+    def test_master_seeds_dvd_ubuntu_trusty(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["CDIMAGE_DVD"] = "1"
         self.assertEqual(
             ["usb-langsupport", "usb-ship-live"], list(output.master_seeds()))
 
-    def test_master_seeds_install_ubuntu_raring(self):
+    def test_master_seeds_install_ubuntu_trusty(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["CDIMAGE_INSTALL"] = "1"
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
         self.assertEqual([
@@ -591,11 +590,11 @@ class TestGerminateOutput(TestCase):
             "desktop-common", "desktop", "d-i-requirements", "ship",
         ], list(output.master_seeds()))
 
-    def test_master_seeds_live_ubuntu_raring(self):
+    def test_master_seeds_live_ubuntu_trusty(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
         self.config["CDIMAGE_LIVE"] = "1"
         self.assertEqual([
@@ -611,11 +610,11 @@ class TestGerminateOutput(TestCase):
 
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         mock_master_seeds.side_effect = side_effect
         self.assertEqual([
-            "#include <ubuntu/raring/required>",
-            "#include <ubuntu/raring/minimal>",
+            "#include <ubuntu/trusty/required>",
+            "#include <ubuntu/trusty/minimal>",
         ], list(output.master_task_entries("ubuntu")))
 
     @mock.patch(
@@ -623,18 +622,18 @@ class TestGerminateOutput(TestCase):
     def test_master_task_entries_no_seeds(self, mock_master_seeds):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertRaises(
             NoMasterSeeds, list, output.master_task_entries("ubuntu"))
 
     def test_tasks_output_dir(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.assertEqual(
             os.path.join(
-                self.temp_dir, "scratch", "ubuntu", "raring", "daily",
+                self.temp_dir, "scratch", "ubuntu", "trusty", "daily",
                 "tasks"),
             output.tasks_output_dir("ubuntu"))
 
@@ -663,7 +662,7 @@ class TestGerminateOutput(TestCase):
     def test_task_packages_squashfs(self):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu-server"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.write_seed_output(
             "i386", "installer", ["base-installer", "bootstrap-base"])
         output = GerminateOutput(self.config, self.temp_dir)
@@ -702,7 +701,7 @@ class TestGerminateOutput(TestCase):
     def test_initrd_packages(self):
         self.write_ubuntu_structure()
         manifest_path = os.path.join(
-            self.temp_dir, "ftp", "dists", "raring", "main", "installer-i386",
+            self.temp_dir, "ftp", "dists", "trusty", "main", "installer-i386",
             "current", "images", "MANIFEST.udebs")
         with mkfile(manifest_path) as manifest:
             print(dedent("""\
@@ -712,7 +711,7 @@ class TestGerminateOutput(TestCase):
                 netboot/netboot.tar.gz
                 \tdownload-installer 1.32ubuntu1 all
                 \tnet-retriever 1.32ubuntu1 i386"""), file=manifest)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         output = GerminateOutput(self.config, self.temp_dir)
         self.assertEqual(
             set(["anna", "cdrom-detect"]),
@@ -725,7 +724,7 @@ class TestGerminateOutput(TestCase):
     def test_common_initrd_packages(self):
         self.write_ubuntu_structure()
         manifest_path = os.path.join(
-            self.temp_dir, "ftp", "dists", "raring", "main", "installer-i386",
+            self.temp_dir, "ftp", "dists", "trusty", "main", "installer-i386",
             "current", "images", "MANIFEST.udebs")
         with mkfile(manifest_path) as manifest:
             print(dedent("""\
@@ -735,7 +734,7 @@ class TestGerminateOutput(TestCase):
                 netboot/netboot.tar.gz
                 \tanna 1.45ubuntu1 i386
                 \tnet-retriever 1.32ubuntu1 i386"""), file=manifest)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         output = GerminateOutput(self.config, self.temp_dir)
         self.assertEqual(set(["anna"]), output.common_initrd_packages("i386"))
 
@@ -769,7 +768,7 @@ class TestGerminateOutput(TestCase):
             print(dedent("""\
                 Task-Per-Derivative: 1
                 Task-Seeds: desktop-common"""), file=seedtext)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         output = GerminateOutput(self.config, self.temp_dir)
         expected = [
             (["standard"], "standard"),
@@ -794,14 +793,14 @@ class TestGerminateOutput(TestCase):
                 print("Task-Per-Derivative: 1", file=seedtext)
             with mkfile(os.path.join(seed_dir, "live.seedtext")) as seedtext:
                 print("Task-Per-Derivative: 1", file=seedtext)
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["ARCHES"] = "amd64 i386"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["CDIMAGE_LIVE"] = "1"
         output = GerminateOutput(self.config, self.temp_dir)
         output.write_tasks_project("ubuntu")
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
             "tasks")
         self.assertCountEqual([
             "required", "minimal", "desktop", "live",
@@ -878,7 +877,7 @@ class TestGerminateOutput(TestCase):
         with open(os.path.join(output_dir, "important.i386")) as f:
             self.assertEqual("adduser-i386\nbase-files-i386\n", f.read())
         with open(os.path.join(output_dir, "MASTER")) as f:
-            self.assertEqual("#include <ubuntu/raring/ship-live>\n", f.read())
+            self.assertEqual("#include <ubuntu/trusty/ship-live>\n", f.read())
 
     # TODO: write_tasks untested
 
@@ -886,10 +885,10 @@ class TestGerminateOutput(TestCase):
     def test_diff_tasks(self, mock_call):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
             "tasks")
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
@@ -914,10 +913,10 @@ class TestGerminateOutput(TestCase):
     def test_update_tasks_no_mail(self, mock_diff_tasks):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
             "tasks")
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
@@ -927,7 +926,7 @@ class TestGerminateOutput(TestCase):
             ["required", "minimal"],
             os.listdir(os.path.join(
                 self.temp_dir, "debian-cd", "tasks", "auto", "daily-live",
-                "ubuntu", "raring")))
+                "ubuntu", "trusty")))
         self.assertCountEqual(
             ["required", "minimal"], os.listdir("%s-previous" % output_dir))
 
@@ -936,7 +935,7 @@ class TestGerminateOutput(TestCase):
     def test_update_tasks_no_recipients(self, mock_diff_tasks, mock_send_mail):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         output = GerminateOutput(self.config, self.temp_dir)
         os.makedirs(output.tasks_output_dir("ubuntu"))
@@ -981,10 +980,10 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
             "tasks")
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
@@ -1002,7 +1001,7 @@ class TestGerminateOutput(TestCase):
         with open(os.path.join(self.temp_dir, "mail")) as mail:
             self.assertEqual(dedent("""\
                 To: foo@example.org
-                Subject: Task changes for Ubuntu daily-live/raring on 20130319
+                Subject: Task changes for Ubuntu daily-live/trusty on 20130319
                 X-Generated-By: update-tasks
 
                 --- minimal
