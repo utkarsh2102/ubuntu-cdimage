@@ -132,7 +132,7 @@ class Germination:
             return [pattern % self.config.series for pattern in dist_patterns]
 
     def seed_dist(self, project):
-        if (project in ("ubuntu-server", "jeos")):
+        if project == "ubuntu-server":
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntukylin":
             if self.config["DIST"] >= "xenial":
@@ -285,8 +285,6 @@ class GerminateOutput:
                 in_squashfs = ["minimal"]
             elif project == "kubuntu-active":
                 ship = "active-ship"
-            elif project == "jeos":
-                ship = "jeos"
             seeds = self._inheritance(ship)
             if (self.config["CDIMAGE_SQUASHFS_BASE"] and
                     in_squashfs is not None):
@@ -498,7 +496,7 @@ class GerminateOutput:
 
     def task_project(self, project):
         # ubuntu-server really wants ubuntu-* tasks.
-        if project in ("ubuntu-server", "jeos"):
+        if project == "ubuntu-server":
             return "ubuntu"
         else:
             return project

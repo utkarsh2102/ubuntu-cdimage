@@ -36,7 +36,6 @@ project_map = {
     "xubuntu": "Xubuntu",
     "gobuntu": "Gobuntu",
     "ubuntu-server": "Ubuntu-Server",
-    "jeos": "Ubuntu-JeOS",
     "ubuntustudio": "Ubuntu-Studio",
     "mythbuntu": "Mythbuntu",
     "lubuntu": "Lubuntu",

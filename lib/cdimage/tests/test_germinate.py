@@ -184,7 +184,6 @@ class TestGermination(TestCase):
         for project, series, seed_dist in (
             ("ubuntu", "trusty", "ubuntu.trusty"),
             ("ubuntu-server", "trusty", "ubuntu.trusty"),
-            ("jeos", "precise", "ubuntu.precise"),
             ("ubuntukylin", "trusty", "ubuntu.trusty"),
             ("ubuntukylin", "xenial", "ubuntukylin.xenial"),
             ("ubuntu-moblin-remix", "precise", "moblin.precise"),
@@ -469,17 +468,6 @@ class TestGerminateOutput(TestCase):
             "active-ship",
         ]
         self.assertEqual(expected, list(output.list_seeds("tasks")))
-
-    def test_list_seeds_tasks_jeos(self):
-        self.write_structure([
-            ["required", []],
-            ["minimal", ["required"]],
-            ["jeos", ["minimal"]],
-        ])
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["PROJECT"] = "jeos"
-        self.assertEqual(
-            ["required", "minimal", "jeos"], list(output.list_seeds("tasks")))
 
     def test_list_seeds_installer(self):
         self.write_structure([["installer", []], ["casper", []]])

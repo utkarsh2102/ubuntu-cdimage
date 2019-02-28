@@ -83,8 +83,6 @@ def warn(project, image, message):
 def project_title(project):
     if project == 'ubuntu-server':
         return 'Ubuntu Server'
-    elif project == 'jeos':
-        return 'Ubuntu JeOS'
     elif project == 'ubuntustudio':
         return 'Ubuntu Studio'
     elif project == 'kubuntu-active':

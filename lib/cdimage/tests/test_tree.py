@@ -265,7 +265,6 @@ class TestPublisher(TestCase):
             ("ports_dvd", "ubuntu", "precise", "dvd"),
             ("dvd", "kubuntu", "precise", "dvd"),
             ("daily", "edubuntu", "precise", "addon"),
-            ("daily", "jeos", "precise", "jeos"),
             ("daily", "ubuntu-base", "precise", "base"),
             ("daily", "ubuntu-server", "precise", "server"),
             ("daily", "ubuntu", "precise", "alternate"),

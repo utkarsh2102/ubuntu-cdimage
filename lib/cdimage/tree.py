@@ -63,7 +63,6 @@ if sys.version < "3":
 projects = [
     "edubuntu",
     "gobuntu",
-    "jeos",
     "kubuntu",
     "kubuntu-active",
     "kubuntu-netbook",
@@ -400,8 +399,6 @@ class Publisher:
                 return "addon"
             elif self.project == "ubuntu-server":
                 return "server"
-            elif self.project == "jeos":
-                return "jeos"
             elif self.project == "ubuntu-base":
                 return "base"
             else:
@@ -419,7 +416,7 @@ class Publisher:
         elif publish_type == "dvd":
             return "dvd"
         elif publish_type in (
-                "addon", "alternate", "base", "install", "jeos", "server"):
+                "addon", "alternate", "base", "install", "server"):
             return "daily"
         else:
             return None
