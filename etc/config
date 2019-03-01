@@ -24,7 +24,7 @@ export IMAGE_FORMAT
 DIST="${DIST:-disco}"
 
 case $DIST in
-	xenial)
+	xenial|trusty)
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
