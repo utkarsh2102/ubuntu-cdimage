@@ -178,7 +178,7 @@ all_series.extend([
     Series("saucy", "13.10", "Saucy Salamander"),
     Series(
         "trusty", "14.04", "Trusty Tahr",
-        pointversion="14.04.5",
+        pointversion="14.04.6",
         all_lts_projects=True),
     Series("utopic", "14.10", "Utopic Unicorn"),
     Series("vivid", "15.04", "Vivid Vervet"),
