@@ -1712,36 +1712,7 @@ class TestDailyTreePublisher(TestCase):
             ["20130320", "20130321"], os.listdir(publisher.publish_base))
 
     @mock.patch("time.time", return_value=date_to_time("20130321"))
-    def test_purge_mixed_higher_count_lower_age(self, *args):
-        publisher = self.make_publisher("ubuntu", "daily")
-        for name in "20130318", "20130319", "20130320", "20130321":
-            touch(os.path.join(publisher.publish_base, name, "file"))
-        with mkfile(os.path.join(
-                self.temp_dir, "etc", "purge-days")) as purge_days:
-            print("daily 1", file=purge_days)
-        with mkfile(os.path.join(
-                self.temp_dir, "etc", "purge-count")) as purge_count:
-            print("daily 3", file=purge_count)
-        self.capture_logging()
-        publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-            purge_desc = "%s/%s" % (project, self.config.series)
-        else:
-            project = "ubuntu"
-            purge_desc = project
-        self.assertLogEqual([
-            "Purging %s/daily images older than 1 day ..." % project,
-            "Purging %s/daily images to leave only the latest 3 images "
-            "..." % project,
-            "Purging %s/daily/20130319" % purge_desc,
-            "Purging %s/daily/20130318" % purge_desc,
-        ])
-        self.assertCountEqual(
-            ["20130320", "20130321"], os.listdir(publisher.publish_base))
-
-    @mock.patch("time.time", return_value=date_to_time("20130321"))
-    def test_purge_mixed_higher_age_lower_count(self, *args):
+    def test_purge_both_days_and_count_raises(self, *args):
         publisher = self.make_publisher("ubuntu", "daily")
         for name in "20130321", "20130321.1", "20130321.2", "20130321.3":
             touch(os.path.join(publisher.publish_base, name, "file"))
@@ -1751,22 +1722,18 @@ class TestDailyTreePublisher(TestCase):
         with mkfile(os.path.join(
                 self.temp_dir, "etc", "purge-count")) as purge_count:
             print("daily 3", file=purge_count)
-        self.capture_logging()
-        publisher.purge()
         if self.config["UBUNTU_DEFAULTS_LOCALE"]:
             project = "ubuntu-zh_CN"
-            purge_desc = "%s/%s" % (project, self.config.series)
         else:
             project = "ubuntu"
-            purge_desc = project
-        self.assertLogEqual([
-            "Purging %s/daily images older than 1 day ..." % project,
-            "Purging %s/daily images to leave only the latest 3 images "
-            "..." % project,
-            "Purging %s/daily/20130321" % purge_desc,
-        ])
+        self.capture_logging()
+        self.assertRaisesRegex(
+            Exception, r"Both purge-days and purge-count are defined for "
+                       "%s/daily. Such scenario is currently "
+                       "unsupported." % project,
+            publisher.purge)
         self.assertCountEqual(
-            ["20130321.1", "20130321.2", "20130321.3"],
+            ["20130321", "20130321.1", "20130321.2", "20130321.3"],
             os.listdir(publisher.publish_base))
 
     @mock.patch("time.time", return_value=date_to_time("20130321"))

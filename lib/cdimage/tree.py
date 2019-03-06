@@ -2614,6 +2614,10 @@ class DailyTreePublisher(Publisher):
         if not days and not count:
             logger.info("Not purging images for %s" % project_image_type)
             return
+        elif days and count:
+            raise Exception("Both purge-days and purge-count are defined for "
+                            "%s. Such scenario is currently unsupported." %
+                            project_image_type)
 
         image_count = 0
         oldest = 0
@@ -2624,7 +2628,7 @@ class DailyTreePublisher(Publisher):
                 (project_image_type, days, "day" if days == 1 else "days"))
             oldest = int(time.strftime(
                 "%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days)))
-        if count:
+        elif count:
             logger.info(
                 "Purging %s images to leave only the latest %d %s ..." %
                 (project_image_type, count,
