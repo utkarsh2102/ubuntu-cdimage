@@ -5,7 +5,7 @@ daily-preinstalled 1
 dvd 2
 # Only purge TheOpenCDv3 images manually.
 tocd3/daily-live 0
-# Only purge ubuntu-core images manually.
+# Ubuntu Core images are not purged per age
 ubuntu-core 0
 ubuntu-mid 3
 ubuntu-netbook 3

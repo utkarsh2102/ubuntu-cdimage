@@ -2679,8 +2679,8 @@ class DailyTreePublisher(Publisher):
 
         self.post_qa(date, published)
 
-    def get_purge_days(self, key):
-        path = os.path.join(self.config.root, "etc", "purge-days")
+    def get_purge_data(self, key, purge_type):
+        path = os.path.join(self.config.root, "etc", purge_type)
         try:
             with open(path) as purge_days:
                 for line in purge_days:
@@ -2697,7 +2697,7 @@ class DailyTreePublisher(Publisher):
                 raise
         return None
 
-    def purge(self, days=None):
+    def purge(self, days=None, count=None):
         project = self.project
         if self.config["UBUNTU_DEFAULTS_LOCALE"]:
             project = "-".join(
@@ -2705,25 +2705,48 @@ class DailyTreePublisher(Publisher):
         project_image_type = "%s/%s" % (project, self.image_type)
 
         if days is None:
-            days = self.get_purge_days(project)
+            days = self.get_purge_data(project, "purge-days")
         if days is None:
-            days = self.get_purge_days(project_image_type)
+            days = self.get_purge_data(project_image_type, "purge-days")
         if days is None:
-            days = self.get_purge_days(self.image_type)
-        if days is None:
-            logger.info("No purge time configured for %s" % project_image_type)
-            return
-        if days == 0:
+            days = self.get_purge_data(self.image_type, "purge-days")
+
+        if count is None:
+            count = self.get_purge_data(project, "purge-count")
+        if count is None:
+            count = self.get_purge_data(project_image_type, "purge-count")
+        if count is None:
+            count = self.get_purge_data(self.image_type, "purge-count")
+
+        if not days and not count:
             logger.info("Not purging images for %s" % project_image_type)
             return
-        logger.info(
-            "Purging %s images older than %d %s ..." %
-            (project_image_type, days, "day" if days == 1 else "days"))
-        oldest = time.strftime(
-            "%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days))
-        to_purge = []
+        elif days and count:
+            raise Exception("Both purge-days and purge-count are defined for "
+                            "%s. Such scenario is currently unsupported." %
+                            project_image_type)
 
-        for entry in sorted(osextras.listdir_force(self.publish_base)):
+        image_count = 0
+        oldest = 0
+
+        if days:
+            logger.info(
+                "Purging %s images older than %d %s ..." %
+                (project_image_type, days, "day" if days == 1 else "days"))
+            oldest = int(time.strftime(
+                "%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days)))
+        elif count:
+            logger.info(
+                "Purging %s images to leave only the latest %d %s ..." %
+                (project_image_type, count,
+                 "image" if count == 1 else "images"))
+
+        to_purge = []
+        publish_pending = os.path.join(self.publish_base, "pending")
+        publish_current = os.path.join(self.publish_base, "current")
+
+        for entry in sorted(
+                osextras.listdir_force(self.publish_base), reverse=True):
             entry_path = os.path.join(self.publish_base, entry)
 
             # Directory?
@@ -2734,16 +2757,21 @@ class DailyTreePublisher(Publisher):
             if not entry[0].isdigit():
                 continue
 
+            image_count += 1
+
             # Older than cut-off date?
-            if int(oldest) <= int(entry.split(".", 1)[0]):
+            # Did we leave enough images already?
+            # In the case where both cut-off date and image count have been
+            # defined, we purge anything that doesn't satisfy both of the above
+            # conditions at once
+            if ((not days or oldest <= int(entry.split(".", 1)[0])) and
+                    (not count or image_count <= count)):
                 continue
 
             # Pointed to by "pending" or "current" symlink?
-            publish_pending = os.path.join(self.publish_base, "pending")
             if (os.path.islink(publish_pending) and
                     os.readlink(publish_pending) == entry):
                 continue
-            publish_current = os.path.join(self.publish_base, "current")
             if os.path.islink(publish_current):
                 if os.readlink(publish_current) == entry:
                     continue
@@ -2763,6 +2791,7 @@ class DailyTreePublisher(Publisher):
                             break
                 if found_current:
                     continue
+
             to_purge.append((entry, entry_path))
 
         for entry, entry_path in to_purge:

@@ -1540,11 +1540,11 @@ class TestDailyTreePublisher(TestCase):
             "20120807",
             ["ubuntu/daily-live/%s-desktop-i386" % self.config.series])
 
-    def test_get_purge_days_no_config(self):
+    def test_get_purge_data_no_config(self):
         publisher = self.make_publisher("ubuntu", "daily")
-        self.assertIsNone(publisher.get_purge_days("daily"))
+        self.assertIsNone(publisher.get_purge_data("daily", "purge-days"))
 
-    def test_get_purge_days(self):
+    def test_get_purge_data(self):
         publisher = self.make_publisher("ubuntu", "daily")
         with mkfile(os.path.join(
                 self.temp_dir, "etc", "purge-days")) as purge_days:
@@ -1553,9 +1553,28 @@ class TestDailyTreePublisher(TestCase):
 
                 daily 1
                 daily-live 2"""), file=purge_days)
-        self.assertEqual(1, publisher.get_purge_days("daily"))
-        self.assertEqual(2, publisher.get_purge_days("daily-live"))
-        self.assertIsNone(publisher.get_purge_days("dvd"))
+        self.assertEqual(1, publisher.get_purge_data("daily", "purge-days"))
+        self.assertEqual(2, publisher.get_purge_data(
+            "daily-live", "purge-days"))
+        self.assertIsNone(publisher.get_purge_data("dvd", "purge-days"))
+
+    def test_get_purge_count_no_config(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        self.assertIsNone(publisher.get_purge_data("daily", "purge-count"))
+
+    def test_get_purge_count(self):
+        publisher = self.make_publisher("ubuntu", "daily")
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-count")) as purge_count:
+            print(dedent("""\
+                # comment
+
+                daily 1
+                daily-live 2"""), file=purge_count)
+        self.assertEqual(1, publisher.get_purge_data("daily", "purge-count"))
+        self.assertEqual(2, publisher.get_purge_data(
+            "daily-live", "purge-count"))
+        self.assertIsNone(publisher.get_purge_data("dvd", "purge-count"))
 
     @mock.patch("time.time", return_value=date_to_time("20130321"))
     def test_purge_removes_old(self, *args):
@@ -1575,8 +1594,8 @@ class TestDailyTreePublisher(TestCase):
             purge_desc = project
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
-            "Purging %s/daily/20130318" % purge_desc,
             "Purging %s/daily/20130319" % purge_desc,
+            "Purging %s/daily/20130318" % purge_desc,
         ])
         self.assertCountEqual(
             ["20130320", "20130321"], os.listdir(publisher.publish_base))
@@ -1673,10 +1692,80 @@ class TestDailyTreePublisher(TestCase):
             purge_desc = project
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
-            "Purging %s/daily/20130319" % purge_desc,
             "Purging %s/daily/20130319.1" % purge_desc,
+            "Purging %s/daily/20130319" % purge_desc,
         ])
         self.assertEqual([], os.listdir(publisher.publish_base))
+
+    def test_purge_leaves_count(self, *args):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130318", "20130319", "20130320", "20130321":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-count")) as purge_count:
+            print("daily 2", file=purge_count)
+        self.capture_logging()
+        publisher.purge()
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "ubuntu-zh_CN"
+            purge_desc = "%s/%s" % (project, self.config.series)
+        else:
+            project = "ubuntu"
+            purge_desc = project
+        self.assertLogEqual([
+            "Purging %s/daily images to leave only the latest 2 images "
+            "..." % project,
+            "Purging %s/daily/20130319" % purge_desc,
+            "Purging %s/daily/20130318" % purge_desc,
+        ])
+        self.assertCountEqual(
+            ["20130320", "20130321"], os.listdir(publisher.publish_base))
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_both_days_and_count_raises(self, *args):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130321", "20130321.1", "20130321.2", "20130321.3":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-days")) as purge_days:
+            print("daily 1", file=purge_days)
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-count")) as purge_count:
+            print("daily 3", file=purge_count)
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "ubuntu-zh_CN"
+        else:
+            project = "ubuntu"
+        self.capture_logging()
+        self.assertRaisesRegex(
+            Exception, r"Both purge-days and purge-count are defined for "
+                       "%s/daily. Such scenario is currently "
+                       "unsupported." % project,
+            publisher.purge)
+        self.assertCountEqual(
+            ["20130321", "20130321.1", "20130321.2", "20130321.3"],
+            os.listdir(publisher.publish_base))
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_no_purge(self, *args):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130318", "20130319", "20130320", "20130321":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-days")) as purge_days:
+            print("daily 0", file=purge_days)
+        self.capture_logging()
+        publisher.purge()
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "ubuntu-zh_CN"
+        else:
+            project = "ubuntu"
+        self.assertLogEqual([
+            "Not purging images for %s/daily" % project,
+        ])
+        self.assertCountEqual(
+            ["20130318", "20130319", "20130320", "20130321"],
+            os.listdir(publisher.publish_base))
 
 
 class TestChinaDailyTree(TestDailyTree):
