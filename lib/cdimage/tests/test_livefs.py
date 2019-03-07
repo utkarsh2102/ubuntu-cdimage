@@ -1246,6 +1246,10 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assert_server_live_download_items(
             "bionic", "maas-region.squashfs", ["maas-region.squashfs"])
 
+    def test_download_live_items_multi_layers_squashfs(self):
+        self.assert_server_live_download_items(
+            "disco", "minimal.standard.live.squashfs", ["minimal.standard.live.squashfs"])
+
     def test_download_live_server_boot_items(self):
         self.assert_server_live_download_items(
             "bionic", "kernel",
