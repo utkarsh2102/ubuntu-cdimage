@@ -559,7 +559,8 @@ def live_item_paths(config, arch, item):
         if uris:
             for uri in uris:
                 filename = unquote(os.path.basename(uri))
-                if filename.startswith(base + '.') and filename.endswith('.' + item):
+                if (filename.startswith(base + '.') and
+                        filename.endswith('.' + item)):
                     yield uri
         else:
             yield os.path.join(root, base + '.' + item)
@@ -593,7 +594,8 @@ def live_item_paths(config, arch, item):
         our_flavours = flavours(config, arch)
         our_flavours.extend(["%s-hwe" % (f,) for f in our_flavours])
         for flavour in our_flavours:
-            for url in urls_for("livecd." + liveproject_subarch, item + "-" + flavour):
+            for url in urls_for("livecd." + liveproject_subarch,
+                                item + "-" + flavour):
                 yield url
     elif item in (
         "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
@@ -626,10 +628,6 @@ def live_item_paths(config, arch, item):
         if arch in ("amd64", "i386"):
             for url in urls_for("livecd." + liveproject + "-ltsp", "squashfs"):
                 yield url
-    # generic artefacts we always download
-    elif item.endswith("squashfs") or item.endswith("manifest") or item.endswith("size"):
-        for url in urls_for("livecd." + liveproject_subarch, item):
-            yield url
     else:
         raise UnknownLiveItem("Unknown live filesystem item '%s'" % item)
 
