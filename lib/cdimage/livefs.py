@@ -549,7 +549,7 @@ def live_item_paths(config, arch, item):
     else:
         root = livecd_base(config, arch)
         try:
-            uris = [ os.path.join(root, u) for u in os.listdir(root) ]
+            uris = [os.path.join(root, u) for u in os.listdir(root)]
         except OSError:
             # fallback to exact given uri (for http://) in url_for as we can't
             # list content.
@@ -583,7 +583,7 @@ def live_item_paths(config, arch, item):
                     "livecd." + liveproject, item):
                 yield url
         else:
-            for url in urls_for("livecd."+ liveproject_subarch, item):
+            for url in urls_for("livecd." + liveproject_subarch, item):
                 # filter out redundant artefacts
                 if url.endswith("modules.squashfs"):
                     continue

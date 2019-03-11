@@ -1285,14 +1285,11 @@ class TestDownloadLiveFilesystems(TestCase):
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_remote_doesnt_honor_suffix(self, mock_fetch):
-        '''Downloading from remote (not LP or local path) will NOT honor
-           suffix matching'''
+        '''Downloading from remote (not LP or local path) will only download
+           basic names'''
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "disco"
         self.config["IMAGE_TYPE"] = "daily-live"
-        filename = "minimal.standard.live.squashfs"
-        url = "http://kapok.buildd/~buildd/LiveCD/disco/ubuntu/" +\
-              "current/livecd.ubuntu.%s" % filename
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "disco", "daily-live", "live")
 
@@ -1301,11 +1298,13 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config,
             "http://kapok.buildd/~buildd/LiveCD/disco/ubuntu/" +\
-            # This is NOT livecd.ubuntu.minimal.standard.live.squashfs
+            # This can't be livecd.ubuntu.minimal.standard.live.squashfs for
+            # instance
             "current/livecd.ubuntu.squashfs",
             os.path.join(
                 target_dir,
-                # This is NOT amd64.minimal.standard.live.squashfs
+                # This can't be amd64.minimal.standard.live.squashfs for
+                # instance
                 "amd64.squashfs"))
 
     def test_write_autorun(self):
