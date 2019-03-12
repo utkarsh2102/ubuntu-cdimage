@@ -645,15 +645,7 @@ def download_live_items(config, arch, item):
     output_dir = live_output_directory(config)
     found = False
 
-    if item == "server-squashfs":
-        original_project = config.project
-        try:
-            config["PROJECT"] = "ubuntu-server"
-            urls = list(live_item_paths(config, arch, "squashfs"))
-        finally:
-            config["PROJECT"] = original_project
-    else:
-        urls = list(live_item_paths(config, arch, item))
+    urls = list(live_item_paths(config, arch, item))
     if not urls:
         return False
 
@@ -737,15 +729,9 @@ def download_live_items(config, arch, item):
             pass
     else:
         for url in urls:
-            # server-squashfs isn't the suffix of the downloadable item.
-            # prefer a special case over removing suffix + reinjecting item
-            # when suffix != item
-            if item == "server-squashfs":
-                target = os.path.join(output_dir, "%s.%s" % (arch, item))
             # strip livecd.<PROJECT> and replace by arch
-            else:
-                filename = unquote(os.path.basename(url)).split('.', 2)[-1]
-                target = os.path.join(output_dir, "%s.%s" % (arch, filename))
+            filename = unquote(os.path.basename(url)).split('.', 2)[-1]
+            target = os.path.join(output_dir, "%s.%s" % (arch, filename))
             try:
                 osextras.fetch(config, url, target)
                 if target.endswith("squashfs"):
@@ -920,10 +906,5 @@ def download_live_filesystems(config):
     if project == "edubuntu" and config["CDIMAGE_DVD"]:
         for arch in config.arches:
             if arch in ("amd64", "i386"):
-                # TODO: Disabled for raring (LP: #1154601)
-                # if series >= "raring":
-                #     # Fetch the Ubuntu Server squashfs for Edubuntu Server.
-                #     download_live_items(config, arch, "server-squashfs")
-
                 # Fetch the i386 LTSP chroot for Edubuntu Terminal Server.
                 download_live_items(config, arch, "ltsp-squashfs")

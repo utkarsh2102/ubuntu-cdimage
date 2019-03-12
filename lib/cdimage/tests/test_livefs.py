@@ -1201,20 +1201,6 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.squashfs"))
 
-    @mock.patch("cdimage.osextras.fetch")
-    def test_download_live_items_server_squashfs(self, mock_fetch):
-        self.config["PROJECT"] = "edubuntu"
-        self.config["DIST"] = "trusty"
-        self.config["IMAGE_TYPE"] = "dvd"
-        self.assertTrue(
-            download_live_items(self.config, "i386", "server-squashfs"))
-        url = ("http://cardamom.buildd/~buildd/LiveCD/trusty/ubuntu-server/"
-               "current/livecd.ubuntu-server.squashfs")
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "edubuntu", "trusty", "dvd", "live")
-        mock_fetch.assert_called_once_with(
-            self.config, url, os.path.join(target_dir, "i386.server-squashfs"))
-
     def assert_desktop_live_download_items(self, series, item, filenames):
         self.assert_live_download_items("ubuntu", "", series, item,
                                         filenames, filenames)
