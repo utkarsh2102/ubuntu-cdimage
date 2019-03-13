@@ -538,22 +538,32 @@ def live_item_paths(config, arch, item):
         liveproject_subarch = liveproject
 
     lp, lp_livefs = get_lp_livefs(config, arch)
+    uris = []
+    root = ""
     if lp_livefs is not None:
         lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
         lp_build = lp_livefs.getLatestBuild(
             lp_kwargs["distro_arch_series"],
             unique_key=lp_kwargs.get("unique_key"))
-        lp_urls = list(lp_build.getFileUrls())
-
-        def urls_for(base):
-            for url in lp_urls:
-                if unquote(os.path.basename(url)) == base:
-                    yield url
+        uris = list(lp_build.getFileUrls())
     else:
         root = livecd_base(config, arch)
+        try:
+            uris = [os.path.join(root, u) for u in os.listdir(root)]
+        except OSError:
+            # fallback to exact given uri (for http://) in url_for as we can't
+            # list content.
+            pass
 
-        def urls_for(base):
-            yield "%s/%s" % (root, base)
+    def urls_for(base, item):
+        if uris:
+            for uri in uris:
+                filename = unquote(os.path.basename(uri))
+                if (filename.startswith(base + '.') and
+                        filename.endswith('.' + item)):
+                    yield uri
+        else:
+            yield os.path.join(root, base + '.' + item)
 
     if item in (
         "cloop", "squashfs", "manifest", "manifest-desktop", "manifest-remove",
@@ -561,20 +571,22 @@ def live_item_paths(config, arch, item):
         "rootfs.tar.gz", "custom.tar.gz", "device.tar.gz",
         "azure.device.tar.gz", "raspi2.device.tar.gz", "plano.device.tar.gz",
         "tar.xz", "iso", "os.snap", "kernel.snap", "disk1.img.xz",
-        "dragonboard.kernel.snap", "raspi2.kernel.snap", "installer.squashfs",
-        "maas-rack.squashfs", "maas-region.squashfs",
+        "dragonboard.kernel.snap", "raspi2.kernel.snap",
         "img.xz", "model-assertion"
     ):
         if item == "ext4" and arch == "armhf+nexus7":
             for url in urls_for(
-                    "livecd.%s.%s-nexus7" % (liveproject_subarch, item)):
+                    "livecd." + liveproject_subarch, item + "-nexus7"):
                 yield url
         elif item == "disk1.img.xz":
             for url in urls_for(
-                    "livecd.%s.%s" % (liveproject, item)):
+                    "livecd." + liveproject, item):
                 yield url
         else:
-            for url in urls_for("livecd.%s.%s" % (liveproject_subarch, item)):
+            for url in urls_for("livecd." + liveproject_subarch, item):
+                # filter out redundant artefacts
+                if url.endswith("modules.squashfs"):
+                    continue
                 yield url
     elif item in (
         "kernel", "initrd", "bootimg", "modules.squashfs"
@@ -582,8 +594,8 @@ def live_item_paths(config, arch, item):
         our_flavours = flavours(config, arch)
         our_flavours.extend(["%s-hwe" % (f,) for f in our_flavours])
         for flavour in our_flavours:
-            base = "livecd.%s.%s-%s" % (liveproject_subarch, item, flavour)
-            for url in urls_for(base):
+            for url in urls_for("livecd." + liveproject_subarch,
+                                item + "-" + flavour):
                 yield url
     elif item in (
         "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
@@ -596,15 +608,13 @@ def live_item_paths(config, arch, item):
             for target in Touch.list_targets_by_ubuntu_arch(arch)
     ):
         for flavour in flavours(config, arch):
-            base = "livecd.%s.%s" % (liveproject_subarch, item)
-            for url in urls_for(base):
+            for url in urls_for("livecd." + liveproject_subarch, item):
                 yield url
     elif item == "kernel-efi-signed":
         if series >= "precise" and arch == "amd64":
             for flavour in flavours(config, arch):
-                base = "livecd.%s.kernel-%s.efi.signed" % (
-                    liveproject_subarch, flavour)
-                for url in urls_for(base):
+                for url in urls_for("livecd." + liveproject_subarch,
+                                    "kernel-" + flavour + ".efi.signed"):
                     yield url
     elif item == "wubi":
         if (project != "xubuntu" and arch in ("amd64", "i386")):
@@ -616,7 +626,7 @@ def live_item_paths(config, arch, item):
                    "stable" % series)
     elif item == "ltsp-squashfs":
         if arch in ("amd64", "i386"):
-            for url in urls_for("livecd.%s-ltsp.squashfs" % liveproject):
+            for url in urls_for("livecd." + liveproject + "-ltsp", "squashfs"):
                 yield url
     else:
         raise UnknownLiveItem("Unknown live filesystem item '%s'" % item)
@@ -635,15 +645,7 @@ def download_live_items(config, arch, item):
     output_dir = live_output_directory(config)
     found = False
 
-    if item == "server-squashfs":
-        original_project = config.project
-        try:
-            config["PROJECT"] = "ubuntu-server"
-            urls = list(live_item_paths(config, arch, "squashfs"))
-        finally:
-            config["PROJECT"] = original_project
-    else:
-        urls = list(live_item_paths(config, arch, item))
+    urls = list(live_item_paths(config, arch, item))
     if not urls:
         return False
 
@@ -726,14 +728,17 @@ def download_live_items(config, arch, item):
         except osextras.FetchError:
             pass
     else:
-        target = os.path.join(output_dir, "%s.%s" % (arch, item))
-        try:
-            osextras.fetch(config, urls[0], target)
-            if item in ["squashfs", "server-squashfs"]:
-                sign.sign_cdimage(config, target)
-            found = True
-        except osextras.FetchError:
-            pass
+        for url in urls:
+            # strip livecd.<PROJECT> and replace by arch
+            filename = unquote(os.path.basename(url)).split('.', 2)[-1]
+            target = os.path.join(output_dir, "%s.%s" % (arch, filename))
+            try:
+                osextras.fetch(config, url, target)
+                if target.endswith("squashfs"):
+                    sign.sign_cdimage(config, target)
+                found = True
+            except osextras.FetchError:
+                pass
     return found
 
 
@@ -796,9 +801,6 @@ def download_live_filesystems(config):
             elif download_live_items(config, arch, "cloop"):
                 got_image = True
             elif download_live_items(config, arch, "squashfs"):
-                download_live_items(config, arch, "installer.squashfs")
-                download_live_items(config, arch, "maas-rack.squashfs")
-                download_live_items(config, arch, "maas-region.squashfs")
                 download_live_items(config, arch, "modules.squashfs")
                 got_image = True
             elif download_live_items(config, arch, "rootfs.tar.gz"):
@@ -904,10 +906,5 @@ def download_live_filesystems(config):
     if project == "edubuntu" and config["CDIMAGE_DVD"]:
         for arch in config.arches:
             if arch in ("amd64", "i386"):
-                # TODO: Disabled for raring (LP: #1154601)
-                # if series >= "raring":
-                #     # Fetch the Ubuntu Server squashfs for Edubuntu Server.
-                #     download_live_items(config, arch, "server-squashfs")
-
                 # Fetch the i386 LTSP chroot for Edubuntu Terminal Server.
                 download_live_items(config, arch, "ltsp-squashfs")

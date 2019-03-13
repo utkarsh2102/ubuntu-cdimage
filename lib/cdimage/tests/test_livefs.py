@@ -1201,50 +1201,56 @@ class TestDownloadLiveFilesystems(TestCase):
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.squashfs"))
 
-    @mock.patch("cdimage.osextras.fetch")
-    def test_download_live_items_server_squashfs(self, mock_fetch):
-        self.config["PROJECT"] = "edubuntu"
-        self.config["DIST"] = "trusty"
-        self.config["IMAGE_TYPE"] = "dvd"
-        self.assertTrue(
-            download_live_items(self.config, "i386", "server-squashfs"))
-        url = ("http://cardamom.buildd/~buildd/LiveCD/trusty/ubuntu-server/"
-               "current/livecd.ubuntu-server.squashfs")
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "edubuntu", "trusty", "dvd", "live")
-        mock_fetch.assert_called_once_with(
-            self.config, url, os.path.join(target_dir, "i386.server-squashfs"))
+    def assert_desktop_live_download_items(self, series, item, filenames):
+        self.assert_live_download_items("ubuntu", "", series, item,
+                                        filenames, filenames)
+
+    def assert_desktop_live_download_items_with_expected(self, series, item,
+                                                         filenames,
+                                                         expected_files):
+        self.assert_live_download_items("ubuntu", "", series, item,
+                                        filenames, expected_files)
+
+    def assert_server_live_download_items(self, series, item, filenames):
+        self.assert_live_download_items("ubuntu-server", "live", series, item,
+                                        filenames, filenames)
 
     @mock.patch("cdimage.osextras.fetch")
-    def assert_server_live_download_items(self, series, item, filenames,
-                                          mock_fetch):
-        self.config["PROJECT"] = "ubuntu-server"
-        self.config["SUBPROJECT"] = "live"
+    def assert_live_download_items(self, project, subproject, series, item,
+                                   filenames, expected_files, mock_fetch):
+        artefacts_dir = self.use_temp_dir()
+        self.config["PROJECT"] = project
+        self.config["SUBPROJECT"] = subproject
         self.config["DIST"] = series
         self.config["IMAGE_TYPE"] = "daily-live"
+        self.config["LIVECD"] = artefacts_dir
+        calls = []
+        project_path = project
+        if subproject:
+            project_path = "%s-%s" % (project_path, subproject)
+        for filename in filenames:
+            uri = os.path.join(
+                artefacts_dir, series,
+                project_path, "current",
+                "livecd.%s.%s" % (project, filename))
+            touch(uri)
+        for filename in expected_files:
+            target = os.path.join(
+                self.temp_dir, "scratch", project, series,
+                "daily-live", "live", "amd64." + filename)
+            uri = os.path.join(
+                artefacts_dir, series,
+                project_path, "current",
+                "livecd.%s.%s" % (project, filename))
+            calls.append(mock.call(self.config, uri, target))
+
         self.assertTrue(
             download_live_items(self.config, "amd64", item))
-        calls = []
-        for filename in filenames:
-            url = ("http://kapok.buildd/~buildd/LiveCD/%s/ubuntu-server-live/"
-                   "current/livecd.ubuntu-server.%s") % (series, filename)
-            target = os.path.join(
-                self.temp_dir, "scratch", "ubuntu-server", series,
-                "daily-live", "live", "amd64." + filename)
-            calls.append(mock.call(self.config, url, target))
         self.assertCountEqual(mock_fetch.call_args_list, calls)
 
     def test_download_live_items_installer_squashfs(self):
         self.assert_server_live_download_items(
-            "bionic", "installer.squashfs", ["installer.squashfs"])
-
-    def test_download_live_items_maas_rack_squashfs(self):
-        self.assert_server_live_download_items(
-            "bionic", "maas-rack.squashfs", ["maas-rack.squashfs"])
-
-    def test_download_live_items_maas_region_squashfs(self):
-        self.assert_server_live_download_items(
-            "bionic", "maas-region.squashfs", ["maas-region.squashfs"])
+            "bionic", "squashfs", ["installer.squashfs"])
 
     def test_download_live_server_boot_items(self):
         self.assert_server_live_download_items(
@@ -1256,6 +1262,50 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assert_server_live_download_items(
             "bionic", "modules.squashfs",
             ["modules.squashfs-generic", "modules.squashfs-generic-hwe"])
+
+    @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_items_multi_layers_squashfs(self, mock_fetch):
+        self.assert_desktop_live_download_items(
+            "disco", "squashfs",
+            ["minimal.standard.live.squashfs"])
+
+    @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_items_multiple_squashfses(self, mock_fetch):
+        self.assert_desktop_live_download_items(
+            "disco", "squashfs",
+            ["minimal.squashfs",
+             "minimal.standard.squashfs",
+             "minimal.standard.live.squashfs"])
+
+    @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_items_filter_suffix(self, mock_fetch):
+        self.assert_desktop_live_download_items_with_expected(
+            "disco", "squashfs",
+            ["minimal.squashfs", "minimal.size"], ["minimal.squashfs"])
+
+    @mock.patch("cdimage.osextras.fetch")
+    def test_download_remote_doesnt_honor_suffix(self, mock_fetch):
+        '''Downloading from remote (not LP or local path) will only download
+           basic names'''
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "disco"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        target_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "disco", "daily-live", "live")
+
+        self.assertTrue(
+            download_live_items(self.config, "amd64", "squashfs"))
+        mock_fetch.assert_called_once_with(
+            self.config,
+            "http://kapok.buildd/~buildd/LiveCD/disco/ubuntu/" +\
+            # This can't be livecd.ubuntu.minimal.standard.live.squashfs for
+            # instance
+            "current/livecd.ubuntu.squashfs",
+            os.path.join(
+                target_dir,
+                # This can't be amd64.minimal.standard.live.squashfs for
+                # instance
+                "amd64.squashfs"))
 
     def test_write_autorun(self):
         self.config["PROJECT"] = "ubuntu"
