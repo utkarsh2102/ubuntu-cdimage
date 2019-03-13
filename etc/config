@@ -15,11 +15,6 @@ export LC_ALL=C
 PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
 IMAGE_FORMAT=${IMAGE_FORMAT:-iso}
-case $PROJECT in
-	ubuntu-mid)
-		IMAGE_FORMAT=${IMAGE_FORMAT:-vfat}
-		;;
-esac
 export IMAGE_FORMAT
 DIST="${DIST:-disco}"
 

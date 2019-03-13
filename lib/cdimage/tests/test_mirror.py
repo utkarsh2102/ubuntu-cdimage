@@ -66,10 +66,6 @@ class TestChecksumFile(TestCase):
         for series in all_series:
             self.assertMirrorEqual("ftp", "i386", series)
 
-    def test_lpia(self):
-        for series in all_series:
-            self.assertMirrorEqual("ftp", "lpia", series)
-
     def test_powerpc(self):
         for series in all_series:
             self.assertMirrorEqual("ftp", "powerpc", series)

@@ -80,17 +80,14 @@ def configure_for_project(config):
     if project == "gobuntu":
         config["CDIMAGE_ONLYFREE"] = "1"
     elif project == "edubuntu":
-        if series >= "karmic":
-            config["CDIMAGE_UNSUPPORTED"] = "1"
+        config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project == "xubuntu":
-        if series >= "hardy":
-            config["CDIMAGE_UNSUPPORTED"] = "1"
+        config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project == "kubuntu":
-        if series >= "quantal":
+        if series >= "trusty":
             config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project in (
         "kubuntu-active",
-        "kubuntu-plasma5",
         "ubuntustudio",
         "mythbuntu",
         "lubuntu",
@@ -98,8 +95,6 @@ def configure_for_project(config):
         "ubuntu-gnome",
         "ubuntu-budgie",
         "ubuntu-mate",
-        "ubuntu-moblin-remix",
-        "ubuntu-mid",
     ):
         config["CDIMAGE_UNSUPPORTED"] = "1"
 
@@ -363,66 +358,23 @@ def build_ubuntu_defaults_locale(config):
             "UBUNTU_DEFAULTS_LOCALE='%s' not currently supported!" % locale)
 
     series = config["DIST"]
-    if series < "oneiric":
-        # Original hack: repack an existing image.
-        iso = config["ISO"]
-        if not iso:
-            raise Exception(
-                "Pass ISO=<path to Ubuntu image> in the environment.")
-
-        scratch = os.path.join(
-            config.root, "scratch", "ubuntu-chinese-edition", series.name)
-        bsdtar_tree = os.path.join(scratch, "bsdtar-tree")
-
-        log_marker("Unpacking")
-        if os.path.isdir(bsdtar_tree):
-            subprocess.check_call(["chmod", "-R", "+w", bsdtar_tree])
-        osextras.mkemptydir(bsdtar_tree)
-        subprocess.check_call(["bsdtar", "-xf", iso, "-C", bsdtar_tree])
-        subprocess.check_call(["chmod", "-R", "+w", bsdtar_tree])
-
-        log_marker("Transforming (robots in disguise)")
-        with open(os.path.join(bsdtar_tree, "isolinux", "lang"), "w") as lang:
-            print(locale, file=lang)
-        subprocess.call([
-            "mkisofs",
-            "-r", "-V", "Ubuntu Chinese %s i386" % series.version,
-            "-o", os.path.join(scratch, os.path.basename(iso)),
-            "-cache-inodes", "-J", "-l",
-            "-b", "isolinux/isolinux.bin", "-c", "isolinux/boot.cat",
-            "-no-emul-boot", "-boot-load-size", "4", "-boot-info-table",
-            bsdtar_tree,
-        ])
-
-        iso_prefix = iso.rsplit(".", 1)[0]
-        scratch_prefix = os.path.join(
-            scratch, os.path.basename(iso).rsplit(".", 1)[0])
-
-        for ext in "list", "manifest":
-            if os.path.exists("%s.%s" % (iso_prefix, ext)):
-                shutil.copy2(
-                    "%s.%s" % (iso_prefix, ext),
-                    "%s.%s" % (scratch_prefix, ext))
-            else:
-                osextras.unlink_force("%s.%s" % (scratch_prefix, ext))
-    else:
-        log_marker("Downloading live filesystem images")
-        download_live_filesystems(config)
-        scratch = live_output_directory(config)
-        for entry in os.listdir(scratch):
-            if "." in entry:
-                os.rename(
-                    os.path.join(scratch, entry),
-                    os.path.join(scratch, "%s-desktop-%s" % (series, entry)))
-        pi_makelist = os.path.join(
-            config.root, "debian-cd", "tools", "pi-makelist")
-        for entry in os.listdir(scratch):
-            if entry.endswith(".iso"):
-                entry_path = os.path.join(scratch, entry)
-                list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
-                with open(list_path, "w") as list_file:
-                    subprocess.check_call(
-                        [pi_makelist, entry_path], stdout=list_file)
+    log_marker("Downloading live filesystem images")
+    download_live_filesystems(config)
+    scratch = live_output_directory(config)
+    for entry in os.listdir(scratch):
+        if "." in entry:
+            os.rename(
+                os.path.join(scratch, entry),
+                os.path.join(scratch, "%s-desktop-%s" % (series, entry)))
+    pi_makelist = os.path.join(
+        config.root, "debian-cd", "tools", "pi-makelist")
+    for entry in os.listdir(scratch):
+        if entry.endswith(".iso"):
+            entry_path = os.path.join(scratch, entry)
+            list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
+            with open(list_path, "w") as list_file:
+                subprocess.check_call(
+                    [pi_makelist, entry_path], stdout=list_file)
 
 
 def add_android_support(config, arch, output_dir):
@@ -506,9 +458,8 @@ def build_livecd_base(config):
                 "%s.model-assertion" % live_prefix,
                 "%s.model-assertion" % output_prefix)
 
-    if (config.project in ("ubuntu-base", "ubuntu-touch",
-                           "ubuntu-touch-custom") or
-        (config.project in ("ubuntu-desktop-next", "ubuntu-core") and
+    if (config.project in ("ubuntu-base", "ubuntu-touch") or
+        (config.project == "ubuntu-core" and
          config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
@@ -528,26 +479,16 @@ def build_livecd_base(config):
                 elif config.project == "ubuntu-base":
                     output_prefix = os.path.join(
                         output_dir, "%s-base-%s" % (config.series, arch))
-                elif config.project in ("ubuntu-touch", "ubuntu-touch-custom"):
+                elif config.project == "ubuntu-touch":
                     output_prefix = os.path.join(
                         output_dir,
                         "%s-preinstalled-touch-%s" % (config.series, arch))
-                elif config.project == "ubuntu-desktop-next":
-                    if config.image_type == "daily-preinstalled":
-                        output_prefix = os.path.join(
-                            output_dir,
-                            "%s-preinstalled-desktop-next-%s" %
-                            (config.series, arch))
-                    else:
-                        output_prefix = os.path.join(
-                            output_dir, "%s-desktop-next-%s" %
-                            (config.series, arch))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)
                 shutil.copy2(
                     "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
-                if config.project in ("ubuntu-touch", "ubuntu-touch-custom"):
+                if config.project == "ubuntu-touch":
                     osextras.link_force(
                         "%s.raw" % output_prefix, "%s.tar.gz" % output_prefix)
                     add_android_support(config, arch, output_dir)
@@ -555,7 +496,7 @@ def build_livecd_base(config):
                     if os.path.exists(custom):
                         shutil.copy2(
                             custom, "%s.custom.tar.gz" % output_prefix)
-                if config.project in ("ubuntu-core", "ubuntu-desktop-next"):
+                if config.project == "ubuntu-core":
                     for dev in ("azure.device", "device", "raspi2.device",
                                 "plano.device"):
                         device = "%s.%s.tar.gz" % (live_prefix, dev)
@@ -571,10 +512,7 @@ def build_livecd_base(config):
 
 
 def _debootstrap_script(config):
-    if config["DIST"] <= "gutsy":
-        return "usr/lib/debootstrap/scripts/%s" % config.series
-    else:
-        return "usr/share/debootstrap/scripts/%s" % config.series
+    return "usr/share/debootstrap/scripts/%s" % config.series
 
 
 def extract_debootstrap(config):
@@ -710,14 +648,10 @@ def notify_failure(config, log_path):
 def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
-            "livecd-base", "ubuntu-base", "ubuntu-core", "ubuntu-touch",
-            "ubuntu-touch-custom"):
+            "livecd-base", "ubuntu-base", "ubuntu-core", "ubuntu-touch"):
         live_fs_only = True
     elif (config.project == "ubuntu-server" and
           config.image_type == "daily-preinstalled"):
-        live_fs_only = True
-    elif (config.project == "ubuntu-desktop-next" and
-          config.subproject == "system-image"):
         live_fs_only = True
     elif config.subproject == "wubi":
         live_fs_only = True

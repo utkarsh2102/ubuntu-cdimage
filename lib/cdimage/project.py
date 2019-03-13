@@ -29,19 +29,13 @@ import os
 # values of 25 - (length of longest relevant architecture name).
 project_map = {
     "ubuntu": "Ubuntu",
-    "ubuntu-desktop-next": "Ubuntu-Desktop-Next",
     "ubuntu-zh_CN": "Ubuntu Chinese Edition",
     "kubuntu": "Kubuntu",
     "kubuntu-active": "Kubuntu-Active",
-    "kubuntu-plasma5": "Kubuntu-Plasma-5",
     "edubuntu": "Edubuntu",
     "xubuntu": "Xubuntu",
     "gobuntu": "Gobuntu",
     "ubuntu-server": "Ubuntu-Server",
-    "jeos": "Ubuntu-JeOS",
-    "ubuntu-mid": "Ubuntu-MID",
-    "ubuntu-netbook": "Ubuntu-Netbook",
-    "ubuntu-headless": "Ubuntu-Headless",
     "ubuntustudio": "Ubuntu-Studio",
     "mythbuntu": "Mythbuntu",
     "lubuntu": "Lubuntu",
@@ -50,15 +44,11 @@ project_map = {
     "ubuntu-gnome": "Ubuntu-GNOME",
     "ubuntu-budgie": "Ubuntu-Budgie",
     "ubuntu-mate": "Ubuntu-MATE",
-    "ubuntu-moblin-remix": "Ubuntu-Moblin-Remix",
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu Core",
     "ubuntu-base": "Ubuntu-Base",
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "ubuntu-touch": "Ubuntu Touch",
-    "ubuntu-touch-custom": "Ubuntu Touch Custom Build",
-    "tocd3": "TheOpenCDv3",
-    "tocd3.1": "TheOpenCDv3.1",
 }
 
 

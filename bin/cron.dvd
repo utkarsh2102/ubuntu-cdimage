@@ -35,22 +35,7 @@ def main():
     options, _ = parser.parse_args()
     config = Config(IMAGE_TYPE="dvd")
     project = config.project
-    series = config["DIST"]
-    if project == "edubuntu":
-        # Edubuntu lucid and onwards: DVD is live-only
-        if series <= "karmic":
-            config["CDIMAGE_INSTALL"] = "1"
-    elif project == "ubuntu":
-        # Ubuntu oneiric and onwards: DVD is live-only
-        if series <= "natty":
-            config["CDIMAGE_INSTALL"] = "1"
-    elif project == "ubuntustudio":
-        # Ubuntu Studio precise and onwards: DVD is live-only
-        # (Actually, it didn't exist before then anyway, but we check this
-        # just for documentation's sake.)
-        if series <= "oneiric":
-            config["CDIMAGE_INSTALL"] = "1"
-    else:
+    if project not in ("edubuntu", "ubuntu", "ubuntustudio"):
         config["CDIMAGE_INSTALL"] = "1"
     config["CDIMAGE_LIVE"] = "1"
     config["CDIMAGE_DVD"] = "1"

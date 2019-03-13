@@ -83,20 +83,10 @@ def warn(project, image, message):
 def project_title(project):
     if project == 'ubuntu-server':
         return 'Ubuntu Server'
-    elif project == 'jeos':
-        return 'Ubuntu JeOS'
     elif project == 'ubuntustudio':
         return 'Ubuntu Studio'
-    elif project == 'ubuntu-netbook':
-        return 'Ubuntu Netbook'
-    elif project == 'ubuntu-headless':
-        return 'Ubuntu Headless'
     elif project == 'kubuntu-active':
         return 'Kubuntu Active'
-    elif project == 'kubuntu-plasma5':
-        return 'Kubuntu Plasma 5'
-    elif project == 'ubuntu-moblin-remix':
-        return 'Ubuntu Moblin Remix'
     else:
         return project.title()
 
@@ -237,17 +227,13 @@ def main():
 
     projects = (
         'ubuntu',
-        'ubuntu-desktop-next',
         'ubuntu-server',
         'kubuntu',
         'edubuntu',
         'xubuntu',
         'ubuntustudio',
-        'ubuntu-netbook',
         'kubuntu-netbook',
-        'ubuntu-moblin-remix',
         'kubuntu-active',
-        'kubuntu-plasma5',
         'mythbuntu',
         'lubuntu',
         'lubuntu-next',

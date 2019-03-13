@@ -32,7 +32,7 @@ def main():
     parser = OptionParser(
         "%prog DIRECTORY VERSION STATUS\n"
         " e.g.: %prog " + config.root +
-        "/www/full/daily-live/20130327 raring daily")
+        "/www/full/daily-live/20130327 bionic daily")
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need directory")

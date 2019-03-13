@@ -63,21 +63,16 @@ if sys.version < "3":
 projects = [
     "edubuntu",
     "gobuntu",
-    "jeos",
     "kubuntu",
     "kubuntu-active",
     "kubuntu-netbook",
-    "kubuntu-plasma5",
     "lubuntu",
     "lubuntu-next",
     "mythbuntu",
     "ubuntu",
-    "ubuntu-desktop-next",
     "ubuntu-gnome",
     "ubuntu-budgie",
     "ubuntu-mate",
-    "ubuntu-headless",
-    "ubuntu-netbook",
     "ubuntu-server",
     "ubuntukylin",
     "ubuntustudio",
@@ -376,65 +371,36 @@ class Publisher:
     @property
     def publish_type(self):
         if self.image_type.endswith("-preinstalled"):
-            if self.project == "ubuntu-netbook":
-                return "preinstalled-netbook"
-            elif self.project == "ubuntu-headless":
-                return "preinstalled-headless"
-            elif self.project == "ubuntu-server":
+            if self.project == "ubuntu-server":
                 return "preinstalled-server"
-            elif self.project in ("ubuntu-touch", "ubuntu-touch-custom"):
+            elif self.project == "ubuntu-touch":
                 return "preinstalled-touch"
             elif self.project == "ubuntu-core":
                 return "preinstalled-core"
-            elif self.project == "ubuntu-desktop-next":
-                return "preinstalled-desktop-next"
             else:
                 return "preinstalled-desktop"
         elif self.image_type.endswith("-live"):
             if self.project == "edubuntu":
-                if self.config["DIST"] <= "edgy":
-                    return "live"
-                else:
-                    return "desktop"
-            elif self.project == "ubuntu-mid":
-                return "mid"
-            elif self.project == "ubuntu-moblin-remix":
-                return "moblin-remix"
-            elif self.project in ("ubuntu-netbook", "kubuntu-netbook"):
+                return "desktop"
+            elif self.project == "kubuntu-netbook":
                 return "netbook"
             elif self.project == "ubuntu-server":
                 return "live-server"
             elif self.project == "ubuntu-core":
                 return "live-core"
             else:
-                if self.config["DIST"] <= "breezy":
-                    return "live"
-                else:
-                    return "desktop"
+                return "desktop"
         elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
             return "dvd"
         else:
             if self.project == "edubuntu":
-                if self.config["DIST"] <= "edgy":
-                    return "install"
-                elif self.config["DIST"] <= "gutsy":
-                    return "server"
-                else:
-                    return "addon"
+                return "addon"
             elif self.project == "ubuntu-server":
-                if self.config["DIST"] <= "breezy":
-                    return "install"
-                else:
-                    return "server"
-            elif self.project == "jeos":
-                return "jeos"
+                return "server"
             elif self.project == "ubuntu-base":
                 return "base"
             else:
-                if self.config["DIST"] <= "breezy":
-                    return "install"
-                else:
-                    return "alternate"
+                return "alternate"
 
     # Keep this in sync with publish_type above.
     @staticmethod
@@ -442,13 +408,13 @@ class Publisher:
         if publish_type.startswith("preinstalled-"):
             return "daily-preinstalled"
         elif publish_type in (
-                "desktop", "live", "mid", "moblin-remix", "netbook",
+                "desktop", "live", "netbook",
                 "live-core", "live-server"):
             return "daily-live"
         elif publish_type == "dvd":
             return "dvd"
         elif publish_type in (
-                "addon", "alternate", "base", "install", "jeos", "server"):
+                "addon", "alternate", "base", "install", "server"):
             return "daily"
         else:
             return None
@@ -474,8 +440,6 @@ class Publisher:
     def cssincludes(self):
         if self.project == "kubuntu":
             return ["//releases.ubuntu.com/include/kubuntu.css"]
-        if self.project == "kubuntu-plasma5":
-            return ["//releases.ubuntu.com/include/kubuntu-plasma5.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
             return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
         else:
@@ -485,11 +449,10 @@ class Publisher:
     def cdtypestr(self, publish_type, image_format):
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
-        elif self.config["DIST"] < "quantal":
+        elif self.config["DIST"] < "trusty":
             if image_format in ("img", "img.gz"):
                 cd = "image"
             elif self.project == "ubuntustudio":
-                # Ubuntu Studio is expected to be oversized in Gutsy; sigh.
                 cd = "DVD"
             else:
                 cd = "CD"
@@ -523,18 +486,12 @@ class Publisher:
             return "source %s" % cd
         elif publish_type == "netbook":
             return "netbook live %s" % cd
-        elif publish_type == "mid":
-            return "MID USB image"
-        elif publish_type == "moblin-remix":
-            return "Moblin live CD"
         elif publish_type == "active":
             return "preview active image"
         elif publish_type in ("server-uec", "uec"):
             return "UEC image"
         elif publish_type == "preinstalled-desktop":
             return "preinstalled desktop %s" % cd
-        elif publish_type == "preinstalled-headless":
-            return "preinstalled headless %s" % cd
         elif publish_type == "preinstalled-server":
             return "preinstalled server %s" % cd
         elif publish_type == "preinstalled-netbook":
@@ -545,8 +502,6 @@ class Publisher:
             return "preinstalled touch image"
         elif publish_type == "preinstalled-core":
             return "preinstalled core image"
-        elif publish_type == "preinstalled-desktop-next":
-            return "preinstalled desktop next image"
         elif publish_type == "wubi":
             return "Wubi %s" % cd
         else:
@@ -556,35 +511,20 @@ class Publisher:
         capproject = self.config.capproject
         series = self.config["DIST"]
 
-        if self.project == "mid":
-            # MID has lower memory requirements than others
-            desktop_ram = 128
         if self.project == "xubuntu":
-            if series <= "intrepid":
-                desktop_ram = 128
-            else:
-                desktop_ram = 192
+            desktop_ram = 192
         else:
-            if series <= "feisty":
-                desktop_ram = 256
-            elif series <= "gutsy":
-                desktop_ram = 320
-            elif series <= "hardy":
-                desktop_ram = 384
-            elif series <= "maverick":
-                desktop_ram = 256
-            elif series <= "artful":
+            if series <= "xenial":
                 desktop_ram = 384
             else:
                 desktop_ram = 1024
 
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
-        elif self.config["DIST"] < "quantal":
+        elif self.config["DIST"] <= "precise":
             if image_format in ("img", "img.gz"):
                 cd = "image"
             elif self.project == "ubuntustudio":
-                # Ubuntu Studio is expected to be oversized in Gutsy; sigh.
                 cd = "dvd"
             else:
                 cd = "cd"
@@ -612,13 +552,6 @@ class Publisher:
                     cd)
                 self.prefmsg_emitted = True
             sentences.append(desktop_req)
-            if self.project == "ubuntu-desktop-next":
-                sentences.append(
-                    "This is an experimental image. Please %s for caveats and "
-                    "workarounds." %
-                    Link("https://wiki.ubuntu.com/Unity8DesktopIso",
-                         "read this page on the Ubuntu wiki",
-                         show_class=True))
             if self.project == "edubuntu":
                 sentences.append(
                     "You can install additional educational programs using "
@@ -651,24 +584,6 @@ class Publisher:
                 "installer, please file a bug on the %s package." % bug_link,
             ])
             return
-        elif publish_type == "mid":
-            sentences.append(
-                "The MID USB image allows you to try %s without changing your "
-                "computer at all, and at your option to install it "
-                "permanently later." % capproject)
-            sentences.append(
-                "This USB image is optimized for handheld devices with 4-7\" "
-                "touchscreens and limited processing power.")
-            sentences.append(desktop_req)
-        elif publish_type == "moblin-remix":
-            sentences.append(
-                "The live %s allows you to try Ubuntu Moblin Remix without "
-                "changing your computer at all, and at your option to install "
-                "it permanently later." % cd)
-            sentences.append(
-                "This live %s is optimized for netbooks with screens up to "
-                "10\"." % cd)
-            sentences.append(desktop_req)
         elif publish_type == "server" or publish_type == "live-server":
             if self.project == "edubuntu":
                 sentences.append(
@@ -832,7 +747,6 @@ class Publisher:
         "hppa": "HP PA-RISC",
         "i386": "32-bit PC (i386)",
         "ia64": "IA-64",
-        "lpia": "Low-Power Intel Architecture",
         "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
         "powerpc+ps3": "PlayStation 3",
         "ppc64el": "PowerPC64 Little-Endian",
@@ -911,10 +825,6 @@ class Publisher:
                 "Intel processors.")
         elif arch == "ia64":
             sentences.append("For Intel Itanium and Itanium 2 computers.")
-        elif arch == "lpia":
-            sentences.append(
-                "For devices using the Low-Power Intel Architecture, "
-                "including the A1xx and Atom processors.")
         elif arch == "powerpc":
             sentences.append(
                 "For Apple Macintosh G3, G4, and G5 computers, including "
@@ -922,7 +832,7 @@ class Publisher:
                 "machines.")
         elif arch == "powerpc+ps3":
             sentences.append("For Sony PlayStation 3 systems.")
-            if publish_type == "desktop" and self.config["DIST"] >= "gutsy":
+            if publish_type == "desktop":
                 capproject = self.config.capproject
                 sentences.append(
                     "(This defaults to installing %s permanently, since there "
@@ -952,8 +862,7 @@ class Publisher:
             return
 
         usb_projects = (
-            "ubuntu-mid", "ubuntu-moblin-remix",
-            "kubuntu", "kubuntu-active", "kubuntu-plasma5",
+            "kubuntu", "kubuntu-active",
             "ubuntu-mate",
             )
         series = self.config["DIST"]
@@ -979,8 +888,8 @@ class Publisher:
                 "However, you may still test it using a DVD, a larger USB "
                 "drive, or a virtual machine.")
         elif (self.project in usb_projects or
-                (self.project == "xubuntu" and series >= "raring") or
-                (self.project == "ubuntu-gnome" and series >= "saucy")):
+                (self.project == "xubuntu" and series >= "trusty") or
+                (self.project == "ubuntu-gnome" and series >= "trusty")):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 1GB USB stick.")
@@ -1156,13 +1065,13 @@ class Publisher:
             "serveraddon", "addon",
             "dvd",
             "src",
-            "netbook", "mid", "moblin-remix", "mobile", "active",
+            "netbook", "mobile", "active",
             "uec", "server-uec",
             "preinstalled-desktop", "preinstalled-netbook",
             "preinstalled-mobile", "preinstalled-active",
-            "preinstalled-headless", "preinstalled-server",
+            "preinstalled-server",
             "preinstalled-touch", "preinstalled-core", "wubi",
-            "preinstalled-desktop-next", "live-core",
+            "live-core",
         )
 
         all_arches = (
@@ -1178,7 +1087,6 @@ class Publisher:
             "ppc64el",
             "hppa",
             "ia64",
-            "lpia",
             "s390x",
             "sparc",
         )
@@ -1254,12 +1162,6 @@ class Publisher:
                     "<link "
                     "href='http://fonts.googleapis.com/css?family=Ubuntu' "
                     "rel='stylesheet' type='text/css'>", file=header)
-            if self.project == "kubuntu-plasma5":
-                print(
-                    "<link "
-                    "href='http://fonts.googleapis.com/css?family=Oxygen' "
-                    "rel='stylesheet' type='text/css'>", file=header)
-            if self.project in ("kubuntu", "kubuntu-plasma5"):
                 print(
                     "<link rel=\"icon\" type=\"image/png\" "
                     "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
@@ -1315,11 +1217,8 @@ class Publisher:
             if ("full" in reldir.split(os.pardir) and
                     "-alpha-" not in base_prefix and
                     base_prefix != self.config.series):
-                if self.project in (
-                        "ubuntu", "ubuntu-server", "ubuntu-netbook"):
+                if self.project in ("ubuntu", "ubuntu-server"):
                     url = "http://releases.ubuntu.com/"
-                elif self.project == "kubuntu" and series <= "oneiric":
-                    url = "http://releases.ubuntu.com/kubuntu/"
                 else:
                     url = None
                 if url:
@@ -1427,17 +1326,9 @@ class Publisher:
 
                         for path, arch, base in paths:
                             if arch is None:
-                                if publish_type == "mid":
-                                    imgarch = "lpia"
-                                else:
-                                    raise WebIndicesException(
-                                        "Unknown image type %s!" %
-                                        publish_type)
-                                archstr = self.arch_strings[imgarch]
-                                imagestr = "%s %s" % (archstr, cdtypestr)
-                                htaccessimagestr = "%s for %s computers" % (
-                                    self.titlecase(cdtypestr), archstr)
-                                archdesc = self.archdesc(imgarch, publish_type)
+                                raise WebIndicesException(
+                                    "Unknown image type %s!" %
+                                    publish_type)
                             elif publish_type == "src":
                                 imagestr = "%s %s" % (
                                     self.titlecase(cdtypestr), arch)
@@ -1638,7 +1529,7 @@ class Publisher:
             if got_iso or got_img:
                 print(file=header)
 
-            if self.config.project in ("ubuntu-touch", "ubuntu-touch-custom"):
+            if self.config.project == "ubuntu-touch":
                 for tag in self.ubuntu_touch_legal_notice():
                     print(tag, file=header)
                 print(file=header)
@@ -1845,15 +1736,7 @@ class DailyTreePublisher(Publisher):
             # All Edubuntu images are DVD sized (including arm).
             # Ubuntu Studio is always DVD-sized for now.
             return 4700372992
-        elif self.project in (
-                "ubuntu-mid", "ubuntu-moblin-remix",
-                ):
-            # Mobile images are designed for USB drives; arbitrarily pick
-            # 1GB as a limit.
-            return 1024 * 1024 * 1024
-        elif self.project in (
-                "kubuntu", "kubuntu-active", "kubuntu-plasma5",
-                ):
+        elif self.project in ("kubuntu", "kubuntu-active"):
             if self.config["DIST"] >= "xenial":
                 # Per https://lists.ubuntu.com/archives/
                 # ... ubuntu-release/2016-May/003749.html
@@ -1862,23 +1745,14 @@ class DailyTreePublisher(Publisher):
             return (1024 * 1024 * 1024) + (1024 * 1024 * 200)
         elif (self.project in ("ubuntu", "ubuntukylin") and
               self.publish_type != "dvd" and
-              self.config["DIST"] >= "quantal"):
-            # Ubuntu quantal onward has a succession of arbitrary limits.
-            if self.config["DIST"] == "quantal":
-                return 801000000
-            elif self.config["DIST"] == "raring":
-                if arch == "powerpc":
-                    return 850000000
-                else:
-                    return 835000000
-            elif self.config["DIST"] == "saucy":
-                return 950000000
-            elif self.config["DIST"] in ("trusty", "utopic", "vivid", "wily"):
+              self.config["DIST"] >= "trusty"):
+            if self.config["DIST"] == "trusty":
                 return 1.2 * 1000 * 1000 * 1000
             else:
                 # next relevant size limit is a 2GB (not 2GiB) USB stick
                 return 2 * 1000 * 1000 * 1000
-        elif self.project == "ubuntu-gnome" and self.config["DIST"] >= "saucy":
+        elif (self.project == "ubuntu-gnome" and
+              self.config["DIST"] >= "trusty"):
             # Per https://lists.ubuntu.com/archives/
             # ... ubuntu-release/2016-May/003740.html
             if self.config["DIST"] >= "xenial":
@@ -1895,7 +1769,7 @@ class DailyTreePublisher(Publisher):
         elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
             return 2 * 1000 * 1000 * 1000
-        elif self.project == "xubuntu" and self.config["DIST"] >= "raring":
+        elif self.project == "xubuntu" and self.config["DIST"] >= "trusty":
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-mate":
@@ -1907,7 +1781,7 @@ class DailyTreePublisher(Publisher):
             # https://bugs.launchpad.net/bugs/1796368
             return 2 * 1000 * 1000 * 1000
         elif (self.project in ("lubuntu", "lubuntu-next") and
-              self.config["DIST"] >= "artful"):
+              self.config["DIST"] >= "bionic"):
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "trusty":
@@ -1915,11 +1789,7 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] == "xenial":
-                return 1024 * 1024 * 1024
-            elif self.config["DIST"] >= "zesty" and arch == "ppc64el":
-                return 1024 * 1024 * 1024
-            elif self.config["DIST"] >= "bionic":
+            if self.config["DIST"] >= "xenial":
                 return 1024 * 1024 * 1024
             else:
                 return 736665600
@@ -2002,20 +1872,17 @@ class DailyTreePublisher(Publisher):
             return "iso"
 
     def jigdo_ports(self, arch):
-        series = self.config["DIST"]
         cpuarch = arch.split("+")[0]
         if cpuarch == "powerpc":
             # https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/
             #   000098.html
-            if series > "edgy":
-                return True
+            return True
         elif cpuarch == "sparc":
             # https://lists.ubuntu.com/archives/ubuntu-devel-announce/
             #   2008-March/000400.html
-            if series < "dapper" or series > "gutsy":
-                return True
+            return True
         elif cpuarch in (
-                "arm64", "armel", "armhf", "hppa", "ia64", "lpia", "ppc64el",
+                "arm64", "armel", "armhf", "hppa", "ia64", "ppc64el",
                 "s390x"):
             return True
         return False
@@ -2377,17 +2244,14 @@ class DailyTreePublisher(Publisher):
             for arch in arches:
                 if image_base.endswith("-%s" % arch):
                     matches = True
-                elif (self.config.project in ("ubuntu-touch",
-                                              "ubuntu-touch-custom") and
+                elif (self.config.project == "ubuntu-touch" and
                       arch == "armhf" and
                       ("-armel+" in image_base or "-armhf+" in image_base)):
                     matches = True
-                elif (self.config.project in ("ubuntu-touch",
-                                              "ubuntu-touch-custom") and
+                elif (self.config.project == "ubuntu-touch" and
                       arch == "i386" and "-i386+" in image_base):
                     matches = True
-                elif (self.config.project in ("ubuntu-touch",
-                                              "ubuntu-touch-custom") and
+                elif (self.config.project == "ubuntu-touch" and
                       arch == "arm64" and "-arm64+" in image_base):
                     matches = True
                 elif self.config.subproject == "wubi" and image_base == arch:
@@ -2834,18 +2698,13 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
     """An object that can publish daily builds of the Chinese edition."""
 
     def image_output(self, arch):
-        if self.config["DIST"] < "oneiric":
-            return os.path.join(
-                self.config.root, "scratch", "ubuntu-chinese-edition",
-                self.config.full_series)
-        else:
-            project = "ubuntu"
-            if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-                project = "-".join([
-                    project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
-            return os.path.join(
-                self.config.root, "scratch", project, self.config.full_series,
-                self.image_type, "live")
+        project = "ubuntu"
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "-".join([
+                project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
+        return os.path.join(
+            self.config.root, "scratch", project, self.config.full_series,
+            self.image_type, "live")
 
     @property
     def source_extension(self):
@@ -2871,8 +2730,7 @@ class ReleaseTreeMixin:
 
     def tree_suffix(self, source):
         # Publish ports/daily to ports/releases/..., etc.
-        ubuntu_projects = (
-            "ubuntu-server", "ubuntu-netbook", "ubuntu-mid", "ubuntu-headless")
+        ubuntu_projects = ("ubuntu-server", )
         if "/" in source:
             project, tail = source.split("/", 1)
             if project in ubuntu_projects:
@@ -3009,10 +2867,7 @@ class ReleasePublisher(Publisher):
     def daily_base(self, source, date, publish_type, arch):
         series = self.config["DIST"]
         daily_dir = self.daily_dir(source, date, publish_type)
-        if publish_type in ("netbook", "mid") and series <= "intrepid":
-            return os.path.join(
-                daily_dir, "%s-%s" % (self.project, publish_type))
-        elif publish_type == "wubi":
+        if publish_type == "wubi":
             return os.path.join(daily_dir, arch)
         else:
             return os.path.join(
@@ -3176,7 +3031,7 @@ class ReleasePublisher(Publisher):
 
     def want_manifest(self, publish_type, path):
         if publish_type in (
-            "live", "desktop", "netbook", "mid", "moblin-remix",
+            "live", "desktop", "netbook",
             "uec", "server-uec", "core", "wubi", "server", "live-server",
         ):
             return True
@@ -3195,7 +3050,7 @@ class ReleasePublisher(Publisher):
     def want_metalink(self, publish_type):
         # TODO: maybe others?  metalink is only supported for Wubi
         if publish_type in (
-            "netbook", "mid", "moblin-remix", "uec", "server-uec",
+            "netbook", "uec", "server-uec",
         ):
             return False
         elif publish_type.startswith("preinstalled-"):
@@ -3393,14 +3248,12 @@ class ReleasePublisher(Publisher):
 
         # Override the architecture list for these types unconditionally.
         # TODO: should reset default-arches for the source project instead
-        if (publish_type in ("netbook", "moblin-remix") and
+        if (publish_type == "netbook" and
                 not [arch for arch in arches if arch.startswith("armel")]):
             arches = ["i386"]
-        elif publish_type == "mid":
-            arches = ["lpia"]
 
         # Sanity-check.
-        if publish_type not in ("netbook", "mid", "src"):
+        if publish_type not in ("netbook", "src"):
             for arch in arches:
                 paths = []
                 for ext in ("iso", "img", "img.gz", "img.xz", "img.tar.gz",

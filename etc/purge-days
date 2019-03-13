@@ -3,14 +3,9 @@ daily-live 1
 daily-preinstalled 1
 # Purge images older than 2 days => keep the most recent build.
 dvd 2
-# Only purge TheOpenCDv3 images manually.
-tocd3/daily-live 0
 # Ubuntu Core images are not purged per age
 ubuntu-core 0
-ubuntu-mid 3
-ubuntu-netbook 3
 ubuntu-touch 7
-ubuntu-touch-custom 7
 source 1
 wubi 1
 ubuntu-zh_CN 3

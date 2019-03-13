@@ -247,44 +247,26 @@ class TestPublisher(TestCase):
 
     def test_publish_type(self):
         for image_type, project, dist, publish_type in (
-            ("daily-preinstalled", "ubuntu-netbook", "precise",
-             "preinstalled-netbook"),
-            ("daily-preinstalled", "ubuntu-headless", "precise",
-             "preinstalled-headless"),
             ("daily-preinstalled", "ubuntu-server", "precise",
              "preinstalled-server"),
             ("daily-preinstalled", "ubuntu-server", "xenial",
              "preinstalled-server"),
             ("daily-preinstalled", "ubuntu", "precise",
              "preinstalled-desktop"),
-            ("daily-preinstalled", "ubuntu-touch", "saucy",
+            ("daily-preinstalled", "ubuntu-touch", "trusty",
              "preinstalled-touch"),
-            ("daily-preinstalled", "ubuntu-touch-custom", "vivid",
-             "preinstalled-touch"),
-            ("daily-live", "edubuntu", "edgy", "live"),
-            ("daily-live", "edubuntu", "feisty", "desktop"),
-            ("daily-live", "kubuntu-netbook", "lucid", "netbook"),
-            ("daily-live", "kubuntu-plasma5", "utopic", "desktop"),
-            ("daily-live", "ubuntu-mid", "lucid", "mid"),
-            ("daily-live", "ubuntu-moblin-remix", "lucid", "moblin-remix"),
-            ("daily-live", "ubuntu-netbook", "hardy", "netbook"),
-            ("daily-live", "ubuntu-server", "hardy", "live-server"),
-            ("daily-live", "ubuntu", "breezy", "live"),
-            ("daily-live", "ubuntu", "dapper", "desktop"),
-            ("daily-live", "ubuntu-zh_CN", "raring", "desktop"),
+            ("daily-live", "edubuntu", "precise", "desktop"),
+            ("daily-live", "kubuntu-netbook", "precise", "netbook"),
+            ("daily-live", "ubuntu-server", "precise", "live-server"),
+            ("daily-live", "ubuntu", "precise", "desktop"),
+            ("daily-live", "ubuntu-zh_CN", "trusty", "desktop"),
             ("daily-live", "ubuntu-core", "xenial", "live-core"),
-            ("ports_dvd", "ubuntu", "hardy", "dvd"),
-            ("dvd", "kubuntu", "hardy", "dvd"),
-            ("daily", "edubuntu", "edgy", "install"),
-            ("daily", "edubuntu", "feisty", "server"),
-            ("daily", "edubuntu", "gutsy", "server"),
-            ("daily", "edubuntu", "hardy", "addon"),
-            ("daily", "jeos", "hardy", "jeos"),
+            ("ports_dvd", "ubuntu", "precise", "dvd"),
+            ("dvd", "kubuntu", "precise", "dvd"),
+            ("daily", "edubuntu", "precise", "addon"),
             ("daily", "ubuntu-base", "precise", "base"),
-            ("daily", "ubuntu-server", "breezy", "install"),
-            ("daily", "ubuntu-server", "dapper", "server"),
-            ("daily", "ubuntu", "breezy", "install"),
-            ("daily", "ubuntu", "dapper", "alternate"),
+            ("daily", "ubuntu-server", "precise", "server"),
+            ("daily", "ubuntu", "precise", "alternate"),
         ):
             self.config["PROJECT"] = project
             self.config["DIST"] = dist
@@ -318,8 +300,6 @@ class TestPublisherWebIndices(TestCase):
         for project, expected in (
             ("ubuntu", [assets + "/vanilla-framework-version-1.8.0.min.css"]),
             ("kubuntu", ["//releases.ubuntu.com/include/kubuntu.css"]),
-            ("kubuntu-plasma5",
-             ["//releases.ubuntu.com/include/kubuntu-plasma5.css"]),
             ("lubuntu",
              ["//cdimage.ubuntu.com/include/lubuntu/style.css"]),
             ("lubuntu-next",
@@ -330,7 +310,7 @@ class TestPublisherWebIndices(TestCase):
             self.assertEqual(expected, publisher.cssincludes())
 
     def test_cdtypestr(self):
-        self.config["DIST"] = "quantal"
+        self.config["DIST"] = "trusty"
         publisher = Publisher(self.tree, "daily-live")
         self.assertEqual(
             "desktop image", publisher.cdtypestr("desktop", "iso"))
@@ -338,7 +318,7 @@ class TestPublisherWebIndices(TestCase):
     def test_cdtypedesc_desktop(self):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "quantal"
+        self.config["DIST"] = "trusty"
         publisher = Publisher(self.tree, "daily-live")
         desc = list(publisher.cdtypedesc("desktop", "iso"))
         self.assertEqual(
@@ -358,7 +338,7 @@ class TestPublisherWebIndices(TestCase):
     def test_cdtypedesc_alternate(self):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "quantal"
+        self.config["DIST"] = "trusty"
         publisher = Publisher(self.tree, "daily")
         desc = list(publisher.cdtypedesc("alternate", "iso"))
         self.assertEqual(
@@ -452,30 +432,30 @@ class TestPublisherWebIndices(TestCase):
     def test_find_images(self):
         for name in (
             "MD5SUMS",
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.list",
-            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.list",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ):
             touch(os.path.join(self.directory, name))
         publisher = Publisher(self.tree, "daily-live")
         self.assertCountEqual(
-            ["raring-desktop-amd64.list", "raring-desktop-i386.list"],
-            publisher.find_images(self.directory, "raring", "desktop"))
+            ["trusty-desktop-amd64.list", "trusty-desktop-i386.list"],
+            publisher.find_images(self.directory, "trusty", "desktop"))
 
     def test_find_source_images(self):
         for name in (
             "MD5SUMS",
-            "raring-src-1.iso", "raring-src-2.iso", "raring-src-3.iso",
+            "trusty-src-1.iso", "trusty-src-2.iso", "trusty-src-3.iso",
         ):
             touch(os.path.join(self.directory, name))
         publisher = Publisher(self.tree, "daily-live")
         self.assertEqual(
-            [1, 2, 3], publisher.find_source_images(self.directory, "raring"))
+            [1, 2, 3], publisher.find_source_images(self.directory, "trusty"))
 
     def test_find_any_with_extension(self):
         for name in (
             "MD5SUMS",
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.iso.torrent",
-            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.iso.torrent",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ):
             touch(os.path.join(self.directory, name))
         publisher = Publisher(self.tree, "daily-live")
@@ -496,21 +476,21 @@ class TestPublisherWebIndices(TestCase):
         # upgrading to XHTML so that we can use an XML parser.
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         for name in (
             "MD5SUMS",
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.iso.zsync",
-            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.iso.zsync",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ):
             touch(os.path.join(self.directory, name))
         publisher = Publisher(self.tree, "daily-live")
-        publisher.make_web_indices(self.directory, "raring", status="daily")
+        publisher.make_web_indices(self.directory, "trusty", status="daily")
 
         self.assertCountEqual([
             "HEADER.html", "FOOTER.html", ".htaccess",
             "MD5SUMS",
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.iso.zsync",
-            "raring-desktop-i386.iso", "raring-desktop-i386.list",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.iso.zsync",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ], os.listdir(self.directory))
 
         header_path = os.path.join(self.directory, "HEADER.html")
@@ -533,13 +513,13 @@ class TestPublisherWebIndices(TestCase):
             self.assertEqual(
                 "AddDescription \"Desktop image for 64-bit PC (AMD64) "
                 "computers (<a href=\\\"http://zsync.moria.org.uk/\\\">"
-                "zsync</a> metafile)\" raring-desktop-amd64.iso.zsync\n"
+                "zsync</a> metafile)\" trusty-desktop-amd64.iso.zsync\n"
                 "AddDescription \"Desktop image for 64-bit PC (AMD64) "
-                "computers (standard download)\" raring-desktop-amd64.iso\n"
+                "computers (standard download)\" trusty-desktop-amd64.iso\n"
                 "AddDescription \"Desktop image for 32-bit PC (i386) "
-                "computers (standard download)\" raring-desktop-i386.iso\n"
+                "computers (standard download)\" trusty-desktop-i386.iso\n"
                 "AddDescription \"Desktop image for 32-bit PC (i386) "
-                "computers (file listing)\" raring-desktop-i386.list\n"
+                "computers (file listing)\" trusty-desktop-i386.list\n"
                 "\n"
                 "HeaderName HEADER.html\n"
                 "ReadmeName FOOTER.html\n"
@@ -739,35 +719,24 @@ class TestDailyTreePublisher(TestCase):
             ("edubuntu", None, "daily-preinstalled", "i386", 4700372992),
             ("edubuntu", None, "dvd", "i386", 4700372992),
             ("ubuntustudio", None, "dvd", "i386", 4700372992),
-            ("ubuntu-mid", None, "daily-live", "i386", 1073741824),
-            ("ubuntu-moblin-remix", None, "daily-live", "i386", 1073741824),
             ("kubuntu", "trusty", "daily-live", "i386", 1283457024),
             ("kubuntu", "xenial", "daily-live", "i386", 2000000000),
             ("kubuntu-active", "trusty", "daily-live", "i386", 1283457024),
             ("kubuntu-active", "xenial", "daily-live", "i386", 2000000000),
-            ("kubuntu-plasma5", "trusty", "daily-live", "i386", 1283457024),
-            ("kubuntu-plasma5", "xenial", "daily-live", "i386", 2000000000),
             ("ubuntu", None, "dvd", "i386", 4700372992),
             ("ubuntu", "precise", "daily-live", "i386", 736665600),
-            ("ubuntu", "quantal", "daily-live", "i386", 801000000),
-            ("ubuntu", "raring", "daily-live", "i386", 835000000),
-            ("ubuntu", "raring", "daily-live", "powerpc", 850000000),
-            ("ubuntu", "saucy", "daily-live", "i386", 950000000),
-            ("ubuntu", "saucy", "daily-live", "powerpc", 950000000),
             ("ubuntu", "trusty", "daily-live", "i386", 1200000000),
             ("ubuntu", "trusty", "daily-live", "powerpc", 1200000000),
             ("ubuntu", "xenial", "daily-live", "i386", 2000000000),
-            ("xubuntu", "quantal", "daily-live", "i386", 736665600),
-            ("xubuntu", "raring", "daily-live", "i386", 1073741824),
             ("xubuntu", "xenial", "daily-live", "i386", 2000000000),
-            ("ubuntu-gnome", "saucy", "daily-live", "i386", 1073741824),
+            ("ubuntu-gnome", "trusty", "daily-live", "i386", 1073741824),
             ("ubuntu-gnome", "xenial", "daily-live", "i386", 2000000000),
-            ("ubuntu-budgie", "zesty", "daily-live", "i386", 2000000000),
+            ("ubuntu-budgie", "bionic", "daily-live", "i386", 2000000000),
             ("ubuntu-mate", "trusty", "daily-live", "amd64", 1073741824),
             ("ubuntu-mate", "xenial", "daily-live", "amd64", 2000000000),
             ("ubuntu-server", "xenial", "daily", "amd64", 1073741824),
-            ("ubuntu-server", "zesty", "daily", "amd64", 736665600),
-            ("ubuntu-server", "zesty", "daily", "ppc64el", 1073741824),
+            ("ubuntu-server", "bionic", "daily", "amd64", 1073741824),
+            ("ubuntu-server", "bionic", "daily", "ppc64el", 1073741824),
         ):
             if dist is not None:
                 self.config["DIST"] = dist
@@ -843,27 +812,21 @@ class TestDailyTreePublisher(TestCase):
 
     def test_jigdo_ports_powerpc(self):
         publisher = self.make_publisher("ubuntu", "daily")
-        for series in all_series[:5]:
-            publisher.config["DIST"] = series
-            self.assertFalse(publisher.jigdo_ports("powerpc"))
         for series in all_series[5:]:
             publisher.config["DIST"] = series
             self.assertTrue(publisher.jigdo_ports("powerpc"))
 
     def test_jigdo_ports_sparc(self):
         publisher = self.make_publisher("ubuntu", "daily")
-        for series in all_series[:3] + all_series[7:]:
+        for series in all_series[7:]:
             publisher.config["DIST"] = series
             self.assertTrue(publisher.jigdo_ports("sparc"))
-        for series in all_series[3:7]:
-            publisher.config["DIST"] = series
-            self.assertFalse(publisher.jigdo_ports("sparc"))
 
     def test_jigdo_ports(self):
         publisher = self.make_publisher("ubuntu", "daily")
         for arch in ("amd64", "i386"):
             self.assertFalse(publisher.jigdo_ports(arch))
-        for arch in ("armel", "armhf", "hppa", "ia64", "lpia", "ppc64el",
+        for arch in ("armel", "armhf", "hppa", "ia64", "ppc64el",
                      "s390x"):
             self.assertTrue(publisher.jigdo_ports(arch))
 
@@ -921,7 +884,7 @@ class TestDailyTreePublisher(TestCase):
                 return_value="img.xz")
     @mock.patch("cdimage.tree.zsyncmake")
     def test_publish_core_binary(self, mock_zsyncmake, *args):
-        self.config["DIST"] = "artful"
+        self.config["DIST"] = "xenial"
         publisher = self.make_publisher("ubuntu-core", "daily-live")
         source_dir = publisher.image_output("amd64")
         touch(os.path.join(
@@ -1025,17 +988,17 @@ class TestDailyTreePublisher(TestCase):
             os.readlink(os.path.join(publisher.publish_base, "current")))
 
     def test_published_images(self):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
             "MD5SUMS",
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ):
             touch(os.path.join(target_dir, name))
         self.assertEqual(
-            set(["raring-desktop-amd64.iso", "raring-desktop-i386.iso"]),
+            set(["trusty-desktop-amd64.iso", "trusty-desktop-i386.iso"]),
             publisher.published_images("20130321"))
 
     def test_published_core_images(self):
@@ -1057,12 +1020,12 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_missing_to_single(self, mock_polish_directory):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ):
             touch(os.path.join(target_dir, name))
         publisher.mark_current("20130321", ["amd64", "i386"])
@@ -1073,13 +1036,13 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_missing_to_mixed(self, mock_polish_directory):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
             "MD5SUMS",
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ):
             touch(os.path.join(target_dir, name))
         publisher.mark_current("20130321", ["amd64"])
@@ -1087,10 +1050,10 @@ class TestDailyTreePublisher(TestCase):
         self.assertFalse(os.path.islink(publish_current))
         self.assertTrue(os.path.isdir(publish_current))
         self.assertCountEqual(
-            ["raring-desktop-amd64.iso", "raring-desktop-amd64.manifest"],
+            ["trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest"],
             os.listdir(publish_current))
         for name in (
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
         ):
             path = os.path.join(publish_current, name)
             self.assertTrue(os.path.islink(path))
@@ -1101,12 +1064,12 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_single_to_single(self, mock_polish_directory):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
-                "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-                "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+                "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+                "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
             ):
                 touch(os.path.join(publisher.publish_base, date, name))
         publish_current = os.path.join(publisher.publish_base, "current")
@@ -1118,13 +1081,13 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_single_to_mixed(self, mock_polish_directory):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
                 "MD5SUMS",
-                "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-                "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+                "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+                "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
             ):
                 touch(os.path.join(publisher.publish_base, date, name))
         publish_current = os.path.join(publisher.publish_base, "current")
@@ -1133,13 +1096,13 @@ class TestDailyTreePublisher(TestCase):
         self.assertFalse(os.path.islink(publish_current))
         self.assertTrue(os.path.isdir(publish_current))
         self.assertCountEqual([
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ], os.listdir(publish_current))
         for date, arch in (("20130320", "i386"), ("20130321", "amd64")):
             for name in (
-                "raring-desktop-%s.iso" % arch,
-                "raring-desktop-%s.manifest" % arch,
+                "trusty-desktop-%s.iso" % arch,
+                "trusty-desktop-%s.manifest" % arch,
             ):
                 path = os.path.join(publish_current, name)
                 self.assertTrue(os.path.islink(path))
@@ -1153,21 +1116,21 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_mixed_to_single(self, mock_polish_directory):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
                 "MD5SUMS",
-                "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-                "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+                "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+                "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
             ):
                 touch(os.path.join(publisher.publish_base, date, name))
         publish_current = os.path.join(publisher.publish_base, "current")
         osextras.ensuredir(publish_current)
         for date, arch in (("20130320", "i386"), ("20130321", "amd64")):
             for name in (
-                "raring-desktop-%s.iso" % arch,
-                "raring-desktop-%s.manifest" % arch,
+                "trusty-desktop-%s.iso" % arch,
+                "trusty-desktop-%s.manifest" % arch,
             ):
                 os.symlink(
                     os.path.join(os.pardir, date, name),
@@ -1179,25 +1142,25 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_mixed_to_mixed(self, mock_polish_directory):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
                 "MD5SUMS",
-                "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-                "raring-desktop-amd64+mac.iso",
-                "raring-desktop-amd64+mac.manifest",
-                "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
-                "raring-desktop-powerpc.iso",
-                "raring-desktop-powerpc.manifest",
+                "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+                "trusty-desktop-amd64+mac.iso",
+                "trusty-desktop-amd64+mac.manifest",
+                "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
+                "trusty-desktop-powerpc.iso",
+                "trusty-desktop-powerpc.manifest",
             ):
                 touch(os.path.join(publisher.publish_base, date, name))
         publish_current = os.path.join(publisher.publish_base, "current")
         osextras.ensuredir(publish_current)
         for date, arch in (("20130320", "i386"), ("20130321", "amd64")):
             for name in (
-                "raring-desktop-%s.iso" % arch,
-                "raring-desktop-%s.manifest" % arch,
+                "trusty-desktop-%s.iso" % arch,
+                "trusty-desktop-%s.manifest" % arch,
             ):
                 os.symlink(
                     os.path.join(os.pardir, date, name),
@@ -1206,12 +1169,12 @@ class TestDailyTreePublisher(TestCase):
         self.assertFalse(os.path.islink(publish_current))
         self.assertTrue(os.path.isdir(publish_current))
         self.assertCountEqual([
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ], os.listdir(publish_current))
         for name in (
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ):
             path = os.path.join(publish_current, name)
             self.assertTrue(os.path.islink(path))
@@ -1227,19 +1190,19 @@ class TestDailyTreePublisher(TestCase):
         self.assertFalse(os.path.islink(publish_current))
         self.assertTrue(os.path.isdir(publish_current))
         self.assertCountEqual([
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-            "raring-desktop-amd64+mac.iso",
-            "raring-desktop-amd64+mac.manifest",
-            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
-            "raring-desktop-powerpc.iso", "raring-desktop-powerpc.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+            "trusty-desktop-amd64+mac.iso",
+            "trusty-desktop-amd64+mac.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
+            "trusty-desktop-powerpc.iso", "trusty-desktop-powerpc.manifest",
         ], os.listdir(publish_current))
         for date, arch in (
             ("20130320", "amd64+mac"), ("20130320", "powerpc"),
             ("20130321", "amd64"), ("20130321", "i386"),
         ):
             for name in (
-                "raring-desktop-%s.iso" % arch,
-                "raring-desktop-%s.manifest" % arch,
+                "trusty-desktop-%s.iso" % arch,
+                "trusty-desktop-%s.manifest" % arch,
             ):
                 path = os.path.join(publish_current, name)
                 self.assertTrue(os.path.islink(path))
@@ -1257,8 +1220,8 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily-live")
         old_target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
-            "raring-desktop-amd64.iso", "raring-desktop-amd64.manifest",
-            "raring-desktop-i386.iso", "raring-desktop-i386.manifest",
+            "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ):
             touch(os.path.join(old_target_dir, name))
         target_dir = os.path.join(publisher.publish_base, "20130921")
@@ -1292,8 +1255,6 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
-            ("kubuntu-plasma5", "daily-live", "desktop",
-                "Kubuntu Plasma 5 Desktop"),
             ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
@@ -1308,8 +1269,6 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-budgie", "daily-live", "desktop",
                 "Ubuntu Budgie Desktop"),
             ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
-            ("ubuntu-desktop-next", "daily-preinstalled",
-                "preinstalled-desktop-next", "Ubuntu Desktop (Unity 8)"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
             # use the publisher's image_type at all.
@@ -1335,15 +1294,6 @@ class TestDailyTreePublisher(TestCase):
                 "ubuntu-touch", "daily-preinstalled", "preinstalled-touch",
                 "armhf"))
 
-    def test_qa_product_ubuntu_touch_custom(self):
-        publisher = self.make_publisher(
-            "ubuntu-touch-custom", "daily-preinstalled")
-        self.assertEqual(
-            ("Ubuntu Touch Custom armhf", "iso"),
-            publisher.qa_product(
-                "ubuntu-touch-custom", "daily-preinstalled",
-                "preinstalled-touch", "armhf"))
-
     def test_qa_product_ubuntu_preinstalled(self):
         publisher = self.make_publisher("ubuntu", "daily")
         self.assertEqual(
@@ -1365,8 +1315,6 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
-            ("kubuntu-plasma5", "daily-live", "desktop",
-                "Kubuntu Plasma 5 Desktop"),
             ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
@@ -1381,8 +1329,6 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-budgie", "daily-live", "desktop",
                 "Ubuntu Budgie Desktop"),
             ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
-            ("ubuntu-desktop-next/system-image", "daily-preinstalled",
-                "preinstalled-desktop-next", "Ubuntu Desktop (Unity 8)"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
             # use the publisher's image_type at all.
@@ -1405,14 +1351,14 @@ class TestDailyTreePublisher(TestCase):
         os.makedirs(os.path.join(publisher.publish_base, "20130221"))
         publisher.post_qa(
             "20130221", [
-                "ubuntu/daily-live/raring-desktop-i386",
-                "ubuntu/daily-live/raring-desktop-amd64",
+                "ubuntu/daily-live/trusty-desktop-i386",
+                "ubuntu/daily-live/trusty-desktop-amd64",
             ])
         expected = [
             ["Ubuntu Desktop i386", "20130221", ""],
             ["Ubuntu Desktop amd64", "20130221", ""],
         ]
-        self.assertEqual("iso-raring", isotracker_module.tracker.target)
+        self.assertEqual("iso-trusty", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
         os.makedirs(os.path.join(
@@ -1434,14 +1380,14 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily-live")
         touch(os.path.join(
             self.temp_dir, "www", "full", "daily-live", "20130315",
-            "raring-desktop-i386.OVERSIZED"))
+            "trusty-desktop-i386.OVERSIZED"))
         publisher.post_qa(
-            "20130315", ["ubuntu/daily-live/raring-desktop-i386"])
+            "20130315", ["ubuntu/daily-live/trusty-desktop-i386"])
         expected_note = (
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>")
         expected = [["Ubuntu Desktop i386", "20130315", expected_note]]
-        self.assertEqual("iso-raring", isotracker_module.tracker.target)
+        self.assertEqual("iso-trusty", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
         publisher = self.make_publisher("kubuntu", "daily-live")
@@ -1463,7 +1409,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertRaisesRegex(
             Exception, r"Cannot post images from nonexistent directory: .*",
             publisher.post_qa, "bad-date",
-            ["ubuntu/daily-live/raring-desktop-i386"])
+            ["ubuntu/daily-live/trusty-desktop-i386"])
 
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
@@ -1652,8 +1598,8 @@ class TestDailyTreePublisher(TestCase):
         publish_current = os.path.join(publisher.publish_base, "current")
         os.makedirs(publish_current)
         os.symlink(
-            os.path.join(os.pardir, "20130319", "raring-desktop-i386.iso"),
-            os.path.join(publish_current, "raring-desktop-i386.iso"))
+            os.path.join(os.pardir, "20130319", "trusty-desktop-i386.iso"),
+            os.path.join(publish_current, "trusty-desktop-i386.iso"))
         with mkfile(os.path.join(
                 self.temp_dir, "etc", "purge-days")) as purge_days:
             print("daily 1", file=purge_days)
@@ -1805,16 +1751,10 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         return publisher
 
     def test_image_output(self):
-        self.config["DIST"] = "natty"
+        self.config["DIST"] = "precise"
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu-chinese-edition",
-                "natty"),
-            self.make_publisher("ubuntu", "daily-live").image_output("i386"))
-        self.config["DIST"] = "oneiric"
-        self.assertEqual(
-            os.path.join(
-                self.config.root, "scratch", "ubuntu-zh_CN", "oneiric",
+                self.config.root, "scratch", "ubuntu-zh_CN", "precise",
                 "daily-live", "live"),
             self.make_publisher("ubuntu", "daily-live").image_output("i386"))
 
@@ -1906,15 +1846,15 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
     def test_post_qa_oversized(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
         touch(os.path.join(
-            self.temp_dir, "www", "china-images", "raring", "daily-live",
-            "20130315", "raring-desktop-i386.OVERSIZED"))
+            self.temp_dir, "www", "china-images", "trusty", "daily-live",
+            "20130315", "trusty-desktop-i386.OVERSIZED"))
         publisher.post_qa(
-            "20130315", ["ubuntu-zh_CN/raring/daily-live/raring-desktop-i386"])
+            "20130315", ["ubuntu-zh_CN/trusty/daily-live/trusty-desktop-i386"])
         expected_note = (
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>")
         expected = [["Ubuntu Chinese Desktop i386", "20130315", expected_note]]
-        self.assertEqual("localized-iso-china-raring",
+        self.assertEqual("localized-iso-china-trusty",
                          isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
@@ -2123,18 +2063,18 @@ class TestReleasePublisherMixin:
 
     def test_daily_base(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "quantal"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             os.path.join(
-                self.temp_dir, "www", "full", "quantal", "daily", "20130327",
+                self.temp_dir, "www", "full", "trusty", "daily", "20130327",
                 "i386"),
             self.get_publisher().daily_base(
-                "quantal/daily", "20130327", "wubi", "i386"))
-        self.config["DIST"] = "raring"
+                "trusty/daily", "20130327", "wubi", "i386"))
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             os.path.join(
                 self.temp_dir, "www", "full", "daily-live", "20130327",
-                "raring-desktop-i386"),
+                "trusty-desktop-i386"),
             self.get_publisher().daily_base(
                 "daily-live", "20130327", "desktop", "i386"))
 
@@ -2191,7 +2131,7 @@ class TestReleasePublisherMixin:
     def test_symlink(self):
         pool_path = os.path.join(self.temp_dir, ".pool", "foo.iso")
         touch(pool_path)
-        dist_path = os.path.join(self.temp_dir, "raring", "foo.iso")
+        dist_path = os.path.join(self.temp_dir, "trusty", "foo.iso")
         os.makedirs(os.path.dirname(dist_path))
         self.get_publisher().symlink(pool_path, dist_path)
         self.assertEqual(
@@ -2201,7 +2141,7 @@ class TestReleasePublisherMixin:
     def test_hardlink(self):
         pool_path = os.path.join(self.temp_dir, ".pool", "foo.iso")
         touch(pool_path)
-        dist_path = os.path.join(self.temp_dir, "raring", "foo.iso")
+        dist_path = os.path.join(self.temp_dir, "trusty", "foo.iso")
         os.makedirs(os.path.dirname(dist_path))
         self.get_publisher().hardlink(pool_path, dist_path)
         self.assertEqual(os.stat(pool_path), os.stat(dist_path))
@@ -2295,15 +2235,15 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
 
     def test_target_dir(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             os.path.join(
-                self.temp_dir, "www", "full", "releases", "raring", "release"),
+                self.temp_dir, "www", "full", "releases", "trusty", "release"),
             self.get_publisher().target_dir("daily", "20130327", "alternate"))
         self.config["PROJECT"] = "kubuntu"
         self.assertEqual(
             os.path.join(
-                self.temp_dir, "www", "full", "kubuntu", "releases", "raring",
+                self.temp_dir, "www", "full", "kubuntu", "releases", "trusty",
                 "release", "source"),
             self.get_publisher().target_dir("daily", "20130327", "src"))
 
@@ -2321,17 +2261,17 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
 
     def test_torrent_dir(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             os.path.join(
                 self.temp_dir, "www", "torrent", "releases",
-                "raring", "release", "desktop"),
+                "trusty", "release", "desktop"),
             self.get_publisher().torrent_dir("daily-live", "desktop"))
         self.config["PROJECT"] = "kubuntu"
         self.assertEqual(
             os.path.join(
                 self.temp_dir, "www", "torrent", "kubuntu", "releases",
-                "raring", "beta-2", "desktop"),
+                "trusty", "beta-2", "desktop"),
             self.get_publisher(status="beta-2").torrent_dir(
                 "daily-live", "desktop"))
 
@@ -2367,9 +2307,9 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
 
     def test_publish_release_prefixes(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
-            ("raring", "raring-beta2"),
+            ("trusty", "trusty-beta2"),
             self.get_publisher(
                 official="no", status="beta-2").publish_release_prefixes())
         self.config["PROJECT"] = "kubuntu"
@@ -2445,16 +2385,16 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
     def test_publish_release_arch_ubuntu_desktop_no(self, mock_call, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         daily_dir = os.path.join(
             self.temp_dir, "www", "full", "daily-live", "20130327")
-        touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
-        touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
-        touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
+        touch(os.path.join(daily_dir, "trusty-desktop-i386.iso"))
+        touch(os.path.join(daily_dir, "trusty-desktop-i386.manifest"))
+        touch(os.path.join(daily_dir, "trusty-desktop-i386.iso.zsync"))
         target_dir = os.path.join(
-            self.temp_dir, "www", "full", "releases", "raring", "rc")
+            self.temp_dir, "www", "full", "releases", "trusty", "rc")
         torrent_dir = os.path.join(
-            self.temp_dir, "www", "torrent", "releases", "raring", "rc",
+            self.temp_dir, "www", "torrent", "releases", "trusty", "rc",
             "desktop")
         osextras.ensuredir(target_dir)
         osextras.ensuredir(torrent_dir)
@@ -2464,13 +2404,13 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "daily-live", "20130327", "desktop", "i386")
         self.assertLogEqual([
             "Copying desktop-i386 image ...",
-            "Creating torrent for %s/raring-desktop-i386.iso ..." % target_dir,
+            "Creating torrent for %s/trusty-desktop-i386.iso ..." % target_dir,
         ])
         self.assertCountEqual([
-            "raring-desktop-i386.iso", "raring-desktop-i386.iso.torrent",
-            "raring-desktop-i386.iso.zsync", "raring-desktop-i386.manifest",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.iso.torrent",
+            "trusty-desktop-i386.iso.zsync", "trusty-desktop-i386.manifest",
         ], os.listdir(target_dir))
-        target_base = os.path.join(target_dir, "raring-desktop-i386")
+        target_base = os.path.join(target_dir, "trusty-desktop-i386")
         self.assertFalse(os.path.islink("%s.iso" % target_base))
         self.assertFalse(os.path.islink("%s.manifest" % target_base))
         mock_call.assert_called_once_with([
@@ -2479,9 +2419,9 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "%s.iso" % target_base,
         ], stdout=mock.ANY)
         self.assertCountEqual([
-            "raring-desktop-i386.iso", "raring-desktop-i386.iso.torrent",
+            "trusty-desktop-i386.iso", "trusty-desktop-i386.iso.torrent",
         ], os.listdir(torrent_dir))
-        torrent_base = os.path.join(torrent_dir, "raring-desktop-i386")
+        torrent_base = os.path.join(torrent_dir, "trusty-desktop-i386")
         self.assertEqual(
             os.stat("%s.iso" % target_base), os.stat("%s.iso" % torrent_base))
         self.assertEqual(
@@ -2581,14 +2521,14 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
 
     def test_target_dir(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
-            os.path.join(self.temp_dir, "www", "simple", "raring"),
+            os.path.join(self.temp_dir, "www", "simple", "trusty"),
             self.get_publisher().target_dir("daily", "20130327", "alternate"))
         self.config["PROJECT"] = "kubuntu"
         self.assertEqual(
             os.path.join(
-                self.temp_dir, "www", "simple", "kubuntu", "raring", "source"),
+                self.temp_dir, "www", "simple", "kubuntu", "trusty", "source"),
             self.get_publisher().target_dir("daily", "20130327", "src"))
 
     def test_version_link(self):
@@ -2604,29 +2544,29 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
 
     def test_pool_dir(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             os.path.join(self.temp_dir, "www", "simple", ".pool"),
             self.get_publisher().pool_dir("daily"))
         self.config["PROJECT"] = "kubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             os.path.join(self.temp_dir, "www", "simple", "kubuntu", ".pool"),
             self.get_publisher().pool_dir("daily"))
 
     def test_torrent_dir(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             os.path.join(
                 self.temp_dir, "www", "torrent", "simple",
-                "raring", "desktop"),
+                "trusty", "desktop"),
             self.get_publisher().torrent_dir("daily-live", "desktop"))
         self.config["PROJECT"] = "kubuntu"
         self.assertEqual(
             os.path.join(
                 self.temp_dir, "www", "torrent", "kubuntu", "simple",
-                "raring", "desktop"),
+                "trusty", "desktop"),
             self.get_publisher().torrent_dir("daily-live", "desktop"))
 
     def test_want_torrent(self):
@@ -2776,9 +2716,9 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "ubuntu-13.04-rc-desktop-i386.manifest",
         ], os.listdir(pool_dir))
         self.assertFalse(os.path.exists(os.path.join(
-            self.temp_dir, "www", "simple", "raring")))
+            self.temp_dir, "www", "simple", "trusty")))
         self.assertFalse(os.path.exists(os.path.join(
-            self.temp_dir, "www", "torrent", "simple", "raring", "desktop")))
+            self.temp_dir, "www", "torrent", "simple", "trusty", "desktop")))
         pool_base = os.path.join(pool_dir, "ubuntu-13.04-rc-desktop-i386")
         mock_call.assert_called_once_with([
             "zsyncmake", "-o", "%s.iso.zsync" % pool_base,

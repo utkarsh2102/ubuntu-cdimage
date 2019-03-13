@@ -74,7 +74,7 @@ class TestUpdateLocalIndices(TestCase):
         super(TestUpdateLocalIndices, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["CPUARCHES"] = "i386"
         self.packages = os.path.join(self.temp_dir, "local", "packages")
         self.database = os.path.join(self.temp_dir, "local", "database")
@@ -118,45 +118,45 @@ class TestUpdateLocalIndices(TestCase):
                 expected_command, cwd=self.packages)
 
         self.assertCountEqual([
-            "raring_local_binary-i386.list",
-            "raring_local_debian-installer_binary-i386.list",
+            "trusty_local_binary-i386.list",
+            "trusty_local_debian-installer_binary-i386.list",
         ], os.listdir(self.dists))
         with open(os.path.join(
-                self.dists, "raring_local_binary-i386.list")) as f:
+                self.dists, "trusty_local_binary-i386.list")) as f:
             self.assertCountEqual([
                 "pool/local/f/fake/fake_1_i386.deb",
                 "pool/local/f/fake/fake-nf_1_all.deb",
             ], f.read().splitlines())
         with open(os.path.join(
                 self.dists,
-                "raring_local_debian-installer_binary-i386.list")) as f:
+                "trusty_local_debian-installer_binary-i386.list")) as f:
             self.assertCountEqual([
                 "pool/local/f/fake/fake-udeb_1_i386.udeb",
                 "pool/local/f/fake/fake-udeb-indep_1_all.udeb",
             ], f.read().splitlines())
 
         self.assertCountEqual([
-            "override.raring.local.i386",
-            "override.raring.local.debian-installer.i386",
+            "override.trusty.local.i386",
+            "override.trusty.local.debian-installer.i386",
         ], os.listdir(self.indices))
         with open(os.path.join(
-                self.indices, "override.raring.local.i386")) as f:
+                self.indices, "override.trusty.local.i386")) as f:
             self.assertCountEqual([
                 "fake\toptional\tlocal/misc",
                 "fake-nf\textra\tlocal/admin",
             ], f.read().splitlines())
         with open(os.path.join(
                 self.indices,
-                "override.raring.local.debian-installer.i386")) as f:
+                "override.trusty.local.debian-installer.i386")) as f:
             self.assertCountEqual([
                 "fake-udeb\toptional\tlocal/debian-installer",
                 "fake-udeb-indep\textra\tlocal/debian-installer",
             ], f.read().splitlines())
 
         self.assertTrue(os.path.exists(os.path.join(
-            self.packages, "dists", "raring", "local", "binary-i386")))
+            self.packages, "dists", "trusty", "local", "binary-i386")))
         self.assertTrue(os.path.exists(os.path.join(
-            self.packages, "dists", "raring", "local", "debian-installer",
+            self.packages, "dists", "trusty", "local", "debian-installer",
             "binary-i386")))
 
 
@@ -189,23 +189,23 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
                 raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
-        self.config["DIST"] = "oneiric"
+        self.config["DIST"] = "precise"
         self.config["ARCHES"] = "i386"
         build_ubuntu_defaults_locale(self.config)
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-zh_CN", "oneiric", "daily-live",
+            self.temp_dir, "scratch", "ubuntu-zh_CN", "precise", "daily-live",
             "live")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "oneiric-desktop-i386.iso",
-            "oneiric-desktop-i386.list",
-            "oneiric-desktop-i386.manifest",
-            "oneiric-desktop-i386.manifest-remove",
-            "oneiric-desktop-i386.size",
+            "precise-desktop-i386.iso",
+            "precise-desktop-i386.list",
+            "precise-desktop-i386.manifest",
+            "precise-desktop-i386.manifest-remove",
+            "precise-desktop-i386.size",
         ], os.listdir(output_dir))
         mock_check_call.assert_called_once_with([
             os.path.join(self.temp_dir, "debian-cd", "tools", "pi-makelist"),
-            os.path.join(output_dir, "oneiric-desktop-i386.iso"),
+            os.path.join(output_dir, "precise-desktop-i386.iso"),
         ], stdout=mock.ANY)
 
 
@@ -243,7 +243,7 @@ class TestBuildLiveCDBase(TestCase):
         mock_fetch.side_effect = fetch_side_effect
         mock_sign.side_effect = sign_side_effect
         self.config["PROJECT"] = "livecd-base"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "livecd-base"
         self.config["ARCHES"] = "i386"
         self.capture_logging()
@@ -253,7 +253,7 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         live_dir = os.path.join(
-            self.temp_dir, "scratch", "livecd-base", "raring", "livecd-base",
+            self.temp_dir, "scratch", "livecd-base", "trusty", "livecd-base",
             "live")
         self.assertTrue(os.path.isdir(live_dir))
         self.assertCountEqual(
@@ -271,7 +271,7 @@ class TestBuildLiveCDBase(TestCase):
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["PROJECT"] = "ubuntu-base"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "i386"
         self.capture_logging()
@@ -283,15 +283,15 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-base", "raring", "daily",
+            self.temp_dir, "scratch", "ubuntu-base", "trusty", "daily",
             "debian-cd", "i386")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "raring-base-i386.manifest",
-            "raring-base-i386.raw",
-            "raring-base-i386.type",
+            "trusty-base-i386.manifest",
+            "trusty-base-i386.raw",
+            "trusty-base-i386.type",
         ], os.listdir(output_dir))
-        with open(os.path.join(output_dir, "raring-base-i386.type")) as f:
+        with open(os.path.join(output_dir, "trusty-base-i386.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
     @mock.patch("cdimage.osextras.fetch")
@@ -376,7 +376,7 @@ class TestBuildLiveCDBase(TestCase):
         mock_fetch.side_effect = fetch_side_effect
         self.config["CDIMAGE_PREINSTALLED"] = "1"
         self.config["PROJECT"] = project
-        self.config["DIST"] = "saucy"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.config["ARCHES"] = "armhf"
         self.capture_logging()
@@ -388,34 +388,34 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", project, "saucy",
+            self.temp_dir, "scratch", project, "trusty",
             "daily-preinstalled", "debian-cd", "armhf")
         self.assertTrue(os.path.isdir(output_dir))
-        touch_files = ["saucy-preinstalled-boot-%s+%s.img" % (
+        touch_files = ["trusty-preinstalled-boot-%s+%s.img" % (
             touch_target.ubuntu_arch, touch_target.subarch)
             for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")]
-        touch_files.extend(["saucy-preinstalled-recovery-%s+%s.img" % (
+        touch_files.extend(["trusty-preinstalled-recovery-%s+%s.img" % (
             touch_target.android_arch, touch_target.subarch)
             for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
-        touch_files.extend(["saucy-preinstalled-system-%s+%s.img" % (
+        touch_files.extend(["trusty-preinstalled-system-%s+%s.img" % (
             touch_target.android_arch, touch_target.subarch)
             for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
         touch_files.extend([
-            "saucy-preinstalled-touch-armhf.manifest",
-            "saucy-preinstalled-touch-armhf.raw",
-            "saucy-preinstalled-touch-armhf.type",
-            "saucy-preinstalled-touch-armhf.tar.gz",
-            "saucy-preinstalled-touch-armhf.custom.tar.gz",
+            "trusty-preinstalled-touch-armhf.manifest",
+            "trusty-preinstalled-touch-armhf.raw",
+            "trusty-preinstalled-touch-armhf.type",
+            "trusty-preinstalled-touch-armhf.tar.gz",
+            "trusty-preinstalled-touch-armhf.custom.tar.gz",
             ])
         self.assertCountEqual(touch_files, os.listdir(output_dir))
         with open(os.path.join(
-            output_dir, "saucy-preinstalled-touch-armhf.type")
+            output_dir, "trusty-preinstalled-touch-armhf.type")
         ) as f:
             self.assertEqual("tar archive\n", f.read())
         for touch_target in Touch.list_targets_by_ubuntu_arch("armhf"):
-            system_img = "saucy-preinstalled-system-%s+%s.img" % (
+            system_img = "trusty-preinstalled-system-%s+%s.img" % (
                 touch_target.android_arch, touch_target.subarch)
-            recovery_img = "saucy-preinstalled-recovery-%s+%s.img" % (
+            recovery_img = "trusty-preinstalled-recovery-%s+%s.img" % (
                 touch_target.android_arch, touch_target.subarch)
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_img)))
@@ -424,41 +424,6 @@ class TestBuildLiveCDBase(TestCase):
 
     def test_ubuntu_touch(self):
         self._perform_ubuntu_touch_testing("ubuntu-touch")
-
-    def test_ubuntu_touch_custom(self):
-        self._perform_ubuntu_touch_testing("ubuntu-touch-custom")
-
-    @mock.patch("cdimage.osextras.fetch")
-    def test_ubuntu_desktop_next_system_image(self, mock_fetch):
-        def fetch_side_effect(config, source, target):
-            if (target.endswith(".manifest") or
-                    target.endswith(".rootfs.tar.gz")):
-                touch(target)
-            else:
-                raise osextras.FetchError
-
-        mock_fetch.side_effect = fetch_side_effect
-        self.config["PROJECT"] = "ubuntu-desktop-next"
-        self.config["SUBPROJECT"] = "system-image"
-        self.config["DIST"] = "utopic"
-        self.config["IMAGE_TYPE"] = "daily"
-        self.config["ARCHES"] = "i386"
-        self.capture_logging()
-        build_livecd_base(self.config)
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-            "===== Copying images to debian-cd output directory =====",
-            self.epoch_date,
-        ])
-        output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-desktop-next", "utopic", "daily",
-            "live")
-        self.assertTrue(os.path.isdir(output_dir))
-        self.assertCountEqual([
-            "i386.manifest",
-            "i386.rootfs.tar.gz",
-        ], os.listdir(output_dir))
 
 
 class TestExtractDebootstrap(TestCase):
@@ -469,27 +434,27 @@ class TestExtractDebootstrap(TestCase):
 
     def test_debootstrap_script(self):
         for series, script in (
-            ("gutsy", "usr/lib/debootstrap/scripts/gutsy"),
-            ("hardy", "usr/share/debootstrap/scripts/hardy"),
+            ("precise", "usr/share/debootstrap/scripts/precise"),
+            ("bionic", "usr/share/debootstrap/scripts/bionic"),
         ):
             self.config["DIST"] = series
             self.assertEqual(script, _debootstrap_script(self.config))
 
     def test_extract_debootstrap(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64+mac"
         mirror_dir = os.path.join(self.temp_dir, "ftp")
         packages_path = os.path.join(
-            mirror_dir, "dists", "raring", "main", "debian-installer",
+            mirror_dir, "dists", "trusty", "main", "debian-installer",
             "binary-amd64", "Packages.gz")
         udeb_path = os.path.join(
             mirror_dir, "pool", "main", "d", "debootstrap",
             "debootstrap-udeb_1_all.udeb")
         self.make_deb(
             udeb_path, "debian-installer", "extra",
-            files={"/usr/share/debootstrap/scripts/raring": b"sentinel"})
+            files={"/usr/share/debootstrap/scripts/trusty": b"sentinel"})
         os.makedirs(os.path.dirname(packages_path))
         with gzip.GzipFile(packages_path, "wb") as packages:
             ftparchive = subprocess.Popen(
@@ -500,8 +465,8 @@ class TestExtractDebootstrap(TestCase):
             self.assertEqual(0, ftparchive.returncode)
         extract_debootstrap(self.config)
         output_path = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily",
-            "debootstrap", "raring-amd64+mac")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily",
+            "debootstrap", "trusty-amd64+mac")
         self.assertTrue(os.path.exists(output_path))
         with open(output_path, "rb") as output:
             self.assertEqual(b"sentinel", output.read())
@@ -523,10 +488,10 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.osextras.unlink_force")
     def test_lock_build_image_set(self, mock_unlink_force, mock_check_call):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         expected_lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-trusty-daily")
         self.assertFalse(os.path.exists(expected_lock_path))
         with lock_build_image_set(self.config):
             mock_check_call.assert_called_once_with([
@@ -539,12 +504,12 @@ class TestBuildImageSet(TestCase):
     def test_lock_build_image_set_chinese(self, mock_unlink_force,
                                           mock_check_call):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         expected_lock_path = os.path.join(
             self.temp_dir, "etc",
-            ".lock-build-image-set-ubuntu-chinese-edition-raring-daily")
+            ".lock-build-image-set-ubuntu-chinese-edition-trusty-daily")
         self.assertFalse(os.path.exists(expected_lock_path))
         with lock_build_image_set(self.config):
             mock_check_call.assert_called_once_with([
@@ -554,25 +519,20 @@ class TestBuildImageSet(TestCase):
 
     def test_configure_onlyfree_unsupported(self):
         for project, series, onlyfree, unsupported in (
-            ("ubuntu", "raring", False, False),
+            ("ubuntu", "trusty", False, False),
             ("gobuntu", "hardy", True, False),
-            ("edubuntu", "jaunty", False, False),
-            ("edubuntu", "karmic", False, True),
-            ("xubuntu", "gutsy", False, False),
-            ("xubuntu", "hardy", False, True),
+            ("edubuntu", "precise", False, True),
+            ("xubuntu", "precise", False, True),
             ("kubuntu", "precise", False, False),
-            ("kubuntu", "quantal", False, True),
-            ("kubuntu-active", "raring", False, True),
-            ("kubuntu-plasma5", "utopic", False, True),
-            ("ubuntustudio", "raring", False, True),
-            ("mythbuntu", "raring", False, True),
-            ("lubuntu", "raring", False, True),
-            ("ubuntukylin", "raring", False, True),
-            ("ubuntu-gnome", "raring", False, True),
-            ("ubuntu-budgie", "zesty", False, True),
-            ("ubuntu-mate", "vivid", False, True),
-            ("ubuntu-moblin-remix", "raring", False, True),
-            ("ubuntu-desktop-next", "utopic", False, False),
+            ("kubuntu", "trusty", False, True),
+            ("kubuntu-active", "trusty", False, True),
+            ("ubuntustudio", "trusty", False, True),
+            ("mythbuntu", "trusty", False, True),
+            ("lubuntu", "trusty", False, True),
+            ("ubuntukylin", "trusty", False, True),
+            ("ubuntu-gnome", "trusty", False, True),
+            ("ubuntu-budgie", "bionic", False, True),
+            ("ubuntu-mate", "xenial", False, True),
         ):
             config = Config(read=False)
             config["PROJECT"] = project
@@ -605,7 +565,7 @@ class TestBuildImageSet(TestCase):
 
     def test_open_log_writes_log(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130224"
         pid = os.fork()
@@ -620,7 +580,7 @@ class TestBuildImageSet(TestCase):
         else:  # parent
             self.wait_for_pid(pid, 0)
             expected_log_path = os.path.join(
-                self.temp_dir, "log", "ubuntu", "raring", "daily-20130224.log")
+                self.temp_dir, "log", "ubuntu", "trusty", "daily-20130224.log")
             self.assertTrue(os.path.exists(expected_log_path))
             with open(expected_log_path) as log:
                 self.assertEqual([
@@ -631,7 +591,7 @@ class TestBuildImageSet(TestCase):
 
     def test_open_log_chinese(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         self.config["CDIMAGE_DATE"] = "20130224"
@@ -647,7 +607,7 @@ class TestBuildImageSet(TestCase):
         else:  # parent
             self.wait_for_pid(pid, 0)
             expected_log_path = os.path.join(
-                self.temp_dir, "log", "ubuntu-chinese-edition", "raring",
+                self.temp_dir, "log", "ubuntu-chinese-edition", "trusty",
                 "daily-20130224.log")
             self.assertTrue(os.path.exists(expected_log_path))
             with open(expected_log_path) as log:
@@ -880,7 +840,7 @@ class TestBuildImageSet(TestCase):
             ["make", "-C", os.path.dirname(path)])
 
     def test_configure_splash(self):
-        data_dir = os.path.join(self.temp_dir, "debian-cd", "data", "raring")
+        data_dir = os.path.join(self.temp_dir, "debian-cd", "data", "trusty")
         for key, extension in (
             ("SPLASHRLE", "rle"),
             ("GFXSPLASH", "pcx"),
@@ -890,7 +850,7 @@ class TestBuildImageSet(TestCase):
                 config = Config(read=False)
                 config.root = self.temp_dir
                 config["PROJECT"] = "kubuntu"
-                config["DIST"] = "raring"
+                config["DIST"] = "trusty"
                 path = os.path.join(
                     data_dir, "%s.%s" % (
                         "kubuntu" if project_specific else "splash",
@@ -941,10 +901,10 @@ class TestBuildImageSet(TestCase):
 
     def test_fix_permissions(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         scratch_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily")
         subdir = os.path.join(scratch_dir, "x")
         dir_one = os.path.join(subdir, "1")
         file_two = os.path.join(subdir, "2")
@@ -978,14 +938,14 @@ class TestBuildImageSet(TestCase):
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_no_recipients(self, mock_send_mail):
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         notify_failure(self.config, None)
         self.assertEqual(0, mock_send_mail.call_count)
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_no_log(self, mock_send_mail):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
@@ -993,13 +953,13 @@ class TestBuildImageSet(TestCase):
             print("ALL\tfoo@example.org", file=notify_addresses)
         notify_failure(self.config, None)
         mock_send_mail.assert_called_once_with(
-            "CD image ubuntu/raring/daily failed to build on 20130225",
+            "CD image ubuntu/trusty/daily failed to build on 20130225",
             "build-image-set", ["foo@example.org"], "")
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_log(self, mock_send_mail):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
@@ -1010,14 +970,14 @@ class TestBuildImageSet(TestCase):
             print("Log", file=log)
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
-            "CD image ubuntu/raring/daily failed to build on 20130225",
+            "CD image ubuntu/trusty/daily failed to build on 20130225",
             "build-image-set", ["foo@example.org"], mock.ANY)
         self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_chinese(self, mock_send_mail):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         self.config["CDIMAGE_DATE"] = "20130225"
@@ -1029,7 +989,7 @@ class TestBuildImageSet(TestCase):
             print("Log", file=log)
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
-            "CD image ubuntu-chinese-edition/raring/daily failed to build on "
+            "CD image ubuntu-chinese-edition/trusty/daily failed to build on "
             "20130225",
             "build-image-set", ["foo@example.org"], mock.ANY)
         self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
@@ -1055,14 +1015,14 @@ class TestBuildImageSet(TestCase):
     def test_build_image_set_locked_notifies_on_failure(
             self, mock_send_mail, mock_sync_local_mirror, *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path, "w") as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         log_path = os.path.join(
-            self.temp_dir, "log", "ubuntu", "raring", "daily-20130225.log")
+            self.temp_dir, "log", "ubuntu", "trusty", "daily-20130225.log")
         os.makedirs(os.path.join(self.temp_dir, "etc"))
 
         def force_failure(*args):
@@ -1113,7 +1073,7 @@ class TestBuildImageSet(TestCase):
             mock_tracker_set_rebuild_status, mock_call):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         self.config["CPUARCHES"] = "amd64 i386"
@@ -1127,8 +1087,8 @@ class TestBuildImageSet(TestCase):
         touch(germinate_path)
         os.chmod(germinate_path, 0o755)
         germinate_output = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "raring", "daily", "germinate")
-        log_dir = os.path.join(self.temp_dir, "log", "ubuntu", "raring")
+            self.temp_dir, "scratch", "ubuntu", "trusty", "daily", "germinate")
+        log_dir = os.path.join(self.temp_dir, "log", "ubuntu", "trusty")
 
         def side_effect(command, *args, **kwargs):
             if command[0] == germinate_path:
@@ -1150,8 +1110,8 @@ class TestBuildImageSet(TestCase):
                         germinate_path,
                         "--seed-source", mock.ANY,
                         "--mirror", "file://%s/" % germinate_output,
-                        "--seed-dist", "ubuntu.raring",
-                        "--dist", "raring,raring-security,raring-updates",
+                        "--seed-dist", "ubuntu.trusty",
+                        "--dist", "trusty,trusty-security,trusty-updates",
                         "--arch", arch,
                         "--components", "main",
                         "--no-rdepends",
@@ -1204,8 +1164,8 @@ class TestBuildImageSet(TestCase):
                     DATE
                     ===== Germinating =====
                     DATE
-                    Germinating for raring/amd64 ...
-                    Germinating for raring/i386 ...
+                    Germinating for trusty/amd64 ...
+                    Germinating for trusty/i386 ...
                     ===== Generating new task lists =====
                     DATE
                     ===== Checking for other task changes =====
@@ -1226,10 +1186,10 @@ class TestBuildImageSet(TestCase):
         "cdimage.build.build_image_set_locked", side_effect=KeyboardInterrupt)
     def test_build_image_set_interrupted(self, *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-trusty-daily")
         multipidfile_path = os.path.join(
             self.temp_dir, "etc", ".build-image-set-pids")
         os.makedirs(os.path.dirname(lock_path))
@@ -1241,10 +1201,10 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.build.build_image_set_locked")
     def test_build_image_set_terminated(self, mock_build_image_set_locked):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-trusty-daily")
         multipidfile_path = os.path.join(
             self.temp_dir, "etc", ".build-image-set-pids")
         os.makedirs(os.path.dirname(lock_path))
@@ -1264,10 +1224,10 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.build.build_image_set_locked")
     def test_build_image_set(self, mock_build_image_set_locked):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "raring"
+        self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-raring-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-trusty-daily")
         multipidfile_path = os.path.join(
             self.temp_dir, "etc", ".build-image-set-pids")
         os.makedirs(os.path.dirname(lock_path))

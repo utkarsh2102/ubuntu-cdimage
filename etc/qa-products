@@ -11,8 +11,6 @@ Kubuntu Desktop amd64+mac					kubuntu			daily-live			desktop					amd64+mac		iso
 Kubuntu Desktop armhf+omap4					kubuntu			daily-live			desktop					armhf+omap4		iso
 Kubuntu Desktop i386						kubuntu			daily-live			desktop					i386			iso
 Kubuntu Desktop powerpc						kubuntu			daily-live			desktop					powerpc			iso
-Kubuntu Plasma 5 Desktop amd64				kubuntu-plasma5		daily-live			desktop					amd64			iso
-Kubuntu Plasma 5 Desktop i386				kubuntu-plasma5		daily-live			desktop					i386			iso
 
 # Lubuntu
 Lubuntu Alternate amd64						lubuntu			daily				alternate				amd64			iso
@@ -53,11 +51,6 @@ Ubuntu Desktop i386							ubuntu			daily-live			desktop					i386			iso
 Ubuntu Desktop powerpc						ubuntu			daily-live			desktop					powerpc			iso
 Ubuntu Desktop Preinstalled armhf+nexus7	ubuntu			daily-preinstalled	preinstalled-desktop	armhf+nexus7	iso
 
-# Ubuntu Desktop Next
-Ubuntu Desktop (Unity 8) armhf					ubuntu-desktop-next/system-image	daily-preinstalled	preinstalled-desktop-next		armhf			iso
-Ubuntu Desktop (Unity 8) amd64					ubuntu-desktop-next/system-image	daily-preinstalled	preinstalled-desktop-next		amd64			iso
-Ubuntu Desktop (Unity 8) i386					ubuntu-desktop-next/system-image	daily-preinstalled	preinstalled-desktop-next		i386			iso
-
 # Ubuntu GNOME
 Ubuntu GNOME Desktop amd64					ubuntu-gnome	daily-live			desktop					amd64			iso
 Ubuntu GNOME Desktop i386					ubuntu-gnome	daily-live			desktop					i386			iso
@@ -96,10 +89,6 @@ Ubuntu Studio DVD i386						ubuntustudio	dvd					dvd						i386			iso
 # Ubuntu Touch
 Ubuntu Touch armhf							ubuntu-touch	daily-preinstalled	preinstalled-touch		armhf			iso
 Ubuntu Touch i386							ubuntu-touch	daily-preinstalled	preinstalled-touch		i386			iso
-
-# Ubuntu Touch Custom
-Ubuntu Touch Custom armhf					ubuntu-touch-custom	daily-preinstalled	preinstalled-touch	armhf			iso
-Ubuntu Touch Custom i386					ubuntu-touch-custom	daily-preinstalled	preinstalled-touch	i386			iso
 
 # Ubuntu Kylin
 Ubuntu Kylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso

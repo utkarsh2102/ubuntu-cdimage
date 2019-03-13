@@ -72,20 +72,14 @@ class Germination:
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             series = self.config["DIST"]
             sources = [gitpattern % "ubuntu-core-dev"]
-            if project in ("kubuntu", "kubuntu-active", "kubuntu-plasma5"):
-                if series >= "oneiric":
-                    sources.insert(0, bzrpattern % "kubuntu-dev")
-                else:
-                    sources.insert(0, bzrpattern % "ubuntu-core-dev")
+            if project in ("kubuntu", "kubuntu-active"):
+                sources.insert(0, bzrpattern % "kubuntu-dev")
             elif project == "ubuntustudio":
                 sources.insert(0, gitpattern % "ubuntustudio-dev")
             elif project == "mythbuntu":
                 sources.insert(0, bzrpattern % "mythbuntu-dev")
             elif project == "xubuntu":
-                if series >= "intrepid":
-                    sources.insert(0, gitpattern % "xubuntu-dev")
-                else:
-                    sources.insert(0, bzrpattern % "ubuntu-core-dev")
+                sources.insert(0, gitpattern % "xubuntu-dev")
             elif project in ("lubuntu", "lubuntu-next"):
                 sources.insert(0, gitpattern % "lubuntu-dev")
             elif project == "ubuntu-gnome":
@@ -94,10 +88,8 @@ class Germination:
                 sources.insert(0, bzrpattern % "ubuntubudgie-dev")
             elif project == "ubuntu-mate":
                 sources.insert(0, bzrpattern % "ubuntu-mate-dev")
-            elif project == "ubuntu-moblin-remix":
-                sources.insert(0, bzrpattern % "moblin")
             elif project == "ubuntukylin":
-                if series >= "utopic":
+                if series >= "xenial":
                     sources.insert(0, gitpattern % "ubuntukylin-members")
                 else:
                     sources.insert(0, bzrpattern % "ubuntu-core-dev")
@@ -138,24 +130,13 @@ class Germination:
             return [pattern % self.config.series for pattern in dist_patterns]
 
     def seed_dist(self, project):
-        if (project in ("ubuntu-server", "jeos") and
-                self.config.series != "breezy"):
+        if project == "ubuntu-server":
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntukylin":
-            if self.config["DIST"] >= "utopic":
+            if self.config["DIST"] >= "xenial":
                 return "ubuntukylin.%s" % self.config.series
             else:
                 return "ubuntu.%s" % self.config.series
-        elif project == "ubuntu-mid":
-            return "mobile.%s" % self.config.series
-        elif project == "ubuntu-netbook":
-            return "netbook.%s" % self.config.series
-        elif project == "ubuntu-headless":
-            return "ubuntu.%s" % self.config.series
-        elif project == "ubuntu-moblin-remix":
-            return "moblin.%s" % self.config.series
-        elif project == "ubuntu-desktop-next":
-            return "ubuntu-touch.%s" % self.config.series
         elif project == "lubuntu-next":
             return "lubuntu.%s" % self.config.series
         else:
@@ -217,24 +198,6 @@ class Germination:
         output_structure = os.path.join(self.output_dir(project), "STRUCTURE")
         shutil.copy2(
             os.path.join(arch_output_dir, "structure"), output_structure)
-
-        if self.config.series == "breezy":
-            # Unfortunately, we now need a second germinate run to figure
-            # out the dependencies of language packs and the like.
-            extras = []
-            with open(os.path.join(
-                    arch_output_dir, "ship.acsets"), "w") as ship_acsets:
-                output = GerminateOutput(self.config, output_structure)
-                for pkg in output.seed_packages(arch, "ship.seed"):
-                    extras.append("desktop/%s" % pkg)
-                    print(pkg, file=ship_acsets)
-            if extras:
-                logger.info(
-                    "Re-germinating for %s/%s language pack dependencies ..." %
-                    (self.config.series, arch))
-                command.extend(["--seed-packages", ",".join(extras)])
-                proxy_check_call(
-                    self.config, "germinate", command, cwd=arch_output_dir)
 
     def germinate_project(self, project):
         osextras.mkemptydir(self.output_dir(project))
@@ -314,17 +277,10 @@ class GerminateOutput:
                 ship = "ship-addon"
             in_squashfs = None
             if project == "ubuntu-server":
-                if series <= "breezy":
-                    pass
-                elif series <= "dapper":
-                    ship = "server"
-                else:
-                    ship = "server-ship"
+                ship = "server-ship"
                 in_squashfs = ["minimal"]
             elif project == "kubuntu-active":
                 ship = "active-ship"
-            elif project == "jeos":
-                ship = "jeos"
             seeds = self._inheritance(ship)
             if (self.config["CDIMAGE_SQUASHFS_BASE"] and
                     in_squashfs is not None):
@@ -333,55 +289,33 @@ class GerminateOutput:
             for seed in seeds:
                 yield seed
             if self.config["CDIMAGE_DVD"]:
-                if series >= "edgy":
-                    # TODO cjwatson 2007-04-18: hideous hack to fix DVD tasks
-                    yield "dns-server"
-                    yield "lamp-server"
+                # TODO cjwatson 2007-04-18: hideous hack to fix DVD tasks
+                yield "dns-server"
+                yield "lamp-server"
         elif mode == "installer":
             if self.config["CDIMAGE_INSTALL_BASE"]:
                 yield "installer"
-            if self.config["CDIMAGE_LIVE"]:
-                if series >= "hoary" and series <= "breezy":
-                    yield "casper"
         elif mode == "debootstrap":
-            if series <= "hoary":
-                yield "base"
-            elif series <= "feisty":
-                yield "minimal"
-            else:
-                yield "required"
-                yield "minimal"
+            yield "required"
+            yield "minimal"
         elif mode == "base":
-            if series <= "hoary":
-                yield "base"
-            elif series <= "breezy":
-                yield "minimal"
-                yield "standard"
-            elif series <= "feisty":
-                yield "boot"
-                yield "minimal"
-                yield "standard"
-            else:
-                yield "boot"
-                yield "required"
-                yield "minimal"
-                yield "standard"
+            yield "boot"
+            yield "required"
+            yield "minimal"
+            yield "standard"
         elif mode == "ship-live":
             if project == "kubuntu-active":
                 yield "ship-active-live"
-            elif (project == "lubuntu" and series >= "artful"
-                  and series <= "bionic"):
+            elif project == "lubuntu" and series == "bionic":
                 yield "ship-live-gtk"
                 yield "ship-live-share"
-            elif (project == "lubuntu-next" and series >= "artful"
-                  and series <= "bionic"):
+            elif project == "lubuntu-next" and series == "bionic":
                 yield "ship-live-qt"
                 yield "ship-live-share"
             elif project == "ubuntu-server" and series >= "bionic":
                 yield "server-ship-live"
             else:
-                if series >= "dapper":
-                    yield "ship-live"
+                yield "ship-live"
         elif mode == "addon":
             ship = self._inheritance("ship")
             ship_addon = self._inheritance("ship-addon")
@@ -389,29 +323,22 @@ class GerminateOutput:
                 if seed not in ship:
                     yield seed
         elif mode == "dvd":
-            if series <= "gutsy":
-                for seed in self._inheritance("supported"):
-                    yield seed
-            elif series <= "karmic":
+            if project == "edubuntu":
+                # no inheritance; most of this goes on the live filesystem
+                yield "dvd"
+                yield "ship-live"
+            elif project == "ubuntu":
+                # no inheritance; most of this goes on the live filesystem
+                yield "usb-langsupport"
+                yield "usb-ship-live"
+            elif project == "ubuntustudio":
+                # no inheritance; most of this goes on the live filesystem
+                yield "dvd"
+                if series >= "bionic":
+                    yield "ship-live"
+            else:
                 for seed in self._inheritance("dvd"):
                     yield seed
-            else:
-                if project == "edubuntu":
-                    # no inheritance; most of this goes on the live filesystem
-                    yield "dvd"
-                    yield "ship-live"
-                elif project == "ubuntu" and series >= "oneiric":
-                    # no inheritance; most of this goes on the live filesystem
-                    yield "usb-langsupport"
-                    yield "usb-ship-live"
-                elif project == "ubuntustudio" and series >= "precise":
-                    # no inheritance; most of this goes on the live filesystem
-                    yield "dvd"
-                    if series >= "artful":
-                        yield "ship-live"
-                else:
-                    for seed in self._inheritance("dvd"):
-                        yield seed
 
     def seed_path(self, arch, seed):
         return os.path.join(self.directory, arch, seed)
@@ -492,24 +419,6 @@ class GerminateOutput:
                 if package == "bootstrap-base":
                     package = "live-installer"
 
-            # germinate doesn't yet support subarchitecture specifications
-            # (and it's not entirely clear what they would mean if it did),
-            # so we need to hack the boot and installer seeds a bit for
-            # powerpc+ps3 (only gutsy).
-            if self.config.series == "gutsy" and arch == "powerpc+ps3":
-                if seed in installer_seeds:
-                    if "-powerpc-di" in package:
-                        continue
-                    package = package.replace("-powerpc64-smp-di", "-cell-di")
-                if seed == "boot":
-                    if package.startswith("linux-restricted-modules"):
-                        continue
-                    if package.startswith("linux-ubuntu-modules"):
-                        continue
-                    if package.endswith("-powerpc"):
-                        continue
-                    package = package.replace("-powerpc64-smp", "-cell")
-
             # For precise, some flavours use a different kernel on i386.
             # germinate doesn't currently support this without duplicating
             # the entire boot and installer seeds, so we hack them instead.
@@ -523,7 +432,7 @@ class GerminateOutput:
             yield package
 
     def installer_initrds(self, cpuarch):
-        if cpuarch in ("amd64", "i386", "lpia"):
+        if cpuarch in ("amd64", "i386"):
             return ["cdrom/initrd.gz", "netboot/netboot.tar.gz"]
         elif cpuarch == "hppa":
             return ["cdrom/2.6/initrd.gz", "netboot/2.6/boot.img"]
@@ -567,16 +476,15 @@ class GerminateOutput:
 
     def common_initrd_packages(self, arch):
         initrd_packages_sets = []
-        if self.config["DIST"] >= "jaunty":
-            # Remove installer packages that are in both the cdrom and
-            # netboot initrds; there's no point duplicating these.
-            cpuarch = arch.split("+")[0]
-            initrds = self.installer_initrds(cpuarch)
-            subarches = self.installer_subarches(cpuarch)
-            for initrd in initrds:
-                for subarch in subarches:
-                    initrd_packages_sets.append(self.initrd_packages(
-                        "%s/%s" % (subarch, initrd), cpuarch))
+        # Remove installer packages that are in both the cdrom and
+        # netboot initrds; there's no point duplicating these.
+        cpuarch = arch.split("+")[0]
+        initrds = self.installer_initrds(cpuarch)
+        subarches = self.installer_subarches(cpuarch)
+        for initrd in initrds:
+            for subarch in subarches:
+                initrd_packages_sets.append(self.initrd_packages(
+                    "%s/%s" % (subarch, initrd), cpuarch))
         if initrd_packages_sets:
             return set.intersection(*initrd_packages_sets)
         else:
@@ -584,7 +492,7 @@ class GerminateOutput:
 
     def task_project(self, project):
         # ubuntu-server really wants ubuntu-* tasks.
-        if project in ("ubuntu-server", "jeos"):
+        if project == "ubuntu-server":
             return "ubuntu"
         else:
             return project
@@ -607,55 +515,24 @@ class GerminateOutput:
         return headers
 
     def seed_task_mapping(self, project, arch):
-        series = self.config["DIST"]
         task_project = self.task_project(project)
         for seed in self.list_seeds("all"):
-            if series <= "dapper":
-                # Tasks implemented by hand.
-                if seed in ("boot", "required", "server-ship"):
-                    continue
-                elif seed == "server" and project != "edubuntu":
-                    continue
-                elif seed == "ship" and series >= "dapper":
-                    continue
-
-                if seed in (
-                    "base", "minimal", "standard", "desktop", "server", "ship",
-                ):
-                    task = "%s-%s" % (task_project, seed)
+            # Tasks implemented via tasksel, with Task-Seeds to indicate
+            # task/seed mapping.
+            task = seed
+            headers = self.task_headers(arch, seed)
+            if not headers:
+                continue
+            input_seeds = [seed] + headers.get("seeds", "").split()
+            if "per-derivative" in headers:
+                # Edubuntu is odd; it's structured as an add-on to
+                # Ubuntu, so sometimes we need to create ubuntu-* tasks.
+                # At the moment I don't see a better approach than
+                # hardcoding the task names.
+                if project == "edubuntu" and task in ("desktop", "live"):
+                    task = "ubuntu-%s" % task
                 else:
-                    task = seed
-                input_seeds = [seed]
-            elif series <= "gutsy":
-                # Tasks implemented via tasksel, but without Task-Seeds;
-                # hacks required for seed/task mapping.
-                if seed == "required":
-                    task = "minimal"
-                else:
-                    task = seed
-                headers = self.task_headers(arch, seed)
-                if not headers:
-                    continue
-                if "per-derivative" in headers:
                     task = "%s-%s" % (task_project, task)
-                input_seeds = [seed]
-            else:
-                # Tasks implemented via tasksel, with Task-Seeds to indicate
-                # task/seed mapping.
-                task = seed
-                headers = self.task_headers(arch, seed)
-                if not headers:
-                    continue
-                input_seeds = [seed] + headers.get("seeds", "").split()
-                if "per-derivative" in headers:
-                    # Edubuntu is odd; it's structured as an add-on to
-                    # Ubuntu, so sometimes we need to create ubuntu-* tasks.
-                    # At the moment I don't see a better approach than
-                    # hardcoding the task names.
-                    if project == "edubuntu" and task in ("desktop", "live"):
-                        task = "ubuntu-%s" % task
-                    else:
-                        task = "%s-%s" % (task_project, task)
 
             yield input_seeds, task
 
@@ -664,7 +541,6 @@ class GerminateOutput:
             master_project = "source"
         else:
             master_project = project
-        series = self.config["DIST"]
         output_dir = self.tasks_output_dir(master_project)
         osextras.ensuredir(output_dir)
 
@@ -706,27 +582,6 @@ class GerminateOutput:
                     print(
                         "%s  Task  %s" % (pkg, ", ".join(tasknames)),
                         file=override)
-            if series == "breezy":
-                # In breezy, also generate Archive-Copier-Set headers for
-                # sets of packages that archive-copier needs to know to copy
-                # but that shouldn't appear as tasks in aptitude et al.
-                ship_acsets_path = self.seed_path(arch, "ship.acsets")
-                all_acsets = defaultdict(list)
-                try:
-                    with open(ship_acsets_path) as ship_acsets:
-                        for acset in ship_acsets:
-                            acset = acset.rstrip("\n")
-                            for package in self.seed_packages(arch, acset):
-                                all_acsets[package].append(acset)
-                except IOError as e:
-                    if e.errno != errno.ENOENT:
-                        raise
-                for pkg, acsetnames in sorted(all_acsets.items()):
-                    print(
-                        "%s  Archive-Copier-Set  %s" % (
-                            pkg, ", ".join(acsetnames)),
-                        file=override)
-
             # Help debian-cd to get priorities in sync with the current base
             # system, so that debootstrap >= 0.3.1 can work out the correct
             # set of packages to install.

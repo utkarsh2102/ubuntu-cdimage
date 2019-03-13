@@ -34,7 +34,7 @@ except ImportError:
     from urllib2 import URLError, unquote, urlopen
 
 from cdimage import osextras, sign
-from cdimage.config import Series, Touch
+from cdimage.config import Touch
 from cdimage.launchpad import get_launchpad
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
@@ -121,14 +121,11 @@ def live_build_options(config, arch):
         elif subarch in ("ac100", "nexus7"):
             options.extend(["-f", "plain"])
 
-    if (config.project in ("ubuntu-base", "ubuntu-core", "ubuntu-touch",
-                           "ubuntu-touch-custom") or
-        (config.project == "ubuntu-desktop-next" and
-         config.subproject == "system-image")):
+    if config.project in ("ubuntu-base", "ubuntu-core", "ubuntu-touch"):
         options.extend(["-f", "plain"])
 
     if config.subproject == "wubi":
-        if config["DIST"] >= "quantal":
+        if config["DIST"] >= "trusty":
             # TODO: Turn this back on once Wubi's resize2fs supports it.
             # options.extend(["-f", "ext4"])
             options.extend(["-f", "ext3"])
@@ -140,14 +137,9 @@ def live_build_options(config, arch):
 
 def live_project(config, arch):
     project = config.project
-    series = config["DIST"]
 
     if project == "livecd-base":
         liveproject = "base"
-    elif project == "tocd3.1":
-        liveproject = "tocd"
-    elif project == "ubuntu-touch-custom":
-        liveproject = "ubuntu-touch"
     elif (project == "ubuntu-server" and
           config.image_type == "daily-preinstalled"):
         liveproject = "ubuntu-cpc"
@@ -155,13 +147,9 @@ def live_project(config, arch):
         liveproject = project
 
     cpuarch, subarch = split_arch(arch)
-    if cpuarch == "lpia" and series <= "hardy":
-        liveproject = "%s-lpia" % liveproject
 
     if config["CDIMAGE_DVD"]:
-        if ((project in ("ubuntu", "kubuntu") and series >= "hardy") or
-                (project == "edubuntu" and series >= "karmic") or
-                (project == "ubuntustudio" and series >= "precise")):
+        if project in ("ubuntu", "kubuntu", "edubuntu", "ubuntustudio"):
             liveproject += "-dvd"
 
     return liveproject
@@ -176,8 +164,7 @@ def live_build_command(config, arch):
 
     if config["UBUNTU_DEFAULTS_LOCALE"]:
         command.extend(["-u", config["UBUNTU_DEFAULTS_LOCALE"]])
-    elif config["DIST"] >= "oneiric":
-        command.append("-l")
+    command.append("-l")
 
     command.extend(live_build_options(config, arch))
 
@@ -482,28 +469,19 @@ def flavours(config, arch):
     series = config["DIST"]
 
     if cpuarch == "amd64":
-        if series <= "dapper":
-            return ["amd64-generic"]
-        elif series <= "oneiric":
-            return ["generic"]
+        if project == "ubuntustudio":
+            return ["lowlatency"]
         else:
-            if project == "ubuntustudio":
-                return ["lowlatency"]
-            else:
-                return ["generic"]
+            return ["generic"]
     elif cpuarch == "arm64":
         return ["generic"]
     elif cpuarch == "armel":
-        if series == "jaunty":
-            # We don't have any fallback flavour on armel.
-            return ["imx51"]
+        if subarch == "mx5":
+            return ["linaro-lt-mx5"]
         else:
-            if subarch == "mx5":
-                return ["linaro-lt-mx5"]
-            else:
-                # Assume one kernel flavour for each subarch named like the
-                # subarch.
-                return [subarch]
+            # Assume one kernel flavour for each subarch named like the
+            # subarch.
+            return [subarch]
     elif cpuarch == "armhf":
         if subarch == "mx5":
             return ["linaro-lt-mx5"]
@@ -512,11 +490,7 @@ def flavours(config, arch):
     elif cpuarch == "hppa":
         return ["hppa32", "hppa64"]
     elif cpuarch == "i386":
-        if series <= "dapper":
-            return ["i386"]
-        elif series <= "oneiric":
-            return ["generic"]
-        elif series <= "precise":
+        if series <= "precise":
             if project in ("ubuntu", "edubuntu", "mythbuntu"):
                 # lts-quantal
                 return ["generic"]
@@ -533,20 +507,9 @@ def flavours(config, arch):
             else:
                 return ["generic"]
     elif cpuarch == "ia64":
-        if series <= "dapper":
-            return ["itanium-smp", "mckinley-smp"]
-        elif series <= "jaunty":
-            return ["itanium", "mckinley"]
-        else:
-            return ["ia64"]
-    elif cpuarch == "lpia":
-        return ["lpia"]
+        return ["ia64"]
     elif cpuarch == "powerpc":
-        if subarch == "ps3" and series <= "gutsy":
-            return ["cell"]
-        elif series <= "oneiric":
-            return ["powerpc", "powerpc64-smp"]
-        elif series <= "xenial":
+        if series <= "xenial":
             return ["powerpc-smp", "powerpc64-smp"]
         else:
             return ["powerpc-smp", "generic"]
@@ -559,61 +522,6 @@ def flavours(config, arch):
     else:
         raise UnknownArchitecture(
             "No live filesystem source known for %s" % arch)
-
-
-def live_item_path_winfoss(config, arch):
-    # This is a mess of special cases.  Fortunately it is now only of
-    # historical interest.
-    cpuarch, subarch = split_arch(arch)
-    project = config.project
-    series = config["DIST"]
-
-    if series == "warty" or cpuarch not in ("amd64", "i386"):
-        return
-
-    maitri = "http://maitri.ubuntu.com/theopencd"
-    henrik = "http://people.canonical.com/~henrik/winfoss"
-
-    if project == "ubuntu":
-        if series == "hoary":
-            if cpuarch == "i386":
-                yield "%s/ubuntu/winfoss/latest/Hoary-WinFOSS.tgz" % maitri
-            elif cpuarch == "amd64":
-                yield ("%s/ubuntu/amd64/latest/"
-                       "Hoary-WinFOSS-amd64.tgz" % maitri)
-        elif series == "breezy":
-            yield "%s/winfoss/ubuntu/current/Ubuntu-WinFOSS-5.10.tgz" % maitri
-        elif series >= "dapper" and series <= "karmic":
-            if series > "gutsy":
-                series = Series.find_by_name("gutsy")
-            yield "%s/%s/ubuntu/current/ubuntu-winfoss-%s.tar.gz" % (
-                henrik, series, series.version)
-    elif project == "kubuntu":
-        if series == "hoary" and cpuarch == "i386":
-            yield ("%s/kubuntu/winfoss/latest/"
-                   "Kubuntu-WinFOSS-i386.tgz" % maitri)
-        elif series == "breezy":
-            if cpuarch == "i386":
-                yield ("%s/winfoss/kubuntu/current/"
-                       "Kubuntu-WinFOSS-5.10.tgz" % maitri)
-            elif cpuarch == "amd64":
-                yield ("%s/winfoss/kubuntu-AMD/current/"
-                       "Kubuntu-WinFOSS-5.10-AMD.tgz" % maitri)
-        elif series >= "dapper" and series <= "karmic":
-            if series > "gutsy":
-                series = Series.find_by_name("gutsy")
-            yield "%s/%s/kubuntu/current/kubuntu-winfoss-%s.tar.gz" % (
-                henrik, series, series.version)
-    elif project == "edubuntu":
-        if series >= "feisty" and series <= "karmic":
-            if series > "gutsy":
-                series = Series.find_by_name("gutsy")
-            yield "%s/%s/edubuntu/current/edubuntu-winfoss-%s.tar.gz" % (
-                henrik, series, series.version)
-    elif project == "tocd3" and cpuarch == "i386":
-        yield "%s/tocd3/fsm/TOCD3.tgz" % maitri
-    elif project == "tocd3.1" and cpuarch == "i386":
-        yield "%s/winfoss/tocd3.1/current/TOCD-31.tgz" % maitri
 
 
 def live_item_paths(config, arch, item):
@@ -657,14 +565,7 @@ def live_item_paths(config, arch, item):
         "maas-rack.squashfs", "maas-region.squashfs",
         "img.xz", "model-assertion"
     ):
-        if project == "tocd3":
-            # auto-purged - reverting to plan B
-            yield "/home/cjwatson/tocd3/livecd.tocd3.%s" % item
-        elif project == "ubuntu" and series == "breezy":
-            # auto-purged - reverting to plan B
-            yield "/home/cjwatson/breezy-live/ubuntu/livecd.%s.%s" % (
-                arch, item)
-        elif item == "ext4" and arch == "armhf+nexus7":
+        if item == "ext4" and arch == "armhf+nexus7":
             for url in urls_for(
                     "livecd.%s.%s-nexus7" % (liveproject_subarch, item)):
                 yield url
@@ -705,17 +606,10 @@ def live_item_paths(config, arch, item):
                     liveproject_subarch, flavour)
                 for url in urls_for(base):
                     yield url
-    elif item == "winfoss":
-        for path in live_item_path_winfoss(config, arch):
-            yield path
     elif item == "wubi":
-        if (project != "xubuntu" and arch in ("amd64", "i386") and
-                series >= "gutsy"):
+        if (project != "xubuntu" and arch in ("amd64", "i386")):
             yield ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
                    "stable" % series)
-    elif item == "umenu":
-        if arch in ("amd64", "i386") and series == "hardy":
-            yield "http://people.canonical.com/~evand/umenu/stable"
     elif item == "usb-creator":
         if arch in ("amd64", "i386"):
             yield ("http://people.canonical.com/~evand/usb-creator/%s/"
@@ -824,15 +718,8 @@ def download_live_items(config, arch, item):
                 found = True
             except osextras.FetchError:
                 pass
-    elif item in ("wubi", "umenu", "usb-creator"):
+    elif item in ("wubi", "usb-creator"):
         target = os.path.join(output_dir, "%s.%s.exe" % (arch, item))
-        try:
-            osextras.fetch(config, urls[0], target)
-            found = True
-        except osextras.FetchError:
-            pass
-    elif item == "winfoss":
-        target = os.path.join(output_dir, "%s.%s.tgz" % (arch, item))
         try:
             osextras.fetch(config, urls[0], target)
             found = True
@@ -920,8 +807,7 @@ def download_live_filesystems(config):
                 got_image = True
             else:
                 continue
-            if (series >= "dapper" and
-                    project != "ubuntu-base" and
+            if (project != "ubuntu-base" and
                     not config["CDIMAGE_SQUASHFS_BASE"] and
                     config.subproject != "wubi"):
                 download_live_items(config, arch, "kernel")
@@ -943,21 +829,9 @@ def download_live_filesystems(config):
 
             if (project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
                                 "kubuntu-active") and
-                    (project != "ubuntu-desktop-next" or
-                     config.subproject == "system-image") and
                     (project != "edubuntu" or series >= "precise") and
-                    (project != "ubuntukylin" or series < "utopic")):
-                if series <= "feisty":
-                    pass
-                elif series <= "intrepid":
-                    if config["CDIMAGE_DVD"] != "1":
-                        download_live_items(config, arch, "wubi")
-                    download_live_items(config, arch, "umenu")
-                    umenu_path = os.path.join(
-                        output_dir, "%s.umenu.exe" % arch)
-                    if os.path.exists(umenu_path):
-                        write_autorun(config, arch, "umenu.exe", "Install")
-                elif series <= "vivid":
+                    (project != "ubuntukylin" or series <= "trusty")):
+                if series <= "trusty":
                     # TODO: We still have to do something about not
                     # including Wubi on the DVDs.
                     download_live_items(config, arch, "wubi")
@@ -976,19 +850,15 @@ def download_live_filesystems(config):
                             "Install %s" % autorun_project)
 
             if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                               "ubuntu-desktop-next", "edubuntu"):
-                if (project in ("kubuntu-active", "ubuntu-netbook",
-                                "ubuntu-moblin-remix") or
-                        config["CDIMAGE_DVD"] or
-                        series >= "maverick"):
-                    download_live_items(config, arch, "usb-creator")
+                               "edubuntu"):
+                download_live_items(config, arch, "usb-creator")
             if project == "ubuntu-core" and config["CDIMAGE_LIVE"]:
                 download_live_items(config, arch, "model-assertion")
 
         if not got_image:
             raise NoFilesystemImages("No filesystem images found.")
 
-    if config.project in ("ubuntu-touch", "ubuntu-touch-custom"):
+    if config.project == "ubuntu-touch":
         for arch in config.arches:
             for abootimg in (
                 "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
@@ -1013,7 +883,7 @@ def download_live_filesystems(config):
                 )
             download_live_items(config, arch, "custom.tar.gz")
 
-    if config.project in ("ubuntu-core", "ubuntu-desktop-next"):
+    if config.project == "ubuntu-core":
         for arch in config.arches:
             download_live_items(config, arch, "device.tar.gz")
 
@@ -1031,12 +901,7 @@ def download_live_filesystems(config):
             if arch == "arm64":
                 download_live_items(config, arch, "dragonboard.kernel.snap")
 
-    if (project == "edubuntu" and config["CDIMAGE_INSTALL"] and
-            series <= "hardy"):
-        for cpuarch in config.cpuarches:
-            download_live_items(config, arch, "winfoss")
-
-    if project == "edubuntu" and config["CDIMAGE_DVD"] and series >= "lucid":
+    if project == "edubuntu" and config["CDIMAGE_DVD"]:
         for arch in config.arches:
             if arch in ("amd64", "i386"):
                 # TODO: Disabled for raring (LP: #1154601)
