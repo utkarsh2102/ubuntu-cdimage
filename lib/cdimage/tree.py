@@ -1751,31 +1751,24 @@ class DailyTreePublisher(Publisher):
             else:
                 # next relevant size limit is a 2GB (not 2GiB) USB stick
                 return 2 * 1000 * 1000 * 1000
-        elif (self.project == "ubuntu-gnome" and
-              self.config["DIST"] >= "trusty"):
-            # Per https://lists.ubuntu.com/archives/
-            # ... ubuntu-release/2016-May/003740.html
-            if self.config["DIST"] >= "xenial":
-                return 2 * 1000 * 1000 * 1000
-            # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
-            return 1024 * 1024 * 1024
-        elif (self.project in ("ubuntu-budgie", "mythbuntu") and
+        elif (self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
+                               "ubuntu-gnome", "ubuntu-mate") and
               self.config["DIST"] >= "xenial"):
+            # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
+            # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
+            # ubuntu-gnome per
+            # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003740.html
             # mythbuntu project has disbanded per
             # https://bugs.launchpad.net/bugs/1639445, xenial images were
             # oversized; executive decision by vorlon to raise the limit
             # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
-        elif self.project == "xubuntu" and self.config["DIST"] >= "xenial":
-            # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
-            return 2 * 1000 * 1000 * 1000
-        elif self.project == "xubuntu" and self.config["DIST"] >= "trusty":
+        elif (self.project in ("ubuntu-gnome", "xubuntu") and
+              self.config["DIST"] >= "trusty"):
+            # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-mate":
-            if self.config["DIST"] >= "xenial":
-                # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
-                return 2 * 1000 * 1000 * 1000
             return 1024 * 1024 * 1024
         elif self.project == "lubuntu" and self.config["DIST"] >= "cosmic":
             # https://bugs.launchpad.net/bugs/1796368
