@@ -16,7 +16,9 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 30 1 * * *	DIST=bionic for-project xubuntu cron.daily-live --live
 59 6 * * *	DIST=bionic for-project ubuntu-server cron.daily --live; DIST=bionic for-project ubuntu-server cron.daily-preinstalled --live; DIST=bionic SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
 59 16 * * *	DIST=bionic for-project lubuntu cron.daily-live --live
-52 4 * * *	DIST=bionic for-project ubuntu-base cron.daily-live --live
+# The daily ubuntu-base bionic images are used by core18, so we can't build it
+# with proposed enabled.
+52 4 * * *      PROPOSED=0 DIST=bionic for-project ubuntu-base cron.daily-live --live
 34 22 * * *	DIST=bionic for-project ubuntukylin cron.daily-live --live
 20 15 * * *	DIST=bionic for-project ubuntu-budgie cron.daily-live --live
 26 2 * * *	DIST=bionic for-project ubuntu-mate cron.daily-live --live
