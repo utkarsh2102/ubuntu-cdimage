@@ -1469,6 +1469,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertCountEqual([
             ".htaccess",
             ".marked_good",
+            ".publish_info",
             "FOOTER.html",
             "HEADER.html",
             "MD5SUMS",
@@ -1485,6 +1486,10 @@ class TestDailyTreePublisher(TestCase):
         mock_post_qa.assert_called_once_with(
             "20120807",
             ["ubuntu/daily-live/%s-desktop-i386" % self.config.series])
+
+        # Check if the resulting .publish_info file has the right stamp
+        with open(os.path.join(target_dir, ".publish_info")) as info:
+            self.assertEqual("20120807", info.read())
 
     def test_get_purge_data_no_config(self):
         publisher = self.make_publisher("ubuntu", "daily")
@@ -1889,6 +1894,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.assertCountEqual([
             ".htaccess",
             ".marked_good",
+            ".publish_info",
             "FOOTER.html",
             "HEADER.html",
             "MD5SUMS",
