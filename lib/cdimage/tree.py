@@ -1114,9 +1114,14 @@ class Publisher:
         <!-- Main style sheets for CSS2 capable browsers -->
         <style type="text/css" media="screen">""") % (heading, heading),
                 file=header)
-            for css in self.cssincludes():
-                print("  @import url(%s);" % css, file=header)
+            assets = 'https://assets.ubuntu.com/v1/'
             print(dedent("""\
+                    .p-strip--image {
+                        background-image: url('"""
+                         + assets + """775cc62b-vanilla-grad-background.png');
+                        background-position: 75% 50%;
+                    }
+
                     .p-table-wrapper {
                         overflow-x: scroll;
                     }
@@ -1157,6 +1162,9 @@ class Publisher:
                     }
                 </style>
                 """), file=header)
+            for css in self.cssincludes():
+                print("<link href='%s' rel='stylesheet' "
+                      "type='text/css'>" % css, file=header)
             if self.project == "kubuntu":
                 print(
                     "<link "
@@ -1175,7 +1183,6 @@ class Publisher:
             else:
                 header_href = 'http://www.ubuntu.com/'
 
-            assets = 'https://assets.ubuntu.com/v1/'
             print(dedent("""\
             </head>
             <body>
@@ -1198,10 +1205,7 @@ class Publisher:
                       </nav>
                     </div>
                 </header>
-                <section class="p-strip--image is-dark"
-                 style="background-image: url('""" + assets
-                  + """775cc62b-vanilla-grad-background.png');
-                 background-position: 75% 50%;">
+                <section class="p-strip--image is-dark">
                     <div class="row">
                         <div id="header"><a href="%s"></a></div>
                         <h1 class="u-no-margin--bottom">%s</h1>
