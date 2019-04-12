@@ -1119,7 +1119,7 @@ class Publisher:
                     .p-strip--image {
                         background-image: url('"""
                          + assets + """775cc62b-vanilla-grad-background.png');
-                        background-position: 75% 50%;
+                        background-position: 75%;
                     }
 
                     .p-table-wrapper {
