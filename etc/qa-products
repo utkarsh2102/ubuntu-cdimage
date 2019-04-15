@@ -81,6 +81,8 @@ Ubuntu Server s390x						ubuntu-server	daily				server					s390x			iso
 
 # Subiquity builds
 Ubuntu Server Subiquity amd64					ubuntu-server/live	daily-live			live-server				amd64			iso
+Ubuntu Server Subiquity arm64					ubuntu-server/live	daily-live			live-server				arm64			iso
+Ubuntu Server Subiquity ppc64el					ubuntu-server/live	daily-live			live-server				ppc64el			iso
 Ubuntu Server Subiquity s390x					ubuntu-server/live	daily-live			live-server				s390x			iso
 
 # Ubuntu Studio
