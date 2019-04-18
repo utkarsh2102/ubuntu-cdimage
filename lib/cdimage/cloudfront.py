@@ -86,5 +86,6 @@ def verify_cloudfront(config, root, files):
                       file=sys.stderr)
                 ret = False
         except KeyError:
-            print("No remote ETag for %s; skipping." % url, file=sys.stderr)
+            print("No remote x-amz-meta-s3cmd-attrs for %s; skipping." % url,
+                  file=sys.stderr)
     return ret
