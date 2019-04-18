@@ -73,13 +73,17 @@ def verify_cloudfront(config, root, files):
             print("%s: %s" % (url, e), file=sys.stderr)
             continue
         try:
-            etag = response.info()["ETag"].strip('"')
-            if md5sums.entries[f] == etag:
+            s3cmd_attrs = dict(
+                a.split(":", 1)
+                for a in response.info()["x-amz-meta-s3cmd-attrs"].split("/"))
+            if md5sums.entries[f] == s3cmd_attrs.get("md5"):
                 print("%s matches %s" % (f, url))
             else:
                 print("%s DOES NOT MATCH %s" % (f, url), file=sys.stderr)
                 print("  Local:  %s" % md5sums.entries[f], file=sys.stderr)
-                print("  Remote: %s" % etag, file=sys.stderr)
+                print("  Remote: %s" % s3cmd_attrs.get("md5"), file=sys.stderr)
+                print("(check x-amz-meta-s3cmd-attrs response header)",
+                      file=sys.stderr)
                 ret = False
         except KeyError:
             print("No remote ETag for %s; skipping." % url, file=sys.stderr)
