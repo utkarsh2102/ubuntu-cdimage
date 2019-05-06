@@ -196,7 +196,7 @@ all_series.extend([
         all_lts_projects=True),
     Series("cosmic", "18.10", "Cosmic Cuttlefish"),
     Series("disco", "19.04", "Disco Dingo"),
-    Series("eoan", "19.10", "Eoan EANIMAL"),
+    Series("eoan", "19.10", "Eoan Ermine"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
