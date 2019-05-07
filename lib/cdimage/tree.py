@@ -2192,6 +2192,10 @@ class DailyTreePublisher(Publisher):
                 self.image_type.endswith("dvd")):
             self.make_metalink(target_dir, self.config.series)
 
+        # Now, populate the .publish_info file with datestamps of published
+        # binaries.
+        self.create_publish_info_file(date)
+
     def link(self, date, name):
         osextras.symlink_force(date, os.path.join(self.publish_base, name))
 
@@ -2211,6 +2215,30 @@ class DailyTreePublisher(Publisher):
                  entry.endswith(".img.xz"))):
                 images.add(entry)
         return images
+
+    def create_publish_info_file(self, date):
+        """Create a .publish_info file with the publisher timestamps."""
+        publish_dir = os.path.join(self.publish_base, date)
+        if os.path.islink(publish_dir):
+            return
+
+        publish_dates = {}
+        for entry in self.published_images(date):
+            entry_path = os.path.join(publish_dir, entry)
+            if os.path.islink(entry_path):
+                publish_date = os.path.basename(
+                    os.path.dirname(
+                        os.path.realpath(entry_path)))
+            else:
+                publish_date = date
+            publish_dates[entry] = publish_date
+
+        if publish_dates:
+            # Only create the .publish_info file when there was actually
+            # anything publishable.
+            with open(os.path.join(publish_dir, ".publish_info"), "w") as fd:
+                fd.write("\n".join("%s %s" % (e, d) for (e, d) in
+                                   publish_dates.items()))
 
     def mark_current(self, date, arches):
         """Mark images as current."""
@@ -2474,12 +2502,6 @@ class DailyTreePublisher(Publisher):
             except Exception:
                 traceback.print_exc()
 
-    def create_publish_info_file(self, date):
-        """Create a .publish_info file with the publisher timestamp."""
-        with open(os.path.join(self.publish_base,
-                               date, ".publish_info"), "w") as fd:
-            fd.write(date)
-
     def publish(self, date):
         self.new_publish_dir(date)
         published = []
@@ -2503,10 +2525,6 @@ class DailyTreePublisher(Publisher):
         if not published:
             logger.warning("No images produced!")
             return
-
-        # Once we know we did publish something, like anything, create the
-        # .publish_info file.
-        self.create_publish_info_file(date)
 
         source_report = os.path.join(
             self.britney_report, "%s_probs.html" % self.config.series)
