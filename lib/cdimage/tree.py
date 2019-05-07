@@ -2170,6 +2170,30 @@ class DailyTreePublisher(Publisher):
             yield os.path.join(
                 self.project, self.image_type, "%s-src" % self.config.series)
 
+    def create_publish_info_file(self, date):
+        """Create a .publish_info file with the publisher timestamps."""
+        publish_dir = os.path.join(self.publish_base, date)
+        if os.path.islink(publish_dir):
+            return
+
+        publish_dates = {}
+        for entry in self.published_images(date):
+            entry_path = os.path.join(publish_dir, entry)
+            if os.path.islink(entry_path):
+                publish_date = os.path.basename(
+                    os.path.dirname(
+                        os.path.realpath(entry_path)))
+            else:
+                publish_date = date
+            publish_dates[entry] = publish_date
+
+        if publish_dates:
+            # Only create the .publish_info file when there was actually
+            # anything publishable.
+            with open(os.path.join(publish_dir, ".publish_info"), "w") as fd:
+                fd.write("\n".join("%s %s" % (e, d) for (e, d) in
+                                   publish_dates.items()))
+
     def polish_directory(self, date):
         """Apply various bits of polish to a published directory."""
         target_dir = os.path.join(self.publish_base, date)
@@ -2195,6 +2219,10 @@ class DailyTreePublisher(Publisher):
         if (self.image_type.endswith("-live") or
                 self.image_type.endswith("dvd")):
             self.make_metalink(target_dir, self.config.series)
+
+        # Now, populate the .publish_info file with datestamps of published
+        # binaries.
+        self.create_publish_info_file(date)
 
     def link(self, date, name):
         osextras.symlink_force(date, os.path.join(self.publish_base, name))

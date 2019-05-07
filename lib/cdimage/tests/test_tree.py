@@ -1421,6 +1421,7 @@ class TestDailyTreePublisher(TestCase):
         self.capture_logging()
         publisher.polish_directory("20130320")
         self.assertCountEqual([
+            ".publish_info",
             "MD5SUMS",
             "SHA1SUMS",
             "SHA256SUMS",
@@ -1435,6 +1436,78 @@ class TestDailyTreePublisher(TestCase):
             os.path.join(publisher.image_type_dir, "20130320"),
             publisher.tree.site_name
         ])
+
+    def test_create_publish_info_file(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        target_dir = os.path.join(publisher.publish_base, "20130320")
+        touch(os.path.join(
+            target_dir, "%s-desktop-i386.iso" % self.config.series))
+        touch(os.path.join(
+            target_dir, "%s-desktop-i386.img" % self.config.series))
+        touch(os.path.join(
+            target_dir, "%s-desktop-i386.manifest" % self.config.series))
+        self.capture_logging()
+        publisher.create_publish_info_file("20130320")
+        self.assertCountEqual([
+            ".publish_info",
+            "%s-desktop-i386.iso" % self.config.series,
+            "%s-desktop-i386.img" % self.config.series,
+            "%s-desktop-i386.manifest" % self.config.series,
+        ], os.listdir(target_dir))
+        with open(os.path.join(target_dir, ".publish_info")) as info:
+            self.assertCountEqual([
+                "%s-desktop-i386.img 20130320" % self.config.series,
+                "%s-desktop-i386.iso 20130320" % self.config.series,
+            ], info.read().split("\n"))
+
+    def test_create_publish_info_file_current(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        iso1 = "%s-desktop-i386.iso" % self.config.series
+        iso2 = "%s-desktop-amd64.iso" % self.config.series
+        source1_dir = os.path.join(publisher.publish_base, "20130320")
+        source2_dir = os.path.join(publisher.publish_base, "20130321")
+        target_dir = os.path.join(publisher.publish_base, "current")
+        osextras.ensuredir(target_dir)
+        touch(os.path.join(source1_dir, iso1))
+        touch(os.path.join(source2_dir, iso2))
+        osextras.symlink_force(os.path.join(source1_dir, iso1),
+                               os.path.join(target_dir, iso1))
+        osextras.symlink_force(os.path.join(source2_dir, iso2),
+                               os.path.join(target_dir, iso2))
+        self.capture_logging()
+        publisher.create_publish_info_file("current")
+        self.assertCountEqual([
+            ".publish_info",
+            "%s-desktop-amd64.iso" % self.config.series,
+            "%s-desktop-i386.iso" % self.config.series,
+        ], os.listdir(target_dir))
+        with open(os.path.join(target_dir, ".publish_info")) as info:
+            self.assertCountEqual([
+                "%s-desktop-amd64.iso 20130321" % self.config.series,
+                "%s-desktop-i386.iso 20130320" % self.config.series,
+            ], info.read().split("\n"))
+
+    def test_create_publish_info_file_current_is_link(self):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        source_dir = os.path.join(publisher.publish_base, "20130320")
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.iso" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.img" % self.config.series))
+        with open(os.path.join(source_dir, ".publish_info"), "w") as info:
+            info.write("PLACEHOLDER")
+        target_dir = os.path.join(publisher.publish_base, "current")
+        osextras.symlink_force(source_dir, target_dir)
+        self.capture_logging()
+        publisher.create_publish_info_file("current")
+        self.assertCountEqual([
+            ".publish_info",
+            "%s-desktop-i386.iso" % self.config.series,
+            "%s-desktop-i386.img" % self.config.series,
+        ], os.listdir(target_dir))
+        with open(os.path.join(target_dir, ".publish_info")) as info:
+            # Make sure the .publish_info didn't get modified in this case.
+            self.assertEqual("PLACEHOLDER", info.read())
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
@@ -1469,6 +1542,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertCountEqual([
             ".htaccess",
             ".marked_good",
+            ".publish_info",
             "FOOTER.html",
             "HEADER.html",
             "MD5SUMS",
@@ -1485,6 +1559,12 @@ class TestDailyTreePublisher(TestCase):
         mock_post_qa.assert_called_once_with(
             "20120807",
             ["ubuntu/daily-live/%s-desktop-i386" % self.config.series])
+
+        # Check if the resulting .publish_info file has the right info.
+        with open(os.path.join(target_dir, ".publish_info")) as info:
+            self.assertEqual(
+                "%s-desktop-i386.iso 20120807" % self.config.series,
+                info.read())
 
     def test_get_purge_data_no_config(self):
         publisher = self.make_publisher("ubuntu", "daily")
@@ -1889,6 +1969,7 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         self.assertCountEqual([
             ".htaccess",
             ".marked_good",
+            ".publish_info",
             "FOOTER.html",
             "HEADER.html",
             "MD5SUMS",
