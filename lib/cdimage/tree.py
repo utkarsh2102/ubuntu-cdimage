@@ -2878,8 +2878,8 @@ class ReleasePublisher(Publisher):
     Releases are always copies of a nominated daily build.
     """
 
-    torrent_tracker = "http://torrent.ubuntu.com:6969/announce"
-    ipv6_torrent_tracker = "http://ipv6.torrent.ubuntu.com:6969/announce"
+    torrent_tracker = "https://torrent.ubuntu.com/announce"
+    ipv6_torrent_tracker = "https://ipv6.torrent.ubuntu.com/announce"
 
     def __init__(self, tree, image_type, official, status=None, dry_run=False):
         super(ReleasePublisher, self).__init__(tree, image_type)
