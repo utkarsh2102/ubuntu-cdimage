@@ -2379,7 +2379,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.assertLogEqual(
             ["Creating torrent for %s ..." % path for path in paths])
         command_base = [
-            "btmakemetafile", "http://torrent.ubuntu.com:6969/announce",
+            "btmakemetafile", "https://torrent.ubuntu.com/announce",
             "--comment", "Ubuntu CD cdimage.ubuntu.com",
         ]
         mock_check_call.assert_has_calls([
@@ -2670,10 +2670,10 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         publisher.make_torrents(
             os.path.join(self.temp_dir, "dir"), "ubuntu-13.04")
         command_base = [
-            "btmakemetafile", "http://torrent.ubuntu.com:6969/announce",
+            "btmakemetafile", "https://torrent.ubuntu.com/announce",
             "--announce_list",
-            ("http://torrent.ubuntu.com:6969/announce|"
-                "http://ipv6.torrent.ubuntu.com:6969/announce"),
+            ("https://torrent.ubuntu.com/announce|"
+                "https://ipv6.torrent.ubuntu.com/announce"),
             "--comment", "Ubuntu CD releases.ubuntu.com",
         ]
         mock_check_call.assert_has_calls([
