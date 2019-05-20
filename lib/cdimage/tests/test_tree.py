@@ -1458,7 +1458,7 @@ class TestDailyTreePublisher(TestCase):
             self.assertCountEqual([
                 "%s-desktop-i386.img 20130320" % self.config.series,
                 "%s-desktop-i386.iso 20130320" % self.config.series,
-            ], info.read().split("\n"))
+            ], info.read().splitlines())
 
     def test_create_publish_info_file_current(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
@@ -1485,7 +1485,7 @@ class TestDailyTreePublisher(TestCase):
             self.assertCountEqual([
                 "%s-desktop-amd64.iso 20130321" % self.config.series,
                 "%s-desktop-i386.iso 20130320" % self.config.series,
-            ], info.read().split("\n"))
+            ], info.read().splitlines())
 
     def test_create_publish_info_file_current_is_link(self):
         publisher = self.make_publisher("ubuntu", "daily-live")
@@ -1563,7 +1563,7 @@ class TestDailyTreePublisher(TestCase):
         # Check if the resulting .publish_info file has the right info.
         with open(os.path.join(target_dir, ".publish_info")) as info:
             self.assertEqual(
-                "%s-desktop-i386.iso 20120807" % self.config.series,
+                "%s-desktop-i386.iso 20120807\n" % self.config.series,
                 info.read())
 
     def test_get_purge_data_no_config(self):

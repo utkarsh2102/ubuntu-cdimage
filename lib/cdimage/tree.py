@@ -2191,8 +2191,8 @@ class DailyTreePublisher(Publisher):
             # Only create the .publish_info file when there was actually
             # anything publishable.
             with open(os.path.join(publish_dir, ".publish_info"), "w") as fd:
-                fd.write("\n".join("%s %s" % (e, d) for (e, d) in
-                                   publish_dates.items()))
+                for entry, d in publish_dates.items():
+                    fd.write("%s %s\n" % (entry, d))
 
     def polish_directory(self, date):
         """Apply various bits of polish to a published directory."""
