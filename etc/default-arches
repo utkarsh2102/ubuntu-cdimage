@@ -15,7 +15,7 @@ ubuntu-base		daily			xenial			amd64 arm64 armhf i386 powerpc ppc64el s390x
 ubuntu-base		daily			bionic-			amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-core-system-image	daily-preinstalled	xenial-		amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-core		daily-live		xenial-cosmic		amd64 arm64+snapdragon armhf+cm3 armhf+raspi2 armhf+raspi3 i386
-ubuntu-core		daily-live		disco-			amd64 arm64+snapdragon armhf+cm3 armhf+raspi2 armhf+raspi3 arm64+raspi3 i386
+ubuntu-core		daily-live		disco-			amd64 amd64+kassel arm64+snapdragon armhf+cm3 armhf+raspi2 armhf+raspi3 arm64+raspi3 i386
 
 kubuntu			daily-live		precise			amd64 i386
 kubuntu			daily-live		trusty			amd64 amd64+mac i386
