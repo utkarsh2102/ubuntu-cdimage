@@ -42,7 +42,8 @@ ubuntu-mate		*			-bionic			amd64 i386
 ubuntu-mate		*			cosmic-			amd64
 
 ubuntu-server		daily-preinstalled	xenial			armhf+raspi2
-ubuntu-server		daily-preinstalled	bionic-			armhf+raspi2 armhf+raspi3 arm64+raspi3
+ubuntu-server		daily-preinstalled	bionic-disco			armhf+raspi2 armhf+raspi3 arm64+raspi3
+ubuntu-server		daily-preinstalled	eoan-			armhf+raspi3 arm64+raspi3
 ubuntu-server		*			precise			amd64 i386
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
 ubuntu-server		*			xenial			amd64 arm64 i386 powerpc ppc64el s390x
