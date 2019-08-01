@@ -1750,13 +1750,19 @@ class DailyTreePublisher(Publisher):
         elif (self.project in ("ubuntu", "ubuntukylin") and
               self.publish_type != "dvd" and
               self.config["DIST"] >= "trusty"):
-            if self.config["DIST"] >= "disco":
+            if self.config["DIST"] >= "eoan":
+                # email with willcooke, 20190801
+                return int(2.4 * 1000 * 1000 * 1000)
+            elif self.config["DIST"] >= "disco":
                 if self.project == "ubuntukylin":
                     # verbally from willcooke after consulting Kylin team
                     return int(2.4 * 1000 * 1000 * 1000)
                 else:
                     # verbally from willcooke, 20190320
                     return int(2.2 * 1000 * 1000 * 1000)
+            # email with willcooke, 20190801
+            elif self.config["DIST"] >= "bionic":
+                return int(2.2 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "xenial":
                 # next relevant size limit is a 2GB (not 2GiB) USB stick
                 return 2 * 1000 * 1000 * 1000
