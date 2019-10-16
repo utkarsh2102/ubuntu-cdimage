@@ -776,7 +776,7 @@ class Publisher:
         elif arch == "armhf+raspi2":
             sentences.append("For Raspberry Pi 2 boards.")
         elif arch in ("arm64+raspi3", "armhf+raspi3"):
-            sentences.append("For Raspberry Pi 3 boards.")
+            sentences.append("For modern Raspberry Pi boards (Pi 2, Pi 3, Pi 4).")
         elif arch == "armel":
             sentences.append("For ARMv7 processors and above.")
         elif arch == "armel+dove":
