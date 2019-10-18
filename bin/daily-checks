@@ -243,7 +243,7 @@ def main():
         'ubuntu-budgie',
         )
     if not options.series:
-        options.series = ('precise', 'trusty', 'xenial', 'bionic', 'eoan')
+        options.series = ('precise', 'trusty', 'xenial', 'bionic', 'focal')
 
     for project in projects:
         for series in options.series:

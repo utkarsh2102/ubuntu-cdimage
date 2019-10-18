@@ -303,6 +303,8 @@ class TestConfig(TestCase):
         self.assertEqual("18", config.core_series)
         config["DIST"] = "eoan"
         self.assertEqual("18", config.core_series)
+        config["DIST"] = "focal"
+        self.assertEqual("20", config.core_series)
 
     def test_arches(self):
         config = Config(read=False)

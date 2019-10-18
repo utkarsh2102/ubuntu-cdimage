@@ -16,7 +16,7 @@ PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
 IMAGE_FORMAT=${IMAGE_FORMAT:-iso}
 export IMAGE_FORMAT
-DIST="${DIST:-eoan}"
+DIST="${DIST:-focal}"
 
 case $DIST in
 	xenial|trusty)
