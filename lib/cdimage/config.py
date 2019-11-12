@@ -196,7 +196,9 @@ all_series.extend([
         all_lts_projects=True),
     Series("cosmic", "18.10", "Cosmic Cuttlefish"),
     Series("disco", "19.04", "Disco Dingo"),
-    Series("eoan", "19.10", "Eoan Ermine"),
+    Series(
+        "eoan", "19.10", "Eoan Ermine",
+        pointversion="19.10.1"),
     Series(
          "focal", "20.04", "Focal Fossa",
          all_lts_projects=True),
