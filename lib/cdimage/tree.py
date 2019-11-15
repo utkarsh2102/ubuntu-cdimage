@@ -442,6 +442,8 @@ class Publisher:
             return ["//releases.ubuntu.com/include/kubuntu.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
             return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
+        if self.project == "xubuntu":
+            return ["//cdimage.ubuntu.com/include/xubuntu/style.css"]
         else:
             return ["https://assets.ubuntu.com/v1/" +
                     "vanilla-framework-version-1.8.0.min.css"]
@@ -1181,6 +1183,12 @@ class Publisher:
                     "href=\"http://cdimage.ubuntu.com/include/lubuntu/"
                     "favicon.png\" />", file=header)
                 header_href = 'https://lubuntu.me/'
+            if self.project == "xubuntu":
+                print(
+                    "<link rel=\"icon\" type=\"image/png\" "
+                    "href=\"http://cdimage.ubuntu.com/include/xubuntu/"
+                    "favicon.png\" />", file=header)
+                header_href = 'https://xubuntu.org/'
             else:
                 header_href = 'http://www.ubuntu.com/'
 
