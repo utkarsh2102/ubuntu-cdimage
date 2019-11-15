@@ -305,7 +305,8 @@ class TestPublisherWebIndices(TestCase):
             ("lubuntu-next",
              ["//cdimage.ubuntu.com/include/lubuntu/style.css"]),
             ("xubuntu",
-             ["//cdimage.ubuntu.com/include/xubuntu/style.css"]),
+             [assets + "/vanilla-framework-version-1.8.0.min.css",
+              "//cdimage.ubuntu.com/include/xubuntu/style.css"]),
         ):
             self.config["PROJECT"] = project
             publisher = Publisher(self.tree, "daily")
