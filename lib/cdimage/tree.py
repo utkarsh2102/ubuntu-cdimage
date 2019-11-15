@@ -438,17 +438,17 @@ class Publisher:
             return ""
 
     def cssincludes(self):
+        vanilla = "https://assets.ubuntu.com/v1/" + \
+                  "vanilla-framework-version-1.8.0.min.css"
         if self.project == "kubuntu":
             return ["//releases.ubuntu.com/include/kubuntu.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
             return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
         if self.project == "xubuntu":
-            return ["https://assets.ubuntu.com/v1/" +
-                    "vanilla-framework-version-1.8.0.min.css",
+            return [vanilla,
                     "//cdimage.ubuntu.com/include/xubuntu/style.css"]
         else:
-            return ["https://assets.ubuntu.com/v1/" +
-                    "vanilla-framework-version-1.8.0.min.css"]
+            return [vanilla]
 
     def cdtypestr(self, publish_type, image_format):
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
