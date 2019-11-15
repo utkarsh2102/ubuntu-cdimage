@@ -443,7 +443,9 @@ class Publisher:
         if self.project in ("lubuntu", "lubuntu-next"):
             return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
         if self.project == "xubuntu":
-            return ["//cdimage.ubuntu.com/include/xubuntu/style.css"]
+            return ["https://assets.ubuntu.com/v1/" +
+                    "vanilla-framework-version-1.8.0.min.css",
+                    "//cdimage.ubuntu.com/include/xubuntu/style.css"]
         else:
             return ["https://assets.ubuntu.com/v1/" +
                     "vanilla-framework-version-1.8.0.min.css"]
