@@ -847,7 +847,13 @@ class TestFlavours(TestCase):
         self.assertEqual(expected.split(), flavours(config, arch))
 
     def test_amd64(self):
-        for series in all_series[4:]:
+        for series in all_series[4:31]:
+            self.assertFlavoursEqual(
+                "generic", "amd64", "ubuntu", series)
+        for series in all_series[31:-2]:
+            self.assertFlavoursEqual(
+                "generic oem", "amd64", "ubuntu", series)
+        for series in all_series[-2:0]:
             self.assertFlavoursEqual(
                 "generic", "amd64", "ubuntu", series)
         for series in all_series[15:]:

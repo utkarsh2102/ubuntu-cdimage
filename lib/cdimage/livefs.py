@@ -469,6 +469,8 @@ def flavours(config, arch):
     series = config["DIST"]
 
     if cpuarch == "amd64":
+        if series >= "focal" and project == "ubuntu":
+            return ["generic", "oem"]
         if project == "ubuntustudio":
             return ["lowlatency"]
         else:
