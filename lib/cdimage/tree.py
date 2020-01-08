@@ -1810,7 +1810,10 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] >= "xenial":
+            # email with powersj, 20200108
+            if self.config["DIST"] >= "bionic":
+                return 1.2 * 1000 * 1000 * 1000
+            elif self.config["DIST"] >= "xenial":
                 return 1024 * 1024 * 1024
             else:
                 return 736665600
