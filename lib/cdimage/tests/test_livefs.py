@@ -852,7 +852,7 @@ class TestFlavours(TestCase):
                 "generic", "amd64", "ubuntu", series)
         for series in all_series[31:-2]:
             self.assertFlavoursEqual(
-                "generic oem", "amd64", "ubuntu", series)
+                "generic oem-20.04", "amd64", "ubuntu", series)
         for series in all_series[-2:0]:
             self.assertFlavoursEqual(
                 "generic", "amd64", "ubuntu", series)
