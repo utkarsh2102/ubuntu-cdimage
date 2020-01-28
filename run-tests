@@ -3,13 +3,13 @@
 set -e
 
 # ensure we have our test dependencies
-dpkg-checkbuilddeps -d 'dctrl-tools, python, python-mock, python3, python3 (>= 3.3) | python3-mock, procmail, squashfs-tools' /dev/null
+dpkg-checkbuilddeps -d 'dctrl-tools, python2 | python, python-mock, python3, python3 (>= 3.3) | python3-mock, procmail, squashfs-tools' /dev/null
 
 if [ -z "$*" ]; then
 	set -- discover cdimage.tests
 fi
 
-PYTHONPATH=lib python -m unittest "$@"
+PYTHONPATH=lib python2 -m unittest "$@"
 if which python3 >/dev/null 2>&1; then
 	PYTHONPATH=lib python3 -m unittest "$@"
 fi
