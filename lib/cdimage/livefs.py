@@ -473,7 +473,7 @@ def flavours(config, arch):
 
     if cpuarch == "amd64":
         if series >= "focal" and project == "ubuntu":
-            return ["generic", "oem"]
+            return ["generic", "oem-20.04"]
         if project == "ubuntustudio":
             return ["lowlatency"]
         else:
