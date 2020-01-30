@@ -846,27 +846,13 @@ class TestFlavours(TestCase):
         config["DIST"] = series
         self.assertEqual(expected.split(), flavours(config, arch))
 
-    def assertFlavoursEqualGlob(self, expected, arch, project, series):
-        import fnmatch
-
-        config = Config(read=False)
-        config["PROJECT"] = project
-        config["DIST"] = series
-        matches = all(
-            [
-                fnmatch.filter(flavours(config, arch), flavour)
-                for flavour in expected.split()
-            ]
-        )
-        self.assertTrue(matches)
-
     def test_amd64(self):
         for series in all_series[4:31]:
             self.assertFlavoursEqual(
                 "generic", "amd64", "ubuntu", series)
         for series in all_series[31:-2]:
-            self.assertFlavoursEqualGlob(
-                "generic oem-*", "amd64", "ubuntu", series)
+            self.assertFlavoursEqual(
+                "generic oem", "amd64", "ubuntu", series)
         for series in all_series[-2:0]:
             self.assertFlavoursEqual(
                 "generic", "amd64", "ubuntu", series)
