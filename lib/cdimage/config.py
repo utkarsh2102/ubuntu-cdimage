@@ -192,7 +192,7 @@ all_series.extend([
     Series("artful", "17.10", "Artful Aardvark"),
     Series(
         "bionic", "18.04", "Bionic Beaver",
-        pointversion="18.04.3",
+        pointversion="18.04.4",
         all_lts_projects=True),
     Series("cosmic", "18.10", "Cosmic Cuttlefish"),
     Series("disco", "19.04", "Disco Dingo"),
