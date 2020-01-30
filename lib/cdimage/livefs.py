@@ -465,15 +465,28 @@ def livecd_base(config, arch):
 
     return "%s/%s/%s/current" % (root, series, liveproject)
 
-
 def flavours(config, arch):
     cpuarch, subarch = split_arch(arch)
     project = config.project
     series = config["DIST"]
 
+
+    def get_lts_upto(series):
+        from distro_info import UbuntuDistroInfo
+        import itertools
+
+        udi = UbuntuDistroInfo()
+        it = itertools.dropwhile(lambda x: x != series, reversed(udi.all))
+
+        for r in it:
+            if udi.is_lts(r):
+                yield r, udi.version(r).rstrip(' LTS')
+
     if cpuarch == "amd64":
         if series >= "focal" and project == "ubuntu":
-            return ["generic", "oem"]
+            s = get_lts_upto(series)
+            _, v = next(s, (None, None))
+            return ["generic", "oem-{}".format(v)]
         if project == "ubuntustudio":
             return ["lowlatency"]
         else:
