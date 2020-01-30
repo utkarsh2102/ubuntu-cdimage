@@ -465,11 +465,11 @@ def livecd_base(config, arch):
 
     return "%s/%s/%s/current" % (root, series, liveproject)
 
+
 def flavours(config, arch):
     cpuarch, subarch = split_arch(arch)
     project = config.project
     series = config["DIST"]
-
 
     def get_lts_upto(series):
         from distro_info import UbuntuDistroInfo
