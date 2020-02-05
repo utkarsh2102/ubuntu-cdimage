@@ -1761,7 +1761,11 @@ class DailyTreePublisher(Publisher):
         elif (self.project in ("ubuntu", "ubuntukylin") and
               self.publish_type != "dvd" and
               self.config["DIST"] >= "trusty"):
-            if self.config["DIST"] >= "eoan":
+            if self.config["DIST"] >= "focal":
+                # laney. as of focal we include two kernels on the ISO which
+                # increases its size
+                return int(2.8 * 1000 * 1000 * 1000)
+            elif self.config["DIST"] >= "eoan":
                 # email with willcooke, 20190801
                 return int(2.4 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "disco":
