@@ -24,7 +24,7 @@ case $DIST in
 		export PROPOSED
 		;;
 	bionic)
-		PROPOSED="${PROPOSED:-0}"
+		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
 esac
