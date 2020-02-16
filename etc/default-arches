@@ -33,7 +33,8 @@ ubuntu			daily			precise			amd64 amd64+mac i386
 ubuntu			daily-live		precise			amd64 amd64+mac i386
 ubuntu			daily-live		trusty			amd64 amd64+mac i386
 ubuntu			daily-live		xenial			amd64 i386
-ubuntu			daily-live		bionic-			amd64
+ubuntu			daily-live		bionic-eoan		amd64
+ubuntu			daily-live		focal-			amd64 arm64
 
 ubuntu-gnome		*			*			amd64 i386
 
