@@ -397,10 +397,10 @@ def run_live_builds(config):
 
     while builds or lp_builds:
         # Check for non-Launchpad build results.
-        if builds:
-            pid, status = os.waitpid(0, os.WNOHANG)
-            if pid and pid in builds:
-                _, arch, full_name, machine = builds.pop(pid)
+        for pid, (proc, arch, full_name, machine) in list(builds.items()):
+            status = proc.poll()
+            if status is not None:
+                del builds[pid]
                 live_build_finished(
                     arch, full_name, machine, status,
                     "success" if status == 0 else "failed")
