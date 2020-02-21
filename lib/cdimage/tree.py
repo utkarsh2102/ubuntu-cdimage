@@ -732,6 +732,7 @@ class Publisher:
         "amd64": "64-bit PC (AMD64)",
         "amd64+mac": "64-bit Mac (AMD64)",
         "arm64": "64-bit ARM (ARMv8/AArch64)",
+        "arm64+raspi": "Raspberry Pi Generic (64-bit ARM)",
         "arm64+raspi3": "Raspberry Pi 3 (64-bit ARM)",
         "armel": "ARM EABI",
         "armel+dove": "Marvell Dove",
@@ -746,6 +747,7 @@ class Publisher:
         "armhf+ac100": "Toshiba AC100 / Dynabook AZ (Hard-Float)",
         "armhf+mx5": "Freescale i.MX5x (Hard-Float)",
         "armhf+nexus7": "Asus/Google Nexus7 Tablet",
+        "armhf+raspi": "Raspberry Pi Generic (Hard-Float)",
         "armhf+raspi2": "Raspberry Pi 2",
         "armhf+raspi3": "Raspberry Pi 3 (Hard-Float)",
         "hppa": "HP PA-RISC",
@@ -779,7 +781,8 @@ class Publisher:
             sentences.append("For 64-bit ARMv8 processors and above.")
         elif arch == "armhf+raspi2":
             sentences.append("For Raspberry Pi 2 boards.")
-        elif arch in ("arm64+raspi3", "armhf+raspi3"):
+        elif arch in ("arm64+raspi", "armhf+raspi",
+                      "arm64+raspi3", "armhf+raspi3"):
             sentences.append("For modern Raspberry Pi boards (Pi 2, Pi 3 and "
                              "Pi 4).")
         elif arch == "armel":
@@ -1085,8 +1088,8 @@ class Publisher:
             "armel", "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
             "armel+ac100", "armel+mx5",
             "armhf", "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
-            "armhf+nexus7", "armhf+raspi2", "armhf+raspi3",
-            "arm64", "arm64+raspi3",
+            "armhf+nexus7", "armhf+raspi", "armhf+raspi2", "armhf+raspi3",
+            "arm64", "arm64+raspi", "arm64+raspi3",
             "powerpc",
             "powerpc+ps3",
             "ppc64el",
