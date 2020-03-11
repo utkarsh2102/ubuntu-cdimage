@@ -37,7 +37,7 @@ def main():
     config = Config()
 
     hostname = subprocess.Popen(["hostname", "-f"], stdout=subprocess.PIPE)
-    if hostname.communicate()[0].rstrip("\n") != "nusakan.canonical.com":
+    if hostname.communicate()[0].rstrip(b"\n") != b'nusakan.canonical.com':
         sys.exit(0)
 
     subprocess.check_call([
