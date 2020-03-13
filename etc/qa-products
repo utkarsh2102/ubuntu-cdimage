@@ -46,6 +46,7 @@ Ubuntu Base s390x							ubuntu-base		daily				base					s390x			iso
 # Ubuntu Desktop 
 Ubuntu Desktop amd64						ubuntu			daily-live			desktop					amd64			iso
 Ubuntu Desktop (Canary) amd64				ubuntu			daily-live/canary	desktop					amd64			iso
+Ubuntu Desktop arm64						ubuntu			daily-live			desktop					arm64			iso
 Ubuntu Desktop amd64+mac					ubuntu			daily-live			desktop					amd64+mac		iso
 Ubuntu Desktop armhf+omap4					ubuntu			daily-live			desktop					armhf+omap4		iso
 Ubuntu Desktop i386							ubuntu			daily-live			desktop					i386			iso
