@@ -63,7 +63,8 @@ ubuntu-wubi		*			*			amd64 i386
 
 ubuntu-zh_CN		*			precise-		amd64 i386
 ubuntukylin		*			-bionic			amd64 i386
-ubuntukylin		*			cosmic-			amd64
+ubuntukylin		*			cosmic-eoan     amd64
+ubuntukylin     *           focal-          amd64 arm64
 
 ubuntustudio		*			precise-bionic		amd64 i386
 ubuntustudio		*			cosmic-			amd64

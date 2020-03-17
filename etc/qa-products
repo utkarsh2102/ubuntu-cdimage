@@ -99,6 +99,7 @@ Ubuntu Touch i386							ubuntu-touch	daily-preinstalled	preinstalled-touch		i386
 # Ubuntu Kylin
 Ubuntu Kylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso
 Ubuntu Kylin Desktop i386					ubuntukylin		daily-live			desktop					i386			iso
+Ubuntu Kylin Desktop arm64					ubuntukylin		daily-live			desktop					arm64			iso
 
 # Xubuntu
 Xubuntu Desktop amd64						xubuntu			daily-live			desktop					amd64			iso
