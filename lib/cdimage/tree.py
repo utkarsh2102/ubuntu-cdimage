@@ -396,7 +396,10 @@ class Publisher:
             if self.project == "edubuntu":
                 return "addon"
             elif self.project == "ubuntu-server":
-                return "server"
+                if self.config["DIST"] >= "focal":
+                    return "classic-server"
+                else:
+                    return "server"
             elif self.project == "ubuntu-base":
                 return "base"
             else:
@@ -414,7 +417,8 @@ class Publisher:
         elif publish_type == "dvd":
             return "dvd"
         elif publish_type in (
-                "addon", "alternate", "base", "install", "server"):
+                "addon", "alternate", "base", "install", "server",
+                "classic-server"):
             return "daily"
         else:
             return None
@@ -473,7 +477,7 @@ class Publisher:
             return "install %s" % cd
         elif publish_type == "alternate":
             return "alternate install %s" % cd
-        elif publish_type == "server" or publish_type == "live-server":
+        elif publish_type in ["server", "live-server", "classic-server"]:
             if self.project == "edubuntu":
                 return "classroom server %s" % cd
             else:
@@ -588,7 +592,7 @@ class Publisher:
                 "installer, please file a bug on the %s package." % bug_link,
             ])
             return
-        elif publish_type == "server" or publish_type == "live-server":
+        elif publish_type in ["server", "live-server", "classic-server"]:
             if self.project == "edubuntu":
                 sentences.append(
                     "The classroom server %s allows you to install %s "
@@ -1069,6 +1073,7 @@ class Publisher:
         all_publish_types = (
             "live", "desktop",
             "live-server",
+            "classic-server",
             "server", "install", "alternate",
             "serveraddon", "addon",
             "dvd",
@@ -3092,6 +3097,7 @@ class ReleasePublisher(Publisher):
         if publish_type in (
             "live", "desktop", "netbook",
             "uec", "server-uec", "core", "wubi", "server", "live-server",
+            "classic-server",
         ):
             return True
         elif publish_type.startswith("preinstalled") and os.path.exists(path):
@@ -3196,6 +3202,7 @@ class ReleasePublisher(Publisher):
 
         if publish_type in (
             "install", "alternate", "server", "serveraddon", "addon", "src",
+            "server-classic",
         ):
             if (os.path.exists(daily("jigdo")) and
                     os.path.exists(daily("template"))):
@@ -3280,6 +3287,7 @@ class ReleasePublisher(Publisher):
             source = source[:-len("/source")]
 
         if series.distribution != "ubuntu" or not series.is_latest:
+            # TODO does this need "ubuntu-classic" handling?
             if source == "ubuntu-server/daily":
                 source = os.path.join(
                     "ubuntu-server", series.full_name, "daily")
