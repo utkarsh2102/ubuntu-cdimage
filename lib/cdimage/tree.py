@@ -397,7 +397,7 @@ class Publisher:
                 return "addon"
             elif self.project == "ubuntu-server":
                 if self.config["DIST"] >= "focal":
-                    return "classic-server"
+                    return "legacy-server"
                 else:
                     return "server"
             elif self.project == "ubuntu-base":
@@ -418,7 +418,7 @@ class Publisher:
             return "dvd"
         elif publish_type in (
                 "addon", "alternate", "base", "install", "server",
-                "classic-server"):
+                "legacy-server"):
             return "daily"
         else:
             return None
@@ -477,11 +477,13 @@ class Publisher:
             return "install %s" % cd
         elif publish_type == "alternate":
             return "alternate install %s" % cd
-        elif publish_type in ["server", "live-server", "classic-server"]:
+        elif publish_type in ["server", "live-server"]:
             if self.project == "edubuntu":
                 return "classroom server %s" % cd
             else:
                 return "server install %s" % cd
+        elif publish_type == "legacy-server":
+            return "legacy server install %s" % cd
         elif publish_type == "serveraddon":
             # Edubuntu only
             return "classroom server add-on %s" % cd
@@ -592,7 +594,7 @@ class Publisher:
                 "installer, please file a bug on the %s package." % bug_link,
             ])
             return
-        elif publish_type in ["server", "live-server", "classic-server"]:
+        elif publish_type in ["server", "live-server", "legacy-server"]:
             if self.project == "edubuntu":
                 sentences.append(
                     "The classroom server %s allows you to install %s "
@@ -1073,7 +1075,7 @@ class Publisher:
         all_publish_types = (
             "live", "desktop",
             "live-server",
-            "classic-server",
+            "legacy-server",
             "server", "install", "alternate",
             "serveraddon", "addon",
             "dvd",
@@ -3097,7 +3099,7 @@ class ReleasePublisher(Publisher):
         if publish_type in (
             "live", "desktop", "netbook",
             "uec", "server-uec", "core", "wubi", "server", "live-server",
-            "classic-server",
+            "legacy-server",
         ):
             return True
         elif publish_type.startswith("preinstalled") and os.path.exists(path):
@@ -3202,7 +3204,7 @@ class ReleasePublisher(Publisher):
 
         if publish_type in (
             "install", "alternate", "server", "serveraddon", "addon", "src",
-            "server-classic",
+            "legacy-server",
         ):
             if (os.path.exists(daily("jigdo")) and
                     os.path.exists(daily("template"))):
@@ -3287,7 +3289,7 @@ class ReleasePublisher(Publisher):
             source = source[:-len("/source")]
 
         if series.distribution != "ubuntu" or not series.is_latest:
-            # TODO does this need "ubuntu-classic" handling?
+            # TODO does this need "legacy" handling?
             if source == "ubuntu-server/daily":
                 source = os.path.join(
                     "ubuntu-server", series.full_name, "daily")

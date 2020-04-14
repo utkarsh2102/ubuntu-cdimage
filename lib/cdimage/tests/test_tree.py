@@ -266,7 +266,7 @@ class TestPublisher(TestCase):
             ("daily", "edubuntu", "precise", "addon"),
             ("daily", "ubuntu-base", "precise", "base"),
             ("daily", "ubuntu-server", "precise", "server"),
-            ("daily", "ubuntu-server", "focal", "classic-server"),
+            ("daily", "ubuntu-server", "focal", "legacy-server"),
             ("daily", "ubuntu", "precise", "alternate"),
         ):
             self.config["PROJECT"] = project
