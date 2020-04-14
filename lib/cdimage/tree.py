@@ -2810,6 +2810,8 @@ class ReleaseTreeMixin:
             return ""
 
     def publish_target(self, source):
+        if self.config.image_type == 'legacy-server':
+            return self.project_base.replace('server', 'legacy-server')
         return self.project_base
 
 
@@ -3016,7 +3018,10 @@ class ReleasePublisher(Publisher):
             filestatus = self.status.replace("-", "")
 
         if self.official in ("yes", "poolonly", "named"):
-            prefix = "%s-%s" % (self.project, self.version)
+            project = self.project
+            if project == "ubuntu-server":
+                project = "ubuntu"
+            prefix = "%s-%s" % (project, self.version)
         else:
             prefix = self.config.series
 
@@ -3282,6 +3287,7 @@ class ReleasePublisher(Publisher):
         """Publish a daily build as a release."""
         series = self.config["DIST"]
         arches = self.config.arches
+        self.config["IMAGE_TYPE"] = publish_type
         prefix, prefix_status = self.publish_release_prefixes()
 
         # Do what I mean.
