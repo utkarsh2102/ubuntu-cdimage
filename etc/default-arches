@@ -19,7 +19,7 @@ ubuntu-core		daily-live		xenial-artful		amd64 arm64+snapdragon armhf+cm3 armhf+r
 ubuntu-core		daily-live		bionic		amd64 arm64+snapdragon armhf+raspi3 arm64+raspi3 i386 amd64+kassel
 ubuntu-core		daily-live		cosmic		amd64 arm64+snapdragon armhf+cm3 armhf+raspi2 armhf+raspi3 i386
 ubuntu-core		daily-live		disco-eoan		amd64 amd64+kassel arm64+snapdragon armhf+raspi3 arm64+raspi3 i386
-ubuntu-core		daily-live		focal-			amd64
+ubuntu-core		daily-live		focal-			amd64 arm64+raspi
 
 kubuntu			daily-live		precise			amd64 i386
 kubuntu			daily-live		trusty			amd64 amd64+mac i386
