@@ -477,7 +477,7 @@ class Publisher:
             return "install %s" % cd
         elif publish_type == "alternate":
             return "alternate install %s" % cd
-        elif publish_type in ["server", "live-server"]:
+        elif publish_type in ("server", "live-server"):
             if self.project == "edubuntu":
                 return "classroom server %s" % cd
             else:
@@ -594,7 +594,7 @@ class Publisher:
                 "installer, please file a bug on the %s package." % bug_link,
             ])
             return
-        elif publish_type in ["server", "live-server", "legacy-server"]:
+        elif publish_type in ("server", "live-server", "legacy-server"):
             if self.project == "edubuntu":
                 sentences.append(
                     "The classroom server %s allows you to install %s "
