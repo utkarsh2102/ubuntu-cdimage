@@ -396,7 +396,10 @@ class Publisher:
             if self.project == "edubuntu":
                 return "addon"
             elif self.project == "ubuntu-server":
-                return "server"
+                if self.config["DIST"] >= "focal":
+                    return "legacy-server"
+                else:
+                    return "server"
             elif self.project == "ubuntu-base":
                 return "base"
             else:
@@ -414,7 +417,8 @@ class Publisher:
         elif publish_type == "dvd":
             return "dvd"
         elif publish_type in (
-                "addon", "alternate", "base", "install", "server"):
+                "addon", "alternate", "base", "install", "server",
+                "legacy-server"):
             return "daily"
         else:
             return None
@@ -473,11 +477,13 @@ class Publisher:
             return "install %s" % cd
         elif publish_type == "alternate":
             return "alternate install %s" % cd
-        elif publish_type == "server" or publish_type == "live-server":
+        elif publish_type in ["server", "live-server"]:
             if self.project == "edubuntu":
                 return "classroom server %s" % cd
             else:
                 return "server install %s" % cd
+        elif publish_type == "legacy-server":
+            return "legacy server install %s" % cd
         elif publish_type == "serveraddon":
             # Edubuntu only
             return "classroom server add-on %s" % cd
@@ -588,7 +594,7 @@ class Publisher:
                 "installer, please file a bug on the %s package." % bug_link,
             ])
             return
-        elif publish_type == "server" or publish_type == "live-server":
+        elif publish_type in ["server", "live-server", "legacy-server"]:
             if self.project == "edubuntu":
                 sentences.append(
                     "The classroom server %s allows you to install %s "
@@ -1069,6 +1075,7 @@ class Publisher:
         all_publish_types = (
             "live", "desktop",
             "live-server",
+            "legacy-server",
             "server", "install", "alternate",
             "serveraddon", "addon",
             "dvd",
@@ -2803,6 +2810,8 @@ class ReleaseTreeMixin:
             return ""
 
     def publish_target(self, source):
+        if self.config.image_type == 'legacy-server':
+            return self.project_base.replace('server', 'legacy-server')
         return self.project_base
 
 
@@ -3009,7 +3018,10 @@ class ReleasePublisher(Publisher):
             filestatus = self.status.replace("-", "")
 
         if self.official in ("yes", "poolonly", "named"):
-            prefix = "%s-%s" % (self.project, self.version)
+            project = self.project
+            if project == "ubuntu-server":
+                project = "ubuntu"
+            prefix = "%s-%s" % (project, self.version)
         else:
             prefix = self.config.series
 
@@ -3092,6 +3104,7 @@ class ReleasePublisher(Publisher):
         if publish_type in (
             "live", "desktop", "netbook",
             "uec", "server-uec", "core", "wubi", "server", "live-server",
+            "legacy-server",
         ):
             return True
         elif publish_type.startswith("preinstalled") and os.path.exists(path):
@@ -3196,6 +3209,7 @@ class ReleasePublisher(Publisher):
 
         if publish_type in (
             "install", "alternate", "server", "serveraddon", "addon", "src",
+            "legacy-server",
         ):
             if (os.path.exists(daily("jigdo")) and
                     os.path.exists(daily("template"))):
@@ -3273,6 +3287,7 @@ class ReleasePublisher(Publisher):
         """Publish a daily build as a release."""
         series = self.config["DIST"]
         arches = self.config.arches
+        self.config["IMAGE_TYPE"] = publish_type
         prefix, prefix_status = self.publish_release_prefixes()
 
         # Do what I mean.
@@ -3280,6 +3295,7 @@ class ReleasePublisher(Publisher):
             source = source[:-len("/source")]
 
         if series.distribution != "ubuntu" or not series.is_latest:
+            # TODO does this need "legacy" handling?
             if source == "ubuntu-server/daily":
                 source = os.path.join(
                     "ubuntu-server", series.full_name, "daily")
