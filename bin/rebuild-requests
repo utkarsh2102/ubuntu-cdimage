@@ -141,7 +141,14 @@ def main():
 
         env['ARCHES'] = arches
         env['DIST'] = entries[0][0].series_title.lower()
-        cmd = ["for-project", project, "cron.%s" % entry[2]]
+
+        # The ubuntu-base image is actually hacked up in overall, so even
+        # though it's defined as "daily", it's a "daily-live" type
+        image_type = entry[2]
+        if project == "ubuntu-base":
+            image_type = "daily-live"
+
+        cmd = ["for-project", project, "cron.%s" % image_type]
 
         if (build_type != "daily" or
                 project in ("ubuntu-core", "ubuntu-base", "ubuntu-server")):
