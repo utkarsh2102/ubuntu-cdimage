@@ -202,6 +202,7 @@ all_series.extend([
     Series(
          "focal", "20.04", "Focal Fossa",
          all_lts_projects=True),
+    Series("groovy", "20.10", "Groovy Gorilla"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
