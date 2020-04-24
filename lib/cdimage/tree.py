@@ -1794,7 +1794,7 @@ class DailyTreePublisher(Publisher):
             else:
                 return 1.2 * 1000 * 1000 * 1000
         elif self.project == "ubuntu-mate" and self.config["DIST"] >= "focal":
-                return int(2.8 * 1000 * 1000 * 1000)
+            return int(2.8 * 1000 * 1000 * 1000)
         elif (self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
                                "ubuntu-gnome", "ubuntu-mate") and
               self.config["DIST"] >= "xenial"):
