@@ -13,6 +13,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 33 8 * * *	DIST=bionic for-project ubuntu-core cron.daily-live --live
 33 9 * * *	DIST=bionic CHANNEL=beta for-project ubuntu-core cron.daily-live --live
 # core20 daily builds
+36 7 * * *	EXTRA_PPAS=snappy-dev/image DIST=focal CHANNEL=dangerous for-project ubuntu-core cron.daily-live --live
 36 8 * * *	EXTRA_PPAS=snappy-dev/image DIST=focal for-project ubuntu-core cron.daily-live --live
 36 9 * * *	EXTRA_PPAS=snappy-dev/image DIST=focal CHANNEL=beta for-project ubuntu-core cron.daily-live --live
 # bionic daily builds
