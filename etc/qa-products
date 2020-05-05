@@ -41,6 +41,7 @@ Ubuntu Base armhf							ubuntu-base		daily				base					armhf			iso
 Ubuntu Base i386							ubuntu-base		daily				base					i386			iso
 Ubuntu Base powerpc							ubuntu-base		daily				base					powerpc			iso
 Ubuntu Base ppc64el							ubuntu-base		daily				base					ppc64el			iso
+Ubuntu Base riscv64							ubuntu-base		daily				base					riscv64			iso
 Ubuntu Base s390x							ubuntu-base		daily				base					s390x			iso
 
 # Ubuntu Desktop 
