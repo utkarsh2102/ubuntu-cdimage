@@ -45,7 +45,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 41 7 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-live --live
 24 5 * * *	for-project kubuntu cron.daily-live --live
 40 1 * * *	for-project xubuntu cron.daily-live --live
-39 6 * * *	for-project ubuntu-server cron.daily --live; for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
+39 6 * * *	for-project ubuntu-server cron.daily --live; for-project ubuntu-server cron.daily-preinstalled --live; PROPOSED=0 SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
 27 18 * * *	for-project ubuntustudio cron.dvd --live
 39 16 * * *	for-project lubuntu cron.daily-live --live
 # The daily ubuntu-base images are used by core-next, so we can't build it
