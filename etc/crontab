@@ -20,7 +20,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 51 7 * * *	DIST=bionic for-project ubuntu cron.daily-live --live
 34 5 * * *	DIST=bionic for-project kubuntu cron.daily-live --live
 30 1 * * *	DIST=bionic for-project xubuntu cron.daily-live --live
-59 6 * * *	DIST=bionic for-project ubuntu-server cron.daily --live; DIST=bionic for-project ubuntu-server cron.daily-preinstalled --live; DIST=bionic SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
+59 6 * * *	DIST=bionic for-project ubuntu-server cron.daily --live; DIST=bionic for-project ubuntu-server cron.daily-preinstalled --live; DIST=bionic SUBPROJECT=live PROPOSED=0 for-project ubuntu-server cron.daily-live --live
 59 16 * * *	DIST=bionic for-project lubuntu cron.daily-live --live
 # The daily ubuntu-base bionic images are used by core18, so we can't build it
 # with proposed enabled.
@@ -32,7 +32,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 31 7 * * *	DIST=focal for-project ubuntu cron.daily-live --live; DIST=focal SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-live --live
 14 5 * * *	DIST=focal for-project kubuntu cron.daily-live --live
 50 1 * * *	DIST=focal for-project xubuntu cron.daily-live --live
-29 6 * * *	DIST=focal for-project ubuntu-server cron.daily --live; DIST=focal for-project ubuntu-server cron.daily-preinstalled --live; DIST=focal SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
+29 6 * * *	DIST=focal for-project ubuntu-server cron.daily --live; DIST=focal for-project ubuntu-server cron.daily-preinstalled --live; DIST=focal SUBPROJECT=live PROPOSED=0 for-project ubuntu-server cron.daily-live --live
 17 18 * * *	DIST=focal for-project ubuntustudio cron.dvd --live
 29 16 * * *	DIST=focal for-project lubuntu cron.daily-live --live
 # The daily ubuntu-base focal images are used by core20, so we can't build it
