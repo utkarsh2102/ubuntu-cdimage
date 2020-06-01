@@ -30,7 +30,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 20 15 * * *	DIST=bionic for-project ubuntu-budgie cron.daily-live --live
 26 2 * * *	DIST=bionic for-project ubuntu-mate cron.daily-live --live
 # focal daily builds
-31 7 * * *	DIST=focal for-project ubuntu cron.daily-live --live; DIST=focal SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-live --live
+31 7 * * *	DIST=focal for-project ubuntu cron.daily-live --live
 14 5 * * *	DIST=focal for-project kubuntu cron.daily-live --live
 50 1 * * *	DIST=focal for-project xubuntu cron.daily-live --live
 29 6 * * *	DIST=focal for-project ubuntu-server cron.daily --live; DIST=focal for-project ubuntu-server cron.daily-preinstalled --live; DIST=focal SUBPROJECT=live PROPOSED=0 for-project ubuntu-server cron.daily-live --live
@@ -43,7 +43,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 00 15 * * *	DIST=focal for-project ubuntu-budgie cron.daily-live --live
 46 2 * * *	DIST=focal for-project ubuntu-mate cron.daily-live --live
 # regular groovy daily builds
-41 7 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-live --live
+41 7 * * *	for-project ubuntu cron.daily-live --live
 24 5 * * *	for-project kubuntu cron.daily-live --live
 40 1 * * *	for-project xubuntu cron.daily-live --live
 39 6 * * *	for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
