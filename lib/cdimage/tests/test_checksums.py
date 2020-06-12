@@ -261,7 +261,6 @@ class TestChecksumFileSet(TestCase):
         self.config = Config(read=False)
         self.use_temp_dir()
         self.files_and_commands = {
-            "MD5SUMS": "md5sum",
             "SHA1SUMS": "sha1sum",
             "SHA256SUMS": "sha256sum",
         }
@@ -277,9 +276,6 @@ class TestChecksumFileSet(TestCase):
 
     def assertChecksumsEqual(self, entry_data, checksum_files):
         expected = {
-            "MD5SUMS": dict(
-                (k, hashlib.md5(v).hexdigest())
-                for k, v in entry_data.items()),
             "SHA1SUMS": dict(
                 (k, hashlib.sha1(v).hexdigest())
                 for k, v in entry_data.items()),
@@ -394,9 +390,6 @@ class TestChecksumFileSet(TestCase):
                 self.config, self.temp_dir, sign=False) as checksum_files:
             self.assertChecksumsEqual({"1": b"1", "2": b"2"}, checksum_files)
             checksum_files.remove("1")
-        with open(os.path.join(self.temp_dir, "MD5SUMS")) as md5sums:
-            self.assertEqual(
-                "%s *2\n" % hashlib.md5(b"2").hexdigest(), md5sums.read())
         with open(os.path.join(self.temp_dir, "SHA1SUMS")) as sha1sums:
             self.assertEqual(
                 "%s *2\n" % hashlib.sha1(b"2").hexdigest(), sha1sums.read())
@@ -426,17 +419,17 @@ class TestChecksumFileSet(TestCase):
         checksum_directory(
             self.config, self.temp_dir, old_directories=[old_dir], sign=False,
             map_expr=r"s/\.iso$/.raw/")
-        with open(os.path.join(self.temp_dir, "MD5SUMS")) as md5sums:
+        with open(os.path.join(self.temp_dir, "SHA256SUMS")) as sha256sums:
             digests = (
-                hashlib.md5(b"foo-amd64.iso").hexdigest(),
-                hashlib.md5(b"foo-hppa.raw").hexdigest(),
-                hashlib.md5(b"foo-i386.raw").hexdigest(),
+                hashlib.sha256(b"foo-amd64.iso").hexdigest(),
+                hashlib.sha256(b"foo-hppa.raw").hexdigest(),
+                hashlib.sha256(b"foo-i386.raw").hexdigest(),
             )
             self.assertEqual(dedent("""\
                 %s *foo-amd64.iso
                 %s *foo-hppa.iso
                 %s *foo-i386.iso
-                """) % digests, md5sums.read())
+                """) % digests, sha256sums.read())
 
 
 class TestMetalinkChecksumFileSet(TestChecksumFileSet):

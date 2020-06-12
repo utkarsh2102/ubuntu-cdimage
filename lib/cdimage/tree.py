@@ -1621,7 +1621,6 @@ class Publisher:
                 ("jigdo.png", ".jigdo .template"),
                 ("list.png", (
                     ".list .manifest .html .zsync "
-                    "MD5SUMS MD5SUMS.gpg "
                     "MD5SUMS-metalink MD5SUMS-metalink.gpg "
                     "SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg")),
                 ("torrent.png", ".torrent .metalink"),

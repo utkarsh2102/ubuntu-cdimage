@@ -435,7 +435,7 @@ class TestPublisherWebIndices(TestCase):
 
     def test_find_images(self):
         for name in (
-            "MD5SUMS",
+            "SHA256SUMS",
             "trusty-desktop-amd64.iso", "trusty-desktop-amd64.list",
             "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ):
@@ -447,7 +447,7 @@ class TestPublisherWebIndices(TestCase):
 
     def test_find_source_images(self):
         for name in (
-            "MD5SUMS",
+            "SHA256SUMS",
             "trusty-src-1.iso", "trusty-src-2.iso", "trusty-src-3.iso",
         ):
             touch(os.path.join(self.directory, name))
@@ -457,7 +457,7 @@ class TestPublisherWebIndices(TestCase):
 
     def test_find_any_with_extension(self):
         for name in (
-            "MD5SUMS",
+            "SHA256SUMS",
             "trusty-desktop-amd64.iso", "trusty-desktop-amd64.iso.torrent",
             "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ):
@@ -482,7 +482,7 @@ class TestPublisherWebIndices(TestCase):
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "trusty"
         for name in (
-            "MD5SUMS",
+            "SHA256SUMS",
             "trusty-desktop-amd64.iso", "trusty-desktop-amd64.iso.zsync",
             "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ):
@@ -492,7 +492,7 @@ class TestPublisherWebIndices(TestCase):
 
         self.assertCountEqual([
             "HEADER.html", "FOOTER.html", ".htaccess",
-            "MD5SUMS",
+            "SHA256SUMS",
             "trusty-desktop-amd64.iso", "trusty-desktop-amd64.iso.zsync",
             "trusty-desktop-i386.iso", "trusty-desktop-i386.list",
         ], os.listdir(self.directory))
@@ -537,7 +537,7 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
                 "AddIcon ../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
-                "MD5SUMS MD5SUMS.gpg MD5SUMS-metalink MD5SUMS-metalink.gpg "
+                "MD5SUMS-metalink MD5SUMS-metalink.gpg "
                 "SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../../cdicons/torrent.png .torrent .metalink\n",
                 htaccess.read())
@@ -997,7 +997,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
-            "MD5SUMS",
+            "SHA256SUMS",
             "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
             "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ):
@@ -1012,7 +1012,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu-core", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20170429")
         for name in (
-            "MD5SUMS",
+            "SHA256SUMS",
             "ubuntu-core-16-amd64.img.xz",
             "ubuntu-core-16-amd64.model-assertion",
             "ubuntu-core-16-i386.img.xz",
@@ -1045,7 +1045,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130321")
         for name in (
-            "MD5SUMS",
+            "SHA256SUMS",
             "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
             "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
         ):
@@ -1090,7 +1090,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
-                "MD5SUMS",
+                "SHA256SUMS",
                 "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
                 "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
             ):
@@ -1125,7 +1125,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
-                "MD5SUMS",
+                "SHA256SUMS",
                 "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
                 "trusty-desktop-i386.iso", "trusty-desktop-i386.manifest",
             ):
@@ -1151,7 +1151,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu", "daily-live")
         for date in "20130320", "20130321":
             for name in (
-                "MD5SUMS",
+                "SHA256SUMS",
                 "trusty-desktop-amd64.iso", "trusty-desktop-amd64.manifest",
                 "trusty-desktop-amd64+mac.iso",
                 "trusty-desktop-amd64+mac.manifest",
@@ -1427,7 +1427,6 @@ class TestDailyTreePublisher(TestCase):
         publisher.polish_directory("20130320")
         self.assertCountEqual([
             ".publish_info",
-            "MD5SUMS",
             "SHA1SUMS",
             "SHA256SUMS",
             "%s-desktop-i386.iso" % self.config.series,
@@ -1550,7 +1549,6 @@ class TestDailyTreePublisher(TestCase):
             ".publish_info",
             "FOOTER.html",
             "HEADER.html",
-            "MD5SUMS",
             "SHA1SUMS",
             "SHA256SUMS",
             "%s-desktop-i386.iso" % self.config.series,
@@ -1977,7 +1975,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             ".publish_info",
             "FOOTER.html",
             "HEADER.html",
-            "MD5SUMS",
             "SHA1SUMS",
             "SHA256SUMS",
             "%s-desktop-i386.iso" % self.config.series,
@@ -2191,19 +2188,19 @@ class TestReleasePublisherMixin:
         self.assertTrue(os.path.exists(path))
 
     def test_remove_checksum(self):
-        md5sums_path = os.path.join(self.temp_dir, "MD5SUMS")
-        with mkfile(md5sums_path) as md5sums:
-            print("checksum  path", file=md5sums)
+        sha256sums_path = os.path.join(self.temp_dir, "SHA256SUMS")
+        with mkfile(sha256sums_path) as sha256sums:
+            print("checksum  path", file=sha256sums)
         self.capture_logging()
         self.get_publisher(dry_run=True).remove_checksum(self.temp_dir, "path")
         self.assertLogEqual(
             ["checksum-remove --no-sign %s path" % self.temp_dir])
-        with open(md5sums_path) as md5sums:
-            self.assertEqual("checksum  path\n", md5sums.read())
+        with open(sha256sums_path) as sha256sums:
+            self.assertEqual("checksum  path\n", sha256sums.read())
         self.capture_logging()
         self.get_publisher().remove_checksum(self.temp_dir, "path")
         self.assertLogEqual([])
-        self.assertFalse(os.path.exists(md5sums_path))
+        self.assertFalse(os.path.exists(sha256sums_path))
 
     def test_copy(self):
         old_path = os.path.join(self.temp_dir, "old")
@@ -2558,7 +2555,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         ])
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
-            "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
+            "SHA1SUMS", "SHA256SUMS",
             "kubuntu-%s-desktop-amd64.iso" % series.version,
             "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
             "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
@@ -2859,7 +2856,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "is OK.",
         ])
         self.assertCountEqual([
-            "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
+            "SHA1SUMS", "SHA256SUMS",
             "kubuntu-%s-desktop-amd64.iso" % series.version,
             "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
             "kubuntu-%s-desktop-amd64.manifest" % series.version,
@@ -2869,7 +2866,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         ], os.listdir(pool_dir))
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
-            "MD5SUMS", "SHA1SUMS", "SHA256SUMS",
+            "SHA1SUMS", "SHA256SUMS",
             "kubuntu-%s-desktop-amd64.iso" % series.version,
             "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
             "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
