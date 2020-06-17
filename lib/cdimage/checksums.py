@@ -179,7 +179,6 @@ class ChecksumFileSet:
     """Manipulate the standard set of checksums files together."""
 
     checksum_file_methods = {
-        "SHA1SUMS": hashlib.sha1,
         "SHA256SUMS": hashlib.sha256,
     }
 

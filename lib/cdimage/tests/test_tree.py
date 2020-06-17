@@ -538,7 +538,7 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
                 "MD5SUMS-metalink MD5SUMS-metalink.gpg "
-                "SHA1SUMS SHA1SUMS.gpg SHA256SUMS SHA256SUMS.gpg\n"
+                "SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../../cdicons/torrent.png .torrent .metalink\n",
                 htaccess.read())
 
@@ -1427,7 +1427,6 @@ class TestDailyTreePublisher(TestCase):
         publisher.polish_directory("20130320")
         self.assertCountEqual([
             ".publish_info",
-            "SHA1SUMS",
             "SHA256SUMS",
             "%s-desktop-i386.iso" % self.config.series,
         ], os.listdir(target_dir))
@@ -1549,7 +1548,6 @@ class TestDailyTreePublisher(TestCase):
             ".publish_info",
             "FOOTER.html",
             "HEADER.html",
-            "SHA1SUMS",
             "SHA256SUMS",
             "%s-desktop-i386.iso" % self.config.series,
             "%s-desktop-i386.list" % self.config.series,
@@ -1975,7 +1973,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             ".publish_info",
             "FOOTER.html",
             "HEADER.html",
-            "SHA1SUMS",
             "SHA256SUMS",
             "%s-desktop-i386.iso" % self.config.series,
             "%s-desktop-i386.list" % self.config.series,
@@ -2555,7 +2552,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         ])
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
-            "SHA1SUMS", "SHA256SUMS",
+            "SHA256SUMS",
             "kubuntu-%s-desktop-amd64.iso" % series.version,
             "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
             "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
@@ -2856,7 +2853,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "is OK.",
         ])
         self.assertCountEqual([
-            "SHA1SUMS", "SHA256SUMS",
+            "SHA256SUMS",
             "kubuntu-%s-desktop-amd64.iso" % series.version,
             "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
             "kubuntu-%s-desktop-amd64.manifest" % series.version,
@@ -2866,7 +2863,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         ], os.listdir(pool_dir))
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
-            "SHA1SUMS", "SHA256SUMS",
+            "SHA256SUMS",
             "kubuntu-%s-desktop-amd64.iso" % series.version,
             "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
             "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,

@@ -86,9 +86,9 @@ class TestChecksumFile(TestCase):
         with mkfile(entry_path, mode="wb") as entry:
             entry.write(data)
         checksum_file = ChecksumFile(
-            self.config, self.temp_dir, "SHA1SUMS", hashlib.sha1)
+            self.config, self.temp_dir, "SHA256SUMS", hashlib.sha256)
         self.assertEqual(
-            hashlib.sha1(data).hexdigest(), checksum_file.checksum(entry_path))
+            hashlib.sha256(data).hexdigest(), checksum_file.checksum(entry_path))
 
     def test_add(self):
         entry_path = os.path.join(self.temp_dir, "entry")
@@ -261,7 +261,6 @@ class TestChecksumFileSet(TestCase):
         self.config = Config(read=False)
         self.use_temp_dir()
         self.files_and_commands = {
-            "SHA1SUMS": "sha1sum",
             "SHA256SUMS": "sha256sum",
         }
         self.cls = ChecksumFileSet
@@ -276,9 +275,6 @@ class TestChecksumFileSet(TestCase):
 
     def assertChecksumsEqual(self, entry_data, checksum_files):
         expected = {
-            "SHA1SUMS": dict(
-                (k, hashlib.sha1(v).hexdigest())
-                for k, v in entry_data.items()),
             "SHA256SUMS": dict(
                 (k, hashlib.sha256(v).hexdigest())
                 for k, v in entry_data.items()),
@@ -390,9 +386,6 @@ class TestChecksumFileSet(TestCase):
                 self.config, self.temp_dir, sign=False) as checksum_files:
             self.assertChecksumsEqual({"1": b"1", "2": b"2"}, checksum_files)
             checksum_files.remove("1")
-        with open(os.path.join(self.temp_dir, "SHA1SUMS")) as sha1sums:
-            self.assertEqual(
-                "%s *2\n" % hashlib.sha1(b"2").hexdigest(), sha1sums.read())
         with open(os.path.join(self.temp_dir, "SHA256SUMS")) as sha256sums:
             self.assertEqual(
                 "%s *2\n" % hashlib.sha256(b"2").hexdigest(),
