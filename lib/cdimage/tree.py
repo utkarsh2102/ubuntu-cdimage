@@ -3121,6 +3121,9 @@ class ReleasePublisher(Publisher):
         raise NotImplementedError
 
     def want_metalink(self, publish_type):
+        # wubi is dead, no MD5 metalink anymore
+        if self.config["DIST"] >= "xenial":
+            return False
         # TODO: maybe others?  metalink is only supported for Wubi
         if publish_type in (
             "netbook", "uec", "server-uec",

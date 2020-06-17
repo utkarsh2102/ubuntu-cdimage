@@ -2545,8 +2545,6 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
                 target_dir, series.version),
             "Checksumming full tree ...",
             "No keys found; not signing images.",
-            "Creating and publishing metalink files for the full tree ...",
-            "No keys found; not signing images.",
             "Done!  Remember to sync-mirrors after checking that everything "
             "is OK.",
         ])
@@ -2845,9 +2843,6 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Checksumming simple tree (pool) ...",
             "No keys found; not signing images.",
             "Checksumming simple tree (%s) ..." % series,
-            "No keys found; not signing images.",
-            "Creating and publishing metalink files for the simple tree "
-            "(%s) ..." % series,
             "No keys found; not signing images.",
             "Done!  Remember to sync-mirrors after checking that everything "
             "is OK.",
