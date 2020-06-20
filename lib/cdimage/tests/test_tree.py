@@ -1418,7 +1418,8 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
-    def test_polish_directory(self, mock_make_web_indices, mock_call):
+    def test_polish_directory_metalink(self, mock_make_web_indices, mock_call):
+        self.config["DIST"] = "wily"
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130320")
         touch(os.path.join(
@@ -1439,6 +1440,23 @@ class TestDailyTreePublisher(TestCase):
             os.path.join(publisher.image_type_dir, "20130320"),
             publisher.tree.site_name
         ])
+
+    @mock.patch("subprocess.call", return_value=0)
+    @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
+    def test_polish_directory(self, mock_make_web_indices, mock_call):
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        target_dir = os.path.join(publisher.publish_base, "20130320")
+        touch(os.path.join(
+            target_dir, "%s-desktop-i386.iso" % self.config.series))
+        self.capture_logging()
+        publisher.polish_directory("20130320")
+        self.assertCountEqual([
+            ".publish_info",
+            "SHA256SUMS",
+            "%s-desktop-i386.iso" % self.config.series,
+        ], os.listdir(target_dir))
+        mock_make_web_indices.assert_called_once_with(
+            target_dir, self.config.series, status="daily")
 
     def test_create_publish_info_file(self):
         publisher = self.make_publisher("ubuntu", "daily-live")

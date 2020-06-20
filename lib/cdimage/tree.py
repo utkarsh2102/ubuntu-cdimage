@@ -1642,6 +1642,20 @@ class Publisher:
                         "AddType %s .%s" % (mimetype, extension),
                         file=htaccess)
 
+    def want_metalink(self, publish_type):
+        # wubi is dead, no MD5 metalink anymore
+        if self.config["DIST"] >= "xenial":
+            return False
+        # TODO: maybe others?  metalink is only supported for Wubi
+        if publish_type in (
+            "netbook", "uec", "server-uec",
+        ):
+            return False
+        elif publish_type.startswith("preinstalled-"):
+            return False
+        else:
+            return True
+
     def make_metalink(self, directory, version, dry_run=False):
         """Create and publish metalink files."""
         osextras.unlink_force(os.path.join(directory, "MD5SUMS-metalink"))
@@ -2251,8 +2265,7 @@ class DailyTreePublisher(Publisher):
             self.make_web_indices(
                 target_dir_source, self.config.series, status="daily")
 
-        if (self.image_type.endswith("-live") or
-                self.image_type.endswith("dvd")):
+        if self.want_metalink(self.publish_type):
             self.make_metalink(target_dir, self.config.series)
 
         # Now, populate the .publish_info file with datestamps of published
@@ -3119,20 +3132,6 @@ class ReleasePublisher(Publisher):
 
     def want_torrent(self, publish_type):
         raise NotImplementedError
-
-    def want_metalink(self, publish_type):
-        # wubi is dead, no MD5 metalink anymore
-        if self.config["DIST"] >= "xenial":
-            return False
-        # TODO: maybe others?  metalink is only supported for Wubi
-        if publish_type in (
-            "netbook", "uec", "server-uec",
-        ):
-            return False
-        elif publish_type.startswith("preinstalled-"):
-            return False
-        else:
-            return True
 
     def publish_release_arch(self, source, date, publish_type, arch):
         """Publish release images for a single architecture."""
