@@ -148,7 +148,13 @@ class _CachingLiveFSes:
 
 
 def login(instance):
-    return Launchpad.login_with("ubuntu-cdimage", instance, version="devel")
+    import launchpadlib.credentials
+    store = launchpadlib.credentials.KeyringCredentialStore(None,
+                                                            fallback=True)
+    return Launchpad.login_with("ubuntu-cdimage",
+                                instance,
+                                version="devel",
+                                credential_store=store)
 
 
 class _LaunchpadCache:
