@@ -23,30 +23,30 @@ from cdimage.log import logger
 
 
 def _gnupg_files(config):
+    gpgdir = config["GNUPG_DIR"]
     gpgconf = os.path.join(config["GNUPG_DIR"], "gpg.conf")
     secring = os.path.join(config["GNUPG_DIR"], "secring.gpg")
+    privkeydir = os.path.join(config["GNUPG_DIR"], "private-keys-v1.d")
     pubring = os.path.join(config["GNUPG_DIR"], "pubring.gpg")
     trustdb = os.path.join(config["GNUPG_DIR"], "trustdb.gpg")
-    return gpgconf, secring, pubring, trustdb
+    return gpgdir, gpgconf, secring, privkeydir, pubring, trustdb
 
 
 def can_sign(config):
-    gpgconf, secring, pubring, trustdb = _gnupg_files(config)
-    if (not os.path.exists(secring) or not os.path.exists(pubring) or
-            not os.path.exists(trustdb) or not config["SIGNING_KEYID"]):
+    _, _, secring, privkeydir, pubring, trustdb = _gnupg_files(config)
+    if (not (os.path.exists(privkeydir) or os.path.exists(secring)) or
+        not os.path.exists(pubring) or not os.path.exists(trustdb) or
+       not config["SIGNING_KEYID"]):
         logger.warning("No keys found; not signing images.")
         return False
     return True
 
 
 def _signing_command(config):
-    gpgconf, secring, pubring, trustdb = _gnupg_files(config)
+    gpgdir, gpgconf, _, privkeydir, _, _ = _gnupg_files(config)
     cmd = [
         "gpg", "--options", gpgconf,
-        "--no-default-keyring",
-        "--secret-keyring", secring,
-        "--keyring", pubring,
-        "--trustdb-name", trustdb,
+        "--homedir", gpgdir,
         "--no-options", "--batch", "--no-tty",
         "--armour", "--detach-sign",
         # FBB75451 and EFE21092 have different digest preferences.  GnuPG
