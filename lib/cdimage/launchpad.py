@@ -148,13 +148,20 @@ class _CachingLiveFSes:
 
 
 def login(instance):
-    import launchpadlib.credentials
-    store = launchpadlib.credentials.KeyringCredentialStore(None,
-                                                            fallback=True)
-    return Launchpad.login_with("ubuntu-cdimage",
-                                instance,
-                                version="devel",
-                                credential_store=store)
+    try:
+        import launchpadlib.credentials
+        store = launchpadlib.credentials.KeyringCredentialStore(None,
+                                                                fallback=True)
+        return Launchpad.login_with("ubuntu-cdimage",
+                                    instance,
+                                    version="devel",
+                                    credential_store=store)
+    except TypeError:
+        # prior to focal (1.10.13), the fallback= kwarg didn't exist and
+        # Launchpadlib worked under sudo
+        return Launchpad.login_with("ubuntu-cdimage",
+                                    instance,
+                                    version="devel")
 
 
 class _LaunchpadCache:
