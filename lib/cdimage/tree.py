@@ -2971,15 +2971,9 @@ class ReleasePublisher(Publisher):
         if not self.dry_run:
             logger.info("Creating torrent for %s ..." % path)
         osextras.unlink_force("%s.torrent" % path)
-        command = ["btmakemetafile", self.torrent_tracker]
+        command = ["mktorrent", "-a", self.torrent_tracker]
         if isinstance(self.tree, SimpleReleaseTree):
-            # N.B.: Only the bittornado version of btmakemetafile has
-            # the --announce_list flag.
-            command.extend([
-                "--announce_list",
-                "%s|%s" % (
-                    self.torrent_tracker, self.ipv6_torrent_tracker),
-            ])
+            command.extend(["-a", self.ipv6_torrent_tracker])
         command.extend([
             "--comment",
             "%s CD %s" % (self.config.capproject, self.tree.site_name),

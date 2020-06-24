@@ -2293,8 +2293,8 @@ class TestReleasePublisherMixin:
             "preinstalled-netbook"))
 
 
-def call_btmakemetafile_zsyncmake(command, *args, **kwargs):
-    if command[0] == "btmakemetafile":
+def call_mktorrent_zsyncmake(command, *args, **kwargs):
+    if command[0] == "mktorrent":
         touch("%s.torrent" % command[-1])
     elif command[0] == "zsyncmake":
         for i in range(1, len(command)):
@@ -2396,7 +2396,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.assertLogEqual(
             ["Creating torrent for %s ..." % path for path in paths])
         command_base = [
-            "btmakemetafile", "https://torrent.ubuntu.com/announce",
+            "mktorrent", "-a", "https://torrent.ubuntu.com/announce",
             "--comment", "Ubuntu CD cdimage.ubuntu.com",
         ]
         mock_check_call.assert_has_calls([
@@ -2417,7 +2417,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             self.get_publisher(official="named").publish_release_prefixes())
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_arch_ubuntu_desktop_named(self, mock_call, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
@@ -2461,7 +2461,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
                 "%s.iso" % target_base,
             ]),
             mock.call([
-                "btmakemetafile", mock.ANY,
+                "mktorrent", mock.ANY, mock.ANY,
                 "--comment", "Ubuntu CD cdimage.ubuntu.com",
                 "%s.iso" % target_base,
             ], stdout=mock.ANY),
@@ -2479,7 +2479,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             os.stat("%s.iso.torrent" % torrent_base))
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_arch_ubuntu_desktop_no(self, mock_call, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
@@ -2512,7 +2512,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.assertFalse(os.path.islink("%s.iso" % target_base))
         self.assertFalse(os.path.islink("%s.manifest" % target_base))
         mock_call.assert_called_once_with([
-            "btmakemetafile", mock.ANY,
+            "mktorrent", mock.ANY, mock.ANY,
             "--comment", "Ubuntu CD cdimage.ubuntu.com",
             "%s.iso" % target_base,
         ], stdout=mock.ANY)
@@ -2527,7 +2527,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             os.stat("%s.iso.torrent" % torrent_base))
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_kubuntu_desktop_named(self, mock_call, *args):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"
@@ -2685,10 +2685,9 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         publisher.make_torrents(
             os.path.join(self.temp_dir, "dir"), "ubuntu-13.04")
         command_base = [
-            "btmakemetafile", "https://torrent.ubuntu.com/announce",
-            "--announce_list",
-            ("https://torrent.ubuntu.com/announce|"
-                "https://ipv6.torrent.ubuntu.com/announce"),
+            "mktorrent",
+            "-a", "https://torrent.ubuntu.com/announce",
+            "-a", "https://ipv6.torrent.ubuntu.com/announce",
             "--comment", "Ubuntu CD releases.ubuntu.com",
         ]
         mock_check_call.assert_has_calls([
@@ -2708,7 +2707,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             self.get_publisher().publish_release_prefixes())
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_arch_ubuntu_desktop_yes(self, mock_call, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
@@ -2766,8 +2765,9 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
                 "%s.iso" % pool_base,
             ]),
             mock.call([
-                "btmakemetafile", mock.ANY,
-                "--announce_list", mock.ANY,
+                "mktorrent",
+                "-a", mock.ANY,
+                "-a", mock.ANY,
                 "--comment", "Ubuntu CD releases.ubuntu.com",
                 "%s.iso" % target_base,
             ], stdout=mock.ANY),
@@ -2785,7 +2785,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             os.stat("%s.iso.torrent" % torrent_base))
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_arch_ubuntu_desktop_poolonly(self, mock_call,
                                                           *args):
         self.config["PROJECT"] = "ubuntu"
@@ -2823,7 +2823,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         ])
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("subprocess.call", side_effect=call_btmakemetafile_zsyncmake)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_kubuntu_desktop_yes(self, mock_call, *args):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"
