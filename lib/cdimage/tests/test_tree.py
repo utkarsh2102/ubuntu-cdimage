@@ -911,6 +911,33 @@ class TestDailyTreePublisher(TestCase):
             "ubuntu-core-16-amd64.model-assertion",
         ], os.listdir(target_dir))
 
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.DailyTreePublisher.detect_image_extension",
+                return_value="img.xz")
+    @mock.patch("cdimage.tree.zsyncmake")
+    def test_publish_appliance_binary(self, mock_zsyncmake, *args):
+        self.config["DIST"] = "bionic"
+        publisher = self.make_publisher("ubuntu-appliance", "daily-live")
+        source_dir = publisher.image_output("amd64")
+        touch(os.path.join(
+            source_dir, "%s-live-core-amd64.raw" % self.config.series))
+        touch(os.path.join(
+            source_dir,
+            "%s-live-core-amd64.model-assertion" % self.config.series))
+        self.capture_logging()
+        list(publisher.publish_binary("live-core", "amd64", "20170429"))
+        self.assertLogEqual([
+            "Publishing amd64 ...",
+            "Publishing amd64 model assertion ...",
+            "Making amd64 zsync metafile ...",
+        ])
+        target_dir = os.path.join(publisher.publish_base, "20170429")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertCountEqual([
+            "ubuntu-core-18-amd64.img.xz",
+            "ubuntu-core-18-amd64.model-assertion",
+        ], os.listdir(target_dir))
+
     def test_publish_livecd_base(self):
         publisher = self.make_publisher("livecd-base", "livecd-base")
         source_dir = os.path.join(
@@ -1929,6 +1956,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "%s-desktop-i386.iso" % self.config.series)
 
     def test_publish_core_binary(self):
+        pass
+
+    def test_publish_appliance_binary(self):
         pass
 
     def test_publish_livecd_base(self):

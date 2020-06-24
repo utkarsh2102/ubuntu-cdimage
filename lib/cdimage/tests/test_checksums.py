@@ -88,7 +88,8 @@ class TestChecksumFile(TestCase):
         checksum_file = ChecksumFile(
             self.config, self.temp_dir, "SHA256SUMS", hashlib.sha256)
         self.assertEqual(
-            hashlib.sha256(data).hexdigest(), checksum_file.checksum(entry_path))
+            hashlib.sha256(data).hexdigest(),
+            checksum_file.checksum(entry_path))
 
     def test_add(self):
         entry_path = os.path.join(self.temp_dir, "entry")
