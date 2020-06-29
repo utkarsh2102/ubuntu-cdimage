@@ -43,7 +43,7 @@ def can_sign(config):
 
 
 def _signing_command(config):
-    gpgdir, gpgconf, _, privkeydir, _, _ = _gnupg_files(config)
+    gpgdir, gpgconf, _, _, _, _ = _gnupg_files(config)
     cmd = [
         "gpg", "--options", gpgconf,
         "--homedir", gpgdir,
