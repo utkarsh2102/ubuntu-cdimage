@@ -1443,6 +1443,27 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
+    def test_polish_directory_no_metalink_focal(self,
+                                                mock_make_web_indices,
+                                                mock_call):
+        self.config["DIST"] = "focal"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        target_dir = os.path.join(publisher.publish_base, "20130320")
+        touch(os.path.join(
+            target_dir, "%s-desktop-i386.iso" % self.config.series))
+        self.capture_logging()
+        publisher.polish_directory("20130320")
+        self.assertCountEqual([
+            ".publish_info",
+            "SHA256SUMS",
+            "%s-desktop-i386.iso" % self.config.series,
+        ], os.listdir(target_dir))
+        mock_make_web_indices.assert_called_once_with(
+            target_dir, self.config.series, status="daily")
+        mock_call.assert_not_called()
+
+    @mock.patch("subprocess.call", return_value=0)
+    @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
     def test_polish_directory(self, mock_make_web_indices, mock_call):
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130320")
