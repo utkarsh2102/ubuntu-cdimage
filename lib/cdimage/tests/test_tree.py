@@ -1464,6 +1464,44 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
+    def test_new_publish_dir_no_metalink(self,
+                                         mock_make_web_indices,
+                                         mock_call):
+        """ Where we don't want a metalink (focal), we don't copy up an old
+            one. """
+        self.config["DIST"] = "focal"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        publish_pending = os.path.join(publisher.publish_base, "pending")
+        touch(os.path.join(
+            publish_pending, "%s-desktop-amd64.iso" % self.config.series))
+        touch(os.path.join(
+            publish_pending, "%s-desktop-amd64.metalink" % self.config.series))
+        publisher.new_publish_dir("20130319")
+        self.assertEqual(
+            ["%s-desktop-amd64.iso" % self.config.series],
+            os.listdir(os.path.join(publisher.publish_base, "20130319")))
+
+    @mock.patch("subprocess.call", return_value=0)
+    @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
+    def test_new_publish_dir_metalink_precise(self,
+                                              mock_make_web_indices,
+                                              mock_call):
+        """ Where we do want a metalink (precise), we copy up an old one. """
+        self.config["DIST"] = "precise"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        publish_pending = os.path.join(publisher.publish_base, "pending")
+        touch(os.path.join(
+            publish_pending, "%s-desktop-amd64.iso" % self.config.series))
+        touch(os.path.join(
+            publish_pending, "%s-desktop-amd64.metalink" % self.config.series))
+        publisher.new_publish_dir("20130319")
+        self.assertCountEqual(
+            ["%s-desktop-amd64.iso" % self.config.series,
+             "%s-desktop-amd64.metalink" % self.config.series],
+            os.listdir(os.path.join(publisher.publish_base, "20130319")))
+
+    @mock.patch("subprocess.call", return_value=0)
+    @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
     def test_polish_directory(self, mock_make_web_indices, mock_call):
         publisher = self.make_publisher("ubuntu", "daily-live")
         target_dir = os.path.join(publisher.publish_base, "20130320")

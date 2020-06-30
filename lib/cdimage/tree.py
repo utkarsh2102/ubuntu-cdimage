@@ -1883,6 +1883,9 @@ class DailyTreePublisher(Publisher):
             publish_previous = os.path.join(publish_base, previous_name)
             if os.path.exists(publish_previous):
                 for name in sorted(os.listdir(publish_previous)):
+                    if name.endswith('.metalink') and \
+                       not self.want_metalink(self.publish_type):
+                        continue
                     if name.startswith("%s-" % self.config.series):
                         os.link(
                             os.path.join(publish_previous, name),
