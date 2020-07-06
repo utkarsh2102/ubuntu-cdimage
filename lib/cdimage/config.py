@@ -185,14 +185,14 @@ all_series.extend([
     Series("wily", "15.10", "Wily Werewolf"),
     Series(
         "xenial", "16.04", "Xenial Xerus",
-        pointversion="16.04.6",
+        pointversion="16.04.7",
         all_lts_projects=True),
     Series("yakkety", "16.10", "Yakkety Yak"),
     Series("zesty", "17.04", "Zesty Zapus"),
     Series("artful", "17.10", "Artful Aardvark"),
     Series(
         "bionic", "18.04", "Bionic Beaver",
-        pointversion="18.04.4",
+        pointversion="18.04.5",
         all_lts_projects=True),
     Series("cosmic", "18.10", "Cosmic Cuttlefish"),
     Series("disco", "19.04", "Disco Dingo"),
@@ -200,8 +200,9 @@ all_series.extend([
         "eoan", "19.10", "Eoan Ermine",
         pointversion="19.10.1"),
     Series(
-         "focal", "20.04", "Focal Fossa",
-         all_lts_projects=True),
+        "focal", "20.04", "Focal Fossa",
+        pointversion="20.04.1",
+        all_lts_projects=True),
     Series("groovy", "20.10", "Groovy Gorilla"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
