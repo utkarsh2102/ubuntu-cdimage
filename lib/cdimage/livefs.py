@@ -835,7 +835,7 @@ def download_live_filesystems(config):
                 continue
 
             if (project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                                "kubuntu-active") and
+                                "ubuntu-appliance", "kubuntu-active") and
                     (project != "edubuntu" or series >= "precise") and
                     (project != "ubuntukylin" or series <= "trusty")):
                 if series <= "trusty":
@@ -859,7 +859,8 @@ def download_live_filesystems(config):
             if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
                                "edubuntu"):
                 download_live_items(config, arch, "usb-creator")
-            if project == "ubuntu-core" and config["CDIMAGE_LIVE"]:
+            if (project in ("ubuntu-core", "ubuntu-appliance") and
+                    config["CDIMAGE_LIVE"]):
                 download_live_items(config, arch, "model-assertion")
 
         if not got_image:

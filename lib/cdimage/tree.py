@@ -386,7 +386,7 @@ class Publisher:
                 return "netbook"
             elif self.project == "ubuntu-server":
                 return "live-server"
-            elif self.project == "ubuntu-core":
+            elif self.project in ("ubuntu-core", "ubuntu-appliance"):
                 return "live-core"
             else:
                 return "desktop"
@@ -717,6 +717,21 @@ class Publisher:
                 "https://wiki.ubuntu.com/Core", "Ubuntu Core wiki page",
                 show_class=True)
             sentences.append("See the %s for more information." % link)
+        elif publish_type == "ubuntu-appliance":
+            sentences.append(
+                "An Ubuntu Appliance turns a computer into a specialised "
+                "appliance for home or work. It is a system disk image for a "
+                "PC or Raspberry Pi, built for security and simplicity.")
+            sentences.append(
+                "Ubuntu Appliances have strong privacy policies and long term "
+                "security maintenance guarantees. They are published by "
+                "companies and open source communities, who follow the Ubuntu "
+                "code of conduct and appliance guidelines, together with "
+                "Canonical, the publisher of Ubuntu.")
+            link = Link(
+                "https://ubuntu.com/appliance", "Ubuntu Appliance page",
+                show_class=True)
+            sentences.append("See the %s for more information." % link)
         elif publish_type == "wubi":
             sentences.append(
                 "This is a filesystem image downloaded by Wubi (a system "
@@ -982,7 +997,7 @@ class Publisher:
         full_project = "-".join(full_project_bits)
         series = self.config["DIST"]
 
-        if self.project == "ubuntu-core":
+        if self.project in ("ubuntu-core", "ubuntu-appliance"):
             channel = self.config.get("CHANNEL", "edge")
             heading = "%s %s (%s)" % (
                 self.config.capproject, self.config.core_series, channel)
@@ -1754,7 +1769,7 @@ class DailyTreePublisher(Publisher):
 
     @property
     def image_type_dir(self):
-        if (self.config.project == "ubuntu-core" and
+        if (self.config.project in ("ubuntu-core", "ubuntu-appliance") and
                 self.image_type == 'daily-live'):
             channel = self.config.get("CHANNEL", "edge")
             return os.path.join(self.config.core_series, channel)
@@ -2289,7 +2304,7 @@ class DailyTreePublisher(Publisher):
             if (entry.startswith("%s-" % self.config.series) or
                 (self.config.subproject == "wubi" and
                  entry.endswith(".tar.xz")) or
-                (self.config.project == "ubuntu-core" and
+                (self.config.project in ("ubuntu-core", "ubuntu-appliance") and
                  self.image_type == "daily-live" and
                  entry.endswith(".img.xz"))):
                 images.add(entry)

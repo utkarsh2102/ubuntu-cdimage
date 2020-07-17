@@ -46,6 +46,7 @@ project_map = {
     "ubuntu-mate": "Ubuntu-MATE",
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu Core",
+    "ubuntu-appliance": "Ubuntu Appliance",
     "ubuntu-base": "Ubuntu-Base",
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "ubuntu-touch": "Ubuntu Touch",
