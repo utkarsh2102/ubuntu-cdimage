@@ -193,6 +193,11 @@ class TestLiveProject(TestCase):
             self.assertProjectEqual(
                 "ubuntustudio-dvd", "ubuntustudio", series, cdimage_dvd="1")
 
+    def test_ubuntu_appliance(self):
+        # We currently only support ubuntu-appliances for bionic (UC18)
+        self.assertProjectEqual(
+            "ubuntu-core", "ubuntu-appliance", "bionic")
+
 
 def make_livefs_production_config(config):
     config_path = os.path.join(config.root, "production", "livefs-builders")

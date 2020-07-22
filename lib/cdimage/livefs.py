@@ -143,6 +143,8 @@ def live_project(config, arch):
     elif (project == "ubuntu-server" and
           config.image_type == "daily-preinstalled"):
         liveproject = "ubuntu-cpc"
+    elif project == "ubuntu-appliance":
+        liveproject = "ubuntu-core"
     else:
         liveproject = project
 
@@ -857,7 +859,7 @@ def download_live_filesystems(config):
                             "Install %s" % autorun_project)
 
             if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                               "edubuntu"):
+                               "ubuntu-appliance", "edubuntu"):
                 download_live_items(config, arch, "usb-creator")
             if (project in ("ubuntu-core", "ubuntu-appliance") and
                     config["CDIMAGE_LIVE"]):
