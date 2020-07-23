@@ -19,11 +19,11 @@ export IMAGE_FORMAT
 DIST="${DIST:-groovy}"
 
 case $DIST in
-	trusty)
+	trusty|focal|xenial) # XXX: xenial is temporary
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
-	xenial|bionic|focal) # XXX: xenial is temporary
+	bionic)
 		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
