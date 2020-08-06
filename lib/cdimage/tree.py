@@ -2995,6 +2995,8 @@ class ReleasePublisher(Publisher):
         command.extend([
             "--comment",
             "%s CD %s" % (self.config.capproject, self.tree.site_name),
+            "--output",
+            "%s.torrent" % path,
             path,
         ])
         if self.dry_run:
