@@ -51,6 +51,5 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 */15 * * * *	mirror-image-build-logs
 
 # Self-rebuilds
-*/5 * * * *	rebuild-requests -b -q bionic iso
 */5 * * * *	rebuild-requests -b -q focal iso
 */5 * * * *	rebuild-requests -b -q groovy iso
