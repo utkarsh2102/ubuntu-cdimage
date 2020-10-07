@@ -1790,7 +1790,12 @@ class DailyTreePublisher(Publisher):
             # Ubuntu Studio is always DVD-sized for now.
             return 4700372992
         elif self.project in ("kubuntu", "kubuntu-active"):
-            if self.config["DIST"] >= "xenial":
+            # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
+            if self.config["DIST"] >= "focal":
+                return 4 * 1024 * 1024 * 1024
+            elif self.config["DIST"] >= "bionic":
+                return int(2.1 * 1024 * 1024 * 1024)
+            elif self.config["DIST"] >= "xenial":
                 # Per https://lists.ubuntu.com/archives/
                 # ... ubuntu-release/2016-May/003749.html
                 return 2 * 1000 * 1000 * 1000
@@ -1823,6 +1828,10 @@ class DailyTreePublisher(Publisher):
                 return 1.2 * 1000 * 1000 * 1000
         elif self.project == "ubuntu-mate" and self.config["DIST"] >= "focal":
             return int(2.8 * 1000 * 1000 * 1000)
+        elif (self.project == "ubuntu-budgie" and
+              self.config["DIST"] >= "focal"):
+            # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
+            return 4 * 1024 * 1024 * 1024
         elif (self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
                                "ubuntu-gnome", "ubuntu-mate") and
               self.config["DIST"] >= "xenial"):
