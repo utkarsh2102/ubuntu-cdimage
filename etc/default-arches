@@ -40,7 +40,7 @@ ubuntu			daily-live		xenial			amd64 i386
 ubuntu			daily-live		bionic-eoan		amd64
 ubuntu			daily-live		focal-			amd64 arm64
 
-ubuntu			daily-preinstalled	groovy-			arm64+raspi
+ubuntu-desktop-preinstalled daily-preinstalled	groovy-			arm64+raspi
 
 ubuntu-gnome		*			*			amd64 i386
 
