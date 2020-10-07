@@ -413,7 +413,7 @@ def build_livecd_base(config):
     log_marker("Downloading live filesystem images")
     download_live_filesystems(config)
 
-    if (config.project in ("ubuntu-server") and
+    if (config.project in ("ubuntu-server", ) and
             config.image_type == "daily-preinstalled"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
@@ -427,6 +427,27 @@ def build_livecd_base(config):
             rootfs = "%s.disk1.img.xz" % (live_prefix)
             output_prefix = os.path.join(output_dir,
                                          "%s-preinstalled-server-%s" %
+                                         (config.series, arch))
+            with open("%s.type" % output_prefix, "w") as f:
+                print("EXT4 Filesystem Image", file=f)
+            shutil.copy2(rootfs, "%s.raw" % output_prefix)
+            shutil.copy2(
+                "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
+
+    if (config.project in ("ubuntu", ) and
+            config.image_type == "daily-preinstalled"):
+        log_marker("Copying images to debian-cd output directory")
+        scratch_dir = os.path.join(
+            config.root, "scratch", config.project, config.full_series,
+            config.image_type)
+        live_dir = os.path.join(scratch_dir, "live")
+        for arch in config.arches:
+            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+            osextras.ensuredir(output_dir)
+            live_prefix = os.path.join(live_dir, arch)
+            rootfs = "%s.img.xz" % (live_prefix)
+            output_prefix = os.path.join(output_dir,
+                                         "%s-preinstalled-desktop-%s" %
                                          (config.series, arch))
             with open("%s.type" % output_prefix, "w") as f:
                 print("EXT4 Filesystem Image", file=f)
@@ -614,7 +635,7 @@ def fix_permissions(config):
             fix_file(os.path.join(dirpath, filename))
 
 
-def notify_failure(config, log_path):
+ log_path):
     if config["DEBUG"] or config["CDIMAGE_NOLOG"]:
         return
 
@@ -651,7 +672,7 @@ def is_live_fs_only(config):
             "livecd-base", "ubuntu-base", "ubuntu-core", "ubuntu-appliance",
             "ubuntu-touch"):
         live_fs_only = True
-    elif (config.project == "ubuntu-server" and
+    elif (config.project in ("ubuntu", "ubuntu-server") and
           config.image_type == "daily-preinstalled"):
         live_fs_only = True
     elif config.subproject == "wubi":
