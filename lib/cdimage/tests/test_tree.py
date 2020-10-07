@@ -2225,6 +2225,17 @@ class TestReleasePublisherMixin:
         self.assertEqual(
             path, publisher.daily_dir("daily", "20130327", "alternate"))
 
+    def test_daily_dir_preinstalled(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["SUBPROJECT"] = "desktop-preinstalled"
+        publisher = self.get_publisher()
+        path = os.path.join(self.temp_dir, "www", "full", "ubuntu", "daily-preinstalled", "20130327")
+        os.makedirs(path)
+        self.assertEqual(
+            path, publisher.daily_dir("ubuntu",
+                                      "ubuntu/daily-preinstalled/20130327",
+                                      "daily-preinstalled"))
+
     def test_daily_dir_path_in_date(self):
         self.config["PROJECT"] = "ubuntu"
         self.assertEqual(

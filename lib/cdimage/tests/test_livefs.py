@@ -153,6 +153,9 @@ class TestSplitArch(TestCase):
     def test_amd64_mac(self):
         self.assertEqual(("amd64", ""), split_arch("amd64+mac"))
 
+    def test_arm64_raspi(self):
+        self.assertEqual(("arm64", "raspi"), split_arch("arm64+raspi"))
+
     def test_armhf_omap4(self):
         self.assertEqual(("armhf", "omap4"), split_arch("armhf+omap4"))
 
