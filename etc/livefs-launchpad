@@ -3,7 +3,7 @@
 # Like etc/default-arches, "PROJECT" is in fact PROJECT[-SUBPROJECT][-LOCALE].
 
 ubuntu			daily-live		*		*		ubuntu-cdimage/ubuntu
-ubuntu-desktop-preinstalled daily-preinstalled	groovy-		*		ubuntu-cdimage/ubuntu
+ubuntu-desktop-preinstalled daily-preinstalled	groovy-		*		ubuntu-cdimage/ubuntu-preinstalled
 ubuntu-canary			daily-live		*		*		ubuntu-cdimage/ubuntu-canary
 kubuntu			daily-live		*		*		ubuntu-cdimage/kubuntu
 edubuntu		dvd			*		*		ubuntu-cdimage/edubuntu
