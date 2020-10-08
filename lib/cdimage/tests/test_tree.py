@@ -2229,7 +2229,9 @@ class TestReleasePublisherMixin:
         self.config["PROJECT"] = "ubuntu"
         self.config["SUBPROJECT"] = "desktop-preinstalled"
         publisher = self.get_publisher()
-        path = os.path.join(self.temp_dir, "www", "full", "ubuntu", "daily-preinstalled", "20130327")
+        path = os.path.join(
+            self.temp_dir, "www", "full", "ubuntu", "daily-preinstalled",
+            "20130327")
         os.makedirs(path)
         self.assertEqual(
             path, publisher.daily_dir("ubuntu",
