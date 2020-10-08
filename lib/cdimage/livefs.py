@@ -783,7 +783,7 @@ def download_live_filesystems(config):
         got_image = False
         for arch in config.arches:
             if config["CDIMAGE_PREINSTALLED"]:
-                if project in ("ubuntu", "ubuntu-server"):
+                if project in ("ubuntu-server", ):
                     if download_live_items(config, arch, "disk1.img.xz"):
                         got_image = True
                     else:
