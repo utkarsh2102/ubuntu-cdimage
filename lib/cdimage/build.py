@@ -635,7 +635,7 @@ def fix_permissions(config):
             fix_file(os.path.join(dirpath, filename))
 
 
- log_path):
+def notify_failure(config, log_path):
     if config["DEBUG"] or config["CDIMAGE_NOLOG"]:
         return
 
