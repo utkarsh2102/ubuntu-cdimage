@@ -733,6 +733,8 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "trusty", "daily-live", "powerpc", 1200000000),
             ("ubuntu", "xenial", "daily-live", "i386", 2000000000),
             ("ubuntu", "focal", "daily-live", "amd64", 2800000000),
+            ("ubuntu", "groovy", "daily-live", "amd64", 3221225472),
+            ("ubuntukylin", "groovy", "daily-live", "amd64", 4294967296),
             ("xubuntu", "xenial", "daily-live", "i386", 2000000000),
             ("ubuntu-gnome", "trusty", "daily-live", "i386", 1073741824),
             ("ubuntu-gnome", "xenial", "daily-live", "i386", 2000000000),

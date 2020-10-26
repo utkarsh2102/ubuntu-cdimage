@@ -1804,10 +1804,13 @@ class DailyTreePublisher(Publisher):
         elif (self.project in ("ubuntu", "ubuntukylin") and
               self.publish_type != "dvd" and
               self.config["DIST"] >= "trusty"):
-            if (self.config["DIST"] >= "groovy" and
-                    self.project == "ubuntukylin"):
-                # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
-                return 4 * 1024 * 1024 * 1024
+            if self.config["DIST"] >= "groovy":
+                if self.project == "ubuntukylin":
+                    # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
+                    return 4 * 1024 * 1024 * 1024
+                else:  # ubuntu
+                    # mail to internal Desktop team list, 2020-10-13, acked by seb128
+                    return 3 * 1024 * 1024 * 1024
             elif self.config["DIST"] >= "focal":
                 # laney. as of focal we include two kernels on the ISO which
                 # increases its size
