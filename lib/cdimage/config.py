@@ -204,6 +204,7 @@ all_series.extend([
         pointversion="20.04.1",
         all_lts_projects=True),
     Series("groovy", "20.10", "Groovy Gorilla"),
+    Series("hirsute", "21.04", "Hirsute HANIMAL"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
