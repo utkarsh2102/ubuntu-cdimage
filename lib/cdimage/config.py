@@ -450,8 +450,10 @@ class Config(defaultdict):
             return '16'
         if self["DIST"] >= "bionic" and self["DIST"] <= "eoan":
             return '18'
-        if self["DIST"] >= "focal":
+        if self["DIST"] == "focal":
             return '20'
+        if self["DIST"] >= "groovy":
+            return '22'
         return None
 
     def export(self):
