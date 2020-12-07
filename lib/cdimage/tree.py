@@ -777,6 +777,7 @@ class Publisher:
         "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
         "powerpc+ps3": "PlayStation 3",
         "ppc64el": "PowerPC64 Little-Endian",
+        "riscv64": "RISC-V",
         "s390x": "IBM System z",
         "sparc": "SPARC",
     }
@@ -875,6 +876,9 @@ class Publisher:
             sentences.append(
                 "For POWER8 Little-Endian computers, such as Power Systems "
                 "S8xxL/LC Linux-only servers.")
+        elif arch == "riscv64":
+            sentences.append(
+                "For RISC-V computers, such as SiFive HiFive Unleashed.")
         elif arch == "s390x":
             sentences.append(
                 "For IBM System z series mainframes, such as IBM LinuxONE.")
@@ -1117,6 +1121,7 @@ class Publisher:
             "ppc64el",
             "hppa",
             "ia64",
+            "riscv64",
             "s390x",
             "sparc",
         )
