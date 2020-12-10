@@ -971,6 +971,12 @@ class TestLiveItemPaths(TestCase):
                  "livecd.ubuntu-core-raspi2.%s" % item],
                 "armhf+raspi2", item, "ubuntu-core", "xenial")
 
+    def test_qcow(self):
+        self.assertPathsEqual(
+            ["http://kapok.buildd/~buildd/LiveCD/focal/ubuntu-core/"
+             "current/livecd.ubuntu-core.qcow2"],
+            "amd64", "qcow2", "ubuntu-core", "focal")
+
     def test_kernel_items(self):
         for item in ("kernel", "initrd", "bootimg"):
             root = "http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/current"
