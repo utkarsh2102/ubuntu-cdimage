@@ -590,7 +590,7 @@ def live_item_paths(config, arch, item):
         "azure.device.tar.gz", "raspi2.device.tar.gz", "plano.device.tar.gz",
         "tar.xz", "iso", "os.snap", "kernel.snap", "disk1.img.xz",
         "dragonboard.kernel.snap", "raspi2.kernel.snap",
-        "img.xz", "model-assertion"
+        "img.xz", "model-assertion", "qcow2"
     ):
         if item == "ext4" and arch == "armhf+nexus7":
             for url in urls_for(
@@ -877,6 +877,8 @@ def download_live_filesystems(config):
             if (project in ("ubuntu-core", "ubuntu-appliance") and
                     config["CDIMAGE_LIVE"]):
                 download_live_items(config, arch, "model-assertion")
+            if project == "ubuntu-appliance":
+                download_live_items(config, arch, "qcow2")
 
         if not got_image:
             raise NoFilesystemImages("No filesystem images found.")

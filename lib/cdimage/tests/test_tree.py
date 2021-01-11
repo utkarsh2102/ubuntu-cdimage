@@ -925,11 +925,14 @@ class TestDailyTreePublisher(TestCase):
         touch(os.path.join(
             source_dir,
             "%s-live-core-amd64.model-assertion" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-live-core-amd64.qcow2" % self.config.series))
         self.capture_logging()
         list(publisher.publish_binary("live-core", "amd64", "20170429"))
         self.assertLogEqual([
             "Publishing amd64 ...",
             "Publishing amd64 model assertion ...",
+            "Publishing amd64 qcow2 image ...",
             "Making amd64 zsync metafile ...",
         ])
         target_dir = os.path.join(publisher.publish_base, "20170429")
@@ -937,6 +940,7 @@ class TestDailyTreePublisher(TestCase):
         self.assertCountEqual([
             "ubuntu-core-18-amd64.img.xz",
             "ubuntu-core-18-amd64.model-assertion",
+            "ubuntu-core-18-amd64.qcow2",
         ], os.listdir(target_dir))
 
     def test_publish_livecd_base(self):

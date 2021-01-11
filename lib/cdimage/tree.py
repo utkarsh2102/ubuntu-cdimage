@@ -2124,6 +2124,13 @@ class DailyTreePublisher(Publisher):
                 "%s.model-assertion" % source_prefix,
                 "%s.model-assertion" % target_prefix)
 
+        # appliance qcow2 images (for LXD/multipass consumption)
+        if os.path.exists("%s.qcow2" % source_prefix):
+            logger.info("Publishing %s qcow2 image ..." % arch)
+            shutil.move(
+                "%s.qcow2" % source_prefix,
+                "%s.qcow2" % target_prefix)
+
         # zsync metafiles
         if osextras.find_on_path("zsyncmake"):
             logger.info("Making %s zsync metafile ..." % arch)

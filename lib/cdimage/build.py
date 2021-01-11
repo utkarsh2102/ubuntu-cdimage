@@ -478,6 +478,11 @@ def build_livecd_base(config):
             shutil.copy2(
                 "%s.model-assertion" % live_prefix,
                 "%s.model-assertion" % output_prefix)
+            # qcow2 images for appliances are optional
+            live_qcow2 = "%s.qcow2" % live_prefix
+            if os.path.exists(live_qcow2):
+                shutil.copy2(
+                    live_qcow2, "%s.qcow2" % output_prefix)
 
     if (config.project in ("ubuntu-base", "ubuntu-touch") or
         (config.project == "ubuntu-core" and
