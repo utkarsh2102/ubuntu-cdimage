@@ -877,7 +877,7 @@ def download_live_filesystems(config):
             if (project in ("ubuntu-core", "ubuntu-appliance") and
                     config["CDIMAGE_LIVE"]):
                 download_live_items(config, arch, "model-assertion")
-            if (project == "ubuntu-appliance" and arch == "amd64"):
+            if project == "ubuntu-appliance":
                 download_live_items(config, arch, "qcow2")
 
         if not got_image:
