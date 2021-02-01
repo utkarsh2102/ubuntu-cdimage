@@ -23,8 +23,8 @@ case $DIST in
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
-	focal)
-		PROPOSED="${PROPOSED:-1}"
+	focal) # sil2100: switched for 20.04.2
+		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
 esac
