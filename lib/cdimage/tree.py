@@ -1874,8 +1874,11 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-server":
-            # email with powersj, 20200108
-            if self.config["DIST"] >= "bionic":
+            if self.config["DIST"] >= "focal":
+                # Size bump due to HWE kernel inclusion in the images
+                return 1.3 * 1000 * 1000 * 1000
+            elif self.config["DIST"] >= "bionic":
+                # email with powersj, 20200108
                 return 1.2 * 1000 * 1000 * 1000
             elif self.config["DIST"] >= "xenial":
                 return 1024 * 1024 * 1024
