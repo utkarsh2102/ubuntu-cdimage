@@ -1,6 +1,7 @@
 # PROJECT		IMAGE_TYPE		DIST			ARCHES
 # Put more specific matches first.
 
+*			source			focal-			amd64
 *			source			*			i386
 
 ubuntu-touch		daily-preinstalled	trusty			armhf i386
