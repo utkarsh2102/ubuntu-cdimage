@@ -24,8 +24,7 @@ case $DIST in
 		export PROPOSED
 		;;
 	focal)
-		# sil2100: We might be respinning .2
-		PROPOSED="${PROPOSED:-0}"
+		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
 esac
