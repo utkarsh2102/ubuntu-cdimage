@@ -17,7 +17,7 @@
 
 """Unit tests for cdimage.mirror."""
 
-from __future__ import print_function
+from __future__ import print_function, with_statement
 
 import os
 
@@ -224,3 +224,11 @@ class TestTriggerMirrors(TestCase):
             mock.call(
                 self.config, key, "archvsync", "bar-async", background=True),
         ])
+
+    @mock.patch("cdimage.mirror._trigger_mirror")
+    def test_no_trigger_mirrors_when_stopped(self, mock_trigger_mirror):
+        self.configure_triggers()
+        os.mkdir(os.path.join(self.config.root, "etc"))
+        with open(os.path.join(self.config.root, "etc", "STOP_SYNC_MIRRORS"), "w"):
+            trigger_mirrors(self.config)
+            mock_trigger_mirror.assert_not_called()
