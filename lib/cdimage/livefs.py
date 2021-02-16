@@ -83,7 +83,8 @@ def split_arch(arch):
         # boards, thus specify subarch for livefs build. However, we
         # don't want +subarch in the published image names. Hence
         # default-arches does not specify anything.
-        # TODO add support to specify the above via image_format metadata_override.
+        # TODO add support to specify the above via image_format
+        # metadata_override.
         subarch = "hifive"
 
     return cpuarch, subarch

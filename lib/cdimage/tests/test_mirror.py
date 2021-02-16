@@ -229,6 +229,7 @@ class TestTriggerMirrors(TestCase):
     def test_no_trigger_mirrors_when_stopped(self, mock_trigger_mirror):
         self.configure_triggers()
         os.mkdir(os.path.join(self.config.root, "etc"))
-        with open(os.path.join(self.config.root, "etc", "STOP_SYNC_MIRRORS"), "w"):
+        with open(os.path.join(self.config.root, "etc", "STOP_SYNC_MIRRORS"),
+                  "w"):
             trigger_mirrors(self.config)
             mock_trigger_mirror.assert_not_called()
