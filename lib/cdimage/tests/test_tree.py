@@ -2505,9 +2505,11 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         command_base = [
             "mktorrent", "-a", "https://torrent.ubuntu.com/announce",
             "--comment", "Ubuntu CD cdimage.ubuntu.com",
+            "--output",
         ]
         mock_check_call.assert_has_calls([
-            mock.call(command_base + [path], stdout=mock.ANY)
+            mock.call(command_base + ["%s.torrent" % path, path],
+                      stdout=mock.ANY)
             for path in paths])
 
     def test_publish_release_prefixes(self):
@@ -2570,6 +2572,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             mock.call([
                 "mktorrent", mock.ANY, mock.ANY,
                 "--comment", "Ubuntu CD cdimage.ubuntu.com",
+                "--output", "%s.iso.torrent" % target_base,
                 "%s.iso" % target_base,
             ], stdout=mock.ANY),
         ])
@@ -2621,6 +2624,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         mock_call.assert_called_once_with([
             "mktorrent", mock.ANY, mock.ANY,
             "--comment", "Ubuntu CD cdimage.ubuntu.com",
+            "--output", "%s.iso.torrent" % target_base,
             "%s.iso" % target_base,
         ], stdout=mock.ANY)
         self.assertCountEqual([
@@ -2796,9 +2800,11 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "-a", "https://torrent.ubuntu.com/announce",
             "-a", "https://ipv6.torrent.ubuntu.com/announce",
             "--comment", "Ubuntu CD releases.ubuntu.com",
+            "--output",
         ]
         mock_check_call.assert_has_calls([
-            mock.call(command_base + [path], stdout=mock.ANY)
+            mock.call(command_base + ["%s.torrent" % path, path],
+                      stdout=mock.ANY)
             for path in paths])
 
     def test_publish_release_prefixes(self):
@@ -2876,7 +2882,8 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
                 "-a", mock.ANY,
                 "-a", mock.ANY,
                 "--comment", "Ubuntu CD releases.ubuntu.com",
-                "%s.iso" % target_base,
+                "--output", "%s.iso.torrent" % target_base,
+                "%s.iso" % target_base
             ], stdout=mock.ANY),
         ])
         self.assertCountEqual([
