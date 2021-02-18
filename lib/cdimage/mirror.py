@@ -117,6 +117,14 @@ def _trigger_mirror(config, key, user, host, background=False):
 
 
 def trigger_mirrors(config):
+    paths = [
+        os.path.join(config.root, "production", "STOP_SYNC_MIRRORS"),
+        os.path.join(config.root, "etc", "STOP_SYNC_MIRRORS"),
+    ]
+    for path in paths:
+        if os.path.exists(path):
+            return
+
     check_manifest(config)
 
     key = _get_mirror_key(config)
