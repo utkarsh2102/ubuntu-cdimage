@@ -392,6 +392,8 @@ class Publisher:
                 return "desktop"
         elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
             return "dvd"
+        elif self.image_type == "daily-canary":
+            return "desktop-canary"
         else:
             if self.project == "edubuntu":
                 return "addon"
@@ -420,6 +422,8 @@ class Publisher:
                 "addon", "alternate", "base", "install", "server",
                 "legacy-server"):
             return "daily"
+        elif publish_type == "desktop-canary":
+            return "daily-canary"
         else:
             return None
 
@@ -473,6 +477,8 @@ class Publisher:
             return "Ubuntu Core %s" % cd
         elif publish_type == "desktop":
             return "desktop %s" % cd
+        elif publish_type == "desktop-canary":
+            return "canary desktop %s" % cd
         elif publish_type == "install":
             return "install %s" % cd
         elif publish_type == "alternate":
@@ -551,7 +557,7 @@ class Publisher:
                 "The live %s allows you to try %s without changing your "
                 "computer at all, and at your option to install it "
                 "permanently later.</p>" % (cd, capproject))
-        elif publish_type == "desktop":
+        elif publish_type in ("desktop", "desktop-canary"):
             sentences.append(
                 "The desktop %s allows you to try %s without changing your "
                 "computer at all, and at your option to install it "
@@ -561,6 +567,10 @@ class Publisher:
                     "This type of %s is what most people will want to use." %
                     cd)
                 self.prefmsg_emitted = True
+            if publish_type == "desktop-canary":
+                sentences.append(
+                    "This type of %s is experimental." %
+                    cd)
             sentences.append(desktop_req)
             if self.project == "edubuntu":
                 sentences.append(
@@ -1106,6 +1116,7 @@ class Publisher:
             "preinstalled-server",
             "preinstalled-touch", "preinstalled-core", "wubi",
             "live-core",
+            "desktop-canary",
         )
 
         all_arches = (
@@ -3160,7 +3171,7 @@ class ReleasePublisher(Publisher):
 
     def want_manifest(self, publish_type, path):
         if publish_type in (
-            "live", "desktop", "netbook",
+            "live", "desktop", "desktop-canary", "netbook",
             "uec", "server-uec", "core", "wubi", "server", "live-server",
             "legacy-server",
         ):

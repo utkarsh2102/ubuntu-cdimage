@@ -28,6 +28,11 @@ the following scripts, which may be called by hand:
 
     Build live CDs for all relevant Ubuntu architectures.
 
+  * cron.daily-canary
+
+    Build live CDs of the experimental canary layout for all relevant
+    Ubuntu architectures.
+
   * cron.dvd
 
     Build DVDs for all relevant Ubuntu architectures.  These are normally
