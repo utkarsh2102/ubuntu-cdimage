@@ -1,0 +1,43 @@
+#! /usr/bin/python3
+
+# Copyright (C) 2021 Canonical Ltd.
+# Author: Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Build a set of desktop canary images."""
+
+from optparse import OptionParser
+import os
+import sys
+
+sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
+
+
+def main():
+    from cdimage.build import build_image_set
+    from cdimage.config import Config
+
+    parser = OptionParser("%prog")
+    parser.add_option(
+        "--live", default=False, action="store_true",
+        help="build live filesystems first")
+    options, _ = parser.parse_args()
+    config = Config(IMAGE_TYPE="daily-canary")
+    config["CDIMAGE_LIVE"] = "1"
+    if not build_image_set(config, options):
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
