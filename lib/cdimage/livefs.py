@@ -78,14 +78,17 @@ def split_arch(arch):
         subarch = ""
 
     if cpuarch == "riscv64":
-        # ubuntu-cpc project needs to know that disk1.img.xz is needed
-        # instead of qcow2; and that it should add uboot for hifive
-        # boards, thus specify subarch for livefs build. However, we
-        # don't want +subarch in the published image names. Hence
-        # default-arches does not specify anything.
-        # TODO add support to specify the above via image_format
-        # metadata_override.
-        subarch = "hifive"
+        # need to specify subarch to get raw.xz instead of qcow2
+        # originally, no subarch was the unleashed image. Add support
+        # for user-friendly subarch names and translate them to u-boot
+        # target names for livecd-rootfs maybe the two will be able to
+        # merge but at the moment, they are very different SOCs.
+        if subarch == "":
+            subarch = "hifive"  # for focal
+        elif subarch == "unleashed":
+            subarch = "sifive_fu540"
+        elif subarch == "unmatched":
+            subarch = "sifive_hifive_unmatched_fu740"
 
     return cpuarch, subarch
 

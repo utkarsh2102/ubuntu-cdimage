@@ -57,7 +57,7 @@ ubuntu-server		daily-preinstalled	cosmic-disco			armhf+raspi2 armhf+raspi3 arm64
 ubuntu-server		daily-preinstalled	eoan			armhf+raspi3 arm64+raspi3
 ubuntu-server		daily-preinstalled	focal			armhf+raspi arm64+raspi riscv64
 ubuntu-server		daily-preinstalled	groovy			armhf+raspi arm64+raspi
-ubuntu-server		daily-preinstalled	hirsute			armhf+raspi arm64+raspi riscv64
+ubuntu-server		daily-preinstalled	hirsute			armhf+raspi arm64+raspi riscv64+unleashed riscv64+unmatched
 ubuntu-server		*			precise			amd64 i386
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
 ubuntu-server		*			xenial			amd64 arm64 i386 powerpc ppc64el s390x
