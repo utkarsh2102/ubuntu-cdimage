@@ -1,7 +1,10 @@
 # PROJECT		IMAGE_TYPE		DIST			ARCHES
 # Put more specific matches first.
 
-*			source			focal-			amd64
+# This is not yet ready as debian-cd has tons of i386 conditionals in the
+# source image code paths. We first need to fix that before we can
+# really use amd64 here.
+# *			source			focal-			amd64
 *			source			*			i386
 
 ubuntu-touch		daily-preinstalled	trusty			armhf i386
