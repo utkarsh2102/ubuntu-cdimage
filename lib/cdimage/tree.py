@@ -1137,7 +1137,7 @@ class Publisher:
             "ppc64el",
             "hppa",
             "ia64",
-            "riscv64",
+            "riscv64", "riscv64+unleashed", "riscv64+unmatched",
             "s390x",
             "sparc",
         )
