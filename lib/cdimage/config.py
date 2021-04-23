@@ -205,6 +205,7 @@ all_series.extend([
         all_lts_projects=True),
     Series("groovy", "20.10", "Groovy Gorilla"),
     Series("hirsute", "21.04", "Hirsute Hippo"),
+    Series("impish", "21.10", "Impish Indri"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
