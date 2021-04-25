@@ -449,12 +449,11 @@ class Publisher:
         vanilla = "https://assets.ubuntu.com/v1/" + \
                   "vanilla-framework-version-1.8.0.min.css"
         if self.project == "kubuntu":
-            return ["//releases.ubuntu.com/include/kubuntu.css"]
-        if self.project in ("lubuntu", "lubuntu-next"):
-            return ["//cdimage.ubuntu.com/include/lubuntu/style.css"]
-        if self.project == "xubuntu":
-            return [vanilla,
-                    "//cdimage.ubuntu.com/include/xubuntu/style.css"]
+            return [vanilla, "//cdimage.ubuntu.com/include/kubuntu/style.css"]
+        elif self.project in ("lubuntu", "lubuntu-next"):
+            return [vanilla, "//cdimage.ubuntu.com/include/lubuntu/style.css"]
+        elif self.project == "xubuntu":
+            return [vanilla, "//cdimage.ubuntu.com/include/xubuntu/style.css"]
         else:
             return [vanilla]
 
@@ -1214,31 +1213,29 @@ class Publisher:
                 </style>
                 """), file=header)
             for css in self.cssincludes():
-                print("<link href='%s' rel='stylesheet' "
-                      "type='text/css'>" % css, file=header)
+                print(
+                    '<link rel="stylesheet" type="text/css" '
+                    'href="%s">' % css, file=header)
             if self.project == "kubuntu":
                 print(
-                    "<link "
-                    "href='http://fonts.googleapis.com/css?family=Ubuntu' "
-                    "rel='stylesheet' type='text/css'>", file=header)
+                    '<link rel="shortcut icon" type="image/x-icon" '
+                    'href="//cdimage.ubuntu.com/include/kubuntu/'
+                    'images/favicon.ico">', file=header)
+                header_href = 'https://kubuntu.org/'
+            elif self.project in ("lubuntu", "lubuntu-next"):
                 print(
-                    "<link rel=\"icon\" type=\"image/png\" "
-                    "href=\"http://www.kubuntu.org/themes/kubuntu10.04/"
-                    "favicon.ico\">", file=header)
-            if self.project in ("lubuntu", "lubuntu-next"):
-                print(
-                    "<link rel=\"icon\" type=\"image/png\" "
-                    "href=\"http://cdimage.ubuntu.com/include/lubuntu/"
-                    "favicon.png\" />", file=header)
+                    '<link rel="icon" type="image/png" '
+                    'href="//cdimage.ubuntu.com/include/lubuntu/'
+                    'favicon.png">', file=header)
                 header_href = 'https://lubuntu.me/'
-            if self.project == "xubuntu":
+            elif self.project == "xubuntu":
                 print(
-                    "<link rel=\"icon\" type=\"image/png\" "
-                    "href=\"http://cdimage.ubuntu.com/include/xubuntu/"
-                    "favicon.png\" />", file=header)
+                    '<link rel="icon" type="image/png" '
+                    'href="//cdimage.ubuntu.com/include/xubuntu/'
+                    'favicon.png">', file=header)
                 header_href = 'https://xubuntu.org/'
             else:
-                header_href = 'http://www.ubuntu.com/'
+                header_href = 'https://ubuntu.com/'
 
             print(dedent("""\
             </head>
