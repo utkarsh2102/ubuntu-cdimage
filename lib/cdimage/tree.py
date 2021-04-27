@@ -1235,7 +1235,7 @@ class Publisher:
                     'favicon.png">', file=header)
                 header_href = 'https://xubuntu.org/'
             else:
-                header_href = 'https://ubuntu.com/'
+                header_href = 'http://www.ubuntu.com/'
 
             print(dedent("""\
             </head>
