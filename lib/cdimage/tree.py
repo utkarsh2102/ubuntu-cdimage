@@ -450,9 +450,9 @@ class Publisher:
                   "vanilla-framework-version-1.8.0.min.css"
         if self.project == "kubuntu":
             return [vanilla, "//cdimage.ubuntu.com/include/kubuntu/style.css"]
-        elif self.project in ("lubuntu", "lubuntu-next"):
+        if self.project in ("lubuntu", "lubuntu-next"):
             return [vanilla, "//cdimage.ubuntu.com/include/lubuntu/style.css"]
-        elif self.project == "xubuntu":
+        if self.project == "xubuntu":
             return [vanilla, "//cdimage.ubuntu.com/include/xubuntu/style.css"]
         else:
             return [vanilla]
