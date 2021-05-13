@@ -37,9 +37,6 @@ mv_checksum() {
     source_checksum=$2/SHA256SUMS
     target_checksum=$3/SHA256SUMS
 
-    echo $source_checksum
-    echo $target_checksum
-
     if [ ! -e "$source_checksum" ]; then
         echo "No source SHA256SUM file available, please proceed manually!"
         exit 1
@@ -85,11 +82,12 @@ images_source=$(dirname "$images_arg")
 case $images_source in
     $CDIMAGE_FULL/*)
         # Sanity check
-        if ! echo "$images_source" | grep -q "full\/[a-z-]\+\/releases\/[a-z]\+\/\(beta\|release\)"; then
+        if ! echo "$images_source" | grep -q "full\/[a-z-]*\/\?releases\/[a-z]\+\/\(beta\|release\)"; then
             echo "Not a valid image to archive."
             exit 1
         fi
 
+        # For example:
         # Source /home/cdimage/cdimage/www/full/kubuntu/releases/focal/release
         # Target /home/cdimage/cdimage/old-images/kubuntu/releases/focal/release
         images_dest="$OLD_IMAGES${images_source##$CDIMAGE_FULL}"
@@ -118,8 +116,6 @@ case $images_source in
 
         images_source_pool="$CDIMAGE_SIMPLE/.pool"
 
-        # Source /home/cdimage/cdimage/www/full/kubuntu/releases/focal/release
-        # Target /home/cdimage/cdimage/old-images/kubuntu/releases/focal/release
         images_dest="$OLD_RELEASES${images_source##$CDIMAGE_SIMPLE}"
         images_dest_pool="$OLD_RELEASES${images_source_pool##$CDIMAGE_SIMPLE}"
 
