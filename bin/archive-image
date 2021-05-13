@@ -66,6 +66,9 @@ mv_checksum() {
     sign-cdimage $source_checksum
 }
 
+[ $# -ne 1 ] && usage "Requires exactly one argument."
+[ "$1" == "-h" ] && usage "Helper tool for old image archival."
+
 # Hard-coded directories, make sure those are up-to-date
 CDIMAGE_FULL="/home/cdimage/cdimage/www/full"
 CDIMAGE_SIMPLE="/home/cdimage/cdimage/www/simple"
