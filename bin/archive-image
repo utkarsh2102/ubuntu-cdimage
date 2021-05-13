@@ -70,10 +70,10 @@ mv_checksum() {
 [ "$1" == "-h" ] && usage "Helper tool for old image archival."
 
 # Hard-coded directories, make sure those are up-to-date
-CDIMAGE_FULL="/home/cdimage/cdimage/www/full"
-CDIMAGE_SIMPLE="/home/cdimage/cdimage/www/simple"
-OLD_IMAGES="/home/cdimage/cdimage/old-images"
-OLD_RELEASES="/home/cdimage/cdimage/www/old-releases"
+CDIMAGE_FULL="/srv/cdimage.ubuntu.com/www/full"
+CDIMAGE_SIMPLE="/srv/cdimage.ubuntu.com/www/simple"
+OLD_IMAGES="/srv/cdimage.ubuntu.com/old-images"
+OLD_RELEASES="/srv/cdimage.ubuntu.com/www/old-releases"
 
 images_arg=$(realpath -s $1)
 # Remove .img or .iso suffix, in case it's given
