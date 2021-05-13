@@ -1,0 +1,146 @@
+#!/bin/bash
+
+# Copyright (C) 2020-2021 Canonical Ltd.
+# Author: Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#set -x
+
+usage() {
+    cat <<EOF
+Usage: $0 IMAGE
+$1
+
+IMAGE:
+    The image to archive. This can be either the name of the .iso/.img file
+    or the base name of the image without any extension
+    (e.g. ubuntu-21.04-beta-desktop-amd64).
+    If no absolute path is given, a relative path from the CWD will be used.
+
+EOF
+    exit 1
+}
+
+mv_checksum() {
+    image=$1
+    source_checksum=$2/SHA256SUMS
+    target_checksum=$3/SHA256SUMS
+
+    echo $source_checksum
+    echo $target_checksum
+
+    if [ ! -e "$source_checksum" ]; then
+        echo "No source SHA256SUM file available, please proceed manually!"
+        exit 1
+    fi
+    if [ ! -e "$target_checksum" ]; then
+        echo "No destination SHA256SUM file available, creating a new one. Make sure this is correct."
+        touch $target_checksum
+        # pass
+    fi
+
+    if grep -q "$image" $target_checksum; then
+        echo "Image already present in the target checksum file, please proceed manually!"
+        exit 1
+    fi
+    if ! grep -q "$image" $source_checksum; then
+        echo "Image not present in the source checksum file, please proceed manually!"
+        exit 1
+    fi
+
+    grep "\*$image\." $source_checksum >>$target_checksum
+    grep "\*$image\." -v $source_checksum >$source_checksum.new
+    mv $source_checksum.new $source_checksum
+    sign-cdimage $target_checksum
+    sign-cdimage $source_checksum
+}
+
+# Hard-coded directories, make sure those are up-to-date
+CDIMAGE_FULL="/home/cdimage/cdimage/www/full"
+CDIMAGE_SIMPLE="/home/cdimage/cdimage/www/simple"
+OLD_IMAGES="/home/cdimage/cdimage/old-images"
+OLD_RELEASES="/home/cdimage/cdimage/www/old-releases"
+
+images_arg=$(realpath -s $1)
+# Remove .img or .iso suffix, in case it's given
+images_arg=${images_arg%.iso}
+images_arg=${images_arg%.img}
+images_base=$(basename "$images_arg")
+images_source=$(dirname "$images_arg")
+
+case $images_source in
+    $CDIMAGE_FULL/*)
+        # Sanity check
+        if ! echo "$images_source" | grep -q "full\/[a-z-]\+\/releases\/[a-z]\+\/\(beta\|release\)"; then
+            echo "Not a valid image to archive."
+            exit 1
+        fi
+
+        # Source /home/cdimage/cdimage/www/full/kubuntu/releases/focal/release
+        # Target /home/cdimage/cdimage/old-images/kubuntu/releases/focal/release
+        images_dest="$OLD_IMAGES${images_source##$CDIMAGE_FULL}"
+
+        if [ ! -d "$images_dest" ]; then
+            echo "Destination directory non-existing, creating..."
+            mkdir -p "$images_dest"
+            # pass
+        fi
+
+        echo "Archiving image to old-images..."
+
+        if ! mv $images_arg* "$images_dest"; then
+            echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
+            exit 1
+        fi 
+        mv_checksum $images_base $images_source $images_dest
+        ;;
+
+    $CDIMAGE_SIMPLE/*)
+        # Sanity check
+        if ! echo "$images_source" | grep -q "simple\/[a-z-]\+"; then
+            echo "Not a valid image to archive."
+            exit 1
+        fi
+
+        images_source_pool="$CDIMAGE_SIMPLE/.pool"
+
+        # Source /home/cdimage/cdimage/www/full/kubuntu/releases/focal/release
+        # Target /home/cdimage/cdimage/old-images/kubuntu/releases/focal/release
+        images_dest="$OLD_RELEASES${images_source##$CDIMAGE_SIMPLE}"
+        images_dest_pool="$OLD_RELEASES${images_source_pool##$CDIMAGE_SIMPLE}"
+
+        if [ ! -d "$images_dest" ] || [ ! -d "$images_dest_pool" ]; then
+            echo "Destination directory non-existing, creating..."
+            mkdir -p "$images_dest" "$images_dest_pool"
+            # pass
+        fi
+
+        echo "Archiving image to old-releases..."
+
+        # First archive .pool
+        if ! mv $images_source_pool/$images_base* "$images_dest_pool"; then
+            echo "Archival of images from $images_source_pool to $images_dest_pool failed! Please double check the image state!"
+            exit 1
+        fi 
+        # ...then remains and symlinks from the main directory
+        if ! mv $images_arg* "$images_dest"; then
+            echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
+            exit 1
+        fi
+
+        # Only now it's safe to move the checksums
+        mv_checksum $images_base $images_source_pool $images_dest_pool
+        mv_checksum $images_base $images_source $images_dest
+        ;;
+esac
