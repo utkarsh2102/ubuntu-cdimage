@@ -82,6 +82,8 @@ Ubuntu Server arm64+raspi3					ubuntu-server	daily-preinstalled		preinstalled-se
 Ubuntu Server riscv64						ubuntu-server	daily-preinstalled		preinstalled-server			riscv64			iso
 Ubuntu Server riscv64+unleashed					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+unleashed	iso
 Ubuntu Server riscv64+unmatched					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+unmatched	iso
+Ubuntu Server amd64					ubuntu-server	daily-preinstalled		preinstalled-server			amd64	iso
+Ubuntu Server arm64					ubuntu-server	daily-preinstalled		preinstalled-server			arm64	iso
 Ubuntu Server i386							ubuntu-server	daily				server					i386			iso
 Ubuntu Server powerpc						ubuntu-server	daily				server					powerpc			iso
 Ubuntu Server ppc64el						ubuntu-server	daily				server					ppc64el			iso
