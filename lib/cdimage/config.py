@@ -285,6 +285,7 @@ class Config(defaultdict):
         for key, value in kwargs.items():
             self[key] = value
         config_path = os.path.join(self.root, "etc", "config")
+        self.livefs_arch_mapping = {}
         if read:
             if os.path.exists(config_path):
                 self.read(config_path)
@@ -305,6 +306,7 @@ class Config(defaultdict):
             self.set_default_arches()
         if "CPUARCHES" not in self:
             self.set_default_cpuarches()
+        self.set_livefs_mapping()
 
     def __setitem__(self, key, value):
         config_value = value
@@ -393,6 +395,54 @@ class Config(defaultdict):
                 return arches
         return None
 
+    def set_livefs_mapping(self):
+        self.livefs_arch_mapping = {}
+        mapping = os.path.join(self.root, "etc", "cdimage-to-livefs-map")
+        if not os.path.exists(mapping):
+            return
+        want_project_bits = [self.project]
+        if self.subproject:
+            want_project_bits.append(self.subproject)
+        if self["UBUNTU_DEFAULTS_LOCALE"]:
+            want_project_bits.append(self["UBUNTU_DEFAULTS_LOCALE"])
+        want_project = "-".join(want_project_bits)
+        with open(mapping) as f:
+            mapping_file = f.readlines()
+        for arch in self.arches:
+            (want_cpuarch, _, want_subarch) = arch.partition("+")
+            for line in mapping_file:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                try:
+                    (project, image_type, cpuarch, subarch,
+                     livefs_project, livefs_cpuarch, livefs_subarch) = \
+                        line.split(None, 6)
+                except ValueError:
+                    continue
+                if not fnmatch.fnmatchcase(want_project, project):
+                    continue
+                if not fnmatch.fnmatchcase(self.image_type, image_type):
+                    continue
+                if not fnmatch.fnmatchcase(want_cpuarch, cpuarch):
+                    continue
+                # - means 'no subarch'
+                if subarch == "-":
+                    if want_subarch:
+                        continue
+                elif not fnmatch.fnmatchcase(want_subarch, subarch):
+                    continue
+                # * means 'no change'
+                if livefs_project == "*":
+                    livefs_project = self.project
+                if livefs_cpuarch == "*":
+                    livefs_cpuarch = want_cpuarch
+                if livefs_subarch == "*":
+                    livefs_subarch = want_subarch
+                self.livefs_arch_mapping[arch] = \
+                    (livefs_project, "%s+%s" % (livefs_cpuarch,
+                                                livefs_subarch))
+
     def set_default_cpuarches(self):
         self["CPUARCHES"] = " ".join(
             sorted(set(arch.split("+")[0] for arch in self.arches)))
@@ -456,6 +506,16 @@ class Config(defaultdict):
         if self["DIST"] >= "groovy":
             return '22'
         return None
+
+    def livefs_project_for_arch(self, arch):
+        if arch not in self.livefs_arch_mapping:
+            return self.project
+        return self.livefs_arch_mapping[arch][0]
+
+    def livefs_arch_for_arch(self, arch):
+        if arch not in self.livefs_arch_mapping:
+            return arch
+        return self.livefs_arch_mapping[arch][1]
 
     def export(self):
         ret = dict(os.environ)
