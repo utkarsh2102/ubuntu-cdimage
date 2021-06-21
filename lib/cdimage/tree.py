@@ -885,8 +885,8 @@ class Publisher:
                     "your computer is available.)" % capproject)
         elif arch == "ppc64el":
             sentences.append(
-                "For POWER8 Little-Endian computers, such as Power Systems "
-                "S8xxL/LC Linux-only servers.")
+                "For POWER8 and POWER9 Little-Endian systems, especially the "
+                "\"LC\" Linux-only servers.")
         elif arch in ("riscv64", "riscv64+unleashed"):
             sentences.append(
                 "For RISC-V computers, with support for SiFive HiFive Unleashed and QEMU.")
