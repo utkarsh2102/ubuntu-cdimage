@@ -164,6 +164,91 @@ class TestConfig(TestCase):
         config = Config(SUBPROJECT="wubi", IMAGE_TYPE="wubi")
         self.assertEqual("amd64 i386", config["ARCHES"])
 
+    def test_livefs_mapping(self):
+        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
+        os.environ["ARCHES"] = "arm64 arm64+unleashed"
+        etc_dir = os.path.join(self.temp_dir, "etc")
+        with mkfile(os.path.join(etc_dir, "config")) as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=ubuntu-server
+                DIST=focal
+                """), file=f)
+        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) as f:
+            print("ubuntu-server\tdaily-preinstalled\t*\tarm64\tunleashed\t"
+                  "ubuntu-cpc\t*\tsifive_fu540", file=f)
+        config = Config(IMAGE_TYPE="daily-preinstalled")
+        # Check if project and arch got overriden
+        self.assertEqual(
+            "ubuntu-cpc", config.livefs_project_for_arch("arm64+unleashed"))
+        self.assertEqual(
+            "arm64+sifive_fu540",
+            config.livefs_arch_for_arch("arm64+unleashed"))
+        # And if no mapping entries present, no changes should be made
+        self.assertEqual(
+            "ubuntu-server", config.livefs_project_for_arch("arm64"))
+        self.assertEqual(
+            "arm64", config.livefs_arch_for_arch("arm64"))
+
+    def test_livefs_mapping_empty_subarch(self):
+        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
+        os.environ["ARCHES"] = "arm64 arm64+unleashed"
+        etc_dir = os.path.join(self.temp_dir, "etc")
+        with mkfile(os.path.join(etc_dir, "config")) as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=ubuntu-server
+                DIST=focal
+                """), file=f)
+        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) as f:
+            print("ubuntu-server\tdaily-preinstalled\t*\tarm64\t-\t"
+                  "ubuntu-cpc\t*\tgeneric\n"
+                  "ubuntu-server\tdaily-preinstalled\t*\tarm64\tunleashed\t"
+                  "ubuntu-cpc\t*\t-\n", file=f)
+        config = Config(IMAGE_TYPE="daily-preinstalled")
+        # Check if no subarch is converted to a subarch
+        self.assertEqual(
+            "ubuntu-cpc", config.livefs_project_for_arch("arm64"))
+        self.assertEqual(
+            "arm64+generic",
+            config.livefs_arch_for_arch("arm64"))
+        # ...and other way around, subarch case to no subarch
+        self.assertEqual(
+            "ubuntu-cpc", config.livefs_project_for_arch("arm64+unleashed"))
+        self.assertEqual(
+            "arm64",
+            config.livefs_arch_for_arch("arm64+unleashed"))
+
+    def test_livefs_mapping_series(self):
+        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
+        os.environ["ARCHES"] = "arm64 arm64+unleashed"
+        etc_dir = os.path.join(self.temp_dir, "etc")
+        with mkfile(os.path.join(etc_dir, "config")) as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=ubuntu-server
+                DIST=groovy
+                """), file=f)
+        with mkfile(os.path.join(etc_dir, 
+                                 "cdimage-to-livecd-rootfs-map")) as f:
+            print("ubuntu-server\tdaily-preinstalled\tfocal-\tarm64\t-\t"
+                  "ubuntu-cpc\t*\tgeneric\n"
+                  "ubuntu-server\tdaily-preinstalled\impish\tarm64\t"
+                  "unleashed\tubuntu-cpc\t*\tsifive_unleashed\n", file=f)
+        config = Config(IMAGE_TYPE="daily-preinstalled")
+        # This should be matched by series
+        self.assertEqual(
+            "ubuntu-cpc", config.livefs_project_for_arch("arm64"))
+        self.assertEqual(
+            "arm64+generic",
+            config.livefs_arch_for_arch("arm64"))
+        # ...this not
+        self.assertEqual(
+            "ubuntu-server", config.livefs_project_for_arch("arm64+unleashed"))
+        self.assertEqual(
+            "arm64+unleashed",
+            config.livefs_arch_for_arch("arm64+unleashed"))
+
     def test_read_shell(self):
         os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
         with mkfile(os.path.join(self.temp_dir, "etc", "config")) as f:
@@ -328,6 +413,21 @@ class TestConfig(TestCase):
         config = Config(read=False)
         config["IMAGE_TYPE"] = "daily-live"
         self.assertEqual("daily-live", config.image_type)
+
+    def test_livefs_project_for_arch(self):
+        config = Config(read=False)
+        config["PROJECT"] = "ubuntu-server"
+        config.livefs_arch_mapping = {"amd64+generic": ("ubuntu-cpc", "amd64")}
+        self.assertEqual("ubuntu-cpc",
+                         config.livefs_project_for_arch("amd64+generic"))
+        self.assertEqual("ubuntu-server",
+                         config.livefs_project_for_arch("amd64"))
+
+    def test_livefs_arch_for_arch(self):
+        config = Config(read=False)
+        config.livefs_arch_mapping = {"amd64": ("ubuntu-cpc", "amd64+generic")}
+        self.assertEqual("amd64+generic", config.livefs_arch_for_arch("amd64"))
+        self.assertEqual("arm64", config.livefs_arch_for_arch("arm64"))
 
     def test_all_projects(self):
         config = Config(read=False)

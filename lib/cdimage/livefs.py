@@ -67,34 +67,20 @@ class MissingLaunchpadLiveFS(Exception):
     pass
 
 
-def split_arch(arch):
-    arch_bits = arch.split("+", 1)
+def split_arch(config, arch):
+    # To make sure we're compatible with everything before, we need to do the
+    # arch -> livefs_arch mapping here. This way we're consistent with how it
+    # worked previously
+    live_arch = config.livefs_arch_for_arch(arch)
+    arch_bits = live_arch.split("+", 1)
     if len(arch_bits) == 1:
         arch_bits.append("")
     cpuarch, subarch = arch_bits
-
-    if cpuarch == "amd64" and subarch == "mac":
-        # Use normal amd64 live image on amd64+mac.
-        subarch = ""
-
-    if cpuarch == "riscv64":
-        # need to specify subarch to get raw.xz instead of qcow2
-        # originally, no subarch was the unleashed image. Add support
-        # for user-friendly subarch names and translate them to u-boot
-        # target names for livecd-rootfs maybe the two will be able to
-        # merge but at the moment, they are very different SOCs.
-        if subarch == "":
-            subarch = "hifive"  # for focal
-        elif subarch == "unleashed":
-            subarch = "sifive_fu540"
-        elif subarch == "unmatched":
-            subarch = "sifive_hifive_unmatched_fu740"
-
     return cpuarch, subarch
 
 
 def live_builder(config, arch):
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     project = config.project
 
     path = os.path.join(config.root, "production", "livefs-builders")
@@ -126,7 +112,7 @@ def live_builder(config, arch):
 def live_build_options(config, arch):
     options = []
 
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     if (cpuarch in ("armel", "armhf") and
             config.image_type == "daily-preinstalled"):
         if subarch in ("mx5", "omap", "omap4"):
@@ -149,22 +135,10 @@ def live_build_options(config, arch):
 
 
 def live_project(config, arch):
-    project = config.project
-
-    if project == "livecd-base":
-        liveproject = "base"
-    elif (project == "ubuntu-server" and
-          config.image_type == "daily-preinstalled"):
-        liveproject = "ubuntu-cpc"
-    elif project == "ubuntu-appliance":
-        liveproject = "ubuntu-core"
-    else:
-        liveproject = project
-
-    cpuarch, subarch = split_arch(arch)
+    liveproject = config.livefs_project_for_arch(arch)
 
     if config["CDIMAGE_DVD"]:
-        if project in ("ubuntu", "kubuntu", "edubuntu", "ubuntustudio"):
+        if config.project in ("ubuntu", "kubuntu", "edubuntu", "ubuntustudio"):
             liveproject += "-dvd"
 
     return liveproject
@@ -183,7 +157,7 @@ def live_build_command(config, arch):
 
     command.extend(live_build_options(config, arch))
 
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     if cpuarch:
         command.extend(["-A", cpuarch])
     if subarch:
@@ -202,7 +176,7 @@ def live_build_command(config, arch):
 
 
 def live_build_lp_kwargs(config, lp, lp_livefs, arch):
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     kwargs = {}
     metadata_override = {}
 
@@ -254,7 +228,7 @@ def live_build_full_name(config, arch):
     bits = [config.project]
     if config.subproject:
         bits.append(config.subproject)
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     bits.append(cpuarch)
     if subarch:
         bits.append(subarch)
@@ -273,7 +247,7 @@ def live_build_notify_failure(config, arch, lp_build=None):
     livefs_id_bits = [project]
     if config.subproject:
         livefs_id_bits.append(config.subproject)
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     if subarch:
         livefs_id_bits.append(subarch)
     if config["UBUNTU_DEFAULTS_LOCALE"]:
@@ -304,7 +278,7 @@ def live_build_notify_failure(config, arch, lp_build=None):
 
 
 def live_lp_info(config, arch):
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     want_project_bits = [config.project]
     if config.subproject:
         want_project_bits.append(config.subproject)
@@ -462,7 +436,7 @@ def livecd_base(config, arch):
     if config["LIVECD_BASE"]:
         return config["LIVECD_BASE"]
 
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     series = config["DIST"]
 
     if config["LIVECD"]:
@@ -482,7 +456,7 @@ def livecd_base(config, arch):
 
 
 def flavours(config, arch):
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     project = config.project
     series = config["DIST"]
 
@@ -550,7 +524,7 @@ def live_item_paths(config, arch, item):
     if item == "ltsp-squashfs" and arch == "amd64":
         # use i386 LTSP image on amd64 too
         arch = "i386"
-    cpuarch, subarch = split_arch(arch)
+    cpuarch, subarch = split_arch(config, arch)
     project = config.project
     series = config["DIST"]
     liveproject = live_project(config, arch)

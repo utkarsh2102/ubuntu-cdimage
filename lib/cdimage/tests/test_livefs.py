@@ -148,27 +148,38 @@ class MockLaunchpad(mock.MagicMock):
 
 class TestSplitArch(TestCase):
     def test_amd64(self):
-        self.assertEqual(("amd64", ""), split_arch("amd64"))
-
-    def test_amd64_mac(self):
-        self.assertEqual(("amd64", ""), split_arch("amd64+mac"))
+        config = Config(read=False)
+        self.assertEqual(("amd64", ""), split_arch(config, "amd64"))
 
     def test_arm64_raspi(self):
-        self.assertEqual(("arm64", "raspi"), split_arch("arm64+raspi"))
+        config = Config(read=False)
+        self.assertEqual(("arm64", "raspi"), split_arch(config, "arm64+raspi"))
 
     def test_armhf_omap4(self):
-        self.assertEqual(("armhf", "omap4"), split_arch("armhf+omap4"))
+        config = Config(read=False)
+        self.assertEqual(("armhf", "omap4"), split_arch(config, "armhf+omap4"))
 
     def test_i386(self):
-        self.assertEqual(("i386", ""), split_arch("i386"))
+        config = Config(read=False)
+        self.assertEqual(("i386", ""), split_arch(config, "i386"))
 
 
 class TestLiveProject(TestCase):
     def assertProjectEqual(self, expected, project, series, arch="i386",
                            **kwargs):
-        config = Config(read=False)
-        config["PROJECT"] = project
-        config["DIST"] = series
+        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
+        os.environ["ARCHES"] = arch
+        etc_dir = os.path.join(self.temp_dir, "etc")
+        with mkfile(os.path.join(etc_dir, "config")) as f:
+            print(dedent("""\
+                #! /bin/sh
+                PROJECT=%s
+                DIST=%s
+                """ % (project, series)), file=f)
+        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) as f:
+            print("ubuntu-appliance\t*\t*\t*\t*\tubuntu-core\t*\t*\n"
+                  "livecd-base\t*\t*\t*\t*\tbase\t*\t*", file=f)
+        config = Config()
         for key, value in kwargs.items():
             config[key.upper()] = value
         self.assertEqual(expected, live_project(config, arch))
@@ -179,22 +190,23 @@ class TestLiveProject(TestCase):
     def test_ubuntu_dvd(self):
         for series in all_series[7:]:
             self.assertProjectEqual(
-                "ubuntu-dvd", "ubuntu", series, cdimage_dvd="1")
+                "ubuntu-dvd", "ubuntu", series.full_name, cdimage_dvd="1")
 
     def test_kubuntu_dvd(self):
         for series in all_series[7:]:
             self.assertProjectEqual(
-                "kubuntu-dvd", "kubuntu", series, cdimage_dvd="1")
+                "kubuntu-dvd", "kubuntu", series.full_name, cdimage_dvd="1")
 
     def test_edubuntu_dvd(self):
         for series in all_series[10:]:
             self.assertProjectEqual(
-                "edubuntu-dvd", "edubuntu", series, cdimage_dvd="1")
+                "edubuntu-dvd", "edubuntu", series.full_name, cdimage_dvd="1")
 
     def test_ubuntustudio_dvd(self):
         for series in all_series[15:]:
             self.assertProjectEqual(
-                "ubuntustudio-dvd", "ubuntustudio", series, cdimage_dvd="1")
+                "ubuntustudio-dvd", "ubuntustudio", series.full_name,
+                cdimage_dvd="1")
 
     def test_ubuntu_appliance(self):
         # We currently only support ubuntu-appliances for bionic (UC18)
@@ -1103,6 +1115,9 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu-server"
         self.config["DIST"] = "xenial"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
+        self.config.livefs_arch_mapping = {
+            "armhf+raspi2": ("ubuntu-cpc", "armhf+raspi2")
+            }
         self.assertTrue(download_live_items(self.config, "armhf+raspi2",
                                             "disk1.img.xz"))
         mock_fetch.assert_called_once_with(
