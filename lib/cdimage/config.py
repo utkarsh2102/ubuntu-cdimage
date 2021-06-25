@@ -397,7 +397,7 @@ class Config(defaultdict):
 
     def set_livefs_mapping(self):
         self.livefs_arch_mapping = {}
-        mapping = os.path.join(self.root, "etc", "cdimage-to-livefs-map")
+        mapping = os.path.join(self.root, "etc", "cdimage-to-livecd-rootfs-map")
         if not os.path.exists(mapping):
             return
         want_project_bits = [self.project]
@@ -415,14 +415,16 @@ class Config(defaultdict):
                 if not line or line.startswith("#"):
                     continue
                 try:
-                    (project, image_type, cpuarch, subarch,
+                    (project, image_type, series, cpuarch, subarch,
                      livefs_project, livefs_cpuarch, livefs_subarch) = \
-                        line.split(None, 6)
+                        line.split(None, 7)
                 except ValueError:
                     continue
                 if not fnmatch.fnmatchcase(want_project, project):
                     continue
                 if not fnmatch.fnmatchcase(self.image_type, image_type):
+                    continue
+                if not self.match_series(series):
                     continue
                 if not fnmatch.fnmatchcase(want_cpuarch, cpuarch):
                     continue
@@ -439,9 +441,11 @@ class Config(defaultdict):
                     livefs_cpuarch = want_cpuarch
                 if livefs_subarch == "*":
                     livefs_subarch = want_subarch
-                self.livefs_arch_mapping[arch] = \
-                    (livefs_project, "%s+%s" % (livefs_cpuarch,
-                                                livefs_subarch))
+                elif livefs_subarch == "-":
+                    livefs_subarch = None
+                livefs_arch = ("%s+%s" % (livefs_cpuarch, livefs_subarch) 
+                               if livefs_subarch else livefs_cpuarch)
+                self.livefs_arch_mapping[arch] = (livefs_project, livefs_arch)
 
     def set_default_cpuarches(self):
         self["CPUARCHES"] = " ".join(
