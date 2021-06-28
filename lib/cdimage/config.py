@@ -446,6 +446,7 @@ class Config(defaultdict):
                 livefs_arch = ("%s+%s" % (livefs_cpuarch, livefs_subarch) 
                                if livefs_subarch else livefs_cpuarch)
                 self.livefs_arch_mapping[arch] = (livefs_project, livefs_arch)
+                break
 
     def set_default_cpuarches(self):
         self["CPUARCHES"] = " ".join(

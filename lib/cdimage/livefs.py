@@ -287,6 +287,8 @@ def live_lp_info(config, arch):
     want_project = "-".join(want_project_bits)
     image_type = config.image_type
 
+    # TODO: we should probably deprecate this in favor of
+    #  etc/cdimage-to-livecd-rootfs-map
     path = os.path.join(config.root, "production", "livefs-launchpad")
     if not os.path.exists(path):
         path = os.path.join(config.root, "etc", "livefs-launchpad")
