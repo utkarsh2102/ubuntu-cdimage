@@ -4,9 +4,6 @@
 
 ubuntu-server		daily-preinstalled	*			riscv64		unleashed	ubuntu-cpc			*				sifive_fu540
 ubuntu-server		daily-preinstalled	*			riscv64		unmatched	ubuntu-cpc			*				sifive_hifive_unmatched_fu740
-# XXX: We should probably get rid of this once we start building unleased+unmatched image pairs for focal, as this is here
-#  only for focal legacy reasons.
-ubuntu-server		daily-preinstalled	focal		riscv64		-			ubuntu-cpc			*				hifive
 ubuntu-server		daily-preinstalled	*			*			-			ubuntu-cpc			*				generic
 ubuntu-server		daily-preinstalled	*			*			*			ubuntu-cpc			*				*
 ubuntu-appliance	*					*			*			*			ubuntu-core			*				*
