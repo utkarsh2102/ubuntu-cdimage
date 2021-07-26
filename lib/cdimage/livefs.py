@@ -570,7 +570,7 @@ def live_item_paths(config, arch, item):
         "azure.device.tar.gz", "raspi2.device.tar.gz", "plano.device.tar.gz",
         "tar.xz", "iso", "os.snap", "kernel.snap", "disk1.img.xz",
         "dragonboard.kernel.snap", "raspi2.kernel.snap",
-        "img.xz", "model-assertion", "qcow2"
+        "img.xz", "model-assertion", "qcow2", "yaml",
     ):
         if item == "ext4" and arch == "armhf+nexus7":
             for url in urls_for(
@@ -802,6 +802,7 @@ def download_live_filesystems(config):
                 got_image = True
             elif download_live_items(config, arch, "squashfs"):
                 download_live_items(config, arch, "modules.squashfs")
+                download_live_items(config, arch, "yaml")
                 got_image = True
             elif download_live_items(config, arch, "rootfs.tar.gz"):
                 got_image = True
