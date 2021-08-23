@@ -1856,6 +1856,9 @@ class DailyTreePublisher(Publisher):
               self.config["DIST"] >= "focal"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             return 4 * 1024 * 1024 * 1024
+        elif self.project == "xubuntu" and self.config["DIST"] >= "impish":
+            # Per IRC discussions on #ubuntu-release 2021-08-20
+            return 2 * 1024 * 1024 * 1024
         elif (self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
                                "ubuntu-gnome", "ubuntu-mate") and
               self.config["DIST"] >= "xenial"):
