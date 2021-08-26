@@ -80,6 +80,36 @@ images_base=$(basename "$images_arg")
 images_source=$(dirname "$images_arg")
 
 case $images_source in
+
+    $CDIMAGE_FULL/releases/*)
+        # Special case: releases/ also go to old-releases, not old-images
+        # Sanity check
+        if ! echo "$images_source" | grep -q "full\/releases\/[a-z]\+\/\(beta\|release\)"; then
+            echo "Not a valid image to archive."
+            exit 1
+        fi
+
+        images_dest="$OLD_RELEASES${images_source##$CDIMAGE_FULL/releases}"
+        # We remove both the release and beta suffix
+        images_dest="${images_dest%%release}"
+        images_dest="${images_dest%%beta}"
+
+        if [ ! -d "$images_dest" ]; then
+            echo "Destination directory non-existing, creating..."
+            mkdir -p "$images_dest"
+            # pass
+        fi
+
+        echo "Archiving image to old-releases..."
+
+        # These come from full/, so no symlinks
+        if ! mv $images_arg* "$images_dest"; then
+            echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
+            exit 1
+        fi
+        mv_checksum $images_base $images_source $images_dest
+        ;;
+
     $CDIMAGE_FULL/*)
         # Sanity check
         if ! echo "$images_source" | grep -q "full\/[a-z-]*\/\?releases\/[a-z]\+\/\(beta\|release\)"; then
