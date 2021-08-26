@@ -73,9 +73,10 @@ OLD_IMAGES="/srv/cdimage.ubuntu.com/old-images"
 OLD_RELEASES="/srv/cdimage.ubuntu.com/www/old-releases"
 
 images_arg=$(realpath -s $1)
-# Remove .img or .iso suffix, in case it's given
+# Remove .img, .img.xz or .iso suffix, in case it's given
 images_arg=${images_arg%.iso}
 images_arg=${images_arg%.img}
+images_arg=${images_arg%.img.xz}
 images_base=$(basename "$images_arg")
 images_source=$(dirname "$images_arg")
 
