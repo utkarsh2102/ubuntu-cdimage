@@ -24,7 +24,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # with proposed enabled.
 52 4 * * *	PROPOSED=0 DIST=bionic for-project ubuntu-base cron.daily-live --live
 # focal daily builds
-31 7 * * *	DIST=focal for-project ubuntu cron.daily-live --live
+31 7 * * *	DIST=focal for-project ubuntu cron.daily-live --live; DIST=focal SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
 14 5 * * *	DIST=focal for-project kubuntu cron.daily-live --live
 50 1 * * *	DIST=focal for-project xubuntu cron.daily-live --live
 29 6 * * *	DIST=focal for-project ubuntu-server cron.daily-preinstalled --live; DIST=focal SUBPROJECT=live PROPOSED=0 for-project ubuntu-server cron.daily-live --live
