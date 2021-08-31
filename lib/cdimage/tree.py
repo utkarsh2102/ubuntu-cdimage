@@ -1892,7 +1892,11 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] >= "focal":
+            if self.config["DIST"] >= "impish":
+                # Requested by paride in #ubuntu-release
+                # https://irclogs.ubuntu.com/2021/08/31/%23ubuntu-release.html#t16:22
+                return 1.4 * 1000 * 1000 * 1000
+            elif self.config["DIST"] >= "focal":
                 # Size bump due to HWE kernel inclusion in the images
                 return 1.3 * 1000 * 1000 * 1000
             elif self.config["DIST"] >= "bionic":
