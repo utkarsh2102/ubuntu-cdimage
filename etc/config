@@ -19,11 +19,11 @@ export IMAGE_FORMAT
 DIST="${DIST:-impish}"
 
 case $DIST in
-	trusty|bionic)
+	trusty)
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
-	focal)
+	bionic|focal)
 		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
