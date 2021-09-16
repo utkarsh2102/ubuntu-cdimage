@@ -1,0 +1,224 @@
+#!/bin/bash
+
+# Copyright (C) 2020-2021 Canonical Ltd.
+# Author: Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com>,
+#         Steve Langasek <steve.langasek@ubuntu.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#set -x
+
+usage() {
+    cat <<EOF
+Usage: $0 POINT_RELEASE
+$1
+
+POINT_RELEASE:
+    The point release to archive.  The publication directories will be
+    scanned for all images matching this point release, and copy them to
+    old-releases or old-images, according to the archival policy.
+
+EOF
+    exit 1
+}
+
+mv_checksum() {
+    image=$1
+    source_checksum=$2/SHA256SUMS
+    target_checksum=$3/SHA256SUMS
+
+    if [ ! -e "$source_checksum" ]; then
+        echo "No source SHA256SUM file available, please proceed manually!"
+        exit 1
+    fi
+    if [ ! -e "$target_checksum" ]; then
+        echo "No destination SHA256SUM file available, creating a new one. Make sure this is correct."
+        touch $target_checksum
+        # pass
+    fi
+
+    if grep -q "$image" $target_checksum; then
+        echo "Image already present in the target checksum file, please proceed manually!"
+        exit 1
+    fi
+    if ! grep -q "$image" $source_checksum; then
+        echo "Image not present in the source checksum file, please proceed manually!"
+        exit 1
+    fi
+
+    grep "\*$image\." $source_checksum >>$target_checksum
+    grep "\*$image\." -v $source_checksum >$source_checksum.new
+    mv $source_checksum.new $source_checksum
+    sign-cdimage $target_checksum
+    sign-cdimage $source_checksum
+}
+
+[ $# -ne 1 ] && usage "Requires exactly one argument."
+[ "$1" == "-h" ] && usage "Helper tool for old image archival."
+
+# Hard-coded directories, make sure those are up-to-date
+CDIMAGE_FULL="/srv/cdimage.ubuntu.com/www/full"
+CDIMAGE_SIMPLE="/srv/cdimage.ubuntu.com/www/simple"
+OLD_IMAGES="/srv/cdimage.ubuntu.com/old-images"
+OLD_RELEASES="/srv/cdimage.ubuntu.com/www/old-releases"
+
+release=$(echo "$1" | cut -f1-2 -d.)
+relname=$(readlink "$CDIMAGE_SIMPLE/$release")
+
+mkdir -p "$OLD_RELEASES/$relname" "$OLD_RELEASES/.pool"
+
+point_release="$1"
+if ! echo "$point_release" | grep -q '\..*\.'
+then
+	point_release="${point_release}.0"
+	cp -a "$CDIMAGE_SIMPLE/$relname/.htaccess" \
+		"$OLD_RELEASES/$relname/.htaccess"
+else
+	if ! grep -q "RedirectPermanent /$point_release" \
+		"$CDIMAGE_SIMPLE/.htaccess"; then
+		echo "RedirectPermanent /$point_release https://old-releases.ubuntu.com/releases/$point_release" \
+			>> "$CDIMAGE_SIMPLE/.htaccess"
+	fi
+	grep "${1}-" "$CDIMAGE_SIMPLE/$relname/.htaccess" \
+		>> "$OLD_RELEASES/$relname/.htaccess"
+	sed -i -e"/${1}-/d" "$CDIMAGE_SIMPLE/$relname/.htaccess"
+fi
+
+if [ -h "$CDIMAGE_SIMPLE/$1" ]; then
+	ln -s "$relname" "$OLD_RELEASES/$1"
+	rm "$CDIMAGE_SIMPLE/$1"
+fi
+if ! [ -e "$OLD_RELEASES/$release" ]; then
+	ln -s "$relname" "$OLD_RELEASES/$release"
+fi
+if [ "$release" = "$1" ]; then
+	ln -s "$relname" "$OLD_RELEASES/${release}.0"
+fi
+
+images_source="$CDIMAGE_SIMPLE/$relname"
+images_source_pool="$CDIMAGE_SIMPLE/.pool"
+images_dest="$OLD_RELEASES/$relname"
+images_dest_pool="$OLD_RELEASES/.pool"
+
+echo "Archiving image to old-releases..."
+
+for file in "$images_source_pool"/*"$1"-*; do
+	if ! [ -e "$file" ]; then
+		# already archived
+		continue
+	fi
+	mv "$file" "$images_dest_pool"/
+	symlink="$$images_source/$(basename "$file")"
+	mv "$symilnk" "$images_dest"/
+	case $file in *.img|*.img.xz|*.iso)
+		mv_checksum $images_base $images_source_pool $images_dest_pool
+		mv_checksum $images_base $images_source $images_dest
+		;;
+	esac
+done
+
+# make sure this is listed in old-releases HEADER.html
+fullname=$(distro-info --series="$relname" -f | sed -e"s/$release/$point_release/; s/\"/(/; s/\"/)/")
+if [ -n "$(sed -n -e"/The following releases/,/For current releases/ { /$relname/p }" "$OLD_RELEASES/HEADER.html")" ]
+then
+	sed -i -e'/The following releases/,/For current releases/ { /'"$relname"'/c\
+<li><a href="'"$relname"'/">'"$fullname"'</a>
+}' "$OLD_RELEASES/HEADER.html"
+else
+	sed -i -e'/The following releases/,/For current releases/ { /\/ul/i\
+<li><a href="'"$relname"'/">'"$fullname"'</a>
+}' "$OLD_RELEASES/HEADER.html"
+fi
+
+if grep -q "$release" "$OLD_RELEASES/.htaccess"; then
+	if ! grep -q "$point_release" "$OLD_RELEASES/.htaccess"; then
+		sed -i -e"s/$relname/$point_release &/" \
+			"$OLD_RELEASES/.htaccess"
+	fi
+else
+	echo 'AddDescription "'"$fullname"'" '"$point_release $relname" \
+		>> "$OLD_RELEASES/.htaccess"
+fi
+
+# TODO: fix up $relname/HEADER.html
+
+# more work to be done; exit for now
+exit 0
+
+case $images_source in
+
+    $CDIMAGE_FULL/releases/*)
+        # Special case: releases/ also go to old-releases, not old-images
+        # Sanity check
+        if ! echo "$images_source" | grep -q "full\/releases\/[a-z]\+\/\(beta\|release\)"; then
+            echo "Not a valid image to archive."
+            exit 1
+        fi
+
+        images_dest="$OLD_RELEASES${images_source##$CDIMAGE_FULL/releases}"
+        # We remove both the release and beta suffix
+        images_dest="${images_dest%%release}"
+        images_dest="${images_dest%%beta}"
+
+        if [ ! -d "$images_dest" ]; then
+            echo "Destination directory non-existing, creating..."
+            mkdir -p "$images_dest"
+            # pass
+        fi
+
+        echo "Archiving image to old-releases..."
+
+        # These come from full/, so no symlinks
+        if ! mv $images_arg* "$images_dest"; then
+            echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
+            exit 1
+        fi
+        mv_checksum $images_base $images_source $images_dest
+        ;;
+
+    $CDIMAGE_FULL/*)
+        # Sanity check
+        if ! echo "$images_source" | grep -q "full\/[a-z-]*\/\?releases\/[a-z]\+\/\(beta\|release\)"; then
+            echo "Not a valid image to archive."
+            exit 1
+        fi
+
+        # For example:
+        # Source /home/cdimage/cdimage/www/full/kubuntu/releases/focal/release
+        # Target /home/cdimage/cdimage/old-images/kubuntu/releases/focal/release
+        images_dest="$OLD_IMAGES${images_source##$CDIMAGE_FULL}"
+
+        if [ ! -d "$images_dest" ]; then
+            echo "Destination directory non-existing, creating..."
+            mkdir -p "$images_dest"
+            # pass
+        fi
+
+        echo "Archiving image to old-images..."
+
+        if ! mv $images_arg* "$images_dest"; then
+            echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
+            exit 1
+        fi 
+        mv_checksum $images_base $images_source $images_dest
+        ;;
+
+    $CDIMAGE_SIMPLE/*)
+        # Sanity check
+        if ! echo "$images_source" | grep -q "simple\/[a-z-]\+"; then
+            echo "Not a valid image to archive."
+            exit 1
+        fi
+
+        ;;
+esac
