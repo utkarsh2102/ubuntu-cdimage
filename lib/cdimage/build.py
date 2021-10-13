@@ -756,6 +756,9 @@ def build_image_set_locked(config, options, multipidfile_state):
             log_marker("Purging old images")
             publisher.purge()
 
+            log_marker("Refreshing simplestreams")
+            publisher.refresh_simplestreams()
+
             log_marker("Triggering mirrors")
             trigger_mirrors(config)
 

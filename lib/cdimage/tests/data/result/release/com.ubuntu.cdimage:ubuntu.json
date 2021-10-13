@@ -1,0 +1,401 @@
+{
+  "content_id": "com.ubuntu.cdimage:ubuntu",
+  "datatype": "image-downloads",
+  "format": "products:1.0",
+  "products": {
+    "com.ubuntu.cdimage:ubuntu:live-server:20.04:arm64": {
+      "arch": "arm64",
+      "image_type": "live-server",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.2.0": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-arm64.iso",
+              "sha256": "d6fea1f11b4d23b481a48198f51d9b08258a36f6024cb5cec447fe78379959ce",
+              "size": 37
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-arm64.list",
+              "sha256": "54b06ba666e871f0be78e8a8b952744c3d5d0639a914842f5d89379131b796cb",
+              "size": 38
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-arm64.manifest",
+              "sha256": "c2013cd9b9f91cc3454d71130e3d9c62c1b307d5e416bfb995dbb4d4c2e5a577",
+              "size": 42
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:live-server:20.04:ppc64el": {
+      "arch": "ppc64el",
+      "image_type": "live-server",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.2.0": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-ppc64el.iso",
+              "sha256": "f5cdf521d60d40445c84fbdcc75add2725e9bc18371382c1a849a7ccb705ccea",
+              "size": 39
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-ppc64el.list",
+              "sha256": "7ca5bf8991aa4654af35d73c38280207049c8a4b5d16a8f1ff9443f82e080310",
+              "size": 40
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-ppc64el.manifest",
+              "sha256": "93998ea3eb41fb5f51c048138a62919696c377694938a8b20f98ec4dbae81040",
+              "size": 44
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:live-server:20.04:s390x": {
+      "arch": "s390x",
+      "image_type": "live-server",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.2.0": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-s390x.iso",
+              "sha256": "c1f7e8f5ed96d35edd0daa8b5203afb57daa0f4372f8e6c48535518a01aa0893",
+              "size": 37
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-s390x.list",
+              "sha256": "30f409becfbc5c299e2c68ba5d84ffebd9356187da35b388047c4eda999c243a",
+              "size": 38
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-live-server-s390x.manifest",
+              "sha256": "42eebff49c2d1546c15602202e3d46ac4b691d3e55b31f8ce98061e4ba7b8015",
+              "size": 42
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:preinstalled-server:18.04:arm64+raspi3": {
+      "arch": "arm64+raspi3",
+      "image_type": "preinstalled-server",
+      "os": "ubuntu",
+      "release": "bionic",
+      "release_codename": "Bionic Beaver",
+      "release_title": "18.04.5 LTS",
+      "version": "18.04",
+      "versions": {
+        "18.04.5": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-preinstalled-server-arm64+raspi3.img.xz",
+              "sha256": "69cbd2c0b70bc2cd1d8b6aa0a98bd64d59617b03f2681ff4ac56c85daa44cde5",
+              "size": 55
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-preinstalled-server-arm64+raspi3.manifest",
+              "sha256": "4cc1f59eec1f9b00d844fdb6d88d70d99d677fb22e131935db7bf7ee1db73300",
+              "size": 57
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:preinstalled-server:18.04:arm64+raspi4": {
+      "arch": "arm64+raspi4",
+      "image_type": "preinstalled-server",
+      "os": "ubuntu",
+      "release": "bionic",
+      "release_codename": "Bionic Beaver",
+      "release_title": "18.04.5 LTS",
+      "version": "18.04",
+      "versions": {
+        "18.04.5": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-preinstalled-server-arm64+raspi4.img.xz",
+              "sha256": "69cbd2c0b70bc2cd1d8b6aa0a98bd64d59617b03f2681ff4ac56c85daa44cde5",
+              "size": 55
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-preinstalled-server-arm64+raspi4.manifest",
+              "sha256": "4cc1f59eec1f9b00d844fdb6d88d70d99d677fb22e131935db7bf7ee1db73300",
+              "size": 57
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:preinstalled-server:20.04:arm64+raspi": {
+      "arch": "arm64+raspi",
+      "image_type": "preinstalled-server",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.2.0": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-preinstalled-server-arm64+raspi.img.xz",
+              "sha256": "7e405f473d8a9e3254cd702edaeecd5509a85cde1e9e99e120f6c82156c6958f",
+              "size": 54
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-preinstalled-server-arm64+raspi.manifest",
+              "sha256": "0077506a4345f241fb43ac48f879864f79cc8a356e12f6a14ff86e66a636b658",
+              "size": 56
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:preinstalled-server:20.04:armhf+raspi": {
+      "arch": "armhf+raspi",
+      "image_type": "preinstalled-server",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.2.0": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-preinstalled-server-armhf+raspi.img.xz",
+              "sha256": "1984c349d5d6b74279402325b6985587d1d32c01695f2946819ce25b638baa0e",
+              "size": 54
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-preinstalled-server-armhf+raspi.manifest",
+              "sha256": "230ebfe91c11a52c8d4e6754f105c910cf38be56d54f0dbda869a7b8c853e5c3",
+              "size": 56
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:preinstalled-server:20.04:riscv64+unleashed": {
+      "arch": "riscv64+unleashed",
+      "image_type": "preinstalled-server",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.2.0": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-preinstalled-server-riscv64+unleashed.img.xz",
+              "sha256": "944287276033f706ec05a9eec2b866fb7d80bef1f19bf40ef923306de84b5e85",
+              "size": 60
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-preinstalled-server-riscv64+unleashed.manifest",
+              "sha256": "c53186b209c10058c6e9fe7f8521e20f7a0cefee942596f51decfa4e79ec3f53",
+              "size": 62
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:preinstalled-server:20.04:riscv64+unmatched": {
+      "arch": "riscv64+unmatched",
+      "image_type": "preinstalled-server",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.2.0": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-preinstalled-server-riscv64+unmatched.img.xz",
+              "sha256": "a1b6f3bf2ba507ffb2932e90880c915f33abb6d7b68f14f3965092df0636b8ac",
+              "size": 60
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/focal/release/ubuntu-20.04.3-preinstalled-server-riscv64+unmatched.manifest",
+              "sha256": "66f9bc6104f48d7145856e7eb7d73eda4a9aae685f54616d9b3dd33a1ec66d58",
+              "size": 62
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:server:18.04:amd64": {
+      "arch": "amd64",
+      "image_type": "server",
+      "os": "ubuntu",
+      "release": "bionic",
+      "release_codename": "Bionic Beaver",
+      "release_title": "18.04.5 LTS",
+      "version": "18.04",
+      "versions": {
+        "18.04.5": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.6-server-amd64.iso",
+              "sha256": "f5cbb8104348f0097a8e513b10173a07dbc6684595e331cb06f93f385d0aecf6",
+              "size": 32
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.6-server-amd64.list",
+              "sha256": "4129e1826235f6f20fcec9496721f5515588ffd0f6e6ee1b319fad5bb7062167",
+              "size": 33
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.6-server-amd64.manifest",
+              "sha256": "5725b334ee5aa44f39da02d1e90f28331da3519b32be575a66e6b3f09bdf2f2d",
+              "size": 37
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:server:18.04:arm64": {
+      "arch": "arm64",
+      "image_type": "server",
+      "os": "ubuntu",
+      "release": "bionic",
+      "release_codename": "Bionic Beaver",
+      "release_title": "18.04.5 LTS",
+      "version": "18.04",
+      "versions": {
+        "18.04.5": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.6-server-arm64.iso",
+              "sha256": "0a20ef21181a36588f8fb670cc63e8d326fa6e715b526543d300a68de389055f",
+              "size": 32
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.6-server-arm64.list",
+              "sha256": "292ad184322d4467eacc856a676c16dcb68042de20af3d66f8d727bce95048b5",
+              "size": 33
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.6-server-arm64.manifest",
+              "sha256": "a28f13aa01d1d7174c40c23bc8b7c2e5ef800ea5684688bd23450b4fe518e7f8",
+              "size": 37
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:server:18.04:ppc64el": {
+      "arch": "ppc64el",
+      "image_type": "server",
+      "os": "ubuntu",
+      "release": "bionic",
+      "release_codename": "Bionic Beaver",
+      "release_title": "18.04.5 LTS",
+      "version": "18.04",
+      "versions": {
+        "18.04.5": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-server-ppc64el.iso",
+              "sha256": "1c9eceaaca2b9372ab9f466c33fa88ac781fa43818de1b1a7dc64db70f3b12d8",
+              "size": 34
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-server-ppc64el.list",
+              "sha256": "3b236c117242b9f16bc2c7cc4e8618c0a70a1cb9a1d2b72342c26e47c364f822",
+              "size": 35
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-server-ppc64el.manifest",
+              "sha256": "7a099121f130eeecf66c318b1108a09eaf5a11f9ccdc7b8ee04c8faccbd460de",
+              "size": 39
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu:server:18.04:s390x": {
+      "arch": "s390x",
+      "image_type": "server",
+      "os": "ubuntu",
+      "release": "bionic",
+      "release_codename": "Bionic Beaver",
+      "release_title": "18.04.5 LTS",
+      "version": "18.04",
+      "versions": {
+        "18.04.5": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-server-s390x.iso",
+              "sha256": "7b94ea0561285fc20b986975d90048e7d90243a99d3be75e2aac614d1d3875d7",
+              "size": 32
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-server-s390x.list",
+              "sha256": "d2f60606238af3f358ceab98bade0d1c4ed4285be08af7c0d12f14021d1883b5",
+              "size": 33
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu/releases/bionic/release/ubuntu-18.04.5-server-s390x.manifest",
+              "sha256": "df6a6a17aa3089b99f797f5d1fa2be4d0718054b04bcffbf10e1b762904d1eb8",
+              "size": 37
+            }
+          }
+        }
+      }
+    }
+  },
+  "updated": "TIMESTAMP"
+}

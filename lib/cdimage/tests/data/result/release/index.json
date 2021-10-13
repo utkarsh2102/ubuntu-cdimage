@@ -1,0 +1,41 @@
+{
+  "format": "index:1.0",
+  "index": {
+    "com.ubuntu.cdimage:kubuntu": {
+      "datatype": "image-downloads",
+      "format": "products:1.0",
+      "path": "streams/v1/com.ubuntu.cdimage:kubuntu.json",
+      "products": [
+        "com.ubuntu.cdimage:kubuntu:desktop:20.04:amd64",
+        "com.ubuntu.cdimage:kubuntu:desktop:18.04:i386",
+        "com.ubuntu.cdimage:kubuntu:desktop:18.04:amd64"
+      ],
+      "updated": "TIMESTAMP"
+    },
+    "com.ubuntu.cdimage:ubuntu": {
+      "datatype": "image-downloads",
+      "format": "products:1.0",
+      "path": "streams/v1/com.ubuntu.cdimage:ubuntu.json",
+      "products": [
+        "com.ubuntu.cdimage:ubuntu:preinstalled-server:20.04:armhf+raspi",
+        "com.ubuntu.cdimage:ubuntu:live-server:20.04:s390x",
+        "com.ubuntu.cdimage:ubuntu:preinstalled-server:20.04:riscv64+unleashed",
+        "com.ubuntu.cdimage:ubuntu:preinstalled-server:20.04:arm64+raspi",
+        "com.ubuntu.cdimage:ubuntu:preinstalled-server:20.04:riscv64+unmatched",
+        "com.ubuntu.cdimage:ubuntu:live-server:20.04:ppc64el",
+        "com.ubuntu.cdimage:ubuntu:live-server:20.04:arm64",
+        "com.ubuntu.cdimage:ubuntu:server:18.04:amd64",
+        "com.ubuntu.cdimage:ubuntu:preinstalled-server:18.04:arm64+raspi3",
+        "com.ubuntu.cdimage:ubuntu:server:18.04:ppc64el",
+        "com.ubuntu.cdimage:ubuntu:server:18.04:s390x",
+        "com.ubuntu.cdimage:ubuntu:server:18.04:arm64",
+        "com.ubuntu.cdimage:ubuntu:preinstalled-server:18.04:arm64+raspi4"
+      ],
+      "updated": "TIMESTAMP"
+    }
+  },
+  "updated": {
+    "datatype": "image-downloads",
+    "updated": "TIMESTAMP"
+  }
+}

@@ -140,6 +140,10 @@ class Series(Iterable):
             version += " LTS"
         return version
 
+    @property
+    def realversion(self):
+        return getattr(self, "pointversion", self.version)
+
 
 # TODO: This should probably come from a configuration file.
 all_series.extend([

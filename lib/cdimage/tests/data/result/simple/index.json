@@ -1,0 +1,29 @@
+{
+  "format": "index:1.0",
+  "index": {
+    "com.ubuntu.releases:ubuntu": {
+      "datatype": "image-downloads",
+      "format": "products:1.0",
+      "path": "streams/v1/com.ubuntu.releases:ubuntu.json",
+      "products": [
+        "com.ubuntu.releases:ubuntu:desktop:20.04:amd64",
+        "com.ubuntu.releases:ubuntu:desktop:18.04:amd64"
+      ],
+      "updated": "TIMESTAMP"
+    },
+    "com.ubuntu.releases:ubuntu-server": {
+      "datatype": "image-downloads",
+      "format": "products:1.0",
+      "path": "streams/v1/com.ubuntu.releases:ubuntu-server.json",
+      "products": [
+        "com.ubuntu.releases:ubuntu-server:live-server:20.04:amd64",
+        "com.ubuntu.releases:ubuntu-server:live-server:18.04:amd64"
+      ],
+      "updated": "TIMESTAMP"
+    }
+  },
+  "updated": {
+    "datatype": "image-downloads",
+    "updated": "TIMESTAMP"
+  }
+}

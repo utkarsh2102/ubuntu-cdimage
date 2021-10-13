@@ -1,0 +1,6 @@
+916facc8fe4e3f03d4e0ff4aed643b3961a52e56daa35a652b61bebea282ceda *impish-preinstalled-server-amd64.img.xz
+dac512b4823e26aac5f74fb24e8c758019f8e8d648576f69506858d87f980a9f *impish-preinstalled-server-arm64+raspi.img.xz
+e3b6fb5e9bdf3c51570a0f9d903c483ccb64411915003a87e815ad57bc99a934 *impish-preinstalled-server-arm64.img.xz
+ad62084200689b2c2940e02a88a388f3a008b784e1acb4a88029227e293abfe5 *impish-preinstalled-server-armhf+raspi.img.xz
+350ddb75c144e02481bc804f40d23d750682e82d4db2cf1c713fe4c87823f992 *impish-preinstalled-server-riscv64+unleashed.img.xz
+1e31d864afbdc46acce9153953dce0f173b6f624f86ab51e9e4ea664a0206c81 *impish-preinstalled-server-riscv64+unmatched.img.xz

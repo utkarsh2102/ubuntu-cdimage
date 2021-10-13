@@ -1,0 +1,706 @@
+{
+  "content_id": "com.ubuntu.cdimage.daily:ubuntu-server",
+  "datatype": "image-downloads",
+  "format": "products:1.0",
+  "products": {
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:amd64": {
+      "arch": "amd64",
+      "image_type": "daily-live",
+      "os": "ubuntu-server",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20211011": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-amd64.iso",
+              "sha256": "ee3e38b504d9ffea3ae5c85e998ae86294bc60d5b87bb0ddbacd0f3f0570d4e1",
+              "size": 28
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-amd64.list",
+              "sha256": "c52a2033eeddfd1d8b3289aa76ca8970dc17ba27d7934b81dfb8ce473eab2007",
+              "size": 29
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-amd64.manifest",
+              "sha256": "2946c80a6df4140a38b434ca95f2c5c3b324aef373a20fd37aaa6643930c75d2",
+              "size": 33
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-amd64.iso",
+              "sha256": "d8c1465e6fc670bf6a7e3f26f5be9b3abc98b12a74eb6388ba574df96d941280",
+              "size": 28
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-amd64.list",
+              "sha256": "c52a2033eeddfd1d8b3289aa76ca8970dc17ba27d7934b81dfb8ce473eab2007",
+              "size": 29
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-amd64.manifest",
+              "sha256": "2946c80a6df4140a38b434ca95f2c5c3b324aef373a20fd37aaa6643930c75d2",
+              "size": 33
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:arm64": {
+      "arch": "arm64",
+      "image_type": "daily-live",
+      "os": "ubuntu-server",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20211011": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-arm64.iso",
+              "sha256": "fc34a623f658059ee8011a4fccea61c93cc28fae5f9174539d4fc73f1884056b",
+              "size": 28
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-arm64.list",
+              "sha256": "fb200e4eb936183c8c3abd2c1079644e61f800ad250f0832a4225c6a30a5a8d1",
+              "size": 29
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-arm64.manifest",
+              "sha256": "4bd777aaf047233109e05ce22a218ea3a383f174a8e6b15c1101f10eac811a78",
+              "size": 33
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-arm64.iso",
+              "sha256": "f3cdb8f4eb11f4d76f1fb280e7f2a4f97de284c1a86fc7958feb78d3ccc0b0e1",
+              "size": 28
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-arm64.list",
+              "sha256": "fb200e4eb936183c8c3abd2c1079644e61f800ad250f0832a4225c6a30a5a8d1",
+              "size": 29
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-arm64.manifest",
+              "sha256": "4bd777aaf047233109e05ce22a218ea3a383f174a8e6b15c1101f10eac811a78",
+              "size": 33
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:ppc64el": {
+      "arch": "ppc64el",
+      "image_type": "daily-live",
+      "os": "ubuntu-server",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20211011": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-ppc64el.iso",
+              "sha256": "1af73b23b545610d1b6ce3e2ee5df29be30f44b7f6000d47fa0bf24276fd51dd",
+              "size": 30
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-ppc64el.list",
+              "sha256": "9ef77181a716e05fbac30d7c93ccbe40b47f7c49d965dac855ef92429e00a58e",
+              "size": 31
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-ppc64el.manifest",
+              "sha256": "d17a33395d94c45a8bc8a493ff26c599df06e4ee7a6e81c8d26939b65ff6444b",
+              "size": 35
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-ppc64el.iso",
+              "sha256": "cce678ab628a8c6ce84156215b8e5029d90a9c665ec12b03a03e3563e9a3344f",
+              "size": 30
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-ppc64el.list",
+              "sha256": "9ef77181a716e05fbac30d7c93ccbe40b47f7c49d965dac855ef92429e00a58e",
+              "size": 31
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-ppc64el.manifest",
+              "sha256": "d17a33395d94c45a8bc8a493ff26c599df06e4ee7a6e81c8d26939b65ff6444b",
+              "size": 35
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:s390x": {
+      "arch": "s390x",
+      "image_type": "daily-live",
+      "os": "ubuntu-server",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.2.0 LTS",
+      "version": "20.04",
+      "versions": {
+        "20211011": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-s390x.iso",
+              "sha256": "3ec522a0759b4eb247d9f95e41db2b7716d8f2fd0d66963f8fc038289745427f",
+              "size": 28
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-s390x.list",
+              "sha256": "35cb411b2dcc29e9e6a3113d79a6151de0d986fe75ee00219bbd2f700d115da1",
+              "size": 29
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/focal/daily-live/20211011/focal-live-server-s390x.manifest",
+              "sha256": "a643ff3a15a98529766cb1e281fedc63679c26b9dbeab9740b331ba746f122eb",
+              "size": 33
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-s390x.iso",
+              "sha256": "ef57bd9e646a06fd5eac9b5b801ca13c97fd8983a0b52fd334a5749805803634",
+              "size": 28
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-s390x.list",
+              "sha256": "35cb411b2dcc29e9e6a3113d79a6151de0d986fe75ee00219bbd2f700d115da1",
+              "size": 29
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/focal/daily-live/20211012/focal-live-server-s390x.manifest",
+              "sha256": "a643ff3a15a98529766cb1e281fedc63679c26b9dbeab9740b331ba746f122eb",
+              "size": 33
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:amd64": {
+      "arch": "amd64",
+      "image_type": "daily-live",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-amd64.iso",
+              "sha256": "87b6bdc03de712be4c7eaf44041c8deec3db33ba4a337a26888eede48f63c0c9",
+              "size": 29
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-amd64.list",
+              "sha256": "f5c598b88c56952a024b58814288bdf211f2ebc77e21834d61f94adb7b118a97",
+              "size": 30
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-amd64.manifest",
+              "sha256": "873a084820f686b2577e320bf531cc08125972e04bfe218fdbedfd0459e6078f",
+              "size": 34
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-amd64.iso",
+              "sha256": "9bee15abdd4c4089f8eb20cd71bfc8206612591dab8ae97bec670a4ed76fd8a1",
+              "size": 29
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-amd64.list",
+              "sha256": "f5c598b88c56952a024b58814288bdf211f2ebc77e21834d61f94adb7b118a97",
+              "size": 30
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-amd64.manifest",
+              "sha256": "873a084820f686b2577e320bf531cc08125972e04bfe218fdbedfd0459e6078f",
+              "size": 34
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:arm64": {
+      "arch": "arm64",
+      "image_type": "daily-live",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-arm64.iso",
+              "sha256": "fbf8ae839ebcc2a74430a494db34cc956d5ef7c90ecc30f06c5803cebc33057e",
+              "size": 29
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-arm64.list",
+              "sha256": "f5cf5762b011162f11a00206c21dd5d794bf186025cdcf8d50aaf26c57a67738",
+              "size": 30
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-arm64.manifest",
+              "sha256": "af93eae9a88c6e7b16e278f2d9fa1660d0bded49b41f651714df688fdc4baecb",
+              "size": 34
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-arm64.iso",
+              "sha256": "bf56996b303ba5238cdacd85e497c697748da07ec037529cf1672d578400aeb4",
+              "size": 29
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-arm64.list",
+              "sha256": "f5cf5762b011162f11a00206c21dd5d794bf186025cdcf8d50aaf26c57a67738",
+              "size": 30
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-arm64.manifest",
+              "sha256": "af93eae9a88c6e7b16e278f2d9fa1660d0bded49b41f651714df688fdc4baecb",
+              "size": 34
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:ppc64el": {
+      "arch": "ppc64el",
+      "image_type": "daily-live",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-ppc64el.iso",
+              "sha256": "6b0b684b9bca4e4f51d6f63eeb288cf23ae41ab66809e3a18fcd9eb711ef37f7",
+              "size": 31
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-ppc64el.list",
+              "sha256": "1edee9acdf2e53ae832943b8ec0e9b65e5c7bd1a67f17aca37c94dfe58409feb",
+              "size": 32
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-ppc64el.manifest",
+              "sha256": "d5e147d4105b37a9296196e27a678eb80d7e8983dc9fbfad5a10e907a1ef329d",
+              "size": 36
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-ppc64el.iso",
+              "sha256": "fdc1ad1044c3e9e71c3b2de82c7d1442b55c374c7d8fb8138d3a3df1fecec2e9",
+              "size": 31
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-ppc64el.list",
+              "sha256": "1edee9acdf2e53ae832943b8ec0e9b65e5c7bd1a67f17aca37c94dfe58409feb",
+              "size": 32
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-ppc64el.manifest",
+              "sha256": "d5e147d4105b37a9296196e27a678eb80d7e8983dc9fbfad5a10e907a1ef329d",
+              "size": 36
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:s390x": {
+      "arch": "s390x",
+      "image_type": "daily-live",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-s390x.iso",
+              "sha256": "791422922e0485edc3cbe259521e748a94ac34d19ad0f9e9612ac12a522a2933",
+              "size": 29
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-s390x.list",
+              "sha256": "3867ff3958546c34f9c20cbd90c59b6f4d419bfd8a8a0a8bff3616273786ff0e",
+              "size": 30
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-live/20211011.1/impish-live-server-s390x.manifest",
+              "sha256": "d0d72b89ee278c6f652c418fcf9e8b90d3037b34f01f4f0a0d4c91d4ac514f50",
+              "size": 34
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-s390x.iso",
+              "sha256": "2851ed5e97ae65063be1a0f994bebd316e3f5b33083e6fd26492e0cce6a48b49",
+              "size": 29
+            },
+            "list": {
+              "ftype": "list",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-s390x.list",
+              "sha256": "3867ff3958546c34f9c20cbd90c59b6f4d419bfd8a8a0a8bff3616273786ff0e",
+              "size": 30
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-live/20211012/impish-live-server-s390x.manifest",
+              "sha256": "d0d72b89ee278c6f652c418fcf9e8b90d3037b34f01f4f0a0d4c91d4ac514f50",
+              "size": 34
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:amd64": {
+      "arch": "amd64",
+      "image_type": "daily-preinstalled",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-amd64.img.xz",
+              "sha256": "916facc8fe4e3f03d4e0ff4aed643b3961a52e56daa35a652b61bebea282ceda",
+              "size": 40
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-amd64.manifest",
+              "sha256": "940cc65302c99721dd5a56aa3311a54472ec582fe0d76cc71d0a86ab64c16d92",
+              "size": 42
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-amd64.img.xz",
+              "sha256": "916facc8fe4e3f03d4e0ff4aed643b3961a52e56daa35a652b61bebea282ceda",
+              "size": 40
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-amd64.manifest",
+              "sha256": "940cc65302c99721dd5a56aa3311a54472ec582fe0d76cc71d0a86ab64c16d92",
+              "size": 42
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:arm64": {
+      "arch": "arm64",
+      "image_type": "daily-preinstalled",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-arm64.img.xz",
+              "sha256": "e3b6fb5e9bdf3c51570a0f9d903c483ccb64411915003a87e815ad57bc99a934",
+              "size": 40
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-arm64.manifest",
+              "sha256": "7cd8f03f6ca278073993b44188014739f080a519f1f71c16e8eacc5de3026430",
+              "size": 42
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-arm64.img.xz",
+              "sha256": "e3b6fb5e9bdf3c51570a0f9d903c483ccb64411915003a87e815ad57bc99a934",
+              "size": 40
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-arm64.manifest",
+              "sha256": "7cd8f03f6ca278073993b44188014739f080a519f1f71c16e8eacc5de3026430",
+              "size": 42
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:arm64+raspi": {
+      "arch": "arm64+raspi",
+      "image_type": "daily-preinstalled",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-arm64+raspi.img.xz",
+              "sha256": "dac512b4823e26aac5f74fb24e8c758019f8e8d648576f69506858d87f980a9f",
+              "size": 46
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-arm64+raspi.manifest",
+              "sha256": "3366f656dc26de6243685ba77e2a71dc4c8d97a03b6d9d45059091f9e5fe4dcc",
+              "size": 48
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-arm64+raspi.img.xz",
+              "sha256": "be2d0b430885d4f0559ff806216315c24555d0ba83088e364ed9c31a521ea24c",
+              "size": 46
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-arm64+raspi.manifest",
+              "sha256": "3366f656dc26de6243685ba77e2a71dc4c8d97a03b6d9d45059091f9e5fe4dcc",
+              "size": 48
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:armhf+raspi": {
+      "arch": "armhf+raspi",
+      "image_type": "daily-preinstalled",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-armhf+raspi.img.xz",
+              "sha256": "ad62084200689b2c2940e02a88a388f3a008b784e1acb4a88029227e293abfe5",
+              "size": 46
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-armhf+raspi.manifest",
+              "sha256": "99526c7df3960687988f4e4f7a0e34cfb9ae7e310e1cbd1848a1c32567d43df0",
+              "size": 48
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-armhf+raspi.img.xz",
+              "sha256": "ff6b02368f925e9745078f00ca5e5292b8ddbcf910347426b87f5b4e8842654b",
+              "size": 46
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-armhf+raspi.manifest",
+              "sha256": "99526c7df3960687988f4e4f7a0e34cfb9ae7e310e1cbd1848a1c32567d43df0",
+              "size": 48
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:riscv64+unleashed": {
+      "arch": "riscv64+unleashed",
+      "image_type": "daily-preinstalled",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-riscv64+unleashed.img.xz",
+              "sha256": "350ddb75c144e02481bc804f40d23d750682e82d4db2cf1c713fe4c87823f992",
+              "size": 52
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-riscv64+unleashed.manifest",
+              "sha256": "6afbcdb969718c4c2968b49c5ad1202b16df2a39f23f9e1b9f3807cf42049d99",
+              "size": 54
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-riscv64+unleashed.img.xz",
+              "sha256": "5feaf6fcde7e20eed7895a437b7e822c1dbf1495ea99169c9892bd4b215193b9",
+              "size": 52
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-riscv64+unleashed.manifest",
+              "sha256": "6afbcdb969718c4c2968b49c5ad1202b16df2a39f23f9e1b9f3807cf42049d99",
+              "size": 54
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:riscv64+unmatched": {
+      "arch": "riscv64+unmatched",
+      "image_type": "daily-preinstalled",
+      "os": "ubuntu-server",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-riscv64+unmatched.img.xz",
+              "sha256": "1e31d864afbdc46acce9153953dce0f173b6f624f86ab51e9e4ea664a0206c81",
+              "size": 52
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211011.1/impish-preinstalled-server-riscv64+unmatched.manifest",
+              "sha256": "dc087faac0cacaa50161e0c44da95b598ff3ef02522174a46ccbcb3fc2195ea5",
+              "size": 54
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-riscv64+unmatched.img.xz",
+              "sha256": "3f17d1b7908b412c76c6f2552adffb468bcd287fda2418d4bef699b14fea834f",
+              "size": 52
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "ubuntu-server/daily-preinstalled/20211012/impish-preinstalled-server-riscv64+unmatched.manifest",
+              "sha256": "dc087faac0cacaa50161e0c44da95b598ff3ef02522174a46ccbcb3fc2195ea5",
+              "size": 54
+            }
+          }
+        }
+      }
+    }
+  },
+  "updated": "TIMESTAMP"
+}
