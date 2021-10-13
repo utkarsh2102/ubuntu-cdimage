@@ -224,6 +224,13 @@ class TestSimpleStreams(TestCase):
             self.assertIsInstance(streams, cls_streams)
 
 
+def mock_sign_cdimage(tree, path):
+    """A mock of sign_cdimage()"""
+    with open("%s.gpg" % path, "w") as fp:
+        fp.write("DUMMY SIGNATURE")
+    return True
+
+
 class TestSimpleStreamsTree(TestCase):
     def setUp(self):
         super(TestSimpleStreamsTree, self).setUp()
@@ -231,12 +238,14 @@ class TestSimpleStreamsTree(TestCase):
         os.environ["CDIMAGE_ROOT"] = self.temp_root.name
         self.config = Config(read=False)
 
+    @mock.patch("cdimage.simplestreams.sign_cdimage")
     @mock.patch("cdimage.config.Series.latest")
     @mock.patch("cdimage.simplestreams.timestamp")
-    def test_daily_tree(self, timestamp, latest):
+    def test_daily_tree(self, timestamp, latest, sign_cdimage):
         """Check if we get a right simplestream for a daily tree."""
         timestamp.return_value = "TIMESTAMP"
         latest.return_value = Series.find_by_name("impish")
+        sign_cdimage = mock_sign_cdimage
         # Setup the tree
         tree_source = os.path.join(
             os.path.dirname(__file__), "data", "www")
@@ -265,10 +274,12 @@ class TestSimpleStreamsTree(TestCase):
                 streams, expected,
                 "SimpleStreams file %s has unexpected contents." % file)
 
+    @mock.patch("cdimage.simplestreams.sign_cdimage")
     @mock.patch("cdimage.simplestreams.timestamp")
-    def test_release_tree(self, timestamp):
+    def test_release_tree(self, timestamp, sign_cdimage):
         """Check if we get a right simplestream for a release tree."""
         timestamp.return_value = "TIMESTAMP"
+        sign_cdimage = mock_sign_cdimage
         # Setup the tree
         tree_source = os.path.join(
             os.path.dirname(__file__), "data", "www")
@@ -297,10 +308,12 @@ class TestSimpleStreamsTree(TestCase):
                 streams, expected,
                 "SimpleStreams file %s has unexpected contents." % file)
 
+    @mock.patch("cdimage.simplestreams.sign_cdimage")
     @mock.patch("cdimage.simplestreams.timestamp")
-    def test_simple_tree(self, timestamp):
+    def test_simple_tree(self, timestamp, sign_cdimage):
         """Check if we get a right simplestream for a simple tree."""
         timestamp.return_value = "TIMESTAMP"
+        sign_cdimage = mock_sign_cdimage
         # Setup the tree
         tree_source = os.path.join(
             os.path.dirname(__file__), "data", "www")

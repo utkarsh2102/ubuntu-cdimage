@@ -25,6 +25,7 @@ import hashlib
 import simplestreams.generate_simplestreams as generate_simplestreams
 
 from cdimage.config import Series
+from cdimage.sign import sign_cdimage
 from cdimage.checksums import ChecksumFile
 from cdimage.tree import (DailyTreePublisher, FullReleasePublisher,
                           SimpleReleasePublisher, projects)
@@ -52,6 +53,7 @@ class SimpleStreams:
         return cls(config, publisher)
 
     def __init__(self, config, publisher):
+        self.publisher = publisher
         self.tree_dir = config.root
         self.streams_dir = self.tree_dir
         self.config = config
@@ -182,7 +184,7 @@ class SimpleStreams:
         raise NotImplementedError(
             "The scan_tree() method needs to be implemented.")
 
-    def generate(self):
+    def generate(self, sign=True):
         """Core function to generate simplestream data for the cdimage tree.
 
         This is the only function that needs to be called to get simplestreams
@@ -207,8 +209,11 @@ class SimpleStreams:
                 if product_id in self.cdimage_products:
                     product.update(self.cdimage_products[product_id])
 
-        # TODO: sign
-        generate_simplestreams.write_streams(self.streams_dir, trees, metadata)
+        filenames = generate_simplestreams.write_streams(
+            self.streams_dir, trees, metadata)
+        if sign:
+            for file in filenames:
+                sign_cdimage(self.publisher.tree, file)
 
 
 class DailySimpleStreams(SimpleStreams):
