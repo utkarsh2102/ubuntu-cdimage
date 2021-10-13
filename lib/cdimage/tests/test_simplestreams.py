@@ -231,10 +231,12 @@ class TestSimpleStreamsTree(TestCase):
         os.environ["CDIMAGE_ROOT"] = self.temp_root.name
         self.config = Config(read=False)
 
+    @mock.patch("cdimage.config.Series.latest")
     @mock.patch("cdimage.simplestreams.timestamp")
-    def test_daily_tree(self, timestamp):
+    def test_daily_tree(self, timestamp, latest):
         """Check if we get a right simplestream for a daily tree."""
         timestamp.return_value = "TIMESTAMP"
+        latest.return_value = Series.find_by_name("impish")
         # Setup the tree
         tree_source = os.path.join(
             os.path.dirname(__file__), "data", "www")

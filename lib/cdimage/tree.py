@@ -48,7 +48,6 @@ from cdimage.log import logger, reset_logging
 from cdimage.mirror import trigger_mirrors
 from cdimage import osextras
 from cdimage.project import setenv_for_project
-from cdimage.simplestreams import SimpleStreams
 
 __metaclass__ = type
 
@@ -1721,6 +1720,7 @@ class Publisher:
 
     def refresh_simplestreams(self):
         """For the publisher cycle, refresh the corresponding sstreams."""
+        from cdimage.simplestreams import SimpleStreams
         sstreams = SimpleStreams.get_simplestreams(self.config, self)
         sstreams.generate()
 
