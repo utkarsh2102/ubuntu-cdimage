@@ -196,7 +196,7 @@ all_series.extend([
     Series("artful", "17.10", "Artful Aardvark"),
     Series(
         "bionic", "18.04", "Bionic Beaver",
-        pointversion="18.04.5",
+        pointversion="18.04.6",
         all_lts_projects=True),
     Series("cosmic", "18.10", "Cosmic Cuttlefish"),
     Series("disco", "19.04", "Disco Dingo"),
@@ -205,7 +205,7 @@ all_series.extend([
         pointversion="19.10.1"),
     Series(
         "focal", "20.04", "Focal Fossa",
-        pointversion="20.04.2.0",
+        pointversion="20.04.3",
         all_lts_projects=True),
     Series("groovy", "20.10", "Groovy Gorilla"),
     Series("hirsute", "21.04", "Hirsute Hippo"),

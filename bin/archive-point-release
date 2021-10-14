@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Copyright (C) 2020-2021 Canonical Ltd.
-# Author: Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com>
+# Author: Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com>,
+#         Steve Langasek <steve.langasek@ubuntu.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,14 +20,13 @@
 
 usage() {
     cat <<EOF
-Usage: $0 IMAGE
+Usage: $0 POINT_RELEASE
 $1
 
-IMAGE:
-    The image to archive. This can be either the name of the .iso/.img file
-    or the base name of the image without any extension
-    (e.g. ubuntu-21.04-beta-desktop-amd64).
-    If no absolute path is given, a relative path from the CWD will be used.
+POINT_RELEASE:
+    The point release to archive.  The publication directories will be
+    scanned for all images matching this point release, and copy them to
+    old-releases or old-images, according to the archival policy.
 
 EOF
     exit 1
@@ -72,13 +72,88 @@ CDIMAGE_SIMPLE="/srv/cdimage.ubuntu.com/www/simple"
 OLD_IMAGES="/srv/cdimage.ubuntu.com/old-images"
 OLD_RELEASES="/srv/cdimage.ubuntu.com/www/old-releases"
 
-images_arg=$(realpath -s $1)
-# Remove .img, .img.xz or .iso suffix, in case it's given
-images_arg=${images_arg%.iso}
-images_arg=${images_arg%.img}
-images_arg=${images_arg%.img.xz}
-images_base=$(basename "$images_arg")
-images_source=$(dirname "$images_arg")
+release=$(echo "$1" | cut -f1-2 -d.)
+relname=$(readlink "$CDIMAGE_SIMPLE/$release")
+
+mkdir -p "$OLD_RELEASES/$relname" "$OLD_RELEASES/.pool"
+
+point_release="$1"
+if ! echo "$point_release" | grep -q '\..*\.'
+then
+	point_release="${point_release}.0"
+	cp -a "$CDIMAGE_SIMPLE/$relname/.htaccess" \
+		"$OLD_RELEASES/$relname/.htaccess"
+else
+	if ! grep -q "RedirectPermanent /$point_release" \
+		"$CDIMAGE_SIMPLE/.htaccess"; then
+		echo "RedirectPermanent /$point_release https://old-releases.ubuntu.com/releases/$point_release" \
+			>> "$CDIMAGE_SIMPLE/.htaccess"
+	fi
+	grep "${1}-" "$CDIMAGE_SIMPLE/$relname/.htaccess" \
+		>> "$OLD_RELEASES/$relname/.htaccess"
+	sed -i -e"/${1}-/d" "$CDIMAGE_SIMPLE/$relname/.htaccess"
+fi
+
+if [ -h "$CDIMAGE_SIMPLE/$1" ]; then
+	ln -s "$relname" "$OLD_RELEASES/$1"
+	rm "$CDIMAGE_SIMPLE/$1"
+fi
+if ! [ -e "$OLD_RELEASES/$release" ]; then
+	ln -s "$relname" "$OLD_RELEASES/$release"
+fi
+if [ "$release" = "$1" ]; then
+	ln -s "$relname" "$OLD_RELEASES/${release}.0"
+fi
+
+images_source="$CDIMAGE_SIMPLE/$relname"
+images_source_pool="$CDIMAGE_SIMPLE/.pool"
+images_dest="$OLD_RELEASES/$relname"
+images_dest_pool="$OLD_RELEASES/.pool"
+
+echo "Archiving image to old-releases..."
+
+for file in "$images_source_pool"/*"$1"-*; do
+	if ! [ -e "$file" ]; then
+		# already archived
+		continue
+	fi
+	mv "$file" "$images_dest_pool"/
+	symlink="$$images_source/$(basename "$file")"
+	mv "$symilnk" "$images_dest"/
+	case $file in *.img|*.img.xz|*.iso)
+		mv_checksum $images_base $images_source_pool $images_dest_pool
+		mv_checksum $images_base $images_source $images_dest
+		;;
+	esac
+done
+
+# make sure this is listed in old-releases HEADER.html
+fullname=$(distro-info --series="$relname" -f | sed -e"s/$release/$point_release/; s/\"/(/; s/\"/)/")
+if [ -n "$(sed -n -e"/The following releases/,/For current releases/ { /$relname/p }" "$OLD_RELEASES/HEADER.html")" ]
+then
+	sed -i -e'/The following releases/,/For current releases/ { /'"$relname"'/c\
+<li><a href="'"$relname"'/">'"$fullname"'</a>
+}' "$OLD_RELEASES/HEADER.html"
+else
+	sed -i -e'/The following releases/,/For current releases/ { /\/ul/i\
+<li><a href="'"$relname"'/">'"$fullname"'</a>
+}' "$OLD_RELEASES/HEADER.html"
+fi
+
+if grep -q "$release" "$OLD_RELEASES/.htaccess"; then
+	if ! grep -q "$point_release" "$OLD_RELEASES/.htaccess"; then
+		sed -i -e"s/$relname/$point_release &/" \
+			"$OLD_RELEASES/.htaccess"
+	fi
+else
+	echo 'AddDescription "'"$fullname"'" '"$point_release $relname" \
+		>> "$OLD_RELEASES/.htaccess"
+fi
+
+# TODO: fix up $relname/HEADER.html
+
+# more work to be done; exit for now
+exit 0
 
 case $images_source in
 
@@ -145,32 +220,5 @@ case $images_source in
             exit 1
         fi
 
-        images_source_pool="$CDIMAGE_SIMPLE/.pool"
-
-        images_dest="$OLD_RELEASES${images_source##$CDIMAGE_SIMPLE}"
-        images_dest_pool="$OLD_RELEASES${images_source_pool##$CDIMAGE_SIMPLE}"
-
-        if [ ! -d "$images_dest" ] || [ ! -d "$images_dest_pool" ]; then
-            echo "Destination directory non-existing, creating..."
-            mkdir -p "$images_dest" "$images_dest_pool"
-            # pass
-        fi
-
-        echo "Archiving image to old-releases..."
-
-        # First archive .pool
-        if ! mv $images_source_pool/$images_base* "$images_dest_pool"; then
-            echo "Archival of images from $images_source_pool to $images_dest_pool failed! Please double check the image state!"
-            exit 1
-        fi 
-        # ...then remains and symlinks from the main directory
-        if ! mv $images_arg* "$images_dest"; then
-            echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
-            exit 1
-        fi
-
-        # Only now it's safe to move the checksums
-        mv_checksum $images_base $images_source_pool $images_dest_pool
-        mv_checksum $images_base $images_source $images_dest
         ;;
 esac

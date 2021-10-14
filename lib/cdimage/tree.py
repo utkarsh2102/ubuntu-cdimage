@@ -1862,6 +1862,9 @@ class DailyTreePublisher(Publisher):
               self.config["DIST"] >= "focal"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             return 4 * 1024 * 1024 * 1024
+        elif self.project == "xubuntu" and self.config["DIST"] >= "impish":
+            # Per IRC discussions on #ubuntu-release 2021-08-20
+            return 2 * 1024 * 1024 * 1024
         elif (self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
                                "ubuntu-gnome", "ubuntu-mate") and
               self.config["DIST"] >= "xenial"):
@@ -1895,7 +1898,11 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
             return 1024 * 1024 * 1024
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] >= "focal":
+            if self.config["DIST"] >= "impish":
+                # Requested by paride in #ubuntu-release
+                # https://irclogs.ubuntu.com/2021/08/31/%23ubuntu-release.html#t16:22
+                return 1.4 * 1000 * 1000 * 1000
+            elif self.config["DIST"] >= "focal":
                 # Size bump due to HWE kernel inclusion in the images
                 return 1.3 * 1000 * 1000 * 1000
             elif self.config["DIST"] >= "bionic":

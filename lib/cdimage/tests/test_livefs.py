@@ -1286,6 +1286,8 @@ class TestDownloadLiveFilesystems(TestCase):
     def test_download_live_items_installer_squashfs(self):
         self.assert_server_live_download_items(
             "bionic", "squashfs", ["installer.squashfs"])
+        self.assert_server_live_download_items(
+            "bionic", "yaml", ["installer.yaml"])
 
     def test_download_live_server_boot_items(self):
         self.assert_server_live_download_items(

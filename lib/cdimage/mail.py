@@ -75,7 +75,8 @@ def send_mail(subject, generator, recipients, body, dry_run=False):
         logger.info("")
     else:
         command = [
-            "mail", "-s", subject, "-a", "X-Generated-By: %s" % generator]
+            "mail", "-s", subject, "-r", "steve.langasek@canonical.com",
+            "-a", "X-Generated-By: %s" % generator]
         command.extend(recipients)
         if isinstance(body, text_file_type):
             mailer = subprocess.Popen(command, stdin=body)

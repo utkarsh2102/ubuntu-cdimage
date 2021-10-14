@@ -29,6 +29,11 @@ from cdimage.tests.helpers import TestCase
 
 __metaclass__ = type
 
+# Not all files in the bin/ directory are Python sources
+excluded_filenames = [
+    "archive-image",
+]
+
 
 class TestStatic(TestCase):
     def all_paths(self):
@@ -39,7 +44,8 @@ class TestStatic(TestCase):
                     dirnames.remove(ignore)
             filenames = [
                 n for n in filenames
-                if not n.startswith(".") and not n.endswith("~")]
+                if not n.startswith(".") and not n.endswith("~") and
+                n not in excluded_filenames]
             if dirpath.split(os.sep)[-1] == "bin":
                 for filename in filenames:
                     paths.append(os.path.join(dirpath, filename))
