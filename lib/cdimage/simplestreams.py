@@ -233,7 +233,8 @@ class DailySimpleStreams(SimpleStreams):
         for entry in os.listdir(base_dir):
             try:
                 check_series = Series.find_by_name(entry)
-                # If this is the case we need to generate for the series TODO
+                # If we're here, it means we found a per-series directory.
+                # We need to parse it recursively.
                 self.scan_daily_project(os.path.join(base_dir, entry), project,
                                         check_series)
                 continue
