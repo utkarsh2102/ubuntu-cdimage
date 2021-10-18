@@ -274,6 +274,7 @@ _whitelisted_keys = (
     "SSH_ORIGINAL_COMMAND",
     "EXTRA_PPAS",
     "CHANNEL",
+    "SIMPLESTREAMS",
 )
 
 

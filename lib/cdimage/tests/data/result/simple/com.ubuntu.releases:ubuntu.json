@@ -9,10 +9,10 @@
       "os": "ubuntu",
       "release": "bionic",
       "release_codename": "Bionic Beaver",
-      "release_title": "18.04.5 LTS",
+      "release_title": "18.04.6 LTS",
       "version": "18.04",
       "versions": {
-        "18.04.5": {
+        "18.04.6": {
           "items": {
             "iso": {
               "ftype": "iso",
@@ -42,10 +42,10 @@
       "os": "ubuntu",
       "release": "focal",
       "release_codename": "Focal Fossa",
-      "release_title": "20.04.2.0 LTS",
+      "release_title": "20.04.3 LTS",
       "version": "20.04",
       "versions": {
-        "20.04.2.0": {
+        "20.04.3": {
           "items": {
             "iso": {
               "ftype": "iso",

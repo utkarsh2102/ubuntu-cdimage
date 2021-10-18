@@ -1246,6 +1246,8 @@ class TestBuildImageSet(TestCase):
                     DATE
                     ===== Purging old images =====
                     DATE
+                    ===== Handling simplestreams =====
+                    DATE
                     ===== Triggering mirrors =====
                     DATE
                     ===== Finished =====
