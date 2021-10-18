@@ -31,7 +31,7 @@ from cdimage.tree import (DailyTreePublisher, FullReleasePublisher,
                           SimpleReleasePublisher, projects)
 
 
-def timestamp():
+def timestamp(ts=None):
     """Helper function used for generating the simplestreams timestamp."""
     return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(ts))
 
@@ -213,7 +213,7 @@ class SimpleStreams:
             self.streams_dir, trees, metadata)
         if sign:
             for file in filenames:
-                sign_cdimage(self.publisher.tree, file)
+                sign_cdimage(self.config, file)
 
 
 class DailySimpleStreams(SimpleStreams):
