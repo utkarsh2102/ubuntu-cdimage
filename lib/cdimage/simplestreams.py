@@ -50,10 +50,21 @@ class SimpleStreams:
             cls = SimpleReleaseSimpleStreams
         else:
             raise Exception("Unrecognised publisher for simplestreams")
-        return cls(config, publisher)
+        return cls(config)
 
-    def __init__(self, config, publisher):
-        self.publisher = publisher
+    @staticmethod
+    def get_simplestreams_by_name(config, type_name):
+        """Static helper to get the right simplestream handler for type."""
+        type_map = {
+            'daily': DailySimpleStreams,
+            'release': FullReleaseSimpleStreams,
+            'official': SimpleReleaseSimpleStreams,
+        }
+        if type_name not in type_map:
+            raise Exception("Unrecognised publisher for simplestreams")
+        return type_map[type_name](config)
+
+    def __init__(self, config):
         self.tree_dir = config.root
         self.streams_dir = self.tree_dir
         self.config = config
@@ -219,8 +230,8 @@ class SimpleStreams:
 class DailySimpleStreams(SimpleStreams):
     """Class for generating simplestreams for cdimage daily images."""
 
-    def __init__(self, config, publisher):
-        super(DailySimpleStreams, self).__init__(config, publisher)
+    def __init__(self, config):
+        super(DailySimpleStreams, self).__init__(config)
         self.content_id = "com.ubuntu.cdimage.daily"
         self.tree_dir = self.streams_dir = os.path.join(
             self.config.root, "www", "full")
@@ -274,8 +285,8 @@ class DailySimpleStreams(SimpleStreams):
 class FullReleaseSimpleStreams(SimpleStreams):
     """Class for generating simplestreams for cdimage releases/ images."""
 
-    def __init__(self, config, publisher):
-        super(FullReleaseSimpleStreams, self).__init__(config, publisher)
+    def __init__(self, config):
+        super(FullReleaseSimpleStreams, self).__init__(config)
         self.content_id = "com.ubuntu.cdimage"
         self.tree_dir = os.path.join(self.config.root, "www", "full")
         self.streams_dir = os.path.join(self.tree_dir, "releases")
@@ -320,8 +331,8 @@ class FullReleaseSimpleStreams(SimpleStreams):
 class SimpleReleaseSimpleStreams(SimpleStreams):
     """Class for generating simplestreams for releases.ubuntu.com."""
 
-    def __init__(self, config, publisher):
-        super(SimpleReleaseSimpleStreams, self).__init__(config, publisher)
+    def __init__(self, config):
+        super(SimpleReleaseSimpleStreams, self).__init__(config)
         self.content_id = "com.ubuntu.releases"
         self.tree_dir = self.streams_dir = os.path.join(
             self.config.root, "www", "simple")

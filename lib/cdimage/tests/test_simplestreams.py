@@ -50,9 +50,7 @@ class TestSimpleStreams(TestCase):
         # We'll be testing xenial as we know for sure there will be no more
         # point-releases for it.
         series = Series.find_by_name("xenial")
-        tree = Tree(self.config, None)
-        publisher = Publisher(tree, None)
-        streams = SimpleStreams(self.config, publisher)
+        streams = SimpleStreams(self.config)
         # Execute the addition twice, to make sure we don't get
         # any weird duplocated entries.
         streams.prepare_product_info(
@@ -86,9 +84,7 @@ class TestSimpleStreams(TestCase):
 
     def test_extract_arch(self):
         """Check if extraction of the arch string works as expected."""
-        tree = Tree(self.config, None)
-        publisher = Publisher(tree, None)
-        streams = SimpleStreams(self.config, publisher)
+        streams = SimpleStreams(self.config)
         # Test various filenames
         test_cases = {
             "ubuntu-20.04.3-live-server-amd64.iso": "amd64",
@@ -101,9 +97,7 @@ class TestSimpleStreams(TestCase):
 
     def test_extract_release_image_type(self):
         """Check if extraction of the image_type works as expected."""
-        tree = Tree(self.config, None)
-        publisher = Publisher(tree, None)
-        streams = SimpleStreams(self.config, publisher)
+        streams = SimpleStreams(self.config)
         # Test various filenames
         test_cases = {
             "ubuntu-20.04.3-live-server-amd64.iso": (
@@ -123,9 +117,7 @@ class TestSimpleStreams(TestCase):
 
     def test_extract_release_project(self):
         """Check if extraction of the project string works as expected."""
-        tree = Tree(self.config, None)
-        publisher = Publisher(tree, None)
-        streams = SimpleStreams(self.config, publisher)
+        streams = SimpleStreams(self.config)
         # Test various filenames
         test_cases = {
             "ubuntu-20.04.3-live-server-amd64.iso": "ubuntu-server",
@@ -152,9 +144,7 @@ class TestSimpleStreams(TestCase):
             "focal-test-server-amd64.iso": "1234123412"
             }
         sha256sums.checksum.return_value = "51deeffec7"
-        tree = Tree(self.config, None)
-        publisher = Publisher(tree, None)
-        streams = SimpleStreams(self.config, publisher)
+        streams = SimpleStreams(self.config)
         # All possible test cases for scanning published files
         test_cases = {
             "SHA256SUMS": None,
@@ -217,11 +207,38 @@ class TestSimpleStreams(TestCase):
             (daily_publisher, DailySimpleStreams),
             (full_publisher, FullReleaseSimpleStreams),
             (simple_publisher, SimpleReleaseSimpleStreams),
+            (None, None),
         ]
 
         for publisher, cls_streams in test_cases:
-            streams = SimpleStreams.get_simplestreams(self.config, publisher)
-            self.assertIsInstance(streams, cls_streams)
+            if cls_streams:
+                streams = SimpleStreams.get_simplestreams(
+                    self.config, publisher)
+                self.assertIsInstance(streams, cls_streams)
+            else:
+                with self.assertRaises(Exception) as e:
+                    SimpleStreams.get_simplestreams(
+                        self.config, publisher)
+
+    def test_get_simplestreams_by_name(self):
+        """Check if get_simplestreams_by_name() also works."""
+        # All possible simple streams cases
+        test_cases = {
+            'daily': DailySimpleStreams,
+            'release': FullReleaseSimpleStreams,
+            'official': SimpleReleaseSimpleStreams,
+            'wrong': None,
+        }
+
+        for name, cls_streams in test_cases.items():
+            if cls_streams:
+                streams = SimpleStreams.get_simplestreams_by_name(
+                    self.config, name)
+                self.assertIsInstance(streams, cls_streams)
+            else:
+                with self.assertRaises(Exception) as e:
+                    SimpleStreams.get_simplestreams_by_name(
+                        self.config, name)
 
 
 def mock_sign_cdimage(tree, path):
@@ -251,10 +268,8 @@ class TestSimpleStreamsTree(TestCase):
             os.path.dirname(__file__), "data", "www")
         shutil.copytree(tree_source, os.path.join(self.temp_root.name, "www"),
                         symlinks=True)
-        # Now the tree and object under test
-        tree = Tree(self.config, None)
-        publisher = Publisher(tree, None)
-        streams = DailySimpleStreams(self.config, publisher)
+        # Now the object under test
+        streams = DailySimpleStreams(self.config)
         streams.generate()
         # Now compare it with the expected tree
         streams_dir = os.path.join(
@@ -285,10 +300,8 @@ class TestSimpleStreamsTree(TestCase):
             os.path.dirname(__file__), "data", "www")
         shutil.copytree(tree_source, os.path.join(self.temp_root.name, "www"),
                         symlinks=True)
-        # Now the tree and object under test
-        tree = Tree(self.config, None)
-        publisher = Publisher(tree, None)
-        streams = FullReleaseSimpleStreams(self.config, publisher)
+        # Now the object under test
+        streams = FullReleaseSimpleStreams(self.config)
         streams.generate()
         # Now compare it with the expected tree
         streams_dir = os.path.join(
@@ -319,10 +332,8 @@ class TestSimpleStreamsTree(TestCase):
             os.path.dirname(__file__), "data", "www")
         shutil.copytree(tree_source, os.path.join(self.temp_root.name, "www"),
                         symlinks=True)
-        # Now the tree and object under test
-        tree = Tree(self.config, None)
-        publisher = Publisher(tree, None)
-        streams = SimpleReleaseSimpleStreams(self.config, publisher)
+        # Now the object under test
+        streams = SimpleReleaseSimpleStreams(self.config)
         streams.generate()
         # Now compare it with the expected tree
         streams_dir = os.path.join(
