@@ -39,7 +39,7 @@ def main():
         parser.error("need type")
     streamtype = args[0]
     config = Config()
-    config["SIMPLESTREAMS"] = 1
+    config["SIMPLESTREAMS"] = "1"
     sstreams = SimpleStreams.get_simplestreams_by_name(config, streamtype)
     print("Regenerating %s simplestreams..." % streamtype)
     sstreams.generate()
