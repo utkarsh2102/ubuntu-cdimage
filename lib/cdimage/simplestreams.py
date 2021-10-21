@@ -154,8 +154,9 @@ class SimpleStreams:
         # Checksum
         # One of the image files, we can fetch the checksum from SHA256SUMS,
         # if it's available.
-        data["sha256"] = sha256sums.entries.get(
-            file, sha256sums.checksum(full_path))
+        data["sha256"] = sha256sums.entries.get(file)
+        if data["sha256"] is None:
+            data["sha256"] = sha256sums.checksum(full_path)
         # Size
         try:
             data["size"] = os.stat(full_path).st_size
