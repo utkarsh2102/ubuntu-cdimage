@@ -1,0 +1,86 @@
+{
+  "content_id": "com.ubuntu.releases:ubuntu",
+  "datatype": "image-downloads",
+  "format": "products:1.0",
+  "products": {
+    "com.ubuntu.releases:ubuntu:desktop:18.04:amd64": {
+      "arch": "amd64",
+      "image_type": "desktop",
+      "os": "ubuntu",
+      "release": "bionic",
+      "release_codename": "Bionic Beaver",
+      "release_title": "18.04.6 LTS",
+      "version": "18.04",
+      "versions": {
+        "18.04.6": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "bionic/ubuntu-18.04.6-desktop-amd64.iso",
+              "sha256": "f730be589aa1ba923ebe6eca573fa66d09ba14c4c104da2c329df652d42aff11",
+              "size": 20
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "bionic/ubuntu-18.04.6-desktop-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "list": {
+              "ftype": "list",
+              "path": "bionic/ubuntu-18.04.6-desktop-amd64.list",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "bionic/ubuntu-18.04.6-desktop-amd64.manifest",
+              "sha256": "1176502d7919089581758d9e0094c5cac7268fb55878bb6e653585517fd849d6",
+              "size": 5
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.releases:ubuntu:desktop:20.04:amd64": {
+      "arch": "amd64",
+      "image_type": "desktop",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.3 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.3": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "focal/ubuntu-20.04.3-desktop-amd64.iso",
+              "sha256": "5fdebc435ded46ae99136ca875afc6f05bde217be7dd018e1841924f71db46b5",
+              "size": 19
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/ubuntu-20.04.3-desktop-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "list": {
+              "ftype": "list",
+              "path": "focal/ubuntu-20.04.3-desktop-amd64.list",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "focal/ubuntu-20.04.3-desktop-amd64.manifest",
+              "sha256": "5dad9be79d8c7e4cf9c9a19c3ee9fbceb8d578b94b6ab3d6f57dc60ad38b2479",
+              "size": 14
+            }
+          }
+        }
+      }
+    }
+  },
+  "updated": "TIMESTAMP"
+}

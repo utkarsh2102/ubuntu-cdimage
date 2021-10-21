@@ -1,0 +1,86 @@
+{
+  "content_id": "com.ubuntu.releases:ubuntu-server",
+  "datatype": "image-downloads",
+  "format": "products:1.0",
+  "products": {
+    "com.ubuntu.releases:ubuntu-server:live-server:18.04:amd64": {
+      "arch": "amd64",
+      "image_type": "live-server",
+      "os": "ubuntu-server",
+      "release": "bionic",
+      "release_codename": "Bionic Beaver",
+      "release_title": "18.04.6 LTS",
+      "version": "18.04",
+      "versions": {
+        "18.04.6": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "bionic/ubuntu-18.04.6-live-server-amd64.iso",
+              "sha256": "6c647b1ab4318e8c560d5748f908e108be654bad1e165f7cf4f3c1fc43995934",
+              "size": 20
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "bionic/ubuntu-18.04.6-live-server-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "list": {
+              "ftype": "list",
+              "path": "bionic/ubuntu-18.04.6-live-server-amd64.list",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "bionic/ubuntu-18.04.6-live-server-amd64.manifest",
+              "sha256": "f325be65f53354e15a6edba144e736832390180158966c5e7db63ecf60b59035",
+              "size": 9
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.releases:ubuntu-server:live-server:20.04:amd64": {
+      "arch": "amd64",
+      "image_type": "live-server",
+      "os": "ubuntu-server",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.3 LTS",
+      "version": "20.04",
+      "versions": {
+        "20.04.3": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "focal/ubuntu-20.04.3-live-server-amd64.iso",
+              "sha256": "f8e3086f3cea0fb3fefb29937ab5ed9d19e767079633960ccb50e76153effc98",
+              "size": 19
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/ubuntu-20.04.3-live-server-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "list": {
+              "ftype": "list",
+              "path": "focal/ubuntu-20.04.3-live-server-amd64.list",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "focal/ubuntu-20.04.3-live-server-amd64.manifest",
+              "sha256": "599cd3df5ef89b050a6206f577b9ef420ec26d4de2d95eb9eab8a73a623700b8",
+              "size": 16
+            }
+          }
+        }
+      }
+    }
+  },
+  "updated": "TIMESTAMP"
+}

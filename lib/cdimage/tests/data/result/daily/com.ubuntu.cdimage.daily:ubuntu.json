@@ -1,0 +1,276 @@
+{
+  "content_id": "com.ubuntu.cdimage.daily:ubuntu",
+  "datatype": "image-downloads",
+  "format": "products:1.0",
+  "products": {
+    "com.ubuntu.cdimage.daily:ubuntu:daily-live:20.04:amd64": {
+      "arch": "amd64",
+      "image_type": "daily-live",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.3 LTS",
+      "version": "20.04",
+      "versions": {
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "focal/daily-live/20211012/focal-desktop-amd64.iso",
+              "sha256": "e5b299c761d9fdf49ded1b9506bf18bca1a6592a2c6e3cfbdeeb9523ee81eab7",
+              "size": 24
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/daily-live/20211012/focal-desktop-amd64.iso.zsync",
+              "sha256": "7cbfb6e2a5e7acd57ebe2cf6fe39826b761319b2693f759af4dbbfaea8bb0edf",
+              "size": 30
+            },
+            "list": {
+              "ftype": "list",
+              "path": "focal/daily-live/20211012/focal-desktop-amd64.list",
+              "sha256": "f85b40472698229d197288c27ed0d51a0eb6f629080c4b0c24149b68de527858",
+              "size": 25
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "focal/daily-live/20211012/focal-desktop-amd64.manifest",
+              "sha256": "5a0afa4eacb4dc20b908fea86d03818a552d2d62b6996f68944067cb6b1a61f9",
+              "size": 29
+            }
+          }
+        },
+        "20211013": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "focal/daily-live/20211013/focal-desktop-amd64.iso",
+              "sha256": "34f0f10d7277755d22f2a7c34f7e9cecc6f9f2f9ca3dbfd8b5b0eaf85051033f",
+              "size": 24
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/daily-live/20211013/focal-desktop-amd64.iso.zsync",
+              "sha256": "7cbfb6e2a5e7acd57ebe2cf6fe39826b761319b2693f759af4dbbfaea8bb0edf",
+              "size": 30
+            },
+            "list": {
+              "ftype": "list",
+              "path": "focal/daily-live/20211013/focal-desktop-amd64.list",
+              "sha256": "f85b40472698229d197288c27ed0d51a0eb6f629080c4b0c24149b68de527858",
+              "size": 25
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "focal/daily-live/20211013/focal-desktop-amd64.manifest",
+              "sha256": "5a0afa4eacb4dc20b908fea86d03818a552d2d62b6996f68944067cb6b1a61f9",
+              "size": 29
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu:daily-live:20.04:arm64": {
+      "arch": "arm64",
+      "image_type": "daily-live",
+      "os": "ubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.3 LTS",
+      "version": "20.04",
+      "versions": {
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "focal/daily-live/20211012/focal-desktop-arm64.iso",
+              "sha256": "43a7fbd5282575cfa41fba6e622f2a5d4e354bb3bc181c56b6889bc71df8637c",
+              "size": 24
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/daily-live/20211012/focal-desktop-arm64.iso.zsync",
+              "sha256": "bc371747b8f886064b6d16bda42141514bee0b92b7826aade971e94e5e420821",
+              "size": 30
+            },
+            "list": {
+              "ftype": "list",
+              "path": "focal/daily-live/20211012/focal-desktop-arm64.list",
+              "sha256": "ca0f15617e2cf32fef6c33b7a6ee73c87e761678dea6cc0a8ea7c891c2844c45",
+              "size": 25
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "focal/daily-live/20211012/focal-desktop-arm64.manifest",
+              "sha256": "43b2d639dfa66457082c06ed9f7536a420f0cf3208e187030001136431bf10a2",
+              "size": 29
+            }
+          }
+        },
+        "20211013": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "focal/daily-live/20211013/focal-desktop-arm64.iso",
+              "sha256": "f6ee0d7b258e99a5ef4bdad47a72a171c2184034029db5ee8237f9c7112b1512",
+              "size": 24
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/daily-live/20211013/focal-desktop-arm64.iso.zsync",
+              "sha256": "bc371747b8f886064b6d16bda42141514bee0b92b7826aade971e94e5e420821",
+              "size": 30
+            },
+            "list": {
+              "ftype": "list",
+              "path": "focal/daily-live/20211013/focal-desktop-arm64.list",
+              "sha256": "ca0f15617e2cf32fef6c33b7a6ee73c87e761678dea6cc0a8ea7c891c2844c45",
+              "size": 25
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "focal/daily-live/20211013/focal-desktop-arm64.manifest",
+              "sha256": "43b2d639dfa66457082c06ed9f7536a420f0cf3208e187030001136431bf10a2",
+              "size": 29
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu:daily-live:21.10:amd64": {
+      "arch": "amd64",
+      "image_type": "daily-live",
+      "os": "ubuntu",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "daily-live/20211011.1/impish-desktop-amd64.iso",
+              "sha256": "a3c7ada040f1a1291be4f650ef213fcd1df7b8f04d6c2ee431684bb4bc0988bb",
+              "size": 25
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "daily-live/20211011.1/impish-desktop-amd64.iso.zsync",
+              "sha256": "404885daa9cbf659f52c291a621867d53ee36fbda314f8986b9d1ca58f409076",
+              "size": 31
+            },
+            "list": {
+              "ftype": "list",
+              "path": "daily-live/20211011.1/impish-desktop-amd64.list",
+              "sha256": "8c6922e62a7def82f081df2baedcbff9b3d352cec12ef295dad5515c528d8a50",
+              "size": 26
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "daily-live/20211011.1/impish-desktop-amd64.manifest",
+              "sha256": "37a0c6aec04666a6d587f2d130ed8ad457c83c1f8a3cedd14f55059661034ef7",
+              "size": 30
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "daily-live/20211012/impish-desktop-amd64.iso",
+              "sha256": "f8d3ab0faeaecb5d26628ae1aa21c9a13e0a242c381aa08157db8624d574b830",
+              "size": 25
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "daily-live/20211012/impish-desktop-amd64.iso.zsync",
+              "sha256": "404885daa9cbf659f52c291a621867d53ee36fbda314f8986b9d1ca58f409076",
+              "size": 31
+            },
+            "list": {
+              "ftype": "list",
+              "path": "daily-live/20211012/impish-desktop-amd64.list",
+              "sha256": "8c6922e62a7def82f081df2baedcbff9b3d352cec12ef295dad5515c528d8a50",
+              "size": 26
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "daily-live/20211012/impish-desktop-amd64.manifest",
+              "sha256": "37a0c6aec04666a6d587f2d130ed8ad457c83c1f8a3cedd14f55059661034ef7",
+              "size": 30
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:ubuntu:daily-live:21.10:arm64": {
+      "arch": "arm64",
+      "image_type": "daily-live",
+      "os": "ubuntu",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "daily-live/20211011.1/impish-desktop-arm64.iso",
+              "sha256": "a1376c642bba0dd0aeffe22eb758eb914b1796687296fe55bde066a69a5a7944",
+              "size": 25
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "daily-live/20211011.1/impish-desktop-arm64.iso.zsync",
+              "sha256": "880467060cdf1d0f03bcffa1399fac8f1c7826ab2da0a294f67856be99b4492b",
+              "size": 31
+            },
+            "list": {
+              "ftype": "list",
+              "path": "daily-live/20211011.1/impish-desktop-arm64.list",
+              "sha256": "a405da40cd809f1a1fd3a63a388ce21b3a34f2101ce2cb9125cd760f6c0a0573",
+              "size": 26
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "daily-live/20211011.1/impish-desktop-arm64.manifest",
+              "sha256": "4212d5bdb9d5ad334b37a4e55a9e16a7d6e996f6f527fd32f46ff41cf84486df",
+              "size": 30
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "daily-live/20211012/impish-desktop-arm64.iso",
+              "sha256": "a1376c642bba0dd0aeffe22eb758eb914b1796687296fe55bde066a69a5a7944",
+              "size": 25
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "daily-live/20211012/impish-desktop-arm64.iso.zsync",
+              "sha256": "880467060cdf1d0f03bcffa1399fac8f1c7826ab2da0a294f67856be99b4492b",
+              "size": 31
+            },
+            "list": {
+              "ftype": "list",
+              "path": "daily-live/20211012/impish-desktop-arm64.list",
+              "sha256": "a405da40cd809f1a1fd3a63a388ce21b3a34f2101ce2cb9125cd760f6c0a0573",
+              "size": 26
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "daily-live/20211012/impish-desktop-arm64.manifest",
+              "sha256": "4212d5bdb9d5ad334b37a4e55a9e16a7d6e996f6f527fd32f46ff41cf84486df",
+              "size": 30
+            }
+          }
+        }
+      }
+    }
+  },
+  "updated": "TIMESTAMP"
+}

@@ -1718,6 +1718,17 @@ class Publisher:
                 if name.endswith(".metalink"):
                     osextras.unlink_force(os.path.join(directory, name))
 
+    def refresh_simplestreams(self):
+        """For the publisher cycle, refresh the corresponding sstreams."""
+        if self.config.get("SIMPLESTREAMS") != "1":
+            # ...for testing, SimpleStreams are disabled by default
+            return
+        logger.info("Refreshing simplestreams...")
+
+        from cdimage.simplestreams import SimpleStreams
+        sstreams = SimpleStreams.get_simplestreams(self.config, self)
+        sstreams.generate()
+
 
 class DailyTree(Tree):
     """A publication tree containing daily builds."""
@@ -3554,6 +3565,8 @@ class ReleasePublisher(Publisher):
                     fqdn = socket.getfqdn()
                     with open(os.path.join(trace_dir, fqdn), "w") as trace:
                         subprocess.check_call(["date", "-u"], stdout=trace)
+
+        self.refresh_simplestreams()
 
         logger.info(
             "Done!  Remember to sync-mirrors after checking that everything "

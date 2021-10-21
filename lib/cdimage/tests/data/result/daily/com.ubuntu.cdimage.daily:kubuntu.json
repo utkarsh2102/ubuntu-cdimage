@@ -1,0 +1,114 @@
+{
+  "content_id": "com.ubuntu.cdimage.daily:kubuntu",
+  "datatype": "image-downloads",
+  "format": "products:1.0",
+  "products": {
+    "com.ubuntu.cdimage.daily:kubuntu:daily-live:20.04:amd64": {
+      "arch": "amd64",
+      "image_type": "daily-live",
+      "os": "kubuntu",
+      "release": "focal",
+      "release_codename": "Focal Fossa",
+      "release_title": "20.04.3 LTS",
+      "version": "20.04",
+      "versions": {
+        "20211013": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "kubuntu/focal/daily-live/20211013/focal-desktop-amd64.iso",
+              "sha256": "9ae57b0e3ac7aedfb43ec12c1f97332254c9266f042ea0ea68e411066e939e8c",
+              "size": 24
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/focal/daily-live/20211013/focal-desktop-amd64.iso.zsync",
+              "sha256": "7cbfb6e2a5e7acd57ebe2cf6fe39826b761319b2693f759af4dbbfaea8bb0edf",
+              "size": 30
+            },
+            "list": {
+              "ftype": "list",
+              "path": "kubuntu/focal/daily-live/20211013/focal-desktop-amd64.list",
+              "sha256": "f85b40472698229d197288c27ed0d51a0eb6f629080c4b0c24149b68de527858",
+              "size": 25
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "kubuntu/focal/daily-live/20211013/focal-desktop-amd64.manifest",
+              "sha256": "5a0afa4eacb4dc20b908fea86d03818a552d2d62b6996f68944067cb6b1a61f9",
+              "size": 29
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage.daily:kubuntu:daily-live:21.10:amd64": {
+      "arch": "amd64",
+      "image_type": "daily-live",
+      "os": "kubuntu",
+      "release": "impish",
+      "release_codename": "Impish Indri",
+      "release_title": "21.10",
+      "version": "21.10",
+      "versions": {
+        "20211011.1": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "kubuntu/daily-live/20211011.1/impish-desktop-amd64.iso",
+              "sha256": "c626b0ed05b2a7bf1fd95225e219ec5972edb057a22f8152f5f15bea7539be35",
+              "size": 0
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/daily-live/20211011.1/impish-desktop-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "list": {
+              "ftype": "list",
+              "path": "kubuntu/daily-live/20211011.1/impish-desktop-amd64.list",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "kubuntu/daily-live/20211011.1/impish-desktop-amd64.manifest",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            }
+          }
+        },
+        "20211012": {
+          "items": {
+            "iso": {
+              "ftype": "iso",
+              "path": "kubuntu/daily-live/20211012/impish-desktop-amd64.iso",
+              "sha256": "4a56cfc43e0f4ead6b7e66b3da67ab22d96c46dc090190a06d2848b6e03fe02a",
+              "size": 0
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/daily-live/20211012/impish-desktop-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "list": {
+              "ftype": "list",
+              "path": "kubuntu/daily-live/20211012/impish-desktop-amd64.list",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "kubuntu/daily-live/20211012/impish-desktop-amd64.manifest",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            }
+          }
+        }
+      }
+    }
+  },
+  "updated": "TIMESTAMP"
+}

@@ -2740,6 +2740,56 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.assertFalse(os.path.exists(os.path.join(
             self.temp_dir, "www", "simple")))
 
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
+    def test_publish_release_simplestreams(self, mock_call, *args):
+        self.config["PROJECT"] = "kubuntu"
+        self.config["CAPPROJECT"] = "Kubuntu"
+        series = Series.latest()
+        self.config["DIST"] = series
+        self.config["ARCHES"] = "amd64"
+        self.config["SIMPLESTREAMS"] = "1"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso.zsync" % series))
+        target_dir = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "releases", series.name,
+            "release")
+        streams_dir = os.path.join(
+            self.temp_dir, "www", "full", "releases", "streams", "v1")
+        self.capture_logging()
+        publisher = self.get_publisher(official="named")
+        publisher.publish_release("daily-live", "20130327", "desktop")
+        self.assertLogEqual([
+            "Constructing release trees ...",
+            "Copying desktop-amd64 image ...",
+            "Making amd64 zsync metafile ...",
+            "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
+                target_dir, series.version),
+            "Checksumming full tree ...",
+            "No keys found; not signing images.",
+            "Refreshing simplestreams...",
+            "No keys found; not signing images.",
+            "No keys found; not signing images.",
+            "Done!  Remember to sync-mirrors after checking that everything "
+            "is OK.",
+        ])
+        # Double check if we still published everything
+        self.assertCountEqual([
+            ".htaccess", "FOOTER.html", "HEADER.html",
+            "SHA256SUMS",
+            "kubuntu-%s-desktop-amd64.iso" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
+            "kubuntu-%s-desktop-amd64.manifest" % series.version,
+        ], os.listdir(target_dir))
+        # ...and that the streams got generated as expected
+        self.assertCountEqual([
+            "index.json", "com.ubuntu.cdimage:kubuntu.json"
+        ], os.listdir(streams_dir))
+
 
 class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
     def setUp(self):
@@ -3054,3 +3104,64 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             self.temp_dir, "www", "simple", ".manifest")))
         self.assertTrue(os.path.isdir(os.path.join(
             self.temp_dir, "www", "simple", ".trace")))
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
+    def test_publish_release_simplestreams(self, mock_call, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        series = Series.latest()
+        self.config["DIST"] = series
+        self.config["ARCHES"] = "amd64"
+        self.config["SIMPLESTREAMS"] = "1"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso.zsync" % series))
+        pool_dir = os.path.join(
+            self.temp_dir, "www", "simple", ".pool")
+        target_dir = os.path.join(
+            self.temp_dir, "www", "simple", series.name)
+        streams_dir = os.path.join(
+            self.temp_dir, "www", "simple", "streams", "v1")
+        self.capture_logging()
+        publisher = self.get_publisher(official="yes")
+        publisher.publish_release("daily-live", "20130327", "desktop")
+        self.assertLogEqual([
+            "Constructing release trees ...",
+            "Copying desktop-amd64 image ...",
+            "Making amd64 zsync metafile ...",
+            "Creating torrent for %s/ubuntu-%s-desktop-amd64.iso ..." % (
+                target_dir, series.version),
+            "Checksumming simple tree (pool) ...",
+            "No keys found; not signing images.",
+            "Checksumming simple tree (%s) ..." % series,
+            "No keys found; not signing images.",
+            "Refreshing simplestreams...",
+            "No keys found; not signing images.",
+            "No keys found; not signing images.",
+            "Done!  Remember to sync-mirrors after checking that everything "
+            "is OK.",
+        ])
+        # Double check if we still published everything
+        self.assertCountEqual([
+            "SHA256SUMS",
+            "ubuntu-%s-desktop-amd64.iso" % series.version,
+            "ubuntu-%s-desktop-amd64.iso.zsync" % series.version,
+            "ubuntu-%s-desktop-amd64.manifest" % series.version,
+        ], os.listdir(pool_dir))
+        self.assertCountEqual([
+            ".htaccess", "FOOTER.html", "HEADER.html",
+            "SHA256SUMS",
+            "ubuntu-%s-desktop-amd64.iso" % series.version,
+            "ubuntu-%s-desktop-amd64.iso.torrent" % series.version,
+            "ubuntu-%s-desktop-amd64.iso.zsync" % series.version,
+            "ubuntu-%s-desktop-amd64.manifest" % series.version,
+        ], os.listdir(target_dir))
+        self.assertFalse(os.path.exists(os.path.join(
+            self.temp_dir, "www", "full", "releases")))
+        # ...and that the streams got generated as expected
+        self.assertCountEqual([
+            "index.json", "com.ubuntu.releases:ubuntu.json"
+        ], os.listdir(streams_dir))
