@@ -20,6 +20,12 @@
               "sha256": "f730be589aa1ba923ebe6eca573fa66d09ba14c4c104da2c329df652d42aff11",
               "size": 20
             },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "bionic/ubuntu-18.04.6-desktop-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
             "list": {
               "ftype": "list",
               "path": "bionic/ubuntu-18.04.6-desktop-amd64.list",
@@ -52,6 +58,12 @@
               "path": "focal/ubuntu-20.04.3-desktop-amd64.iso",
               "sha256": "5fdebc435ded46ae99136ca875afc6f05bde217be7dd018e1841924f71db46b5",
               "size": 19
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/ubuntu-20.04.3-desktop-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
             },
             "list": {
               "ftype": "list",

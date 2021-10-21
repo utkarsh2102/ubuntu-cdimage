@@ -129,9 +129,22 @@ class SimpleStreams:
             project = "ubuntu-server"
         return project
 
+    def extract_release_identifier(self, item, series):
+        """Return a version number, deducting it from the filename.
+
+        This basically only works on filenames from releases trees. If we
+        cannot safely determine it from the filename, we return the series
+        version.
+        """
+        match = re.match(r".*-([0-9]+(\.[0-9]+)*)-", item)
+        if not match:
+            return series.realversion
+        return match.group(1)
+
     def scan_published_item(self, publishing_dir, sha256sums, file):
         """Scan and generate simplestream data for a published file."""
-        for extension in ("iso", "img", "img.xz", "manifest", "list"):
+        for extension in ("iso", "img", "img.xz", "manifest", "list",
+                          "iso.zsync", "img.zsync", "img.xz.zsync"):
             if file.endswith(extension):
                 break
         else:
@@ -162,7 +175,6 @@ class SimpleStreams:
             self.config, target_dir, "SHA256SUMS", hashlib.sha256)
         sha256sums.read()
         # Now let's convert those into pre-sstream items.
-        version_name = identifier
         item_project = project
         item_image_type = image_type
         # Look for supported published items.
@@ -181,6 +193,10 @@ class SimpleStreams:
                 # it from the filename as well.
                 item_image_type = self.extract_release_image_type(
                     file, item_project, arch)
+            if not identifier:
+                version_name = self.extract_release_identifier(file, series)
+            else:
+                version_name = identifier
             content_id = "%s:%s" % (self.content_id, item_project)
             product_name = '%s:%s:%s:%s' % (content_id, item_image_type,
                                             series.version, arch)
@@ -304,8 +320,7 @@ class FullReleaseSimpleStreams(SimpleStreams):
             target_dir = os.path.join(releases_dir, entry, "release")
             # The image ID is the point version for now, since those should
             # be unique. This might still be up for discussion.
-            self.scan_target(target_dir, series, project, None,
-                             series.realversion)
+            self.scan_target(target_dir, series, project, None, None)
 
     def scan_tree(self):
         """Scan all releases/ directories on cdimage."""
@@ -347,5 +362,4 @@ class SimpleReleaseSimpleStreams(SimpleStreams):
                 # TODO: let's log this and continue
                 continue
             target_dir = os.path.join(self.tree_dir, entry)
-            self.scan_target(target_dir, series, None, None,
-                             series.realversion)
+            self.scan_target(target_dir, series, None, None, None)

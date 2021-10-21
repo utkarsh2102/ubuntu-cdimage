@@ -12,13 +12,19 @@
       "release_title": "18.04.6 LTS",
       "version": "18.04",
       "versions": {
-        "18.04.6": {
+        "18.04.5": {
           "items": {
             "iso": {
               "ftype": "iso",
               "path": "kubuntu/releases/bionic/release/kubuntu-18.04.5-desktop-amd64.iso",
               "sha256": "a70b3644cac074e68a3a1b5ae44f72227cd8db3ab21c8c76665a3c3ea14eb20e",
               "size": 34
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/releases/bionic/release/kubuntu-18.04.5-desktop-amd64.iso.zsync",
+              "sha256": "3404de0b608c1bae27ba4ac2046c65d7fc892ed1b52d4768d74f1c336ba38a69",
+              "size": 40
             },
             "list": {
               "ftype": "list",
@@ -45,13 +51,19 @@
       "release_title": "18.04.6 LTS",
       "version": "18.04",
       "versions": {
-        "18.04.6": {
+        "18.04.5": {
           "items": {
             "iso": {
               "ftype": "iso",
               "path": "kubuntu/releases/bionic/release/kubuntu-18.04.5-desktop-i386.iso",
               "sha256": "e402d2ab9b69124b51b67ad56d2fa35587b71069e55b0ce695bf8f55af0383a4",
               "size": 33
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/releases/bionic/release/kubuntu-18.04.5-desktop-i386.iso.zsync",
+              "sha256": "de848d4c91fb71ff4c9cb55acb8ea5791bd6581ce5ec3f46e8be1205e2116303",
+              "size": 39
             },
             "list": {
               "ftype": "list",
@@ -85,6 +97,12 @@
               "path": "kubuntu/releases/focal/release/kubuntu-20.04.3-desktop-amd64.iso",
               "sha256": "11bca68f3366b11c7887666124e0155c6e2fbe1350ab14f25cd15299ac8f68b5",
               "size": 34
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/releases/focal/release/kubuntu-20.04.3-desktop-amd64.iso.zsync",
+              "sha256": "128aab640f0b2a53ed077937ee85ae6a3f9aff64c0312a50e7d0299ad8f41489",
+              "size": 40
             },
             "list": {
               "ftype": "list",

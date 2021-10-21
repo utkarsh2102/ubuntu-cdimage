@@ -20,6 +20,12 @@
               "sha256": "9ae57b0e3ac7aedfb43ec12c1f97332254c9266f042ea0ea68e411066e939e8c",
               "size": 24
             },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/focal/daily-live/20211013/focal-desktop-amd64.iso.zsync",
+              "sha256": "7cbfb6e2a5e7acd57ebe2cf6fe39826b761319b2693f759af4dbbfaea8bb0edf",
+              "size": 30
+            },
             "list": {
               "ftype": "list",
               "path": "kubuntu/focal/daily-live/20211013/focal-desktop-amd64.list",
@@ -53,6 +59,12 @@
               "sha256": "c626b0ed05b2a7bf1fd95225e219ec5972edb057a22f8152f5f15bea7539be35",
               "size": 0
             },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/daily-live/20211011.1/impish-desktop-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
             "list": {
               "ftype": "list",
               "path": "kubuntu/daily-live/20211011.1/impish-desktop-amd64.list",
@@ -73,6 +85,12 @@
               "ftype": "iso",
               "path": "kubuntu/daily-live/20211012/impish-desktop-amd64.iso",
               "sha256": "4a56cfc43e0f4ead6b7e66b3da67ab22d96c46dc090190a06d2848b6e03fe02a",
+              "size": 0
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "kubuntu/daily-live/20211012/impish-desktop-amd64.iso.zsync",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
               "size": 0
             },
             "list": {

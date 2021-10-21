@@ -132,6 +132,25 @@ class TestSimpleStreams(TestCase):
             self.assertEqual(streams.extract_release_project(filename),
                              project)
 
+    def test_extract_release_identifier(self):
+        """Check if extraction of the release version works as expected."""
+        streams = SimpleStreams(self.config)
+        series = Series.find_by_name("hirsute")  # for checking defaults
+        # Test various filenames
+        test_cases = {
+            "ubuntu-20.04.3-live-server-amd64.iso": "20.04.3",
+            "kubuntu-21.10-desktop-amd64.iso": "21.10",
+            "ubuntu-20.04.2.0-preinstalled-server-arm64+raspi.img.xz":
+                "20.04.2.0",
+            "ubuntu-mate-18.04.6-live-server-amd64.iso": "18.04.6",
+            "ubuntu-core-20-amd64.img": "20",
+            "ubuntu-custom-image-amd64.iso": "21.04",
+        }
+        for filename, version in test_cases.items():
+            self.assertEqual(streams.extract_release_identifier(
+                                 filename, series),
+                             version)
+
     @mock.patch("os.stat")
     def test_scan_published_item(self, osstat):
         """Check if published items are detected and parsed correctly."""
@@ -262,7 +281,7 @@ class TestSimpleStreamsTree(TestCase):
         """Check if we get a right simplestream for a daily tree."""
         timestamp.return_value = "TIMESTAMP"
         latest.return_value = Series.find_by_name("impish")
-        sign_cdimage = mock_sign_cdimage
+        sign_cdimage.side_effect = mock_sign_cdimage
         # Setup the tree
         tree_source = os.path.join(
             os.path.dirname(__file__), "data", "www")
@@ -280,6 +299,8 @@ class TestSimpleStreamsTree(TestCase):
         expected_contents = os.listdir(expected_dir)
         self.assertListEqual(streams_contents, expected_contents)
         for file in streams_contents:
+            if file.endswith(".gpg"):
+                continue
             streams_path = os.path.join(streams_dir, file)
             expected_path = os.path.join(expected_dir, file)
             with open(streams_path) as sf, open(expected_path) as ef:
@@ -294,7 +315,7 @@ class TestSimpleStreamsTree(TestCase):
     def test_release_tree(self, timestamp, sign_cdimage):
         """Check if we get a right simplestream for a release tree."""
         timestamp.return_value = "TIMESTAMP"
-        sign_cdimage = mock_sign_cdimage
+        sign_cdimage.side_effect = mock_sign_cdimage
         # Setup the tree
         tree_source = os.path.join(
             os.path.dirname(__file__), "data", "www")
@@ -312,6 +333,8 @@ class TestSimpleStreamsTree(TestCase):
         expected_contents = os.listdir(expected_dir)
         self.assertListEqual(streams_contents, expected_contents)
         for file in streams_contents:
+            if file.endswith(".gpg"):
+                continue
             streams_path = os.path.join(streams_dir, file)
             expected_path = os.path.join(expected_dir, file)
             with open(streams_path) as sf, open(expected_path) as ef:
@@ -326,7 +349,7 @@ class TestSimpleStreamsTree(TestCase):
     def test_simple_tree(self, timestamp, sign_cdimage):
         """Check if we get a right simplestream for a simple tree."""
         timestamp.return_value = "TIMESTAMP"
-        sign_cdimage = mock_sign_cdimage
+        sign_cdimage.side_effect = mock_sign_cdimage
         # Setup the tree
         tree_source = os.path.join(
             os.path.dirname(__file__), "data", "www")
@@ -344,6 +367,8 @@ class TestSimpleStreamsTree(TestCase):
         expected_contents = os.listdir(expected_dir)
         self.assertListEqual(streams_contents, expected_contents)
         for file in streams_contents:
+            if file.endswith(".gpg"):
+                continue
             streams_path = os.path.join(streams_dir, file)
             expected_path = os.path.join(expected_dir, file)
             with open(streams_path) as sf, open(expected_path) as ef:

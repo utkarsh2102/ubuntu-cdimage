@@ -20,6 +20,12 @@
               "sha256": "e5b299c761d9fdf49ded1b9506bf18bca1a6592a2c6e3cfbdeeb9523ee81eab7",
               "size": 24
             },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/daily-live/20211012/focal-desktop-amd64.iso.zsync",
+              "sha256": "7cbfb6e2a5e7acd57ebe2cf6fe39826b761319b2693f759af4dbbfaea8bb0edf",
+              "size": 30
+            },
             "list": {
               "ftype": "list",
               "path": "focal/daily-live/20211012/focal-desktop-amd64.list",
@@ -41,6 +47,12 @@
               "path": "focal/daily-live/20211013/focal-desktop-amd64.iso",
               "sha256": "34f0f10d7277755d22f2a7c34f7e9cecc6f9f2f9ca3dbfd8b5b0eaf85051033f",
               "size": 24
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/daily-live/20211013/focal-desktop-amd64.iso.zsync",
+              "sha256": "7cbfb6e2a5e7acd57ebe2cf6fe39826b761319b2693f759af4dbbfaea8bb0edf",
+              "size": 30
             },
             "list": {
               "ftype": "list",
@@ -75,6 +87,12 @@
               "sha256": "43a7fbd5282575cfa41fba6e622f2a5d4e354bb3bc181c56b6889bc71df8637c",
               "size": 24
             },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/daily-live/20211012/focal-desktop-arm64.iso.zsync",
+              "sha256": "bc371747b8f886064b6d16bda42141514bee0b92b7826aade971e94e5e420821",
+              "size": 30
+            },
             "list": {
               "ftype": "list",
               "path": "focal/daily-live/20211012/focal-desktop-arm64.list",
@@ -96,6 +114,12 @@
               "path": "focal/daily-live/20211013/focal-desktop-arm64.iso",
               "sha256": "f6ee0d7b258e99a5ef4bdad47a72a171c2184034029db5ee8237f9c7112b1512",
               "size": 24
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "focal/daily-live/20211013/focal-desktop-arm64.iso.zsync",
+              "sha256": "bc371747b8f886064b6d16bda42141514bee0b92b7826aade971e94e5e420821",
+              "size": 30
             },
             "list": {
               "ftype": "list",
@@ -130,6 +154,12 @@
               "sha256": "a3c7ada040f1a1291be4f650ef213fcd1df7b8f04d6c2ee431684bb4bc0988bb",
               "size": 25
             },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "daily-live/20211011.1/impish-desktop-amd64.iso.zsync",
+              "sha256": "404885daa9cbf659f52c291a621867d53ee36fbda314f8986b9d1ca58f409076",
+              "size": 31
+            },
             "list": {
               "ftype": "list",
               "path": "daily-live/20211011.1/impish-desktop-amd64.list",
@@ -151,6 +181,12 @@
               "path": "daily-live/20211012/impish-desktop-amd64.iso",
               "sha256": "f8d3ab0faeaecb5d26628ae1aa21c9a13e0a242c381aa08157db8624d574b830",
               "size": 25
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "daily-live/20211012/impish-desktop-amd64.iso.zsync",
+              "sha256": "404885daa9cbf659f52c291a621867d53ee36fbda314f8986b9d1ca58f409076",
+              "size": 31
             },
             "list": {
               "ftype": "list",
@@ -185,6 +221,12 @@
               "sha256": "a1376c642bba0dd0aeffe22eb758eb914b1796687296fe55bde066a69a5a7944",
               "size": 25
             },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "daily-live/20211011.1/impish-desktop-arm64.iso.zsync",
+              "sha256": "880467060cdf1d0f03bcffa1399fac8f1c7826ab2da0a294f67856be99b4492b",
+              "size": 31
+            },
             "list": {
               "ftype": "list",
               "path": "daily-live/20211011.1/impish-desktop-arm64.list",
@@ -206,6 +248,12 @@
               "path": "daily-live/20211012/impish-desktop-arm64.iso",
               "sha256": "a1376c642bba0dd0aeffe22eb758eb914b1796687296fe55bde066a69a5a7944",
               "size": 25
+            },
+            "iso.zsync": {
+              "ftype": "iso.zsync",
+              "path": "daily-live/20211012/impish-desktop-arm64.iso.zsync",
+              "sha256": "880467060cdf1d0f03bcffa1399fac8f1c7826ab2da0a294f67856be99b4492b",
+              "size": 31
             },
             "list": {
               "ftype": "list",
