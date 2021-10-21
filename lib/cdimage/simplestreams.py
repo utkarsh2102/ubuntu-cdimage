@@ -272,6 +272,8 @@ class DailySimpleStreams(SimpleStreams):
             # This means it's an image type, not a series - so let's continue
             image_type = entry
             image_type_dir = os.path.join(base_dir, image_type)
+            if not os.path.isdir(image_type_dir):
+                continue
             for publish_id in os.listdir(image_type_dir):
                 # XXX: Should we also list 'current' and 'pending'? Is there
                 #  any use in doing that? For now we don't.
