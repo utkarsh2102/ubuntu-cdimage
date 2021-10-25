@@ -1720,8 +1720,8 @@ class Publisher:
 
     def refresh_simplestreams(self):
         """For the publisher cycle, refresh the corresponding sstreams."""
-        if self.config.get("SIMPLESTREAMS") != "1":
-            # ...for testing, SimpleStreams are disabled by default
+        if self.config.get("SIMPLESTREAMS") == "0":
+            # SimpleStreams are enabled by default now.
             return
         logger.info("Refreshing simplestreams...")
 
