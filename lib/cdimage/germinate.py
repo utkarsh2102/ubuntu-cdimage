@@ -314,6 +314,9 @@ class GerminateOutput:
                 yield "ship-live-share"
             elif project == "ubuntu-server" and series >= "bionic":
                 yield "server-ship-live"
+            elif project == "ubuntu" and self.config["SUBPROJECT"] == "canary":
+                # ubuntu-desktop-installer
+                yield "canary-ship-live"
             else:
                 yield "ship-live"
         elif mode == "addon":
