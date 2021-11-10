@@ -463,6 +463,8 @@ def flavours(config, arch):
     series = config["DIST"]
 
     if cpuarch == "amd64":
+        if subarch == "intel-iot":
+            return ["intel"]
         if series >= "focal" and project == "ubuntu":
             return ["generic", "oem"]
         if project == "ubuntustudio":
