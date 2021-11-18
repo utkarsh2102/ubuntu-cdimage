@@ -36,9 +36,8 @@ mythbuntu		*			*			amd64 i386
 ubuntu			daily-live		trusty			amd64 amd64+mac i386
 ubuntu			daily-live		xenial			amd64 i386
 ubuntu			daily-live		bionic			amd64
-ubuntu			daily-live		focal-			amd64 arm64
+ubuntu			daily-live		focal-			amd64 arm64 amd64+intel-iot
 
-ubuntu-desktop-preinstalled daily-preinstalled	focal			amd64+intel-iot
 ubuntu-desktop-preinstalled daily-preinstalled	hirsute-		arm64+raspi
 
 ubuntu-gnome		*			*			amd64 i386
