@@ -2769,6 +2769,7 @@ class DailyTreePublisher(Publisher):
         to_purge = []
         publish_pending = os.path.join(self.publish_base, "pending")
         publish_current = os.path.join(self.publish_base, "current")
+        publish_manual = os.path.join(self.publish_base, "manual")
 
         for entry in sorted(
                 osextras.listdir_force(self.publish_base), reverse=True):
@@ -2816,6 +2817,11 @@ class DailyTreePublisher(Publisher):
                             break
                 if found_current:
                     continue
+            # Experimentally, we also support manually 'preserving' certain
+            # images by using a 'manual' symlink to a published image set.
+            if (os.path.islink(publish_manual) and
+                    os.readlink(publish_manual) == entry):
+                continue
 
             to_purge.append((entry, entry_path))
 

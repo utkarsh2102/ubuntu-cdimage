@@ -1849,6 +1849,28 @@ class TestDailyTreePublisher(TestCase):
             os.listdir(publisher.publish_base))
 
     @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_preserves_manual(self, *args):
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130319", "20130320", "20130321":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        os.symlink("20130319", os.path.join(publisher.publish_base, "manual"))
+        with mkfile(os.path.join(
+                self.temp_dir, "etc", "purge-days")) as purge_days:
+            print("daily 1", file=purge_days)
+        self.capture_logging()
+        publisher.purge()
+        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
+            project = "ubuntu-zh_CN"
+        else:
+            project = "ubuntu"
+        self.assertLogEqual([
+            "Purging %s/daily images older than 1 day ..." % project,
+        ])
+        self.assertCountEqual(
+            ["20130319", "20130320", "20130321", "manual"],
+            os.listdir(publisher.publish_base))
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
     def test_purge_removes_symlinks(self, *args):
         publisher = self.make_publisher("ubuntu", "daily")
         touch(os.path.join(publisher.publish_base, "20130319", "file"))
