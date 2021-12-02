@@ -550,7 +550,7 @@ class GerminateOutput:
         for arch in self.config.arches:
             initrd_packages = self.common_initrd_packages(arch)
             packages = defaultdict(list)
-            cpparch = arch.replace("+", "_")
+            cpparch = arch.replace("+", "_").replace("-", "_")
             for seed in self.list_seeds("all"):
                 if seed == "supported":
                     seedsource = "%s+build-depends" % seed
