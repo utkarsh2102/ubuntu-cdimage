@@ -1909,7 +1909,7 @@ class DailyTreePublisher(Publisher):
                 return 1.4 * 1000 * 1000 * 1000
             elif self.config["DIST"] >= "focal":
                 # Size bump due to HWE kernel inclusion in the images
-                return 1.3 * 1000 * 1000 * 1000
+                return 1.4 * 1000 * 1000 * 1000
             elif self.config["DIST"] >= "bionic":
                 # email with powersj, 20200108
                 return 1.2 * 1000 * 1000 * 1000
