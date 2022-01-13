@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 
 
 def main():
-    from cdimage.config import Config
+    from cdimage.config import Config, Series
     from cdimage.tree import Publisher, Tree
 
     parser = OptionParser(usage="Usage: %prog [options] SERIES INSTANCE")
@@ -132,21 +132,25 @@ def main():
                       (entry[0].product_title, entry[0].series_title,
                        entry[0].requestedby_name, entry[1:]))
 
+        env = {}
         if build_type == "wsl":
+            # Ubuntu WSL is a special snowflake as it's not built by cdimage,
+            # but we still want to be able to easily trigger rebuilds.
             if not options.quiet:
                 print("Requested rebuild is for Ubuntu WSL")
 
             token_path = os.path.expanduser(options.wsl_github_token)
             try:
                 with open(token_path) as f:
-                    env['WSL_GITHUB_TOKEN'] = f.read()
+                    env['WSL_GITHUB_TOKEN'] = f.read().strip()
             except FileNotFoundError:
                 print("Required WSL github credentials not found in the "
                       "expected path: %s" % token_path)
+                return
 
-            series = Config.find_by_name(args[0])
+            series = Series.find_by_name(args[0])
             wsl_id = None
-            if "LTS" in series.displayversion():
+            if "LTS" in series.displayversion(project):
                 wsl_id = "Ubuntu%sLTS" % series.version
             elif series.is_latest():
                 wsl_id = "UbuntuPreview"
@@ -155,11 +159,8 @@ def main():
                       "UbuntuLTS versions and the current development series")
                 return
 
-            # We always re-build the rootfs along with the WSL appx in case
-            # or ISO Tracker rebuilds
-            cmd = ["build-remote", wsl_id, "-r"]
+            cmd = ["build-remote", wsl_id]
         else:
-            env = {}
             if sub_project:
                 env['SUBPROJECT'] = sub_project
 
