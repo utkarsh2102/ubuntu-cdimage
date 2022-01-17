@@ -156,10 +156,13 @@ def main():
                 wsl_id = "UbuntuPreview"
             else:
                 print("Requested WSL rebuild for %s: Ubuntu WSL only supports "
-                      "UbuntuLTS versions and the current development series")
+                      "Ubuntu LTS versions and the current development "
+                      "series" % series.version)
                 return
 
-            cmd = ["build-remote", wsl_id]
+            # This is the expected filename of the build-remote script from the
+            # Ubuntu WSL github repository
+            cmd = ["gh-wsl-build-remote", wsl_id]
         else:
             if sub_project:
                 env['SUBPROJECT'] = sub_project
