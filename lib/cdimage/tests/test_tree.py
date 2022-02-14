@@ -193,7 +193,7 @@ class TestTree(TestCase):
 
             with open(os.path.join(publish_base, "20130321", ".marked_good"),
                       "r") as marked_good:
-                self.assertEqual("hirsute-desktop-i386.iso\n",
+                self.assertEqual("jammy-desktop-i386.iso\n",
                                  marked_good.read())
 
             publish_current = os.path.join(publish_base, "current")
@@ -268,7 +268,7 @@ class TestPublisher(TestCase):
             ("daily", "ubuntu-server", "precise", "server"),
             ("daily", "ubuntu-server", "focal", "legacy-server"),
             ("daily", "ubuntu", "precise", "alternate"),
-            ("daily-canary", "ubuntu", "hirsute", "desktop-canary"),
+            ("daily-canary", "ubuntu", "jammy", "desktop-canary"),
         ):
             self.config["PROJECT"] = project
             self.config["DIST"] = dist
@@ -299,13 +299,15 @@ class TestPublisherWebIndices(TestCase):
 
     def test_cssincludes(self):
         assets = 'https://assets.ubuntu.com/v1'
+        vanilla = assets + "/vanilla-framework-version-1.8.0.min.css"
         for project, expected in (
-            ("ubuntu", [assets + "/vanilla-framework-version-1.8.0.min.css"]),
-            ("kubuntu", ["//releases.ubuntu.com/include/kubuntu.css"]),
+            ("ubuntu", [vanilla]),
+            ("kubuntu",
+             [vanilla, "//cdimage.ubuntu.com/include/kubuntu/style.css"]),
             ("lubuntu",
-             ["//cdimage.ubuntu.com/include/lubuntu/style.css"]),
+             [vanilla, "//cdimage.ubuntu.com/include/lubuntu/style.css"]),
             ("lubuntu-next",
-             ["//cdimage.ubuntu.com/include/lubuntu/style.css"]),
+             [vanilla, "//cdimage.ubuntu.com/include/lubuntu/style.css"]),
             ("xubuntu",
              [assets + "/vanilla-framework-version-1.8.0.min.css",
               "//cdimage.ubuntu.com/include/xubuntu/style.css"]),
