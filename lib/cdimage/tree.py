@@ -1822,18 +1822,12 @@ class DailyTreePublisher(Publisher):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             if self.config["DIST"] >= "focal":
                 return 4 * 1024 * 1024 * 1024
-            elif self.config["DIST"] >= "bionic":
+            else:
                 return int(2.1 * 1024 * 1024 * 1024)
-            elif self.config["DIST"] >= "xenial":
-                # Per https://lists.ubuntu.com/archives/
-                # ... ubuntu-release/2016-May/003749.html
-                return 2 * 1000 * 1000 * 1000
-            # 1.2GB arbitrary limit, set jriddell 2014-08-21
-            return (1024 * 1024 * 1024) + (1024 * 1024 * 200)
         elif (self.project in ("ubuntu", "ubuntukylin") and
               self.publish_type != "dvd" and
-              self.config["DIST"] >= "trusty"):
-            if (self.config["DIST"] >= "groovy" and
+              self.config["DIST"] >= "bionic"):
+            if (self.config["DIST"] >= "impish" and
                     self.project == "ubuntukylin"):
                 # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
                 return 4 * 1024 * 1024 * 1024
@@ -1843,24 +1837,9 @@ class DailyTreePublisher(Publisher):
                 # Further bumped in mail to internal Desktop team list,
                 # 2020-10-13, acked by seb128
                 return int(3.4 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "eoan":
-                # email with willcooke, 20190801
-                return int(2.4 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "disco":
-                if self.project == "ubuntukylin":
-                    # verbally from willcooke after consulting Kylin team
-                    return int(2.4 * 1000 * 1000 * 1000)
-                else:
-                    # verbally from willcooke, 20190320
-                    return int(2.2 * 1000 * 1000 * 1000)
             # email with willcooke, 20190801
-            elif self.config["DIST"] >= "bionic":
-                return int(2.2 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "xenial":
-                # next relevant size limit is a 2GB (not 2GiB) USB stick
-                return 2 * 1000 * 1000 * 1000
             else:
-                return 1.2 * 1000 * 1000 * 1000
+                return int(2.2 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-mate" and self.config["DIST"] >= "focal":
             return int(2.8 * 1000 * 1000 * 1000)
         elif (self.project == "ubuntu-budgie" and
@@ -1870,9 +1849,8 @@ class DailyTreePublisher(Publisher):
         elif self.project == "xubuntu" and self.config["DIST"] >= "impish":
             # Per IRC discussions on #ubuntu-release 2021-08-20
             return 2 * 1024 * 1024 * 1024
-        elif (self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
-                               "ubuntu-gnome", "ubuntu-mate") and
-              self.config["DIST"] >= "xenial"):
+        elif self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
+                               "ubuntu-gnome", "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
             # ubuntu-gnome per
@@ -1882,8 +1860,7 @@ class DailyTreePublisher(Publisher):
             # oversized; executive decision by vorlon to raise the limit
             # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
-        elif (self.project in ("ubuntu-gnome", "xubuntu") and
-              self.config["DIST"] >= "trusty"):
+        elif self.project in ("ubuntu-gnome", "xubuntu"):
             # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
             # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
             return 1024 * 1024 * 1024
@@ -1893,17 +1870,12 @@ class DailyTreePublisher(Publisher):
             return int(2.5 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "hirsute":
             return int(2.2 * 1000 * 1000 * 1000)
-        elif self.project == "lubuntu" and self.config["DIST"] >= "cosmic":
+        elif self.project == "lubuntu" and self.config["DIST"] >= "focal":
             # https://bugs.launchpad.net/bugs/1796368
             return 2 * 1000 * 1000 * 1000
-        elif (self.project in ("lubuntu", "lubuntu-next") and
-              self.config["DIST"] >= "bionic"):
+        elif self.project in ("lubuntu", "lubuntu-next"):
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
-        elif self.project == "lubuntu" and self.config["DIST"] >= "trusty":
-            # provisional;
-            # https://irclogs.ubuntu.com/2016/10/01/%23ubuntu-release.html#t19:06
-            return 1024 * 1024 * 1024
         elif self.project == "ubuntu-server":
             if self.config["DIST"] >= "impish":
                 # Requested by paride in #ubuntu-release
@@ -1912,13 +1884,9 @@ class DailyTreePublisher(Publisher):
             elif self.config["DIST"] >= "focal":
                 # Size bump due to HWE kernel inclusion in the images
                 return 1.4 * 1000 * 1000 * 1000
-            elif self.config["DIST"] >= "bionic":
+            else:
                 # email with powersj, 20200108
                 return 1.2 * 1000 * 1000 * 1000
-            elif self.config["DIST"] >= "xenial":
-                return 1024 * 1024 * 1024
-            else:
-                return 736665600
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW
