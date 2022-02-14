@@ -32,6 +32,7 @@ __metaclass__ = type
 # Not all files in the bin/ directory are Python sources
 excluded_filenames = [
     "archive-image",
+    "archive-point-release",
 ]
 
 
