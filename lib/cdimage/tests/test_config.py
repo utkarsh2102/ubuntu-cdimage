@@ -174,7 +174,8 @@ class TestConfig(TestCase):
                 PROJECT=ubuntu-server
                 DIST=focal
                 """), file=f)
-        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) as f:
+        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) \
+             as f:
             print("ubuntu-server\tdaily-preinstalled\t*\tarm64\tunleashed\t"
                   "ubuntu-cpc\t*\tsifive_fu540", file=f)
         config = Config(IMAGE_TYPE="daily-preinstalled")
@@ -200,7 +201,8 @@ class TestConfig(TestCase):
                 PROJECT=ubuntu-server
                 DIST=focal
                 """), file=f)
-        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) as f:
+        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) \
+             as f:
             print("ubuntu-server\tdaily-preinstalled\t*\tarm64\t-\t"
                   "ubuntu-cpc\t*\tgeneric\n"
                   "ubuntu-server\tdaily-preinstalled\t*\tarm64\tunleashed\t"
@@ -229,11 +231,11 @@ class TestConfig(TestCase):
                 PROJECT=ubuntu-server
                 DIST=groovy
                 """), file=f)
-        with mkfile(os.path.join(etc_dir, 
+        with mkfile(os.path.join(etc_dir,
                                  "cdimage-to-livecd-rootfs-map")) as f:
             print("ubuntu-server\tdaily-preinstalled\tfocal-\tarm64\t-\t"
                   "ubuntu-cpc\t*\tgeneric\n"
-                  "ubuntu-server\tdaily-preinstalled\impish\tarm64\t"
+                  "ubuntu-server\tdaily-preinstalled\timpish\tarm64\t"
                   "unleashed\tubuntu-cpc\t*\tsifive_unleashed\n", file=f)
         config = Config(IMAGE_TYPE="daily-preinstalled")
         # This should be matched by series

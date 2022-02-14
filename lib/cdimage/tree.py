@@ -889,10 +889,12 @@ class Publisher:
                 "\"LC\" Linux-only servers.")
         elif arch in ("riscv64", "riscv64+unleashed"):
             sentences.append(
-                "For RISC-V computers, with support for SiFive HiFive Unleashed and QEMU.")
+                "For RISC-V computers, with support for SiFive HiFive "
+                "Unleashed and QEMU.")
         elif arch in ("riscv64+unmatched"):
             sentences.append(
-                "For RISC-V computers, with support for SiFive HiFive Unmatched and QEMU.")
+                "For RISC-V computers, with support for SiFive HiFive "
+                "Unmatched and QEMU.")
         elif arch == "s390x":
             sentences.append(
                 "For IBM System z series mainframes, such as IBM LinuxONE.")
@@ -1850,7 +1852,7 @@ class DailyTreePublisher(Publisher):
             # Per IRC discussions on #ubuntu-release 2021-08-20
             return 2 * 1024 * 1024 * 1024
         elif self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
-                               "ubuntu-gnome", "ubuntu-mate"):
+                              "ubuntu-gnome", "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
             # ubuntu-gnome per

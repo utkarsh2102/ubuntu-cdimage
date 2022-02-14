@@ -405,7 +405,8 @@ class Config(defaultdict):
 
     def set_livefs_mapping(self):
         self.livefs_arch_mapping = {}
-        mapping = os.path.join(self.root, "etc", "cdimage-to-livecd-rootfs-map")
+        mapping = os.path.join(self.root, "etc",
+                               "cdimage-to-livecd-rootfs-map")
         if not os.path.exists(mapping):
             return
         want_project_bits = [self.project]
@@ -451,7 +452,7 @@ class Config(defaultdict):
                     livefs_subarch = want_subarch
                 elif livefs_subarch == "-":
                     livefs_subarch = None
-                livefs_arch = ("%s+%s" % (livefs_cpuarch, livefs_subarch) 
+                livefs_arch = ("%s+%s" % (livefs_cpuarch, livefs_subarch)
                                if livefs_subarch else livefs_cpuarch)
                 self.livefs_arch_mapping[arch] = (livefs_project, livefs_arch)
                 break

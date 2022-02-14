@@ -757,7 +757,7 @@ class TestDailyTreePublisher(TestCase):
                 self.config["DIST"] = dist
             publisher = self.make_publisher(project, image_type)
             self.assertEqual(size_limit, publisher.size_limit(arch),
-                            "%s/%s" % (project, dist))
+                             "%s/%s" % (project, dist))
 
     def test_size_limit_extension(self):
         publisher = self.make_publisher("ubuntu", "daily")

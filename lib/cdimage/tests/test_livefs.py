@@ -176,7 +176,8 @@ class TestLiveProject(TestCase):
                 PROJECT=%s
                 DIST=%s
                 """ % (project, series)), file=f)
-        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) as f:
+        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) \
+             as f:
             print("ubuntu-appliance\t*\t*\t*\t*\tubuntu-core\t*\t*\n"
                   "livecd-base\t*\t*\t*\t*\tbase\t*\t*", file=f)
         config = Config()
