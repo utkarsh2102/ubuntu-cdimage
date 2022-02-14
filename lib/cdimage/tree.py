@@ -1873,7 +1873,7 @@ class DailyTreePublisher(Publisher):
         elif self.project == "lubuntu" and self.config["DIST"] >= "focal":
             # https://bugs.launchpad.net/bugs/1796368
             return 2 * 1000 * 1000 * 1000
-        elif self.project in ("lubuntu", "lubuntu-next"):
+        elif self.project == "lubuntu":
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-server":
