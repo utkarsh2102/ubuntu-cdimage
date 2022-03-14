@@ -1879,7 +1879,10 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] >= "impish":
+            if self.config["DIST"] >= "jammy":
+                # Requested by paride via MP.
+                return int(1.5 * 1000 * 1000 * 1000)
+            elif self.config["DIST"] >= "impish":
                 # Requested by paride in #ubuntu-release
                 # https://irclogs.ubuntu.com/2021/08/31/%23ubuntu-release.html#t16:22
                 return int(1.4 * 1000 * 1000 * 1000)
