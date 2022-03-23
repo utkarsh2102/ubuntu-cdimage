@@ -1949,7 +1949,7 @@ class DailyTreePublisher(Publisher):
 
         if output.startswith("ISO 9660 CD-ROM filesystem data "):
             return "iso"
-        elif output.startswith("x86 boot sector"):
+        elif output.startswith(("x86 boot sector", "DOS/MBR boot sector")):
             return "img"
         elif output.startswith(("gzip compressed data", "XZ compressed data")):
             if output.startswith("gzip compressed data"):
@@ -1960,7 +1960,8 @@ class DailyTreePublisher(Publisher):
                 real_output = compressed_type.readline().rstrip("\n")
             if real_output.startswith("ISO 9660 CD-ROM filesystem data "):
                 return "iso.%s" % compressed_extension
-            elif real_output.startswith("x86 boot sector"):
+            elif real_output.startswith(("x86 boot sector",
+                                         "DOS/MBR boot sector")):
                 return "img.%s" % compressed_extension
             elif real_output.startswith("tar archive"):
                 return "tar.%s" % compressed_extension
