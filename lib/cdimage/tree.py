@@ -1817,9 +1817,13 @@ class DailyTreePublisher(Publisher):
 
     def size_limit(self, arch):
         if self.project in ("edubuntu", "ubuntustudio"):
-            # All Edubuntu images are DVD sized (including arm).
-            # Ubuntu Studio is always DVD-sized for now.
-            return 4700372992
+            if self.config["DIST"] >= "jammy":
+                # Per IRC discussions on #ubuntu-release 2022-03-24
+                return 5 * 1000 * 1000 * 1000
+            else:
+                # All Edubuntu images are DVD sized (including arm).
+                # Ubuntu Studio is always DVD-sized for now.
+                return 4700372992
         elif self.project in ("kubuntu", "kubuntu-active"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             if self.config["DIST"] >= "focal":
