@@ -1873,7 +1873,7 @@ class DailyTreePublisher(Publisher):
         elif self.project == "ubuntu-mate":
             return 1024 * 1024 * 1024
         elif self.project == "lubuntu" and self.config["DIST"] >= "jammy":
-            return int(2.6 * 1000 * 1000 * 1000)
+            return int(2.8 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "hirsute":
             return int(2.2 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "focal":
