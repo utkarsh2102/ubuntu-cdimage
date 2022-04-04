@@ -887,14 +887,20 @@ class Publisher:
             sentences.append(
                 "For POWER8 and POWER9 Little-Endian systems, especially the "
                 "\"LC\" Linux-only servers.")
-        elif arch in ("riscv64", "riscv64+unleashed"):
+        elif arch == "riscv64+unleashed":
             sentences.append(
                 "For RISC-V computers, with support for SiFive HiFive "
                 "Unleashed and QEMU.")
-        elif arch in ("riscv64+unmatched"):
+        elif arch == "riscv64+unmatched":
             sentences.append(
                 "For RISC-V computers, with support for SiFive HiFive "
                 "Unmatched and QEMU.")
+        elif arch == "riscv64" and publish_type == "live-server":
+            sentences.append(
+                "For RISC-V computers. Requires copying your own first "
+                "stage bootloader (like u-boot) onto the image before "
+                "usage on real hardware (like the SiFive HiFive "
+                "Unmatched).")
         elif arch == "s390x":
             sentences.append(
                 "For IBM System z series mainframes, such as IBM LinuxONE.")
