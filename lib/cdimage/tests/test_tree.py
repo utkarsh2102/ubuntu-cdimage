@@ -369,6 +369,7 @@ class TestPublisherWebIndices(TestCase):
 
     def test_archdesc(self):
         self.config["ARCHES"] = "amd64 i386"
+        self.config["DIST"] = "focal"
         publisher = Publisher(self.tree, "daily-live")
         self.assertEqual(
             "For almost all PCs.  This includes most machines with "
@@ -392,6 +393,21 @@ class TestPublisherWebIndices(TestCase):
             "architecture (e.g., Athlon64, Opteron, EM64T Xeon, Core 2).  "
             "Choose this if you are at all unsure.",
             publisher.archdesc("amd64", "desktop"))
+
+        # Test case for ppc64el series-conditional strings
+        self.config["ARCHES"] = "ppc64el"
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertEqual(
+            "For POWER8 and POWER9 Little-Endian systems, especially "
+            "the \"LC\" Linux-only servers.",
+            publisher.archdesc("ppc64el", "live-server"))
+
+        self.config["DIST"] = "jammy"
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertEqual(
+            "For POWER9 Little-Endian systems, especially the \"LC\" "
+            "Linux-only servers.",
+            publisher.archdesc("ppc64el", "live-server"))
 
     def test_maybe_oversized(self):
         self.config["DIST"] = "precise"

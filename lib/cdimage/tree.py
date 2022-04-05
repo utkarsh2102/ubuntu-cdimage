@@ -794,6 +794,7 @@ class Publisher:
     }
 
     def archdesc(self, arch, publish_type):
+        series = self.config["DIST"]
         sentences = []
         if arch in ("amd64", "amd64+mac"):
             sentences.append(
@@ -884,9 +885,14 @@ class Publisher:
                     "An alternative boot option to try %s without changing "
                     "your computer is available.)" % capproject)
         elif arch == "ppc64el":
-            sentences.append(
-                "For POWER8 and POWER9 Little-Endian systems, especially the "
-                "\"LC\" Linux-only servers.")
+            if series >= "jammy":
+                sentences.append(
+                    "For POWER9 Little-Endian systems, especially the \"LC\" "
+                    "Linux-only servers.")
+            else:
+                sentences.append(
+                    "For POWER8 and POWER9 Little-Endian systems, especially "
+                    "the \"LC\" Linux-only servers.")
         elif arch == "riscv64+unleashed":
             sentences.append(
                 "For RISC-V computers, with support for SiFive HiFive "
