@@ -59,7 +59,8 @@ ubuntu-server		*			xenial			amd64 arm64 i386 powerpc ppc64el s390x
 ubuntu-server		*			bionic-focal		amd64 arm64 ppc64el s390x
 
 ubuntu-server-live	*			bionic			amd64 arm64 ppc64el
-ubuntu-server-live	*			focal-			amd64 arm64 ppc64el s390x
+ubuntu-server-live	*			focal-impish			amd64 arm64 ppc64el s390x
+ubuntu-server-live	*			jammy-			amd64 arm64 ppc64el s390x riscv64
 
 ubuntu-wubi		*			*			amd64 i386
 
