@@ -1881,12 +1881,6 @@ class DailyTreePublisher(Publisher):
             # oversized; executive decision by vorlon to raise the limit
             # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
-        elif self.project in ("ubuntu-gnome", "xubuntu"):
-            # Requested by darkxst in #ubuntu-release on 2013/06/28 03:29 UTC
-            # http://irclogs.ubuntu.com/2013/02/11/%23xubuntu-devel.html#t21:48
-            return 1024 * 1024 * 1024
-        elif self.project == "ubuntu-mate":
-            return 1024 * 1024 * 1024
         elif self.project == "lubuntu" and self.config["DIST"] >= "jammy":
             return int(2.8 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "hirsute":
