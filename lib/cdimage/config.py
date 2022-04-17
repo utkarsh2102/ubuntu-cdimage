@@ -19,7 +19,11 @@ Most of this is a transitional measure to permit shell and Python programs
 to co-exist until such time as the whole of cdimage is rewritten.
 """
 
-from collections import Iterable, defaultdict
+from collections import defaultdict
+try:
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
 import fnmatch
 import operator
 import os
