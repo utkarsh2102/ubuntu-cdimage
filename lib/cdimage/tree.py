@@ -1854,7 +1854,7 @@ class DailyTreePublisher(Publisher):
                 # increases its size
                 # Further bumped in mail to internal Desktop team list,
                 # 2020-10-13, acked by seb128
-                return int(3.6 * 1000 * 1000 * 1000)
+                return int(3.6 * 1024 * 1024 * 1024)
             # email with willcooke, 20190801
             else:
                 return int(2.2 * 1000 * 1000 * 1000)
