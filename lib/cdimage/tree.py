@@ -887,8 +887,7 @@ class Publisher:
         elif arch == "ppc64el":
             if series >= "jammy":
                 sentences.append(
-                    "For POWER9 Little-Endian systems, especially the \"LC\" "
-                    "Linux-only servers.")
+                    "For POWER9 and POWER10 Little-Endian systems.")
             else:
                 sentences.append(
                     "For POWER8 and POWER9 Little-Endian systems, especially "
