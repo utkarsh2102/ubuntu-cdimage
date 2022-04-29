@@ -82,8 +82,6 @@ class TestGermination(TestCase):
 
     def test_seed_sources_bzr(self):
         for project, series, owners in (
-            ("kubuntu", "precise", ["kubuntu-dev"]),
-            ("kubuntu-active", "precise", ["kubuntu-dev"]),
             ("mythbuntu", "trusty", ["mythbuntu-dev"]),
             ("ubuntu-budgie", "bionic", ["ubuntubudgie-dev"]),
             ("ubuntu-mate", "xenial", ["ubuntu-mate-dev"]),
@@ -99,6 +97,8 @@ class TestGermination(TestCase):
             self.assertEqual(sources, self.germination.seed_sources(project))
 
         for project, series, owners in (
+            ("kubuntu", "precise", ["kubuntu-dev", "ubuntu-core-dev"]),
+            ("kubuntu-active", "precise", ["kubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntu", "trusty", ["ubuntu-core-dev"]),
             ("lubuntu", "trusty", ["lubuntu-dev", "ubuntu-core-dev"]),
             ("xubuntu", "precise", ["xubuntu-dev", "ubuntu-core-dev"]),
