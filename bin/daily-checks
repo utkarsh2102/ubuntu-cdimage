@@ -245,7 +245,7 @@ def main():
     if not options.series:
         options.series = ('precise', 'trusty', 'xenial', 'bionic',
                           'focal', 'groovy', 'hirsute', 'impish',
-                          'jammy')
+                          'jammy', 'kinetic')
 
     for project in projects:
         for series in options.series:

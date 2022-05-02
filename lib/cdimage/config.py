@@ -217,6 +217,7 @@ all_series.extend([
     Series(
         "jammy", "22.04", "Jammy Jellyfish",
         all_lts_projects=True),
+    Series("kinetic", "22.10", "Kinetic Kudu"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(

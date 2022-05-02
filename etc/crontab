@@ -35,7 +35,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 14 22 * * *	DIST=focal for-project ubuntukylin cron.daily-live --live
 00 15 * * *	DIST=focal for-project ubuntu-budgie cron.daily-live --live
 46 2 * * *	DIST=focal for-project ubuntu-mate cron.daily-live --live
-# regular jammy daily builds
+# regular kinetic daily builds
 41 7 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live; SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-canary --live
 24 5 * * *	for-project kubuntu cron.daily-live --live
 40 1 * * *	for-project xubuntu cron.daily-live --live
@@ -53,4 +53,4 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q focal iso
-*/5 * * * *	rebuild-requests -b -q jammy iso
+*/5 * * * *	rebuild-requests -b -q kinetic iso
