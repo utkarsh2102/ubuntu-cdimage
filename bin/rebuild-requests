@@ -21,6 +21,7 @@
 
 from optparse import OptionParser
 import os
+import socket
 import subprocess
 import sys
 
@@ -162,7 +163,17 @@ def main():
 
             # This is the expected filename of the build-remote script from the
             # Ubuntu WSL github repository
-            cmd = ["gh-wsl-build-remote", wsl_id]
+            cmd = ["gh-wsl-build-remote", "-r",
+                   "https://cloud-images.ubuntu.com/%s/current/"
+                   "%s-server-cloudimg-amd64-wsl.rootfs.tar.gz"
+                   "::amd64" % series.name,
+                   wsl_id]
+
+            # If we're running on ancientminister (or any internal Canonical
+            # instance) pre-configure an HTTPS proxy for the github action
+            # calls.
+            if socket.getfqdn().endswith(".internal"):
+                cmd.extend(["--https-proxy", "http://squid.internal:3128/"])
         else:
             if sub_project:
                 env['SUBPROJECT'] = sub_project
