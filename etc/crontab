@@ -35,6 +35,19 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 14 22 * * *	DIST=focal for-project ubuntukylin cron.daily-live --live
 00 15 * * *	DIST=focal for-project ubuntu-budgie cron.daily-live --live
 46 2 * * *	DIST=focal for-project ubuntu-mate cron.daily-live --live
+# jammy daily builds
+51 7 * * *	DIST=jammy for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled DIST=jammy for-project ubuntu cron.daily-preinstalled --live
+34 5 * * *	DIST=jammy for-project kubuntu cron.daily-live --live
+50 1 * * *	DIST=jammy for-project xubuntu cron.daily-live --live
+20 3 * * *	DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live DIST=jammy for-project ubuntu-server cron.daily-live --live
+37 18 * * *	DIST=jammy for-project ubuntustudio cron.dvd --live
+49 16 * * *	DIST=jammy for-project lubuntu cron.daily-live --live
+34 22 * * *	DIST=jammy for-project ubuntukylin cron.daily-live --live
+20 15 * * *	DIST=jammy for-project ubuntu-budgie cron.daily-live --live
+46 2 * * *	DIST=jammy for-project ubuntu-mate cron.daily-live --live
+# The daily ubuntu-base images are used by core-next, so we can't build it
+# with proposed enabled.
+52 4 * * *	PROPOSED=0 DIST=jammy for-project ubuntu-base cron.daily-live --live
 # regular kinetic daily builds
 41 7 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live; SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-canary --live
 24 5 * * *	for-project kubuntu cron.daily-live --live
