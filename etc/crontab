@@ -39,7 +39,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 51 7 * * *	DIST=jammy for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled DIST=jammy for-project ubuntu cron.daily-preinstalled --live
 34 5 * * *	DIST=jammy for-project kubuntu cron.daily-live --live
 50 1 * * *	DIST=jammy for-project xubuntu cron.daily-live --live
-49 6 * * *	DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live DIST=jammy for-project ubuntu-server cron.daily-live --live
+49 6 * * *	DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live; DIST=jammy SUBPROJECT=live PROPOSED=0 for-project ubuntu-server cron.daily-live --live
 37 18 * * *	DIST=jammy for-project ubuntustudio cron.dvd --live
 49 16 * * *	DIST=jammy for-project lubuntu cron.daily-live --live
 34 22 * * *	DIST=jammy for-project ubuntukylin cron.daily-live --live
