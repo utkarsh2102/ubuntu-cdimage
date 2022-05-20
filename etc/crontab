@@ -49,7 +49,8 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # with proposed enabled.
 52 4 * * *	PROPOSED=0 DIST=jammy for-project ubuntu-base cron.daily-live --live
 # regular kinetic daily builds
-41 7 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live; SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-canary --live
+41 7 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
+41 8 * * *	SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-canary --live
 24 5 * * *	for-project kubuntu cron.daily-live --live
 40 1 * * *	for-project xubuntu cron.daily-live --live
 10 3 * * *	for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live for-project ubuntu-server cron.daily-live --live;
