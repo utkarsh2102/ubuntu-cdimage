@@ -20,6 +20,7 @@
 from __future__ import print_function
 
 import errno
+import io
 from itertools import count
 from optparse import OptionParser
 import os
@@ -33,6 +34,7 @@ import socket
 import stat
 import subprocess
 import sys
+import tarfile
 from textwrap import dedent
 import time
 import traceback
@@ -2016,8 +2018,27 @@ class DailyTreePublisher(Publisher):
             return
 
         target_path = os.path.join(os.path.dirname(image_path), tarname)
+        if not image_path.startswith(self.tree.directory):
+            raise Exception(
+                "image_path (%s) did not start with self.tree.directory (%s)"
+                % (image_path, self.tree.directory))
 
-        shutil.move(source_path, target_path)
+        url_path = image_path[len(self.tree.directory):].lstrip('/')
+        iso_url = "https://%s/%s" % (self.tree.site_name, url_path)
+        iso_url_b = iso_url.encode('utf-8')
+
+        with tarfile.open(source_path) as inf:
+            with tarfile.open(target_path, 'w:gz') as outf:
+                for ti in inf:
+                    if ti.name.endswith('.in'):
+                        new_ti = inf.getmember(ti.name)
+                        new_ti.name = ti.name[:-3]
+                        content = inf.extractfile(ti).read()
+                        content = content.replace(b"#ISOURL#", iso_url_b)
+                        new_ti.size = len(content)
+                        outf.addfile(new_ti, io.BytesIO(content))
+                    else:
+                        outf.addfile(ti, inf.extractfile(ti))
 
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
