@@ -487,6 +487,8 @@ class Publisher:
                 return "classroom server %s" % cd
             else:
                 return "server install %s" % cd
+        elif publish_type == "netboot":
+            return "netboot tarball"
         elif publish_type == "legacy-server":
             return "legacy server install %s" % cd
         elif publish_type == "serveraddon":
@@ -579,6 +581,10 @@ class Publisher:
             sentences.append(
                 "The install %s allows you to install %s permanently on a "
                 "computer." % (cd, capproject))
+        elif publish_type == "netboot":
+            sentences.append(
+                "The netboot tarball contains files needed to boot the %s "
+                "installer over the network." % (capproject,))
         elif publish_type == "alternate":
             sentences.append(
                 "The alternate install %s allows you to perform certain "
@@ -1121,6 +1127,7 @@ class Publisher:
         all_publish_types = (
             "live", "desktop",
             "live-server",
+            "netboot",
             "legacy-server",
             "server", "install", "alternate",
             "serveraddon", "addon",
@@ -2002,6 +2009,16 @@ class DailyTreePublisher(Publisher):
                 for line in jigdo_in:
                     jigdo_out.write(line.replace(from_line, to_line))
 
+    def publish_netboot(self, arch, image_path):
+        tarname = "%s-netboot-%s.tar.gz" % (self.config.series, arch)
+        source_path = os.path.join(self.image_output(arch), tarname)
+        if not os.path.exists(source_path):
+            return
+
+        target_path = os.path.join(os.path.dirname(image_path), tarname)
+
+        shutil.move(source_path, target_path)
+
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         if publish_type == "live-core":
@@ -2024,9 +2041,12 @@ class DailyTreePublisher(Publisher):
         logger.info("Publishing %s ..." % arch)
         osextras.ensuredir(target_dir)
         extension = self.detect_image_extension(source_prefix)
+        target_path = "%s.%s" % (target_prefix, extension)
         shutil.move(
             "%s.%s" % (source_prefix, self.source_extension),
-            "%s.%s" % (target_prefix, extension))
+            target_path)
+        if publish_type == self.publish_type:
+            self.publish_netboot(arch, target_path)
         if os.path.exists("%s.list" % source_prefix):
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
         self.checksum_dirs.append(source_dir)
