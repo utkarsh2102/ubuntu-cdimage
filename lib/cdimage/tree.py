@@ -2027,6 +2027,9 @@ class DailyTreePublisher(Publisher):
         iso_url = "https://%s/%s" % (self.tree.site_name, url_path)
         iso_url_b = iso_url.encode('utf-8')
 
+        netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
+        osextras.ensuredir(netboot_dir)
+
         with tarfile.open(source_path) as inf:
             with tarfile.open(target_path, 'w:gz') as outf:
                 for ti in inf:
@@ -2036,8 +2039,13 @@ class DailyTreePublisher(Publisher):
                         content = inf.extractfile(ti).read()
                         content = content.replace(b"#ISOURL#", iso_url_b)
                         new_ti.size = len(content)
+                        with open(
+                                os.path.join(netboot_dir, new_ti.name),
+                                'wb') as fp:
+                            fp.write(content)
                         outf.addfile(new_ti, io.BytesIO(content))
                     else:
+                        inf.extract(ti, netboot_dir)
                         outf.addfile(ti, inf.extractfile(ti))
 
     def publish_binary(self, publish_type, arch, date):
