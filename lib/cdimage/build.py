@@ -537,6 +537,23 @@ def build_livecd_base(config):
                                 snap, "%s.%s.snap" % (output_prefix, snaptype))
 
 
+def copy_netboot_tarballs(config):
+    # cp $scratch/$arch.netboot.tar.gz $output/$series-netboot-$arch.tar.gz
+    scratch_dir = os.path.join(
+        config.root, "scratch", config.project, config.full_series,
+        config.image_type)
+    for arch in config.arches:
+        netboot_path = os.path.join(
+            live_output_directory(config),
+            '%s.netboot.tar.gz' % (arch,))
+        if os.path.exists(netboot_path):
+            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+            shutil.copy2(
+                netboot_path, os.path.join(
+                    output_dir,
+                    '%s-netboot-%s.tar.gz' % (config.series, arch)))
+
+
 def _debootstrap_script(config):
     return "usr/share/debootstrap/scripts/%s" % config.series
 
@@ -738,6 +755,7 @@ def build_image_set_locked(config, options, multipidfile_state):
             configure_splash(config)
 
             run_debian_cd(config)
+            copy_netboot_tarballs(config)
             fix_permissions(config)
 
         # Temporarily turned off for live builds.
