@@ -10,18 +10,15 @@
 ubuntu-touch		daily-preinstalled	trusty			armhf i386
 ubuntu-touch		daily-preinstalled	xenial-			armhf i386 arm64
 
-edubuntu		dvd			trusty-		amd64 i386
-edubuntu-dvd		dvd			trusty-		amd64 i386
-
 ubuntu-base		daily			trusty			amd64 arm64 armhf i386 powerpc ppc64el
 ubuntu-base		daily			xenial			amd64 arm64 armhf i386 powerpc ppc64el s390x
 ubuntu-base		daily			bionic			amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-base		daily			focal-			amd64 arm64 armhf ppc64el riscv64 s390x
 ubuntu-core-system-image	daily-preinstalled	xenial-		amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-core		daily-live		xenial			amd64 arm64+snapdragon armhf+cm3 armhf+raspi2 armhf+raspi3 i386
-ubuntu-core		daily-live		bionic		amd64 arm64+snapdragon armhf+raspi3 arm64+raspi3 i386
+ubuntu-core		daily-live		bionic			amd64 arm64+snapdragon armhf+raspi3 arm64+raspi3 i386
 ubuntu-core		daily-live		focal			amd64 arm64+raspi armhf+raspi amd64+intel-iot
-ubuntu-core		daily-live		hirsute-		amd64 arm64+raspi armhf+raspi
+ubuntu-core		daily-live		impish-			amd64 arm64+raspi armhf+raspi
 # The default list of supported images for appliances is quite big
 ubuntu-appliance	daily-live		bionic-			amd64+appliance-adguard-home-core18-amd64 armhf+appliance-adguard-home-core18-pi-armhf arm64+appliance-adguard-home-core18-pi amd64+appliance-lxd-core18-amd64 arm64+appliance-lxd-core18-pi amd64+appliance-mosquitto-core18-amd64 armhf+appliance-mosquitto-core18-pi-armhf arm64+appliance-mosquitto-core18-pi amd64+appliance-nextcloud-core18-amd64 armhf+appliance-nextcloud-core18-pi-armhf arm64+appliance-nextcloud-core18-pi amd64+appliance-openhab-core18-amd64 armhf+appliance-openhab-core18-pi-armhf arm64+appliance-openhab-core18-pi amd64+appliance-plexmediaserver-core18-amd64 armhf+appliance-plexmediaserver-core18-pi-armhf arm64+appliance-plexmediaserver-core18-pi amd64+appliance-rocketchat-core18-amd64 arm64+appliance-rocketchat-core18-pi amd64+appliance-gitea-core18-amd64 armhf+appliance-gitea-core18-pi-armhf arm64+appliance-gitea-core18-pi
 
@@ -29,17 +26,15 @@ kubuntu			daily-live		trusty			amd64 amd64+mac i386
 kubuntu			daily-live		xenial-bionic		amd64 i386
 kubuntu			daily-live		focal-			amd64
 
-kubuntu-active		*			*			i386
-
 mythbuntu		*			*			amd64 i386
 
 ubuntu			daily-live		trusty			amd64 amd64+mac i386
 ubuntu			daily-live		xenial			amd64 i386
 ubuntu			daily-live		bionic			amd64
 ubuntu			daily-live		focal			amd64 arm64 amd64+intel-iot
-ubuntu			daily-live		groovy-			amd64 arm64
+ubuntu			daily-live		impish-			amd64 arm64
 
-ubuntu-desktop-preinstalled daily-preinstalled	hirsute-		arm64+raspi
+ubuntu-desktop-preinstalled daily-preinstalled	impish-		arm64+raspi
 
 ubuntu-gnome		*			*			amd64 i386
 
@@ -52,17 +47,14 @@ ubuntu-mate		*			focal-			amd64
 ubuntu-server		daily-preinstalled	xenial			armhf+raspi2
 ubuntu-server		daily-preinstalled	bionic			armhf+raspi3 arm64+raspi3
 ubuntu-server		daily-preinstalled	focal			armhf+raspi arm64+raspi riscv64+unleashed riscv64+unmatched
-ubuntu-server		daily-preinstalled	hirsute			armhf+raspi arm64+raspi riscv64+unleashed riscv64+unmatched
 ubuntu-server		daily-preinstalled	impish-			armhf+raspi arm64+raspi riscv64+unmatched amd64 arm64
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
 ubuntu-server		*			xenial			amd64 arm64 i386 powerpc ppc64el s390x
 ubuntu-server		*			bionic-focal		amd64 arm64 ppc64el s390x
 
 ubuntu-server-live	*			bionic			amd64 arm64 ppc64el
-ubuntu-server-live	*			focal-impish			amd64 arm64 ppc64el s390x
+ubuntu-server-live	*			focal-impish		amd64 arm64 ppc64el s390x
 ubuntu-server-live	*			jammy-			amd64 arm64 ppc64el s390x riscv64
-
-ubuntu-wubi		*			*			amd64 i386
 
 ubuntu-zh_CN		*			trusty-			amd64 i386
 ubuntukylin		*			-bionic			amd64 i386
