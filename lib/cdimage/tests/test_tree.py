@@ -736,17 +736,18 @@ class TestDailyTreePublisher(TestCase):
 
     def test_size_limit(self):
         for project, dist, image_type, arch, size_limit in (
-            ("ubuntustudio", None, "dvd", "i386", 4700372992),
+            ("ubuntustudio", None, "dvd", "i386", 5000000000),
+            ("ubuntustudio", "focal", "dvd", "i386", 4700372992),
             ("kubuntu", "bionic", "daily-live", "amd64", 2254857830),
             ("kubuntu", "focal", "daily-live", "amd64", 4294967296),
             ("kubuntu", "jammy", "daily-live", "amd64", 4294967296),
             ("ubuntu", None, "dvd", "amd64", 4700372992),
-            ("ubuntu", "focal", "daily-live", "amd64", 3400000000),
-            ("ubuntu", "jammy", "daily-live", "amd64", 3400000000),
+            ("ubuntu", "focal", "daily-live", "amd64", 3865470566),
+            ("ubuntu", "jammy", "daily-live", "amd64", 3865470566),
             ("ubuntukylin", "jammy", "daily-live", "amd64", 4294967296),
             ("xubuntu", "bionic", "daily-live", "amd64", 2000000000),
             ("xubuntu", "focal", "daily-live", "amd64", 2000000000),
-            ("xubuntu", "jammy", "daily-live", "amd64", 2147483648),
+            ("xubuntu", "jammy", "daily-live", "amd64", 2800000000),
             ("ubuntu-gnome", "bionic", "daily-live", "amd64", 2000000000),
             ("ubuntu-gnome", "focal", "daily-live", "amd64", 2000000000),
             ("ubuntu-gnome", "jammy", "daily-live", "amd64", 2000000000),
@@ -754,12 +755,12 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-budgie", "focal", "daily-live", "amd64", 4294967296),
             ("ubuntu-budgie", "jammy", "daily-live", "amd64", 4294967296),
             ("ubuntu-mate", "bionic", "daily-live", "amd64", 2000000000),
-            ("ubuntu-mate", "focal", "daily-live", "amd64", 2800000000),
-            ("ubuntu-mate", "jammy", "daily-live", "amd64", 2800000000),
+            ("ubuntu-mate", "focal", "daily-live", "amd64", 4000000000),
+            ("ubuntu-mate", "jammy", "daily-live", "amd64", 4000000000),
             ("ubuntu-server", "bionic", "daily", "amd64", 1200000000),
-            ("ubuntu-server", "focal", "daily", "amd64", 1400000000),
-            ("ubuntu-server", "jammy", "daily", "amd64", 1400000000),
-            ("ubuntu-server", "jammy", "daily", "ppc64el", 1400000000),
+            ("ubuntu-server", "focal", "daily", "amd64", 1500000000),
+            ("ubuntu-server", "jammy", "daily", "amd64", 1500000000),
+            ("ubuntu-server", "jammy", "daily", "ppc64el", 1500000000),
         ):
             if dist is not None:
                 self.config["DIST"] = dist
