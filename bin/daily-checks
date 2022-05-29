@@ -85,8 +85,6 @@ def project_title(project):
         return 'Ubuntu Server'
     elif project == 'ubuntustudio':
         return 'Ubuntu Studio'
-    elif project == 'kubuntu-active':
-        return 'Kubuntu Active'
     else:
         return project.title()
 
@@ -229,11 +227,9 @@ def main():
         'ubuntu',
         'ubuntu-server',
         'kubuntu',
-        'edubuntu',
         'xubuntu',
         'ubuntustudio',
         'kubuntu-netbook',
-        'kubuntu-active',
         'mythbuntu',
         'lubuntu',
         'lubuntu-next',

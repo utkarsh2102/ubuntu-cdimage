@@ -1,11 +1,6 @@
 # QA PRODUCT								PROJECT		IMAGE_TYPE		PUBLISH_TYPE					ARCHITECTURE	TRACKER
 
-# Edubuntu
-Edubuntu DVD amd64							edubuntu		dvd					dvd						amd64			iso
-Edubuntu DVD i386							edubuntu		dvd					dvd						i386			iso
-
 # Kubuntu
-Kubuntu Active i386							kubuntu-active	daily-live			desktop					i386			iso
 Kubuntu Desktop amd64						kubuntu			daily-live			desktop					amd64			iso
 Kubuntu Desktop amd64+mac					kubuntu			daily-live			desktop					amd64+mac		iso
 Kubuntu Desktop armhf+omap4					kubuntu			daily-live			desktop					armhf+omap4		iso

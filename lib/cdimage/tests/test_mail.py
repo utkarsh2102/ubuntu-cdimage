@@ -83,7 +83,6 @@ class TestNotify(TestCase):
         self.assertEqual(
             ["kubuntu@example.org"],
             get_notify_addresses(self.config, "kubuntu"))
-        self.assertEqual([], get_notify_addresses(self.config, "edubuntu"))
 
     def test_send_mail_dry_run_from_file(self):
         path = os.path.join(self.temp_dir, "body")

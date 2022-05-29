@@ -72,7 +72,7 @@ class Germination:
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             series = self.config["DIST"]
             sources = [gitpattern % "ubuntu-core-dev"]
-            if project in ("kubuntu", "kubuntu-active"):
+            if project == "kubuntu":
                 sources.insert(0, gitpattern % "kubuntu-dev")
             elif project == "ubuntustudio":
                 sources.insert(0, gitpattern % "ubuntustudio-dev")
@@ -279,8 +279,6 @@ class GerminateOutput:
             if project == "ubuntu-server":
                 ship = "server-ship"
                 in_squashfs = ["minimal"]
-            elif project == "kubuntu-active":
-                ship = "active-ship"
             seeds = self._inheritance(ship)
             if (self.config["CDIMAGE_SQUASHFS_BASE"] and
                     in_squashfs is not None):
@@ -304,9 +302,7 @@ class GerminateOutput:
             yield "minimal"
             yield "standard"
         elif mode == "ship-live":
-            if project == "kubuntu-active":
-                yield "ship-active-live"
-            elif project == "lubuntu" and series == "bionic":
+            if project == "lubuntu" and series == "bionic":
                 yield "ship-live-gtk"
                 yield "ship-live-share"
             elif project == "lubuntu-next" and series == "bionic":
@@ -326,11 +322,7 @@ class GerminateOutput:
                 if seed not in ship:
                     yield seed
         elif mode == "dvd":
-            if project == "edubuntu":
-                # no inheritance; most of this goes on the live filesystem
-                yield "dvd"
-                yield "ship-live"
-            elif project == "ubuntu":
+            if project == "ubuntu":
                 # no inheritance; most of this goes on the live filesystem
                 yield "usb-langsupport"
                 yield "usb-ship-live"
@@ -384,11 +376,6 @@ class GerminateOutput:
 
         found = False
         for seed in self.master_seeds():
-            # https://blueprints.launchpad.net/ubuntu/+spec/edubuntu-on-two-cds
-            if (self.config["CDIMAGE_DVD"] != "1" and
-                    self.config["CDIMAGE_ADDON"] != "1" and
-                    seed == "ship-addon"):
-                yield "FORCE-CD-BREAK"
             if source:
                 yield "#include <source/%s/%s:%s>" % (series, project, seed)
             else:
@@ -528,14 +515,7 @@ class GerminateOutput:
                 continue
             input_seeds = [seed] + headers.get("seeds", "").split()
             if "per-derivative" in headers:
-                # Edubuntu is odd; it's structured as an add-on to
-                # Ubuntu, so sometimes we need to create ubuntu-* tasks.
-                # At the moment I don't see a better approach than
-                # hardcoding the task names.
-                if project == "edubuntu" and task in ("desktop", "live"):
-                    task = "ubuntu-%s" % task
-                else:
-                    task = "%s-%s" % (task_project, task)
+                task = "%s-%s" % (task_project, task)
 
             yield input_seeds, task
 

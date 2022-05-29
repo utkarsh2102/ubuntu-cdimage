@@ -98,7 +98,6 @@ class TestGermination(TestCase):
 
         for project, series, owners in (
             ("kubuntu", "precise", ["kubuntu-dev", "ubuntu-core-dev"]),
-            ("kubuntu-active", "precise", ["kubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntu", "trusty", ["ubuntu-core-dev"]),
             ("lubuntu", "trusty", ["lubuntu-dev", "ubuntu-core-dev"]),
             ("xubuntu", "precise", ["xubuntu-dev", "ubuntu-core-dev"]),
@@ -452,18 +451,6 @@ class TestGerminateOutput(TestCase):
             "openssh-server", "print-server", "samba-server",
             "postgresql-server", "mail-server", "server", "tomcat-server",
             "virt-host", "d-i-requirements", "server-ship",
-        ]
-        self.assertEqual(expected, list(output.list_seeds("tasks")))
-
-    def test_list_seeds_tasks_kubuntu_active(self):
-        self.write_kubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["PROJECT"] = "kubuntu-active"
-        self.config["DIST"] = "trusty"
-        expected = [
-            "boot", "installer", "required", "minimal", "standard",
-            "desktop-common", "desktop", "d-i-requirements", "ship",
-            "active-ship",
         ]
         self.assertEqual(expected, list(output.list_seeds("tasks")))
 

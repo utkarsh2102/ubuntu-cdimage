@@ -138,7 +138,7 @@ def live_project(config, arch):
     liveproject = config.livefs_project_for_arch(arch)
 
     if config["CDIMAGE_DVD"]:
-        if config.project in ("ubuntu", "kubuntu", "edubuntu", "ubuntustudio"):
+        if config.project in ("ubuntu", "kubuntu", "ubuntustudio"):
             liveproject += "-dvd"
 
     return liveproject
@@ -488,22 +488,10 @@ def flavours(config, arch):
     elif cpuarch == "hppa":
         return ["hppa32", "hppa64"]
     elif cpuarch == "i386":
-        if series <= "precise":
-            if project in ("ubuntu", "edubuntu", "mythbuntu"):
-                # lts-quantal
-                return ["generic"]
-            elif project in ("xubuntu", "lubuntu"):
-                # non-PAE
-                return ["generic"]
-            elif project == "ubuntustudio":
-                return ["lowlatency-pae"]
-            else:
-                return ["generic-pae"]
+        if project == "ubuntustudio":
+            return ["lowlatency"]
         else:
-            if project == "ubuntustudio":
-                return ["lowlatency"]
-            else:
-                return ["generic"]
+            return ["generic"]
     elif cpuarch == "ia64":
         return ["ia64"]
     elif cpuarch == "powerpc":
@@ -833,8 +821,7 @@ def download_live_filesystems(config):
                 continue
 
             if (project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                                "ubuntu-appliance", "kubuntu-active") and
-                    (project != "edubuntu" or series >= "precise") and
+                                "ubuntu-appliance") and
                     (project != "ubuntukylin" or series <= "trusty")):
                 if series <= "trusty":
                     # TODO: We still have to do something about not
@@ -855,7 +842,7 @@ def download_live_filesystems(config):
                             "Install %s" % autorun_project)
 
             if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                               "ubuntu-appliance", "edubuntu"):
+                               "ubuntu-appliance"):
                 download_live_items(config, arch, "usb-creator")
             if (project in ("ubuntu-core", "ubuntu-appliance") and
                     config["CDIMAGE_LIVE"]):
@@ -908,9 +895,3 @@ def download_live_filesystems(config):
                 download_live_items(config, arch, "raspi2.kernel.snap")
             if arch == "arm64":
                 download_live_items(config, arch, "dragonboard.kernel.snap")
-
-    if project == "edubuntu" and config["CDIMAGE_DVD"]:
-        for arch in config.arches:
-            if arch in ("amd64", "i386"):
-                # Fetch the i386 LTSP chroot for Edubuntu Terminal Server.
-                download_live_items(config, arch, "ltsp-squashfs")

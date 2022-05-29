@@ -35,7 +35,7 @@ def main():
     options, _ = parser.parse_args()
     config = Config(IMAGE_TYPE="dvd")
     project = config.project
-    if project not in ("edubuntu", "ubuntu", "ubuntustudio"):
+    if project not in ("ubuntu", "ubuntustudio"):
         config["CDIMAGE_INSTALL"] = "1"
     config["CDIMAGE_LIVE"] = "1"
     config["CDIMAGE_DVD"] = "1"

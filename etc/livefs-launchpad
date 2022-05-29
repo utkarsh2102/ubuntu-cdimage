@@ -6,7 +6,6 @@ ubuntu			daily-live		*		*		ubuntu-cdimage/ubuntu
 ubuntu-desktop-preinstalled daily-preinstalled	focal-		*		ubuntu-cdimage/ubuntu-preinstalled
 ubuntu-canary			daily-canary		*		*		ubuntu-cdimage/ubuntu-canary
 kubuntu			daily-live		*		*		ubuntu-cdimage/kubuntu
-edubuntu		dvd			*		*		ubuntu-cdimage/edubuntu
 xubuntu			daily-live		*		*		ubuntu-cdimage/xubuntu
 ubuntu-server		daily			trusty-		*		ubuntu-cdimage/ubuntu-server
 ubuntu-server		daily-preinstalled	xenial-		*		ubuntu-cdimage/cpc
@@ -20,7 +19,6 @@ ubuntu-base		daily			*		*		ubuntu-cdimage/ubuntu-base
 ubuntu-core		daily-live		*		*		ubuntu-cdimage/ubuntu-core
 ubuntu-appliance	daily-live		*		*		ubuntu-cdimage/ubuntu-core
 ubuntu-core-system-image daily-preinstalled	*		*		ubuntu-cdimage/ubuntu-core-system-image
-kubuntu-active		daily-live		*		*		ubuntu-cdimage/kubuntu-active
 ubuntukylin		daily-live		*		*		ubuntu-cdimage/ubuntukylin
 ubuntu-gnome		daily-live		*		*		ubuntu-cdimage/ubuntu-gnome
 ubuntu-mate		daily-live		*		*		ubuntu-cdimage/ubuntu-mate

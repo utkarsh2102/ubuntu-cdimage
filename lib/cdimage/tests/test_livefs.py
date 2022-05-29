@@ -198,11 +198,6 @@ class TestLiveProject(TestCase):
             self.assertProjectEqual(
                 "kubuntu-dvd", "kubuntu", series.full_name, cdimage_dvd="1")
 
-    def test_edubuntu_dvd(self):
-        for series in all_series[10:]:
-            self.assertProjectEqual(
-                "edubuntu-dvd", "edubuntu", series.full_name, cdimage_dvd="1")
-
     def test_ubuntustudio_dvd(self):
         for series in all_series[15:]:
             self.assertProjectEqual(
@@ -904,8 +899,6 @@ class TestFlavours(TestCase):
         for series in all_series[4:]:
             self.assertFlavoursEqual("generic", "i386", "xubuntu", series)
             self.assertFlavoursEqual("generic", "i386", "lubuntu", series)
-        self.assertFlavoursEqual(
-            "lowlatency-pae", "i386", "ubuntustudio", "precise")
         for series in all_series[16:]:
             self.assertFlavoursEqual(
                 "lowlatency", "i386", "ubuntustudio", series)
@@ -1036,16 +1029,6 @@ class TestLiveItemPaths(TestCase):
             self.assertPathsEqual(
                 [path], "i386", "usb-creator", "ubuntu", series)
         self.assertNoPaths("powerpc", "usb-creator", "ubuntu", "precise")
-
-    def test_ltsp_squashfs(self):
-        for series in all_series:
-            path = ("http://cardamom.buildd/~buildd/LiveCD/%s/edubuntu/"
-                    "current/livecd.edubuntu-ltsp.squashfs" % series)
-            self.assertPathsEqual(
-                [path], "amd64", "ltsp-squashfs", "edubuntu", series)
-            self.assertPathsEqual(
-                [path], "i386", "ltsp-squashfs", "edubuntu", series)
-        self.assertNoPaths("powerpc", "ltsp-squashfs", "edubuntu", "precise")
 
 
 class TestDownloadLiveFilesystems(TestCase):

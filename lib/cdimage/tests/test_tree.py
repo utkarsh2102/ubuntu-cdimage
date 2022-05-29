@@ -255,7 +255,6 @@ class TestPublisher(TestCase):
              "preinstalled-desktop"),
             ("daily-preinstalled", "ubuntu-touch", "trusty",
              "preinstalled-touch"),
-            ("daily-live", "edubuntu", "precise", "desktop"),
             ("daily-live", "kubuntu-netbook", "precise", "netbook"),
             ("daily-live", "ubuntu-server", "precise", "live-server"),
             ("daily-live", "ubuntu", "precise", "desktop"),
@@ -263,7 +262,6 @@ class TestPublisher(TestCase):
             ("daily-live", "ubuntu-core", "xenial", "live-core"),
             ("ports_dvd", "ubuntu", "precise", "dvd"),
             ("dvd", "kubuntu", "precise", "dvd"),
-            ("daily", "edubuntu", "precise", "addon"),
             ("daily", "ubuntu-base", "precise", "base"),
             ("daily", "ubuntu-server", "precise", "server"),
             ("daily", "ubuntu-server", "focal", "legacy-server"),
@@ -742,9 +740,6 @@ class TestDailyTreePublisher(TestCase):
             ("kubuntu", "bionic", "daily-live", "amd64", 2254857830),
             ("kubuntu", "focal", "daily-live", "amd64", 4294967296),
             ("kubuntu", "jammy", "daily-live", "amd64", 4294967296),
-            ("kubuntu-active", "bionic", "daily-live", "amd64", 2254857830),
-            ("kubuntu-active", "focal", "daily-live", "amd64", 4294967296),
-            ("kubuntu-active", "jammy", "daily-live", "amd64", 4294967296),
             ("ubuntu", None, "dvd", "amd64", 4700372992),
             ("ubuntu", "focal", "daily-live", "amd64", 3400000000),
             ("ubuntu", "jammy", "daily-live", "amd64", 3400000000),
@@ -779,19 +774,6 @@ class TestDailyTreePublisher(TestCase):
             publisher.size_limit_extension("armhf+omap4", "img"))
         self.assertEqual(
             1024 * 1024 * 1024,
-            publisher.size_limit_extension("i386", "tar.gz"))
-        self.assertEqual(
-            publisher.size_limit("i386"),
-            publisher.size_limit_extension("i386", "iso"))
-
-    def test_size_limit_extension_edubuntu(self):
-        # size_limit_extension has special-casing for Edubuntu.
-        publisher = self.make_publisher("edubuntu", "daily")
-        self.assertEqual(
-            publisher.size_limit("armhf+omap4"),
-            publisher.size_limit_extension("armhf+omap4", "img"))
-        self.assertEqual(
-            publisher.size_limit("i386"),
             publisher.size_limit_extension("i386", "tar.gz"))
         self.assertEqual(
             publisher.size_limit("i386"),
@@ -1352,8 +1334,6 @@ class TestDailyTreePublisher(TestCase):
         for project, image_type, publish_type, product in (
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
-            ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
-            ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
@@ -1412,8 +1392,6 @@ class TestDailyTreePublisher(TestCase):
         for project, image_type, publish_type, product in (
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
-            ("kubuntu-active", "daily-live", "desktop", "Kubuntu Active"),
-            ("edubuntu", "dvd", "dvd", "Edubuntu DVD"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
