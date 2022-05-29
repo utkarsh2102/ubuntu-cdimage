@@ -134,6 +134,7 @@ class TestNotify(TestCase):
                 "Test subject", "test_notify", ["foo@example.org"], body)
             expected_command = [
                 "mail", "-s", "Test subject",
+                "-r", "noreply+ubuntu-cdimage@ubuntu.com",
                 "-a", "X-Generated-By: test_notify",
                 "foo@example.org",
             ]
@@ -145,7 +146,9 @@ class TestNotify(TestCase):
             "Test subject", "test_notify",
             ["foo@example.org", "bar@example.org"], "Body\nText\n")
         expected_command = [
-            "mail", "-s", "Test subject", "-a", "X-Generated-By: test_notify",
+            "mail", "-s", "Test subject",
+            "-r", "noreply+ubuntu-cdimage@ubuntu.com",
+            "-a", "X-Generated-By: test_notify",
             "foo@example.org", "bar@example.org",
         ]
         mock_popen.assert_called_once_with(
