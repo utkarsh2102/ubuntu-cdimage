@@ -405,8 +405,7 @@ class TestPublisherWebIndices(TestCase):
         self.config["DIST"] = "jammy"
         publisher = Publisher(self.tree, "daily-live")
         self.assertEqual(
-            "For POWER9 Little-Endian systems, especially the \"LC\" "
-            "Linux-only servers.",
+            "For POWER9 and POWER10 Little-Endian systems.",
             publisher.archdesc("ppc64el", "live-server"))
 
     def test_maybe_oversized(self):
