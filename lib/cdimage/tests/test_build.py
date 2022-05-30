@@ -860,37 +860,6 @@ class TestBuildImageSet(TestCase):
         self.assertFalse(os.path.exists(self.expected_sync_lock))
 
     @mock.patch("subprocess.check_call")
-    def test_parallel(self, mock_check_call):
-        self.config["CAPPROJECT"] = "Ubuntu"
-        mock_check_call.side_effect = partial(
-            self.check_call_make_sync_lock, mock_check_call)
-        self.capture_logging()
-        sync_local_mirror(self.config)
-        self.assertLogEqual([
-            "===== Parallel build; waiting for Ubuntu mirror to sync =====",
-            self.epoch_date,
-        ])
-        mock_check_call.assert_called_once_with(
-            ["lockfile", "-8", "-r", "450", self.expected_sync_lock])
-        self.assertFalse(os.path.exists(self.expected_sync_lock))
-
-    @mock.patch("subprocess.check_call")
-    def test_parallel_lock_failure(self, mock_check_call):
-        self.config["CAPPROJECT"] = "Ubuntu"
-        mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
-        self.capture_logging()
-        self.assertRaises(
-            subprocess.CalledProcessError, sync_local_mirror, self.config)
-        self.assertLogEqual([
-            "===== Parallel build; waiting for Ubuntu mirror to sync =====",
-            self.epoch_date,
-            "Timed out waiting for archive sync lock!"
-        ])
-        mock_check_call.assert_called_once_with(
-            ["lockfile", "-8", "-r", "450", self.expected_sync_lock])
-        self.assertFalse(os.path.exists(self.expected_sync_lock))
-
-    @mock.patch("subprocess.check_call")
     def test_build_britney_no_makefile(self, mock_check_call):
         self.capture_logging()
         build_britney(self.config)
