@@ -818,7 +818,7 @@ class TestBuildImageSet(TestCase):
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["CDIMAGE_NOSYNC"] = "1"
         self.capture_logging()
-        sync_local_mirror(self.config, 0)
+        sync_local_mirror(self.config)
         self.assertLogEqual([])
         self.assertEqual(0, mock_check_call.call_count)
         self.assertEqual(0, mock_anonftpsync.call_count)
@@ -831,7 +831,7 @@ class TestBuildImageSet(TestCase):
             self.check_call_make_sync_lock, mock_check_call)
         mock_anonftpsync.side_effect = self.anonftpsync_sync_lock_exists
         self.capture_logging()
-        sync_local_mirror(self.config, 0)
+        sync_local_mirror(self.config)
         self.assertLogEqual([
             "===== Syncing Ubuntu mirror =====",
             self.epoch_date,
@@ -848,7 +848,7 @@ class TestBuildImageSet(TestCase):
         mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
         self.capture_logging()
         self.assertRaises(
-            subprocess.CalledProcessError, sync_local_mirror, self.config, 0)
+            subprocess.CalledProcessError, sync_local_mirror, self.config)
         self.assertLogEqual([
             "===== Syncing Ubuntu mirror =====",
             self.epoch_date,
@@ -865,7 +865,7 @@ class TestBuildImageSet(TestCase):
         mock_check_call.side_effect = partial(
             self.check_call_make_sync_lock, mock_check_call)
         self.capture_logging()
-        sync_local_mirror(self.config, 1)
+        sync_local_mirror(self.config)
         self.assertLogEqual([
             "===== Parallel build; waiting for Ubuntu mirror to sync =====",
             self.epoch_date,
@@ -880,7 +880,7 @@ class TestBuildImageSet(TestCase):
         mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
         self.capture_logging()
         self.assertRaises(
-            subprocess.CalledProcessError, sync_local_mirror, self.config, 1)
+            subprocess.CalledProcessError, sync_local_mirror, self.config)
         self.assertLogEqual([
             "===== Parallel build; waiting for Ubuntu mirror to sync =====",
             self.epoch_date,
@@ -1104,7 +1104,7 @@ class TestBuildImageSet(TestCase):
         if pid == 0:  # child
             original_stderr = os.dup(sys.stderr.fileno())
             try:
-                self.assertFalse(build_image_set_locked(self.config, None, 0))
+                self.assertFalse(build_image_set_locked(self.config, None))
             except AssertionError:
                 stderr = os.fdopen(original_stderr, "w", 1)
                 try:
@@ -1169,7 +1169,7 @@ class TestBuildImageSet(TestCase):
         if pid == 0:  # child
             original_stderr = os.dup(sys.stderr.fileno())
             try:
-                self.assertTrue(build_image_set_locked(self.config, None, 0))
+                self.assertTrue(build_image_set_locked(self.config, None))
                 date = self.config["CDIMAGE_DATE"]
                 debian_cd_dir = os.path.join(self.temp_dir, "debian-cd")
 
