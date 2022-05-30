@@ -1289,6 +1289,8 @@ class TestDownloadLiveFilesystems(TestCase):
             "bionic", "squashfs", ["installer.squashfs"])
         self.assert_server_live_download_items(
             "bionic", "yaml", ["installer.yaml"])
+        self.assert_server_live_download_items(
+            "bionic", "netboot.tar.gz", ["netboot.tar.gz"])
 
     def test_download_live_server_boot_items(self):
         self.assert_server_live_download_items(
