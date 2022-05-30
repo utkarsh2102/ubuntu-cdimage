@@ -42,7 +42,6 @@ from cdimage.livefs import (
 from cdimage.log import logger, reset_logging
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.mirror import find_mirror, trigger_mirrors
-from cdimage.multipidfile import MultiPIDFile
 from cdimage.tracker import tracker_set_rebuild_status
 from cdimage.tree import Publisher, Tree
 from cdimage.config import Touch
@@ -233,33 +232,23 @@ def anonftpsync(config):
         osextras.unlink_force(lock)
 
 
-def sync_local_mirror(config, multipidfile_state):
+def sync_local_mirror(config):
     if config["CDIMAGE_NOSYNC"]:
         return
 
     capproject = config.capproject
     sync_lock = os.path.join(config.root, "etc", ".lock-archive-sync")
-    if not multipidfile_state:
-        log_marker("Syncing %s mirror" % capproject)
-        # Acquire lock to allow parallel builds to ensure a consistent
-        # archive.
-        try:
-            subprocess.check_call(["lockfile", "-r", "4", sync_lock])
-        except subprocess.CalledProcessError:
-            logger.error("Couldn't acquire archive sync lock!")
-            raise
-        try:
-            anonftpsync(config)
-        finally:
-            osextras.unlink_force(sync_lock)
-    else:
-        log_marker(
-            "Parallel build; waiting for %s mirror to sync" % capproject)
-        try:
-            subprocess.check_call(["lockfile", "-8", "-r", "450", sync_lock])
-        except subprocess.CalledProcessError:
-            logger.error("Timed out waiting for archive sync lock!")
-            raise
+    log_marker("Syncing %s mirror" % capproject)
+    # Acquire lock to allow parallel builds to ensure a consistent
+    # archive.
+    try:
+        subprocess.check_call(["lockfile", "-r", "4", sync_lock])
+    except subprocess.CalledProcessError:
+        logger.error("Couldn't acquire archive sync lock!")
+        raise
+    try:
+        anonftpsync(config)
+    finally:
         osextras.unlink_force(sync_lock)
 
 
@@ -682,7 +671,7 @@ def is_live_fs_only(config):
     return live_fs_only
 
 
-def build_image_set_locked(config, options, multipidfile_state):
+def build_image_set_locked(config, options):
     image_type = config.image_type
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
@@ -699,7 +688,7 @@ def build_image_set_locked(config, options, multipidfile_state):
             tracker_set_rebuild_status(config, [0, 1], 2)
 
         if not is_live_fs_only(config):
-            sync_local_mirror(config, multipidfile_state)
+            sync_local_mirror(config)
 
             if config["LOCAL"]:
                 log_marker("Updating archive of local packages")
@@ -806,9 +795,5 @@ def handle_signals():
 def build_image_set(config, options):
     """Master entry point for building images."""
     with handle_signals():
-        multipidfile = MultiPIDFile(
-            os.path.join(config.root, "etc", ".build-image-set-pids"))
         with lock_build_image_set(config):
-            with multipidfile.held(os.getpid()) as multipidfile_state:
-                return build_image_set_locked(
-                    config, options, multipidfile_state)
+            return build_image_set_locked(config, options)
