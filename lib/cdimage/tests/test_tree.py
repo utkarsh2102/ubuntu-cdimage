@@ -24,10 +24,12 @@ try:
     from html.parser import HTMLParser
 except ImportError:
     from HTMLParser import HTMLParser
+import io
 import os
 import shutil
 import sys
 from textwrap import dedent
+import tarfile
 import traceback
 
 try:
@@ -908,6 +910,46 @@ class TestDailyTreePublisher(TestCase):
             os.path.join(
                 target_dir, "%s-desktop-i386.iso.zsync" % self.config.series),
             "%s-desktop-i386.iso" % self.config.series)
+
+    def test_publish_netboot(self):
+        publisher = self.make_publisher("ubuntu-server", "daily-live")
+        source_dir = publisher.image_output("amd64")
+        tarname = "%s-netboot-amd64.tar.gz" % self.config.series
+        isoname = "%s-live-server-amd64.iso" % self.config.series
+        date = "20201215"
+        os.makedirs(source_dir)
+        with tarfile.open(os.path.join(source_dir, tarname), 'w:gz') as tf:
+            ti = tarfile.TarInfo('config.in')
+            content = b'v=#ISOURL#'
+            ti.size = len(content)
+            tf.addfile(ti, io.BytesIO(content))
+        target_dir = os.path.join(publisher.publish_base, date)
+        target_image = os.path.join(target_dir, isoname)
+        touch(target_image)
+
+        publisher.publish_netboot("amd64", target_image)
+
+        self.assertCountEqual([
+            tarname,
+            isoname,
+            "netboot",
+        ], os.listdir(target_dir))
+        self.assertCountEqual([
+            "config",
+        ], os.listdir(os.path.join(target_dir, "netboot")))
+        with open(os.path.join(target_dir, "netboot/config")) as fp:
+            self.assertEqual(
+                'v=https://%s/ubuntu-server/daily-live/%s/%s' % (
+                    publisher.tree.site_name, date, isoname),
+                fp.read())
+        with tarfile.open(os.path.join(target_dir, tarname), 'r:gz') as tf:
+            for ti in tf:
+                self.assertEqual(ti.name, 'config')
+                self.assertEqual(
+                    ('v=https://%s/ubuntu-server/daily-live/%s/%s' % (
+                        publisher.tree.site_name, date, isoname)
+                    ).encode('utf-8'),
+                    tf.extractfile(ti).read())
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.DailyTreePublisher.detect_image_extension",
@@ -2104,6 +2146,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "%s-desktop-i386.iso" % self.config.series)
 
     def test_publish_core_binary(self):
+        pass
+
+    def test_publish_netboot(self):
         pass
 
     def test_publish_appliance_binary(self):

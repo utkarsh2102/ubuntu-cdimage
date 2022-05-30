@@ -2012,6 +2012,11 @@ class DailyTreePublisher(Publisher):
                     jigdo_out.write(line.replace(from_line, to_line))
 
     def publish_netboot(self, arch, image_path):
+        # Publishing a netboot tarball is a bit more complicated than
+        # just copying it into place, as we also unpack it into a
+        # netboot/ directory and replace rewrite any foo.cfg.in files
+        # referencing #ISOURL# to foo.cfg referencing the actual URL
+        # of the image.
         tarname = "%s-netboot-%s.tar.gz" % (self.config.series, arch)
         source_path = os.path.join(self.image_output(arch), tarname)
         if not os.path.exists(source_path):
