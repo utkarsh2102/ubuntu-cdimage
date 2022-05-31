@@ -95,6 +95,30 @@ def zsyncmake(infile, outfile, url, dry_run=False):
         subprocess.check_call(command)
 
 
+def rewrite_and_unpack_tarball(source_path, target_path, iso_url):
+    iso_url_b = iso_url.encode('utf-8')
+    netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
+    osextras.ensuredir(netboot_dir)
+
+    with tarfile.open(source_path) as inf:
+        with tarfile.open(target_path, 'w:gz') as outf:
+            for ti in inf:
+                if ti.name.endswith('.in'):
+                    new_ti = inf.getmember(ti.name)
+                    new_ti.name = ti.name[:-3]
+                    content = inf.extractfile(ti).read()
+                    content = content.replace(b"#ISOURL#", iso_url_b)
+                    new_ti.size = len(content)
+                    with open(
+                            os.path.join(netboot_dir, new_ti.name),
+                            'wb') as fp:
+                        fp.write(content)
+                    outf.addfile(new_ti, io.BytesIO(content))
+                else:
+                    inf.extract(ti, netboot_dir)
+                    outf.addfile(ti, inf.extractfile(ti))
+
+
 class Tree:
     """A publication tree."""
 
@@ -1662,7 +1686,8 @@ class Publisher:
             print("ReadmeName FOOTER.html", file=htaccess)
             print(
                 "IndexIgnore .htaccess HEADER.html FOOTER.html "
-                "published-ec2-daily.txt published-ec2-release.txt",
+                "published-ec2-daily.txt published-ec2-release.txt "
+                ".*.tar.gz",
                 file=htaccess)
             print(
                 "IndexOptions NameWidth=* DescriptionWidth=* "
@@ -2017,41 +2042,26 @@ class DailyTreePublisher(Publisher):
         # netboot/ directory and replace rewrite any foo.cfg.in files
         # referencing #ISOURL# to foo.cfg referencing the actual URL
         # of the image.
+        #
+        # We also save a copy of the netboot tarball so we can rewrite
+        # it again during release publication.
         tarname = "%s-netboot-%s.tar.gz" % (self.config.series, arch)
         source_path = os.path.join(self.image_output(arch), tarname)
         if not os.path.exists(source_path):
             return
 
-        target_path = os.path.join(os.path.dirname(image_path), tarname)
         if not image_path.startswith(self.tree.directory):
             raise Exception(
                 "image_path (%s) did not start with self.tree.directory (%s)"
                 % (image_path, self.tree.directory))
-
         url_path = image_path[len(self.tree.directory):].lstrip('/')
         iso_url = "https://%s/%s" % (self.tree.site_name, url_path)
-        iso_url_b = iso_url.encode('utf-8')
 
-        netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
-        osextras.ensuredir(netboot_dir)
+        target_path = os.path.join(os.path.dirname(image_path), tarname)
 
-        with tarfile.open(source_path) as inf:
-            with tarfile.open(target_path, 'w:gz') as outf:
-                for ti in inf:
-                    if ti.name.endswith('.in'):
-                        new_ti = inf.getmember(ti.name)
-                        new_ti.name = ti.name[:-3]
-                        content = inf.extractfile(ti).read()
-                        content = content.replace(b"#ISOURL#", iso_url_b)
-                        new_ti.size = len(content)
-                        with open(
-                                os.path.join(netboot_dir, new_ti.name),
-                                'wb') as fp:
-                            fp.write(content)
-                        outf.addfile(new_ti, io.BytesIO(content))
-                    else:
-                        inf.extract(ti, netboot_dir)
-                        outf.addfile(ti, inf.extractfile(ti))
+        shutil.move(source_path, '.' + target_path)
+
+        rewrite_and_unpack_tarball('.' + target_path, target_path, iso_url)
 
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
@@ -3250,6 +3260,32 @@ class ReleasePublisher(Publisher):
     def want_torrent(self, publish_type):
         raise NotImplementedError
 
+    def publish_release_netboot(self, daily_dir, prefix, arch, image_path):
+        """Publish release images for a single architecture."""
+        logger.info("Copying netboot-%s image ..." % (arch, ))
+
+        source_tarname = ".%s-netboot-%s.tar.gz" % (self.config.series, arch)
+        source_tarpath = os.path.join(daily_dir, source_tarname)
+
+        if not os.path.exists(source_tarpath):
+            return
+
+        if not image_path.startswith(self.tree.directory):
+            raise Exception(
+                "image_path (%s) did not start with self.tree.directory (%s)"
+                % (image_path, self.tree.directory))
+        url_path = image_path[len(self.tree.directory):].lstrip('/')
+        iso_url = "https://%s/%s" % (self.tree.site_name, url_path)
+
+        print(iso_url)
+
+        target_tarname = "%s-netboot-%s.tar.gz" % (prefix, arch)
+        target_tarpath = os.path.join(
+            os.path.dirname(image_path), target_tarname)
+
+        rewrite_and_unpack_tarball(
+            source_tarpath, target_tarpath, iso_url)
+
     def publish_release_arch(self, source, date, publish_type, arch):
         """Publish release images for a single architecture."""
         logger.info("Copying %s-%s image ..." % (publish_type, arch))
@@ -3286,9 +3322,12 @@ class ReleasePublisher(Publisher):
                 return os.path.join(
                     torrent_dir, "%s%s%s" % (base_plain, sep, ext))
 
+        main_img = None
+
         for ext in ("iso", "img", "img.gz", "img.xz", "tar.gz", "img.tar.gz",
                     "tar.xz"):
             if os.path.exists(daily(ext)):
+                main_img = daily(ext)
                 break
         else:
             return
@@ -3304,8 +3343,20 @@ class ReleasePublisher(Publisher):
                 self.copy(daily(ext), pool(ext))
             if self.want_dist:
                 self.symlink(pool(ext), dist(ext))
+                if daily(ext) == main_img:
+                    self.publish_release_netboot(
+                        os.path.dirname(daily(ext)),
+                        prefix_status,
+                        arch,
+                        dist(ext))
             if self.want_full:
                 self.copy(daily(ext), full(ext))
+                if daily(ext) == main_img:
+                    self.publish_release_netboot(
+                        os.path.dirname(daily(ext)),
+                        prefix,
+                        arch,
+                        full(ext))
 
         for ext in (
             "initrd-ec2", "initrd-virtual", "vmlinuz-ec2", "vmlinuz-virtual",
