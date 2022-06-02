@@ -847,8 +847,7 @@ class TestBuildImageSet(TestCase):
         self.config["CAPPROJECT"] = "Ubuntu"
         mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
         self.capture_logging()
-        self.assertRaises(
-            subprocess.CalledProcessError, sync_local_mirror, self.config)
+        sync_local_mirror(self.config)
         self.assertLogEqual([
             "===== Syncing Ubuntu mirror =====",
             self.epoch_date,
