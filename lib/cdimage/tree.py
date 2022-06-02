@@ -526,7 +526,7 @@ class Publisher:
         capproject = self.config.capproject
         series = self.config["DIST"]
 
-        if self.project == "xubuntu" and series < "jammy":
+        if self.project == "xubuntu" and series < "focal":
             desktop_ram = 192
         else:
             if series <= "xenial":
