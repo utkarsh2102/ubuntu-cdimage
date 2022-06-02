@@ -245,7 +245,7 @@ def sync_local_mirror(config):
         subprocess.check_call(["lockfile", "-r", "4", sync_lock])
     except subprocess.CalledProcessError:
         logger.error("Couldn't acquire archive sync lock!")
-        raise
+        return
     try:
         anonftpsync(config)
     finally:
