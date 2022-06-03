@@ -194,6 +194,13 @@ class Tree:
         """Return the public host name corresponding to this tree."""
         raise NotImplementedError
 
+    def url_for_path(self, path):
+        """Return the public URL for the file at `path`.
+
+        `path` must be under self.directory.
+        """
+        raise NotImplementedError
+
     def path_to_manifest(self, path):
         """Return a manifest file entry for a tree-relative path.
 
@@ -1794,6 +1801,14 @@ class DailyTree(Tree):
     def site_name(self):
         return "cdimage.ubuntu.com"
 
+    def url_for_path(self, path):
+        if not path.startswith(self.directory):
+            raise Exception(
+                "url_for_path(%r) did not start with self.directory (%r)"
+                % (path, self.directory))
+        url_path = path[len(self.directory):].lstrip('/')
+        return "https://%s/%s" % (self.tree.site_name, url_path)
+
     def manifest_files(self):
         """Yield all the files to include in a manifest of this tree."""
         seen_inodes = []
@@ -2050,18 +2065,12 @@ class DailyTreePublisher(Publisher):
         if not os.path.exists(source_path):
             return
 
-        if not image_path.startswith(self.tree.directory):
-            raise Exception(
-                "image_path (%s) did not start with self.tree.directory (%s)"
-                % (image_path, self.tree.directory))
-        url_path = image_path[len(self.tree.directory):].lstrip('/')
-        iso_url = "https://%s/%s" % (self.tree.site_name, url_path)
-
         target_path = os.path.join(os.path.dirname(image_path), tarname)
 
         shutil.move(source_path, '.' + target_path)
 
-        rewrite_and_unpack_tarball('.' + target_path, target_path, iso_url)
+        rewrite_and_unpack_tarball(
+            '.' + target_path, target_path, self.tree.url_for_path(image_path))
 
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
@@ -2998,6 +3007,15 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
             directory = os.path.join(config.root, "www", "simple")
         super(SimpleReleaseTree, self).__init__(config, directory)
 
+    def url_for_path(self, path):
+        # I do not think this is correct.
+        if not path.startswith(self.directory):
+            raise Exception(
+                "url_for_path(%r) did not start with self.directory (%r)"
+                % (path, self.directory))
+        url_path = path[len(self.directory):].lstrip('/')
+        return "https://%s/%s" % (self.tree.site_name, url_path)
+
     def get_publisher(self, image_type, official, status=None, dry_run=False):
         return SimpleReleasePublisher(
             self, image_type, official, status=status, dry_run=dry_run)
@@ -3270,21 +3288,12 @@ class ReleasePublisher(Publisher):
         if not os.path.exists(source_tarpath):
             return
 
-        if not image_path.startswith(self.tree.directory):
-            raise Exception(
-                "image_path (%s) did not start with self.tree.directory (%s)"
-                % (image_path, self.tree.directory))
-        url_path = image_path[len(self.tree.directory):].lstrip('/')
-        iso_url = "https://%s/%s" % (self.tree.site_name, url_path)
-
-        print(iso_url)
-
         target_tarname = "%s-netboot-%s.tar.gz" % (prefix, arch)
         target_tarpath = os.path.join(
             os.path.dirname(image_path), target_tarname)
 
         rewrite_and_unpack_tarball(
-            source_tarpath, target_tarpath, iso_url)
+            source_tarpath, target_tarpath, self.tree.url_for_path(image_path))
 
     def publish_release_arch(self, source, date, publish_type, arch):
         """Publish release images for a single architecture."""
