@@ -114,3 +114,17 @@ Xubuntu Desktop i386						xubuntu			daily-live			desktop					i386			iso
 
 # Ubuntu WSL (special case, not built via cdimage)
 Ubuntu WSL									ubuntu			wsl					desktop					amd64			iso
+
+# Ubuntu Core
+Ubuntu Core amd64 stable					ubuntu-core		daily-live			live-core				amd64			iso
+Ubuntu Core amd64 dangerous-stable			ubuntu-core		daily-live			live-core				amd64			iso
+Ubuntu Core amd64 edge						ubuntu-core		daily-live			live-core				amd64			iso
+Ubuntu Core amd64 dangerous-edge			ubuntu-core		daily-live			live-core				amd64			iso
+Ubuntu Core Pi arm64 stable					ubuntu-core		daily-live			live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 dangerous-stable		ubuntu-core		daily-live			live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 edge					ubuntu-core		daily-live			live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 dangerous-edge			ubuntu-core		daily-live			live-core				arm64+raspi		iso
+Ubuntu Core Pi armhf stable					ubuntu-core		daily-live			live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf dangerous-stable		ubuntu-core		daily-live			live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf edge					ubuntu-core		daily-live			live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf dangerous-edge			ubuntu-core		daily-live			live-core				armhf+raspi		iso

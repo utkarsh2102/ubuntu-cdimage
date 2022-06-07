@@ -19,6 +19,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 36 10 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=dangerous-edge for-project ubuntu-core cron.daily-live --live
 36 11 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=dangerous-beta for-project ubuntu-core cron.daily-live --live
 36 12 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=stable for-project ubuntu-core cron.daily-live --live
+36 13 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=dangerous-stable for-project ubuntu-core cron.daily-live --live
 # bionic ubuntu-base tarball still building
 # The daily ubuntu-base bionic images are used by core18, so we can't build it
 # with proposed enabled.
