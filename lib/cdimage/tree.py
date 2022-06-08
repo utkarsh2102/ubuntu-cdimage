@@ -2587,6 +2587,10 @@ class DailyTreePublisher(Publisher):
                     image)
                 continue
 
+            # For Ubuntu Core projects we have a seperate set of milestones
+            if project in ("ubuntu-core", "ubuntu-appliance"):
+                # ...image_series in this case is 18, 20, 22 etc.
+                dist = image_series
             target = "%s-%s" % (product[1], dist)
 
             # Try to figure out the path to the OVERSIZED indicator for the
