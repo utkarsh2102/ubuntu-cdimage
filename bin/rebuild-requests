@@ -188,10 +188,19 @@ def main():
             env['ARCHES'] = arches
             env['DIST'] = entries[0][0].series_title.lower()
 
-            # The ubuntu-base image is actually hacked up in overall, so even
-            # though it's defined as "daily", it's a "daily-live" type
             image_type = entry[2]
             if project == "ubuntu-base":
+                # The ubuntu-base image is actually hacked up in overall, so
+                # even though it's defined as "daily", it's a "daily-live" type
+                image_type = "daily-live"
+            elif project in ("ubuntu-core", "ubuntu-appliance"):
+                # The ubuntu-core images however are also a bit special, as
+                # they have a different publish structure, CHANNEL arguments
+                # and more
+                env['EXTRA_PPAS'] = "snappy-dev/image"
+                # Due to the different structure, IMAGE_TYPE is the channel
+                # here
+                env['CHANNEL'] = image_type
                 image_type = "daily-live"
 
             cmd = ["for-project", project, "cron.%s" % image_type]
