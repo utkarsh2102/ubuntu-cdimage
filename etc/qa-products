@@ -116,15 +116,15 @@ Xubuntu Desktop i386						xubuntu			daily-live			desktop					i386			iso
 Ubuntu WSL									ubuntu			wsl					desktop					amd64			iso
 
 # Ubuntu Core
-Ubuntu Core amd64 stable					ubuntu-core		daily-live			stable					amd64			iso
-Ubuntu Core amd64 dangerous-stable			ubuntu-core		daily-live			dangerous-stable		amd64			iso
-Ubuntu Core amd64 edge						ubuntu-core		daily-live			edge					amd64			iso
-Ubuntu Core amd64 dangerous-edge			ubuntu-core		daily-live			dangerous-edge			amd64			iso
-Ubuntu Core Pi arm64 stable					ubuntu-core		daily-live			stable					arm64+raspi		iso
-Ubuntu Core Pi arm64 dangerous-stable		ubuntu-core		daily-live			dangerous-stable		arm64+raspi		iso
-Ubuntu Core Pi arm64 edge					ubuntu-core		daily-live			edge					arm64+raspi		iso
-Ubuntu Core Pi arm64 dangerous-edge			ubuntu-core		daily-live			dangerous-edge			arm64+raspi		iso
-Ubuntu Core Pi armhf stable					ubuntu-core		daily-live			stable					armhf+raspi		iso
-Ubuntu Core Pi armhf dangerous-stable		ubuntu-core		daily-live			dangerous-stable		armhf+raspi		iso
-Ubuntu Core Pi armhf edge					ubuntu-core		daily-live			edge					armhf+raspi		iso
-Ubuntu Core Pi armhf dangerous-edge			ubuntu-core		daily-live			dangerous-edge			armhf+raspi		iso
+Ubuntu Core amd64 stable					ubuntu-core		stable				live-core				amd64			iso
+Ubuntu Core amd64 dangerous-stable			ubuntu-core		dangerous-stable	live-core				amd64			iso
+Ubuntu Core amd64 edge						ubuntu-core		edge				live-core				amd64			iso
+Ubuntu Core amd64 dangerous-edge			ubuntu-core		dangerous-edge		live-core				amd64			iso
+Ubuntu Core Pi arm64 stable					ubuntu-core		stable				live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 dangerous-stable		ubuntu-core		dangerous-stable	live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 edge					ubuntu-core		edge				live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 dangerous-edge			ubuntu-core		dangerous-edge		live-core				arm64+raspi		iso
+Ubuntu Core Pi armhf stable					ubuntu-core		stable				live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf dangerous-stable		ubuntu-core		dangerous-stable	live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf edge					ubuntu-core		edge				live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf dangerous-edge			ubuntu-core		dangerous-edge		live-core				armhf+raspi		iso
