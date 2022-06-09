@@ -200,7 +200,7 @@ def main():
                 env['EXTRA_PPAS'] = "snappy-dev/image"
                 # Due to the different structure, IMAGE_TYPE is the channel
                 # here
-                env['CHANNEL'] = image_type
+                env['CHANNEL'] = entry[2]
                 image_type = "daily-live"
 
             cmd = ["for-project", project, "cron.%s" % image_type]
