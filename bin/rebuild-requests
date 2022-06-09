@@ -201,6 +201,9 @@ def main():
                 # Due to the different structure, IMAGE_TYPE is the channel
                 # here
                 env['CHANNEL'] = entry[2]
+                # And cdimage still uses distro series for the core series
+                # builds
+                env['DIST'] = Series.find_by_core_series(env['DIST']).name
                 image_type = "daily-live"
 
             cmd = ["for-project", project, "cron.%s" % image_type]

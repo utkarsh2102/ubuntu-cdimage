@@ -22,6 +22,11 @@ from __future__ import print_function
 import os
 from textwrap import dedent
 
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
 from cdimage.config import Config, Series, all_series
 from cdimage.tests.helpers import TestCase, mkfile
 
@@ -46,6 +51,34 @@ class TestSeries(TestCase):
             Series.latest(distribution="ubuntu-rtm").distribution)
         self.assertRaises(
             ValueError, Series.latest, distribution="nonexistent")
+
+    def test_find_by_core_series(self):
+        series = Series.find_by_core_series("20")
+        self.assertEqual(("focal", "20.04", "Focal Fossa"), tuple(series))
+        self.assertRaises(
+            ValueError, Series.find_by_core_series, core_series="21")
+
+    def test_latest_core(self):
+        series = Series.latest_core()
+        self.assertEqual("ubuntu", series.distribution)
+        self.assertTrue(getattr(series, "_core_series"))
+
+    @mock.patch("lib.cdimage.config.all_series")
+    def test_core_series(self, all_series):
+        impish = Series("impish", "21.10", "Impish Indri")
+        jammy = Series(
+            "jammy", "22.04", "Jammy Jellyfish",
+            all_lts_projects=True,
+            _core_series="22")
+        kinetic = Series("kinetic", "22.10", "Kinetic Kudu")
+        all_series = [
+            impish,
+            jammy,
+            kinetic
+        ]
+        self.assertEqual("22", jammy.core_series)
+        self.assertEqual("24", kinetic.core_series)
+        self.assertEqual(None, impish.core_series)
 
     def test_str(self):
         series = Series.find_by_name("warty")
@@ -384,15 +417,9 @@ class TestConfig(TestCase):
         self.assertEqual("16", config.core_series)
         config["DIST"] = "bionic"
         self.assertEqual("18", config.core_series)
-        config["DIST"] = "cosmic"
-        self.assertEqual("18", config.core_series)
-        config["DIST"] = "disco"
-        self.assertEqual("18", config.core_series)
-        config["DIST"] = "eoan"
-        self.assertEqual("18", config.core_series)
         config["DIST"] = "focal"
         self.assertEqual("20", config.core_series)
-        config["DIST"] = "hirsute"
+        config["DIST"] = "jammy"
         self.assertEqual("22", config.core_series)
 
     def test_arches(self):

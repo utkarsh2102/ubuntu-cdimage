@@ -85,6 +85,21 @@ class Series(Iterable):
                 return series
         raise ValueError("No series with distribution %s" % distribution)
 
+    @classmethod
+    def find_by_core_series(self, core_series):
+        for series in all_series:
+            if series.core_series == core_series:
+                return series
+        else:
+            raise ValueError(
+                "No Ubuntu Core series %s" % core_series)
+
+    @classmethod
+    def latest_core(self):
+        for series in reversed(all_series):
+            if getattr(series, "_core_series", None):
+                return series
+
     def __str__(self):
         return self.name
 
@@ -148,6 +163,17 @@ class Series(Iterable):
     def realversion(self):
         return getattr(self, "pointversion", self.version)
 
+    @property
+    def core_series(self):
+        core_version = getattr(self, "_core_series", None)
+        if not core_version and self.is_latest:
+            # Automatically handle the devel series being 'XX+2', without
+            # having to manually bump it everytime we prepare for the next
+            # core series
+            latest_core = Series.latest_core()
+            core_version = str(int(latest_core.core_series) + 2)
+        return core_version
+
 
 # TODO: This should probably come from a configuration file.
 all_series.extend([
@@ -194,14 +220,16 @@ all_series.extend([
     Series(
         "xenial", "16.04", "Xenial Xerus",
         pointversion="16.04.7",
-        all_lts_projects=True),
+        all_lts_projects=True,
+        _core_series="16"),
     Series("yakkety", "16.10", "Yakkety Yak"),
     Series("zesty", "17.04", "Zesty Zapus"),
     Series("artful", "17.10", "Artful Aardvark"),
     Series(
         "bionic", "18.04", "Bionic Beaver",
         pointversion="18.04.6",
-        all_lts_projects=True),
+        all_lts_projects=True,
+        _core_series="18"),
     Series("cosmic", "18.10", "Cosmic Cuttlefish"),
     Series("disco", "19.04", "Disco Dingo"),
     Series(
@@ -210,13 +238,15 @@ all_series.extend([
     Series(
         "focal", "20.04", "Focal Fossa",
         pointversion="20.04.4",
-        all_lts_projects=True),
+        all_lts_projects=True,
+        _core_series="20"),
     Series("groovy", "20.10", "Groovy Gorilla"),
     Series("hirsute", "21.04", "Hirsute Hippo"),
     Series("impish", "21.10", "Impish Indri"),
     Series(
         "jammy", "22.04", "Jammy Jellyfish",
-        all_lts_projects=True),
+        all_lts_projects=True,
+        _core_series="22"),
     Series("kinetic", "22.10", "Kinetic Kudu"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
@@ -516,15 +546,7 @@ class Config(defaultdict):
 
     @property
     def core_series(self):
-        if self["DIST"] >= "xenial" and self["DIST"] <= "artful":
-            return '16'
-        if self["DIST"] >= "bionic" and self["DIST"] <= "eoan":
-            return '18'
-        if self["DIST"] == "focal":
-            return '20'
-        if self["DIST"] >= "groovy":
-            return '22'
-        return None
+        return self["DIST"].core_series
 
     def livefs_project_for_arch(self, arch):
         if arch not in self.livefs_arch_mapping:
