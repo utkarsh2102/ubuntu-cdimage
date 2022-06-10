@@ -464,7 +464,7 @@ def flavours(config, arch):
 
     if cpuarch == "amd64":
         if subarch == "intel-iot":
-            return ["intel"]
+            return ["intel-iotg"]
         if series >= "focal" and project == "ubuntu":
             return ["generic", "oem"]
         if project == "ubuntustudio":
