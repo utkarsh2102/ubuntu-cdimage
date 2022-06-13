@@ -71,3 +71,5 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 */5 * * * *	rebuild-requests -b -q focal iso
 */5 * * * *	rebuild-requests -b -q jammy iso
 */5 * * * *	rebuild-requests -b -q kinetic iso
+*/5 * * * *	rebuild-requests -b -q 20 iso
+*/5 * * * *	rebuild-requests -b -q 22 iso
