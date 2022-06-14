@@ -58,7 +58,7 @@ ubuntu-server-live	*			jammy-			amd64 arm64 ppc64el s390x riscv64
 
 ubuntu-zh_CN		*			trusty-			amd64 i386
 ubuntukylin		*			-bionic			amd64 i386
-ubuntukylin		*			focal-			amd64 arm64
+ubuntukylin		*			focal-			amd64
 
 ubuntustudio		*			trusty-bionic		amd64 i386
 ubuntustudio		*			focal-			amd64
