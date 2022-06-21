@@ -2065,12 +2065,14 @@ class DailyTreePublisher(Publisher):
         if not os.path.exists(source_path):
             return
 
+        save_target_path = os.path.join(
+            os.path.dirname(image_path), '.' + tarname)
         target_path = os.path.join(os.path.dirname(image_path), tarname)
 
-        shutil.move(source_path, '.' + target_path)
+        shutil.move(source_path, save_target_path)
 
         rewrite_and_unpack_tarball(
-            '.' + target_path, target_path, self.tree.url_for_path(image_path))
+            save_target_path, target_path, self.tree.url_for_path(image_path))
 
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
