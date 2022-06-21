@@ -95,11 +95,11 @@ def zsyncmake(infile, outfile, url, dry_run=False):
         subprocess.check_call(command)
 
 
-def rewrite_and_unpack_tarball(publisher, source_path, target_path, iso_url):
+def rewrite_and_unpack_tarball(dry_run, source_path, target_path, iso_url):
     logger.info(
         "Rewriting %s to %s with iso_url=%s",
         source_path, target_path, iso_url)
-    if publisher.dry_run:
+    if dry_run:
         return
     iso_url_b = iso_url.encode('utf-8')
     netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
@@ -2079,7 +2079,7 @@ class DailyTreePublisher(Publisher):
         shutil.move(source_path, save_target_path)
 
         rewrite_and_unpack_tarball(
-            self, save_target_path, target_path,
+            False, save_target_path, target_path,
             self.tree.url_for_path(image_path))
 
     def publish_binary(self, publish_type, arch, date):
@@ -2108,8 +2108,7 @@ class DailyTreePublisher(Publisher):
         shutil.move(
             "%s.%s" % (source_prefix, self.source_extension),
             target_path)
-        if publish_type == self.publish_type:
-            self.publish_netboot(arch, target_path)
+        self.publish_netboot(arch, target_path)
         if os.path.exists("%s.list" % source_prefix):
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
         self.checksum_dirs.append(source_dir)
@@ -3300,7 +3299,7 @@ class ReleasePublisher(Publisher):
             os.path.dirname(image_path), target_tarname)
 
         rewrite_and_unpack_tarball(
-            self, source_tarpath, target_tarpath,
+            self.dry_run, source_tarpath, target_tarpath,
             self.tree.url_for_path(image_path))
 
     def publish_release_arch(self, source, date, publish_type, arch):
