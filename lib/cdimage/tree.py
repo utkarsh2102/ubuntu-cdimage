@@ -1807,7 +1807,7 @@ class DailyTree(Tree):
                 "url_for_path(%r) did not start with self.directory (%r)"
                 % (path, self.directory))
         url_path = path[len(self.directory):].lstrip('/')
-        return "https://%s/%s" % (self.tree.site_name, url_path)
+        return "https://%s/%s" % (self.site_name, url_path)
 
     def manifest_files(self):
         """Yield all the files to include in a manifest of this tree."""
@@ -3016,7 +3016,7 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
                 "url_for_path(%r) did not start with self.directory (%r)"
                 % (path, self.directory))
         url_path = path[len(self.directory):].lstrip('/')
-        return "https://%s/%s" % (self.tree.site_name, url_path)
+        return "https://%s/%s" % (self.site_name, url_path)
 
     def get_publisher(self, image_type, official, status=None, dry_run=False):
         return SimpleReleasePublisher(
