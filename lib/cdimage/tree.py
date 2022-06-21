@@ -96,6 +96,9 @@ def zsyncmake(infile, outfile, url, dry_run=False):
 
 
 def rewrite_and_unpack_tarball(source_path, target_path, iso_url):
+    logger.info(
+        "Rewriting %s to %s with iso_url=%s",
+        source_path, target_path, iso_url)
     iso_url_b = iso_url.encode('utf-8')
     netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
     osextras.ensuredir(netboot_dir)
@@ -3010,13 +3013,10 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
         super(SimpleReleaseTree, self).__init__(config, directory)
 
     def url_for_path(self, path):
-        # I do not think this is correct.
-        if not path.startswith(self.directory):
-            raise Exception(
-                "url_for_path(%r) did not start with self.directory (%r)"
-                % (path, self.directory))
-        url_path = path[len(self.directory):].lstrip('/')
-        return "https://%s/%s" % (self.site_name, url_path)
+        series = self.config["DIST"]
+        version = getattr(series, "pointversion", series.version)
+        basename = os.path.basename(path)
+        return "https://%s/%s/%s" % (self.site_name, version, basename)
 
     def get_publisher(self, image_type, official, status=None, dry_run=False):
         return SimpleReleasePublisher(
