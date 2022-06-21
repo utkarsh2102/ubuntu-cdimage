@@ -95,10 +95,12 @@ def zsyncmake(infile, outfile, url, dry_run=False):
         subprocess.check_call(command)
 
 
-def rewrite_and_unpack_tarball(source_path, target_path, iso_url):
+def rewrite_and_unpack_tarball(publisher, source_path, target_path, iso_url):
     logger.info(
         "Rewriting %s to %s with iso_url=%s",
         source_path, target_path, iso_url)
+    if publisher.dry_run:
+        return
     iso_url_b = iso_url.encode('utf-8')
     netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
     osextras.ensuredir(netboot_dir)
@@ -1805,6 +1807,8 @@ class DailyTree(Tree):
         return "cdimage.ubuntu.com"
 
     def url_for_path(self, path):
+        logger.info(
+            "url_for_path(%s), self.directory = %s", path, self.directory)
         if not path.startswith(self.directory):
             raise Exception(
                 "url_for_path(%r) did not start with self.directory (%r)"
@@ -2075,7 +2079,8 @@ class DailyTreePublisher(Publisher):
         shutil.move(source_path, save_target_path)
 
         rewrite_and_unpack_tarball(
-            save_target_path, target_path, self.tree.url_for_path(image_path))
+            self, save_target_path, target_path,
+            self.tree.url_for_path(image_path))
 
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
@@ -3295,7 +3300,8 @@ class ReleasePublisher(Publisher):
             os.path.dirname(image_path), target_tarname)
 
         rewrite_and_unpack_tarball(
-            source_tarpath, target_tarpath, self.tree.url_for_path(image_path))
+            self, source_tarpath, target_tarpath,
+            self.tree.url_for_path(image_path))
 
     def publish_release_arch(self, source, date, publish_type, arch):
         """Publish release images for a single architecture."""
