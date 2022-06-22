@@ -546,7 +546,8 @@ class TestPublisherWebIndices(TestCase):
                 "HeaderName HEADER.html\n"
                 "ReadmeName FOOTER.html\n"
                 "IndexIgnore .htaccess HEADER.html FOOTER.html "
-                "published-ec2-daily.txt published-ec2-release.txt\n"
+                "published-ec2-daily.txt published-ec2-release.txt "
+                ".*.tar.gz\n"
                 "IndexOptions NameWidth=* DescriptionWidth=* "
                 "SuppressHTMLPreamble FancyIndexing IconHeight=22 "
                 "IconWidth=22 HTMLTable\n"
@@ -897,6 +898,7 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu-server", "daily-live")
         source_dir = publisher.image_output("amd64")
         tarname = "%s-netboot-amd64.tar.gz" % self.config.series
+        save_tarname = ".%s" % tarname
         isoname = "%s-live-server-amd64.iso" % self.config.series
         date = "20201215"
         os.makedirs(source_dir)
@@ -913,6 +915,7 @@ class TestDailyTreePublisher(TestCase):
 
         self.assertCountEqual([
             tarname,
+            save_tarname,
             isoname,
             "netboot",
         ], os.listdir(target_dir))
@@ -929,8 +932,8 @@ class TestDailyTreePublisher(TestCase):
                 self.assertEqual(ti.name, 'config')
                 self.assertEqual(
                     ('v=https://%s/ubuntu-server/daily-live/%s/%s' % (
-                        publisher.tree.site_name, date, isoname)
-                    ).encode('utf-8'),
+                        publisher.tree.site_name, date, isoname)).encode(
+                        'utf-8'),
                     tf.extractfile(ti).read())
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)

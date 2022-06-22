@@ -3290,13 +3290,13 @@ class ReleasePublisher(Publisher):
 
     def publish_release_netboot(self, daily_dir, prefix, arch, image_path):
         """Publish release images for a single architecture."""
-        logger.info("Copying netboot-%s image ..." % (arch, ))
-
         source_tarname = ".%s-netboot-%s.tar.gz" % (self.config.series, arch)
         source_tarpath = os.path.join(daily_dir, source_tarname)
 
         if not os.path.exists(source_tarpath):
             return
+
+        logger.info("Copying netboot-%s image ..." % (arch, ))
 
         target_tarname = "%s-netboot-%s.tar.gz" % (prefix, arch)
         target_tarpath = os.path.join(
