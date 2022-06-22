@@ -267,6 +267,30 @@ def mock_sign_cdimage(tree, path):
     return True
 
 
+# We need to make sure we have predictable series and point-releases for
+# testing purposes.
+test_all_series = [
+    Series(
+        "bionic", "18.04", "Bionic Beaver",
+        pointversion="18.04.6",
+        all_lts_projects=True,
+        _core_series="18"),
+    Series("cosmic", "18.10", "Cosmic Cuttlefish"),
+    Series("disco", "19.04", "Disco Dingo"),
+    Series(
+        "eoan", "19.10", "Eoan Ermine",
+        pointversion="19.10.1"),
+    Series(
+        "focal", "20.04", "Focal Fossa",
+        pointversion="20.04.3",
+        all_lts_projects=True,
+        _core_series="20"),
+    Series("groovy", "20.10", "Groovy Gorilla"),
+    Series("hirsute", "21.04", "Hirsute Hippo"),
+    Series("impish", "21.10", "Impish Indri"),
+]
+
+
 class TestSimpleStreamsTree(TestCase):
     def setUp(self):
         super(TestSimpleStreamsTree, self).setUp()
@@ -274,13 +298,12 @@ class TestSimpleStreamsTree(TestCase):
         os.environ["CDIMAGE_ROOT"] = self.temp_root.name
         self.config = Config(read=False)
 
+    @mock.patch("cdimage.config.all_series", test_all_series)
     @mock.patch("cdimage.simplestreams.sign_cdimage")
-    @mock.patch("cdimage.config.Series.latest")
     @mock.patch("cdimage.simplestreams.timestamp")
-    def test_daily_tree(self, timestamp, latest, sign_cdimage):
+    def test_daily_tree(self, timestamp, sign_cdimage):
         """Check if we get a right simplestream for a daily tree."""
         timestamp.return_value = "TIMESTAMP"
-        latest.return_value = Series.find_by_name("impish")
         sign_cdimage.side_effect = mock_sign_cdimage
         # Setup the tree
         tree_source = os.path.join(
@@ -310,6 +333,7 @@ class TestSimpleStreamsTree(TestCase):
                 streams, expected,
                 "SimpleStreams file %s has unexpected contents." % file)
 
+    @mock.patch("cdimage.config.all_series", test_all_series)
     @mock.patch("cdimage.simplestreams.sign_cdimage")
     @mock.patch("cdimage.simplestreams.timestamp")
     def test_release_tree(self, timestamp, sign_cdimage):
@@ -344,6 +368,7 @@ class TestSimpleStreamsTree(TestCase):
                 streams, expected,
                 "SimpleStreams file %s has unexpected contents." % file)
 
+    @mock.patch("cdimage.config.all_series", test_all_series)
     @mock.patch("cdimage.simplestreams.sign_cdimage")
     @mock.patch("cdimage.simplestreams.timestamp")
     def test_simple_tree(self, timestamp, sign_cdimage):

@@ -29,7 +29,7 @@ POINT_RELEASE:
     old-releases or old-images, according to the archival policy.
 
 EOF
-    exit 1
+    exit 0
 }
 
 mv_checksum() {
@@ -64,7 +64,9 @@ mv_checksum() {
 }
 
 [ $# -ne 1 ] && usage "Requires exactly one argument."
-[ "$1" == "-h" ] && usage "Helper tool for old image archival."
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    usage "Helper tool for old image archival."
+fi
 
 # Hard-coded directories, make sure those are up-to-date
 CDIMAGE_FULL="/srv/cdimage.ubuntu.com/www/full"

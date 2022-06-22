@@ -2739,6 +2739,9 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
                 target_dir, series.version),
             "Checksumming full tree ...",
             "No keys found; not signing images.",
+            "Refreshing simplestreams...",
+            "No keys found; not signing images.",
+            "No keys found; not signing images.",
             "Done!  Remember to sync-mirrors after checking that everything "
             "is OK.",
         ])
@@ -3090,6 +3093,8 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Checksumming simple tree (pool) ...",
             "No keys found; not signing images.",
             "Checksumming simple tree (%s) ..." % series,
+            "No keys found; not signing images.",
+            "Refreshing simplestreams...",
             "No keys found; not signing images.",
             "Done!  Remember to sync-mirrors after checking that everything "
             "is OK.",
