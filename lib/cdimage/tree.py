@@ -20,6 +20,7 @@
 from __future__ import print_function
 
 import errno
+import io
 from itertools import count
 from optparse import OptionParser
 import os
@@ -33,6 +34,7 @@ import socket
 import stat
 import subprocess
 import sys
+import tarfile
 from textwrap import dedent
 import time
 import traceback
@@ -91,6 +93,35 @@ def zsyncmake(infile, outfile, url, dry_run=False):
         logger.info("Trying again with block size 2048 ...")
         command[1:1] = ["-b", "2048"]
         subprocess.check_call(command)
+
+
+def rewrite_and_unpack_tarball(dry_run, source_path, target_path, iso_url):
+    logger.info(
+        "Rewriting %s to %s with iso_url=%s",
+        source_path, target_path, iso_url)
+    if dry_run:
+        return
+    iso_url_b = iso_url.encode('utf-8')
+    netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
+    osextras.ensuredir(netboot_dir)
+
+    with tarfile.open(source_path) as inf:
+        with tarfile.open(target_path, 'w:gz') as outf:
+            for ti in inf:
+                if ti.name.endswith('.in'):
+                    new_ti = inf.getmember(ti.name)
+                    new_ti.name = ti.name[:-3]
+                    content = inf.extractfile(ti).read()
+                    content = content.replace(b"#ISOURL#", iso_url_b)
+                    new_ti.size = len(content)
+                    with open(
+                            os.path.join(netboot_dir, new_ti.name),
+                            'wb') as fp:
+                        fp.write(content)
+                    outf.addfile(new_ti, io.BytesIO(content))
+                else:
+                    inf.extract(ti, netboot_dir)
+                    outf.addfile(ti, inf.extractfile(ti))
 
 
 class Tree:
@@ -166,6 +197,13 @@ class Tree:
     @property
     def site_name(self):
         """Return the public host name corresponding to this tree."""
+        raise NotImplementedError
+
+    def url_for_path(self, path):
+        """Return the public URL for the file at `path`.
+
+        `path` must be under self.directory.
+        """
         raise NotImplementedError
 
     def path_to_manifest(self, path):
@@ -487,6 +525,8 @@ class Publisher:
                 return "classroom server %s" % cd
             else:
                 return "server install %s" % cd
+        elif publish_type == "netboot":
+            return "netboot tarball"
         elif publish_type == "legacy-server":
             return "legacy server install %s" % cd
         elif publish_type == "serveraddon":
@@ -579,6 +619,10 @@ class Publisher:
             sentences.append(
                 "The install %s allows you to install %s permanently on a "
                 "computer." % (cd, capproject))
+        elif publish_type == "netboot":
+            sentences.append(
+                "The netboot tarball contains files needed to boot the %s "
+                "installer over the network." % (capproject,))
         elif publish_type == "alternate":
             sentences.append(
                 "The alternate install %s allows you to perform certain "
@@ -1121,6 +1165,7 @@ class Publisher:
         all_publish_types = (
             "live", "desktop",
             "live-server",
+            "netboot",
             "legacy-server",
             "server", "install", "alternate",
             "serveraddon", "addon",
@@ -1653,7 +1698,8 @@ class Publisher:
             print("ReadmeName FOOTER.html", file=htaccess)
             print(
                 "IndexIgnore .htaccess HEADER.html FOOTER.html "
-                "published-ec2-daily.txt published-ec2-release.txt",
+                "published-ec2-daily.txt published-ec2-release.txt "
+                ".*.tar.gz",
                 file=htaccess)
             print(
                 "IndexOptions NameWidth=* DescriptionWidth=* "
@@ -1759,6 +1805,16 @@ class DailyTree(Tree):
     @property
     def site_name(self):
         return "cdimage.ubuntu.com"
+
+    def url_for_path(self, path):
+        logger.info(
+            "url_for_path(%s), self.directory = %s", path, self.directory)
+        if not path.startswith(self.directory):
+            raise Exception(
+                "url_for_path(%r) did not start with self.directory (%r)"
+                % (path, self.directory))
+        url_path = path[len(self.directory):].lstrip('/')
+        return "https://%s/%s" % (self.site_name, url_path)
 
     def manifest_files(self):
         """Yield all the files to include in a manifest of this tree."""
@@ -2002,6 +2058,30 @@ class DailyTreePublisher(Publisher):
                 for line in jigdo_in:
                     jigdo_out.write(line.replace(from_line, to_line))
 
+    def publish_netboot(self, arch, image_path):
+        # Publishing a netboot tarball is a bit more complicated than
+        # just copying it into place, as we also unpack it into a
+        # netboot/ directory and replace rewrite any foo.cfg.in files
+        # referencing #ISOURL# to foo.cfg referencing the actual URL
+        # of the image.
+        #
+        # We also save a copy of the netboot tarball so we can rewrite
+        # it again during release publication.
+        tarname = "%s-netboot-%s.tar.gz" % (self.config.series, arch)
+        source_path = os.path.join(self.image_output(arch), tarname)
+        if not os.path.exists(source_path):
+            return
+
+        save_target_path = os.path.join(
+            os.path.dirname(image_path), '.' + tarname)
+        target_path = os.path.join(os.path.dirname(image_path), tarname)
+
+        shutil.move(source_path, save_target_path)
+
+        rewrite_and_unpack_tarball(
+            False, save_target_path, target_path,
+            self.tree.url_for_path(image_path))
+
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         if publish_type == "live-core":
@@ -2024,9 +2104,11 @@ class DailyTreePublisher(Publisher):
         logger.info("Publishing %s ..." % arch)
         osextras.ensuredir(target_dir)
         extension = self.detect_image_extension(source_prefix)
+        target_path = "%s.%s" % (target_prefix, extension)
         shutil.move(
             "%s.%s" % (source_prefix, self.source_extension),
-            "%s.%s" % (target_prefix, extension))
+            target_path)
+        self.publish_netboot(arch, target_path)
         if os.path.exists("%s.list" % source_prefix):
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
         self.checksum_dirs.append(source_dir)
@@ -2938,6 +3020,12 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
             directory = os.path.join(config.root, "www", "simple")
         super(SimpleReleaseTree, self).__init__(config, directory)
 
+    def url_for_path(self, path):
+        series = self.config["DIST"]
+        version = getattr(series, "pointversion", series.version)
+        basename = os.path.basename(path)
+        return "https://%s/%s/%s" % (self.site_name, version, basename)
+
     def get_publisher(self, image_type, official, status=None, dry_run=False):
         return SimpleReleasePublisher(
             self, image_type, official, status=status, dry_run=dry_run)
@@ -3200,6 +3288,24 @@ class ReleasePublisher(Publisher):
     def want_torrent(self, publish_type):
         raise NotImplementedError
 
+    def publish_release_netboot(self, daily_dir, prefix, arch, image_path):
+        """Publish release images for a single architecture."""
+        logger.info("Copying netboot-%s image ..." % (arch, ))
+
+        source_tarname = ".%s-netboot-%s.tar.gz" % (self.config.series, arch)
+        source_tarpath = os.path.join(daily_dir, source_tarname)
+
+        if not os.path.exists(source_tarpath):
+            return
+
+        target_tarname = "%s-netboot-%s.tar.gz" % (prefix, arch)
+        target_tarpath = os.path.join(
+            os.path.dirname(image_path), target_tarname)
+
+        rewrite_and_unpack_tarball(
+            self.dry_run, source_tarpath, target_tarpath,
+            self.tree.url_for_path(image_path))
+
     def publish_release_arch(self, source, date, publish_type, arch):
         """Publish release images for a single architecture."""
         logger.info("Copying %s-%s image ..." % (publish_type, arch))
@@ -3236,9 +3342,12 @@ class ReleasePublisher(Publisher):
                 return os.path.join(
                     torrent_dir, "%s%s%s" % (base_plain, sep, ext))
 
+        main_img = None
+
         for ext in ("iso", "img", "img.gz", "img.xz", "tar.gz", "img.tar.gz",
                     "tar.xz"):
             if os.path.exists(daily(ext)):
+                main_img = daily(ext)
                 break
         else:
             return
@@ -3254,8 +3363,20 @@ class ReleasePublisher(Publisher):
                 self.copy(daily(ext), pool(ext))
             if self.want_dist:
                 self.symlink(pool(ext), dist(ext))
+                if daily(ext) == main_img:
+                    self.publish_release_netboot(
+                        os.path.dirname(daily(ext)),
+                        prefix_status,
+                        arch,
+                        dist(ext))
             if self.want_full:
                 self.copy(daily(ext), full(ext))
+                if daily(ext) == main_img:
+                    self.publish_release_netboot(
+                        os.path.dirname(daily(ext)),
+                        prefix,
+                        arch,
+                        full(ext))
 
         for ext in (
             "initrd-ec2", "initrd-virtual", "vmlinuz-ec2", "vmlinuz-virtual",
