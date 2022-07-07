@@ -1950,7 +1950,7 @@ class DailyTreePublisher(Publisher):
             if self.config["DIST"] >= "kinetic":
                 # The idea is to keep compatibility with 2GiB USB sticks.
                 # Let's keep a ~100MB buffer to have time to act by either
-                # (a) shrink the image (b) dedice that 4GB USB sticks are
+                # (a) shrink the image (b) decide that 4GB USB sticks are
                 # common enough.
                 return int(1.9 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "focal":
