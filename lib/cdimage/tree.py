@@ -1947,7 +1947,13 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] >= "focal":
+            if self.config["DIST"] >= "kinetic":
+                # The idea is to keep compatibility with 2GiB USB sticks.
+                # Let's keep a ~100MB buffer to have time to act by either
+                # (a) shrink the image (b) dedice that 4GB USB sticks are
+                # common enough.
+                return int(1.9 * 1000 * 1000 * 1000)
+            elif self.config["DIST"] >= "focal":
                 # Requested by paride via MP.
                 return int(1.5 * 1000 * 1000 * 1000)
             else:
