@@ -833,6 +833,8 @@ class Publisher:
         "riscv64": "RISC-V",
         "riscv64+unleashed": "RISC-V for SiFive HiFive Unleashed",
         "riscv64+unmatched": "RISC-V for SiFive HiFive Unmatched",
+        "riscv64+visionfive": "RISC-V for StarFive VisionFive",
+        "riscv64+nezha": "RISC-V for Allwinner Nezha",
         "s390x": "IBM System z",
         "sparc": "SPARC",
     }
@@ -944,6 +946,12 @@ class Publisher:
             sentences.append(
                 "For RISC-V computers, with support for SiFive HiFive "
                 "Unmatched and QEMU.")
+        elif arch == "riscv64+visionfive":
+            sentences.append(
+                "For RISC-V computers, with support for StarFive VisionFive")
+        elif arch == "riscv64+nezha":
+            sentences.append(
+                "For RISC-V computers, with support for Allwinner Nezha")
         elif arch == "riscv64" and publish_type == "live-server":
             sentences.append(
                 "For RISC-V computers. Requires copying your own first "
@@ -1195,6 +1203,7 @@ class Publisher:
             "hppa",
             "ia64",
             "riscv64", "riscv64+unleashed", "riscv64+unmatched",
+            "riscv64+visionfive", "riscv64+nezha",
             "s390x",
             "sparc",
         )
