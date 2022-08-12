@@ -19,11 +19,11 @@ export IMAGE_FORMAT
 DIST="${DIST:-kinetic}"
 
 case $DIST in
-	trusty|bionic|jammy)  # For 22.04.1
+	trusty|bionic)
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
-	focal)
+	focal|jammy)
 		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
