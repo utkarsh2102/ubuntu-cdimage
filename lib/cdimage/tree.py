@@ -1918,7 +1918,9 @@ class DailyTreePublisher(Publisher):
                 # increases its size
                 # Further bumped in mail to internal Desktop team list,
                 # 2020-10-13, acked by seb128
-                return int(3.6 * 1024 * 1024 * 1024)
+                # bumped 2022-08-22: LTS images increase in size over time
+                # due to addition of newer nvidia drivers. acked by jbicha
+                return int(3.8 * 1024 * 1024 * 1024)
             # email with willcooke, 20190801
             else:
                 return int(2.2 * 1000 * 1000 * 1000)
