@@ -237,6 +237,7 @@ def main():
         'ubuntu-mate',
         'ubuntukylin',
         'ubuntu-budgie',
+        'ubuntu-unity',
         )
     if not options.series:
         options.series = ('precise', 'trusty', 'xenial', 'bionic',

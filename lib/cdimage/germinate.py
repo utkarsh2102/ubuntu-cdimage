@@ -88,6 +88,8 @@ class Germination:
                 sources.insert(0, bzrpattern % "ubuntubudgie-dev")
             elif project == "ubuntu-mate":
                 sources.insert(0, bzrpattern % "ubuntu-mate-dev")
+            elif project == "ubuntu-unity":
+                sources.insert(0, gitpattern % "unity7maintainers")
             elif project == "ubuntukylin":
                 if series >= "xenial":
                     sources.insert(0, gitpattern % "ubuntukylin-members")

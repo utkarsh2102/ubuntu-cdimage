@@ -91,6 +91,7 @@ def configure_for_project(config):
         "ubuntu-gnome",
         "ubuntu-budgie",
         "ubuntu-mate",
+        "ubuntu-unity",
     ):
         config["CDIMAGE_UNSUPPORTED"] = "1"
 

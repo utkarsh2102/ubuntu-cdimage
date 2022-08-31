@@ -75,6 +75,7 @@ projects = [
     "ubuntu-gnome",
     "ubuntu-budgie",
     "ubuntu-mate",
+    "ubuntu-unity",
     "ubuntu-server",
     "ubuntukylin",
     "ubuntustudio",
@@ -1213,6 +1214,13 @@ class Publisher:
         header_path = os.path.join(directory, "HEADER.html")
         footer_path = os.path.join(directory, "FOOTER.html")
         htaccess_path = os.path.join(directory, ".htaccess")
+        reldir = os.path.realpath(directory)
+        if 'simple' in reldir.split('/'):
+            site = 'releases.ubuntu.com'
+            suburl = reldir.split('simple/')[-1]
+        else:
+            site = 'cdimage.ubuntu.com'
+            suburl = reldir.split('full/')[-1]
 
         with AtomicFile(header_path) as header, \
                 AtomicFile(footer_path) as footer, \
@@ -1228,8 +1236,10 @@ class Publisher:
         <meta name="description" content="CD images for %s" />
         <meta name="author" content="Canonical" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href="https://%s/%s">
         <!-- Main style sheets for CSS2 capable browsers -->
-        <style type="text/css" media="screen">""") % (heading, heading),
+        <style type="text/css" media="screen">""")
+                % (heading, heading, site, suburl),
                 file=header)
             assets = 'https://assets.ubuntu.com/v1/'
             print(dedent("""\
@@ -1338,7 +1348,6 @@ class Publisher:
             """) % (header_href, heading), file=header)
 
             mirrors_url = "http://www.ubuntu.com/getubuntu/downloadmirrors"
-            reldir = os.path.realpath(directory)
             if ("full" in reldir.split(os.pardir) and
                     "-alpha-" not in base_prefix and
                     base_prefix != self.config.series):
