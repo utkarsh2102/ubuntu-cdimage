@@ -206,6 +206,12 @@ def main():
                 env['DIST'] = Series.find_by_core_series(env['DIST']).name
                 image_type = "daily-live"
 
+            # XXX: This is temporary, should be removed by 22.10 Beta.
+            # Current ubuntu-canary dailies build with a PPA enabled. Let's
+            # do the same when triggering via the tracker.
+            if image_type == "daily-canary":
+                env['EXTRA_PPAS'] = "ubuntu-desktop/canary-image"
+
             cmd = ["for-project", project, "cron.%s" % image_type]
 
             if (build_type != "daily" or
