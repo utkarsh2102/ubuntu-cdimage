@@ -1939,12 +1939,12 @@ class DailyTreePublisher(Publisher):
               self.config["DIST"] >= "focal"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             return 4 * 1024 * 1024 * 1024
+        elif self.project == "xubuntu" and self.config["DIST"] >= "kinetic":
+            # Per IRC discussions on #ubuntu-release 2022-09-16
+            return 3.0 * 1000 * 1000 * 1000
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
             # Per IRC discussions on #ubuntu-release 2022-04-17
             return 2.8 * 1000 * 1000 * 1000
-        elif self.project == "xubuntu" and self.config["DIST"] >= "impish":
-            # Per IRC discussions on #ubuntu-release 2021-08-20
-            return 2 * 1024 * 1024 * 1024
         elif self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
                               "ubuntu-gnome", "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
@@ -1956,10 +1956,11 @@ class DailyTreePublisher(Publisher):
             # oversized; executive decision by vorlon to raise the limit
             # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
+        elif self.project == "lubuntu" and self.config["DIST"] >= "kinetic":
+            # Per IRC discussions on #ubuntu-release 2022-09-16
+            return 3 * 1000 * 1000 * 1000
         elif self.project == "lubuntu" and self.config["DIST"] >= "jammy":
             return int(2.8 * 1000 * 1000 * 1000)
-        elif self.project == "lubuntu" and self.config["DIST"] >= "hirsute":
-            return int(2.2 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "focal":
             # https://bugs.launchpad.net/bugs/1796368
             return 2 * 1000 * 1000 * 1000
