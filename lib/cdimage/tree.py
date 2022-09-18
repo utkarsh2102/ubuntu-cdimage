@@ -1956,6 +1956,9 @@ class DailyTreePublisher(Publisher):
             # oversized; executive decision by vorlon to raise the limit
             # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
+        elif self.project == "ubuntu-unity":
+            # Per IRC discussions on #ubuntu-release 2022-09-16
+            return inT(2.6 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "kinetic":
             # Per IRC discussions on #ubuntu-release 2022-09-16
             return 3 * 1000 * 1000 * 1000
