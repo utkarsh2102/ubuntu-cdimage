@@ -32,12 +32,10 @@ mythbuntu		*			*			amd64 i386
 ubuntu			daily-live		trusty			amd64 amd64+mac i386
 ubuntu			daily-live		xenial			amd64 i386
 ubuntu			daily-live		bionic			amd64
-ubuntu			daily-live		focal			amd64 arm64 amd64+intel-iot
-ubuntu			daily-live		impish			amd64 arm64
-ubuntu			daily-live		jammy			amd64 arm64 amd64+intel-iot
+ubuntu			daily-live		focal-jammy		amd64 arm64 amd64+intel-iot
 ubuntu			daily-live		kinetic-		amd64 arm64
 
-ubuntu-desktop-preinstalled daily-preinstalled	impish-		arm64+raspi
+ubuntu-desktop-preinstalled daily-preinstalled	jammy-		arm64+raspi
 
 ubuntu-gnome		*			*			amd64 i386
 
@@ -50,7 +48,6 @@ ubuntu-mate		*			focal-			amd64
 ubuntu-server		daily-preinstalled	xenial			armhf+raspi2
 ubuntu-server		daily-preinstalled	bionic			armhf+raspi3 arm64+raspi3
 ubuntu-server		daily-preinstalled	focal			armhf+raspi arm64+raspi riscv64+unleashed riscv64+unmatched
-ubuntu-server		daily-preinstalled	impish			armhf+raspi arm64+raspi riscv64+unmatched amd64 arm64
 ubuntu-server		daily-preinstalled	jammy			armhf+raspi arm64+raspi riscv64+unmatched riscv64+visionfive riscv64+nezha amd64 arm64
 ubuntu-server		daily-preinstalled	kinetic-		armhf+raspi arm64+raspi riscv64+unmatched riscv64+visionfive riscv64+nezha riscv64+licheerv riscv64+icicle amd64 arm64
 ubuntu-server		*			trusty			amd64 amd64+mac i386 powerpc ppc64el
@@ -58,7 +55,7 @@ ubuntu-server		*			xenial			amd64 arm64 i386 powerpc ppc64el s390x
 ubuntu-server		*			bionic-focal		amd64 arm64 ppc64el s390x
 
 ubuntu-server-live	*			bionic			amd64 arm64 ppc64el
-ubuntu-server-live	*			focal-impish		amd64 arm64 ppc64el s390x
+ubuntu-server-live	*			focal			amd64 arm64 ppc64el s390x
 ubuntu-server-live	*			jammy-			amd64 arm64 ppc64el s390x riscv64
 
 ubuntu-zh_CN		*			trusty-			amd64 i386
