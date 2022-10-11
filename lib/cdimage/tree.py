@@ -961,7 +961,7 @@ class Publisher:
         elif arch == "riscv64+icicle":
             sentences.append(
                 "For RISC-V computers, with support for Microchip Polarfire Icicle Kit")
-        elif arch == "riscv64" and publish_type == "live-server":
+        elif arch == "riscv64":
             sentences.append(
                 "For RISC-V computers. Requires copying your own first "
                 "stage bootloader (like u-boot) onto the image before "
