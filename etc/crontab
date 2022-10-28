@@ -50,7 +50,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The daily ubuntu-base images are used by core-next, so we can't build it
 # with proposed enabled.
 52 4 * * *	PROPOSED=0 DIST=jammy for-project ubuntu-base cron.daily-live --live
-# regular kinetic daily builds
+# regular lunar daily builds
 41 7 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
 41 8 * * *	SUBPROJECT=canary EXTRA_PPAS=ubuntu-desktop/canary-image for-project ubuntu cron.daily-canary --live
 24 5 * * *	for-project kubuntu cron.daily-live --live
@@ -71,6 +71,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q focal iso
 */5 * * * *	rebuild-requests -b -q jammy iso
-*/5 * * * *	rebuild-requests -b -q kinetic iso
+*/5 * * * *	rebuild-requests -b -q lunar iso
 */5 * * * *	rebuild-requests -b -q 20 iso
 */5 * * * *	rebuild-requests -b -q 22 iso
