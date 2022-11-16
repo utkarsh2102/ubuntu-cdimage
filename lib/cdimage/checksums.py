@@ -83,7 +83,7 @@ class ChecksumFile:
     def _entry_time(self, path, default):
         try:
             st = os.lstat(path)
-            return max(st.st_mtime, st.st_ctime)
+            return st.st_mtime
         except OSError:
             return default
 
