@@ -960,7 +960,8 @@ class Publisher:
                 "For RISC-V computers, with support for Sipeed LicheeRV Dock")
         elif arch == "riscv64+icicle":
             sentences.append(
-                "For RISC-V computers, with support for Microchip Polarfire Icicle Kit")
+                "For RISC-V computers, with support for Microchip Polarfire "
+                "Icicle Kit")
         elif arch == "riscv64":
             sentences.append(
                 "For RISC-V computers. Requires copying your own first "
