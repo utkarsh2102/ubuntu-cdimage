@@ -363,9 +363,20 @@ def run_live_builds(config):
             "%s on %s starting at %s" % (full_name, machine, timestamp))
         tracker_set_rebuild_status(config, [0, 1], 2, arch)
         if lp_livefs is not None:
-            lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
-            lp_build = lp_livefs.requestBuild(**lp_kwargs)
-            logger.info("%s: %s" % (full_name, lp_build.web_link))
+            lp_build = None
+            if config["CDIMAGE_REUSE_BUILD"]:
+                for build in lp_livefs.builds:
+                    if (build.distro_arch_series.architecture_tag == arch
+                            and build.buildstate == "Successfully built"):
+                        logger.info("reusing build %s", build)
+                        lp_build = build
+                        break
+                else:
+                    raise Exception("no build found to reuse for %s" % (arch,))
+            if lp_build is None:
+                lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
+                lp_build = lp_livefs.requestBuild(**lp_kwargs)
+                logger.info("%s: %s" % (full_name, lp_build.web_link))
             lp_builds.append((lp_build, arch, full_name, machine, None))
         else:
             proc = subprocess.Popen(live_build_command(config, arch))
