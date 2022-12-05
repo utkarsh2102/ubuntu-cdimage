@@ -2,6 +2,7 @@ daily 1
 daily-live 1
 daily-preinstalled 1
 daily-canary 1
+daily-legacy 1
 # Purge images older than 2 days => keep the most recent build.
 dvd 2
 # Ubuntu Core images are not purged per age

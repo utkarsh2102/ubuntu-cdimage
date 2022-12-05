@@ -315,6 +315,7 @@ class GerminateOutput:
             elif project == "ubuntu" and self.config["SUBPROJECT"] == "canary":
                 # ubuntu-desktop-installer
                 yield "canary-ship-live"
+                # TODO: we will probably need a legacy-ship-live seed
             else:
                 yield "ship-live"
         elif mode == "addon":

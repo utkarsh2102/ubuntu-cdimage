@@ -269,6 +269,7 @@ class TestPublisher(TestCase):
             ("daily", "ubuntu-server", "focal", "legacy-server"),
             ("daily", "ubuntu", "precise", "alternate"),
             ("daily-canary", "ubuntu", "jammy", "desktop-canary"),
+            ("daily-legacy", "ubuntu", "lunar", "desktop-legacy"),
         ):
             self.config["PROJECT"] = project
             self.config["DIST"] = dist
@@ -1031,6 +1032,44 @@ class TestDailyTreePublisher(TestCase):
                 target_dir, "%s-desktop-canary-amd64.iso.zsync" %
                 self.config.series),
             "%s-desktop-canary-amd64.iso" % self.config.series)
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    def test_publish_legacy_binary(self, mock_zsyncmake, *args):
+        publisher = self.make_publisher("ubuntu", "daily-legacy")
+        source_dir = publisher.image_output("amd64")
+        touch(os.path.join(
+            source_dir, "%s-desktop-legacy-amd64.raw" %
+            self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-legacy-amd64.list" %
+            self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-legacy-amd64.manifest" %
+            self.config.series))
+        self.capture_logging()
+        list(publisher.publish_binary("desktop-legacy", "amd64", "20201215"))
+        self.assertLogEqual([
+            "Publishing amd64 ...",
+            "Unknown file type 'empty'; assuming .iso",
+            "Publishing amd64 live manifest ...",
+            "Making amd64 zsync metafile ...",
+        ])
+        target_dir = os.path.join(publisher.publish_base, "20201215")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertCountEqual([
+            "%s-desktop-legacy-amd64.iso" % self.config.series,
+            "%s-desktop-legacy-amd64.list" % self.config.series,
+            "%s-desktop-legacy-amd64.manifest" % self.config.series,
+        ], os.listdir(target_dir))
+        mock_zsyncmake.assert_called_once_with(
+            os.path.join(
+                target_dir, "%s-desktop-legacy-amd64.iso" %
+                self.config.series),
+            os.path.join(
+                target_dir, "%s-desktop-legacy-amd64.iso.zsync" %
+                self.config.series),
+            "%s-desktop-legacy-amd64.iso" % self.config.series)
 
     def test_publish_livecd_base(self):
         publisher = self.make_publisher("livecd-base", "livecd-base")
@@ -2136,6 +2175,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         pass
 
     def test_publish_canary_binary(self):
+        pass
+
+    def test_publish_legacy_binary(self):
         pass
 
     def test_publish_livecd_base(self):
