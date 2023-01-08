@@ -32,7 +32,7 @@ project_map = {
     "ubuntu-zh_CN": "Ubuntu Chinese Edition",
     "kubuntu": "Kubuntu",
     "xubuntu": "Xubuntu",
-    "xubuntu-core": "Xubuntu-Core",
+    "xubuntu-minimal": "Xubuntu-Minimal",
     "gobuntu": "Gobuntu",
     "ubuntu-server": "Ubuntu-Server",
     "ubuntustudio": "Ubuntu-Studio",
