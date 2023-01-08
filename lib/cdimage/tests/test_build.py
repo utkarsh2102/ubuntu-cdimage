@@ -592,6 +592,7 @@ class TestBuildImageSet(TestCase):
             ("ubuntu", "trusty", False, False),
             ("gobuntu", "hardy", True, False),
             ("xubuntu", "precise", False, True),
+            ("xubuntu-core", "lunar", False, True),
             ("kubuntu", "precise", False, False),
             ("kubuntu", "trusty", False, True),
             ("ubuntustudio", "trusty", False, True),

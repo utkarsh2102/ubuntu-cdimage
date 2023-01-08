@@ -67,6 +67,7 @@ ubuntustudio		*			focal-			amd64
 
 xubuntu			*			trusty-bionic		amd64 i386
 xubuntu			*			focal-			amd64
+xubuntu-core			*			*			amd64
 
 *			dvd			trusty-bionic		amd64 i386
 *			dvd			*			amd64

@@ -116,7 +116,7 @@ def check_image(config, project, series, image):
             warn(project, image, "%s oversized by %d bytes (%d)" %
                                  (iso, size - sizelimit, size))
 
-    if project == 'xubuntu':
+    if project in ('xubuntu', 'xubuntu-core'):
         for manifest in filter(
                 lambda x: x.endswith('.list') or x.endswith('.manifest'),
                 files):
@@ -228,6 +228,7 @@ def main():
         'ubuntu-server',
         'kubuntu',
         'xubuntu',
+        'xubuntu-core',
         'ubuntustudio',
         'kubuntu-netbook',
         'mythbuntu',

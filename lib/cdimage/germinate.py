@@ -78,7 +78,7 @@ class Germination:
                 sources.insert(0, gitpattern % "ubuntustudio-dev")
             elif project == "mythbuntu":
                 sources.insert(0, bzrpattern % "mythbuntu-dev")
-            elif project == "xubuntu":
+            elif project in ("xubuntu", "xubuntu-core"):
                 sources.insert(0, gitpattern % "xubuntu-dev")
             elif project in ("lubuntu", "lubuntu-next"):
                 sources.insert(0, gitpattern % "lubuntu-dev")

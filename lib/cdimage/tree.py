@@ -80,6 +80,7 @@ projects = [
     "ubuntukylin",
     "ubuntustudio",
     "xubuntu",
+    "xubuntu-core",
 ]
 
 
@@ -495,7 +496,7 @@ class Publisher:
             return [vanilla, "//cdimage.ubuntu.com/include/kubuntu/style.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
             return [vanilla, "//cdimage.ubuntu.com/include/lubuntu/style.css"]
-        if self.project == "xubuntu":
+        if self.project in ("xubuntu", "xubuntu-core"):
             return [vanilla, "//cdimage.ubuntu.com/include/xubuntu/style.css"]
         else:
             return [vanilla]
@@ -1012,7 +1013,8 @@ class Publisher:
                                "kubuntu",
                                "ubuntu-mate",
                                "ubuntu-budgie",
-                               "xubuntu") and series >= "xenial"):
+                               "xubuntu",
+                               "xubuntu-core") and series >= "xenial"):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 2GB USB stick.")
@@ -1020,7 +1022,7 @@ class Publisher:
                 "However, you may still test it using a DVD, a larger USB "
                 "drive, or a virtual machine.")
         elif (self.project in usb_projects or
-                (self.project == "xubuntu" and series >= "trusty") or
+                (self.project in ("xubuntu", "xubuntu-core") and series >= "trusty") or
                 (self.project == "ubuntu-gnome" and series >= "trusty")):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
@@ -1326,7 +1328,7 @@ class Publisher:
                     'href="//cdimage.ubuntu.com/include/lubuntu/'
                     'favicon.png">', file=header)
                 header_href = 'https://lubuntu.me/'
-            elif self.project == "xubuntu":
+            elif self.project in ("xubuntu", "xubuntu-core"):
                 print(
                     '<link rel="icon" type="image/png" '
                     'href="//cdimage.ubuntu.com/include/xubuntu/'
@@ -1963,13 +1965,13 @@ class DailyTreePublisher(Publisher):
               self.config["DIST"] >= "focal"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             return 4 * 1024 * 1024 * 1024
-        elif self.project == "xubuntu" and self.config["DIST"] >= "kinetic":
+        elif self.project in ("xubuntu", "xubuntu-core") and self.config["DIST"] >= "kinetic":
             # Per IRC discussions on #ubuntu-release 2022-09-16
             return 3.0 * 1000 * 1000 * 1000
-        elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
+        elif self.project in ("xubuntu", "xubuntu-core") and self.config["DIST"] >= "jammy":
             # Per IRC discussions on #ubuntu-release 2022-04-17
             return 2.8 * 1000 * 1000 * 1000
-        elif self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
+        elif self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu", "xubuntu-core",
                               "ubuntu-gnome", "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
