@@ -1021,7 +1021,7 @@ class Publisher:
                 "However, you may still test it using a DVD, a larger USB "
                 "drive, or a virtual machine.")
         elif (self.project in usb_projects or
-                (self.project in ("xubuntu", "xubuntu-minimal") and series >= "trusty") or
+                (self.project == "xubuntu" and series >= "trusty") or
                 (self.project == "ubuntu-gnome" and series >= "trusty")):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
