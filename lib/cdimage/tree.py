@@ -1013,8 +1013,7 @@ class Publisher:
                                "kubuntu",
                                "ubuntu-mate",
                                "ubuntu-budgie",
-                               "xubuntu",
-                               "xubuntu-minimal") and series >= "xenial"):
+                               "xubuntu") and series >= "xenial"):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 2GB USB stick.")
