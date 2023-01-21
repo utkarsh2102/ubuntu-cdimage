@@ -80,7 +80,6 @@ projects = [
     "ubuntukylin",
     "ubuntustudio",
     "xubuntu",
-    "xubuntu-minimal",
 ]
 
 
@@ -496,7 +495,7 @@ class Publisher:
             return [vanilla, "//cdimage.ubuntu.com/include/kubuntu/style.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
             return [vanilla, "//cdimage.ubuntu.com/include/lubuntu/style.css"]
-        if self.project in ("xubuntu", "xubuntu-minimal"):
+        if self.project == "xubuntu":
             return [vanilla, "//cdimage.ubuntu.com/include/xubuntu/style.css"]
         else:
             return [vanilla]
@@ -1327,7 +1326,7 @@ class Publisher:
                     'href="//cdimage.ubuntu.com/include/lubuntu/'
                     'favicon.png">', file=header)
                 header_href = 'https://lubuntu.me/'
-            elif self.project in ("xubuntu", "xubuntu-minimal"):
+            elif self.project == "xubuntu":
                 print(
                     '<link rel="icon" type="image/png" '
                     'href="//cdimage.ubuntu.com/include/xubuntu/'

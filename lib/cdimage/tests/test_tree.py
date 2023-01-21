@@ -311,10 +311,7 @@ class TestPublisherWebIndices(TestCase):
              [vanilla, "//cdimage.ubuntu.com/include/lubuntu/style.css"]),
             ("xubuntu",
              [assets + "/vanilla-framework-version-1.8.0.min.css",
-              "//cdimage.ubuntu.com/include/xubuntu/style.css"]),
-            ("xubuntu-minimal",
-             [assets + "/vanilla-framework-version-1.8.0.min.css",
-              "//cdimage.ubuntu.com/include/xubuntu/style.css"]),
+              "//cdimage.ubuntu.com/include/xubuntu/style.css"])
         ):
             self.config["PROJECT"] = project
             publisher = Publisher(self.tree, "daily")
@@ -1423,7 +1420,6 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
-            ("xubuntu-minimal", "daily-live", "desktop", "Xubuntu Minimal"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
             ("mythbuntu", "daily-live", "desktop", "Mythbuntu Desktop"),
@@ -1482,7 +1478,6 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu", "daily-live", "desktop", "Ubuntu Desktop"),
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
-            ("xubuntu-minimal", "daily-live", "desktop", "Xubuntu Minimal"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
             ("mythbuntu", "daily-live", "desktop", "Mythbuntu Desktop"),

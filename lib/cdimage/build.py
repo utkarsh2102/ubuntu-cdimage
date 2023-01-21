@@ -78,7 +78,7 @@ def configure_for_project(config):
     series = config["DIST"]
     if project == "gobuntu":
         config["CDIMAGE_ONLYFREE"] = "1"
-    elif project in ("xubuntu", "xubuntu-minimal"):
+    elif project == "xubuntu":
         config["CDIMAGE_UNSUPPORTED"] = "1"
     elif project == "kubuntu":
         if series >= "trusty":
