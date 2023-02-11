@@ -227,6 +227,7 @@ def main():
         'ubuntu',
         'ubuntu-server',
         'kubuntu',
+        'edubuntu',
         'xubuntu',
         'ubuntustudio',
         'kubuntu-netbook',

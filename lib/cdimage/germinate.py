@@ -325,7 +325,11 @@ class GerminateOutput:
                 if seed not in ship:
                     yield seed
         elif mode == "dvd":
-            if project == "ubuntu":
+            if project == "edubuntu":
+                # no inheritance; most of this goes on the live filesystem
+                yield "dvd"
+                yield "ship-live"
+            elif project == "ubuntu":
                 # no inheritance; most of this goes on the live filesystem
                 yield "usb-langsupport"
                 yield "usb-ship-live"
@@ -379,6 +383,11 @@ class GerminateOutput:
 
         found = False
         for seed in self.master_seeds():
+            # https://blueprints.launchpad.net/ubuntu/+spec/edubuntu-on-two-cds
+            if (self.config["CDIMAGE_DVD"] != "1" and
+                    self.config["CDIMAGE_ADDON"] != "1" and
+                    seed == "ship-addon"):
+                yield "FORCE-CD-BREAK"
             if source:
                 yield "#include <source/%s/%s:%s>" % (series, project, seed)
             else:
@@ -518,7 +527,14 @@ class GerminateOutput:
                 continue
             input_seeds = [seed] + headers.get("seeds", "").split()
             if "per-derivative" in headers:
-                task = "%s-%s" % (task_project, task)
+                # Edubuntu is odd; it's structured as an add-on to
+                # Ubuntu, so sometimes we need to create ubuntu-* tasks.
+                # At the moment I don't see a better approach than
+                # hardcoding the task names.
+                if project == "edubuntu" and task in ("desktop", "live"):
+                    task = "ubuntu-%s" % task
+                else:
+                    task = "%s-%s" % (task_project, task)
 
             yield input_seeds, task
 
