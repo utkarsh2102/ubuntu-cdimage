@@ -198,11 +198,6 @@ class TestLiveProject(TestCase):
             self.assertProjectEqual(
                 "kubuntu-dvd", "kubuntu", series.full_name, cdimage_dvd="1")
 
-    def test_edubuntu_dvd(self):
-        for series in all_series[10:]:
-            self.assertProjectEqual(
-                "edubuntu-dvd", "edubuntu", series.full_name, cdimage_dvd="1")
-
     def test_ubuntustudio_dvd(self):
         for series in all_series[15:]:
             self.assertProjectEqual(
