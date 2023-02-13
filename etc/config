@@ -51,7 +51,7 @@ case $DIST in
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio lubuntu ubuntukylin ubuntu-mate ubuntu-budgie}"
         ;;
     *)
-        ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio lubuntu ubuntukylin ubuntu-mate ubuntu-budgie ubuntu-unity}"
+        ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio lubuntu ubuntukylin ubuntu-mate ubuntu-budgie ubuntu-unity ubuntucinnamon}"
         ;;
 esac
 

@@ -1422,24 +1422,21 @@ class TestDailyTreePublisher(TestCase):
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
-            ("mythbuntu", "daily-live", "desktop", "Mythbuntu Desktop"),
-            ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
             ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
-            ("lubuntu-next", "daily-live", "desktop", "Lubuntu Next Desktop"),
             ("ubuntu-base", "daily", "base", "Ubuntu Base"),
             ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
-            ("ubuntu-gnome", "daily-live", "desktop", "Ubuntu GNOME Desktop"),
             ("ubuntu-budgie", "daily-live", "desktop",
                 "Ubuntu Budgie Desktop"),
             ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
+            ("ubuntucinnamon", "daily-live", "desktop", "Ubuntu Cinnamon Desktop"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
             # use the publisher's image_type at all.
             publisher = self.make_publisher(project, "daily")
             self.assertEqual(
-                ("%s i386" % product, "iso"),
+                ("%s amd64" % product, "iso"),
                 publisher.qa_product(
-                    project, image_type, publish_type, "i386"))
+                    project, image_type, publish_type, "amd64"))
 
     def test_qa_product_localized_tracker(self):
         publisher = self.make_publisher("ubuntu-zh_CN", "daily-live")

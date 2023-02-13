@@ -76,6 +76,7 @@ projects = [
     "ubuntu-budgie",
     "ubuntu-mate",
     "ubuntu-unity",
+    "ubuntucinnamon",
     "ubuntu-server",
     "ubuntukylin",
     "ubuntustudio",

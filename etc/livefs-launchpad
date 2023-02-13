@@ -27,6 +27,7 @@ ubuntu-budgie		daily-live		*		*		ubuntu-cdimage/ubuntu-budgie
 ubuntu-touch		daily-preinstalled	ubuntu-rtm/*	*		ubuntu-cdimage/ubuntu-touch
 ubuntu-touch		daily-preinstalled	trusty-		*		ubuntu-cdimage/ubuntu-touch
 ubuntu-unity		daily-live		*		*		ubuntu-cdimage/ubuntu-unity
+ubuntucinnamon		daily-live		*		*		ubuntu-cdimage/ubuntucinnamon
 ubuntu			dvd			-precise	*		ubuntu-cdimage/ubuntu-dvd
 ubuntu-wubi		wubi			*		*		ubuntu-cdimage/ubuntu-wubi
 ubuntu-zh_CN		daily-live		-precise	*		ubuntu-cdimage/ubuntu-zh-cn
