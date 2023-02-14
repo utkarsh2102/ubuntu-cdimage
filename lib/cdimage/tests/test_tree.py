@@ -257,6 +257,7 @@ class TestPublisher(TestCase):
              "preinstalled-desktop"),
             ("daily-preinstalled", "ubuntu-touch", "trusty",
              "preinstalled-touch"),
+            ("daily-live", "edubuntu", "lunar", "desktop"),
             ("daily-live", "kubuntu-netbook", "precise", "netbook"),
             ("daily-live", "ubuntu-server", "precise", "live-server"),
             ("daily-live", "ubuntu", "precise", "desktop"),

@@ -31,6 +31,7 @@ project_map = {
     "ubuntu": "Ubuntu",
     "ubuntu-zh_CN": "Ubuntu Chinese Edition",
     "kubuntu": "Kubuntu",
+    "edubuntu": "Edubuntu",
     "xubuntu": "Xubuntu",
     "gobuntu": "Gobuntu",
     "ubuntu-server": "Ubuntu-Server",
