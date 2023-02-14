@@ -280,6 +280,15 @@ class TestPublisher(TestCase):
                 self.assertEqual(
                     image_type, Publisher._guess_image_type(publish_type))
 
+        self.config["PROJECT"] = "xubuntu"
+        self.config["SUBPROJECT"] = "minimal"
+        self.config["DIST"] = "lunar"
+        tree = Tree(self.config, self.temp_dir)
+        publisher = Publisher(tree, "daily-live")
+        self.assertEqual("minimal", publisher.publish_type)
+        self.assertEqual(
+            "daily-live", Publisher._guess_image_type("minimal"))
+
 
 class TestPublisherWebIndices(TestCase):
     """Test Publisher.make_web_indices and its subsidiary methods."""
