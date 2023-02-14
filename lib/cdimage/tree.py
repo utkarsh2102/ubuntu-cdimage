@@ -456,7 +456,7 @@ class Publisher:
         if publish_type.startswith("preinstalled-"):
             return "daily-preinstalled"
         elif publish_type in (
-                "desktop", "live", "netbook",
+                "desktop", "live", "minimal", "netbook",
                 "live-core", "live-server"):
             return "daily-live"
         elif publish_type == "dvd":
