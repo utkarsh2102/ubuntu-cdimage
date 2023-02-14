@@ -418,6 +418,8 @@ class Publisher:
                 return "preinstalled-core"
             else:
                 return "preinstalled-desktop"
+        elif self.config.subproject == "minimal":
+            return "minimal"
         elif self.image_type.endswith("-live"):
             if self.project == "edubuntu":
                 return "desktop"
