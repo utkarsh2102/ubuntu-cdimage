@@ -74,7 +74,7 @@ class Germination:
             sources = [gitpattern % "ubuntu-core-dev"]
             if project == "kubuntu":
                 sources.insert(0, gitpattern % "kubuntu-dev")
-            elif project == "edubuntu:
+            elif project == "edubuntu":
                 source.insert(0, gitpatern % "edubuntu-dev")
             elif project == "ubuntustudio":
                 sources.insert(0, gitpattern % "ubuntustudio-dev")
