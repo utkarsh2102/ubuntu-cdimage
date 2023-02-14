@@ -2,7 +2,6 @@
 
 # Edubuntu
 Edubuntu Desktop amd64							edubuntu	daily-live			desktop					amd64			iso
-Edubuntu Desktop i386							edubuntu	daily-live			desktop					i386			iso
 
 # Kubuntu
 Kubuntu Desktop amd64						kubuntu			daily-live			desktop					amd64			iso
