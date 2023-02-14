@@ -50,9 +50,6 @@ case $DIST in
     focal)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio lubuntu ubuntukylin ubuntu-mate ubuntu-budgie}"
         ;;
-    jammy)
-        ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio lubuntu ubuntukylin ubuntu-mate ubuntu-budgie}"
-        ;;
     *)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio lubuntu ubuntukylin ubuntu-mate ubuntu-budgie ubuntu-unity}"
         ;;
