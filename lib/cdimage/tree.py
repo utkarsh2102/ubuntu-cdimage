@@ -3733,7 +3733,8 @@ class ReleasePublisher(Publisher):
                     with open(os.path.join(trace_dir, fqdn), "w") as trace:
                         subprocess.check_call(["date", "-u"], stdout=trace)
 
-        self.refresh_simplestreams()
+        logger.warning("Warning! Simplestreams temporarily disabled!")
+        #self.refresh_simplestreams()
 
         logger.info(
             "Done!  Remember to sync-mirrors after checking that everything "
