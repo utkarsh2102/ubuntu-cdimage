@@ -1820,6 +1820,9 @@ class Publisher:
 
     def refresh_simplestreams(self):
         """For the publisher cycle, refresh the corresponding sstreams."""
+        logger.warning("Warning! Simplestreams temporarily disabled!")
+        return
+
         if self.config.get("SIMPLESTREAMS") == "0":
             # SimpleStreams are enabled by default now.
             return
@@ -3733,8 +3736,7 @@ class ReleasePublisher(Publisher):
                     with open(os.path.join(trace_dir, fqdn), "w") as trace:
                         subprocess.check_call(["date", "-u"], stdout=trace)
 
-        logger.warning("Warning! Simplestreams temporarily disabled!")
-        #self.refresh_simplestreams()
+        self.refresh_simplestreams()
 
         logger.info(
             "Done!  Remember to sync-mirrors after checking that everything "
