@@ -318,8 +318,8 @@ class TestSimpleStreamsTree(TestCase):
             self.temp_root.name, "www", "full", "streams", "v1")
         expected_dir = os.path.join(
             os.path.dirname(__file__), "data", "result", "daily")
-        streams_contents = os.listdir(streams_dir)
-        expected_contents = os.listdir(expected_dir)
+        streams_contents = sorted(os.listdir(streams_dir))
+        expected_contents = sorted(os.listdir(expected_dir))
         self.assertListEqual(streams_contents, expected_contents)
         for file in streams_contents:
             if file.endswith(".gpg"):
@@ -353,8 +353,8 @@ class TestSimpleStreamsTree(TestCase):
             self.temp_root.name, "www", "full", "releases", "streams", "v1")
         expected_dir = os.path.join(
             os.path.dirname(__file__), "data", "result", "release")
-        streams_contents = os.listdir(streams_dir)
-        expected_contents = os.listdir(expected_dir)
+        streams_contents = sorted(os.listdir(streams_dir))
+        expected_contents = sorted(os.listdir(expected_dir))
         self.assertListEqual(streams_contents, expected_contents)
         for file in streams_contents:
             if file.endswith(".gpg"):
@@ -388,8 +388,8 @@ class TestSimpleStreamsTree(TestCase):
             self.temp_root.name, "www", "simple", "streams", "v1")
         expected_dir = os.path.join(
             os.path.dirname(__file__), "data", "result", "simple")
-        streams_contents = os.listdir(streams_dir)
-        expected_contents = os.listdir(expected_dir)
+        streams_contents = sorted(os.listdir(streams_dir))
+        expected_contents = sorted(os.listdir(expected_dir))
         self.assertListEqual(streams_contents, expected_contents)
         for file in streams_contents:
             if file.endswith(".gpg"):
