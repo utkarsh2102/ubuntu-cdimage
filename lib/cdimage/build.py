@@ -764,7 +764,6 @@ def build_image_set_locked(config, options):
             publisher.purge()
 
             log_marker("Handling simplestreams")
-
             publisher.refresh_simplestreams()
 
             log_marker("Triggering mirrors")
