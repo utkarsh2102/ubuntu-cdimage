@@ -19,11 +19,12 @@ export IMAGE_FORMAT
 DIST="${DIST:-lunar}"
 
 case $DIST in
-	trusty|bionic)
+	# Disabled jammy-proposed for 22.04.2 RCs
+	trusty|bionic|jammy)
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
-	focal|jammy)
+	focal)
 		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
