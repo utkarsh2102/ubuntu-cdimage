@@ -48,7 +48,7 @@ case $DIST in
     bionic)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu lubuntu ubuntukylin ubuntu-mate ubuntu-budgie}"
         ;;
-    focal)
+    focal|jammy)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio lubuntu ubuntukylin ubuntu-mate ubuntu-budgie}"
         ;;
     *)
