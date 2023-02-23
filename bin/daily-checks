@@ -239,6 +239,7 @@ def main():
         'ubuntukylin',
         'ubuntu-budgie',
         'ubuntu-unity',
+        'ubuntucinnamon',
         )
     if not options.series:
         options.series = ('precise', 'trusty', 'xenial', 'bionic',

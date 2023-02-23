@@ -62,6 +62,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 10 15 * * *	for-project ubuntu-budgie cron.daily-live --live
 36 2 * * *	for-project ubuntu-mate cron.daily-live --live
 10 13 * * *	for-project ubuntu-unity cron.daily-live --live
+24 13 * * *	for-project ubuntucinnamon cron.daily-live --live
 # The daily ubuntu-base images are used by core-next, so we can't build it
 # with proposed enabled.
 42 4 * * *	PROPOSED=0 for-project ubuntu-base cron.daily-live --live

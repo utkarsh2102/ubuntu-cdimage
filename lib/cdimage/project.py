@@ -44,6 +44,7 @@ project_map = {
     "ubuntu-budgie": "Ubuntu-Budgie",
     "ubuntu-mate": "Ubuntu-MATE",
     "ubuntu-unity": "Ubuntu-Unity",
+    "ubuntucinnamon": "Ubuntu-Cinnamon",
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu Core",
     "ubuntu-appliance": "Ubuntu Appliance",
