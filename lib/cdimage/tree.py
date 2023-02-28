@@ -531,7 +531,7 @@ class Publisher:
         elif publish_type == "alternate":
             return "alternate install %s" % cd
         elif publish_type == "minimal":
-            return "minimal"
+            return "minimal %s" % cd
         elif publish_type in ("server", "live-server"):
             if self.project == "edubuntu":
                 return "classroom server %s" % cd
