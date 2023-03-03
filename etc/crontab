@@ -55,6 +55,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 41 8 * * *	SUBPROJECT=legacy for-project ubuntu cron.daily-legacy --live
 24 5 * * *	for-project kubuntu cron.daily-live --live
 40 1 * * *	for-project xubuntu cron.daily-live --live; SUBPROJECT=minimal for-project xubuntu cron.daily-live --live
+41 1 * * *	for-project edubuntu cron.daily-live --live
 10 3 * * *	for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
 27 18 * * *	for-project ubuntustudio cron.dvd --live
 39 16 * * *	for-project lubuntu cron.daily-live --live
