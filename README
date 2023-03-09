@@ -38,6 +38,10 @@ the following scripts, which may be called by hand:
     Build live CDs of the legacy (ubiquity-based) images for all relevant
     Ubuntu architectures.
 
+  * cron.daily-minimal
+
+    Build minimal variants of live CDs for all relevant Ubuntu architectures.
+
   * cron.dvd
 
     Build DVDs for all relevant Ubuntu architectures.  These are normally

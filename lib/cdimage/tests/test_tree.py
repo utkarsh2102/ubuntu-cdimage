@@ -271,6 +271,7 @@ class TestPublisher(TestCase):
             ("daily", "ubuntu", "precise", "alternate"),
             ("daily-canary", "ubuntu", "jammy", "desktop-canary"),
             ("daily-legacy", "ubuntu", "lunar", "desktop-legacy"),
+            ("daily-minimal", "xubuntu", "lunar", "minimal"),
         ):
             self.config["PROJECT"] = project
             self.config["DIST"] = dist
@@ -280,15 +281,6 @@ class TestPublisher(TestCase):
             if "_" not in image_type:
                 self.assertEqual(
                     image_type, Publisher._guess_image_type(publish_type))
-
-        self.config["PROJECT"] = "xubuntu"
-        self.config["SUBPROJECT"] = "minimal"
-        self.config["DIST"] = "lunar"
-        tree = Tree(self.config, self.temp_dir)
-        publisher = Publisher(tree, "daily-live")
-        self.assertEqual("minimal", publisher.publish_type)
-        self.assertEqual(
-            "daily-live", Publisher._guess_image_type("minimal"))
 
 
 class TestPublisherWebIndices(TestCase):
@@ -1080,6 +1072,44 @@ class TestDailyTreePublisher(TestCase):
                 target_dir, "%s-desktop-legacy-amd64.iso.zsync" %
                 self.config.series),
             "%s-desktop-legacy-amd64.iso" % self.config.series)
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    def test_publish_minimal_binary(self, mock_zsyncmake, *args):
+        publisher = self.make_publisher("xubuntu", "daily-minimal")
+        source_dir = publisher.image_output("amd64")
+        touch(os.path.join(
+            source_dir, "%s-minimal-amd64.raw" %
+            self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-minimal-amd64.list" %
+            self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-minimal-amd64.manifest" %
+            self.config.series))
+        self.capture_logging()
+        list(publisher.publish_binary("minimal", "amd64", "20201215"))
+        self.assertLogEqual([
+            "Publishing amd64 ...",
+            "Unknown file type 'empty'; assuming .iso",
+            "Publishing amd64 live manifest ...",
+            "Making amd64 zsync metafile ...",
+        ])
+        target_dir = os.path.join(publisher.publish_base, "20201215")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertCountEqual([
+            "%s-minimal-amd64.iso" % self.config.series,
+            "%s-minimal-amd64.list" % self.config.series,
+            "%s-minimal-amd64.manifest" % self.config.series,
+        ], os.listdir(target_dir))
+        mock_zsyncmake.assert_called_once_with(
+            os.path.join(
+                target_dir, "%s-minimal-amd64.iso" %
+                self.config.series),
+            os.path.join(
+                target_dir, "%s-minimal-amd64.iso.zsync" %
+                self.config.series),
+            "%s-minimal-amd64.iso" % self.config.series)
 
     def test_publish_livecd_base(self):
         publisher = self.make_publisher("livecd-base", "livecd-base")
@@ -2186,6 +2216,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         pass
 
     def test_publish_legacy_binary(self):
+        pass
+
+    def test_publish_minimal_binary(self):
         pass
 
     def test_publish_livecd_base(self):

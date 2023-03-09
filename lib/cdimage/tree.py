@@ -419,7 +419,7 @@ class Publisher:
                 return "preinstalled-core"
             else:
                 return "preinstalled-desktop"
-        elif self.config["SUBPROJECT"] == "minimal":
+        elif self.image_type == "daily-minimal":
             return "minimal"
         elif self.image_type.endswith("-live"):
             if self.project == "edubuntu":
@@ -457,9 +457,11 @@ class Publisher:
         if publish_type.startswith("preinstalled-"):
             return "daily-preinstalled"
         elif publish_type in (
-                "desktop", "live", "minimal", "netbook",
+                "desktop", "live", "netbook",
                 "live-core", "live-server"):
             return "daily-live"
+        elif publish_type == "minimal":
+            return "daily-minimal"
         elif publish_type == "dvd":
             return "dvd"
         elif publish_type in (
@@ -1823,9 +1825,6 @@ class Publisher:
 
     def refresh_simplestreams(self):
         """For the publisher cycle, refresh the corresponding sstreams."""
-        logger.warning("Warning! Simplestreams temporarily disabled!")
-        return
-
         if self.config.get("SIMPLESTREAMS") == "0":
             # SimpleStreams are enabled by default now.
             return
