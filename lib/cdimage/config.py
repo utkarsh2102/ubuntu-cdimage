@@ -237,7 +237,7 @@ all_series.extend([
         pointversion="19.10.1"),
     Series(
         "focal", "20.04", "Focal Fossa",
-        pointversion="20.04.5",
+        pointversion="20.04.6",
         all_lts_projects=True,
         _core_series="20"),
     Series("groovy", "20.10", "Groovy Gorilla"),
