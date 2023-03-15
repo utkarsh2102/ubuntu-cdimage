@@ -3568,7 +3568,7 @@ class ReleasePublisher(Publisher):
         if publish_type == "src":
             # Perverse, but works.
             arches = self.find_source_images(daily_dir, series.name)
-            # Sanity-check.
+            # Coherence-check.
             if not arches:
                 raise PublishReleaseException(
                     "No source daily for %s on %s!" % (series, date))
@@ -3579,7 +3579,7 @@ class ReleasePublisher(Publisher):
                 not [arch for arch in arches if arch.startswith("armel")]):
             arches = ["i386"]
 
-        # Sanity-check.
+        # Coherence-check.
         if publish_type not in ("netbook", "src"):
             for arch in arches:
                 paths = []

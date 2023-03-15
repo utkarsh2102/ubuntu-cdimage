@@ -288,7 +288,7 @@ all_touch_targets.extend([
     Touch("flo", "armel", "armhf"),
 ])
 
-_whitelisted_keys = (
+_allowed_keys = (
     "PROJECT",
     "CAPPROJECT",
     "DIST",
@@ -339,8 +339,8 @@ class Config(defaultdict):
 
     def read(self, config_path=None):
         for key, value in osextras.read_shell_config(
-                config_path, _whitelisted_keys):
-            if key.startswith("CDIMAGE_") or key in _whitelisted_keys:
+                config_path, _allowed_keys):
+            if key.startswith("CDIMAGE_") or key in _allowed_keys:
                 super(Config, self).__setitem__(key, value)
 
         # Special entries.

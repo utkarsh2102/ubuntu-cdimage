@@ -161,7 +161,7 @@ case $images_source in
 
     $CDIMAGE_FULL/releases/*)
         # Special case: releases/ also go to old-releases, not old-images
-        # Sanity check
+        # Coherence check
         if ! echo "$images_source" | grep -q "full\/releases\/[a-z]\+\/\(beta\|release\)"; then
             echo "Not a valid image to archive."
             exit 1
@@ -189,7 +189,7 @@ case $images_source in
         ;;
 
     $CDIMAGE_FULL/*)
-        # Sanity check
+        # Coherence check
         if ! echo "$images_source" | grep -q "full\/[a-z-]*\/\?releases\/[a-z]\+\/\(beta\|release\)"; then
             echo "Not a valid image to archive."
             exit 1
@@ -216,7 +216,7 @@ case $images_source in
         ;;
 
     $CDIMAGE_SIMPLE/*)
-        # Sanity check
+        # Coherence check
         if ! echo "$images_source" | grep -q "simple\/[a-z-]\+"; then
             echo "Not a valid image to archive."
             exit 1

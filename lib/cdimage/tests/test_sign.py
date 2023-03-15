@@ -76,7 +76,7 @@ class TestSign(TestCase):
         config["GNUPG_DIR"] = self.use_temp_dir()
         config["SIGNING_KEYID"] = "01234567"
         self.capture_logging()
-        self.assertFalse(sign_cdimage(config, "dummy"))
+        self.assertFalse(sign_cdimage(config, "test"))
         self.assertLogEqual(["No keys found; not signing images."])
 
     def test_sign_cdimage_missing_signing_keyid(self):
@@ -86,7 +86,7 @@ class TestSign(TestCase):
             touch(os.path.join(self.temp_dir, tail))
         config["GNUPG_DIR"] = self.temp_dir
         self.capture_logging()
-        self.assertFalse(sign_cdimage(config, "dummy"))
+        self.assertFalse(sign_cdimage(config, "test"))
         self.assertLogEqual(["No keys found; not signing images."])
 
     @mock.patch("subprocess.check_call")

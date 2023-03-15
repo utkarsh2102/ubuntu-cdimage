@@ -154,7 +154,7 @@ def _anonftpsync_options(config):
     env = {}
     path = _anonftpsync_config_path(config)
     if path:
-        whitelisted_keys = [
+        allowed_keys = [
             "RSYNC_EXCLUDE",
             "RSYNC_ICONV",
             "RSYNC_PASSWORD",
@@ -162,7 +162,7 @@ def _anonftpsync_options(config):
             "RSYNC_RSH",
             "RSYNC_SRC",
         ]
-        for key, value in osextras.read_shell_config(path, whitelisted_keys):
+        for key, value in osextras.read_shell_config(path, allowed_keys):
             if key.startswith("RSYNC_"):
                 env[key] = value
     if "RSYNC_SRC" not in env:

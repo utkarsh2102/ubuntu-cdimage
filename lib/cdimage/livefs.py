@@ -422,7 +422,7 @@ def run_live_builds(config):
             elif (lp_build.build_log_url is None and
                   (log_timeout is None or time.time() < log_timeout)):
                 # Wait up to five minutes for Launchpad to fetch the build
-                # log from the slave.  We need a timeout since in rare cases
+                # log from the remote.  We need a timeout since in rare cases
                 # this might fail.
                 if log_timeout is None:
                     log_timeout = time.time() + 300

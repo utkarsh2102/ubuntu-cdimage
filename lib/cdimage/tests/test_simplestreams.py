@@ -263,7 +263,7 @@ class TestSimpleStreams(TestCase):
 def mock_sign_cdimage(tree, path):
     """A mock of sign_cdimage()"""
     with open("%s.gpg" % path, "w") as fp:
-        fp.write("DUMMY SIGNATURE")
+        fp.write("TEST SIGNATURE")
     return True
 
 

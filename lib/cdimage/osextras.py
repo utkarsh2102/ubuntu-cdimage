@@ -141,12 +141,12 @@ def _read_nullsep_output(command):
     return out
 
 
-def read_shell_config(config_path=None, whitelisted_keys=[]):
+def read_shell_config(config_path=None, allowed_keys=[]):
     commands = []
     if config_path is not None:
         commands.append(". %s" % shell_quote(config_path))
     commands.append("cat /proc/self/environ")
-    for key in whitelisted_keys:
+    for key in allowed_keys:
         commands.append(
             "test -z \"${KEY+x}\" || printf '%s\\0' \"KEY=$KEY\"".replace(
                 "KEY", key))
