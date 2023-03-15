@@ -1,0 +1,18 @@
+pipeline:
+- [run-tests, lint]
+
+jobs:
+    run-tests:
+        series: focal
+        architectures: amd64
+        packages: [dctrl-tools, python3, python3, python3-mock, python3-simplestreams, procmail, squashfs-tools]
+        run: ./run-tests >output
+        output:
+            paths: [output]
+
+    lint:
+        series: focal
+        architectures: amd64
+        packages: [tox, git]
+        snaps: [go]
+        run: tox -e lint
