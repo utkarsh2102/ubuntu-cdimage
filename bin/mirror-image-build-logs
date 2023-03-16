@@ -46,7 +46,7 @@ def main():
         "-azessh -i /home/cdimage/.ssh/id-cd-build-logs",
         "--delete",
         os.path.join(config.root, "log/"),
-        "ubuntu-archive@archive-team.internal:"
+        "ubuntu-archive@ubuntu-archive-toolbox.internal:"
         "/home/ubuntu-archive/public_html/cd-build-logs/",
     ])
 
