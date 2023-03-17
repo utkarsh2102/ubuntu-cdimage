@@ -389,12 +389,13 @@ def run_live_builds(config):
         timestamp = time.strftime("%F %T")
         logger.info("%s on %s finished at %s (%s)" % (
             full_name, machine, timestamp, text_status))
-        tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
         if status == 0:
+            tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
             successful.add(arch)
             if arch == "amd64" and "amd64+mac" in config.arches:
                 successful.add("amd64+mac")
         else:
+            tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
             live_build_notify_failure(config, arch, lp_build=lp_build)
 
     while builds or lp_builds:

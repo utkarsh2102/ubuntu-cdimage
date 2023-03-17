@@ -518,10 +518,10 @@ class TestRunLiveBuilds(TestCase):
             "buildlive", ["foo@example.org"], b"Log data\n")
 
     @mock_strftime(1363355331)
-    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
     @mock.patch("cdimage.livefs.live_build_command", return_value=["false"])
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
     @mock.patch("cdimage.livefs.send_mail")
-    def test_run_live_builds_notifies_on_failure(self, mock_send_mail, *args):
+    def test_run_live_builds_notifies_on_failure(self, mock_send_mail, mock_tracker, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
@@ -550,6 +550,12 @@ class TestRunLiveBuilds(TestCase):
                 "LiveFS ubuntu/trusty/i386 failed to build on 20130315",
                 "buildlive", ["foo@example.org"], b"Log data\n"),
         ], any_order=True)
+        mock_tracker.assert_has_calls([
+            mock.call(self.config, [0, 1], 2, "amd64"),
+            mock.call(self.config, [0, 1], 2, "i386"),
+            mock.call(self.config, [0, 1, 2], 5, "amd64"),
+            mock.call(self.config, [0, 1, 2], 5, "i386")
+        ])
 
     @mock_strftime(1363355331)
     @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
