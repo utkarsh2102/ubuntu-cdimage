@@ -51,6 +51,7 @@ project_map = {
     "ubuntu-base": "Ubuntu-Base",
     "ubuntu-touch-preview": "Ubuntu Touch Preview",
     "ubuntu-touch": "Ubuntu Touch",
+    "ubuntu-mini-iso": "Ubuntu-Mini-ISO",
 }
 
 
