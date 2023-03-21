@@ -446,7 +446,7 @@ def build_livecd_base(config):
                 "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
     if (config.project in ("ubuntu-mini-iso", ) and
-            config.image_type == "daily-preinstalled")
+            config.image_type == "daily-live")
         log_marker("Copying mini iso to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.project, config.full_series,
@@ -708,6 +708,8 @@ def is_live_fs_only(config):
         live_fs_only = True
     elif (config.project in ("ubuntu", "ubuntu-server") and
           config.image_type == "daily-preinstalled"):
+        live_fs_only = True
+    elif config.project == "ubuntu-mini-iso":
         live_fs_only = True
     elif config.subproject == "wubi":
         live_fs_only = True

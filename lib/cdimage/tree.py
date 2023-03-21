@@ -459,7 +459,7 @@ class Publisher:
         if publish_type.startswith("preinstalled-"):
             return "daily-preinstalled"
         elif publish_type == "mini-iso":
-            return "daily-preinstalled"
+            return "daily-live"
         elif publish_type in (
                 "desktop", "live", "netbook",
                 "live-core", "live-server"):

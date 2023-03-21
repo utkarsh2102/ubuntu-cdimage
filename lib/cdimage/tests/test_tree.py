@@ -1114,7 +1114,7 @@ class TestDailyTreePublisher(TestCase):
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
     def test_publish_mini_iso_binary(self, mock_zsyncmake, *args):
-        publisher = self.make_publisher("ubuntu-mini-iso", "daily-preinstalled")
+        publisher = self.make_publisher("ubuntu-mini-iso", "daily-live")
         source_dir = publisher.image_output("amd64")
         touch(os.path.join(
             source_dir, "%s-mini-iso-amd64.raw" %
@@ -1499,7 +1499,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
             ("ubuntucinnamon", "daily-live", "desktop",
                 "Ubuntu Cinnamon Desktop"),
-            ("ubuntu-mini-iso", "daily-preinstalled", "mini-iso", "Ubuntu Mini ISO"),
+            ("ubuntu-mini-iso", "daily-live", "mini-iso", "Ubuntu Mini ISO"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
             # use the publisher's image_type at all.
