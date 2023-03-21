@@ -1234,6 +1234,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assert_live_download_items("ubuntu-server", "live", series, item,
                                         filenames, filenames)
 
+
     @mock.patch("cdimage.osextras.fetch")
     def assert_live_download_items(self, project, subproject, series, item,
                                    filenames, expected_files, mock_fetch):
@@ -1285,6 +1286,10 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assert_server_live_download_items(
             "bionic", "modules.squashfs",
             ["modules.squashfs-generic", "modules.squashfs-generic-hwe"])
+
+    def test_download_mini_iso_items(self):
+        self.assert_live_download_items(
+            "ubuntu-mini-iso", "", "bionic", "iso", ["iso"], ["iso"])
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_multi_layers_squashfs(self, mock_fetch):

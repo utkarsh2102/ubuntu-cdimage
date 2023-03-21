@@ -417,6 +417,8 @@ class Publisher:
                 return "preinstalled-touch"
             elif self.project == "ubuntu-core":
                 return "preinstalled-core"
+            elif self.project == "ubuntu-mini-iso":
+                return "mini-iso"
             else:
                 return "preinstalled-desktop"
         elif self.image_type == "daily-minimal":
@@ -455,6 +457,8 @@ class Publisher:
     @staticmethod
     def _guess_image_type(publish_type):
         if publish_type.startswith("preinstalled-"):
+            return "daily-preinstalled"
+        elif publish_type == "mini-iso":
             return "daily-preinstalled"
         elif publish_type in (
                 "desktop", "live", "netbook",
@@ -541,6 +545,8 @@ class Publisher:
                 return "server install %s" % cd
         elif publish_type == "netboot":
             return "netboot tarball"
+        elif publish_type == "mini-iso":
+            return "mini ISO"
         elif publish_type == "legacy-server":
             return "legacy server install %s" % cd
         elif publish_type == "serveraddon":
@@ -641,6 +647,10 @@ class Publisher:
             sentences.append(
                 "The netboot tarball contains files needed to boot the %s "
                 "installer over the network." % (capproject,))
+        elif publish_type == "mini-iso":
+            sentances.append(
+                "The mini ISO image is a small ISO image that can be used "
+                "to choose which other Ubuntu image to download and install.")
         elif publish_type == "alternate":
             sentences.append(
                 "The alternate install %s allows you to perform certain "
@@ -1202,6 +1212,7 @@ class Publisher:
             "live-server",
             "netboot",
             "legacy-server",
+            "mini-iso",
             "server", "install", "alternate",
             "serveraddon", "addon",
             "dvd",

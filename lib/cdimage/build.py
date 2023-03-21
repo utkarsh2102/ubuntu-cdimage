@@ -445,6 +445,28 @@ def build_livecd_base(config):
             shutil.copy2(
                 "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
+    if (config.project in ("ubuntu-mini-iso", ) and
+            config.image_type == "daily-preinstalled")
+        log_marker("Copying mini iso to debian-cd output directory")
+        scratch_dir = os.path.join(
+            config.root, "scratch", config.project, config.full_series,
+            config.image_type)
+        live_dir = os.path.join(scratch_dir, "live")
+        for arch in config.arches:
+            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+            osextras.ensuredir(output_dir)
+            live_prefix = os.path.join(live_dir, arch)
+            iso = "%s.iso" % (live_prefix)
+            output_prefix = os.path.join(output_dir,
+                                         "%s-mini-iso-%s" %
+                                         (config.series, arch))
+            with open("%s.type" % output_prefix, "w") as f:
+                print("EXT4 Filesystem Image", file=f)
+            shutil.copy2(iso, "%s.raw" % output_prefix)
+            # XXX: I don't think we need the manifest for a mini iso
+            #shutil.copy2(
+            #    "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
+
     if (config.project in ("ubuntu-core", "ubuntu-appliance") and
             config.image_type == "daily-live"):
         log_marker("Copying images to debian-cd output directory")

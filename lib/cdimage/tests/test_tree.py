@@ -1111,6 +1111,35 @@ class TestDailyTreePublisher(TestCase):
                 self.config.series),
             "%s-minimal-amd64.iso" % self.config.series)
 
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    def test_publish_mini_iso_binary(self, mock_zsyncmake, *args):
+        publisher = self.make_publisher("ubuntu-mini-iso", "daily-preinstalled")
+        source_dir = publisher.image_output("amd64")
+        touch(os.path.join(
+            source_dir, "%s-mini-iso-amd64.raw" %
+            self.config.series))
+        self.capture_logging()
+        list(publisher.publish_binary("mini-iso", "amd64", "20201215"))
+        self.assertLogEqual([
+            "Publishing amd64 ...",
+            "Unknown file type 'empty'; assuming .iso",
+            "Making amd64 zsync metafile ...",
+        ])
+        target_dir = os.path.join(publisher.publish_base, "20201215")
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertCountEqual([
+            "%s-mini-iso-amd64.iso" % self.config.series,
+        ], os.listdir(target_dir))
+        mock_zsyncmake.assert_called_once_with(
+            os.path.join(
+                target_dir, "%s-mini-iso-amd64.iso" %
+                self.config.series),
+            os.path.join(
+                target_dir, "%s-mini-iso-amd64.iso.zsync" %
+                self.config.series),
+            "%s-mini-iso-amd64.iso" % self.config.series)
+
     def test_publish_livecd_base(self):
         publisher = self.make_publisher("livecd-base", "livecd-base")
         source_dir = os.path.join(
@@ -1470,6 +1499,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-mate", "daily-live", "desktop", "Ubuntu MATE Desktop"),
             ("ubuntucinnamon", "daily-live", "desktop",
                 "Ubuntu Cinnamon Desktop"),
+            ("ubuntu-mini-iso", "daily-preinstalled", "mini-iso", "Ubuntu Mini ISO"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
             # use the publisher's image_type at all.
@@ -2219,6 +2249,9 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         pass
 
     def test_publish_minimal_binary(self):
+        pass
+
+    def test_publish_mini_iso_binary(self):
         pass
 
     def test_publish_livecd_base(self):
