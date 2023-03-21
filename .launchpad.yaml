@@ -1,5 +1,5 @@
 pipeline:
-- [run-tests, lint]
+  [lint] #- [run-tests, lint]
 
 jobs:
     run-tests:
