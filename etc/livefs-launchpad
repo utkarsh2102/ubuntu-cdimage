@@ -4,7 +4,7 @@
 
 ubuntu			daily-live		*		*		ubuntu-cdimage/ubuntu
 ubuntu-legacy		daily-legacy		*		*		ubuntu-cdimage/ubuntu-legacy
-ubuntu-canary		daily-live		*		disco-		ubuntu-cdimage/ubuntu-canary
+ubuntu-canary		daily-live		disco-		*		ubuntu-cdimage/ubuntu-canary
 ubuntu-desktop-preinstalled daily-preinstalled	focal-		*		ubuntu-cdimage/ubuntu-preinstalled
 kubuntu			daily-live		*		*		ubuntu-cdimage/kubuntu
 edubuntu		daily-live		*		*		ubuntu-cdimage/edubuntu
