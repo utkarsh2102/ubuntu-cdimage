@@ -780,11 +780,6 @@ def download_live_filesystems(config):
                         got_image = True
                     else:
                         continue
-                elif project == "ubuntu-mini-iso":
-                    if download_live_items(config, arch, "iso"):
-                        got_image = True
-                    else:
-                        continue
                 elif download_live_items(config, arch, "ext4"):
                     got_image = True
                 elif download_live_items(config, arch, "ext3"):
@@ -798,6 +793,11 @@ def download_live_filesystems(config):
                 else:
                     continue
             elif config["UBUNTU_DEFAULTS_LOCALE"]:
+                if download_live_items(config, arch, "iso"):
+                    got_image = True
+                else:
+                    continue
+            elif project == "ubuntu-mini-iso":
                 if download_live_items(config, arch, "iso"):
                     got_image = True
                 else:
