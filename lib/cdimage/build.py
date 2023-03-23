@@ -461,7 +461,7 @@ def build_livecd_base(config):
                                          "%s-mini-iso-%s" %
                                          (config.series, arch))
             with open("%s.type" % output_prefix, "w") as f:
-                print("EXT4 Filesystem Image", file=f)
+                print("ISO 9660 CD-ROM filesystem data", file=f)
             shutil.copy2(iso, "%s.raw" % output_prefix)
             # XXX: I don't think we need the manifest for a mini iso
             #shutil.copy2(
