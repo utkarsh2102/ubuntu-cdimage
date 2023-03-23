@@ -417,8 +417,6 @@ class Publisher:
                 return "preinstalled-touch"
             elif self.project == "ubuntu-core":
                 return "preinstalled-core"
-            elif self.project == "ubuntu-mini-iso":
-                return "mini-iso"
             else:
                 return "preinstalled-desktop"
         elif self.image_type == "daily-minimal":
@@ -432,6 +430,8 @@ class Publisher:
                 return "live-server"
             elif self.project in ("ubuntu-core", "ubuntu-appliance"):
                 return "live-core"
+            elif self.project == "ubuntu-mini-iso":
+                return "mini-iso"
             else:
                 return "desktop"
         elif self.image_type.endswith("_dvd") or self.image_type == "dvd":

@@ -1234,7 +1234,6 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assert_live_download_items("ubuntu-server", "live", series, item,
                                         filenames, filenames)
 
-
     @mock.patch("cdimage.osextras.fetch")
     def assert_live_download_items(self, project, subproject, series, item,
                                    filenames, expected_files, mock_fetch):

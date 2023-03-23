@@ -464,7 +464,7 @@ def build_livecd_base(config):
                 print("ISO 9660 CD-ROM filesystem data", file=f)
             shutil.copy2(iso, "%s.raw" % output_prefix)
             # XXX: I don't think we need the manifest for a mini iso
-            #shutil.copy2(
+            # shutil.copy2(
             #    "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
     if (config.project in ("ubuntu-core", "ubuntu-appliance") and
