@@ -446,7 +446,7 @@ def build_livecd_base(config):
                 "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
     if (config.project in ("ubuntu-mini-iso", ) and
-            config.image_type == "daily-live")
+            config.image_type == "daily-live"):
         log_marker("Copying mini iso to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.project, config.full_series,
