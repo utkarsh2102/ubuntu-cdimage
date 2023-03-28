@@ -143,7 +143,7 @@ class Tree:
             cls = ChinaReleaseTree
         elif official in ("yes", "poolonly"):
             cls = SimpleReleaseTree
-        elif official in ("named", "no"):
+        elif official in ("named", "no", "inteliot"):
             cls = FullReleaseTree
         else:
             raise Exception("Unrecognised OFFICIAL setting: '%s'" % official)
@@ -3258,11 +3258,17 @@ class ReleasePublisher(Publisher):
         else:
             filestatus = self.status.replace("-", "")
 
-        if self.official in ("yes", "poolonly", "named"):
+        if self.official in ("yes", "poolonly", "named", "inteliot"):
             project = self.project
+            version = self.version
             if project == "ubuntu-server":
                 project = "ubuntu"
-            prefix = "%s-%s" % (project, self.version)
+            # For intel-iot image publishing, we do not use pointversion
+            # as the product does not follow the regular Ubuntu release
+            # cadence.
+            if self.official == "inteliot":
+                version = self.config["DIST"].version
+            prefix = "%s-%s" % (project, version)
         else:
             prefix = self.config.series
 
@@ -3516,7 +3522,7 @@ class ReleasePublisher(Publisher):
                     zsyncmake(
                         pool(ext), pool(zsyncext), os.path.basename(pool(ext)),
                         dry_run=self.dry_run)
-            elif self.want_full and self.official == "named":
+            elif self.want_full and self.official in ("named", "inteliot"):
                 if osextras.find_on_path("zsyncmake"):
                     logger.info("Making %s zsync metafile ..." % arch)
                     self.remove(full(zsyncext))
@@ -3765,7 +3771,7 @@ class FullReleasePublisher(ReleasePublisher):
 
     def __init__(self, *args, **kwargs):
         super(FullReleasePublisher, self).__init__(*args, **kwargs)
-        assert self.official in ("named", "no")
+        assert self.official in ("named", "no", "inteliot")
         assert not isinstance(self.tree, SimpleReleaseTree)
 
     @property
@@ -3784,6 +3790,8 @@ class FullReleasePublisher(ReleasePublisher):
         target_dir = os.path.join(
             self.tree.publish_target(source), "releases",
             self.config.full_series, self.status)
+        if self.official == "inteliot":
+            target_dir = os.path.join(target_dir, "inteliot")
         if date.endswith("/unpacked"):
             target_dir = os.path.join(target_dir, "unpacked")
         if publish_type == "src":
@@ -3801,7 +3809,10 @@ class FullReleasePublisher(ReleasePublisher):
             self.config.full_series, self.status, publish_type)
 
     def want_torrent(self, publish_type):
-        return publish_type not in ("src", "uec", "server-uec")
+        if self.official == "inteliot":
+            return False
+        else:
+            return publish_type not in ("src", "uec", "server-uec")
 
 
 class SimpleReleasePublisher(ReleasePublisher):

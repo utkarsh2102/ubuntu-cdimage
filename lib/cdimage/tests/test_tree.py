@@ -2868,6 +2868,46 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
+    def test_publish_release_arch_ubuntu_desktop_inteliot(self, mock_call, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "jammy"
+        self.config["ARCHES"] = "amd64+intel-iot"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.iso"))
+        touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.manifest"))
+        touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.iso.zsync"))
+        target_dir = os.path.join(
+            self.temp_dir, "www", "full", "releases", "jammy", "release", "inteliot")
+        osextras.ensuredir(target_dir)
+        self.capture_logging()
+        publisher = self.get_publisher(official="inteliot")
+        publisher.publish_release_arch(
+            "daily-live", "20130327", "desktop", "amd64+intel-iot")
+        self.assertLogEqual([
+            "Copying desktop-amd64+intel-iot image ...",
+            "Making amd64+intel-iot zsync metafile ...",
+        ])
+        self.assertCountEqual([
+            "ubuntu-22.04-desktop-amd64+intel-iot.iso",
+            "ubuntu-22.04-desktop-amd64+intel-iot.iso.zsync",
+            "ubuntu-22.04-desktop-amd64+intel-iot.manifest",
+        ], os.listdir(target_dir))
+        target_base = os.path.join(target_dir, "ubuntu-22.04-desktop-amd64+intel-iot")
+        self.assertFalse(os.path.islink("%s.iso" % target_base))
+        self.assertFalse(os.path.islink("%s.manifest" % target_base))
+        self.assertEqual(1, mock_call.call_count)
+        mock_call.assert_has_calls([
+            mock.call([
+                "zsyncmake", "-o", "%s.iso.zsync" % target_base,
+                "-u", "ubuntu-22.04-desktop-amd64+intel-iot.iso",
+                "%s.iso" % target_base,
+            ]),
+        ])
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_kubuntu_desktop_named(self, mock_call, *args):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"
