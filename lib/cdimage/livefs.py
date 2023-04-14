@@ -486,7 +486,10 @@ def flavours(config, arch):
         else:
             return ["generic"]
     elif cpuarch == "arm64":
-        return ["generic"]
+        if subarch == "tegra":
+            return ["nvidia-tegra"]
+        else:
+            return ["generic"]
     elif cpuarch == "armel":
         if subarch == "mx5":
             return ["linaro-lt-mx5"]
