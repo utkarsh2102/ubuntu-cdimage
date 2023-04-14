@@ -365,8 +365,10 @@ def run_live_builds(config):
         if lp_livefs is not None:
             lp_build = None
             if config["CDIMAGE_REUSE_BUILD"]:
+                cpuarch, subarch = split_arch(config, arch)
                 for build in lp_livefs.builds:
-                    if (build.distro_arch_series.architecture_tag == arch
+                    if (build.distro_arch_series.architecture_tag == cpuarch
+                            and build.metadata_override.get("subarch", "") == subarch
                             and build.buildstate == "Successfully built"):
                         logger.info("reusing build %s", build)
                         lp_build = build
@@ -484,7 +486,10 @@ def flavours(config, arch):
         else:
             return ["generic"]
     elif cpuarch == "arm64":
-        return ["generic"]
+        if subarch == "tegra":
+            return ["nvidia-tegra"]
+        else:
+            return ["generic"]
     elif cpuarch == "armel":
         if subarch == "mx5":
             return ["linaro-lt-mx5"]
