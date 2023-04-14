@@ -521,7 +521,8 @@ class TestRunLiveBuilds(TestCase):
     @mock.patch("cdimage.livefs.live_build_command", return_value=["false"])
     @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
     @mock.patch("cdimage.livefs.send_mail")
-    def test_run_live_builds_notifies_on_failure(self, mock_send_mail, mock_tracker, *args):
+    def test_run_live_builds_notifies_on_failure(self, mock_send_mail,
+                                                 mock_tracker, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"

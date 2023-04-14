@@ -368,7 +368,8 @@ def run_live_builds(config):
                 cpuarch, subarch = split_arch(config, arch)
                 for build in lp_livefs.builds:
                     if (build.distro_arch_series.architecture_tag == cpuarch
-                            and build.metadata_override.get("subarch", "") == subarch
+                            and build.metadata_override.get("subarch", "")
+                            == subarch
                             and build.buildstate == "Successfully built"):
                         logger.info("reusing build %s", build)
                         lp_build = build

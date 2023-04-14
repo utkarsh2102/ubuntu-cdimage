@@ -2868,7 +2868,8 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
-    def test_publish_release_arch_ubuntu_desktop_inteliot(self, mock_call, *args):
+    def test_publish_release_arch_ubuntu_desktop_inteliot(self, mock_call,
+                                                          *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "jammy"
@@ -2876,10 +2877,13 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         daily_dir = os.path.join(
             self.temp_dir, "www", "full", "daily-live", "20130327")
         touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.iso"))
-        touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.manifest"))
-        touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.iso.zsync"))
+        touch(os.path.join(daily_dir,
+                           "jammy-desktop-amd64+intel-iot.manifest"))
+        touch(os.path.join(daily_dir,
+                           "jammy-desktop-amd64+intel-iot.iso.zsync"))
         target_dir = os.path.join(
-            self.temp_dir, "www", "full", "releases", "jammy", "release", "inteliot")
+            self.temp_dir, "www", "full", "releases", "jammy", "release",
+            "inteliot")
         osextras.ensuredir(target_dir)
         self.capture_logging()
         publisher = self.get_publisher(official="inteliot")
@@ -2894,7 +2898,8 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "ubuntu-22.04-desktop-amd64+intel-iot.iso.zsync",
             "ubuntu-22.04-desktop-amd64+intel-iot.manifest",
         ], os.listdir(target_dir))
-        target_base = os.path.join(target_dir, "ubuntu-22.04-desktop-amd64+intel-iot")
+        target_base = os.path.join(target_dir,
+                                   "ubuntu-22.04-desktop-amd64+intel-iot")
         self.assertFalse(os.path.islink("%s.iso" % target_base))
         self.assertFalse(os.path.islink("%s.manifest" % target_base))
         self.assertEqual(1, mock_call.call_count)

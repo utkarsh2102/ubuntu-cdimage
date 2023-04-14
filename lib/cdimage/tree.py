@@ -1246,7 +1246,7 @@ class Publisher:
             "hppa",
             "ia64",
             "riscv64", "riscv64+unleashed", "riscv64+unmatched",
-            "riscv64+visionfive", "riscv64+visionfive2","riscv64+nezha",
+            "riscv64+visionfive", "riscv64+visionfive2", "riscv64+nezha",
             "riscv64+licheerv", "riscv64+icicle",
             "s390x",
             "sparc",
