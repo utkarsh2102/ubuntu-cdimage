@@ -24,6 +24,9 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The daily ubuntu-base bionic images are used by core18, so we can't build it
 # with proposed enabled.
 52 4 * * *	PROPOSED=0 DIST=bionic for-project ubuntu-base cron.daily-live --live
+# The daily ubuntu-base focal images are used by core20, so we can't build it
+# with proposed enabled.
+32 4 * * *	PROPOSED=0 DIST=focal for-project ubuntu-base cron.daily-live --live
 # jammy daily builds
 51 7 * * *	DIST=jammy for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled DIST=jammy for-project ubuntu cron.daily-preinstalled --live
 34 5 * * *	DIST=jammy for-project kubuntu cron.daily-live --live
