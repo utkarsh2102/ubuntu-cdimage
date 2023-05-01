@@ -250,6 +250,7 @@ all_series.extend([
         _core_series="22"),
     Series("kinetic", "22.10", "Kinetic Kudu"),
     Series("lunar", "23.04", "Lunar Lobster"),
+    Series("mantic", "23.10", "Mantic Minotaur"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
