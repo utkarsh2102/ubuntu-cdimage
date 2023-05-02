@@ -1096,6 +1096,7 @@ class TestBuildImageSet(TestCase):
                     "Traceback (most recent call last):\n", log.readline())
                 self.assertIn("Exception: Artificial exception", log.read())
 
+    @mock.patch("cdimage.tree.DailyTreePublisher.refresh_simplestreams")
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.build.tracker_set_rebuild_status")
     @mock.patch("cdimage.build.anonftpsync")
@@ -1107,7 +1108,7 @@ class TestBuildImageSet(TestCase):
     def test_build_image_set_locked(
             self, mock_purge, mock_publish, mock_update_tasks,
             mock_write_tasks, mock_extract_debootstrap, mock_anonftpsync,
-            mock_tracker_set_rebuild_status, mock_call):
+            mock_tracker_set_rebuild_status, mock_call, mock_simple):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "trusty"
