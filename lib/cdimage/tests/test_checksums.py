@@ -151,10 +151,9 @@ class TestChecksumFile(TestCase):
         checksum_file.entries["entry"] = ""
         checksum_file.changed = True
         checksum_file.write()
-        # We can simulate a ctime change by rewinding the mtime of both
-        # entry and the checksums file.
+        # We can simulate a ctime change by rewinding the mtime of the
+        # checksum file
         self.rewind_mtime(checksum_file.path)
-        self.rewind_mtime(path)
         checksum_file.add("entry")
         self.assertEqual(
             hashlib.md5(b"ctime").hexdigest(), checksum_file.entries["entry"])
