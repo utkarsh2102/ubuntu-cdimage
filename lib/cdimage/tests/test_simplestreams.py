@@ -269,9 +269,9 @@ def mock_sign_cdimage(tree, path):
 
 def _sort_index_product_list(streams):
     """Helper function sorting index file's product lists."""
-    if "index" in streams and isinstance(streams["index"], list):
+    if "index" in streams and isinstance(streams["index"], dict):
         for i in streams["index"]:
-            if "products" in expected["index"][i]:
+            if "products" in streams["index"][i]:
                 streams["index"][i]["products"].sort()
 
 
