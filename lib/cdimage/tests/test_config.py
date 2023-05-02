@@ -22,11 +22,6 @@ from __future__ import print_function
 import os
 from textwrap import dedent
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 from cdimage.config import Config, Series, all_series
 from cdimage.tests.helpers import TestCase, mkfile
 
@@ -63,14 +58,14 @@ class TestSeries(TestCase):
         self.assertEqual("ubuntu", series.distribution)
         self.assertTrue(getattr(series, "_core_series"))
 
-    @mock.patch("lib.cdimage.config.all_series")
-    def test_core_series(self, all_series):
+    def test_core_series(self):
         impish = Series("impish", "21.10", "Impish Indri")
         jammy = Series(
             "jammy", "22.04", "Jammy Jellyfish",
             all_lts_projects=True,
             _core_series="22")
         kinetic = Series("kinetic", "22.10", "Kinetic Kudu")
+        kinetic._override_is_latest = True
         all_series = [
             impish,
             jammy,

@@ -267,6 +267,14 @@ def mock_sign_cdimage(tree, path):
     return True
 
 
+def _sort_index_product_list(streams):
+    """Helper function sorting index file's product lists."""
+    if "index" in streams and isinstance(streams["index"], list):
+        for i in streams["index"]:
+            if "products" in expected["index"][i]:
+                streams["index"][i]["products"].sort()
+
+
 # We need to make sure we have predictable series and point-releases for
 # testing purposes.
 test_all_series = [
@@ -329,6 +337,11 @@ class TestSimpleStreamsTree(TestCase):
             with open(streams_path) as sf, open(expected_path) as ef:
                 streams = json.load(sf)
                 expected = json.load(ef)
+            # Work-around the fact that product lists can have different
+            # order depending on the locale used.
+            if file == "index.json":
+                _sort_index_product_list(streams)
+                _sort_index_product_list(expected)
             self.assertDictEqual(
                 streams, expected,
                 "SimpleStreams file %s has unexpected contents." % file)
@@ -364,6 +377,11 @@ class TestSimpleStreamsTree(TestCase):
             with open(streams_path) as sf, open(expected_path) as ef:
                 streams = json.load(sf)
                 expected = json.load(ef)
+            # Work-around the fact that product lists can have different
+            # order depending on the locale used.
+            if file == "index.json":
+                _sort_index_product_list(streams)
+                _sort_index_product_list(expected)
             self.assertDictEqual(
                 streams, expected,
                 "SimpleStreams file %s has unexpected contents." % file)
@@ -399,6 +417,11 @@ class TestSimpleStreamsTree(TestCase):
             with open(streams_path) as sf, open(expected_path) as ef:
                 streams = json.load(sf)
                 expected = json.load(ef)
+            # Work-around the fact that product lists can have different
+            # order depending on the locale used.
+            if file == "index.json":
+                _sort_index_product_list(streams)
+                _sort_index_product_list(expected)
             self.assertDictEqual(
                 streams, expected,
                 "SimpleStreams file %s has unexpected contents." % file)

@@ -51,6 +51,8 @@ class Series(Iterable):
         self._index = None
         for key, value in kwargs.items():
             setattr(self, key, value)
+        # For test purposes, do not use otherwise
+        self._override_is_latest = False
 
     @classmethod
     def find_by_name(self, name):
@@ -124,6 +126,8 @@ class Series(Iterable):
 
     @property
     def is_latest(self):
+        if self._override_is_latest:
+            return True
         for series in reversed(all_series):
             if self.distribution == series.distribution:
                 return self == series
