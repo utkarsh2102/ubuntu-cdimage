@@ -414,7 +414,12 @@ def build_livecd_base(config):
             output_dir = os.path.join(scratch_dir, "debian-cd", arch)
             osextras.ensuredir(output_dir)
             live_prefix = os.path.join(live_dir, arch)
-            rootfs = "%s.disk1.img.xz" % (live_prefix)
+            rootfs = "%s.img.xz" % (live_prefix)
+            # Previously for server images we expected a .disk1.img.xz
+            # artifact, so still support it before we migrate all the
+            # images to the new format.
+            if not os.path.exists(rootfs):
+                rootfs = "%s.disk1.img.xz" % (live_prefix)
             output_prefix = os.path.join(output_dir,
                                          "%s-preinstalled-server-%s" %
                                          (config.series, arch))

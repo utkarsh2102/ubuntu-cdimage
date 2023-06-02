@@ -584,7 +584,7 @@ def live_item_paths(config, arch, item):
             for url in urls_for(
                     "livecd." + liveproject_subarch, item + "-nexus7"):
                 yield url
-        elif item == "disk1.img.xz" or item == "img.xz":
+        elif item == "disk1.img.xz":
             for url in urls_for(
                     "livecd." + liveproject, item):
                 yield url
