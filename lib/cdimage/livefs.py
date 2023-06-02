@@ -785,6 +785,8 @@ def download_live_filesystems(config):
                 if project in ("ubuntu-server", ):
                     if download_live_items(config, arch, "disk1.img.xz"):
                         got_image = True
+                    elif download_live_items(config, arch, "img.xz"):
+                        got_image = True
                     else:
                         continue
                 elif download_live_items(config, arch, "ext4"):
