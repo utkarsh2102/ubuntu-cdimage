@@ -27,6 +27,7 @@ ubuntukylin		daily-live		*		*		ubuntu-cdimage/ubuntukylin
 ubuntu-gnome		daily-live		*		*		ubuntu-cdimage/ubuntu-gnome
 ubuntu-mate		daily-live		*		*		ubuntu-cdimage/ubuntu-mate
 ubuntu-budgie		daily-live		*		*		ubuntu-cdimage/ubuntu-budgie
+ubuntu-budgie-legacy	daily-legacy		*		*		ubuntu-cdimage/ubuntu-legacy
 ubuntu-touch		daily-preinstalled	ubuntu-rtm/*	*		ubuntu-cdimage/ubuntu-touch
 ubuntu-touch		daily-preinstalled	trusty-		*		ubuntu-cdimage/ubuntu-touch
 ubuntu-unity		daily-live		*		*		ubuntu-cdimage/ubuntu-unity
