@@ -61,6 +61,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 42 4 * * *	PROPOSED=0 for-project ubuntu-base cron.daily-live --live
 
 */15 * * * *	mirror-image-build-logs
+5 11 * * *	daily-checks
 
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q jammy iso
