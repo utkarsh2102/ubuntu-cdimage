@@ -14,5 +14,7 @@ jobs:
         series: focal
         architectures: amd64
         packages: [tox, git]
-        snaps: [go]
+        snaps:
+            - name: go
+              classic: true
         run: tox -e lint
