@@ -13,6 +13,8 @@ xubuntu			daily-live		*		*		ubuntu-cdimage/xubuntu
 xubuntu-minimal		daily-minimal	        lunar-		*		ubuntu-cdimage/xubuntu-minimal
 ubuntu-server		daily			trusty-		*		ubuntu-cdimage/ubuntu-server
 ubuntu-server		daily-preinstalled	xenial-		*		ubuntu-cdimage/cpc
+# Temporary experimental image-set, canary preinstalled images for custom arches
+ubuntu-server		daily-canary	jammy		*		ubuntu-cdimage/cpc
 ubuntu-server-live	daily-live		bionic-		*		ubuntu-cdimage/ubuntu-server-live
 ubuntustudio		dvd			*		*		ubuntu-cdimage/ubuntustudio
 mythbuntu		daily-live		*		*		ubuntu-cdimage/mythbuntu
