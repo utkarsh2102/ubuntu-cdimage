@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Build a set of desktop canary images."""
+"""Build a set of canary (experimental) images."""
 
 from optparse import OptionParser
 import os
@@ -34,7 +34,8 @@ def main():
         help="build live filesystems first")
     options, _ = parser.parse_args()
     config = Config(IMAGE_TYPE="daily-canary")
-    config["CDIMAGE_LIVE"] = "1"
+    if "CDIMAGE_LIVE" not in config:
+        config["CDIMAGE_LIVE"] = "1"
     if not build_image_set(config, options):
         sys.exit(1)
 
