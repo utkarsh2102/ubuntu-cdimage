@@ -46,6 +46,7 @@ from cdimage.tree import (
     ChinaReleaseTree,
     DailyTree,
     DailyTreePublisher,
+    FullReleasePublisher,
     FullReleaseTree,
     Link,
     Paragraph,
@@ -562,6 +563,193 @@ class TestPublisherWebIndices(TestCase):
                 "MD5SUMS-metalink MD5SUMS-metalink.gpg "
                 "SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../../cdicons/torrent.png .torrent .metalink\n",
+                htaccess.read())
+
+    def test_make_web_indices_for_simple_release(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "jammy"
+        # We use a custom directory as the testsuite one is for daily,
+        # not release
+        directory = os.path.join(
+            self.config.root, "www", "simple", "jammy")
+        os.makedirs(directory)
+        for name in (
+            "SHA256SUMS",
+            "ubuntu-22.04.2-desktop-amd64.iso",
+            "ubuntu-22.04.2-desktop-amd64.iso.zsync",
+            "ubuntu-22.04.2-desktop-amd64.list",
+            "ubuntu-22.04-live-server-amd64.iso",
+            "ubuntu-22.04-live-server-amd64.list",
+        ):
+            touch(os.path.join(directory, name))
+        tree = Tree.get_for_directory(self.config, directory, "daily")
+        publisher = SimpleReleasePublisher(tree, "daily-live", "yes")
+        publisher.make_web_indices(
+            directory, "ubuntu-22.04.2", status="release")
+
+        self.assertCountEqual([
+            "HEADER.html", "FOOTER.html", ".htaccess",
+            "SHA256SUMS",
+            "ubuntu-22.04.2-desktop-amd64.iso",
+            "ubuntu-22.04.2-desktop-amd64.iso.zsync",
+            "ubuntu-22.04.2-desktop-amd64.list",
+            "ubuntu-22.04-live-server-amd64.iso",
+            "ubuntu-22.04-live-server-amd64.list",
+        ], os.listdir(directory))
+
+        header_path = os.path.join(directory, "HEADER.html")
+        footer_path = os.path.join(directory, "FOOTER.html")
+        htaccess_path = os.path.join(directory, ".htaccess")
+        parser_kwargs = {}
+        if sys.version >= "3.4":
+            parser_kwargs["convert_charrefs"] = True
+        parser = HTMLParser(**parser_kwargs)
+        with open(header_path) as header:
+            data = header.read()
+            self.assertNotIn("%s", data)
+            parser.feed(data)
+        with open(footer_path) as footer:
+            data = footer.read()
+            self.assertNotIn("%s", data)
+            parser.feed(data)
+        parser.close()
+        with open(htaccess_path) as htaccess:
+            self.assertEqual(
+                "AddDescription \"Desktop image for 64-bit PC (AMD64) "
+                "computers (<a href=\\\"http://zsync.moria.org.uk/\\\">"
+                "zsync</a> metafile)\" ubuntu-22.04.2-desktop-amd64.iso."
+                "zsync\n"
+                "AddDescription \"Desktop image for 64-bit PC (AMD64) "
+                "computers (standard download)\" "
+                "ubuntu-22.04.2-desktop-amd64.iso\n"
+                "AddDescription \"Desktop image for 64-bit PC (AMD64) "
+                "computers (file listing)\" "
+                "ubuntu-22.04.2-desktop-amd64.list\n"
+                "RedirectPermanent "
+                "/jammy/ubuntu-22.04-latest-desktop-amd64.iso "
+                "/jammy/ubuntu-22.04.2-desktop-amd64.iso\n"
+                "AddDescription \"Server install image for 64-bit PC "
+                "(AMD64) computers (standard download)\" "
+                "ubuntu-22.04-live-server-amd64.iso\n"
+                "AddDescription \"Server install image for 64-bit PC "
+                "(AMD64) computers (file listing)\" "
+                "ubuntu-22.04-live-server-amd64.list\n"
+                "RedirectPermanent "
+                "/jammy/ubuntu-22.04-latest-live-server-amd64.iso "
+                "/jammy/ubuntu-22.04-live-server-amd64.iso\n"
+                "\n"
+                "HeaderName HEADER.html\n"
+                "ReadmeName FOOTER.html\n"
+                "IndexIgnore .htaccess HEADER.html FOOTER.html "
+                "published-ec2-daily.txt published-ec2-release.txt "
+                ".*.tar.gz\n"
+                "IndexOptions NameWidth=* DescriptionWidth=* "
+                "SuppressHTMLPreamble FancyIndexing IconHeight=22 "
+                "IconWidth=22 HTMLTable\n"
+                "AddIcon ../cdicons/folder.png ^^DIRECTORY^^\n"
+                "AddIcon ../cdicons/iso.png .iso\n"
+                "AddIcon ../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
+                "AddIcon ../cdicons/jigdo.png .jigdo .template\n"
+                "AddIcon ../cdicons/list.png .list .manifest .html .zsync "
+                "MD5SUMS-metalink MD5SUMS-metalink.gpg SHA256SUMS "
+                "SHA256SUMS.gpg\n"
+                "AddIcon ../cdicons/torrent.png .torrent .metalink\n",
+                htaccess.read())
+
+    def test_make_web_indices_for_full_release(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "jammy"
+        # We use a custom directory as the testsuite one is for daily,
+        # not release
+        directory = os.path.join(
+            self.config.root, "www", "full", "releases", "jammy", "release")
+        os.makedirs(directory)
+        for name in (
+            "SHA256SUMS",
+            "ubuntu-22.04.2-desktop-amd64.iso",
+            "ubuntu-22.04.2-desktop-amd64.iso.zsync",
+            "ubuntu-22.04.2-desktop-amd64.list",
+            "ubuntu-22.04-live-server-amd64.iso",
+            "ubuntu-22.04-live-server-amd64.list",
+        ):
+            touch(os.path.join(directory, name))
+        tree = Tree.get_for_directory(self.config, directory, "daily")
+        publisher = FullReleasePublisher(tree, "daily-live", "named")
+        publisher.make_web_indices(
+            directory, "ubuntu-22.04.2", status="release")
+
+        self.assertCountEqual([
+            "HEADER.html", "FOOTER.html", ".htaccess",
+            "SHA256SUMS",
+            "ubuntu-22.04.2-desktop-amd64.iso",
+            "ubuntu-22.04.2-desktop-amd64.iso.zsync",
+            "ubuntu-22.04.2-desktop-amd64.list",
+            "ubuntu-22.04-live-server-amd64.iso",
+            "ubuntu-22.04-live-server-amd64.list",
+        ], os.listdir(directory))
+
+        header_path = os.path.join(directory, "HEADER.html")
+        footer_path = os.path.join(directory, "FOOTER.html")
+        htaccess_path = os.path.join(directory, ".htaccess")
+        parser_kwargs = {}
+        if sys.version >= "3.4":
+            parser_kwargs["convert_charrefs"] = True
+        parser = HTMLParser(**parser_kwargs)
+        with open(header_path) as header:
+            data = header.read()
+            self.assertNotIn("%s", data)
+            parser.feed(data)
+        with open(footer_path) as footer:
+            data = footer.read()
+            self.assertNotIn("%s", data)
+            parser.feed(data)
+        parser.close()
+        with open(htaccess_path) as htaccess:
+            self.assertEqual(
+                "AddDescription \"Desktop image for 64-bit PC (AMD64) "
+                "computers (<a href=\\\"http://zsync.moria.org.uk/\\\">"
+                "zsync</a> metafile)\" "
+                "ubuntu-22.04.2-desktop-amd64.iso.zsync\n"
+                "AddDescription \"Desktop image for 64-bit PC (AMD64) "
+                "computers (standard download)\" "
+                "ubuntu-22.04.2-desktop-amd64.iso\n"
+                "AddDescription \"Desktop image for 64-bit PC (AMD64) "
+                "computers (file listing)\" "
+                "ubuntu-22.04.2-desktop-amd64.list\n"
+                "RedirectPermanent "
+                "/releases/jammy/release/ubuntu-22.04-latest-desktop-amd64.iso"
+                " /releases/jammy/release/ubuntu-22.04.2-desktop-amd64.iso\n"
+                "AddDescription \"Server install image for 64-bit PC (AMD64) "
+                "computers (standard download)\" "
+                "ubuntu-22.04-live-server-amd64.iso\n"
+                "AddDescription \"Server install image for 64-bit PC (AMD64) "
+                "computers (file listing)\" "
+                "ubuntu-22.04-live-server-amd64.list\n"
+                "RedirectPermanent "
+                "/releases/jammy/release/ubuntu-22.04-latest-live-server-"
+                "amd64.iso "
+                "/releases/jammy/release/ubuntu-22.04-live-server-"
+                "amd64.iso\n"
+                "\n"
+                "HeaderName HEADER.html\n"
+                "ReadmeName FOOTER.html\n"
+                "IndexIgnore .htaccess HEADER.html FOOTER.html "
+                "published-ec2-daily.txt published-ec2-release.txt "
+                ".*.tar.gz\n"
+                "IndexOptions NameWidth=* DescriptionWidth=* "
+                "SuppressHTMLPreamble FancyIndexing IconHeight=22 "
+                "IconWidth=22 HTMLTable\n"
+                "AddIcon ../../../cdicons/folder.png ^^DIRECTORY^^\n"
+                "AddIcon ../../../cdicons/iso.png .iso\n"
+                "AddIcon ../../../cdicons/img.png .img .img.xz .tar.gz "
+                ".tar.xz\n"
+                "AddIcon ../../../cdicons/jigdo.png .jigdo .template\n"
+                "AddIcon ../../../cdicons/list.png .list .manifest .html "
+                ".zsync MD5SUMS-metalink MD5SUMS-metalink.gpg SHA256SUMS "
+                "SHA256SUMS.gpg\n"
+                "AddIcon ../../../cdicons/torrent.png .torrent .metalink\n",
                 htaccess.read())
 
 

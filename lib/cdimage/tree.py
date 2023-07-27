@@ -1573,6 +1573,37 @@ class Publisher:
                                         htaccessimagestr, extstr,
                                         os.path.basename(extpath)),
                                     file=htaccess)
+                            if status == "release":
+                                for extension in (
+                                    "iso", "img", "img.gz", "img.xz",
+                                ):
+                                    extpath = "%s.%s" % (base, extension)
+                                    if not os.path.exists(extpath):
+                                        continue
+                                    absdir = directory
+                                    if not os.path.isabs(absdir):
+                                        absdir = os.path.abspath(absdir)
+                                    relbase = os.path.relpath(
+                                        absdir, self.tree.directory)
+                                    relbase = os.path.join("/", relbase)
+                                    relpath = os.path.join(
+                                        relbase, os.path.basename(extpath))
+                                    if base_prefix.count(".") >= 2:
+                                        latest_prefix = base_prefix.rsplit(
+                                            ".", 1)[0]
+                                    else:
+                                        latest_prefix = base_prefix
+                                    latest_prefix = \
+                                        "%s-latest" % latest_prefix
+                                    latest_path = os.path.join(
+                                        relbase,
+                                        "%s-%s-%s.%s" % (
+                                            latest_prefix, publish_type,
+                                            arch, extension))
+                                    print(
+                                        "RedirectPermanent %s %s" % (
+                                            latest_path, relpath),
+                                        file=htaccess)
                             for extension in (
                                 "initrd-ec2", "initrd-virtual",
                                 "vmlinuz-ec2", "vmlinuz-virtual",
