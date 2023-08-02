@@ -249,7 +249,7 @@ all_series.extend([
     Series("impish", "21.10", "Impish Indri"),
     Series(
         "jammy", "22.04", "Jammy Jellyfish",
-        pointversion="22.04.2",
+        pointversion="22.04.3",
         all_lts_projects=True,
         _core_series="22"),
     Series("kinetic", "22.10", "Kinetic Kudu"),
