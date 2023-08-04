@@ -61,8 +61,8 @@ class Germination:
 
     def output_dir(self, project):
         return os.path.join(
-            self.config.root, "scratch", project, self.config.full_series,
-            self.config.image_type, "germinate")
+            self.config.root, "scratch", self.config.subtree, project,
+            self.config.full_series, self.config.image_type, "germinate")
 
     def seed_sources(self, project):
         if self.config["LOCAL_SEEDS"]:
@@ -394,8 +394,8 @@ class GerminateOutput:
 
     def tasks_output_dir(self, project):
         return os.path.join(
-            self.config.root, "scratch", project, self.config.full_series,
-            self.config.image_type, "tasks")
+            self.config.root, "scratch", self.config.subtree, project,
+            self.config.full_series, self.config.image_type, "tasks")
 
     def task_packages(self, arch, seed, seedsource):
         """Like seed_packages, but with various special-case hacks."""
@@ -599,9 +599,9 @@ class GerminateOutput:
                 project_output = GerminateOutput(
                     self.config,
                     os.path.join(
-                        self.config.root, "scratch", project,
-                        self.config.full_series, self.config.image_type,
-                        "germinate"))
+                        self.config.root, "scratch", self.config.subtree,
+                        project, self.config.full_series,
+                        self.config.image_type, "germinate"))
                 project_output.write_tasks_project(project, source=True)
                 # TODO: write_tasks_project should just write these files
                 # with the names we need in the first place.

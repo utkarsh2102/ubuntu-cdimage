@@ -1855,7 +1855,8 @@ class DailyTree(Tree):
 
     def __init__(self, config, directory=None):
         if directory is None:
-            directory = os.path.join(config.root, "www", "full")
+            directory = os.path.join(config.root, "www", "full",
+                                     config.subtree)
         super(DailyTree, self).__init__(config, directory)
 
     def name_to_series(self, name):
@@ -1913,8 +1914,8 @@ class DailyTreePublisher(Publisher):
 
     def image_output(self, arch):
         return os.path.join(
-            self.config.root, "scratch", self.project, self.config.full_series,
-            self.image_type, "debian-cd", arch)
+            self.config.root, "scratch", self.config.subtree, self.project,
+            self.config.full_series, self.image_type, "debian-cd", arch)
 
     @property
     def source_extension(self):
@@ -2332,8 +2333,8 @@ class DailyTreePublisher(Publisher):
 
     def publish_livecd_base(self, arch, date):
         source_dir = os.path.join(
-            self.config.root, "scratch", self.project, self.config.full_series,
-            self.image_type, "live")
+            self.config.root, "scratch", self.config.subtree, self.project,
+            self.config.full_series, self.image_type, "live")
         source_prefix = os.path.join(source_dir, arch)
         target_dir = os.path.join(self.publish_base, date)
         target_prefix = os.path.join(target_dir, arch)
@@ -2375,8 +2376,8 @@ class DailyTreePublisher(Publisher):
 
     def publish_wubi(self, arch, date):
         source_dir = os.path.join(
-            self.config.root, "scratch", self.project, self.config.full_series,
-            self.image_type, "live")
+            self.config.root, "scratch", self.config.subtree, self.project,
+            self.config.full_series, self.image_type, "live")
         source_prefix = os.path.join(source_dir, arch)
         target_dir = os.path.join(self.publish_base, date)
         target_prefix = os.path.join(target_dir, arch)
@@ -3015,8 +3016,8 @@ class ChinaDailyTreePublisher(DailyTreePublisher):
             project = "-".join([
                 project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
         return os.path.join(
-            self.config.root, "scratch", project, self.config.full_series,
-            self.image_type, "live")
+            self.config.root, "scratch", self.config.subtree, project,
+            self.config.full_series, self.image_type, "live")
 
     @property
     def source_extension(self):

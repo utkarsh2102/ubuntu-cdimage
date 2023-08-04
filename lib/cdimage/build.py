@@ -110,7 +110,7 @@ def open_log(config):
     if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
         project = "ubuntu-chinese-edition"
     log_path = os.path.join(
-        config.root, "log", project, config.full_series,
+        config.root, "log", config.subtree, project, config.full_series,
         "%s-%s.log" % (config.image_type, config["CDIMAGE_DATE"]))
     osextras.ensuredir(os.path.dirname(log_path))
     log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666)
@@ -371,8 +371,8 @@ def add_android_support(config, arch, output_dir):
     """Copy Android support files to an Ubuntu Touch image.
     """
     live_scratch_dir = os.path.join(
-        config.root, "scratch", config.project, config.full_series,
-        config.image_type, "live")
+        config.root, "scratch", config.subtree, config.project,
+        config.full_series, config.image_type, "live")
 
     # copy recovery, boot and system imgs in place
     for target in Touch.list_targets_by_ubuntu_arch(arch):
@@ -407,8 +407,8 @@ def build_livecd_base(config):
             config.image_type == "daily-preinstalled"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
-            config.root, "scratch", config.project, config.full_series,
-            config.image_type)
+            config.root, "scratch", config.subtree, config.project,
+            config.full_series, config.image_type)
         live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
             output_dir = os.path.join(scratch_dir, "debian-cd", arch)
@@ -433,8 +433,8 @@ def build_livecd_base(config):
             config.image_type == "daily-preinstalled"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
-            config.root, "scratch", config.project, config.full_series,
-            config.image_type)
+            config.root, "scratch", config.subtree, config.project,
+            config.full_series, config.image_type)
         live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
             output_dir = os.path.join(scratch_dir, "debian-cd", arch)
@@ -454,8 +454,8 @@ def build_livecd_base(config):
             config.image_type == "daily-live"):
         log_marker("Copying mini iso to debian-cd output directory")
         scratch_dir = os.path.join(
-            config.root, "scratch", config.project, config.full_series,
-            config.image_type)
+            config.root, "scratch", config.subtree, config.project,
+            config.full_series, config.image_type)
         live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
             output_dir = os.path.join(scratch_dir, "debian-cd", arch)
@@ -476,8 +476,8 @@ def build_livecd_base(config):
             config.image_type == "daily-live"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
-            config.root, "scratch", config.project, config.full_series,
-            config.image_type)
+            config.root, "scratch", config.subtree, config.project,
+            config.full_series, config.image_type)
         live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
             output_dir = os.path.join(scratch_dir, "debian-cd", arch)
@@ -506,8 +506,8 @@ def build_livecd_base(config):
          config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
-            config.root, "scratch", config.project, config.full_series,
-            config.image_type)
+            config.root, "scratch", config.subtree, config.project,
+            config.full_series, config.image_type)
         live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
             live_prefix = os.path.join(live_dir, arch)
@@ -557,8 +557,8 @@ def build_livecd_base(config):
 def copy_netboot_tarballs(config):
     # cp $scratch/$arch.netboot.tar.gz $output/$series-netboot-$arch.tar.gz
     scratch_dir = os.path.join(
-        config.root, "scratch", config.project, config.full_series,
-        config.image_type)
+        config.root, "scratch", config.subtree, config.project,
+        config.full_series, config.image_type)
     for arch in config.arches:
         netboot_path = os.path.join(
             live_output_directory(config),
@@ -577,8 +577,8 @@ def _debootstrap_script(config):
 
 def extract_debootstrap(config):
     output_dir = os.path.join(
-        config.root, "scratch", config.project, config.full_series,
-        config.image_type, "debootstrap")
+        config.root, "scratch", config.subtree, config.project,
+        config.full_series, config.image_type, "debootstrap")
 
     osextras.ensuredir(output_dir)
 
@@ -640,8 +640,8 @@ def run_debian_cd(config):
 def fix_permissions(config):
     """Kludge to work around permission-handling problems elsewhere."""
     scratch_dir = os.path.join(
-        config.root, "scratch", config.project, config.full_series,
-        config.image_type)
+        config.root, "scratch", config.subtree, config.project,
+        config.full_series, config.image_type)
     if not os.path.isdir(scratch_dir):
         return
 
