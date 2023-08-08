@@ -654,6 +654,7 @@ class TestDailyTreePublisher(TestCase):
         super(TestDailyTreePublisher, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
+        self.config.subtree = ""
         self.config["DIST"] = Series.latest()
 
         # Can probably be done in a cleaner way
@@ -1868,6 +1869,67 @@ class TestDailyTreePublisher(TestCase):
                 "%s-desktop-i386.iso 20120807\n" % self.config.series,
                 info.read())
 
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    @mock.patch("cdimage.tree.DailyTreePublisher.make_metalink")
+    @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
+    def test_publish_subtree(self, mock_post_qa, *args):
+        self.config.subtree = "subtree/test"
+        self.config["ARCHES"] = "i386"
+        self.config["CDIMAGE_INSTALL_BASE"] = "1"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        source_dir = publisher.image_output("i386")
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.raw" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.list" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-desktop-i386.manifest" % self.config.series))
+        touch(os.path.join(
+            publisher.britney_report, "%s_probs.html" % self.config.series))
+        self.capture_logging()
+
+        publisher.publish("20120807")
+
+        self.assertLogEqual([
+            "Publishing for subtree 'subtree/test'",
+            "Publishing i386 ...",
+            "Unknown file type 'empty'; assuming .iso",
+            "Publishing i386 live manifest ...",
+            "Making i386 zsync metafile ...",
+            "No keys found; not signing images.",
+        ])
+        target_dir = os.path.join(publisher.publish_base, "20120807")
+        # Check if we published to the right place.
+        self.assertIn("subtree/test", target_dir)
+        # Otherwise, let's do the usual publish checks to make sure the
+        # publisher didn't get confused.
+        self.assertEqual([], os.listdir(source_dir))
+        self.assertCountEqual([
+            ".htaccess",
+            ".marked_good",
+            ".publish_info",
+            "FOOTER.html",
+            "HEADER.html",
+            "SHA256SUMS",
+            "%s-desktop-i386.iso" % self.config.series,
+            "%s-desktop-i386.list" % self.config.series,
+            "%s-desktop-i386.manifest" % self.config.series,
+            "report.html",
+        ], os.listdir(target_dir))
+        self.assertCountEqual(
+            [".htaccess", "20120807", "current", "pending"],
+            os.listdir(publisher.publish_base))
+        mock_post_qa.assert_called_once_with(
+            "20120807",
+            ["ubuntu/daily-live/%s-desktop-i386" % self.config.series])
+
+        # Check if the resulting .publish_info file has the right info.
+        with open(os.path.join(target_dir, ".publish_info")) as info:
+            self.assertEqual(
+                "%s-desktop-i386.iso 20120807\n" % self.config.series,
+                info.read())
+
     def test_get_purge_data_no_config(self):
         publisher = self.make_publisher("ubuntu", "daily")
         self.assertIsNone(publisher.get_purge_data("daily", "purge-days"))
@@ -2326,6 +2388,11 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
             "20120807",
             ["ubuntu-zh_CN/%s/daily-live/%s-desktop-i386" % (
                 self.config.series, self.config.series)])
+
+    def test_publish_subtree(self):
+        # ChinaDailyTreePublisher is deprecated so we don't bother adding
+        # subtree support for it.
+        pass
 
 
 class TestFullReleaseTree(TestCase):

@@ -1855,8 +1855,9 @@ class DailyTree(Tree):
 
     def __init__(self, config, directory=None):
         if directory is None:
+            # Strip trailing slash to not to confuse cdimage.
             directory = os.path.join(config.root, "www", "full",
-                                     config.subtree)
+                                     config.subtree).rstrip('/')
         super(DailyTree, self).__init__(config, directory)
 
     def name_to_series(self, name):
@@ -2782,6 +2783,8 @@ class DailyTreePublisher(Publisher):
                 traceback.print_exc()
 
     def publish(self, date):
+        if self.config.subtree:
+            logger.info("Publishing for subtree '%s'" % self.config.subtree)
         self.new_publish_dir(date)
         published = []
         self.checksum_dirs = []

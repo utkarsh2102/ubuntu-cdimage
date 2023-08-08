@@ -251,7 +251,7 @@ class DailySimpleStreams(SimpleStreams):
         super(DailySimpleStreams, self).__init__(config)
         self.content_id = "com.ubuntu.cdimage.daily"
         self.tree_dir = self.streams_dir = os.path.join(
-            self.config.root, "www", "full")
+            self.config.root, "www", "full", self.config.subtree).rstrip("/")
         self.publish_id_re = re.compile(r'^[0-9]{8}(\.[0-9]+)?$')
 
     def scan_daily_project(self, base_dir, project, series=None):
@@ -273,6 +273,9 @@ class DailySimpleStreams(SimpleStreams):
             image_type = entry
             image_type_dir = os.path.join(base_dir, image_type)
             if not os.path.isdir(image_type_dir):
+                continue
+            # Optional check for subtrees, not to recursively scan those
+            if os.path.exists(os.path.join(image_type_dir, ".is_subtree")):
                 continue
             for publish_id in os.listdir(image_type_dir):
                 # XXX: Should we also list 'current' and 'pending'? Is there
