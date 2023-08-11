@@ -19,9 +19,12 @@ export IMAGE_FORMAT
 DIST="${DIST:-mantic}"
 
 case $DIST in
-	# jammy PROPOSED=0 for .3
-	trusty|bionic|focal|jammy)
+	trusty|bionic|focal)
 		PROPOSED="${PROPOSED:-0}"
+		export PROPOSED
+		;;
+	jammy)
+		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
 esac
