@@ -47,8 +47,8 @@ def main():
     config = Config()
     parser = OptionParser("%prog [options] PACKAGE_VERSION")
     parser.add_option(
-        "-a", "--architecture", default="i386",
-        help="architecture to search, or 'source' (default: i386)")
+        "-a", "--architecture", default="amd64",
+        help="architecture to search, or 'source' (default: amd64)")
     parser.add_option(
         "-c", "--component", default="main",
         help="component to search (default: main)")
@@ -66,7 +66,7 @@ def main():
         parser.error("package must be specified as <package>_<version>")
 
     if options.architecture == "source":
-        mirror = find_mirror(config, "i386")
+        mirror = find_mirror(config, "amd64")
         target = os.path.join(
             mirror, "dists", options.suite, options.component,
             "source", "Sources.xz")
