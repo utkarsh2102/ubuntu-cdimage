@@ -1052,6 +1052,12 @@ class TestDownloadLiveFilesystems(TestCase):
         expected = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         self.assertEqual(expected, live_output_directory(self.config))
+        self.config.subtree = "subtree/test"
+        expected = os.path.join(
+            self.temp_dir, "scratch", "subtree", "test", "ubuntu", "trusty",
+            "daily-live", "live")
+        self.assertEqual(expected, live_output_directory(self.config))
+        self.config.subtree = ""
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         expected = os.path.join(
             self.temp_dir, "scratch", "ubuntu-zh_CN", "trusty", "daily-live",

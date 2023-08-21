@@ -349,6 +349,51 @@ class TestSimpleStreamsTree(TestCase):
     @mock.patch("cdimage.config.all_series", test_all_series)
     @mock.patch("cdimage.simplestreams.sign_cdimage")
     @mock.patch("cdimage.simplestreams.timestamp")
+    def test_daily_tree_subtree(self, timestamp, sign_cdimage):
+        """Check if we get a right simplestream for a daily subtree."""
+        timestamp.return_value = "TIMESTAMP"
+        sign_cdimage.side_effect = mock_sign_cdimage
+        # Setup the tree
+        tree_source = os.path.join(
+            os.path.dirname(__file__), "data", "www", "full")
+        tree_dest = os.path.join(
+            self.temp_root.name, "www", "full", "subtree")
+        os.makedirs(tree_dest)
+        shutil.copytree(tree_source, os.path.join(tree_dest, "test"),
+                        symlinks=True)
+        # Now the object under test, just on a subtree
+        self.config.subtree = "subtree/test"
+        streams = DailySimpleStreams(self.config)
+        streams.generate()
+        # Now compare it with the expected tree
+        streams_dir = os.path.join(
+            self.temp_root.name, "www", "full", "subtree", "test",
+            "streams", "v1")
+        expected_dir = os.path.join(
+            os.path.dirname(__file__), "data", "result", "daily")
+        streams_contents = sorted(os.listdir(streams_dir))
+        expected_contents = sorted(os.listdir(expected_dir))
+        self.assertListEqual(streams_contents, expected_contents)
+        for file in streams_contents:
+            if file.endswith(".gpg"):
+                continue
+            streams_path = os.path.join(streams_dir, file)
+            expected_path = os.path.join(expected_dir, file)
+            with open(streams_path) as sf, open(expected_path) as ef:
+                streams = json.load(sf)
+                expected = json.load(ef)
+            # Work-around the fact that product lists can have different
+            # order depending on the locale used.
+            if file == "index.json":
+                _sort_index_product_list(streams)
+                _sort_index_product_list(expected)
+            self.assertDictEqual(
+                streams, expected,
+                "SimpleStreams file %s has unexpected contents." % file)
+
+    @mock.patch("cdimage.config.all_series", test_all_series)
+    @mock.patch("cdimage.simplestreams.sign_cdimage")
+    @mock.patch("cdimage.simplestreams.timestamp")
     def test_release_tree(self, timestamp, sign_cdimage):
         """Check if we get a right simplestream for a release tree."""
         timestamp.return_value = "TIMESTAMP"

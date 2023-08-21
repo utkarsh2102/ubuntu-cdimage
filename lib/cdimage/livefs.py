@@ -643,8 +643,8 @@ def live_output_directory(config):
     if config["UBUNTU_DEFAULTS_LOCALE"]:
         project = "-".join([project, config["UBUNTU_DEFAULTS_LOCALE"]])
     return os.path.join(
-        config.root, "scratch", project, config.full_series, config.image_type,
-        "live")
+        config.root, "scratch", config.subtree, project, config.full_series,
+        config.image_type, "live")
 
 
 def download_live_items(config, arch, item):

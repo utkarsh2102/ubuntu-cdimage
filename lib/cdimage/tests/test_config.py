@@ -149,6 +149,16 @@ class TestConfig(TestCase):
         config = Config(read=False)
         self.assertEqual("/path", config.root)
 
+    def test_default_subtree(self):
+        os.environ.pop("CDIMAGE_SUBTREE", None)
+        config = Config(read=False)
+        self.assertEqual("", config.subtree)
+
+    def test_subtree_from_environment(self):
+        os.environ["CDIMAGE_SUBTREE"] = "subtree/test"
+        config = Config(read=False)
+        self.assertEqual("subtree/test", config.subtree)
+
     def test_default_values(self):
         config = Config(read=False)
         self.assertEqual("", config["PROJECT"])
