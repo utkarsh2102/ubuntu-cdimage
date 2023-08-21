@@ -331,7 +331,7 @@ class Config(defaultdict):
             root = os.path.realpath(root)
             os.environ["CDIMAGE_ROOT"] = root
         self.root = os.environ["CDIMAGE_ROOT"]
-        self.subtree = os.environ.get("SUBTREE", "")
+        self.subtree = os.environ.get("CDIMAGE_SUBTREE", "")
         self.fix_paths()
         for key, value in kwargs.items():
             self[key] = value

@@ -220,3 +220,31 @@ are the version number symlinks; because they only change every six months,
 there has not been much impetus to automate this task.  When publishing a
 release to the simple tree for the first time, the operator will need to
 edit these files manually.
+
+cdimage subtrees
+----------------
+
+During standard operations, cdimage generates all the publishing trees under
+CDIMAGE_ROOT/www/full etc.  In recent cdimage iterations it is also possible
+to run cdimage under a specified subtree in the current cdimage root.
+A possible use case for this is building detached images from the main Ubuntu
+tree of images; like a set of optimized images that normally would not be
+included in the official set of released images.  This way one cdimage instance
+can, in theory, be used for multiple use-cases; with the operators not having
+to worry about creating custom image_types for images that have non-standard
+release or build cadences.
+
+To make use of subtree support, basically execute any of the cdimage relevant
+code with the CDIMAGE_SUBTREE environment variable set to the directory of
+interest as a relative path to CDIMAGE_ROOT/www/full.
+
+For example:
+
+  CDIMAGE_SUBTREE=optimized/test for-project kubuntu cron.daily-live --live
+
+...will build an Ubuntu image and publish it into:
+
+  CDIMAGE_ROOT/www/full/optimized/test/kubuntu/daily-live/...
+
+Subtree builds do not clash with the regular builds (or with other subtrees),
+so they can be ran in parallel.
