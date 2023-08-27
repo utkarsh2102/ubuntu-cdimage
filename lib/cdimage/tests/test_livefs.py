@@ -353,7 +353,6 @@ class TestLiveBuildOptions(TestCase):
     def test_wubi(self):
         self.config["SUBPROJECT"] = "wubi"
         for series, fstype in (
-            ("precise", "ext3"),
             ("trusty", "ext3"),  # ext4
         ):
             self.config["DIST"] = series
@@ -398,7 +397,7 @@ class TestLiveBuildCommand(TestCase):
         self.assertCommandContains(["-u", "zh_CN"], "i386")
 
     def test_pre_live_build(self):
-        self.config["DIST"] = "precise"
+        self.config["DIST"] = "trusty"
         self.assertIn("-l", live_build_command(self.config, "i386"))
 
     @mock.patch(
@@ -414,8 +413,8 @@ class TestLiveBuildCommand(TestCase):
         self.assertIn("-p", live_build_command(self.config, "i386"))
 
     def test_series(self):
-        self.config["DIST"] = "precise"
-        self.assertCommandContains(["-d", "precise"], "i386")
+        self.config["DIST"] = "trusty"
+        self.assertCommandContains(["-d", "trusty"], "i386")
 
     def test_subproject(self):
         self.config["SUBPROJECT"] = "wubi"
@@ -849,11 +848,11 @@ class TestLiveCDBase(TestCase):
 
     def test_subarch(self):
         self.assertBaseEqual(
-            self.base("royal.buildd", "ubuntu-ps3", "precise"),
-            "powerpc+ps3", "ubuntu", "precise")
+            self.base("royal.buildd", "ubuntu-ps3", "trusty"),
+            "powerpc+ps3", "ubuntu", "trusty")
         self.assertBaseEqual(
-            self.base("celbalrai.buildd", "ubuntu-server-omap", "precise"),
-            "armel+omap", "ubuntu-server", "precise")
+            self.base("celbalrai.buildd", "ubuntu-server-omap", "trusty"),
+            "armel+omap", "ubuntu-server", "trusty")
 
     def test_ubuntu_defaults_locale(self):
         for series in all_series:
@@ -922,7 +921,7 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual(
                 "powerpc-smp generic", "powerpc", "ubuntu", series)
         self.assertFlavoursEqual(
-            "powerpc-smp powerpc64-smp", "powerpc+ps3", "ubuntu", "precise")
+            "powerpc-smp powerpc64-smp", "powerpc+ps3", "ubuntu", "trusty")
 
     def test_ppc64el(self):
         for series in all_series:
@@ -964,9 +963,9 @@ class TestLiveItemPaths(TestCase):
             "raspi2.device.tar.gz",
         ):
             self.assertPathsEqual(
-                ["http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/"
+                ["http://kapok.buildd/~buildd/LiveCD/trusty/kubuntu/"
                  "current/livecd.kubuntu.%s" % item],
-                "amd64", item, "kubuntu", "precise")
+                "amd64", item, "kubuntu", "trusty")
             self.assertPathsEqual(
                 ["http://royal.buildd/~buildd/LiveCD/hardy/ubuntu-ps3/"
                  "current/livecd.ubuntu-ps3.%s" % item],
@@ -992,27 +991,26 @@ class TestLiveItemPaths(TestCase):
 
     def test_kernel_items(self):
         for item in ("kernel", "initrd", "bootimg"):
-            root = "http://kapok.buildd/~buildd/LiveCD/precise/kubuntu/current"
+            root = "http://kapok.buildd/~buildd/LiveCD/trusty/kubuntu/current"
             self.assertPathsEqual(
                 ["%s/livecd.kubuntu.%s-generic" % (root, item),
                  "%s/livecd.kubuntu.%s-generic-hwe" % (root, item)],
-                "amd64", item, "kubuntu", "precise")
-            root = ("http://royal.buildd/~buildd/LiveCD/precise/ubuntu-ps3/"
+                "amd64", item, "kubuntu", "trusty")
+            root = ("http://royal.buildd/~buildd/LiveCD/trusty/ubuntu-ps3/"
                     "current")
             self.assertPathsEqual(
                 ["%s/livecd.ubuntu-ps3.%s-powerpc-smp" % (root, item),
                  "%s/livecd.ubuntu-ps3.%s-powerpc64-smp" % (root, item),
                  "%s/livecd.ubuntu-ps3.%s-powerpc-smp-hwe" % (root, item),
                  "%s/livecd.ubuntu-ps3.%s-powerpc64-smp-hwe" % (root, item)],
-                "powerpc+ps3", item, "ubuntu", "precise")
+                "powerpc+ps3", item, "ubuntu", "trusty")
 
     def test_kernel_efi_signed(self):
-        self.assertNoPaths("i386", "kernel-efi-signed", "ubuntu", "quantal")
-        self.assertNoPaths("amd64", "kernel-efi-signed", "ubuntu", "oneiric")
-        root = "http://kapok.buildd/~buildd/LiveCD/precise/ubuntu/current"
+        self.assertNoPaths("i386", "kernel-efi-signed", "ubuntu", "trusty")
+        root = "http://kapok.buildd/~buildd/LiveCD/trusty/ubuntu/current"
         self.assertPathsEqual(
             ["%s/livecd.ubuntu.kernel-generic.efi.signed" % root],
-            "amd64", "kernel-efi-signed", "ubuntu", "precise")
+            "amd64", "kernel-efi-signed", "ubuntu", "trusty")
         root = "http://kapok.buildd/~buildd/LiveCD/quantal/ubuntu/current"
         self.assertPathsEqual(
             ["%s/livecd.ubuntu.kernel-generic.efi.signed" % root],
@@ -1024,8 +1022,8 @@ class TestLiveItemPaths(TestCase):
                     "stable" % series)
             self.assertPathsEqual([path], "amd64", "wubi", "ubuntu", series)
             self.assertPathsEqual([path], "i386", "wubi", "ubuntu", series)
-        self.assertNoPaths("i386", "wubi", "xubuntu", "precise")
-        self.assertNoPaths("powerpc", "wubi", "ubuntu", "precise")
+        self.assertNoPaths("i386", "wubi", "xubuntu", "trusty")
+        self.assertNoPaths("powerpc", "wubi", "ubuntu", "trusty")
 
     def test_usb_creator(self):
         for series in all_series:
@@ -1035,7 +1033,7 @@ class TestLiveItemPaths(TestCase):
                 [path], "amd64", "usb-creator", "ubuntu", series)
             self.assertPathsEqual(
                 [path], "i386", "usb-creator", "ubuntu", series)
-        self.assertNoPaths("powerpc", "usb-creator", "ubuntu", "precise")
+        self.assertNoPaths("powerpc", "usb-creator", "ubuntu", "trusty")
 
 
 class TestDownloadLiveFilesystems(TestCase):

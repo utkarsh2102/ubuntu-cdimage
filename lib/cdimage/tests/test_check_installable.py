@@ -41,7 +41,7 @@ class TestCheckInstallable(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["IMAGE_TYPE"] = "daily"
-        self.config["DIST"] = "precise"
+        self.config["DIST"] = "trusty"
         self.config["ARCHES"] = "i386"
 
     def test_dirs(self):
@@ -49,29 +49,29 @@ class TestCheckInstallable(TestCase):
         self.assertEqual(os.path.join(self.config.root, "britney"), britney)
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu", "precise", "daily",
+                self.config.root, "scratch", "ubuntu", "trusty", "daily",
                 "tmp"),
             image_top)
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu", "precise", "daily",
+                self.config.root, "scratch", "ubuntu", "trusty", "daily",
                 "live"),
             live)
         self.assertEqual(
-            os.path.join(britney, "data", "ubuntu", "daily", "precise"), data)
+            os.path.join(britney, "data", "ubuntu", "daily", "trusty"), data)
 
     def test_prepare_no_packages(self):
         _, _, _, data = _check_installable_dirs(self.config)
         self.capture_logging()
         _prepare_check_installable(self.config)
-        self.assertLogEqual(["No Packages.gz for precise/i386; not checking"])
+        self.assertLogEqual(["No Packages.gz for trusty/i386; not checking"])
         self.assertEqual(["Sources"], os.listdir(data))
         self.assertEqual(0, os.stat(os.path.join(data, "Sources")).st_size)
 
     def test_prepare_with_packages(self):
         _, image_top, _, data = _check_installable_dirs(self.config)
         packages_gz = os.path.join(
-            image_top, "precise-i386", "CD1", "dists", "precise", "main",
+            image_top, "trusty-i386", "CD1", "dists", "trusty", "main",
             "binary-i386", "Packages.gz")
         os.makedirs(os.path.dirname(packages_gz))
         packages_gz_file = gzip.open(packages_gz, "wb")
@@ -125,5 +125,5 @@ class TestCheckInstallable(TestCase):
             "timeout", "30",
             os.path.join(britney, "rptprobs.sh"), data,
             os.path.join(
-                britney, "report", "ubuntu", "daily", "precise_probs.html"),
-            "Ubuntu precise"], command)
+                britney, "report", "ubuntu", "daily", "trusty_probs.html"),
+            "Ubuntu trusty"], command)

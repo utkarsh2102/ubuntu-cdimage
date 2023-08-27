@@ -596,13 +596,6 @@ class Publisher:
 
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
-        elif self.config["DIST"] <= "precise":
-            if image_format in ("img", "img.gz"):
-                cd = "image"
-            elif self.project == "ubuntustudio":
-                cd = "dvd"
-            else:
-                cd = "cd"
         else:
             cd = "image"
 
@@ -1689,9 +1682,8 @@ class Publisher:
                             print("  <td><p>%s</p></td>" % cell, file=header)
                 print("</tbody></table>", file=header)
 
-            if (series >= "precise" and
-                    [entry for entry in os.listdir(directory)
-                     if "-arm" in entry]):
+            if ([entry for entry in os.listdir(directory)
+                 if "-arm" in entry]):
                 link = Link(
                     "https://wiki.ubuntu.com/ARM/Server/Install",
                     "ARM/Server/Install")
@@ -2021,7 +2013,7 @@ class DailyTreePublisher(Publisher):
               self.config["DIST"] >= "focal"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             return 4 * 1024 * 1024 * 1024
-        elif self.project == "xubuntu" and self.config["DIST"] >= "kinetic":
+        elif self.project == "xubuntu" and self.config["DIST"] >= "lunar":
             # Per IRC discussions on #ubuntu-release 2022-09-16
             return 3.0 * 1000 * 1000 * 1000
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
@@ -2041,7 +2033,7 @@ class DailyTreePublisher(Publisher):
         elif self.project == "ubuntu-unity":
             # Per IRC discussions on #ubuntu-release 2022-09-28
             return int(3.1 * 1000 * 1000 * 1000)
-        elif self.project == "lubuntu" and self.config["DIST"] >= "kinetic":
+        elif self.project == "lubuntu" and self.config["DIST"] >= "lunar":
             # Per IRC discussions on #ubuntu-release 2022-09-16
             return 3 * 1000 * 1000 * 1000
         elif self.project == "lubuntu" and self.config["DIST"] >= "jammy":
@@ -2053,7 +2045,7 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] >= "kinetic":
+            if self.config["DIST"] >= "lunar":
                 # The idea is to keep compatibility with 2GiB USB sticks.
                 # Let's keep a ~100MB buffer to have time to act by either
                 # (a) shrink the image (b) decide that 4GB USB sticks are

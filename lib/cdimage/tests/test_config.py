@@ -64,15 +64,15 @@ class TestSeries(TestCase):
             "jammy", "22.04", "Jammy Jellyfish",
             all_lts_projects=True,
             _core_series="22")
-        kinetic = Series("kinetic", "22.10", "Kinetic Kudu")
-        kinetic._override_is_latest = True
+        mantic = Series("mantic", "23.10", "Mantic Minotaur")
+        mantic._override_is_latest = True
         all_series = [
             impish,
             jammy,
-            kinetic
+            mantic
         ]
         self.assertEqual("22", jammy.core_series)
-        self.assertEqual("24", kinetic.core_series)
+        self.assertEqual("24", mantic.core_series)
         self.assertEqual(None, impish.core_series)
 
     def test_str(self):

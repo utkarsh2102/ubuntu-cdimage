@@ -171,7 +171,7 @@ class TestTree(TestCase):
             self.temp_dir, "production", "current-triggers")
         with mkfile(current_triggers_path) as current_triggers:
             print(
-                "ubuntu\tdaily-live\tprecise-\ti386", file=current_triggers)
+                "ubuntu\tdaily-live\ttrusty-\ti386", file=current_triggers)
         self.config["SSH_ORIGINAL_COMMAND"] = (
             "mark-current --project=ubuntu --series=%s --publish-type=desktop "
             "--architecture=i386 20130321" % series)
@@ -250,26 +250,23 @@ class TestPublisher(TestCase):
 
     def test_publish_type(self):
         for image_type, project, dist, publish_type in (
-            ("daily-preinstalled", "ubuntu-server", "precise",
+            ("daily-preinstalled", "ubuntu-server", "trusty",
              "preinstalled-server"),
             ("daily-preinstalled", "ubuntu-server", "xenial",
              "preinstalled-server"),
-            ("daily-preinstalled", "ubuntu", "precise",
+            ("daily-preinstalled", "ubuntu", "trusty",
              "preinstalled-desktop"),
             ("daily-preinstalled", "ubuntu-touch", "trusty",
              "preinstalled-touch"),
             ("daily-live", "edubuntu", "lunar", "desktop"),
-            ("daily-live", "kubuntu-netbook", "precise", "netbook"),
-            ("daily-live", "ubuntu-server", "precise", "live-server"),
-            ("daily-live", "ubuntu", "precise", "desktop"),
+            ("daily-live", "ubuntu-server", "trusty", "live-server"),
+            ("daily-live", "ubuntu", "trusty", "desktop"),
             ("daily-live", "ubuntu-zh_CN", "trusty", "desktop"),
             ("daily-live", "ubuntu-core", "xenial", "live-core"),
-            ("ports_dvd", "ubuntu", "precise", "dvd"),
-            ("dvd", "kubuntu", "precise", "dvd"),
-            ("daily", "ubuntu-base", "precise", "base"),
-            ("daily", "ubuntu-server", "precise", "server"),
+            ("daily", "ubuntu-base", "trusty", "base"),
+            ("daily", "ubuntu-server", "trusty", "server"),
             ("daily", "ubuntu-server", "focal", "legacy-server"),
-            ("daily", "ubuntu", "precise", "alternate"),
+            ("daily", "ubuntu", "trusty", "alternate"),
             ("daily-canary", "ubuntu", "jammy", "desktop-canary"),
             ("daily-legacy", "ubuntu", "lunar", "desktop-legacy"),
             ("daily-minimal", "xubuntu", "lunar", "minimal"),
@@ -413,9 +410,9 @@ class TestPublisherWebIndices(TestCase):
             publisher.archdesc("ppc64el", "live-server"))
 
     def test_maybe_oversized(self):
-        self.config["DIST"] = "precise"
+        self.config["DIST"] = "trusty"
         oversized_path = os.path.join(
-            self.directory, "precise-desktop-i386.OVERSIZED")
+            self.directory, "trusty-desktop-i386.OVERSIZED")
         touch(oversized_path)
         publisher = Publisher(self.tree, "daily-live")
         desc = list(publisher.maybe_oversized(
@@ -1780,17 +1777,17 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
         os.makedirs(os.path.join(
-            self.tree.project_base, "precise", "daily-live", "20130221"))
+            self.tree.project_base, "trusty", "daily-live", "20130221"))
         publisher.post_qa(
             "20130221", [
-                "ubuntu/precise/daily-live/precise-desktop-i386",
-                "ubuntu/precise/daily-live/precise-desktop-amd64",
+                "ubuntu/trusty/daily-live/trusty-desktop-i386",
+                "ubuntu/trusty/daily-live/trusty-desktop-amd64",
             ])
         expected = [
             ["Ubuntu Desktop i386", "20130221", ""],
             ["Ubuntu Desktop amd64", "20130221", ""],
         ]
-        self.assertEqual("iso-precise", isotracker_module.tracker.target)
+        self.assertEqual("iso-trusty", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
     @mock_isotracker
@@ -1810,15 +1807,15 @@ class TestDailyTreePublisher(TestCase):
 
         publisher = self.make_publisher("kubuntu", "daily-live")
         touch(os.path.join(
-            self.temp_dir, "www", "full", "kubuntu", "precise", "daily-live",
-            "20130315", "precise-desktop-i386.OVERSIZED"))
+            self.temp_dir, "www", "full", "kubuntu", "trusty", "daily-live",
+            "20130315", "trusty-desktop-i386.OVERSIZED"))
         publisher.post_qa(
-            "20130315", ["kubuntu/precise/daily-live/precise-desktop-i386"])
+            "20130315", ["kubuntu/trusty/daily-live/trusty-desktop-i386"])
         expected_note = (
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>")
         expected = [["Kubuntu Desktop i386", "20130315", expected_note]]
-        self.assertEqual("iso-precise", isotracker_module.tracker.target)
+        self.assertEqual("iso-trusty", isotracker_module.tracker.target)
         self.assertEqual(expected, isotracker_module.tracker.posted)
 
     @mock_isotracker
@@ -1896,11 +1893,11 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.tree.DailyTreePublisher.make_web_indices")
-    def test_new_publish_dir_metalink_precise(self,
-                                              mock_make_web_indices,
-                                              mock_call):
-        """ Where we do want a metalink (precise), we copy up an old one. """
-        self.config["DIST"] = "precise"
+    def test_new_publish_dir_metalink_trusty(self,
+                                             mock_make_web_indices,
+                                             mock_call):
+        """ Where we do want a metalink (trusty), we copy up an old one. """
+        self.config["DIST"] = "trusty"
         publisher = self.make_publisher("ubuntu", "daily-live")
         publish_pending = os.path.join(publisher.publish_base, "pending")
         touch(os.path.join(
@@ -2405,10 +2402,10 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
         return publisher
 
     def test_image_output(self):
-        self.config["DIST"] = "precise"
+        self.config["DIST"] = "trusty"
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu-zh_CN", "precise",
+                self.config.root, "scratch", "ubuntu-zh_CN", "trusty",
                 "daily-live", "live"),
             self.make_publisher("ubuntu", "daily-live").image_output("i386"))
 

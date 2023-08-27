@@ -617,7 +617,7 @@ def live_item_paths(config, arch, item):
             for url in urls_for("livecd." + liveproject_subarch, item):
                 yield url
     elif item == "kernel-efi-signed":
-        if series >= "precise" and arch == "amd64":
+        if arch == "amd64":
             for flavour in flavours(config, arch):
                 for url in urls_for("livecd." + liveproject_subarch,
                                     "kernel-" + flavour + ".efi.signed"):

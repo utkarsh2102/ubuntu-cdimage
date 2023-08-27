@@ -97,10 +97,10 @@ class TestGermination(TestCase):
             self.assertEqual(sources, self.germination.seed_sources(project))
 
         for project, series, owners in (
-            ("kubuntu", "precise", ["kubuntu-dev", "ubuntu-core-dev"]),
+            ("kubuntu", "trusty", ["kubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntu", "trusty", ["ubuntu-core-dev"]),
             ("lubuntu", "trusty", ["lubuntu-dev", "ubuntu-core-dev"]),
-            ("xubuntu", "precise", ["xubuntu-dev", "ubuntu-core-dev"]),
+            ("xubuntu", "trusty", ["xubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntu-gnome", "trusty",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
             ("ubuntukylin", "xenial",
@@ -161,13 +161,13 @@ class TestGermination(TestCase):
             ["sentinel", "sentinel-updates"], self.germination.germinate_dists)
 
     def test_germinate_dists_proposed(self):
-        self.config["DIST"] = "precise"
+        self.config["DIST"] = "trusty"
         self.config["PROPOSED"] = "1"
         self.assertEqual([
-            "precise",
-            "precise-security",
-            "precise-updates",
-            "precise-proposed",
+            "trusty",
+            "trusty-security",
+            "trusty-updates",
+            "trusty-proposed",
         ], self.germination.germinate_dists)
 
     def test_germinate_dists_no_proposed(self):
@@ -288,7 +288,7 @@ class TestGermination(TestCase):
 
     def test_output(self):
         self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "precise"
+        self.config["DIST"] = "trusty"
         output_dir = self.germination.output_dir("ubuntu")
         touch(os.path.join(output_dir, "STRUCTURE"))
         output = self.germination.output("ubuntu")
@@ -461,7 +461,7 @@ class TestGerminateOutput(TestCase):
         self.assertEqual(["installer"], list(output.list_seeds("installer")))
         del self.config["CDIMAGE_INSTALL_BASE"]
         self.config["CDIMAGE_LIVE"] = "1"
-        self.config["DIST"] = "precise"
+        self.config["DIST"] = "trusty"
         self.assertEqual([], list(output.list_seeds("installer")))
 
     def test_list_seeds_debootstrap(self):
@@ -643,28 +643,6 @@ class TestGerminateOutput(TestCase):
         self.assertEqual(
             ["base-installer", "live-installer"],
             list(output.task_packages("i386", "installer", "installer")))
-
-    def test_task_packages_precise_kernels(self):
-        self.write_structure([["boot", []], ["installer", []]])
-        self.write_seed_output(
-            "i386", "boot", ["linux-image-3.2.0-23-generic-pae"])
-        self.write_seed_output(
-            "i386", "installer", ["block-modules-3.2.0-23-generic-pae-di"])
-        self.config["DIST"] = "precise"
-        self.config["CDIMAGE_INSTALL_BASE"] = "1"
-        output = GerminateOutput(self.config, self.temp_dir)
-        for project, flavour in (
-            ("ubuntu", "generic-pae"),
-            ("xubuntu", "generic"),
-            ("lubuntu", "generic"),
-        ):
-            self.config["PROJECT"] = project
-            self.assertEqual(
-                ["linux-image-3.2.0-23-%s" % flavour],
-                list(output.task_packages("i386", "boot", "boot")))
-            self.assertEqual(
-                ["block-modules-3.2.0-23-%s-di" % flavour],
-                list(output.task_packages("i386", "installer", "installer")))
 
     # TODO: installer_initrds, installer_subarches untested
 

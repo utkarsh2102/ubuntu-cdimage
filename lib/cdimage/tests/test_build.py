@@ -189,23 +189,23 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
                 raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
-        self.config["DIST"] = "precise"
+        self.config["DIST"] = "trusty"
         self.config["ARCHES"] = "i386"
         build_ubuntu_defaults_locale(self.config)
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-zh_CN", "precise", "daily-live",
+            self.temp_dir, "scratch", "ubuntu-zh_CN", "trusty", "daily-live",
             "live")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "precise-desktop-i386.iso",
-            "precise-desktop-i386.list",
-            "precise-desktop-i386.manifest",
-            "precise-desktop-i386.manifest-remove",
-            "precise-desktop-i386.size",
+            "trusty-desktop-i386.iso",
+            "trusty-desktop-i386.list",
+            "trusty-desktop-i386.manifest",
+            "trusty-desktop-i386.manifest-remove",
+            "trusty-desktop-i386.size",
         ], os.listdir(output_dir))
         mock_check_call.assert_called_once_with([
             os.path.join(self.temp_dir, "debian-cd", "tools", "pi-makelist"),
-            os.path.join(output_dir, "precise-desktop-i386.iso"),
+            os.path.join(output_dir, "trusty-desktop-i386.iso"),
         ], stdout=mock.ANY)
 
 
@@ -504,7 +504,7 @@ class TestExtractDebootstrap(TestCase):
 
     def test_debootstrap_script(self):
         for series, script in (
-            ("precise", "usr/share/debootstrap/scripts/precise"),
+            ("trusty", "usr/share/debootstrap/scripts/trusty"),
             ("bionic", "usr/share/debootstrap/scripts/bionic"),
         ):
             self.config["DIST"] = series
@@ -592,8 +592,7 @@ class TestBuildImageSet(TestCase):
             ("ubuntu", "trusty", False, False),
             ("gobuntu", "hardy", True, False),
             ("edubuntu", "lunar", False, True),
-            ("xubuntu", "precise", False, True),
-            ("kubuntu", "precise", False, False),
+            ("xubuntu", "trusty", False, True),
             ("kubuntu", "trusty", False, True),
             ("ubuntustudio", "trusty", False, True),
             ("mythbuntu", "trusty", False, True),

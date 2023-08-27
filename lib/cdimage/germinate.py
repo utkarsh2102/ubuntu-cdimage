@@ -416,16 +416,6 @@ class GerminateOutput:
                 if package == "bootstrap-base":
                     package = "live-installer"
 
-            # For precise, some flavours use a different kernel on i386.
-            # germinate doesn't currently support this without duplicating
-            # the entire boot and installer seeds, so we hack them instead.
-            if (self.config.project in ("xubuntu", "lubuntu") and
-                    self.config.series == "precise" and arch == "i386"):
-                if seed in installer_seeds:
-                    package = package.replace("-generic-pae-di", "-generic-di")
-                if seed == "boot":
-                    package = package.replace("-generic-pae", "-generic")
-
             yield package
 
     def installer_initrds(self, cpuarch):
