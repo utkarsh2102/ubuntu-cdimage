@@ -417,7 +417,8 @@ def run_live_builds(config):
             lp_build, arch, full_name, machine, log_timeout = lp_item
             lp_build.lp_refresh()
             if lp_build.buildstate in (
-                    "Needs building", "Currently building", "Uploading build"):
+                    "Needs building", "Currently building",
+                    "Gathering build output", "Uploading build"):
                 pending_lp_builds.append(lp_item)
             elif lp_build.buildstate == "Successfully built":
                 live_build_finished(
