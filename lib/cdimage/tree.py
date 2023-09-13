@@ -1996,6 +1996,9 @@ class DailyTreePublisher(Publisher):
                     self.project == "ubuntukylin"):
                 # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
                 return 4 * 1024 * 1024 * 1024
+            elif self.config["DIST"] >= "mantic":
+                # 2023-09-13, per seb128; size increased due to TPM support
+                return int(4.1 * 1024 * 1024 * 1024)
             elif self.config["DIST"] >= "focal":
                 # laney. as of focal we include two kernels on the ISO which
                 # increases its size
