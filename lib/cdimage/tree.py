@@ -2051,12 +2051,16 @@ class DailyTreePublisher(Publisher):
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] >= "lunar":
-                # The idea is to keep compatibility with 2GiB USB sticks.
-                # Let's keep a ~100MB buffer to have time to act by either
-                # (a) shrink the image (b) decide that 4GB USB sticks are
-                # common enough.
-                return int(1.9 * 1000 * 1000 * 1000)
+            if self.config["DIST"] >= "jammy":
+                # Our images have been >2GB for quite some time now, and nobody
+                # complained. Looks like 4GB USB sticks are common enough.
+                # The next limit not to cross are the 4.7GB of a standard
+                # single-side DVD.
+                #
+                # As of today (2023-09-18), the mantic-live-server-amd64.iso
+                # image is ~2.8GB big. Let's set the new limit to a +20% of
+                # that for now.
+                return int(3.3 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "focal":
                 # Requested by paride via MP.
                 return int(1.5 * 1000 * 1000 * 1000)
