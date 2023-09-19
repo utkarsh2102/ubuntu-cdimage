@@ -60,6 +60,7 @@ Ubuntu GNOME Desktop i386					ubuntu-gnome	daily-live			desktop					i386			iso
 
 # Ubuntu Budgie
 Ubuntu Budgie Desktop amd64					ubuntu-budgie	daily-live			desktop					amd64			iso
+Ubuntu Budgie Desktop (Legacy) amd64		ubuntu-budgie/legacy	daily-legacy		desktop-legacy			amd64			iso
 Ubuntu Budgie Desktop i386					ubuntu-budgie	daily-live			desktop					i386			iso
 
 # Ubuntu Mate
