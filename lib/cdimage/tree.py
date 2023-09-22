@@ -3478,7 +3478,7 @@ class ReleasePublisher(Publisher):
             if not os.path.exists(daily(ext)):
                 continue
             if self.want_pool:
-                self.copy(daily(ext), pool(ext))
+                self.hardlink(os.path.realpath(daily(ext)), pool(ext))
             if self.want_dist:
                 self.symlink(pool(ext), dist(ext))
                 if daily(ext) == main_img:
@@ -3488,7 +3488,7 @@ class ReleasePublisher(Publisher):
                         arch,
                         dist(ext))
             if self.want_full:
-                self.copy(daily(ext), full(ext))
+                self.hardlink(os.path.realpath(daily(ext)), full(ext))
                 if daily(ext) == main_img:
                     self.publish_release_netboot(
                         os.path.dirname(daily(ext)),
