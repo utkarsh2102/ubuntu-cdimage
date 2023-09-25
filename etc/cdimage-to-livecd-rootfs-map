@@ -3,7 +3,7 @@
 # Like etc/default-arches, "PROJECT" is in fact PROJECT[-SUBPROJECT][-LOCALE]. "-" means 'empty'.
 
 ubuntu-server		daily-preinstalled	*			riscv64		unleashed	ubuntu-cpc			*				sifive_fu540
-ubuntu-server		daily-preinstalled	*			riscv64		unmatched	ubuntu-cpc			*				sifive_hifive_unmatched_fu740
+ubuntu-server		daily-preinstalled	jammy			riscv64		unmatched	ubuntu-cpc			*				sifive_hifive_unmatched_fu740
 ubuntu-server		daily-preinstalled	*			*			-			ubuntu-cpc			*				generic
 ubuntu-server		daily-preinstalled	*			*			*			ubuntu-cpc			*				*
 ubuntu-appliance	*					*			*			*			ubuntu-core			*				*
