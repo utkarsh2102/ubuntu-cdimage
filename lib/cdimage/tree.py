@@ -2037,8 +2037,8 @@ class DailyTreePublisher(Publisher):
             # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
         elif self.project == "ubuntu-unity":
-            # Per IRC discussions on #ubuntu-release 2022-09-28
-            return int(3.1 * 1000 * 1000 * 1000)
+            # Per IRC discussions on #ubuntu-release 2023-09-26
+            return int(3.5 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "lunar":
             # Per IRC discussions on #ubuntu-release 2023-09-24
             return int(3.2 * 1000 * 1000 * 1000)
