@@ -827,6 +827,7 @@ class Publisher:
         "amd64": "64-bit PC (AMD64)",
         "amd64+mac": "64-bit Mac (AMD64)",
         "arm64": "64-bit ARM (ARMv8/AArch64)",
+        "arm64+X13s": "Lenovo X13s Gen 1",
         "arm64+raspi": "Raspberry Pi Generic (64-bit ARM)",
         "arm64+raspi3": "Raspberry Pi 3 (64-bit ARM)",
         "armel": "ARM EABI",
@@ -883,6 +884,8 @@ class Publisher:
                 sentences.append("Choose this if you are at all unsure.")
         elif arch == "arm64":
             sentences.append("For 64-bit ARMv8 processors and above.")
+        elif arch == "arm64+X13s":
+            sentences.append("For Lenovo X13s Gen 1.")
         elif arch == "armhf+raspi2":
             sentences.append("For Raspberry Pi 2 boards.")
         elif arch in ("arm64+raspi", "armhf+raspi",
@@ -1232,7 +1235,7 @@ class Publisher:
             "armel+ac100", "armel+mx5",
             "armhf", "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
             "armhf+nexus7", "armhf+raspi", "armhf+raspi2", "armhf+raspi3",
-            "arm64", "arm64+raspi", "arm64+raspi3",
+            "arm64", "arm64+X13s", "arm64+raspi", "arm64+raspi3",
             "powerpc",
             "powerpc+ps3",
             "ppc64el",
