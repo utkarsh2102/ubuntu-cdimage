@@ -2038,7 +2038,7 @@ class DailyTreePublisher(Publisher):
             return 2 * 1000 * 1000 * 1000
         elif self.project == "ubuntu-unity":
             # Per IRC discussions on #ubuntu-release 2023-09-26
-            return int(3.5 * 1000 * 1000 * 1000)
+            return int(3.6 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "lunar":
             # Per IRC discussions on #ubuntu-release 2023-09-24
             return int(3.2 * 1000 * 1000 * 1000)
