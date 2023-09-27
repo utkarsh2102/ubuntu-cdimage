@@ -1973,9 +1973,9 @@ class DailyTreePublisher(Publisher):
             if self.config["DIST"] >= "mantic" and self.project == "edubuntu":
                 # Per IRC discussions on #ubuntu-release 2023-09-13
                 return 6 * 1000 * 1000 * 1000
-            elif self.config["DIST"] >= "lunar":
-                # Per IRC discussions on #ubuntu-release 2023-04-02
-                return int(5.7 * 1000 * 1000 * 1000)
+            elif self.config["DIST"] >= "mantic":
+                # Per IRC discussions on #ubuntu-release 2023-09-27
+                return int(5.8 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "jammy":
                 # Per IRC discussions on #ubuntu-release 2022-03-24
                 return 5 * 1000 * 1000 * 1000
