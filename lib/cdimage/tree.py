@@ -2067,6 +2067,8 @@ class DailyTreePublisher(Publisher):
             else:
                 # email with powersj, 20200108
                 return int(1.2 * 1000 * 1000 * 1000)
+        elif self.project == "ubuntucinnamon":
+            return int(4.2 * 1000 * 1000 * 1000)
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW
