@@ -491,7 +491,9 @@ def flavours(config, arch):
         if subarch == "tegra":
             return ["nvidia-tegra"]
         elif subarch == "x13s":
-            return ["laptop"]
+            # See https://code.launchpad.net/~xnox/livecd-rootfs/+git/livecd-rootfs/+merge/452427
+            # return ["laptop"]
+            return ["generic"]
         else:
             return ["generic"]
     elif cpuarch == "armel":
