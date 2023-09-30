@@ -1235,7 +1235,7 @@ class Publisher:
             "armel+ac100", "armel+mx5",
             "armhf", "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
             "armhf+nexus7", "armhf+raspi", "armhf+raspi2", "armhf+raspi3",
-            "arm64", "arm64+x13s", "arm64+raspi", "arm64+raspi3",
+            "arm64", "arm64+raspi", "arm64+raspi3", "arm64+x13s",
             "powerpc",
             "powerpc+ps3",
             "ppc64el",
