@@ -35,7 +35,7 @@ ubuntu			daily-live		xenial			amd64 i386
 ubuntu			daily-live		bionic			amd64
 ubuntu			daily-live		focal-jammy		amd64 arm64 amd64+intel-iot
 ubuntu			daily-live		lunar			amd64 arm64
-ubuntu			daily-live		mantic-			amd64
+ubuntu			daily-live		mantic-			amd64 arm64+x13s
 
 ubuntu-desktop-preinstalled daily-preinstalled	jammy-		arm64+raspi
 
