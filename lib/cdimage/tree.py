@@ -972,7 +972,7 @@ class Publisher:
         elif arch == "riscv64+unmatched":
             sentences.append(
                 "For RISC-V computers, with support for SiFive HiFive "
-                "Unmatched and QEMU.")
+                "Unmatched.")
         elif arch == "riscv64+visionfive":
             sentences.append(
                 "For RISC-V computers, with support for StarFive VisionFive")
@@ -992,9 +992,12 @@ class Publisher:
         elif arch == "riscv64":
             sentences.append(
                 "For RISC-V computers. Requires copying your own first "
-                "stage bootloader (like u-boot) onto the image before "
-                "usage on real hardware (like the SiFive HiFive "
+                "stage bootloader (like u-boot) and relevant DTBs onto the "
+                "image before usage on real hardware (like the SiFive HiFive "
                 "Unmatched).")
+            if publish_type.startswith("preinstalled-"):
+                sentences.append(
+                    "Usable on RISC-V QEMU.")
         elif arch == "s390x":
             sentences.append(
                 "For IBM System z series mainframes, such as IBM LinuxONE.")
