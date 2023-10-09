@@ -77,10 +77,11 @@ def main():
             if rebuild.series_title.lower() != args[0]:
                 continue
 
-            print(" - %s for %s (requested by %s) => %s " %
+            print(" - %s for %s (requested by %s) => %s (status: %s) " %
                   (rebuild.product_title, rebuild.series_title,
                    rebuild.requestedby_name,
-                   publisher.cdimage_project(rebuild.product_title, args[1])))
+                   publisher.cdimage_project(rebuild.product_title, args[1]),
+                   rebuild.status))
 
             if not options.dry_run:
                 rebuild.status = 5
