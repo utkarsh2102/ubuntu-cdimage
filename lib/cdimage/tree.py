@@ -1999,7 +1999,7 @@ class DailyTreePublisher(Publisher):
             else:
                 return int(2.1 * 1024 * 1024 * 1024)
         elif self.project in ("ubuntu", "ubuntukylin"):
-            if (self.config["DIST"] >= "impish" and
+            if (self.config["DIST"] >= "jammy" and
                     self.project == "ubuntukylin"):
                 # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
                 return 4 * 1024 * 1024 * 1024
