@@ -1998,9 +1998,7 @@ class DailyTreePublisher(Publisher):
                 return 4 * 1024 * 1024 * 1024
             else:
                 return int(2.1 * 1024 * 1024 * 1024)
-        elif (self.project in ("ubuntu", "ubuntukylin") and
-              self.publish_type != "dvd" and
-              self.config["DIST"] >= "bionic"):
+        elif self.project in ("ubuntu", "ubuntukylin"):
             if (self.config["DIST"] >= "impish" and
                     self.project == "ubuntukylin"):
                 # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
