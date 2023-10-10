@@ -1977,8 +1977,8 @@ class DailyTreePublisher(Publisher):
     def size_limit(self, arch):
         if self.project in ("edubuntu", "ubuntustudio"):
             if self.config["DIST"] >= "mantic" and self.project == "edubuntu":
-                # Per IRC discussions on #ubuntu-release 2023-09-13
-                return 6 * 1000 * 1000 * 1000
+                # Per IRC discussions on #ubuntu-release 2023-10-09
+                return int(6.1 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "mantic":
                 # Per IRC discussions on #ubuntu-release 2023-09-27
                 return int(5.8 * 1000 * 1000 * 1000)
