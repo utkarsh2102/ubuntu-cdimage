@@ -3012,7 +3012,7 @@ class DailyTreePublisher(Publisher):
             # Experimentally, we also support manually 'preserving' certain
             # images by using a 'manual' symlink to a published image set.
             if (os.path.islink(publish_manual) and
-                    os.readlink(publish_manual) == entry):
+                    os.path.normpath(os.readlink(publish_manual)) == entry):
                 continue
 
             to_purge.append((entry, entry_path))
