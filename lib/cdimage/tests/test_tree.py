@@ -3652,17 +3652,17 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         # Double check if we still published everything
         self.assertCountEqual([
             "SHA256SUMS",
-            "ubuntu-%s-desktop-amd64.iso" % series.version,
-            "ubuntu-%s-desktop-amd64.iso.zsync" % series.version,
-            "ubuntu-%s-desktop-amd64.manifest" % series.version,
+            "ubuntu-%s-desktop-amd64.iso" % version,
+            "ubuntu-%s-desktop-amd64.iso.zsync" % version,
+            "ubuntu-%s-desktop-amd64.manifest" % version,
         ], os.listdir(pool_dir))
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
             "SHA256SUMS",
-            "ubuntu-%s-desktop-amd64.iso" % series.version,
-            "ubuntu-%s-desktop-amd64.iso.torrent" % series.version,
-            "ubuntu-%s-desktop-amd64.iso.zsync" % series.version,
-            "ubuntu-%s-desktop-amd64.manifest" % series.version,
+            "ubuntu-%s-desktop-amd64.iso" % version,
+            "ubuntu-%s-desktop-amd64.iso.torrent" % version,
+            "ubuntu-%s-desktop-amd64.iso.zsync" % version,
+            "ubuntu-%s-desktop-amd64.manifest" % version,
         ], os.listdir(target_dir))
         self.assertFalse(os.path.exists(os.path.join(
             self.temp_dir, "www", "full", "releases")))
