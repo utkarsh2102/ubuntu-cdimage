@@ -3169,6 +3169,10 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"
         series = Series.latest()
+        try:
+            version = series.pointversion
+        except Exception:
+            version = series.version
         self.config["DIST"] = series
         self.config["ARCHES"] = "amd64 i386"
         daily_dir = os.path.join(
@@ -3193,11 +3197,11 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Copying desktop-amd64 image ...",
             "Making amd64 zsync metafile ...",
             "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
-                target_dir, series.version),
+                target_dir, version),
             "Copying desktop-i386 image ...",
             "Making i386 zsync metafile ...",
             "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..." % (
-                target_dir, series.version),
+                target_dir, version),
             "Checksumming full tree ...",
             "No keys found; not signing images.",
             "Refreshing simplestreams...",
@@ -3209,20 +3213,20 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
             "SHA256SUMS",
-            "kubuntu-%s-desktop-amd64.iso" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
-            "kubuntu-%s-desktop-amd64.manifest" % series.version,
-            "kubuntu-%s-desktop-i386.iso" % series.version,
-            "kubuntu-%s-desktop-i386.iso.torrent" % series.version,
-            "kubuntu-%s-desktop-i386.iso.zsync" % series.version,
-            "kubuntu-%s-desktop-i386.manifest" % series.version,
+            "kubuntu-%s-desktop-amd64.iso" % version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+            "kubuntu-%s-desktop-amd64.iso.zsync" % version,
+            "kubuntu-%s-desktop-amd64.manifest" % version,
+            "kubuntu-%s-desktop-i386.iso" % version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % version,
+            "kubuntu-%s-desktop-i386.iso.zsync" % version,
+            "kubuntu-%s-desktop-i386.manifest" % version,
         ], os.listdir(target_dir))
         self.assertCountEqual([
-            "kubuntu-%s-desktop-amd64.iso" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
-            "kubuntu-%s-desktop-i386.iso" % series.version,
-            "kubuntu-%s-desktop-i386.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-amd64.iso" % version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+            "kubuntu-%s-desktop-i386.iso" % version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % version,
         ], os.listdir(torrent_dir))
         self.assertFalse(os.path.exists(os.path.join(
             self.temp_dir, "www", "simple")))
@@ -3233,6 +3237,10 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"
         series = Series.latest()
+        try:
+            version = series.pointversion
+        except Exception:
+            version = series.version
         self.config["DIST"] = series
         self.config["ARCHES"] = "amd64"
         self.config["SIMPLESTREAMS"] = "1"
@@ -3254,7 +3262,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Copying desktop-amd64 image ...",
             "Making amd64 zsync metafile ...",
             "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
-                target_dir, series.version),
+                target_dir, version),
             "Checksumming full tree ...",
             "No keys found; not signing images.",
             "Refreshing simplestreams...",
@@ -3267,10 +3275,10 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
             "SHA256SUMS",
-            "kubuntu-%s-desktop-amd64.iso" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
-            "kubuntu-%s-desktop-amd64.manifest" % series.version,
+            "kubuntu-%s-desktop-amd64.iso" % version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+            "kubuntu-%s-desktop-amd64.iso.zsync" % version,
+            "kubuntu-%s-desktop-amd64.manifest" % version,
         ], os.listdir(target_dir))
         # ...and that the streams got generated as expected
         self.assertCountEqual([
@@ -3521,6 +3529,10 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"
         series = Series.latest()
+        try:
+            version = series.pointversion
+        except Exception:
+            version = series.version
         self.config["DIST"] = series
         self.config["ARCHES"] = "amd64 i386"
         daily_dir = os.path.join(
@@ -3546,11 +3558,11 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Copying desktop-amd64 image ...",
             "Making amd64 zsync metafile ...",
             "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
-                target_dir, series.version),
+                target_dir, version),
             "Copying desktop-i386 image ...",
             "Making i386 zsync metafile ...",
             "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..." % (
-                target_dir, series.version),
+                target_dir, version),
             "Checksumming simple tree (pool) ...",
             "No keys found; not signing images.",
             "Checksumming simple tree (%s) ..." % series,
@@ -3562,30 +3574,30 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         ])
         self.assertCountEqual([
             "SHA256SUMS",
-            "kubuntu-%s-desktop-amd64.iso" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
-            "kubuntu-%s-desktop-amd64.manifest" % series.version,
-            "kubuntu-%s-desktop-i386.iso" % series.version,
-            "kubuntu-%s-desktop-i386.iso.zsync" % series.version,
-            "kubuntu-%s-desktop-i386.manifest" % series.version,
+            "kubuntu-%s-desktop-amd64.iso" % version,
+            "kubuntu-%s-desktop-amd64.iso.zsync" % version,
+            "kubuntu-%s-desktop-amd64.manifest" % version,
+            "kubuntu-%s-desktop-i386.iso" % version,
+            "kubuntu-%s-desktop-i386.iso.zsync" % version,
+            "kubuntu-%s-desktop-i386.manifest" % version,
         ], os.listdir(pool_dir))
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
             "SHA256SUMS",
-            "kubuntu-%s-desktop-amd64.iso" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.zsync" % series.version,
-            "kubuntu-%s-desktop-amd64.manifest" % series.version,
-            "kubuntu-%s-desktop-i386.iso" % series.version,
-            "kubuntu-%s-desktop-i386.iso.torrent" % series.version,
-            "kubuntu-%s-desktop-i386.iso.zsync" % series.version,
-            "kubuntu-%s-desktop-i386.manifest" % series.version,
+            "kubuntu-%s-desktop-amd64.iso" % version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+            "kubuntu-%s-desktop-amd64.iso.zsync" % version,
+            "kubuntu-%s-desktop-amd64.manifest" % version,
+            "kubuntu-%s-desktop-i386.iso" % version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % version,
+            "kubuntu-%s-desktop-i386.iso.zsync" % version,
+            "kubuntu-%s-desktop-i386.manifest" % version,
         ], os.listdir(target_dir))
         self.assertCountEqual([
-            "kubuntu-%s-desktop-amd64.iso" % series.version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % series.version,
-            "kubuntu-%s-desktop-i386.iso" % series.version,
-            "kubuntu-%s-desktop-i386.iso.torrent" % series.version,
+            "kubuntu-%s-desktop-amd64.iso" % version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+            "kubuntu-%s-desktop-i386.iso" % version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % version,
         ], os.listdir(torrent_dir))
         self.assertFalse(os.path.exists(os.path.join(
             self.temp_dir, "www", "full", "kubuntu", "releases")))
@@ -3600,6 +3612,10 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         series = Series.latest()
+        try:
+            version = series.pointversion
+        except Exception:
+            version = series.version
         self.config["DIST"] = series
         self.config["ARCHES"] = "amd64"
         self.config["SIMPLESTREAMS"] = "1"
@@ -3622,7 +3638,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Copying desktop-amd64 image ...",
             "Making amd64 zsync metafile ...",
             "Creating torrent for %s/ubuntu-%s-desktop-amd64.iso ..." % (
-                target_dir, series.version),
+                target_dir, version),
             "Checksumming simple tree (pool) ...",
             "No keys found; not signing images.",
             "Checksumming simple tree (%s) ..." % series,
