@@ -196,7 +196,7 @@ class TestTree(TestCase):
 
             with open(os.path.join(publish_base, "20130321", ".marked_good"),
                       "r") as marked_good:
-                self.assertEqual("mantic-desktop-i386.iso\n",
+                self.assertEqual("noble-desktop-i386.iso\n",
                                  marked_good.read())
 
             publish_current = os.path.join(publish_base, "current")

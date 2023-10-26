@@ -258,6 +258,7 @@ all_series.extend([
         "mantic", "23.10", "Mantic Minotaur",
         pointversion="23.10.1",
         all_lts_projects=True),
+    Series("noble", "24.04", "Noble Numbat"),
 
     Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
     Series(
