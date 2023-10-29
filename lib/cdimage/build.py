@@ -472,7 +472,8 @@ def build_livecd_base(config):
             # shutil.copy2(
             #    "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
-    if (config.project in ("ubuntu-core", "ubuntu-appliance") and
+    if (config.project in ("ubuntu-core", "ubuntu-core-desktop",
+                           "ubuntu-appliance") and
             config.image_type == "daily-live"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
@@ -708,8 +709,8 @@ def notify_failure(config, log_path):
 def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
-            "livecd-base", "ubuntu-base", "ubuntu-core", "ubuntu-appliance",
-            "ubuntu-touch"):
+            "livecd-base", "ubuntu-base", "ubuntu-core",
+            "ubuntu-core-desktop", "ubuntu-appliance", "ubuntu-touch"):
         live_fs_only = True
     elif (config.project in ("ubuntu", "ubuntu-server") and
           config.image_type == "daily-preinstalled"):

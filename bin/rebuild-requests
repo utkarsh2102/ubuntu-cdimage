@@ -194,7 +194,8 @@ def main():
                 # The ubuntu-base image is actually hacked up in overall, so
                 # even though it's defined as "daily", it's a "daily-live" type
                 image_type = "daily-live"
-            elif project in ("ubuntu-core", "ubuntu-appliance"):
+            elif project in ("ubuntu-core", "ubuntu-core-desktop",
+                             "ubuntu-appliance"):
                 # The ubuntu-core images however are also a bit special, as
                 # they have a different publish structure, CHANNEL arguments
                 # and more
@@ -210,7 +211,8 @@ def main():
             cmd = ["for-project", project, "cron.%s" % image_type]
 
             if (build_type != "daily" or
-                    project in ("ubuntu-core", "ubuntu-appliance",
+                    project in ("ubuntu-core", "ubuntu-core-desktop",
+                                "ubuntu-appliance",
                                 "ubuntu-base", "ubuntu-server")):
                 cmd += ["--live"]
 

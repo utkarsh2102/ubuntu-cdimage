@@ -428,7 +428,8 @@ class Publisher:
                 return "netbook"
             elif self.project == "ubuntu-server":
                 return "live-server"
-            elif self.project in ("ubuntu-core", "ubuntu-appliance"):
+            elif self.project in ("ubuntu-core", "ubuntu-core-desktop",
+                                  "ubuntu-appliance"):
                 return "live-core"
             elif self.project == "ubuntu-mini-iso":
                 return "mini-iso"
@@ -791,6 +792,9 @@ class Publisher:
                 "https://wiki.ubuntu.com/Core", "Ubuntu Core wiki page",
                 show_class=True)
             sentences.append("See the %s for more information." % link)
+        elif publish_type == "ubuntu-core-desktop":
+            sentences.append(
+                "Experimental Ubuntu Core Desktop installer images.")
         elif publish_type == "ubuntu-appliance":
             sentences.append(
                 "An Ubuntu Appliance turns a computer into a specialised "
@@ -1120,7 +1124,8 @@ class Publisher:
         full_project = "-".join(full_project_bits)
         series = self.config["DIST"]
 
-        if self.project in ("ubuntu-core", "ubuntu-appliance"):
+        if self.project in ("ubuntu-core", "ubuntu-core-desktop",
+                            "ubuntu-appliance"):
             channel = self.config.get("CHANNEL", "edge")
             heading = "%s %s (%s)" % (
                 self.config.capproject, self.config.core_series, channel)
@@ -1959,7 +1964,8 @@ class DailyTreePublisher(Publisher):
 
     @property
     def image_type_dir(self):
-        if (self.config.project in ("ubuntu-core", "ubuntu-appliance") and
+        if (self.config.project in ("ubuntu-core", "ubuntu-core-desktop",
+                                    "ubuntu-appliance") and
                 self.image_type == 'daily-live'):
             channel = self.config.get("CHANNEL", "edge")
             return os.path.join(self.config.core_series, channel)
@@ -2553,7 +2559,8 @@ class DailyTreePublisher(Publisher):
             if (entry.startswith("%s-" % self.config.series) or
                 (self.config.subproject == "wubi" and
                  entry.endswith(".tar.xz")) or
-                (self.config.project in ("ubuntu-core", "ubuntu-appliance") and
+                (self.config.project in ("ubuntu-core", "ubuntu-core-desktop",
+                                         "ubuntu-appliance") and
                  self.image_type == "daily-live" and
                  entry.endswith(".img.xz"))):
                 images.add(entry)
@@ -2794,7 +2801,8 @@ class DailyTreePublisher(Publisher):
                 continue
 
             # For Ubuntu Core projects we have a seperate set of milestones
-            if project in ("ubuntu-core", "ubuntu-appliance"):
+            if project in ("ubuntu-core", "ubuntu-core-desktop",
+                           "ubuntu-appliance"):
                 # ...image_series in this case is 18, 20, 22 etc.
                 dist = image_series
             target = "%s-%s" % (product[1], dist)

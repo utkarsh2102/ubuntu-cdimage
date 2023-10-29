@@ -47,6 +47,7 @@ project_map = {
     "ubuntucinnamon": "Ubuntu-Cinnamon",
     "livecd-base": "LiveCD-Base",
     "ubuntu-core": "Ubuntu Core",
+    "ubuntu-core-desktop": "Ubuntu Core Desktop",
     "ubuntu-appliance": "Ubuntu Appliance",
     "ubuntu-base": "Ubuntu-Base",
     "ubuntu-touch-preview": "Ubuntu Touch Preview",

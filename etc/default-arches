@@ -21,6 +21,8 @@ ubuntu-core		daily-live		focal			amd64 arm64+raspi armhf+raspi amd64+intel-iot
 ubuntu-core		daily-live		jammy			amd64 arm64 arm64+raspi armhf+raspi amd64+intel-iot
 ubuntu-core		daily-live		lunar-			amd64 arm64 arm64+raspi armhf+raspi
 
+ubuntu-core-desktop		daily-live		mantic-			amd64
+
 # The default list of supported images for appliances is quite big
 ubuntu-appliance	daily-live		bionic-			amd64+appliance-adguard-home-core18-amd64 armhf+appliance-adguard-home-core18-pi-armhf arm64+appliance-adguard-home-core18-pi amd64+appliance-lxd-core18-amd64 arm64+appliance-lxd-core18-pi amd64+appliance-mosquitto-core18-amd64 armhf+appliance-mosquitto-core18-pi-armhf arm64+appliance-mosquitto-core18-pi amd64+appliance-nextcloud-core18-amd64 armhf+appliance-nextcloud-core18-pi-armhf arm64+appliance-nextcloud-core18-pi amd64+appliance-openhab-core18-amd64 armhf+appliance-openhab-core18-pi-armhf arm64+appliance-openhab-core18-pi amd64+appliance-plexmediaserver-core18-amd64 armhf+appliance-plexmediaserver-core18-pi-armhf arm64+appliance-plexmediaserver-core18-pi amd64+appliance-rocketchat-core18-amd64 arm64+appliance-rocketchat-core18-pi amd64+appliance-gitea-core18-amd64 armhf+appliance-gitea-core18-pi-armhf arm64+appliance-gitea-core18-pi
 

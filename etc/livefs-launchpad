@@ -23,6 +23,7 @@ lubuntu			daily-live		*		*		ubuntu-cdimage/lubuntu
 livecd-base		livecd-base		*		*		ubuntu-cdimage/livecd-base
 ubuntu-base		daily			*		*		ubuntu-cdimage/ubuntu-base
 ubuntu-core		daily-live		*		*		ubuntu-cdimage/ubuntu-core
+ubuntu-core-desktop		daily-live		*		*		ubuntu-cdimage/ubuntu-core
 ubuntu-appliance	daily-live		*		*		ubuntu-cdimage/ubuntu-core
 ubuntu-core-system-image daily-preinstalled	*		*		ubuntu-cdimage/ubuntu-core-system-image
 ubuntukylin		daily-live		*		*		ubuntu-cdimage/ubuntukylin

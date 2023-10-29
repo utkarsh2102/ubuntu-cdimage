@@ -850,7 +850,7 @@ def download_live_filesystems(config):
                 continue
 
             if (project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                                "ubuntu-appliance") and
+                                "ubuntu-core-desktop", "ubuntu-appliance") and
                     (project != "ubuntukylin" or series <= "trusty")):
                 if series <= "trusty":
                     # TODO: We still have to do something about not
@@ -871,9 +871,10 @@ def download_live_filesystems(config):
                             "Install %s" % autorun_project)
 
             if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                               "ubuntu-appliance"):
+                               "ubuntu-core-desktop", "ubuntu-appliance"):
                 download_live_items(config, arch, "usb-creator")
-            if (project in ("ubuntu-core", "ubuntu-appliance") and
+            if (project in ("ubuntu-core", "ubuntu-core-desktop",
+                            "ubuntu-appliance") and
                     config["CDIMAGE_LIVE"]):
                 download_live_items(config, arch, "model-assertion")
             if project == "ubuntu-appliance":

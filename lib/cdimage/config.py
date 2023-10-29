@@ -257,6 +257,7 @@ all_series.extend([
     Series(
         "mantic", "23.10", "Mantic Minotaur",
         pointversion="23.10.1",
+        _core_series="22",  # XXX: temporary for Core Desktop experiments
         all_lts_projects=True),
     Series("noble", "24.04", "Noble Numbat"),
 
