@@ -428,9 +428,10 @@ class Publisher:
                 return "netbook"
             elif self.project == "ubuntu-server":
                 return "live-server"
-            elif self.project in ("ubuntu-core", "ubuntu-core-desktop",
-                                  "ubuntu-appliance"):
+            elif self.project in ("ubuntu-core", "ubuntu-appliance"):
                 return "live-core"
+            elif self.project == "ubuntu-core-desktop":
+                return "live-core-desktop"
             elif self.project == "ubuntu-mini-iso":
                 return "mini-iso"
             else:
@@ -463,7 +464,8 @@ class Publisher:
             return "daily-live"
         elif publish_type in (
                 "desktop", "live", "netbook",
-                "live-core", "live-server"):
+                "live-core", "live-core-desktop",
+                "live-server"):
             return "daily-live"
         elif publish_type == "minimal":
             return "daily-minimal"
@@ -527,6 +529,8 @@ class Publisher:
             return "live %s" % cd
         elif publish_type == "live-core":
             return "Ubuntu Core %s" % cd
+        elif publish_type == "live-core-desktop":
+            return "Ubuntu Core Desktop %s" % cd
         elif publish_type == "desktop":
             return "desktop %s" % cd
         elif publish_type == "desktop-canary":
@@ -1232,6 +1236,7 @@ class Publisher:
             "preinstalled-server",
             "preinstalled-touch", "preinstalled-core", "wubi",
             "live-core",
+            "live-core-desktop",
             "desktop-canary",
             "desktop-legacy",
         )
@@ -2216,6 +2221,9 @@ class DailyTreePublisher(Publisher):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         if publish_type == "live-core":
             out_prefix = "ubuntu-core-%s-%s" % (self.config.core_series, arch)
+        elif publish_type == "live-core-desktop":
+            out_prefix = "ubuntu-core-desktop-%s-%s" % (
+                self.config.core_series, arch)
         else:
             out_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         source_dir = self.image_output(arch)

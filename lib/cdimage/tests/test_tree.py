@@ -263,7 +263,8 @@ class TestPublisher(TestCase):
             ("daily-live", "ubuntu", "trusty", "desktop"),
             ("daily-live", "ubuntu-zh_CN", "trusty", "desktop"),
             ("daily-live", "ubuntu-core", "xenial", "live-core"),
-            ("daily-live", "ubuntu-core-desktop", "mantic", "live-core"),
+            ("daily-live", "ubuntu-core-desktop", "mantic",
+             "live-core-desktop"),
             ("daily", "ubuntu-base", "trusty", "base"),
             ("daily", "ubuntu-server", "trusty", "server"),
             ("daily", "ubuntu-server", "focal", "legacy-server"),
@@ -1168,12 +1169,13 @@ class TestDailyTreePublisher(TestCase):
         publisher = self.make_publisher("ubuntu-core-desktop", "daily-live")
         source_dir = publisher.image_output("amd64")
         touch(os.path.join(
-            source_dir, "%s-live-core-amd64.raw" % self.config.series))
+            source_dir, "%s-live-core-desktop-amd64.raw" % self.config.series))
         touch(os.path.join(
             source_dir,
-            "%s-live-core-amd64.model-assertion" % self.config.series))
+            "%s-live-core-desktop-amd64.model-assertion" % self.config.series))
         self.capture_logging()
-        list(publisher.publish_binary("live-core", "amd64", "20230429"))
+        list(publisher.publish_binary("live-core-desktop", "amd64",
+                                      "20230429"))
         self.assertLogEqual([
             "Publishing amd64 ...",
             "Publishing amd64 model assertion ...",
@@ -1182,8 +1184,8 @@ class TestDailyTreePublisher(TestCase):
         target_dir = os.path.join(publisher.publish_base, "20230429")
         self.assertEqual([], os.listdir(source_dir))
         self.assertCountEqual([
-            "ubuntu-core-22-amd64.img.xz",
-            "ubuntu-core-22-amd64.model-assertion",
+            "ubuntu-core-desktop-22-amd64.img.xz",
+            "ubuntu-core-desktop-22-amd64.model-assertion",
         ], os.listdir(target_dir))
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
@@ -1479,12 +1481,12 @@ class TestDailyTreePublisher(TestCase):
         target_dir = os.path.join(publisher.publish_base, "20230429")
         for name in (
             "SHA256SUMS",
-            "ubuntu-core-22-amd64.img.xz",
-            "ubuntu-core-22-amd64.model-assertion",
+            "ubuntu-core-desktop-22-amd64.img.xz",
+            "ubuntu-core-desktop-22-amd64.model-assertion",
         ):
             touch(os.path.join(target_dir, name))
         self.assertEqual(
-            set(["ubuntu-core-22-amd64.img.xz"]),
+            set(["ubuntu-core-desktop-22-amd64.img.xz"]),
             publisher.published_images("20230429"))
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
