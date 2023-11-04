@@ -367,9 +367,12 @@ def run_live_builds(config):
             if config["CDIMAGE_REUSE_BUILD"]:
                 cpuarch, subarch = split_arch(config, arch)
                 for build in lp_livefs.builds:
+                    try:
+                        metadata_subarch = build.metadata_override.get("subarch", "")
+                    except AttributeError:
+                        metadata_subarch = ""
                     if (build.distro_arch_series.architecture_tag == cpuarch
-                            and build.metadata_override.get("subarch", "")
-                            == subarch
+                            and metadata_subarch == subarch
                             and build.buildstate == "Successfully built"):
                         logger.info("reusing build %s", build)
                         lp_build = build
