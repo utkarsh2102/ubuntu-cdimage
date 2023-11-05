@@ -41,7 +41,6 @@ from cdimage.build import (
     UnknownLocale,
     _anonftpsync_config_path,
     _anonftpsync_options,
-    _debootstrap_script,
     anonftpsync,
     build_britney,
     build_image_set,
@@ -50,7 +49,6 @@ from cdimage.build import (
     build_ubuntu_defaults_locale,
     configure_for_project,
     configure_splash,
-    extract_debootstrap,
     fix_permissions,
     lock_build_image_set,
     log_marker,
@@ -494,52 +492,6 @@ class TestBuildLiveCDBase(TestCase):
 
     def test_ubuntu_touch(self):
         self._perform_ubuntu_touch_testing("ubuntu-touch")
-
-
-class TestExtractDebootstrap(TestCase):
-    def setUp(self):
-        super(TestExtractDebootstrap, self).setUp()
-        self.config = Config(read=False)
-        self.config.root = self.use_temp_dir()
-
-    def test_debootstrap_script(self):
-        for series, script in (
-            ("trusty", "usr/share/debootstrap/scripts/trusty"),
-            ("bionic", "usr/share/debootstrap/scripts/bionic"),
-        ):
-            self.config["DIST"] = series
-            self.assertEqual(script, _debootstrap_script(self.config))
-
-    def test_extract_debootstrap(self):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
-        self.config["IMAGE_TYPE"] = "daily"
-        self.config["ARCHES"] = "amd64+mac"
-        mirror_dir = os.path.join(self.temp_dir, "ftp")
-        packages_path = os.path.join(
-            mirror_dir, "dists", "trusty", "main", "debian-installer",
-            "binary-amd64", "Packages.gz")
-        udeb_path = os.path.join(
-            mirror_dir, "pool", "main", "d", "debootstrap",
-            "debootstrap-udeb_1_all.udeb")
-        self.make_deb(
-            udeb_path, "debian-installer", "extra",
-            files={"/usr/share/debootstrap/scripts/trusty": b"sentinel"})
-        os.makedirs(os.path.dirname(packages_path))
-        with gzip.GzipFile(packages_path, "wb") as packages:
-            ftparchive = subprocess.Popen(
-                ["apt-ftparchive", "packages", "pool"],
-                stdout=subprocess.PIPE, cwd=mirror_dir)
-            data, _ = ftparchive.communicate()
-            packages.write(data)
-            self.assertEqual(0, ftparchive.returncode)
-        extract_debootstrap(self.config)
-        output_path = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily",
-            "debootstrap", "trusty-amd64+mac")
-        self.assertTrue(os.path.exists(output_path))
-        with open(output_path, "rb") as output:
-            self.assertEqual(b"sentinel", output.read())
 
 
 class TestBuildImageSet(TestCase):
@@ -1099,14 +1051,13 @@ class TestBuildImageSet(TestCase):
     @mock.patch("subprocess.call", return_value=0)
     @mock.patch("cdimage.build.tracker_set_rebuild_status")
     @mock.patch("cdimage.build.anonftpsync")
-    @mock.patch("cdimage.build.extract_debootstrap")
     @mock.patch("cdimage.germinate.GerminateOutput.write_tasks")
     @mock.patch("cdimage.germinate.GerminateOutput.update_tasks")
     @mock.patch("cdimage.tree.DailyTreePublisher.publish")
     @mock.patch("cdimage.tree.DailyTreePublisher.purge")
     def test_build_image_set_locked(
             self, mock_purge, mock_publish, mock_update_tasks,
-            mock_write_tasks, mock_extract_debootstrap, mock_anonftpsync,
+            mock_write_tasks, mock_anonftpsync,
             mock_tracker_set_rebuild_status, mock_call, mock_simple):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
@@ -1166,7 +1117,6 @@ class TestBuildImageSet(TestCase):
                 mock_tracker_set_rebuild_status.assert_called_once_with(
                     self.config, [0, 1], 2)
                 mock_anonftpsync.assert_called_once_with(self.config)
-                mock_extract_debootstrap.assert_called_once_with(self.config)
                 mock_write_tasks.assert_called_once_with()
                 mock_update_tasks.assert_called_once_with(date)
                 mock_publish.assert_called_once_with(date)
@@ -1196,8 +1146,6 @@ class TestBuildImageSet(TestCase):
                     ===== Syncing Ubuntu mirror =====
                     DATE
                     ===== Building britney =====
-                    DATE
-                    ===== Extracting debootstrap scripts =====
                     DATE
                     ===== Germinating =====
                     DATE

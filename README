@@ -83,13 +83,6 @@ Here's a quick run-down of the steps:
     proper.  Nowadays, of course, this local archive is rarely used, but it
     is still occasionally useful for specialised custom builds.
 
-  * extract-debootstrap
-
-    Extract debootstrap scripts from debootstrap-udeb packages in the
-    archive.  debian-cd uses these to make sure that it has a complete base
-    system on the CD.  (This is largely unnecessary as of Ubuntu 5.10, since
-    debootstrap now calculates the base system based on the Packages file.)
-
   * run-germinate
 
     Run germinate for each architecture to determine the list of packages in
