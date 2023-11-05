@@ -375,6 +375,7 @@ def run_live_builds(config):
             builds[proc.pid] = (proc, arch, full_name, machine)
 
     successful = set()
+    successful_builds = []
 
     def live_build_finished(arch, full_name, machine, status, text_status,
                             lp_build=None):
@@ -384,6 +385,8 @@ def run_live_builds(config):
         if status == 0:
             tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
             successful.add(arch)
+            if lp_build:
+                successful_builds.append(lp_build)
         else:
             tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
             live_build_notify_failure(config, arch, lp_build=lp_build)
@@ -434,7 +437,7 @@ def run_live_builds(config):
 
     if not successful:
         raise LiveBuildsFailed("No live filesystem builds succeeded.")
-    return successful
+    return successful, successful_builds
 
 
 def livecd_base(config, arch):
@@ -507,7 +510,7 @@ def flavours(config, arch):
             "No live filesystem source known for %s" % arch)
 
 
-def live_item_paths(config, arch, item):
+def live_item_paths(config, builds, arch, item):
     if item == "ltsp-squashfs" and arch == "amd64":
         # use i386 LTSP image on amd64 too
         arch = "i386"
@@ -520,14 +523,19 @@ def live_item_paths(config, arch, item):
     else:
         liveproject_subarch = liveproject
 
-    lp, lp_livefs = get_lp_livefs(config, arch)
     uris = []
     root = ""
-    if lp_livefs is not None:
-        lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
-        lp_build = lp_livefs.getLatestBuild(
-            lp_kwargs["distro_arch_series"],
-            unique_key=lp_kwargs.get("unique_key"))
+    if builds is not None:
+        for build in builds:
+            try:
+                metadata_subarch = build.metadata_override.get("subarch", "")
+            except AttributeError:
+                metadata_subarch = ""
+            if (build.distro_arch_series.architecture_tag == cpuarch
+                    and metadata_subarch == subarch
+                    and build.buildstate == "Successfully built"):
+                lp_build = build
+                break
         uris = list(lp_build.getFileUrls())
     else:
         root = livecd_base(config, arch)
@@ -604,11 +612,11 @@ def live_output_directory(config):
         config.full_series, config.image_type, "live")
 
 
-def download_live_items(config, arch, item):
+def download_live_items(config, builds, arch, item):
     output_dir = live_output_directory(config)
     found = False
 
-    urls = list(live_item_paths(config, arch, item))
+    urls = list(live_item_paths(config, builds, arch, item))
     if not urls:
         return False
 
@@ -694,7 +702,7 @@ def write_autorun(config, arch, name, label):
             VideoFiles=false""")) % (u(name), u(name), u(label)), file=autorun)
 
 
-def download_live_filesystems(config):
+def download_live_filesystems(config, builds):
     project = config.project
 
     output_dir = live_output_directory(config)
@@ -706,58 +714,58 @@ def download_live_filesystems(config):
         for arch in config.arches:
             if config["CDIMAGE_PREINSTALLED"]:
                 if project in ("ubuntu-server", ):
-                    if download_live_items(config, arch, "disk1.img.xz"):
+                    if download_live_items(config, builds, arch, "disk1.img.xz"):
                         got_image = True
-                    elif download_live_items(config, arch, "img.xz"):
+                    elif download_live_items(config, builds, arch, "img.xz"):
                         got_image = True
                     else:
                         continue
-                elif download_live_items(config, arch, "ext4"):
+                elif download_live_items(config, builds, arch, "ext4"):
                     got_image = True
-                elif download_live_items(config, arch, "ext3"):
+                elif download_live_items(config, builds, arch, "ext3"):
                     got_image = True
-                elif download_live_items(config, arch, "ext2"):
+                elif download_live_items(config, builds, arch, "ext2"):
                     got_image = True
-                elif download_live_items(config, arch, "rootfs.tar.gz"):
+                elif download_live_items(config, builds, arch, "rootfs.tar.gz"):
                     got_image = True
-                elif download_live_items(config, arch, "img.xz"):
+                elif download_live_items(config, builds, arch, "img.xz"):
                     got_image = True
                 else:
                     continue
             elif project == "ubuntu-mini-iso":
-                if download_live_items(config, arch, "iso"):
+                if download_live_items(config, builds, arch, "iso"):
                     got_image = True
                 else:
                     continue
-            elif download_live_items(config, arch, "img.xz"):
+            elif download_live_items(config, builds, arch, "img.xz"):
                 got_image = True
-            elif download_live_items(config, arch, "cloop"):
+            elif download_live_items(config, builds, arch, "cloop"):
                 got_image = True
-            elif download_live_items(config, arch, "squashfs"):
-                download_live_items(config, arch, "modules.squashfs")
-                download_live_items(config, arch, "yaml")
-                download_live_items(config, arch, "netboot.tar.gz")
+            elif download_live_items(config, builds, arch, "squashfs"):
+                download_live_items(config, builds, arch, "modules.squashfs")
+                download_live_items(config, builds, arch, "yaml")
+                download_live_items(config, builds, arch, "netboot.tar.gz")
                 got_image = True
-            elif download_live_items(config, arch, "rootfs.tar.gz"):
+            elif download_live_items(config, builds, arch, "rootfs.tar.gz"):
                 got_image = True
-            elif download_live_items(config, arch, "tar.xz"):
+            elif download_live_items(config, builds, arch, "tar.xz"):
                 got_image = True
             else:
                 continue
             if (project != "ubuntu-base" and
                     not config["CDIMAGE_SQUASHFS_BASE"] and
                     config.subproject != "wubi"):
-                download_live_items(config, arch, "kernel")
-                download_live_items(config, arch, "initrd")
-                download_live_items(config, arch, "kernel-efi-signed")
+                download_live_items(config, builds, arch, "kernel")
+                download_live_items(config, builds, arch, "initrd")
+                download_live_items(config, builds, arch, "kernel-efi-signed")
                 if config["CDIMAGE_PREINSTALLED"]:
-                    download_live_items(config, arch, "bootimg")
+                    download_live_items(config, builds, arch, "bootimg")
 
-            download_live_items(config, arch, "manifest")
-            if not download_live_items(config, arch, "manifest-remove"):
-                download_live_items(config, arch, "manifest-desktop")
-            download_live_items(config, arch, "manifest-minimal-remove")
-            download_live_items(config, arch, "size")
+            download_live_items(config, builds, arch, "manifest")
+            if not download_live_items(config, builds, arch, "manifest-remove"):
+                download_live_items(config, builds, arch, "manifest-desktop")
+            download_live_items(config, builds, arch, "manifest-minimal-remove")
+            download_live_items(config, builds, arch, "size")
 
             if (config["CDIMAGE_PREINSTALLED"] or
                     config.subproject == "wubi"):
@@ -766,27 +774,27 @@ def download_live_filesystems(config):
             if (project in ("ubuntu-core", "ubuntu-core-desktop",
                             "ubuntu-appliance") and
                     config["CDIMAGE_LIVE"]):
-                download_live_items(config, arch, "model-assertion")
+                download_live_items(config, builds, arch, "model-assertion")
             if project == "ubuntu-appliance":
-                download_live_items(config, arch, "qcow2")
+                download_live_items(config, builds, arch, "qcow2")
 
         if not got_image:
             raise NoFilesystemImages("No filesystem images found.")
 
     if config.project == "ubuntu-core":
         for arch in config.arches:
-            download_live_items(config, arch, "device.tar.gz")
+            download_live_items(config, builds, arch, "device.tar.gz")
 
     if config.project == "ubuntu-core":
         for arch in config.arches:
-            download_live_items(config, arch, "os.snap")
-            download_live_items(config, arch, "kernel.snap")
+            download_live_items(config, builds, arch, "os.snap")
+            download_live_items(config, builds, arch, "kernel.snap")
             if arch == "amd64":
                 for devarch in ("azure", "plano"):
-                    download_live_items(config, arch, "%s.device.tar.gz" %
+                    download_live_items(config, builds, arch, "%s.device.tar.gz" %
                                         devarch)
             if arch == "armhf":
-                download_live_items(config, arch, "raspi2.device.tar.gz")
-                download_live_items(config, arch, "raspi2.kernel.snap")
+                download_live_items(config, builds, arch, "raspi2.device.tar.gz")
+                download_live_items(config, builds, arch, "raspi2.kernel.snap")
             if arch == "arm64":
-                download_live_items(config, arch, "dragonboard.kernel.snap")
+                download_live_items(config, builds, arch, "dragonboard.kernel.snap")

@@ -539,7 +539,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         self.capture_logging()
-        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config))
+        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config)[0])
         self.assertCountEqual([
             "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
             "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
@@ -585,7 +585,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
         self.assertCountEqual(
-            ["amd64"], run_live_builds(self.config))
+            ["amd64"], run_live_builds(self.config)[0])
         expected_command = [
             "ssh", "-n", "-o", "StrictHostKeyChecking=no",
             "-o", "BatchMode=yes",
@@ -617,7 +617,7 @@ class TestRunLiveBuilds(TestCase):
                     return original_Popen(["false"])
 
             mock_popen.side_effect = Popen_side_effect
-            self.assertCountEqual(["amd64"], run_live_builds(self.config))
+            self.assertCountEqual(["amd64"], run_live_builds(self.config)[0])
             self.assertCountEqual([
                 "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
                 "ubuntu-i386 on cardamom.buildd starting at "
@@ -672,7 +672,7 @@ class TestRunLiveBuilds(TestCase):
         mock_login.return_value = MockLaunchpad()
         mock_iter_buildstate.side_effect = lambda: (
             chain(["Needs building"] * 3, repeat("Successfully built")))
-        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config))
+        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config)[0])
         self.assertCountEqual([
             "ubuntu-amd64 on Launchpad starting at 2013-03-15 13:48:51",
             "ubuntu-amd64: https://launchpad.example/amd64-build",
@@ -820,12 +820,12 @@ class TestLiveItemPaths(TestCase):
         self.config["PROJECT"] = project
         self.config["DIST"] = series
         self.assertEqual(
-            expected, list(live_item_paths(self.config, arch, item)))
+            expected, list(live_item_paths(self.config, None, arch, item)))
 
     def assertNoPaths(self, arch, item, project, series):
         self.config["PROJECT"] = project
         self.config["DIST"] = series
-        self.assertEqual([], list(live_item_paths(self.config, arch, item)))
+        self.assertEqual([], list(live_item_paths(self.config, None, arch, item)))
 
     def test_desktop_items(self):
         for item in (
@@ -912,7 +912,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertFalse(download_live_items(self.config, "arm64",
+        self.assertFalse(download_live_items(self.config, None, "arm64",
                          "wubi"))
         self.assertEqual(0, mock_fetch.call_count)
 
@@ -921,7 +921,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertFalse(download_live_items(self.config, "i386", "squashfs"))
+        self.assertFalse(download_live_items(self.config, None, "i386", "squashfs"))
         mock_fetch.assert_called_once_with(
             self.config,
             "http://cardamom.buildd/~buildd/LiveCD/bionic/ubuntu/current/"
@@ -935,7 +935,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "amd64", "kernel"))
+        self.assertTrue(download_live_items(self.config, None, "amd64", "kernel"))
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "live")
@@ -955,7 +955,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config.livefs_arch_mapping = {
             "armhf+raspi2": ("ubuntu-cpc", "armhf+raspi2")
             }
-        self.assertTrue(download_live_items(self.config, "armhf+raspi2",
+        self.assertTrue(download_live_items(self.config, None, "armhf+raspi2",
                                             "disk1.img.xz"))
         mock_fetch.assert_called_once_with(
             self.config,
@@ -970,7 +970,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu-core"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "armhf+raspi3",
+        self.assertTrue(download_live_items(self.config, None, "armhf+raspi3",
                                             "img.xz"))
         mock_fetch.assert_called_once_with(
             self.config,
@@ -985,7 +985,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "i386", "kernel"))
+        self.assertTrue(download_live_items(self.config, None, "i386", "kernel"))
         prefix = ("http://cardamom.buildd/~buildd/LiveCD/bionic/ubuntu/"
                   "current/livecd.ubuntu.kernel-")
         calls = []
@@ -1005,7 +1005,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(
-            download_live_items(self.config, "amd64", "kernel-efi-signed"))
+            download_live_items(self.config, None, "amd64", "kernel-efi-signed"))
         prefix = ("http://kapok.buildd/~buildd/LiveCD/bionic/ubuntu/"
                   "current/livecd.ubuntu.kernel-")
         target_dir = os.path.join(
@@ -1020,7 +1020,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.assertTrue(
-            download_live_items(self.config, "armhf+omap4", "bootimg"))
+            download_live_items(self.config, None, "armhf+omap4", "bootimg"))
         url = ("http://kishi00.buildd/~buildd/LiveCD/bionic/ubuntu-omap4/"
                "current/livecd.ubuntu-omap4.bootimg-omap4")
         calls = []
@@ -1040,7 +1040,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "i386", "wubi"))
+        self.assertTrue(download_live_items(self.config, None, "i386", "wubi"))
         url = "http://people.canonical.com/~ubuntu-archive/wubi/bionic/stable"
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live", "live")
@@ -1052,7 +1052,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "i386", "squashfs"))
+        self.assertTrue(download_live_items(self.config, None, "i386", "squashfs"))
         url = ("http://cardamom.buildd/~buildd/LiveCD/bionic/ubuntu/"
                "current/livecd.ubuntu.squashfs")
         target_dir = os.path.join(
@@ -1104,7 +1104,7 @@ class TestDownloadLiveFilesystems(TestCase):
             calls.append(mock.call(self.config, uri, target))
 
         self.assertTrue(
-            download_live_items(self.config, "amd64", item))
+            download_live_items(self.config, None, "amd64", item))
         self.assertCountEqual(mock_fetch.call_args_list, calls)
 
     def test_download_live_items_installer_squashfs(self):
@@ -1161,7 +1161,7 @@ class TestDownloadLiveFilesystems(TestCase):
             self.temp_dir, "scratch", "ubuntu", "focal", "daily-live", "live")
 
         self.assertTrue(
-            download_live_items(self.config, "amd64", "squashfs"))
+            download_live_items(self.config, None, "amd64", "squashfs"))
         mock_fetch.assert_called_once_with(
             self.config,
             "http://kapok.buildd/~buildd/LiveCD/focal/ubuntu/" +\
@@ -1216,7 +1216,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "amd64 i386"
         self.config["CDIMAGE_LIVE"] = "1"
-        download_live_filesystems(self.config)
+        download_live_filesystems(self.config, None)
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live", "live")
         self.assertCountEqual([

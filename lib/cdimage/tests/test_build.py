@@ -193,7 +193,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "livecd-base"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config)
+        build_livecd_base(self.config, None)
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -221,7 +221,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config)
+        build_livecd_base(self.config, None)
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -256,7 +256,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.config["ARCHES"] = "armhf+raspi2"
         self.capture_logging()
-        build_livecd_base(self.config)
+        build_livecd_base(self.config, None)
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -290,7 +290,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "armhf+raspi3"
         self.capture_logging()
-        build_livecd_base(self.config)
+        build_livecd_base(self.config, None)
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -324,7 +324,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "armhf+raspi"
         self.capture_logging()
-        build_livecd_base(self.config)
+        build_livecd_base(self.config, None)
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -359,7 +359,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config)
+        build_livecd_base(self.config, None)
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,

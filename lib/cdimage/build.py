@@ -326,7 +326,7 @@ class UnknownLocale(Exception):
     pass
 
 
-def build_ubuntu_defaults_locale(config):
+def build_ubuntu_defaults_locale(config, builds):
     locale = config["UBUNTU_DEFAULTS_LOCALE"]
     if locale != "zh_CN":
         raise UnknownLocale(
@@ -334,7 +334,7 @@ def build_ubuntu_defaults_locale(config):
 
     series = config["DIST"]
     log_marker("Downloading live filesystem images")
-    download_live_filesystems(config)
+    download_live_filesystems(config, builds)
     scratch = live_output_directory(config)
     for entry in os.listdir(scratch):
         if "." in entry:
@@ -352,9 +352,9 @@ def build_ubuntu_defaults_locale(config):
                     [pi_makelist, entry_path], stdout=list_file)
 
 
-def build_livecd_base(config):
+def build_livecd_base(config, builds):
     log_marker("Downloading live filesystem images")
-    download_live_filesystems(config)
+    download_live_filesystems(config, builds)
 
     if (config.project in ("ubuntu-server", ) and
             config.image_type == "daily-preinstalled"):
@@ -632,7 +632,7 @@ def build_image_set_locked(config, options):
 
         if want_live_builds(options):
             log_marker("Building live filesystems")
-            live_successful = run_live_builds(config)
+            live_successful, builds = run_live_builds(config)
             config.limit_arches(live_successful)
         else:
             tracker_set_rebuild_status(config, [0, 1], 2)
@@ -647,7 +647,7 @@ def build_image_set_locked(config, options):
             build_britney(config)
 
         if is_live_fs_only(config):
-            build_livecd_base(config)
+            build_livecd_base(config, builds)
         else:
             assert not config["CDIMAGE_PREINSTALLED"]
 
@@ -664,7 +664,7 @@ def build_image_set_locked(config, options):
 
             if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"]):
                 log_marker("Downloading live filesystem images")
-                download_live_filesystems(config)
+                download_live_filesystems(config, builds)
 
             configure_splash(config)
 
