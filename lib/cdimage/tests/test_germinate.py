@@ -83,7 +83,6 @@ class TestGermination(TestCase):
     def test_seed_sources_bzr(self):
         for project, series, owners in (
             ("mythbuntu", "trusty", ["mythbuntu-dev"]),
-            ("ubuntu-mate", "xenial", ["ubuntu-mate-dev"]),
             ("ubuntukylin", "trusty", ["ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
@@ -102,6 +101,7 @@ class TestGermination(TestCase):
             ("xubuntu", "trusty", ["xubuntu-dev", "ubuntu-core-dev"]),
             ("ubuntu-gnome", "trusty",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
+            ("ubuntu-mate", "xenial", ["ubuntu-mate-dev", "ubuntu-core-dev"]),
             ("ubuntukylin", "xenial",
              ["ubuntukylin-members", "ubuntu-core-dev"]),
             ("ubuntu-budgie", "bionic", ["ubuntubudgie-dev", "ubuntu-core-dev"]),
