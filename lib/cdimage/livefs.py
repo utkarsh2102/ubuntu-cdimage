@@ -632,10 +632,6 @@ def live_item_paths(config, arch, item):
         if (project != "xubuntu" and arch in ("amd64", "i386")):
             yield ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
                    "stable" % series)
-    elif item == "usb-creator":
-        if arch in ("amd64", "i386"):
-            yield ("http://people.canonical.com/~evand/usb-creator/%s/"
-                   "stable" % series)
     elif item == "ltsp-squashfs":
         if arch in ("amd64", "i386"):
             for url in urls_for("livecd." + liveproject + "-ltsp", "squashfs"):
@@ -732,7 +728,7 @@ def download_live_items(config, arch, item):
                 found = True
             except osextras.FetchError:
                 pass
-    elif item in ("wubi", "usb-creator"):
+    elif item == "wubi":
         target = os.path.join(output_dir, "%s.%s.exe" % (arch, item))
         try:
             osextras.fetch(config, urls[0], target)
@@ -873,9 +869,6 @@ def download_live_filesystems(config):
                             config, arch, "wubi.exe",
                             "Install %s" % autorun_project)
 
-            if project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                               "ubuntu-core-desktop", "ubuntu-appliance"):
-                download_live_items(config, arch, "usb-creator")
             if (project in ("ubuntu-core", "ubuntu-core-desktop",
                             "ubuntu-appliance") and
                     config["CDIMAGE_LIVE"]):

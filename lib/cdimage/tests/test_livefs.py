@@ -1025,16 +1025,6 @@ class TestLiveItemPaths(TestCase):
         self.assertNoPaths("i386", "wubi", "xubuntu", "trusty")
         self.assertNoPaths("powerpc", "wubi", "ubuntu", "trusty")
 
-    def test_usb_creator(self):
-        for series in all_series:
-            path = ("http://people.canonical.com/~evand/usb-creator/%s/"
-                    "stable" % series)
-            self.assertPathsEqual(
-                [path], "amd64", "usb-creator", "ubuntu", series)
-            self.assertPathsEqual(
-                [path], "i386", "usb-creator", "ubuntu", series)
-        self.assertNoPaths("powerpc", "usb-creator", "ubuntu", "trusty")
-
 
 class TestDownloadLiveFilesystems(TestCase):
     def setUp(self):
@@ -1068,7 +1058,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertFalse(download_live_items(self.config, "powerpc",
-                         "usb-creator"))
+                         "wubi"))
         self.assertEqual(0, mock_fetch.call_count)
 
     @mock.patch("cdimage.osextras.fetch", side_effect=osextras.FetchError)
@@ -1204,19 +1194,6 @@ class TestDownloadLiveFilesystems(TestCase):
             self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
         mock_fetch.assert_called_once_with(
             self.config, url, os.path.join(target_dir, "i386.wubi.exe"))
-
-    @mock.patch("cdimage.osextras.fetch")
-    def test_download_live_items_usb_creator(self, mock_fetch):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
-        self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(
-            download_live_items(self.config, "i386", "usb-creator"))
-        url = "http://people.canonical.com/~evand/usb-creator/trusty/stable"
-        target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live", "live")
-        mock_fetch.assert_called_once_with(
-            self.config, url, os.path.join(target_dir, "i386.usb-creator.exe"))
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_squashfs(self, mock_fetch):
