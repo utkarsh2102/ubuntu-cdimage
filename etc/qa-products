@@ -5,23 +5,16 @@ Edubuntu Desktop amd64							edubuntu	daily-live			desktop					amd64			iso
 
 # Kubuntu
 Kubuntu Desktop amd64						kubuntu			daily-live			desktop					amd64			iso
-Kubuntu Desktop amd64+mac					kubuntu			daily-live			desktop					amd64+mac		iso
 Kubuntu Desktop armhf+omap4					kubuntu			daily-live			desktop					armhf+omap4		iso
 Kubuntu Desktop i386						kubuntu			daily-live			desktop					i386			iso
-Kubuntu Desktop powerpc						kubuntu			daily-live			desktop					powerpc			iso
 
 # Lubuntu
 Lubuntu Alternate amd64						lubuntu			daily				alternate				amd64			iso
-Lubuntu Alternate amd64+mac					lubuntu			daily				alternate				amd64+mac		iso
 Lubuntu Alternate i386						lubuntu			daily				alternate				i386			iso
-Lubuntu Alternate powerpc					lubuntu			daily				alternate				powerpc			iso
 Lubuntu Desktop amd64						lubuntu			daily-live			desktop					amd64			iso
-Lubuntu Desktop amd64+mac					lubuntu			daily-live			desktop					amd64+mac		iso
 Lubuntu Desktop i386						lubuntu			daily-live			desktop					i386			iso
-Lubuntu Desktop powerpc						lubuntu			daily-live			desktop					powerpc			iso
 Lubuntu Next Desktop amd64						lubuntu-next			daily-live			desktop					amd64			iso
 Lubuntu Next Desktop i386						lubuntu-next			daily-live			desktop					i386			iso
-Lubuntu Next Desktop powerpc						lubuntu-next			daily-live			desktop					powerpc			iso
 Lubuntu Desktop Preinstalled armhf+ac100	lubuntu			daily-preinstalled	preinstalled-desktop	armhf+ac100		iso
 
 # Mythbuntu
@@ -37,7 +30,6 @@ Ubuntu Base amd64							ubuntu-base		daily				base					amd64			iso
 Ubuntu Base arm64							ubuntu-base		daily				base					arm64			iso
 Ubuntu Base armhf							ubuntu-base		daily				base					armhf			iso
 Ubuntu Base i386							ubuntu-base		daily				base					i386			iso
-Ubuntu Base powerpc							ubuntu-base		daily				base					powerpc			iso
 Ubuntu Base ppc64el							ubuntu-base		daily				base					ppc64el			iso
 Ubuntu Base riscv64							ubuntu-base		daily				base					riscv64			iso
 Ubuntu Base s390x							ubuntu-base		daily				base					s390x			iso
@@ -49,10 +41,8 @@ Ubuntu Desktop (Canary) amd64				ubuntu/canary	daily-canary		desktop-canary			am
 Ubuntu Desktop arm64						ubuntu			daily-live			desktop					arm64			iso
 Ubuntu Desktop arm64+x13s					ubuntu			daily-live			desktop					arm64+x13s		iso
 Ubuntu Desktop arm64+raspi					ubuntu/desktop-preinstalled			daily-preinstalled	preinstalled-desktop	arm64+raspi		iso
-Ubuntu Desktop amd64+mac					ubuntu			daily-live			desktop					amd64+mac		iso
 Ubuntu Desktop armhf+omap4					ubuntu			daily-live			desktop					armhf+omap4		iso
 Ubuntu Desktop i386							ubuntu			daily-live			desktop					i386			iso
-Ubuntu Desktop powerpc						ubuntu			daily-live			desktop					powerpc			iso
 Ubuntu Desktop Preinstalled armhf+nexus7	ubuntu			daily-preinstalled	preinstalled-desktop	armhf+nexus7	iso
 
 # Ubuntu GNOME
@@ -67,11 +57,9 @@ Ubuntu Budgie Desktop i386					ubuntu-budgie	daily-live			desktop					i386			iso
 # Ubuntu Mate
 Ubuntu MATE Desktop amd64					ubuntu-mate	daily-live			desktop					amd64			iso
 Ubuntu MATE Desktop i386					ubuntu-mate	daily-live			desktop					i386			iso
-Ubuntu MATE Desktop powerpc					ubuntu-mate	daily-live			desktop					powerpc			iso
 
 # Ubuntu Server
 Ubuntu Server amd64							ubuntu-server	daily				server					amd64			iso
-Ubuntu Server amd64+mac						ubuntu-server	daily				server					amd64+mac		iso
 Ubuntu Server arm64							ubuntu-server	daily				server					arm64			iso
 Ubuntu Server armhf+omap					ubuntu-server	daily				server					armhf+omap		iso
 Ubuntu Server armhf+omap4					ubuntu-server	daily				server					armhf+omap4		iso
@@ -91,7 +79,6 @@ Ubuntu Server riscv64+icicle					ubuntu-server	daily-preinstalled		preinstalled-
 Ubuntu Server amd64					ubuntu-server	daily-preinstalled		preinstalled-server			amd64	iso
 Ubuntu Server arm64					ubuntu-server	daily-preinstalled		preinstalled-server			arm64	iso
 Ubuntu Server i386							ubuntu-server	daily				server					i386			iso
-Ubuntu Server powerpc						ubuntu-server	daily				server					powerpc			iso
 Ubuntu Server ppc64el						ubuntu-server	daily				server					ppc64el			iso
 Ubuntu Server s390x						ubuntu-server	daily				server					s390x			iso
 Ubuntu Server amd64						ubuntu-server	daily				legacy-server			amd64			iso

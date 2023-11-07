@@ -124,12 +124,7 @@ def live_build_options(config, arch):
         options.extend(["-f", "plain"])
 
     if config.subproject == "wubi":
-        if config["DIST"] >= "trusty":
-            # TODO: Turn this back on once Wubi's resize2fs supports it.
-            # options.extend(["-f", "ext4"])
-            options.extend(["-f", "ext3"])
-        else:
-            options.extend(["-f", "ext3"])
+        options.extend(["-f", "ext3"])
 
     return options
 
@@ -349,9 +344,6 @@ def run_live_builds(config):
     builds = {}
     lp_builds = []
     for arch in config.arches:
-        if arch == "amd64+mac":
-            # Use normal amd64 live image on amd64+mac.
-            continue
         full_name = live_build_full_name(config, arch)
         timestamp = time.strftime("%F %T")
         lp, lp_livefs = get_lp_livefs(config, arch)
@@ -398,8 +390,6 @@ def run_live_builds(config):
         if status == 0:
             tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
             successful.add(arch)
-            if arch == "amd64" and "amd64+mac" in config.arches:
-                successful.add("amd64+mac")
         else:
             tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
             live_build_notify_failure(config, arch, lp_build=lp_build)
@@ -519,10 +509,7 @@ def flavours(config, arch):
     elif cpuarch == "ia64":
         return ["ia64"]
     elif cpuarch == "powerpc":
-        if series <= "xenial":
-            return ["powerpc-smp", "powerpc64-smp"]
-        else:
-            return ["powerpc-smp", "generic"]
+        return ["powerpc-smp", "generic"]
     elif cpuarch == "ppc64el":
         return ["generic"]
     elif cpuarch == "s390x":
@@ -847,27 +834,6 @@ def download_live_filesystems(config):
                     config["CDIMAGE_PREINSTALLED"] or
                     config.subproject == "wubi"):
                 continue
-
-            if (project not in ("livecd-base", "ubuntu-base", "ubuntu-core",
-                                "ubuntu-core-desktop", "ubuntu-appliance") and
-                    (project != "ubuntukylin" or series <= "trusty")):
-                if series <= "trusty":
-                    # TODO: We still have to do something about not
-                    # including Wubi on the DVDs.
-                    download_live_items(config, arch, "wubi")
-                    wubi_path = os.path.join(output_dir, "%s.wubi.exe" % arch)
-                    if os.path.exists(wubi_path):
-                        # Nicely format the distribution name.
-                        def upper_first(m):
-                            text = m.group(0)
-                            return text[0].upper() + text[1:]
-
-                        autorun_project = re.sub(
-                            r"(\b[a-z])", upper_first,
-                            project.replace("-", " "))
-                        write_autorun(
-                            config, arch, "wubi.exe",
-                            "Install %s" % autorun_project)
 
             if (project in ("ubuntu-core", "ubuntu-core-desktop",
                             "ubuntu-appliance") and

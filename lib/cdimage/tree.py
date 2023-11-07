@@ -515,13 +515,6 @@ class Publisher:
     def cdtypestr(self, publish_type, image_format):
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
-        elif self.config["DIST"] < "trusty":
-            if image_format in ("img", "img.gz"):
-                cd = "image"
-            elif self.project == "ubuntustudio":
-                cd = "DVD"
-            else:
-                cd = "CD"
         else:
             cd = "image"
 
@@ -594,10 +587,7 @@ class Publisher:
         if self.project == "xubuntu" and series < "focal":
             desktop_ram = 192
         else:
-            if series <= "xenial":
-                desktop_ram = 384
-            else:
-                desktop_ram = 1024
+            desktop_ram = 1024
 
         if image_format in ("tar.gz", "tar.xz", "custom.tar.gz"):
             cd = "filesystem archive"
@@ -875,7 +865,7 @@ class Publisher:
     def archdesc(self, arch, publish_type):
         series = self.config["DIST"]
         sentences = []
-        if arch in ("amd64", "amd64+mac"):
+        if arch == "amd64":
             sentences.append(
                 "Choose this if you have a computer based on the AMD64 or "
                 "EM64T architecture (e.g., Athlon64, Opteron, EM64T "
@@ -885,9 +875,6 @@ class Publisher:
                     "If you have a non-64-bit processor made by AMD, or if "
                     "you need full support for 32-bit code, use the i386 "
                     "images instead.")
-            if arch == "amd64+mac":
-                sentences.append(
-                    "This image is adjusted to work properly on Mac systems.")
             else:
                 sentences.append("Choose this if you are at all unsure.")
         elif arch == "arm64":
@@ -1036,11 +1023,11 @@ class Publisher:
             sentences.append(
                 "However, you may still test it using a larger USB drive or a "
                 "virtual machine.")
-        elif (self.project in ("ubuntu-gnome",
+        elif self.project in ("ubuntu-gnome",
                                "kubuntu",
                                "ubuntu-mate",
                                "ubuntu-budgie",
-                               "xubuntu") and series >= "xenial"):
+                               "xubuntu"):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 2GB USB stick.")
@@ -1048,8 +1035,7 @@ class Publisher:
                 "However, you may still test it using a DVD, a larger USB "
                 "drive, or a virtual machine.")
         elif (self.project in usb_projects or
-                (self.project == "xubuntu" and series >= "trusty") or
-                (self.project == "ubuntu-gnome" and series >= "trusty")):
+                self.project in ("xubuntu", "ubuntu-gnome")):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 1GB USB stick.")
@@ -1836,17 +1822,7 @@ class Publisher:
 
     def want_metalink(self, publish_type):
         # wubi is dead, no MD5 metalink anymore
-        if self.config["DIST"] >= "xenial":
-            return False
-        # TODO: maybe others?  metalink is only supported for Wubi
-        if publish_type in (
-            "netbook", "uec", "server-uec",
-        ):
-            return False
-        elif publish_type.startswith("preinstalled-"):
-            return False
-        else:
-            return True
+        return False
 
     def make_metalink(self, directory, version, dry_run=False):
         """Create and publish metalink files."""

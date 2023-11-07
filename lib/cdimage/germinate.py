@@ -95,10 +95,7 @@ class Germination:
             elif project == "ubuntucinnamon":
                 sources.insert(0, gitpattern % "ubuntucinnamon-dev")
             elif project == "ubuntukylin":
-                if series >= "xenial":
-                    sources.insert(0, gitpattern % "ubuntukylin-members")
-                else:
-                    sources.insert(0, bzrpattern % "ubuntu-core-dev")
+                sources.insert(0, gitpattern % "ubuntukylin-members")
             return sources
         else:
             return ["http://people.canonical.com/~ubuntu-archive/seeds/"]
@@ -139,10 +136,7 @@ class Germination:
         if project == "ubuntu-server":
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntukylin":
-            if self.config["DIST"] >= "xenial":
-                return "ubuntukylin.%s" % self.config.series
-            else:
-                return "ubuntu.%s" % self.config.series
+            return "ubuntukylin.%s" % self.config.series
         elif project == "lubuntu-next":
             return "lubuntu.%s" % self.config.series
         else:

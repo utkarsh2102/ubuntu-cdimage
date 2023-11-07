@@ -179,10 +179,10 @@ class TestConfig(TestCase):
                 DIST=raring
                 """), file=f)
         with mkfile(os.path.join(etc_dir, "default-arches")) as f:
-            print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
+            print("*\tdaily-live\traring\tamd64 i386", file=f)
         config = Config(IMAGE_TYPE="daily-live")
         self.assertEqual("daily-live", config["IMAGE_TYPE"])
-        self.assertEqual("amd64 amd64+mac i386", config["ARCHES"])
+        self.assertEqual("amd64 i386", config["ARCHES"])
         self.assertEqual("amd64 i386", config["CPUARCHES"])
 
     def test_init_kwargs_default_arches_subproject(self):
@@ -197,10 +197,10 @@ class TestConfig(TestCase):
                 DIST=raring
                 """), file=f)
         with mkfile(os.path.join(etc_dir, "default-arches")) as f:
-            print("ubuntu-wubi\t*\traring\tamd64 i386", file=f)
-            print("*\t*\t*\tamd64 i386 powerpc", file=f)
+            print("ubuntu-wubi\t*\traring\tamd64", file=f)
+            print("*\t*\t*\tamd64 i386", file=f)
         config = Config(SUBPROJECT="wubi", IMAGE_TYPE="wubi")
-        self.assertEqual("amd64 i386", config["ARCHES"])
+        self.assertEqual("amd64", config["ARCHES"])
 
     def test_livefs_mapping(self):
         os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
@@ -349,7 +349,7 @@ class TestConfig(TestCase):
                 DIST=raring
                 """), file=f)
         with mkfile(os.path.join(etc_dir, "default-arches")) as f:
-            print("*\tdaily-live\traring\tamd64 amd64+mac i386", file=f)
+            print("*\tdaily-live\traring\tamd64 i386", file=f)
         config = Config(IMAGE_TYPE="daily-live")
         self.assertEqual("daily-live", config["IMAGE_TYPE"])
         self.assertEqual("amd64", config["ARCHES"])
@@ -360,17 +360,17 @@ class TestConfig(TestCase):
         # present in the iterable passed as a parameter.
         self.use_temp_dir()
         os.environ["CDIMAGE_ROOT"] = self.temp_dir
-        os.environ["ARCHES"] = "amd64 amd64+mac i386 powerpc"
+        os.environ["ARCHES"] = "amd64 i386"
         config = Config()
         self.assertEqual(
-            ["amd64", "amd64+mac", "i386", "powerpc"], config.arches)
-        self.assertEqual("amd64 amd64+mac i386 powerpc", os.environ["ARCHES"])
-        self.assertEqual(["amd64", "i386", "powerpc"], config.cpuarches)
-        self.assertEqual("amd64 i386 powerpc", os.environ["CPUARCHES"])
+            ["amd64", "i386"], config.arches)
+        self.assertEqual("amd64 i386", os.environ["ARCHES"])
+        self.assertEqual(["amd64", "i386"], config.cpuarches)
+        self.assertEqual("amd64 i386", os.environ["CPUARCHES"])
 
-        config.limit_arches(["amd64", "amd64+mac", "i386", "sparc"])
-        self.assertEqual(["amd64", "amd64+mac", "i386"], config.arches)
-        self.assertEqual("amd64 amd64+mac i386", os.environ["ARCHES"])
+        config.limit_arches(["amd64", "i386", "sparc"])
+        self.assertEqual(["amd64", "i386"], config.arches)
+        self.assertEqual("amd64 i386", os.environ["ARCHES"])
         self.assertEqual(["amd64", "i386"], config.cpuarches)
         self.assertEqual("amd64 i386", os.environ["CPUARCHES"])
 

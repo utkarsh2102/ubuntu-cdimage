@@ -242,7 +242,7 @@ def main():
         'ubuntucinnamon',
         )
     if not options.series:
-        options.series = ('trusty', 'xenial', 'bionic',
+        options.series = ('bionic',
                           'focal', 'jammy', 'lunar', 'mantic', 'noble')
 
     for project in projects:

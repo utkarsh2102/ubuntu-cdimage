@@ -72,7 +72,7 @@ class TestUpdateLocalIndices(TestCase):
         super(TestUpdateLocalIndices, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["CPUARCHES"] = "i386"
         self.packages = os.path.join(self.temp_dir, "local", "packages")
         self.database = os.path.join(self.temp_dir, "local", "database")
@@ -116,45 +116,45 @@ class TestUpdateLocalIndices(TestCase):
                 expected_command, cwd=self.packages)
 
         self.assertCountEqual([
-            "trusty_local_binary-i386.list",
-            "trusty_local_debian-installer_binary-i386.list",
+            "bionic_local_binary-i386.list",
+            "bionic_local_debian-installer_binary-i386.list",
         ], os.listdir(self.dists))
         with open(os.path.join(
-                self.dists, "trusty_local_binary-i386.list")) as f:
+                self.dists, "bionic_local_binary-i386.list")) as f:
             self.assertCountEqual([
                 "pool/local/f/fake/fake_1_i386.deb",
                 "pool/local/f/fake/fake-nf_1_all.deb",
             ], f.read().splitlines())
         with open(os.path.join(
                 self.dists,
-                "trusty_local_debian-installer_binary-i386.list")) as f:
+                "bionic_local_debian-installer_binary-i386.list")) as f:
             self.assertCountEqual([
                 "pool/local/f/fake/fake-udeb_1_i386.udeb",
                 "pool/local/f/fake/fake-udeb-indep_1_all.udeb",
             ], f.read().splitlines())
 
         self.assertCountEqual([
-            "override.trusty.local.i386",
-            "override.trusty.local.debian-installer.i386",
+            "override.bionic.local.i386",
+            "override.bionic.local.debian-installer.i386",
         ], os.listdir(self.indices))
         with open(os.path.join(
-                self.indices, "override.trusty.local.i386")) as f:
+                self.indices, "override.bionic.local.i386")) as f:
             self.assertCountEqual([
                 "fake\toptional\tlocal/misc",
                 "fake-nf\textra\tlocal/admin",
             ], f.read().splitlines())
         with open(os.path.join(
                 self.indices,
-                "override.trusty.local.debian-installer.i386")) as f:
+                "override.bionic.local.debian-installer.i386")) as f:
             self.assertCountEqual([
                 "fake-udeb\toptional\tlocal/debian-installer",
                 "fake-udeb-indep\textra\tlocal/debian-installer",
             ], f.read().splitlines())
 
         self.assertTrue(os.path.exists(os.path.join(
-            self.packages, "dists", "trusty", "local", "binary-i386")))
+            self.packages, "dists", "bionic", "local", "binary-i386")))
         self.assertTrue(os.path.exists(os.path.join(
-            self.packages, "dists", "trusty", "local", "debian-installer",
+            self.packages, "dists", "bionic", "local", "debian-installer",
             "binary-i386")))
 
 
@@ -187,23 +187,23 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
                 raise osextras.FetchError
 
         mock_fetch.side_effect = fetch_side_effect
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["ARCHES"] = "i386"
         build_ubuntu_defaults_locale(self.config)
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-zh_CN", "trusty", "daily-live",
+            self.temp_dir, "scratch", "ubuntu-zh_CN", "bionic", "daily-live",
             "live")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "trusty-desktop-i386.iso",
-            "trusty-desktop-i386.list",
-            "trusty-desktop-i386.manifest",
-            "trusty-desktop-i386.manifest-remove",
-            "trusty-desktop-i386.size",
+            "bionic-desktop-i386.iso",
+            "bionic-desktop-i386.list",
+            "bionic-desktop-i386.manifest",
+            "bionic-desktop-i386.manifest-remove",
+            "bionic-desktop-i386.size",
         ], os.listdir(output_dir))
         mock_check_call.assert_called_once_with([
             os.path.join(self.temp_dir, "debian-cd", "tools", "pi-makelist"),
-            os.path.join(output_dir, "trusty-desktop-i386.iso"),
+            os.path.join(output_dir, "bionic-desktop-i386.iso"),
         ], stdout=mock.ANY)
 
 
@@ -241,7 +241,7 @@ class TestBuildLiveCDBase(TestCase):
         mock_fetch.side_effect = fetch_side_effect
         mock_sign.side_effect = sign_side_effect
         self.config["PROJECT"] = "livecd-base"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "livecd-base"
         self.config["ARCHES"] = "i386"
         self.capture_logging()
@@ -251,7 +251,7 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         live_dir = os.path.join(
-            self.temp_dir, "scratch", "livecd-base", "trusty", "livecd-base",
+            self.temp_dir, "scratch", "livecd-base", "bionic", "livecd-base",
             "live")
         self.assertTrue(os.path.isdir(live_dir))
         self.assertCountEqual(
@@ -269,7 +269,7 @@ class TestBuildLiveCDBase(TestCase):
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["PROJECT"] = "ubuntu-base"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "i386"
         self.capture_logging()
@@ -281,15 +281,15 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-base", "trusty", "daily",
+            self.temp_dir, "scratch", "ubuntu-base", "bionic", "daily",
             "debian-cd", "i386")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "trusty-base-i386.manifest",
-            "trusty-base-i386.raw",
-            "trusty-base-i386.type",
+            "bionic-base-i386.manifest",
+            "bionic-base-i386.raw",
+            "bionic-base-i386.type",
         ], os.listdir(output_dir))
-        with open(os.path.join(output_dir, "trusty-base-i386.type")) as f:
+        with open(os.path.join(output_dir, "bionic-base-i386.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
     @mock.patch("cdimage.osextras.fetch")
@@ -304,7 +304,7 @@ class TestBuildLiveCDBase(TestCase):
         mock_fetch.side_effect = fetch_side_effect
         self.config["CDIMAGE_PREINSTALLED"] = "1"
         self.config["PROJECT"] = "ubuntu-server"
-        self.config["DIST"] = "xenial"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.config["ARCHES"] = "armhf+raspi2"
         self.capture_logging()
@@ -316,13 +316,13 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-server", "xenial",
+            self.temp_dir, "scratch", "ubuntu-server", "bionic",
             "daily-preinstalled", "debian-cd", "armhf+raspi2")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "xenial-preinstalled-server-armhf+raspi2.manifest",
-            "xenial-preinstalled-server-armhf+raspi2.raw",
-            "xenial-preinstalled-server-armhf+raspi2.type",
+            "bionic-preinstalled-server-armhf+raspi2.manifest",
+            "bionic-preinstalled-server-armhf+raspi2.raw",
+            "bionic-preinstalled-server-armhf+raspi2.type",
         ], os.listdir(output_dir))
 
     @mock.patch("cdimage.osextras.fetch")
@@ -338,7 +338,7 @@ class TestBuildLiveCDBase(TestCase):
         mock_fetch.side_effect = fetch_side_effect
         self.config["CDIMAGE_LIVE"] = "1"
         self.config["PROJECT"] = "ubuntu-core"
-        self.config["DIST"] = "xenial"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "armhf+raspi3"
         self.capture_logging()
@@ -350,7 +350,7 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-core", "xenial",
+            self.temp_dir, "scratch", "ubuntu-core", "bionic",
             "daily-live", "live")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
@@ -444,7 +444,7 @@ class TestBuildLiveCDBase(TestCase):
         mock_fetch.side_effect = fetch_side_effect
         self.config["CDIMAGE_PREINSTALLED"] = "1"
         self.config["PROJECT"] = project
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.config["ARCHES"] = "armhf"
         self.capture_logging()
@@ -456,34 +456,34 @@ class TestBuildLiveCDBase(TestCase):
             self.epoch_date,
         ])
         output_dir = os.path.join(
-            self.temp_dir, "scratch", project, "trusty",
+            self.temp_dir, "scratch", project, "bionic",
             "daily-preinstalled", "debian-cd", "armhf")
         self.assertTrue(os.path.isdir(output_dir))
-        touch_files = ["trusty-preinstalled-boot-%s+%s.img" % (
+        touch_files = ["bionic-preinstalled-boot-%s+%s.img" % (
             touch_target.ubuntu_arch, touch_target.subarch)
             for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")]
-        touch_files.extend(["trusty-preinstalled-recovery-%s+%s.img" % (
+        touch_files.extend(["bionic-preinstalled-recovery-%s+%s.img" % (
             touch_target.android_arch, touch_target.subarch)
             for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
-        touch_files.extend(["trusty-preinstalled-system-%s+%s.img" % (
+        touch_files.extend(["bionic-preinstalled-system-%s+%s.img" % (
             touch_target.android_arch, touch_target.subarch)
             for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
         touch_files.extend([
-            "trusty-preinstalled-touch-armhf.manifest",
-            "trusty-preinstalled-touch-armhf.raw",
-            "trusty-preinstalled-touch-armhf.type",
-            "trusty-preinstalled-touch-armhf.tar.gz",
-            "trusty-preinstalled-touch-armhf.custom.tar.gz",
+            "bionic-preinstalled-touch-armhf.manifest",
+            "bionic-preinstalled-touch-armhf.raw",
+            "bionic-preinstalled-touch-armhf.type",
+            "bionic-preinstalled-touch-armhf.tar.gz",
+            "bionic-preinstalled-touch-armhf.custom.tar.gz",
             ])
         self.assertCountEqual(touch_files, os.listdir(output_dir))
         with open(os.path.join(
-            output_dir, "trusty-preinstalled-touch-armhf.type")
+            output_dir, "bionic-preinstalled-touch-armhf.type")
         ) as f:
             self.assertEqual("tar archive\n", f.read())
         for touch_target in Touch.list_targets_by_ubuntu_arch("armhf"):
-            system_img = "trusty-preinstalled-system-%s+%s.img" % (
+            system_img = "bionic-preinstalled-system-%s+%s.img" % (
                 touch_target.android_arch, touch_target.subarch)
-            recovery_img = "trusty-preinstalled-recovery-%s+%s.img" % (
+            recovery_img = "bionic-preinstalled-recovery-%s+%s.img" % (
                 touch_target.android_arch, touch_target.subarch)
             self.assertTrue(os.path.exists(
                 os.path.join(output_dir, system_img)))
@@ -510,10 +510,10 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.osextras.unlink_force")
     def test_lock_build_image_set(self, mock_unlink_force, mock_check_call):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         expected_lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-trusty-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily")
         self.assertFalse(os.path.exists(expected_lock_path))
         with lock_build_image_set(self.config):
             mock_check_call.assert_called_once_with([
@@ -526,12 +526,12 @@ class TestBuildImageSet(TestCase):
     def test_lock_build_image_set_chinese(self, mock_unlink_force,
                                           mock_check_call):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         expected_lock_path = os.path.join(
             self.temp_dir, "etc",
-            ".lock-build-image-set-ubuntu-chinese-edition-trusty-daily")
+            ".lock-build-image-set-ubuntu-chinese-edition-bionic-daily")
         self.assertFalse(os.path.exists(expected_lock_path))
         with lock_build_image_set(self.config):
             mock_check_call.assert_called_once_with([
@@ -541,18 +541,18 @@ class TestBuildImageSet(TestCase):
 
     def test_configure_onlyfree_unsupported(self):
         for project, series, onlyfree, unsupported in (
-            ("ubuntu", "trusty", False, False),
+            ("ubuntu", "bionic", False, False),
             ("gobuntu", "hardy", True, False),
             ("edubuntu", "lunar", False, True),
-            ("xubuntu", "trusty", False, True),
-            ("kubuntu", "trusty", False, True),
-            ("ubuntustudio", "trusty", False, True),
-            ("mythbuntu", "trusty", False, True),
-            ("lubuntu", "trusty", False, True),
-            ("ubuntukylin", "trusty", False, True),
-            ("ubuntu-gnome", "trusty", False, True),
+            ("xubuntu", "bionic", False, True),
+            ("kubuntu", "bionic", False, True),
+            ("ubuntustudio", "bionic", False, True),
+            ("mythbuntu", "bionic", False, True),
+            ("lubuntu", "bionic", False, True),
+            ("ubuntukylin", "bionic", False, True),
+            ("ubuntu-gnome", "bionic", False, True),
             ("ubuntu-budgie", "bionic", False, True),
-            ("ubuntu-mate", "xenial", False, True),
+            ("ubuntu-mate", "bionic", False, True),
         ):
             config = Config(read=False)
             config["PROJECT"] = project
@@ -585,7 +585,7 @@ class TestBuildImageSet(TestCase):
 
     def test_open_log_writes_log(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130224"
         pid = os.fork()
@@ -600,7 +600,7 @@ class TestBuildImageSet(TestCase):
         else:  # parent
             self.wait_for_pid(pid, 0)
             expected_log_path = os.path.join(
-                self.temp_dir, "log", "ubuntu", "trusty", "daily-20130224.log")
+                self.temp_dir, "log", "ubuntu", "bionic", "daily-20130224.log")
             self.assertTrue(os.path.exists(expected_log_path))
             with open(expected_log_path) as log:
                 self.assertEqual([
@@ -611,7 +611,7 @@ class TestBuildImageSet(TestCase):
 
     def test_open_log_chinese(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         self.config["CDIMAGE_DATE"] = "20130224"
@@ -627,7 +627,7 @@ class TestBuildImageSet(TestCase):
         else:  # parent
             self.wait_for_pid(pid, 0)
             expected_log_path = os.path.join(
-                self.temp_dir, "log", "ubuntu-chinese-edition", "trusty",
+                self.temp_dir, "log", "ubuntu-chinese-edition", "bionic",
                 "daily-20130224.log")
             self.assertTrue(os.path.exists(expected_log_path))
             with open(expected_log_path) as log:
@@ -828,7 +828,7 @@ class TestBuildImageSet(TestCase):
             ["make", "-C", os.path.dirname(path)])
 
     def test_configure_splash(self):
-        data_dir = os.path.join(self.temp_dir, "debian-cd", "data", "trusty")
+        data_dir = os.path.join(self.temp_dir, "debian-cd", "data", "bionic")
         for key, extension in (
             ("SPLASHRLE", "rle"),
             ("GFXSPLASH", "pcx"),
@@ -838,7 +838,7 @@ class TestBuildImageSet(TestCase):
                 config = Config(read=False)
                 config.root = self.temp_dir
                 config["PROJECT"] = "kubuntu"
-                config["DIST"] = "trusty"
+                config["DIST"] = "bionic"
                 path = os.path.join(
                     data_dir, "%s.%s" % (
                         "kubuntu" if project_specific else "splash",
@@ -871,7 +871,7 @@ class TestBuildImageSet(TestCase):
                 #! /bin/sh
                 PROJECT=ubuntu
                 CAPPROJECT=Ubuntu
-                ARCHES="amd64 powerpc"
+                ARCHES="amd64"
                 """), file=f)
         os.environ["CDIMAGE_ROOT"] = self.temp_dir
         config = Config()
@@ -885,14 +885,14 @@ class TestBuildImageSet(TestCase):
         mock_call.assert_called_once_with(
             ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
         self.assertEqual(
-            "amd64 powerpc", mock_call.call_args[1]["env"]["ARCHES"])
+            "amd64", mock_call.call_args[1]["env"]["ARCHES"])
 
     def test_fix_permissions(self):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         scratch_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily")
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily")
         subdir = os.path.join(scratch_dir, "x")
         dir_one = os.path.join(subdir, "1")
         file_two = os.path.join(subdir, "2")
@@ -926,14 +926,14 @@ class TestBuildImageSet(TestCase):
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_no_recipients(self, mock_send_mail):
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         notify_failure(self.config, None)
         self.assertEqual(0, mock_send_mail.call_count)
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_no_log(self, mock_send_mail):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
@@ -941,13 +941,13 @@ class TestBuildImageSet(TestCase):
             print("ALL\tfoo@example.org", file=notify_addresses)
         notify_failure(self.config, None)
         mock_send_mail.assert_called_once_with(
-            "CD image ubuntu/trusty/daily failed to build on 20130225",
+            "CD image ubuntu/bionic/daily failed to build on 20130225",
             "build-image-set", ["foo@example.org"], "")
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_log(self, mock_send_mail):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
@@ -958,14 +958,14 @@ class TestBuildImageSet(TestCase):
             print("Log", file=log)
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
-            "CD image ubuntu/trusty/daily failed to build on 20130225",
+            "CD image ubuntu/bionic/daily failed to build on 20130225",
             "build-image-set", ["foo@example.org"], mock.ANY)
         self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_chinese(self, mock_send_mail):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
         self.config["CDIMAGE_DATE"] = "20130225"
@@ -977,7 +977,7 @@ class TestBuildImageSet(TestCase):
             print("Log", file=log)
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
-            "CD image ubuntu-chinese-edition/trusty/daily failed to build on "
+            "CD image ubuntu-chinese-edition/bionic/daily failed to build on "
             "20130225",
             "build-image-set", ["foo@example.org"], mock.ANY)
         self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
@@ -1003,14 +1003,14 @@ class TestBuildImageSet(TestCase):
     def test_build_image_set_locked_notifies_on_failure(
             self, mock_send_mail, mock_sync_local_mirror, *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path, "w") as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         log_path = os.path.join(
-            self.temp_dir, "log", "ubuntu", "trusty", "daily-20130225.log")
+            self.temp_dir, "log", "ubuntu", "bionic", "daily-20130225.log")
         os.makedirs(os.path.join(self.temp_dir, "etc"))
 
         def force_failure(*args):
@@ -1061,7 +1061,7 @@ class TestBuildImageSet(TestCase):
             mock_tracker_set_rebuild_status, mock_call, mock_simple):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         self.config["CPUARCHES"] = "amd64 i386"
@@ -1075,8 +1075,8 @@ class TestBuildImageSet(TestCase):
         touch(germinate_path)
         os.chmod(germinate_path, 0o755)
         germinate_output = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily", "germinate")
-        log_dir = os.path.join(self.temp_dir, "log", "ubuntu", "trusty")
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily", "germinate")
+        log_dir = os.path.join(self.temp_dir, "log", "ubuntu", "bionic")
 
         def side_effect(command, *args, **kwargs):
             if command[0] == germinate_path:
@@ -1098,8 +1098,8 @@ class TestBuildImageSet(TestCase):
                         germinate_path,
                         "--seed-source", mock.ANY,
                         "--mirror", "file://%s/" % germinate_output,
-                        "--seed-dist", "ubuntu.trusty",
-                        "--dist", "trusty,trusty-security,trusty-updates",
+                        "--seed-dist", "ubuntu.bionic",
+                        "--dist", "bionic,bionic-security,bionic-updates",
                         "--arch", arch,
                         "--components", "main",
                         "--no-rdepends",
@@ -1149,8 +1149,8 @@ class TestBuildImageSet(TestCase):
                     DATE
                     ===== Germinating =====
                     DATE
-                    Germinating for trusty/amd64 ...
-                    Germinating for trusty/i386 ...
+                    Germinating for bionic/amd64 ...
+                    Germinating for bionic/i386 ...
                     ===== Generating new task lists =====
                     DATE
                     ===== Checking for other task changes =====
@@ -1173,10 +1173,10 @@ class TestBuildImageSet(TestCase):
         "cdimage.build.build_image_set_locked", side_effect=KeyboardInterrupt)
     def test_build_image_set_interrupted(self, *args):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-trusty-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily")
         os.makedirs(os.path.dirname(lock_path))
         self.assertRaises(
             KeyboardInterrupt, build_image_set, self.config, None)
@@ -1185,10 +1185,10 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.build.build_image_set_locked")
     def test_build_image_set_terminated(self, mock_build_image_set_locked):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-trusty-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily")
         os.makedirs(os.path.dirname(lock_path))
 
         def side_effect(config, options):
@@ -1205,10 +1205,10 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.build.build_image_set_locked")
     def test_build_image_set(self, mock_build_image_set_locked):
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-trusty-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily")
         os.makedirs(os.path.dirname(lock_path))
 
         def side_effect(config, options):
