@@ -712,20 +712,20 @@ def build_image_set_locked(config, options):
         elif is_live_fs_only(config):
             build_livecd_base(config)
         else:
-            if not config["CDIMAGE_PREINSTALLED"]:
-                log_marker("Germinating")
-                germination = Germination(config)
-                germination.run()
+            assert not config["CDIMAGE_PREINSTALLED"]
 
-                log_marker("Generating new task lists")
-                germinate_output = germination.output(config.project)
-                germinate_output.write_tasks()
+            log_marker("Germinating")
+            germination = Germination(config)
+            germination.run()
 
-                log_marker("Checking for other task changes")
-                germinate_output.update_tasks(date)
+            log_marker("Generating new task lists")
+            germinate_output = germination.output(config.project)
+            germinate_output.write_tasks()
 
-            if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"] or
-                    config["CDIMAGE_PREINSTALLED"]):
+            log_marker("Checking for other task changes")
+            germinate_output.update_tasks(date)
+
+            if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"]):
                 log_marker("Downloading live filesystem images")
                 download_live_filesystems(config)
 
