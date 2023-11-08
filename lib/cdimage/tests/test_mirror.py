@@ -48,39 +48,39 @@ class TestChecksumFile(TestCase):
         config = Config(read=False)
         config["DIST"] = series
         self.assertEqual(
-            os.path.join(config.root, base), find_mirror(config, arch))
+            base, find_mirror(config, arch))
 
     def test_amd64(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp", "amd64", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "amd64", series)
 
     def test_armel(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp", "armel", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "armel", series)
 
     def test_hppa(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp", "hppa", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "hppa", series)
 
     def test_i386(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp", "i386", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "i386", series)
 
     def test_powerpc(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp", "powerpc", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "powerpc", series)
 
     def test_ppc64el(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp", "ppc64el", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "ppc64el", series)
 
     def test_s390x(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp", "s390x", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "s390x", series)
 
     def test_sparc(self):
         for series in all_series:
-            self.assertMirrorEqual("ftp", "sparc", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "sparc", series)
 
 
 class TestTriggerMirrors(TestCase):

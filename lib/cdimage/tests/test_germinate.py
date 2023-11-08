@@ -36,6 +36,7 @@ from cdimage.germinate import (
     GerminateOutput,
     Germination,
     NoMasterSeeds,
+    find_mirror
 )
 from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch
@@ -131,7 +132,12 @@ class TestGermination(TestCase):
         self.germination.prefer_vcs = False
         self.assertFalse(self.germination.use_vcs)
 
-    def test_make_index(self):
+    @mock.patch("cdimage.germinate.find_mirror")
+    def test_make_index(self, mock_find_mirror):
+        def side_effect(*args, **kwargs):
+            return os.path.join(args[0].root, "ftp")
+
+        mock_find_mirror.side_effect = side_effect
         self.config.root = self.use_temp_dir()
         self.config["DIST"] = "trusty"
         self.config["IMAGE_TYPE"] = "daily"
@@ -646,7 +652,11 @@ class TestGerminateOutput(TestCase):
 
     # TODO: installer_initrds, installer_subarches untested
 
-    def test_initrd_packages(self):
+    @mock.patch("cdimage.germinate.find_mirror")
+    def test_initrd_packages(self, mock_find_mirror):
+        def side_effect(*args, **kwargs):
+            return os.path.join(args[0].root, "ftp")
+        mock_find_mirror.side_effect = side_effect
         self.write_ubuntu_structure()
         manifest_path = os.path.join(
             self.temp_dir, "ftp", "dists", "trusty", "main", "installer-i386",
@@ -669,7 +679,11 @@ class TestGerminateOutput(TestCase):
             output.initrd_packages("./netboot/netboot.tar.gz", "i386"))
         self.assertEqual(set(), output.initrd_packages("unknown", "powerpc"))
 
-    def test_common_initrd_packages(self):
+    @mock.patch("cdimage.germinate.find_mirror")
+    def test_common_initrd_packages(self, mock_find_mirror):
+        def side_effect(*args, **kwargs):
+            return os.path.join(args[0].root, "ftp")
+        mock_find_mirror.side_effect = side_effect
         self.write_ubuntu_structure()
         manifest_path = os.path.join(
             self.temp_dir, "ftp", "dists", "trusty", "main", "installer-i386",
