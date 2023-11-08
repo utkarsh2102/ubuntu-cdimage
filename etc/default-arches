@@ -15,8 +15,8 @@ ubuntu-base		daily			xenial			amd64 arm64 armhf i386 powerpc ppc64el s390x
 ubuntu-base		daily			bionic			amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-base		daily			focal-			amd64 arm64 armhf ppc64el riscv64 s390x
 ubuntu-core-system-image	daily-preinstalled	xenial-		amd64 arm64 armhf i386 ppc64el s390x
-ubuntu-core		daily-live		xenial			amd64 arm64+snapdragon armhf+cm3 armhf+raspi2 armhf+raspi3 i386
-ubuntu-core		daily-live		bionic			amd64 arm64+snapdragon armhf+raspi3 arm64+raspi3 i386
+ubuntu-core		daily-live		xenial			amd64 armhf+cm3 armhf+raspi2 armhf+raspi3
+ubuntu-core		daily-live		bionic			amd64 armhf+raspi3 arm64+raspi3
 ubuntu-core		daily-live		focal			amd64 arm64+raspi armhf+raspi amd64+intel-iot
 ubuntu-core		daily-live		jammy			amd64 arm64 arm64+raspi armhf+raspi amd64+intel-iot
 ubuntu-core		daily-live		lunar-			amd64 arm64 arm64+raspi armhf+raspi
