@@ -27,7 +27,7 @@ __metaclass__ = type
 
 
 def find_mirror(config, arch):
-    return os.path.join(config.root, "ftp")
+    return 'http://ftpmaster.internal/ubuntu/'
 
 
 class UnknownManifestFile(Exception):
