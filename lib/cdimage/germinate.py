@@ -111,20 +111,6 @@ class Germination:
         else:
             return self.prefer_vcs
 
-    def make_index(self, project, arch, rel_target, rel_paths):
-        target = os.path.join(self.output_dir(project), rel_target)
-        osextras.mkemptydir(os.path.dirname(target))
-        with gzip.GzipFile(target, "wb") as target_file:
-            for rel_path in rel_paths:
-                if os.path.isabs(rel_path):
-                    abs_path = rel_path
-                else:
-                    abs_path = os.path.join(
-                        find_mirror(self.config, arch), rel_path)
-                if os.path.isfile(abs_path):
-                    with gzip.GzipFile(abs_path, "rb") as source_file:
-                        target_file.write(source_file.read())
-
     @property
     def germinate_dists(self):
         if self.config["GERMINATE_DISTS"]:
@@ -162,21 +148,6 @@ class Germination:
     def germinate_arch(self, project, arch):
         cpuarch = arch.split("+")[0]
 
-        for dist in self.germinate_dists:
-            for suffix in (
-                "binary-%s/Packages.gz" % cpuarch,
-                "source/Sources.gz",
-                "debian-installer/binary-%s/Packages.gz" % cpuarch,
-            ):
-                files = [
-                    "dists/%s/%s/%s" % (dist, component, suffix)
-                    for component in self.components]
-                if self.config["LOCAL"]:
-                    files.append(
-                        "%s/dists/%s/local/%s" %
-                        (self.config["LOCALDEBS"], dist, suffix))
-                self.make_index(project, arch, files[0], files)
-
         arch_output_dir = os.path.join(self.output_dir(project), arch)
         osextras.mkemptydir(arch_output_dir)
         if (self.config["GERMINATE_HINTS"] and
@@ -187,7 +158,7 @@ class Germination:
         command = [
             self.germinate_path,
             "--seed-source", ",".join(self.seed_sources(project)),
-            "--mirror", "file://%s/" % self.output_dir(project),
+            "--mirror", find_mirror(project, arch),
             "--seed-dist", self.seed_dist(project),
             "--dist", ",".join(self.germinate_dists),
             "--arch", cpuarch,
