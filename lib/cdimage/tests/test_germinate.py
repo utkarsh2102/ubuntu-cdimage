@@ -202,7 +202,7 @@ class TestGermination(TestCase):
             "--seed-dist", "ubuntu.trusty",
             "--dist", "trusty,trusty-security,trusty-updates",
             "--arch", "amd64",
-            "--components", "main",
+            "--components", "main,restricted",
             "--no-rdepends",
             "--vcs=auto",
         ]

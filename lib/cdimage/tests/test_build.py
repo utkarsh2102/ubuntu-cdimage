@@ -1101,7 +1101,7 @@ class TestBuildImageSet(TestCase):
                         "--seed-dist", "ubuntu.trusty",
                         "--dist", "trusty,trusty-security,trusty-updates",
                         "--arch", arch,
-                        "--components", "main",
+                        "--components", "main,restricted",
                         "--no-rdepends",
                         "--vcs=auto",
                     ], cwd=os.path.join(germinate_output, arch), env=mock.ANY)

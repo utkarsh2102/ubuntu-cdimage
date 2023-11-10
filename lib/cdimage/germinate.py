@@ -161,7 +161,7 @@ class Germination:
             "--seed-dist", self.seed_dist(project),
             "--dist", ",".join(self.germinate_dists),
             "--arch", cpuarch,
-            "--components", "main",
+            "--components", ",".join(self.components),
             "--no-rdepends",
         ]
         if self.use_vcs:
