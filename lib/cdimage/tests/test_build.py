@@ -1097,7 +1097,7 @@ class TestBuildImageSet(TestCase):
                     return mock.call([
                         germinate_path,
                         "--seed-source", mock.ANY,
-                        "--mirror", "file://%s/" % germinate_output,
+                        "--mirror", "http://ftpmaster.internal/ubuntu/",
                         "--seed-dist", "ubuntu.trusty",
                         "--dist", "trusty,trusty-security,trusty-updates",
                         "--arch", arch,

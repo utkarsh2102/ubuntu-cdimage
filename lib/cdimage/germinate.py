@@ -19,7 +19,6 @@ from __future__ import print_function
 
 from collections import OrderedDict, defaultdict
 import errno
-import gzip
 import os
 import re
 import shutil

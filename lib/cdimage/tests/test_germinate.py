@@ -36,7 +36,6 @@ from cdimage.germinate import (
     GerminateOutput,
     Germination,
     NoMasterSeeds,
-    find_mirror
 )
 from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch
@@ -132,35 +131,6 @@ class TestGermination(TestCase):
         self.germination.prefer_vcs = False
         self.assertFalse(self.germination.use_vcs)
 
-    @mock.patch("cdimage.germinate.find_mirror")
-    def test_make_index(self, mock_find_mirror):
-        def side_effect(*args, **kwargs):
-            return os.path.join(args[0].root, "ftp")
-
-        mock_find_mirror.side_effect = side_effect
-        self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "trusty"
-        self.config["IMAGE_TYPE"] = "daily"
-        files = []
-        for component in "main", "restricted", "universe", "multiverse":
-            source_dir = os.path.join(
-                self.temp_dir, "ftp", "dists", "trusty", component, "source")
-            os.makedirs(source_dir)
-            with gzip.GzipFile(
-                    os.path.join(source_dir, "Sources.gz"), "wb") as sources:
-                sources.write(component.encode("UTF-8"))
-                sources.write(b"\n")
-            files.append("dists/trusty/%s/source/Sources.gz" % component)
-        self.germination.make_index("ubuntu", "i386", files[0], files)
-        output_file = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily", "germinate",
-            "dists", "trusty", "main", "source", "Sources.gz")
-        self.assertTrue(os.path.exists(output_file))
-        with gzip.GzipFile(output_file, "rb") as output_sources:
-            self.assertEqual(
-                b"main\nrestricted\nuniverse\nmultiverse\n",
-                output_sources.read())
-
     def test_germinate_dists_environment_override(self):
         self.config["GERMINATE_DISTS"] = "sentinel,sentinel-updates"
         self.assertEqual(
@@ -218,35 +188,17 @@ class TestGermination(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
 
         output_dir = "%s/scratch/ubuntu/trusty/daily/germinate" % self.temp_dir
-        expected_files = []
-
-        for dist in "trusty", "trusty-security", "trusty-updates":
-            for suffix in (
-                "binary-amd64/Packages.gz",
-                "source/Sources.gz",
-                "debian-installer/binary-amd64/Packages.gz",
-            ):
-                for component in "main", "restricted":
-                    path = os.path.join(
-                        self.temp_dir, "ftp", "dists", dist, component, suffix)
-                    os.makedirs(os.path.dirname(path))
-                    with gzip.GzipFile(path, "wb"):
-                        pass
-                expected_files.append(
-                    os.path.join(output_dir, "dists", dist, "main", suffix))
 
         def check_call_side_effect(*args, **kwargs):
             touch(os.path.join(output_dir, "amd64+mac", "structure"))
 
         mock_check_call.side_effect = check_call_side_effect
         self.germination.germinate_arch("ubuntu", "amd64+mac")
-        for expected_file in expected_files:
-            self.assertTrue(os.path.exists(expected_file))
         expected_command = [
             germinate_path,
             "--seed-source",
             "https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/",
-            "--mirror", "file://%s/" % output_dir,
+            "--mirror", "http://ftpmaster.internal/ubuntu/",
             "--seed-dist", "ubuntu.trusty",
             "--dist", "trusty,trusty-security,trusty-updates",
             "--arch", "amd64",
