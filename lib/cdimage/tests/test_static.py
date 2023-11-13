@@ -63,7 +63,8 @@ class TestStatic(TestCase):
             return
         subp = subprocess.Popen(
             ["pep8"] + self.all_paths(),
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            universal_newlines=True)
         output = subp.communicate()[0]
         if output:
             self.fail("pep8 produced output:\n\n" + output)
@@ -104,4 +105,5 @@ class TestStatic(TestCase):
                 not_excluded.append(line)
 
         if not_excluded:
-            self.fail("pyflakes produced output:\n\n" + "\n".join(not_excluded))
+            self.fail(
+                "pyflakes produced output:\n\n" + "\n".join(not_excluded))

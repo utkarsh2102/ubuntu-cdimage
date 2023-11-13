@@ -52,35 +52,43 @@ class TestChecksumFile(TestCase):
 
     def test_amd64(self):
         for series in all_series:
-            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "amd64", series)
+            self.assertMirrorEqual(
+                "http://ftpmaster.internal/ubuntu/", "amd64", series)
 
     def test_armel(self):
         for series in all_series:
-            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "armel", series)
+            self.assertMirrorEqual(
+                "http://ftpmaster.internal/ubuntu/", "armel", series)
 
     def test_hppa(self):
         for series in all_series:
-            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "hppa", series)
+            self.assertMirrorEqual(
+                "http://ftpmaster.internal/ubuntu/", "hppa", series)
 
     def test_i386(self):
         for series in all_series:
-            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "i386", series)
+            self.assertMirrorEqual(
+                "http://ftpmaster.internal/ubuntu/", "i386", series)
 
     def test_powerpc(self):
         for series in all_series:
-            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "powerpc", series)
+            self.assertMirrorEqual(
+                "http://ftpmaster.internal/ubuntu/", "powerpc", series)
 
     def test_ppc64el(self):
         for series in all_series:
-            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "ppc64el", series)
+            self.assertMirrorEqual(
+                "http://ftpmaster.internal/ubuntu/", "ppc64el", series)
 
     def test_s390x(self):
         for series in all_series:
-            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "s390x", series)
+            self.assertMirrorEqual(
+                "http://ftpmaster.internal/ubuntu/", "s390x", series)
 
     def test_sparc(self):
         for series in all_series:
-            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "sparc", series)
+            self.assertMirrorEqual(
+                "http://ftpmaster.internal/ubuntu/", "sparc", series)
 
 
 class TestTriggerMirrors(TestCase):

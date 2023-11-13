@@ -104,7 +104,8 @@ class TestGermination(TestCase):
             ("ubuntu-mate", "xenial", ["ubuntu-mate-dev", "ubuntu-core-dev"]),
             ("ubuntukylin", "xenial",
              ["ubuntukylin-members", "ubuntu-core-dev"]),
-            ("ubuntu-budgie", "bionic", ["ubuntubudgie-dev", "ubuntu-core-dev"]),
+            ("ubuntu-budgie", "bionic",
+             ["ubuntubudgie-dev", "ubuntu-core-dev"]),
             ("ubuntustudio", "trusty",
              ["ubuntustudio-dev", "ubuntu-core-dev"]),
         ):
