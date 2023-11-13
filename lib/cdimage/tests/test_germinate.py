@@ -20,7 +20,6 @@
 from __future__ import print_function
 
 from functools import partial
-import gzip
 import os
 import subprocess
 from textwrap import dedent

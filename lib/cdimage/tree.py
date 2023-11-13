@@ -646,7 +646,7 @@ class Publisher:
                 "The netboot tarball contains files needed to boot the %s "
                 "installer over the network." % (capproject,))
         elif publish_type == "mini-iso":
-            sentances.append(
+            sentences.append(
                 "The mini ISO image is a small ISO image that can be used "
                 "to choose which other Ubuntu image to download and install.")
         elif publish_type == "alternate":
@@ -1212,8 +1212,6 @@ class Publisher:
             if entry.endswith(".%s" % extension)])
 
     def make_web_indices(self, directory, base_prefix, status="release"):
-        series = self.config["DIST"]
-
         prefixes = [base_prefix]
         if base_prefix.count(".") >= 2:
             # point release - need the base version too

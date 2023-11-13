@@ -32,7 +32,7 @@ from cdimage.simplestreams import (
     SimpleReleaseSimpleStreams)
 from cdimage.config import Config, Series
 from cdimage.tree import (
-    Tree, Publisher, DailyTreePublisher, FullReleasePublisher,
+    Tree, DailyTreePublisher, FullReleasePublisher,
     FullReleaseTree, SimpleReleasePublisher, SimpleReleaseTree)
 from cdimage.tests.helpers import TestCase
 
@@ -235,7 +235,7 @@ class TestSimpleStreams(TestCase):
                     self.config, publisher)
                 self.assertIsInstance(streams, cls_streams)
             else:
-                with self.assertRaises(Exception) as e:
+                with self.assertRaises(Exception):
                     SimpleStreams.get_simplestreams(
                         self.config, publisher)
 
@@ -255,7 +255,7 @@ class TestSimpleStreams(TestCase):
                     self.config, name)
                 self.assertIsInstance(streams, cls_streams)
             else:
-                with self.assertRaises(Exception) as e:
+                with self.assertRaises(Exception):
                     SimpleStreams.get_simplestreams_by_name(
                         self.config, name)
 

@@ -18,7 +18,6 @@
 from __future__ import print_function
 
 import contextlib
-import gzip
 import os
 import shutil
 import signal
@@ -41,7 +40,7 @@ from cdimage.livefs import (
 )
 from cdimage.log import logger, reset_logging
 from cdimage.mail import get_notify_addresses, send_mail
-from cdimage.mirror import find_mirror, trigger_mirrors
+from cdimage.mirror import trigger_mirrors
 from cdimage.tracker import tracker_set_rebuild_status
 from cdimage.tree import Publisher, Tree
 from cdimage.config import Touch

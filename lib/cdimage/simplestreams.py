@@ -19,7 +19,6 @@
 
 import os
 import re
-import json
 import time
 import hashlib
 import simplestreams.generate_simplestreams as generate_simplestreams
