@@ -98,7 +98,7 @@ class TestStatic(TestCase):
             if line.startswith("#"):
                 continue
             line = line.rstrip()
-            canon_line = re.sub(r":[0-9]+:(?:[0-9]+)?", ":*:", line, 1)
+            canon_line = re.sub(r":[0-9]+:(?:[0-9]+)?:?", ":*:", line, 1)
             canon_line = re.sub(r"line [0-9]+", "line *", canon_line)
             if canon_line not in exclusions:
                 not_excluded.append(line)
