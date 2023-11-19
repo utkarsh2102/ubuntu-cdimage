@@ -602,56 +602,6 @@ class TestGerminateOutput(TestCase):
             ["base-installer", "live-installer"],
             list(output.task_packages("i386", "installer", "installer")))
 
-    # TODO: installer_initrds, installer_subarches untested
-
-    @mock.patch("cdimage.germinate.find_mirror")
-    def test_initrd_packages(self, mock_find_mirror):
-        def side_effect(*args, **kwargs):
-            return os.path.join(args[0].root, "ftp")
-        mock_find_mirror.side_effect = side_effect
-        self.write_ubuntu_structure()
-        manifest_path = os.path.join(
-            self.temp_dir, "ftp", "dists", "trusty", "main", "installer-i386",
-            "current", "images", "MANIFEST.udebs")
-        with mkfile(manifest_path) as manifest:
-            print(dedent("""\
-                cdrom/initrd.gz
-                \tanna 1.45ubuntu1 i386
-                \tcdrom-detect 1.43ubuntu1 all
-                netboot/netboot.tar.gz
-                \tdownload-installer 1.32ubuntu1 all
-                \tnet-retriever 1.32ubuntu1 i386"""), file=manifest)
-        self.config["DIST"] = "trusty"
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(
-            set(["anna", "cdrom-detect"]),
-            output.initrd_packages("./cdrom/initrd.gz", "i386"))
-        self.assertEqual(
-            set(["download-installer", "net-retriever"]),
-            output.initrd_packages("./netboot/netboot.tar.gz", "i386"))
-        self.assertEqual(set(), output.initrd_packages("unknown", "powerpc"))
-
-    @mock.patch("cdimage.germinate.find_mirror")
-    def test_common_initrd_packages(self, mock_find_mirror):
-        def side_effect(*args, **kwargs):
-            return os.path.join(args[0].root, "ftp")
-        mock_find_mirror.side_effect = side_effect
-        self.write_ubuntu_structure()
-        manifest_path = os.path.join(
-            self.temp_dir, "ftp", "dists", "trusty", "main", "installer-i386",
-            "current", "images", "MANIFEST.udebs")
-        with mkfile(manifest_path) as manifest:
-            print(dedent("""\
-                cdrom/initrd.gz
-                \tanna 1.45ubuntu1 i386
-                \tcdrom-detect 1.43ubuntu1 all
-                netboot/netboot.tar.gz
-                \tanna 1.45ubuntu1 i386
-                \tnet-retriever 1.32ubuntu1 i386"""), file=manifest)
-        self.config["DIST"] = "trusty"
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(set(["anna"]), output.common_initrd_packages("i386"))
-
     # TODO: task_project untested
 
     def test_task_headers(self):
