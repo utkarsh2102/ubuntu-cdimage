@@ -2062,7 +2062,8 @@ class DailyTreePublisher(Publisher):
             # Per IRC discussions on #ubuntu-release 2023-09-24
             return int(3.2 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "jammy":
-            return int(2.8 * 1000 * 1000 * 1000)
+            # Per IRC discussions on #ubuntu-release 2023-11-13
+            return int(3.1 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "focal":
             # https://bugs.launchpad.net/bugs/1796368
             return 2 * 1000 * 1000 * 1000
