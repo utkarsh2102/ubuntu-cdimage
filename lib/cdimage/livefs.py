@@ -368,7 +368,8 @@ def run_live_builds(config):
                 cpuarch, subarch = split_arch(config, arch)
                 for build in lp_livefs.builds:
                     try:
-                        metadata_subarch = build.metadata_override.get("subarch", "")
+                        metadata_subarch = build.metadata_override.get(
+                            "subarch", "")
                     except AttributeError:
                         metadata_subarch = ""
                     if (build.distro_arch_series.architecture_tag == cpuarch

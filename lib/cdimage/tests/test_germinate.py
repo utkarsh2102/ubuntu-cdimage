@@ -20,7 +20,6 @@
 from __future__ import print_function
 
 from functools import partial
-import gzip
 import os
 import subprocess
 from textwrap import dedent
@@ -104,7 +103,8 @@ class TestGermination(TestCase):
             ("ubuntu-mate", "xenial", ["ubuntu-mate-dev", "ubuntu-core-dev"]),
             ("ubuntukylin", "xenial",
              ["ubuntukylin-members", "ubuntu-core-dev"]),
-            ("ubuntu-budgie", "bionic", ["ubuntubudgie-dev", "ubuntu-core-dev"]),
+            ("ubuntu-budgie", "bionic",
+             ["ubuntubudgie-dev", "ubuntu-core-dev"]),
             ("ubuntustudio", "trusty",
              ["ubuntustudio-dev", "ubuntu-core-dev"]),
         ):

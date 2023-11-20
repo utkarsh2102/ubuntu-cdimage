@@ -63,11 +63,11 @@ class TestStatic(TestCase):
             return
         subp = subprocess.Popen(
             ["pep8"] + self.all_paths(),
-            stdout=subprocess.PIPE, universal_newlines=True)
-        output = subp.communicate()[0].splitlines()
-        for line in output:
-            print(line)
-        self.assertEqual(0, len(output))
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            universal_newlines=True)
+        output = subp.communicate()[0]
+        if output:
+            self.fail("pep8 produced output:\n\n" + output)
 
     def test_pyflakes_clean(self):
         if sys.version < "3":
@@ -90,19 +90,20 @@ class TestStatic(TestCase):
                     if not line.startswith("#"):
                         exclusions.add(line.rstrip())
 
-        error = False
         subp = subprocess.Popen(
             [pyflakes] + self.all_paths(),
             stdout=subprocess.PIPE, universal_newlines=True)
         output = subp.communicate()[0].splitlines()
+        not_excluded = []
         for line in output:
             if line.startswith("#"):
                 continue
             line = line.rstrip()
-            canon_line = re.sub(r":[0-9]+:(?:[0-9]+)?", ":*:", line, 1)
+            canon_line = re.sub(r":[0-9]+:(?:[0-9]+)?:?", ":*:", line, 1)
             canon_line = re.sub(r"line [0-9]+", "line *", canon_line)
             if canon_line not in exclusions:
-                print(line)
-                error = True
+                not_excluded.append(line)
 
-        self.assertFalse(error)
+        if not_excluded:
+            self.fail(
+                "pyflakes produced output:\n\n" + "\n".join(not_excluded))

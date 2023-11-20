@@ -26,7 +26,6 @@ sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 
 def main():
     from cdimage.config import Config
-    from cdimage.tree import Publisher, Tree
     from cdimage.simplestreams import SimpleStreams
 
     parser = OptionParser(
