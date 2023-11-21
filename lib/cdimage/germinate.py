@@ -388,65 +388,6 @@ class GerminateOutput:
 
             yield package
 
-    def installer_initrds(self, cpuarch):
-        if cpuarch in ("amd64", "i386"):
-            return ["cdrom/initrd.gz", "netboot/netboot.tar.gz"]
-        elif cpuarch == "hppa":
-            return ["cdrom/2.6/initrd.gz", "netboot/2.6/boot.img"]
-        elif cpuarch == "ia64":
-            return ["cdrom/boot.img", "netboot/netboot.tar.gz"]
-        elif cpuarch in ("powerpc", "ppc64el"):
-            return ["cdrom/initrd.gz", "netboot/initrd.gz"]
-        elif cpuarch == "sparc":
-            return ["cdrom/initrd.gz", "netboot/initrd.gz"]
-        else:
-            return []
-
-    def installer_subarches(self, cpuarch):
-        if cpuarch == "powerpc":
-            return ["powerpc", "powerpc64"]
-        else:
-            return ["."]
-
-    def initrd_packages(self, initrd, arch):
-        manifest_path = os.path.join(
-            find_mirror(self.config, arch), "dists", self.config.series,
-            "main", "installer-%s" % arch, "current", "images",
-            "MANIFEST.udebs")
-        if not os.path.exists(manifest_path):
-            return set()
-        if initrd.startswith("./"):
-            initrd = initrd[2:]
-        packages = set()
-        with open(manifest_path) as manifest:
-            found_initrd = False
-            for line in manifest:
-                line = line.rstrip("\n")
-                if line == initrd:
-                    found_initrd = True
-                elif found_initrd:
-                    if line and not line[0].isspace():
-                        break
-                    else:
-                        packages.add(line.split()[0])
-        return packages
-
-    def common_initrd_packages(self, arch):
-        initrd_packages_sets = []
-        # Remove installer packages that are in both the cdrom and
-        # netboot initrds; there's no point duplicating these.
-        cpuarch = arch.split("+")[0]
-        initrds = self.installer_initrds(cpuarch)
-        subarches = self.installer_subarches(cpuarch)
-        for initrd in initrds:
-            for subarch in subarches:
-                initrd_packages_sets.append(self.initrd_packages(
-                    "%s/%s" % (subarch, initrd), cpuarch))
-        if initrd_packages_sets:
-            return set.intersection(*initrd_packages_sets)
-        else:
-            return set()
-
     def task_project(self, project):
         # ubuntu-server really wants ubuntu-* tasks.
         if project == "ubuntu-server":
@@ -495,7 +436,6 @@ class GerminateOutput:
         osextras.ensuredir(output_dir)
 
         for arch in self.config.arches:
-            initrd_packages = self.common_initrd_packages(arch)
             packages = defaultdict(list)
             cpparch = arch.replace("+", "_").replace("-", "_")
             for seed in self.list_seeds("all"):
@@ -510,9 +450,8 @@ class GerminateOutput:
                     print("#ifdef ARCH_%s" % cpparch, file=task_file)
                     for package in sorted(
                             self.task_packages(arch, seed, seedsource)):
-                        if package not in initrd_packages:
-                            packages[seed].append(package)
-                            print(package, file=task_file)
+                        packages[seed].append(package)
+                        print(package, file=task_file)
                     print("#endif /* ARCH_%s */" % cpparch, file=task_file)
 
             tasks = defaultdict(list)
