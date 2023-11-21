@@ -556,9 +556,8 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
                 "AddIcon ../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
-                "MD5SUMS-metalink MD5SUMS-metalink.gpg "
                 "SHA256SUMS SHA256SUMS.gpg\n"
-                "AddIcon ../../cdicons/torrent.png .torrent .metalink\n",
+                "AddIcon ../../cdicons/torrent.png .torrent\n",
                 htaccess.read())
 
     def test_make_web_indices_for_simple_release(self):
@@ -648,9 +647,8 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
                 "AddIcon ../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../cdicons/list.png .list .manifest .html .zsync "
-                "MD5SUMS-metalink MD5SUMS-metalink.gpg SHA256SUMS "
-                "SHA256SUMS.gpg\n"
-                "AddIcon ../cdicons/torrent.png .torrent .metalink\n",
+                "SHA256SUMS SHA256SUMS.gpg\n"
+                "AddIcon ../cdicons/torrent.png .torrent\n",
                 htaccess.read())
 
     def test_make_web_indices_for_full_release(self):
@@ -743,9 +741,8 @@ class TestPublisherWebIndices(TestCase):
                 ".tar.xz\n"
                 "AddIcon ../../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../../cdicons/list.png .list .manifest .html "
-                ".zsync MD5SUMS-metalink MD5SUMS-metalink.gpg SHA256SUMS "
-                "SHA256SUMS.gpg\n"
-                "AddIcon ../../../cdicons/torrent.png .torrent .metalink\n",
+                ".zsync SHA256SUMS SHA256SUMS.gpg\n"
+                "AddIcon ../../../cdicons/torrent.png .torrent\n",
                 htaccess.read())
 
 
@@ -1981,7 +1978,6 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
-    @mock.patch("cdimage.tree.DailyTreePublisher.make_metalink")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish(self, mock_post_qa, *args):
         self.config["ARCHES"] = "i386"
@@ -2036,7 +2032,6 @@ class TestDailyTreePublisher(TestCase):
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
-    @mock.patch("cdimage.tree.DailyTreePublisher.make_metalink")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish_subtree(self, mock_post_qa, *args):
         self.config.subtree = "subtree/test"
@@ -2537,7 +2532,6 @@ class TestChinaDailyTreePublisher(TestDailyTreePublisher):
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
-    @mock.patch("cdimage.tree.DailyTreePublisher.make_metalink")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish(self, mock_post_qa, *args):
         self.config["ARCHES"] = "i386"

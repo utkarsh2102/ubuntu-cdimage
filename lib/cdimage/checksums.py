@@ -254,18 +254,6 @@ class ChecksumFileSet:
             self.write()
 
 
-class MetalinkChecksumFileSet(ChecksumFileSet):
-    """Manipulate the set of checksum files for metalinks together."""
-
-    checksum_file_methods = {
-        "MD5SUMS-metalink": hashlib.md5,
-    }
-
-    def want_image(self, image):
-        """Return true if and only if we want to checksum this image."""
-        return image.endswith(".metalink")
-
-
 def checksum_directory(config, directory, old_directories=None, sign=True,
                        map_expr=None):
     if old_directories is None:
@@ -276,17 +264,4 @@ def checksum_directory(config, directory, old_directories=None, sign=True,
     # here.
     checksum_files = ChecksumFileSet(config, directory, sign=sign)
     checksum_files.merge_all(old_directories, map_expr=map_expr)
-    checksum_files.write()
-
-
-def metalink_checksum_directory(config, directory, old_directories=None,
-                                sign=True):
-    if old_directories is None:
-        old_directories = [directory]
-
-    # We don't want to read the existing checksum files directly, as they
-    # may contain stale checksums; so we don't use the context manager form
-    # here.
-    checksum_files = MetalinkChecksumFileSet(config, directory, sign=sign)
-    checksum_files.merge_all(old_directories)
     checksum_files.write()
