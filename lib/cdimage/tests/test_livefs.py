@@ -224,7 +224,6 @@ def make_livefs_production_config(config):
             *\t\t*\t\tarmhf+ac100\t\tcelbalrai.buildd
             *\t\t*\t\tarmhf+nexus7\t\tcelbalrai.buildd
             *\t\t*\t\tarmhf\t\t\tkishi00.buildd
-            *\t\t*\t\thppa\t\t\tcastilla.buildd
             *\t\t*\t\ti386\t\t\tcardamom.buildd
             *\t\t*\t\tia64\t\t\tweddell.buildd
             *\t\t*\t\tpowerpc\t\t\troyal.buildd
@@ -276,10 +275,6 @@ class TestLiveBuilder(TestCase):
             self.assertBuilderEqual("celbalrai.buildd", "armhf+nexus7", series)
             self.assertBuilderEqual(
                 "kishi00.buildd", "armhf+somethingelse", series)
-
-    def test_hppa(self):
-        for series in all_series:
-            self.assertBuilderEqual("castilla.buildd", "hppa", series)
 
     def test_i386(self):
         for series in all_series:
@@ -894,10 +889,6 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual(
                 "linaro-lt-mx5", "armhf+mx5", "ubuntu", series)
             self.assertFlavoursEqual("omap4", "armhf+omap4", "ubuntu", series)
-
-    def test_hppa(self):
-        for series in all_series:
-            self.assertFlavoursEqual("hppa32 hppa64", "hppa", "ubuntu", series)
 
     def test_i386(self):
         for series in all_series[4:]:

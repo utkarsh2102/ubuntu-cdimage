@@ -60,11 +60,6 @@ class TestChecksumFile(TestCase):
             self.assertMirrorEqual(
                 "http://ftpmaster.internal/ubuntu/", "armel", series)
 
-    def test_hppa(self):
-        for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "hppa", series)
-
     def test_i386(self):
         for series in all_series:
             self.assertMirrorEqual(

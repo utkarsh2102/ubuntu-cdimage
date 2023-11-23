@@ -842,7 +842,6 @@ class Publisher:
         "armhf+raspi": "Raspberry Pi Generic (Hard-Float)",
         "armhf+raspi2": "Raspberry Pi 2",
         "armhf+raspi3": "Raspberry Pi 3 (Hard-Float)",
-        "hppa": "HP PA-RISC",
         "i386": "32-bit PC (i386)",
         "ia64": "IA-64",
         "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
@@ -922,8 +921,6 @@ class Publisher:
                 "See %s for detailed installation information." % link)
         elif arch == "armhf":
             sentences.append("For ARMv7 processors and above (Hard-Float).")
-        elif arch == "hppa":
-            sentences.append("For HP PA-RISC computers.")
         elif arch == "i386":
             sentences.append("For almost all PCs.")
             sentences.append(
@@ -1233,7 +1230,6 @@ class Publisher:
             "powerpc",
             "powerpc+ps3",
             "ppc64el",
-            "hppa",
             "ia64",
             "riscv64", "riscv64+unleashed", "riscv64+unmatched",
             "riscv64+visionfive", "riscv64+visionfive2", "riscv64+nezha",
@@ -2124,8 +2120,7 @@ class DailyTreePublisher(Publisher):
             #   2008-March/000400.html
             return True
         elif cpuarch in (
-                "arm64", "armel", "armhf", "hppa", "ia64", "ppc64el",
-                "s390x"):
+                "arm64", "armel", "armhf", "ia64", "ppc64el", "s390x"):
             return True
         return False
 

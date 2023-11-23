@@ -500,8 +500,6 @@ def flavours(config, arch):
             return ["linaro-lt-mx5"]
         else:
             return [subarch]
-    elif cpuarch == "hppa":
-        return ["hppa32", "hppa64"]
     elif cpuarch == "i386":
         if project == "ubuntustudio":
             return ["lowlatency"]

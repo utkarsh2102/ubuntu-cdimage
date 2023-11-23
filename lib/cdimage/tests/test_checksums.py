@@ -334,27 +334,27 @@ class TestChecksumFileSet(TestCase):
 
     def test_merge_all(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        old_iso_hppa_path = os.path.join(old_dir, "foo-hppa.raw")
-        with mkfile(old_iso_hppa_path) as old_iso_hppa:
-            print("foo-hppa.raw", end="", file=old_iso_hppa)
+        old_iso_arm64_path = os.path.join(old_dir, "foo-arm64.raw")
+        with mkfile(old_iso_arm64_path) as old_iso_arm64:
+            print("foo-arm64.raw", end="", file=old_iso_arm64)
         old_iso_i386_path = os.path.join(old_dir, "foo-i386.raw")
         with mkfile(old_iso_i386_path) as old_iso_i386:
             print("foo-i386.raw", end="", file=old_iso_i386)
         self.create_checksum_files(
-            ["foo-hppa.raw", "foo-i386.raw"], directory=old_dir)
+            ["foo-arm64.raw", "foo-i386.raw"], directory=old_dir)
         iso_amd64_path = os.path.join(self.temp_dir, "foo-amd64.iso")
         with mkfile(iso_amd64_path) as iso_amd64:
             print("foo-amd64.iso", end="", file=iso_amd64)
         touch(os.path.join(self.temp_dir, "foo-amd64.list"))
         shutil.copy(
-            old_iso_hppa_path, os.path.join(self.temp_dir, "foo-hppa.iso"))
+            old_iso_arm64_path, os.path.join(self.temp_dir, "foo-arm64.iso"))
         shutil.copy(
             old_iso_i386_path, os.path.join(self.temp_dir, "foo-i386.iso"))
         checksum_files = self.cls(self.config, self.temp_dir)
         checksum_files.merge_all([old_dir], map_expr=r"s/\.iso$/.raw/")
         self.assertChecksumsEqual({
             "foo-amd64.iso": b"foo-amd64.iso",
-            "foo-hppa.iso": b"foo-hppa.raw",
+            "foo-arm64.iso": b"foo-arm64.raw",
             "foo-i386.iso": b"foo-i386.raw",
         }, checksum_files)
 
@@ -391,20 +391,20 @@ class TestChecksumFileSet(TestCase):
 
     def test_checksum_directory(self):
         old_dir = os.path.join(self.temp_dir, "old")
-        old_iso_hppa_path = os.path.join(old_dir, "foo-hppa.raw")
-        with mkfile(old_iso_hppa_path) as old_iso_hppa:
-            print("foo-hppa.raw", end="", file=old_iso_hppa)
+        old_iso_arm64_path = os.path.join(old_dir, "foo-arm64.raw")
+        with mkfile(old_iso_arm64_path) as old_iso_arm64:
+            print("foo-arm64.raw", end="", file=old_iso_arm64)
         old_iso_i386_path = os.path.join(old_dir, "foo-i386.raw")
         with mkfile(old_iso_i386_path) as old_iso_i386:
             print("foo-i386.raw", end="", file=old_iso_i386)
         self.create_checksum_files(
-            ["foo-hppa.raw", "foo-i386.raw"], directory=old_dir)
+            ["foo-arm64.raw", "foo-i386.raw"], directory=old_dir)
         iso_amd64_path = os.path.join(self.temp_dir, "foo-amd64.iso")
         with mkfile(iso_amd64_path) as iso_amd64:
             print("foo-amd64.iso", end="", file=iso_amd64)
         touch(os.path.join(self.temp_dir, "foo-amd64.list"))
         shutil.copy(
-            old_iso_hppa_path, os.path.join(self.temp_dir, "foo-hppa.iso"))
+            old_iso_arm64_path, os.path.join(self.temp_dir, "foo-arm64.iso"))
         shutil.copy(
             old_iso_i386_path, os.path.join(self.temp_dir, "foo-i386.iso"))
         checksum_directory(
@@ -413,11 +413,11 @@ class TestChecksumFileSet(TestCase):
         with open(os.path.join(self.temp_dir, "SHA256SUMS")) as sha256sums:
             digests = (
                 hashlib.sha256(b"foo-amd64.iso").hexdigest(),
-                hashlib.sha256(b"foo-hppa.raw").hexdigest(),
+                hashlib.sha256(b"foo-arm64.raw").hexdigest(),
                 hashlib.sha256(b"foo-i386.raw").hexdigest(),
             )
             self.assertEqual(dedent("""\
                 %s *foo-amd64.iso
-                %s *foo-hppa.iso
+                %s *foo-arm64.iso
                 %s *foo-i386.iso
                 """) % digests, sha256sums.read())
