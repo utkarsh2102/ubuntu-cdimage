@@ -7,8 +7,6 @@
 # *			source			focal-			amd64
 *			source			*			i386
 
-ubuntu-touch		daily-preinstalled	bionic-			armhf i386 arm64
-
 ubuntu-base		daily			bionic			amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-base		daily			focal-			amd64 arm64 armhf ppc64el riscv64 s390x
 ubuntu-core-system-image	daily-preinstalled	xenial-		amd64 arm64 armhf i386 ppc64el s390x
