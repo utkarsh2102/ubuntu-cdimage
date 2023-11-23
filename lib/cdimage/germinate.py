@@ -195,7 +195,7 @@ class NoMasterSeeds(Exception):
 
 
 re_not_base = re.compile(
-    r"^(linux-(image|restricted|amd64|386|686|k7|power|ia64|itanium|mckinley|"
+    r"^(linux-(image|restricted|amd64|386|686|k7|power|"
     r"sparc|imx51|dove|omap).*|"
     r"nvidia-kernel-common|grub|yaboot|efibootmgr|elilo|silo|palo)$")
 

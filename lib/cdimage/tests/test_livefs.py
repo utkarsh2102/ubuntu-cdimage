@@ -225,7 +225,6 @@ def make_livefs_production_config(config):
             *\t\t*\t\tarmhf+nexus7\t\tcelbalrai.buildd
             *\t\t*\t\tarmhf\t\t\tkishi00.buildd
             *\t\t*\t\ti386\t\t\tcardamom.buildd
-            *\t\t*\t\tia64\t\t\tweddell.buildd
             *\t\t*\t\tpowerpc\t\t\troyal.buildd
             *\t\t*\t\tppc64el\t\t\tfisher01.buildd
             *\t\t*\t\tsparc\t\t\tvivies.buildd
@@ -279,10 +278,6 @@ class TestLiveBuilder(TestCase):
     def test_i386(self):
         for series in all_series:
             self.assertBuilderEqual("cardamom.buildd", "i386", series)
-
-    def test_ia64(self):
-        for series in all_series:
-            self.assertBuilderEqual("weddell.buildd", "ia64", series)
 
     def test_powerpc(self):
         for series in all_series:
@@ -899,10 +894,6 @@ class TestFlavours(TestCase):
         for series in all_series[16:]:
             self.assertFlavoursEqual(
                 "lowlatency", "i386", "ubuntustudio", series)
-
-    def test_ia64(self):
-        for series in all_series[10:]:
-            self.assertFlavoursEqual("ia64", "ia64", "ubuntu", series)
 
     def test_powerpc(self):
         for series in all_series[24:]:

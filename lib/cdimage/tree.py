@@ -843,7 +843,6 @@ class Publisher:
         "armhf+raspi2": "Raspberry Pi 2",
         "armhf+raspi3": "Raspberry Pi 3 (Hard-Float)",
         "i386": "32-bit PC (i386)",
-        "ia64": "IA-64",
         "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
         "powerpc+ps3": "PlayStation 3",
         "ppc64el": "PowerPC64 Little-Endian",
@@ -928,8 +927,6 @@ class Publisher:
                 "processors and almost all computers that run Microsoft "
                 "Windows, as well as newer Apple Macintosh systems based on "
                 "Intel processors.")
-        elif arch == "ia64":
-            sentences.append("For Intel Itanium and Itanium 2 computers.")
         elif arch == "powerpc":
             sentences.append(
                 "For Apple Macintosh G3, G4, and G5 computers, including "
@@ -1230,7 +1227,6 @@ class Publisher:
             "powerpc",
             "powerpc+ps3",
             "ppc64el",
-            "ia64",
             "riscv64", "riscv64+unleashed", "riscv64+unmatched",
             "riscv64+visionfive", "riscv64+visionfive2", "riscv64+nezha",
             "riscv64+licheerv", "riscv64+icicle",
@@ -2119,8 +2115,7 @@ class DailyTreePublisher(Publisher):
             # https://lists.ubuntu.com/archives/ubuntu-devel-announce/
             #   2008-March/000400.html
             return True
-        elif cpuarch in (
-                "arm64", "armel", "armhf", "ia64", "ppc64el", "s390x"):
+        elif cpuarch in ("arm64", "armel", "armhf", "ppc64el", "s390x"):
             return True
         return False
 
