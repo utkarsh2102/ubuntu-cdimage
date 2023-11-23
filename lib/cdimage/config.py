@@ -267,36 +267,6 @@ all_series.extend([
         distribution="ubuntu-rtm"),
 ])
 
-all_touch_targets = []
-
-
-class Touch:
-    def __init__(self, subarch, android_arch, ubuntu_arch):
-        self.subarch = subarch
-        self.android_arch = android_arch
-        self.ubuntu_arch = ubuntu_arch
-
-    @classmethod
-    def list_android_arches(self):
-        return list(set([touch.android_arch for touch in all_touch_targets]))
-
-    @classmethod
-    def list_ubuntu_arches(self):
-        return list(set([touch.ubuntu_arch for touch in all_touch_targets]))
-
-    @classmethod
-    def list_targets_by_ubuntu_arch(self, arch):
-        return [target for target in all_touch_targets
-                if target.ubuntu_arch == arch]
-
-
-# TODO: This should probably come from a configuration file.
-all_touch_targets.extend([
-    Touch("mako", "armel", "armhf"),
-    Touch("generic", "armel", "armhf"),
-    Touch("generic_x86", "i386", "i386"),
-    Touch("flo", "armel", "armhf"),
-])
 
 _allowed_keys = (
     "PROJECT",
