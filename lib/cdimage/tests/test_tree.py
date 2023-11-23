@@ -254,8 +254,6 @@ class TestPublisher(TestCase):
              "preinstalled-server"),
             ("daily-preinstalled", "ubuntu", "bionic",
              "preinstalled-desktop"),
-            ("daily-preinstalled", "ubuntu-touch", "bionic",
-             "preinstalled-touch"),
             ("daily-live", "edubuntu", "lunar", "desktop"),
             ("daily-live", "ubuntu-server", "bionic", "live-server"),
             ("daily-live", "ubuntu", "bionic", "desktop"),
@@ -864,13 +862,6 @@ class TestDailyTreePublisher(TestCase):
                 self.config.root, "scratch", "kubuntu", "hoary", "daily",
                 "debian-cd", "i386"),
             self.make_publisher("kubuntu", "daily").image_output("i386"))
-        self.config["DIST"] = "ubuntu-rtm/14.09"
-        self.assertEqual(
-            os.path.join(
-                self.config.root, "scratch", "ubuntu-touch", "ubuntu-rtm",
-                "14.09", "daily-preinstalled", "debian-cd", "armhf"),
-            self.make_publisher(
-                "ubuntu-touch", "daily-preinstalled").image_output("armhf"))
 
     def test_source_extension(self):
         self.assertEqual(
@@ -923,13 +914,6 @@ class TestDailyTreePublisher(TestCase):
                 self.config.root, "www", "full",
                 "kubuntu", "hoary", "daily-live"),
             self.make_publisher("kubuntu", "daily-live").publish_base)
-        self.config["DIST"] = "ubuntu-rtm/14.09"
-        self.assertEqual(
-            os.path.join(
-                self.config.root, "www", "full",
-                "ubuntu-touch", "ubuntu-rtm", "14.09", "daily-preinstalled"),
-            self.make_publisher(
-                "ubuntu-touch", "daily-preinstalled").publish_base)
 
     def test_size_limit(self):
         for project, dist, image_type, arch, size_limit in (
@@ -1745,14 +1729,6 @@ class TestDailyTreePublisher(TestCase):
             publisher.qa_product(
                 "ubuntu-zh_CN", "daily-live", "desktop",
                 "i386"))
-
-    def test_qa_product_ubuntu_touch(self):
-        publisher = self.make_publisher("ubuntu-touch", "daily-preinstalled")
-        self.assertEqual(
-            ("Ubuntu Touch armhf", "iso"),
-            publisher.qa_product(
-                "ubuntu-touch", "daily-preinstalled", "preinstalled-touch",
-                "armhf"))
 
     def test_qa_product_ubuntu_preinstalled(self):
         publisher = self.make_publisher("ubuntu", "daily")
