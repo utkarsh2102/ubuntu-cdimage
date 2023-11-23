@@ -43,7 +43,6 @@ from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.mirror import trigger_mirrors
 from cdimage.tracker import tracker_set_rebuild_status
 from cdimage.tree import Publisher, Tree
-from cdimage.config import Touch
 
 __metaclass__ = type
 
@@ -361,38 +360,6 @@ def build_ubuntu_defaults_locale(config):
                     [pi_makelist, entry_path], stdout=list_file)
 
 
-def add_android_support(config, arch, output_dir):
-    """Copy Android support files to an Ubuntu Touch image.
-    """
-    live_scratch_dir = os.path.join(
-        config.root, "scratch", config.subtree, config.project,
-        config.full_series, config.image_type, "live")
-
-    # copy recovery, boot and system imgs in place
-    for target in Touch.list_targets_by_ubuntu_arch(arch):
-        boot_img_src = "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
-        boot_img = "%s-preinstalled-boot-%s+%s.img" % (
-            config.series, arch, target.subarch)
-        system_img_src = "system-%s+%s.img" % (
-            target.android_arch, target.subarch)
-        system_img = "%s-preinstalled-system-%s+%s.img" % (
-            config.series, target.android_arch, target.subarch)
-        recovery_img_src = "recovery-%s+%s.img" % (
-            target.android_arch, target.subarch)
-        recovery_img = "%s-preinstalled-recovery-%s+%s.img" % (
-            config.series, target.android_arch, target.subarch)
-
-        shutil.copy2(
-            os.path.join(live_scratch_dir, boot_img_src),
-            os.path.join(output_dir, boot_img))
-        shutil.copy2(
-            os.path.join(live_scratch_dir, system_img_src),
-            os.path.join(output_dir, system_img))
-        shutil.copy2(
-            os.path.join(live_scratch_dir, recovery_img_src),
-            os.path.join(output_dir, recovery_img))
-
-
 def build_livecd_base(config):
     log_marker("Downloading live filesystem images")
     download_live_filesystems(config)
@@ -500,7 +467,7 @@ def build_livecd_base(config):
                 shutil.copy2(
                     live_qcow2, "%s.qcow2" % output_prefix)
 
-    if (config.project in ("ubuntu-base", "ubuntu-touch") or
+    if (config.project == "ubuntu-base" or
         (config.project == "ubuntu-core" and
          config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
@@ -521,23 +488,11 @@ def build_livecd_base(config):
                 elif config.project == "ubuntu-base":
                     output_prefix = os.path.join(
                         output_dir, "%s-base-%s" % (config.series, arch))
-                elif config.project == "ubuntu-touch":
-                    output_prefix = os.path.join(
-                        output_dir,
-                        "%s-preinstalled-touch-%s" % (config.series, arch))
                 shutil.copy2(rootfs, "%s.raw" % output_prefix)
                 with open("%s.type" % output_prefix, "w") as f:
                     print("tar archive", file=f)
                 shutil.copy2(
                     "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
-                if config.project == "ubuntu-touch":
-                    osextras.link_force(
-                        "%s.raw" % output_prefix, "%s.tar.gz" % output_prefix)
-                    add_android_support(config, arch, output_dir)
-                    custom = "%s.custom.tar.gz" % live_prefix
-                    if os.path.exists(custom):
-                        shutil.copy2(
-                            custom, "%s.custom.tar.gz" % output_prefix)
                 if config.project == "ubuntu-core":
                     for dev in ("azure.device", "device", "raspi2.device",
                                 "plano.device"):
@@ -664,7 +619,7 @@ def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
             "livecd-base", "ubuntu-base", "ubuntu-core",
-            "ubuntu-core-desktop", "ubuntu-appliance", "ubuntu-touch"):
+            "ubuntu-core-desktop", "ubuntu-appliance"):
         live_fs_only = True
     elif (config.project in ("ubuntu", "ubuntu-server") and
           config.image_type == "daily-preinstalled"):

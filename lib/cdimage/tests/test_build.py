@@ -58,7 +58,7 @@ from cdimage.build import (
     sync_local_mirror,
     want_live_builds,
 )
-from cdimage.config import Config, Touch
+from cdimage.config import Config
 from cdimage.log import logger
 from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch
@@ -427,70 +427,6 @@ class TestBuildLiveCDBase(TestCase):
             "amd64.manifest",
             "amd64.qcow2",
         ], os.listdir(output_dir))
-
-    @mock.patch("cdimage.osextras.fetch")
-    def _perform_ubuntu_touch_testing(self, project, mock_fetch):
-        '''Convenience function for testing ubuntu-touch* builds.'''
-        def fetch_side_effect(config, source, target):
-            if (target.endswith(".manifest") or
-                    target.endswith(".rootfs.tar.gz") or
-                    target.endswith(".custom.tar.gz") or
-                    target.endswith(".img")):
-                touch(target)
-            else:
-                raise osextras.FetchError
-
-        mock_fetch.side_effect = fetch_side_effect
-        self.config["CDIMAGE_PREINSTALLED"] = "1"
-        self.config["PROJECT"] = project
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily-preinstalled"
-        self.config["ARCHES"] = "armhf"
-        self.capture_logging()
-        build_livecd_base(self.config)
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-            "===== Copying images to debian-cd output directory =====",
-            self.epoch_date,
-        ])
-        output_dir = os.path.join(
-            self.temp_dir, "scratch", project, "bionic",
-            "daily-preinstalled", "debian-cd", "armhf")
-        self.assertTrue(os.path.isdir(output_dir))
-        touch_files = ["bionic-preinstalled-boot-%s+%s.img" % (
-            touch_target.ubuntu_arch, touch_target.subarch)
-            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")]
-        touch_files.extend(["bionic-preinstalled-recovery-%s+%s.img" % (
-            touch_target.android_arch, touch_target.subarch)
-            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
-        touch_files.extend(["bionic-preinstalled-system-%s+%s.img" % (
-            touch_target.android_arch, touch_target.subarch)
-            for touch_target in Touch.list_targets_by_ubuntu_arch("armhf")])
-        touch_files.extend([
-            "bionic-preinstalled-touch-armhf.manifest",
-            "bionic-preinstalled-touch-armhf.raw",
-            "bionic-preinstalled-touch-armhf.type",
-            "bionic-preinstalled-touch-armhf.tar.gz",
-            "bionic-preinstalled-touch-armhf.custom.tar.gz",
-            ])
-        self.assertCountEqual(touch_files, os.listdir(output_dir))
-        with open(os.path.join(
-            output_dir, "bionic-preinstalled-touch-armhf.type")
-        ) as f:
-            self.assertEqual("tar archive\n", f.read())
-        for touch_target in Touch.list_targets_by_ubuntu_arch("armhf"):
-            system_img = "bionic-preinstalled-system-%s+%s.img" % (
-                touch_target.android_arch, touch_target.subarch)
-            recovery_img = "bionic-preinstalled-recovery-%s+%s.img" % (
-                touch_target.android_arch, touch_target.subarch)
-            self.assertTrue(os.path.exists(
-                os.path.join(output_dir, system_img)))
-            self.assertTrue(os.path.exists(
-                os.path.join(output_dir, recovery_img)))
-
-    def test_ubuntu_touch(self):
-        self._perform_ubuntu_touch_testing("ubuntu-touch")
 
 
 class TestBuildImageSet(TestCase):
