@@ -853,7 +853,6 @@ class Publisher:
         "riscv64+licheerv": "RISC-V for Sipeed LicheeRV Dock",
         "riscv64+icicle": "RISC-V for Microchip Polarfire Icicle Kit",
         "s390x": "IBM System z",
-        "sparc": "SPARC",
     }
 
     def archdesc(self, arch, publish_type):
@@ -969,10 +968,6 @@ class Publisher:
         elif arch == "s390x":
             sentences.append(
                 "For IBM System z series mainframes, such as IBM LinuxONE.")
-        elif arch == "sparc":
-            sentences.append(
-                "For Sun UltraSPARC computers, including those based on the "
-                "multicore UltraSPARC T1 (\"Niagara\") processors.")
         else:
             raise WebIndicesException("Unknown architecture %s!" % arch)
         return "  ".join(sentences)
@@ -1210,7 +1205,6 @@ class Publisher:
             "riscv64+visionfive", "riscv64+visionfive2", "riscv64+nezha",
             "riscv64+licheerv", "riscv64+icicle",
             "s390x",
-            "sparc",
         )
 
         self.prefmsg_emitted = False
@@ -2086,13 +2080,7 @@ class DailyTreePublisher(Publisher):
 
     def jigdo_ports(self, arch):
         cpuarch = arch.split("+")[0]
-        if cpuarch == "sparc":
-            # https://lists.ubuntu.com/archives/ubuntu-devel-announce/
-            #   2008-March/000400.html
-            return True
-        elif cpuarch in ("arm64", "armel", "armhf", "ppc64el", "s390x"):
-            return True
-        return False
+        return cpuarch in ("arm64", "armel", "armhf", "ppc64el", "s390x")
 
     def replace_jigdo_mirror(self, path, from_mirror, to_mirror):
         with open(path) as jigdo_in:

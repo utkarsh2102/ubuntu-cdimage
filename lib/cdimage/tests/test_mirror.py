@@ -75,11 +75,6 @@ class TestChecksumFile(TestCase):
             self.assertMirrorEqual(
                 "http://ftpmaster.internal/ubuntu/", "s390x", series)
 
-    def test_sparc(self):
-        for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "sparc", series)
-
 
 class TestTriggerMirrors(TestCase):
     def test_check_manifest_no_manifest(self):

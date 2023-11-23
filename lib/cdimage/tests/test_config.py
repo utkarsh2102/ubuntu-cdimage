@@ -362,7 +362,7 @@ class TestConfig(TestCase):
         self.assertEqual(["amd64", "arm64"], config.cpuarches)
         self.assertEqual("amd64 arm64", os.environ["CPUARCHES"])
 
-        config.limit_arches(["amd64", "arm64", "sparc"])
+        config.limit_arches(["amd64", "arm64", "s390x"])
         self.assertEqual(["amd64", "arm64"], config.arches)
         self.assertEqual("amd64 arm64", os.environ["ARCHES"])
         self.assertEqual(["amd64", "arm64"], config.cpuarches)

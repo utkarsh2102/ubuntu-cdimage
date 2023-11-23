@@ -226,7 +226,6 @@ def make_livefs_production_config(config):
             *\t\t*\t\tarmhf\t\t\tkishi00.buildd
             *\t\t*\t\ti386\t\t\tcardamom.buildd
             *\t\t*\t\tppc64el\t\t\tfisher01.buildd
-            *\t\t*\t\tsparc\t\t\tvivies.buildd
             """), file=f)
 
 
@@ -281,10 +280,6 @@ class TestLiveBuilder(TestCase):
     def test_ppc64el(self):
         for series in all_series:
             self.assertBuilderEqual("fisher01.buildd", "ppc64el", series)
-
-    def test_sparc(self):
-        for series in all_series:
-            self.assertBuilderEqual("vivies.buildd", "sparc", series)
 
 
 class TestLiveBuildOptions(TestCase):
@@ -894,10 +889,6 @@ class TestFlavours(TestCase):
     def test_s390x(self):
         for series in all_series:
             self.assertFlavoursEqual("generic", "s390x", "ubuntu", series)
-
-    def test_sparc(self):
-        for series in all_series:
-            self.assertFlavoursEqual("sparc64", "sparc", "ubuntu", series)
 
 
 class TestLiveItemPaths(TestCase):

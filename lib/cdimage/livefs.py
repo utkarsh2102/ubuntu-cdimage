@@ -509,8 +509,6 @@ def flavours(config, arch):
         return ["generic"]
     elif cpuarch == "s390x":
         return ["generic"]
-    elif cpuarch == "sparc":
-        return ["sparc64"]
     elif cpuarch == "riscv64":
         return ["generic"]
     else:
