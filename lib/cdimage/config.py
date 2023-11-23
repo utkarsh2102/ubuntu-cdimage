@@ -260,11 +260,6 @@ all_series.extend([
         _core_series="22",  # XXX: temporary for Core Desktop experiments
         all_lts_projects=True),
     Series("noble", "24.04", "Noble Numbat"),
-
-    Series("14.09", "14.09", "RTM 14.09", distribution="ubuntu-rtm"),
-    Series(
-        "14.09-factory", "14.09.1", "RTM 14.09-factory",
-        distribution="ubuntu-rtm"),
 ])
 
 
