@@ -1278,13 +1278,13 @@ class TestDownloadLiveFilesystems(TestCase):
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_multi_layers_squashfs(self, mock_fetch):
         self.assert_desktop_live_download_items(
-            "disco", "squashfs",
+            "focal", "squashfs",
             ["minimal.standard.live.squashfs"])
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_multiple_squashfses(self, mock_fetch):
         self.assert_desktop_live_download_items(
-            "disco", "squashfs",
+            "focal", "squashfs",
             ["minimal.squashfs",
              "minimal.standard.squashfs",
              "minimal.standard.live.squashfs"])
@@ -1292,7 +1292,7 @@ class TestDownloadLiveFilesystems(TestCase):
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_filter_suffix(self, mock_fetch):
         self.assert_desktop_live_download_items_with_expected(
-            "disco", "squashfs",
+            "focal", "squashfs",
             ["minimal.squashfs", "minimal.size"], ["minimal.squashfs"])
 
     @mock.patch("cdimage.osextras.fetch")
@@ -1300,16 +1300,16 @@ class TestDownloadLiveFilesystems(TestCase):
         '''Downloading from remote (not LP or local path) will only download
            basic names'''
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "disco"
+        self.config["DIST"] = "focal"
         self.config["IMAGE_TYPE"] = "daily-live"
         target_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "disco", "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu", "focal", "daily-live", "live")
 
         self.assertTrue(
             download_live_items(self.config, "amd64", "squashfs"))
         mock_fetch.assert_called_once_with(
             self.config,
-            "http://kapok.buildd/~buildd/LiveCD/disco/ubuntu/" +\
+            "http://kapok.buildd/~buildd/LiveCD/focal/ubuntu/" +\
             # This can't be livecd.ubuntu.minimal.standard.live.squashfs for
             # instance
             "current/livecd.ubuntu.squashfs",
