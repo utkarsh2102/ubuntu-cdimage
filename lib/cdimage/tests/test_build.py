@@ -72,7 +72,7 @@ class TestUpdateLocalIndices(TestCase):
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
         self.config["DIST"] = "bionic"
-        self.config["CPUARCHES"] = "i386"
+        self.config["CPUARCHES"] = "amd64"
         self.packages = os.path.join(self.temp_dir, "local", "packages")
         self.database = os.path.join(self.temp_dir, "local", "database")
         self.dists = os.path.join(self.database, "dists")
@@ -89,14 +89,14 @@ class TestUpdateLocalIndices(TestCase):
     def test_lists_and_overrides(self):
         fake_dir = os.path.join(self.pool, "f", "fake")
         self.make_deb(
-            os.path.join(fake_dir, "fake_1_i386.deb"), "misc", "optional")
+            os.path.join(fake_dir, "fake_1_amd64.deb"), "misc", "optional")
         self.make_deb(
             os.path.join(fake_dir, "fake_1_unknown.deb"), "misc", "optional")
         self.make_deb(
             os.path.join(fake_dir, "fake-nf_1_all.deb"),
             "non-free/admin", "extra")
         self.make_deb(
-            os.path.join(fake_dir, "fake-udeb_1_i386.udeb"),
+            os.path.join(fake_dir, "fake-udeb_1_amd64.udeb"),
             "debian-installer", "optional")
         self.make_deb(
             os.path.join(fake_dir, "fake-udeb_1_unknown.udeb"),
@@ -115,46 +115,46 @@ class TestUpdateLocalIndices(TestCase):
                 expected_command, cwd=self.packages)
 
         self.assertCountEqual([
-            "bionic_local_binary-i386.list",
-            "bionic_local_debian-installer_binary-i386.list",
+            "bionic_local_binary-amd64.list",
+            "bionic_local_debian-installer_binary-amd64.list",
         ], os.listdir(self.dists))
         with open(os.path.join(
-                self.dists, "bionic_local_binary-i386.list")) as f:
+                self.dists, "bionic_local_binary-amd64.list")) as f:
             self.assertCountEqual([
-                "pool/local/f/fake/fake_1_i386.deb",
+                "pool/local/f/fake/fake_1_amd64.deb",
                 "pool/local/f/fake/fake-nf_1_all.deb",
             ], f.read().splitlines())
         with open(os.path.join(
                 self.dists,
-                "bionic_local_debian-installer_binary-i386.list")) as f:
+                "bionic_local_debian-installer_binary-amd64.list")) as f:
             self.assertCountEqual([
-                "pool/local/f/fake/fake-udeb_1_i386.udeb",
+                "pool/local/f/fake/fake-udeb_1_amd64.udeb",
                 "pool/local/f/fake/fake-udeb-indep_1_all.udeb",
             ], f.read().splitlines())
 
         self.assertCountEqual([
-            "override.bionic.local.i386",
-            "override.bionic.local.debian-installer.i386",
+            "override.bionic.local.amd64",
+            "override.bionic.local.debian-installer.amd64",
         ], os.listdir(self.indices))
         with open(os.path.join(
-                self.indices, "override.bionic.local.i386")) as f:
+                self.indices, "override.bionic.local.amd64")) as f:
             self.assertCountEqual([
                 "fake\toptional\tlocal/misc",
                 "fake-nf\textra\tlocal/admin",
             ], f.read().splitlines())
         with open(os.path.join(
                 self.indices,
-                "override.bionic.local.debian-installer.i386")) as f:
+                "override.bionic.local.debian-installer.amd64")) as f:
             self.assertCountEqual([
                 "fake-udeb\toptional\tlocal/debian-installer",
                 "fake-udeb-indep\textra\tlocal/debian-installer",
             ], f.read().splitlines())
 
         self.assertTrue(os.path.exists(os.path.join(
-            self.packages, "dists", "bionic", "local", "binary-i386")))
+            self.packages, "dists", "bionic", "local", "binary-amd64")))
         self.assertTrue(os.path.exists(os.path.join(
             self.packages, "dists", "bionic", "local", "debian-installer",
-            "binary-i386")))
+            "binary-amd64")))
 
 
 class TestBuildUbuntuDefaultsLocale(TestCase):
@@ -187,22 +187,22 @@ class TestBuildUbuntuDefaultsLocale(TestCase):
 
         mock_fetch.side_effect = fetch_side_effect
         self.config["DIST"] = "bionic"
-        self.config["ARCHES"] = "i386"
+        self.config["ARCHES"] = "amd64"
         build_ubuntu_defaults_locale(self.config)
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-zh_CN", "bionic", "daily-live",
             "live")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "bionic-desktop-i386.iso",
-            "bionic-desktop-i386.list",
-            "bionic-desktop-i386.manifest",
-            "bionic-desktop-i386.manifest-remove",
-            "bionic-desktop-i386.size",
+            "bionic-desktop-amd64.iso",
+            "bionic-desktop-amd64.list",
+            "bionic-desktop-amd64.manifest",
+            "bionic-desktop-amd64.manifest-remove",
+            "bionic-desktop-amd64.size",
         ], os.listdir(output_dir))
         mock_check_call.assert_called_once_with([
             os.path.join(self.temp_dir, "debian-cd", "tools", "pi-makelist"),
-            os.path.join(output_dir, "bionic-desktop-i386.iso"),
+            os.path.join(output_dir, "bionic-desktop-amd64.iso"),
         ], stdout=mock.ANY)
 
 
@@ -242,7 +242,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["PROJECT"] = "livecd-base"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "livecd-base"
-        self.config["ARCHES"] = "i386"
+        self.config["ARCHES"] = "amd64"
         self.capture_logging()
         build_livecd_base(self.config)
         self.assertLogEqual([
@@ -254,7 +254,7 @@ class TestBuildLiveCDBase(TestCase):
             "live")
         self.assertTrue(os.path.isdir(live_dir))
         self.assertCountEqual(
-            ["i386.manifest", "i386.squashfs", "i386.squashfs.gpg"],
+            ["amd64.manifest", "amd64.squashfs", "amd64.squashfs.gpg"],
             os.listdir(live_dir))
 
     @mock.patch("cdimage.osextras.fetch")
@@ -270,7 +270,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["PROJECT"] = "ubuntu-base"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
-        self.config["ARCHES"] = "i386"
+        self.config["ARCHES"] = "amd64"
         self.capture_logging()
         build_livecd_base(self.config)
         self.assertLogEqual([
@@ -281,14 +281,14 @@ class TestBuildLiveCDBase(TestCase):
         ])
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-base", "bionic", "daily",
-            "debian-cd", "i386")
+            "debian-cd", "amd64")
         self.assertTrue(os.path.isdir(output_dir))
         self.assertCountEqual([
-            "bionic-base-i386.manifest",
-            "bionic-base-i386.raw",
-            "bionic-base-i386.type",
+            "bionic-base-amd64.manifest",
+            "bionic-base-amd64.raw",
+            "bionic-base-amd64.type",
         ], os.listdir(output_dir))
-        with open(os.path.join(output_dir, "bionic-base-i386.type")) as f:
+        with open(os.path.join(output_dir, "bionic-base-amd64.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
     @mock.patch("cdimage.osextras.fetch")

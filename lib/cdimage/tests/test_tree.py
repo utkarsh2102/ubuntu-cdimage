@@ -163,18 +163,18 @@ class TestTree(TestCase):
         target_dir = os.path.join(publish_base, "20130321")
         series = Series.latest().name
         for name in (
-            "%s-desktop-i386.iso" % series,
-            "%s-desktop-i386.manifest" % series,
+            "%s-desktop-amd64.iso" % series,
+            "%s-desktop-amd64.manifest" % series,
         ):
             touch(os.path.join(target_dir, name))
         current_triggers_path = os.path.join(
             self.temp_dir, "production", "current-triggers")
         with mkfile(current_triggers_path) as current_triggers:
             print(
-                "ubuntu\tdaily-live\tbionic-\ti386", file=current_triggers)
+                "ubuntu\tdaily-live\tbionic-\tamd64", file=current_triggers)
         self.config["SSH_ORIGINAL_COMMAND"] = (
             "mark-current --project=ubuntu --series=%s --publish-type=desktop "
-            "--architecture=i386 20130321" % series)
+            "--architecture=amd64 20130321" % series)
         pid = os.fork()
         if pid == 0:  # child
             try:
@@ -196,7 +196,7 @@ class TestTree(TestCase):
 
             with open(os.path.join(publish_base, "20130321", ".marked_good"),
                       "r") as marked_good:
-                self.assertEqual("noble-desktop-i386.iso\n",
+                self.assertEqual("noble-desktop-amd64.iso\n",
                                  marked_good.read())
 
             publish_current = os.path.join(publish_base, "current")
