@@ -33,7 +33,6 @@ project_map = {
     "kubuntu": "Kubuntu",
     "edubuntu": "Edubuntu",
     "xubuntu": "Xubuntu",
-    "gobuntu": "Gobuntu",
     "ubuntu-server": "Ubuntu-Server",
     "ubuntustudio": "Ubuntu-Studio",
     "mythbuntu": "Mythbuntu",

@@ -541,7 +541,6 @@ class TestBuildImageSet(TestCase):
     def test_configure_onlyfree_unsupported(self):
         for project, series, onlyfree, unsupported in (
             ("ubuntu", "bionic", False, False),
-            ("gobuntu", "hardy", True, False),
             ("edubuntu", "lunar", False, True),
             ("xubuntu", "bionic", False, True),
             ("kubuntu", "bionic", False, True),

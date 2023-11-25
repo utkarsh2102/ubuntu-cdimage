@@ -63,7 +63,6 @@ if sys.version < "3":
 # published tree.
 projects = [
     "edubuntu",
-    "gobuntu",
     "kubuntu",
     "kubuntu-active",
     "kubuntu-netbook",
