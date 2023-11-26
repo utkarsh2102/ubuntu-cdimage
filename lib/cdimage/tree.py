@@ -43,7 +43,6 @@ from cdimage.atomicfile import AtomicFile
 from cdimage.checksums import (
     ChecksumFileSet,
     checksum_directory,
-    metalink_checksum_directory,
 )
 from cdimage.config import Series, Touch
 from cdimage.log import logger, reset_logging
@@ -1023,10 +1022,10 @@ class Publisher:
                 "However, you may still test it using a larger USB drive or a "
                 "virtual machine.")
         elif self.project in ("ubuntu-gnome",
-                               "kubuntu",
-                               "ubuntu-mate",
-                               "ubuntu-budgie",
-                               "xubuntu"):
+                              "kubuntu",
+                              "ubuntu-mate",
+                              "ubuntu-budgie",
+                              "xubuntu"):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
                 "not fit onto a 2GB USB stick.")
@@ -1796,9 +1795,8 @@ class Publisher:
                 ("jigdo.png", ".jigdo .template"),
                 ("list.png", (
                     ".list .manifest .html .zsync "
-                    "MD5SUMS-metalink MD5SUMS-metalink.gpg "
                     "SHA256SUMS SHA256SUMS.gpg")),
-                ("torrent.png", ".torrent .metalink"),
+                ("torrent.png", ".torrent"),
             ):
                 print(
                     "AddIcon %s%s %s" % (cdicons, icon, patterns),
@@ -1816,39 +1814,6 @@ class Publisher:
                     print(
                         "AddType %s .%s" % (mimetype, extension),
                         file=htaccess)
-
-    def want_metalink(self, publish_type):
-        # wubi is dead, no MD5 metalink anymore
-        return False
-
-    def make_metalink(self, directory, version, dry_run=False):
-        """Create and publish metalink files."""
-        osextras.unlink_force(os.path.join(directory, "MD5SUMS-metalink"))
-        osextras.unlink_force(os.path.join(directory, "MD5SUMS-metalink.gpg"))
-
-        reldir = os.path.relpath(directory, self.tree.directory)
-        metalink_builder = os.path.join(
-            self.config.root, "MirrorMetalink", "build.py")
-        command = [
-            metalink_builder, self.tree.directory, version, reldir,
-            self.tree.site_name,
-        ]
-        if dry_run:
-            logger.info(" ".join(shell_quote(arg) for arg in command))
-        else:
-            try:
-                if subprocess.call(command) == 0:
-                    metalink_checksum_directory(self.config, directory)
-                    return
-            except OSError as e:
-                if e.errno != errno.ENOENT:
-                    raise
-
-        if not dry_run:
-            # Metalink creation failed.  Remove any stale .metalink files.
-            for name in os.listdir(directory):
-                if name.endswith(".metalink"):
-                    osextras.unlink_force(os.path.join(directory, name))
 
     def refresh_simplestreams(self):
         """For the publisher cycle, refresh the corresponding sstreams."""
@@ -2106,8 +2071,7 @@ class DailyTreePublisher(Publisher):
             publish_previous = os.path.join(publish_base, previous_name)
             if os.path.exists(publish_previous):
                 for name in sorted(os.listdir(publish_previous)):
-                    if name.endswith('.metalink') and \
-                       not self.want_metalink(self.publish_type):
+                    if name.endswith('.metalink'):
                         continue
                     if name.startswith("%s-" % self.config.series):
                         os.link(
@@ -2526,9 +2490,6 @@ class DailyTreePublisher(Publisher):
                 map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
             self.make_web_indices(
                 target_dir_source, self.config.series, status="daily")
-
-        if self.want_metalink(self.publish_type):
-            self.make_metalink(target_dir, self.config.series)
 
         # Now, populate the .publish_info file with datestamps of published
         # binaries.
@@ -3294,13 +3255,6 @@ class ReleasePublisher(Publisher):
         else:
             return os.path.join(self.config.distribution, self.version)
 
-    @property
-    def metalink_version(self):
-        if self.project == "ubuntu":
-            return self.version
-        else:
-            return os.path.join(self.project, self.version)
-
     def publish_release_prefixes(self):
         # "beta-2" should end up in directories named "beta-2", but with
         # filenames including "beta2" (otherwise we get hyphen overload).
@@ -3391,12 +3345,6 @@ class ReleasePublisher(Publisher):
                 " ".join(dirs)),
             checksum_directory,
             self.config, dirs[0], old_directories=dirs, map_expr=map_expr)
-
-    def metalink_checksum_directory(self, dirs):
-        self.do(
-            "checksum-directory --metalink %s" % " ".join(dirs),
-            metalink_checksum_directory,
-            self.config, dirs[0], old_directories=dirs)
 
     def want_manifest(self, publish_type, path):
         if publish_type in (
@@ -3760,29 +3708,11 @@ class ReleasePublisher(Publisher):
             self.checksum_directory(
                 [target_dir, daily_dir],
                 map_expr="s/^%s-/%s-/" % (prefix_status, series))
-            if self.want_metalink(publish_type):
-                logger.info(
-                    "Creating and publishing metalink files for the simple "
-                    "tree (%s) ..." % series)
-                self.make_metalink(
-                    target_dir, self.metalink_version, dry_run=self.dry_run)
         if self.want_full:
             logger.info("Checksumming full tree ...")
             self.checksum_directory(
                 [target_dir, daily_dir],
                 map_expr="s/^%s-/%s-/" % (prefix, series))
-            if self.want_metalink(publish_type):
-                logger.info(
-                    "Creating and publishing metalink files for the full "
-                    "tree ...")
-                if self.official == "named":
-                    metalink_target_dir = os.path.join(
-                        self.tree.publish_target(source), "releases",
-                        self.full_version, self.status)
-                else:
-                    metalink_target_dir = target_dir
-                self.make_metalink(
-                    metalink_target_dir, self.version, dry_run=self.dry_run)
 
         if self.want_dist or self.want_pool:
             if self.dry_run:

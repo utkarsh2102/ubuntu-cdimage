@@ -27,7 +27,6 @@ sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 def main():
     from cdimage.checksums import (
         checksum_directory,
-        metalink_checksum_directory,
     )
     from cdimage.config import Config
 
@@ -35,18 +34,12 @@ def main():
     parser.add_option(
         "--map", metavar="s/REGEXP/REPLACEMENT/",
         help="apply s/// expression to old entries to find matching checksum")
-    parser.add_option(
-        "--metalink", default=False, action="store_true",
-        help="create metalink checksums")
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need directory")
     config = Config()
-    if options.metalink:
-        metalink_checksum_directory(config, args[0], old_directories=args)
-    else:
-        checksum_directory(
-            config, args[0], old_directories=args, map_expr=options.map)
+    checksum_directory(
+        config, args[0], old_directories=args, map_expr=options.map)
 
 
 if __name__ == "__main__":
