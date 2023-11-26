@@ -2019,6 +2019,13 @@ class DailyTreePublisher(Publisher):
             elif self.config["DIST"] >= "mantic":
                 # 2023-09-21, per seb128; size increased due to TPM support
                 return int(5.2 * 1000 * 1000 * 1000)
+            elif self.config["DIST"] >= "jammy":
+                # The 22.04.3 point release was above this limit; work was
+                # done to bring the size down to where it's supposed to be
+                # by correcting the set of i386 packages in the pool, and the
+                # set of nvidia drivers being included.  But the images are
+                # still larger than for 22.04 GA due to added kernels etc.
+                return int(4.7 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "focal":
                 # laney. as of focal we include two kernels on the ISO which
                 # increases its size
