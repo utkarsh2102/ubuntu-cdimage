@@ -19,7 +19,7 @@ export IMAGE_FORMAT
 DIST="${DIST:-noble}"
 
 case $DIST in
-	trusty|bionic|focal)
+	focal)
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
@@ -38,12 +38,6 @@ esac
 # collections, so not ubuntu-server.
 
 case $DIST in
-    trusty)
-        ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio mythbuntu lubuntu ubuntu-gnome ubuntukylin}"
-        ;;
-    xenial)
-        ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu ubuntustudio mythbuntu lubuntu ubuntu-gnome ubuntukylin ubuntu-mate}"
-        ;;
     bionic)
         ALL_PROJECTS="${ALL_PROJECTS:-ubuntu kubuntu xubuntu lubuntu ubuntukylin ubuntu-mate ubuntu-budgie}"
         ;;

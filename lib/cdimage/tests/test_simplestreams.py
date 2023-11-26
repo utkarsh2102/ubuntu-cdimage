@@ -47,9 +47,9 @@ class TestSimpleStreams(TestCase):
 
     def test_prepare_product_info(self):
         """Check if we are extracting the right product information."""
-        # We'll be testing xenial as we know for sure there will be no more
+        # We'll be testing bionic as we know for sure there will be no more
         # point-releases for it.
-        series = Series.find_by_name("xenial")
+        series = Series.find_by_name("bionic")
         streams = SimpleStreams(self.config)
         # Execute the addition twice, to make sure we don't get
         # any weird duplocated entries.
@@ -74,11 +74,11 @@ class TestSimpleStreams(TestCase):
                 "test:test-product": {
                     "arch": "arm64+raspi",
                     "os": "ubuntu-server",
-                    "release": "xenial",
-                    "release_codename": "Xenial Xerus",
-                    "release_title": "16.04.7 LTS",
+                    "release": "bionic",
+                    "release_codename": "Bionic Beaver",
+                    "release_title": "18.04.6 LTS",
                     "image_type": "daily-preinstalled",
-                    "version": "16.04"
+                    "version": "18.04"
                 }
             })
 

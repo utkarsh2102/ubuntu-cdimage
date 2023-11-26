@@ -103,7 +103,7 @@ class TestTriggerMirrors(TestCase):
         manifest = os.path.join(self.temp_dir, "www", "simple", ".manifest")
         with mkfile(manifest) as f:
             print(
-                "ubuntu\ttrusty\t/trusty/ubuntu-14.04.2-desktop-i386.iso\t"
+                "ubuntu\tbionic\t/bionic/ubuntu-18.04.2-desktop-i386.iso\t"
                 "726970368", file=f)
         self.assertRaises(UnknownManifestFile, check_manifest, config)
 
@@ -121,11 +121,11 @@ class TestTriggerMirrors(TestCase):
         manifest = os.path.join(self.temp_dir, "www", "simple", ".manifest")
         with mkfile(manifest) as f:
             print(
-                "ubuntu\ttrusty\t/trusty/ubuntu-14.04.2-desktop-i386.iso\t"
+                "ubuntu\tbionic\t/bionic/ubuntu-18.04.2-desktop-i386.iso\t"
                 "726970368", file=f)
         touch(os.path.join(
-            self.temp_dir, "www", "simple", "trusty",
-            "ubuntu-14.04.2-desktop-i386.iso"))
+            self.temp_dir, "www", "simple", "bionic",
+            "ubuntu-18.04.2-desktop-i386.iso"))
 
     def configure_triggers(self):
         self.config = Config(read=False)

@@ -81,31 +81,18 @@ class TestGermination(TestCase):
 
     def test_seed_sources_bzr(self):
         for project, series, owners in (
-            ("mythbuntu", "trusty", ["mythbuntu-dev"]),
-            ("ubuntukylin", "trusty", ["ubuntu-core-dev"]),
-        ):
-            self.config["DIST"] = series
-            sources = [
-                "http://bazaar.launchpad.net/~%s/ubuntu-seeds/" % owner
-                for owner in owners]
-            sources.append(
-                "https://git.launchpad.net/~ubuntu-core-dev/"
-                "ubuntu-seeds/+git/")
-            self.assertEqual(sources, self.germination.seed_sources(project))
-
-        for project, series, owners in (
-            ("kubuntu", "trusty", ["kubuntu-dev", "ubuntu-core-dev"]),
-            ("ubuntu", "trusty", ["ubuntu-core-dev"]),
-            ("lubuntu", "trusty", ["lubuntu-dev", "ubuntu-core-dev"]),
-            ("xubuntu", "trusty", ["xubuntu-dev", "ubuntu-core-dev"]),
-            ("ubuntu-gnome", "trusty",
+            ("kubuntu", "bionic", ["kubuntu-dev", "ubuntu-core-dev"]),
+            ("ubuntu", "bionic", ["ubuntu-core-dev"]),
+            ("lubuntu", "bionic", ["lubuntu-dev", "ubuntu-core-dev"]),
+            ("xubuntu", "bionic", ["xubuntu-dev", "ubuntu-core-dev"]),
+            ("ubuntu-gnome", "bionic",
              ["ubuntu-gnome-dev", "ubuntu-core-dev"]),
-            ("ubuntu-mate", "xenial", ["ubuntu-mate-dev", "ubuntu-core-dev"]),
-            ("ubuntukylin", "xenial",
+            ("ubuntu-mate", "bionic", ["ubuntu-mate-dev", "ubuntu-core-dev"]),
+            ("ubuntukylin", "bionic",
              ["ubuntukylin-members", "ubuntu-core-dev"]),
             ("ubuntu-budgie", "bionic",
              ["ubuntubudgie-dev", "ubuntu-core-dev"]),
-            ("ubuntustudio", "trusty",
+            ("ubuntustudio", "bionic",
              ["ubuntustudio-dev", "ubuntu-core-dev"]),
         ):
             self.config["DIST"] = series
@@ -116,7 +103,7 @@ class TestGermination(TestCase):
 
     def test_seed_sources_non_bzr(self):
         self.germination = Germination(self.config, prefer_vcs=False)
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.assertEqual(
             ["http://people.canonical.com/~ubuntu-archive/seeds/"],
             self.germination.seed_sources("ubuntu"))
@@ -137,29 +124,28 @@ class TestGermination(TestCase):
             ["sentinel", "sentinel-updates"], self.germination.germinate_dists)
 
     def test_germinate_dists_proposed(self):
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["PROPOSED"] = "1"
         self.assertEqual([
-            "trusty",
-            "trusty-security",
-            "trusty-updates",
-            "trusty-proposed",
+            "bionic",
+            "bionic-security",
+            "bionic-updates",
+            "bionic-proposed",
         ], self.germination.germinate_dists)
 
     def test_germinate_dists_no_proposed(self):
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.assertEqual([
-            "trusty",
-            "trusty-security",
-            "trusty-updates",
+            "bionic",
+            "bionic-security",
+            "bionic-updates",
         ], self.germination.germinate_dists)
 
     def test_seed_dist(self):
         for project, series, seed_dist in (
-            ("ubuntu", "trusty", "ubuntu.trusty"),
-            ("ubuntu-server", "trusty", "ubuntu.trusty"),
-            ("ubuntukylin", "trusty", "ubuntu.trusty"),
-            ("ubuntukylin", "xenial", "ubuntukylin.xenial"),
+            ("ubuntu", "bionic", "ubuntu.bionic"),
+            ("ubuntu-server", "bionic", "ubuntu.bionic"),
+            ("ubuntukylin", "bionic", "ubuntukylin.bionic"),
         ):
             self.config["DIST"] = series
             self.assertEqual(seed_dist, self.germination.seed_dist(project))
@@ -184,23 +170,23 @@ class TestGermination(TestCase):
             self.temp_dir, "germinate", "bin", "germinate")
         touch(germinate_path)
         os.chmod(germinate_path, 0o755)
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
 
-        output_dir = "%s/scratch/ubuntu/trusty/daily/germinate" % self.temp_dir
+        output_dir = "%s/scratch/ubuntu/bionic/daily/germinate" % self.temp_dir
 
         def check_call_side_effect(*args, **kwargs):
-            touch(os.path.join(output_dir, "amd64+mac", "structure"))
+            touch(os.path.join(output_dir, "amd64", "structure"))
 
         mock_check_call.side_effect = check_call_side_effect
-        self.germination.germinate_arch("ubuntu", "amd64+mac")
+        self.germination.germinate_arch("ubuntu", "amd64")
         expected_command = [
             germinate_path,
             "--seed-source",
             "https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/",
             "--mirror", "http://ftpmaster.internal/ubuntu/",
-            "--seed-dist", "ubuntu.trusty",
-            "--dist", "trusty,trusty-security,trusty-updates",
+            "--seed-dist", "ubuntu.bionic",
+            "--dist", "bionic,bionic-security,bionic-updates",
             "--arch", "amd64",
             "--components", "main,restricted",
             "--no-rdepends",
@@ -209,24 +195,24 @@ class TestGermination(TestCase):
         self.assertEqual(1, mock_check_call.call_count)
         self.assertEqual(expected_command, mock_check_call.call_args[0][0])
         self.assertEqual(
-            "%s/amd64+mac" % output_dir, mock_check_call.call_args[1]["cwd"])
+            "%s/amd64" % output_dir, mock_check_call.call_args[1]["cwd"])
 
     @mock.patch("cdimage.germinate.Germination.germinate_arch")
     def test_germinate_project(self, mock_germinate_arch):
         self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["ARCHES"] = "amd64 i386"
         self.config["IMAGE_TYPE"] = "daily"
         self.capture_logging()
         self.germination.germinate_project("ubuntu")
         self.assertTrue(os.path.isdir(os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily",
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily",
             "germinate")))
         mock_germinate_arch.assert_has_calls(
             [mock.call("ubuntu", "amd64"), mock.call("ubuntu", "i386")])
         self.assertLogEqual([
-            "Germinating for trusty/amd64 ...",
-            "Germinating for trusty/i386 ...",
+            "Germinating for bionic/amd64 ...",
+            "Germinating for bionic/i386 ...",
         ])
 
     @mock.patch("cdimage.germinate.Germination.germinate_project")
@@ -246,7 +232,7 @@ class TestGermination(TestCase):
 
     def test_output(self):
         self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         output_dir = self.germination.output_dir("ubuntu")
         touch(os.path.join(output_dir, "STRUCTURE"))
         output = self.germination.output("ubuntu")
@@ -374,7 +360,7 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         expected = [
             "boot", "installer", "required", "minimal", "standard",
             "desktop-common", "desktop", "d-i-requirements", "ship",
@@ -402,7 +388,7 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu-server"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["CDIMAGE_SQUASHFS_BASE"] = "1"
         expected = [
             "boot", "installer", "standard", "dns-server", "lamp-server",
@@ -419,7 +405,7 @@ class TestGerminateOutput(TestCase):
         self.assertEqual(["installer"], list(output.list_seeds("installer")))
         del self.config["CDIMAGE_INSTALL_BASE"]
         self.config["CDIMAGE_LIVE"] = "1"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.assertEqual([], list(output.list_seeds("installer")))
 
     def test_list_seeds_debootstrap(self):
@@ -452,7 +438,7 @@ class TestGerminateOutput(TestCase):
     def write_seed_output(self, arch, seed, packages):
         """Write a simplified Germinate output file, enough for testing."""
         with mkfile(os.path.join(self.temp_dir, arch, seed)) as f:
-            why = "Ubuntu.Trusty %s seed" % seed
+            why = "Ubuntu.Bionic %s seed" % seed
             pkg_len = max(len("Package"), max(map(len, packages)))
             src_len = max(len("Source"), max(map(len, packages)))
             why_len = len(why)
@@ -497,20 +483,20 @@ class TestGerminateOutput(TestCase):
             "usb-ship-live",
         ], list(output.master_seeds()))
 
-    def test_master_seeds_dvd_ubuntu_trusty(self):
+    def test_master_seeds_dvd_ubuntu_bionic(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["CDIMAGE_DVD"] = "1"
         self.assertEqual(
             ["usb-langsupport", "usb-ship-live"], list(output.master_seeds()))
 
-    def test_master_seeds_install_ubuntu_trusty(self):
+    def test_master_seeds_install_ubuntu_bionic(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["CDIMAGE_INSTALL"] = "1"
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
         self.assertEqual([
@@ -518,11 +504,11 @@ class TestGerminateOutput(TestCase):
             "desktop-common", "desktop", "d-i-requirements", "ship",
         ], list(output.master_seeds()))
 
-    def test_master_seeds_live_ubuntu_trusty(self):
+    def test_master_seeds_live_ubuntu_bionic(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["CDIMAGE_INSTALL_BASE"] = "1"
         self.config["CDIMAGE_LIVE"] = "1"
         self.assertEqual([
@@ -538,11 +524,11 @@ class TestGerminateOutput(TestCase):
 
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         mock_master_seeds.side_effect = side_effect
         self.assertEqual([
-            "#include <ubuntu/trusty/required>",
-            "#include <ubuntu/trusty/minimal>",
+            "#include <ubuntu/bionic/required>",
+            "#include <ubuntu/bionic/minimal>",
         ], list(output.master_task_entries("ubuntu")))
 
     @mock.patch(
@@ -550,18 +536,18 @@ class TestGerminateOutput(TestCase):
     def test_master_task_entries_no_seeds(self, mock_master_seeds):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.assertRaises(
             NoMasterSeeds, list, output.master_task_entries("ubuntu"))
 
     def test_tasks_output_dir(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.assertEqual(
             os.path.join(
-                self.temp_dir, "scratch", "ubuntu", "trusty", "daily",
+                self.temp_dir, "scratch", "ubuntu", "bionic", "daily",
                 "tasks"),
             output.tasks_output_dir("ubuntu"))
 
@@ -590,7 +576,7 @@ class TestGerminateOutput(TestCase):
     def test_task_packages_squashfs(self):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu-server"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.write_seed_output(
             "i386", "installer", ["base-installer", "bootstrap-base"])
         output = GerminateOutput(self.config, self.temp_dir)
@@ -632,7 +618,7 @@ class TestGerminateOutput(TestCase):
             print(dedent("""\
                 Task-Per-Derivative: 1
                 Task-Seeds: desktop-common"""), file=seedtext)
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         output = GerminateOutput(self.config, self.temp_dir)
         expected = [
             (["standard"], "standard"),
@@ -657,14 +643,14 @@ class TestGerminateOutput(TestCase):
                 print("Task-Per-Derivative: 1", file=seedtext)
             with mkfile(os.path.join(seed_dir, "live.seedtext")) as seedtext:
                 print("Task-Per-Derivative: 1", file=seedtext)
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["ARCHES"] = "amd64 i386"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["CDIMAGE_LIVE"] = "1"
         output = GerminateOutput(self.config, self.temp_dir)
         output.write_tasks_project("ubuntu")
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "tasks")
         self.assertCountEqual([
             "required", "minimal", "desktop", "live",
@@ -741,7 +727,7 @@ class TestGerminateOutput(TestCase):
         with open(os.path.join(output_dir, "important.i386")) as f:
             self.assertEqual("adduser-i386\nbase-files-i386\n", f.read())
         with open(os.path.join(output_dir, "MASTER")) as f:
-            self.assertEqual("#include <ubuntu/trusty/ship-live>\n", f.read())
+            self.assertEqual("#include <ubuntu/bionic/ship-live>\n", f.read())
 
     # TODO: write_tasks untested
 
@@ -749,10 +735,10 @@ class TestGerminateOutput(TestCase):
     def test_diff_tasks(self, mock_call):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "tasks")
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
@@ -777,10 +763,10 @@ class TestGerminateOutput(TestCase):
     def test_update_tasks_no_mail(self, mock_diff_tasks):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "tasks")
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
@@ -790,7 +776,7 @@ class TestGerminateOutput(TestCase):
             ["required", "minimal"],
             os.listdir(os.path.join(
                 self.temp_dir, "debian-cd", "tasks", "auto", "daily-live",
-                "ubuntu", "trusty")))
+                "ubuntu", "bionic")))
         self.assertCountEqual(
             ["required", "minimal"], os.listdir("%s-previous" % output_dir))
 
@@ -799,7 +785,7 @@ class TestGerminateOutput(TestCase):
     def test_update_tasks_no_recipients(self, mock_diff_tasks, mock_send_mail):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
         output = GerminateOutput(self.config, self.temp_dir)
         os.makedirs(output.tasks_output_dir("ubuntu"))
@@ -844,10 +830,10 @@ class TestGerminateOutput(TestCase):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "trusty"
+        self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "trusty", "daily-live",
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "tasks")
         touch(os.path.join(output_dir, "required"))
         touch(os.path.join(output_dir, "minimal"))
@@ -865,7 +851,7 @@ class TestGerminateOutput(TestCase):
         with open(os.path.join(self.temp_dir, "mail")) as mail:
             self.assertEqual(dedent("""\
                 To: foo@example.org
-                Subject: Task changes for Ubuntu daily-live/trusty on 20130319
+                Subject: Task changes for Ubuntu daily-live/bionic on 20130319
                 X-Generated-By: update-tasks
 
                 --- minimal
