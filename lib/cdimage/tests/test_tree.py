@@ -1016,12 +1016,6 @@ class TestDailyTreePublisher(TestCase):
             ["%s-alternate-amd64.iso" % self.config.series],
             os.listdir(os.path.join(publisher.publish_base, "20130319")))
 
-    def test_jigdo_ports_powerpc(self):
-        publisher = self.make_publisher("ubuntu", "daily")
-        for series in all_series[5:]:
-            publisher.config["DIST"] = series
-            self.assertTrue(publisher.jigdo_ports("powerpc"))
-
     def test_jigdo_ports_sparc(self):
         publisher = self.make_publisher("ubuntu", "daily")
         for series in all_series[7:]:

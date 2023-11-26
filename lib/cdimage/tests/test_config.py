@@ -355,19 +355,18 @@ class TestConfig(TestCase):
         # present in the iterable passed as a parameter.
         self.use_temp_dir()
         os.environ["CDIMAGE_ROOT"] = self.temp_dir
-        os.environ["ARCHES"] = "amd64 i386"
+        os.environ["ARCHES"] = "amd64 arm64"
         config = Config()
-        self.assertEqual(
-            ["amd64", "i386"], config.arches)
-        self.assertEqual("amd64 i386", os.environ["ARCHES"])
-        self.assertEqual(["amd64", "i386"], config.cpuarches)
-        self.assertEqual("amd64 i386", os.environ["CPUARCHES"])
+        self.assertEqual(["amd64", "arm64"], config.arches)
+        self.assertEqual("amd64 arm64", os.environ["ARCHES"])
+        self.assertEqual(["amd64", "arm64"], config.cpuarches)
+        self.assertEqual("amd64 arm64", os.environ["CPUARCHES"])
 
-        config.limit_arches(["amd64", "i386", "sparc"])
-        self.assertEqual(["amd64", "i386"], config.arches)
-        self.assertEqual("amd64 i386", os.environ["ARCHES"])
-        self.assertEqual(["amd64", "i386"], config.cpuarches)
-        self.assertEqual("amd64 i386", os.environ["CPUARCHES"])
+        config.limit_arches(["amd64", "arm64", "sparc"])
+        self.assertEqual(["amd64", "arm64"], config.arches)
+        self.assertEqual("amd64 arm64", os.environ["ARCHES"])
+        self.assertEqual(["amd64", "arm64"], config.cpuarches)
+        self.assertEqual("amd64 arm64", os.environ["CPUARCHES"])
 
         config.limit_arches(["amd64"])
         self.assertEqual(["amd64"], config.arches)

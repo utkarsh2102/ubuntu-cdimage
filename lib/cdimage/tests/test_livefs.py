@@ -225,7 +225,6 @@ def make_livefs_production_config(config):
             *\t\t*\t\tarmhf+nexus7\t\tcelbalrai.buildd
             *\t\t*\t\tarmhf\t\t\tkishi00.buildd
             *\t\t*\t\ti386\t\t\tcardamom.buildd
-            *\t\t*\t\tpowerpc\t\t\troyal.buildd
             *\t\t*\t\tppc64el\t\t\tfisher01.buildd
             *\t\t*\t\tsparc\t\t\tvivies.buildd
             """), file=f)
@@ -278,10 +277,6 @@ class TestLiveBuilder(TestCase):
     def test_i386(self):
         for series in all_series:
             self.assertBuilderEqual("cardamom.buildd", "i386", series)
-
-    def test_powerpc(self):
-        for series in all_series:
-            self.assertBuilderEqual("royal.buildd", "powerpc", series)
 
     def test_ppc64el(self):
         for series in all_series:
@@ -838,9 +833,6 @@ class TestLiveCDBase(TestCase):
 
     def test_subarch(self):
         self.assertBaseEqual(
-            self.base("royal.buildd", "ubuntu-ps3", "bionic"),
-            "powerpc+ps3", "ubuntu", "bionic")
-        self.assertBaseEqual(
             self.base("celbalrai.buildd", "ubuntu-server-omap", "bionic"),
             "armel+omap", "ubuntu-server", "bionic")
 
@@ -895,13 +887,6 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual(
                 "lowlatency", "i386", "ubuntustudio", series)
 
-    def test_powerpc(self):
-        for series in all_series[24:]:
-            self.assertFlavoursEqual(
-                "powerpc-smp generic", "powerpc", "ubuntu", series)
-        self.assertFlavoursEqual(
-            "powerpc-smp generic", "powerpc+ps3", "ubuntu", "bionic")
-
     def test_ppc64el(self):
         for series in all_series:
             self.assertFlavoursEqual("generic", "ppc64el", "ubuntu", series)
@@ -945,10 +930,6 @@ class TestLiveItemPaths(TestCase):
                 ["http://kapok.buildd/~buildd/LiveCD/bionic/kubuntu/"
                  "current/livecd.kubuntu.%s" % item],
                 "amd64", item, "kubuntu", "bionic")
-            self.assertPathsEqual(
-                ["http://royal.buildd/~buildd/LiveCD/hardy/ubuntu-ps3/"
-                 "current/livecd.ubuntu-ps3.%s" % item],
-                "powerpc+ps3", item, "ubuntu", "hardy")
 
     def test_imgxz(self):
         for item in ("img.xz", "model-assertion"):
@@ -975,14 +956,6 @@ class TestLiveItemPaths(TestCase):
                 ["%s/livecd.kubuntu.%s-generic" % (root, item),
                  "%s/livecd.kubuntu.%s-generic-hwe" % (root, item)],
                 "amd64", item, "kubuntu", "bionic")
-            root = ("http://royal.buildd/~buildd/LiveCD/bionic/ubuntu-ps3/"
-                    "current")
-            self.assertPathsEqual(
-                ["%s/livecd.ubuntu-ps3.%s-powerpc-smp" % (root, item),
-                 "%s/livecd.ubuntu-ps3.%s-generic" % (root, item),
-                 "%s/livecd.ubuntu-ps3.%s-powerpc-smp-hwe" % (root, item),
-                 "%s/livecd.ubuntu-ps3.%s-generic-hwe" % (root, item)],
-                "powerpc+ps3", item, "ubuntu", "bionic")
 
     def test_kernel_efi_signed(self):
         self.assertNoPaths("i386", "kernel-efi-signed", "ubuntu", "bionic")
@@ -1002,7 +975,7 @@ class TestLiveItemPaths(TestCase):
             self.assertPathsEqual([path], "amd64", "wubi", "ubuntu", series)
             self.assertPathsEqual([path], "i386", "wubi", "ubuntu", series)
         self.assertNoPaths("i386", "wubi", "xubuntu", "bionic")
-        self.assertNoPaths("powerpc", "wubi", "ubuntu", "bionic")
+        self.assertNoPaths("arm64", "wubi", "ubuntu", "bionic")
 
 
 class TestDownloadLiveFilesystems(TestCase):
@@ -1036,7 +1009,7 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertFalse(download_live_items(self.config, "powerpc",
+        self.assertFalse(download_live_items(self.config, "arm64",
                          "wubi"))
         self.assertEqual(0, mock_fetch.call_count)
 
@@ -1059,19 +1032,16 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, "powerpc", "kernel"))
-        prefix = ("http://royal.buildd/~buildd/LiveCD/bionic/ubuntu/current/"
-                  "livecd.ubuntu.kernel-")
+        self.assertTrue(download_live_items(self.config, "amd64", "kernel"))
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "live")
         mock_fetch.assert_has_calls([
             mock.call(
-                self.config, prefix + "powerpc-smp",
-                os.path.join(target_dir, "powerpc.kernel-powerpc-smp")),
-            mock.call(
-                self.config, prefix + "generic",
-                os.path.join(target_dir, "powerpc.kernel-generic")),
+                self.config,
+                "http://kapok.buildd/~buildd/LiveCD/bionic/ubuntu/current/"
+                "livecd.ubuntu.kernel-generic",
+                os.path.join(target_dir, "amd64.kernel-generic")),
         ])
 
     @mock.patch("cdimage.osextras.fetch")

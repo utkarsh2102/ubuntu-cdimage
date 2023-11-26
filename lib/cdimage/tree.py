@@ -843,8 +843,6 @@ class Publisher:
         "armhf+raspi2": "Raspberry Pi 2",
         "armhf+raspi3": "Raspberry Pi 3 (Hard-Float)",
         "i386": "32-bit PC (i386)",
-        "powerpc": "Mac (PowerPC) and IBM-PPC (POWER5)",
-        "powerpc+ps3": "PlayStation 3",
         "ppc64el": "PowerPC64 Little-Endian",
         "riscv64": "RISC-V",
         "riscv64+unleashed": "RISC-V for SiFive HiFive Unleashed",
@@ -927,23 +925,6 @@ class Publisher:
                 "processors and almost all computers that run Microsoft "
                 "Windows, as well as newer Apple Macintosh systems based on "
                 "Intel processors.")
-        elif arch == "powerpc":
-            sentences.append(
-                "For Apple Macintosh G3, G4, and G5 computers, including "
-                "iBooks and PowerBooks as well as older IBM OpenPower 7xx "
-                "machines.")
-        elif arch == "powerpc+ps3":
-            sentences.append("For Sony PlayStation 3 systems.")
-            if publish_type == "desktop":
-                capproject = self.config.capproject
-                sentences.append(
-                    "(This defaults to installing %s permanently, since there "
-                    "is usually not enough memory to try out the full desktop "
-                    "system and run the installer at the same time." %
-                    capproject)
-                sentences.append(
-                    "An alternative boot option to try %s without changing "
-                    "your computer is available.)" % capproject)
         elif arch == "ppc64el":
             if series >= "jammy":
                 sentences.append(
@@ -1224,8 +1205,6 @@ class Publisher:
             "armhf", "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
             "armhf+nexus7", "armhf+raspi", "armhf+raspi2", "armhf+raspi3",
             "arm64", "arm64+raspi", "arm64+raspi3", "arm64+x13s",
-            "powerpc",
-            "powerpc+ps3",
             "ppc64el",
             "riscv64", "riscv64+unleashed", "riscv64+unmatched",
             "riscv64+visionfive", "riscv64+visionfive2", "riscv64+nezha",
@@ -2107,11 +2086,7 @@ class DailyTreePublisher(Publisher):
 
     def jigdo_ports(self, arch):
         cpuarch = arch.split("+")[0]
-        if cpuarch == "powerpc":
-            # https://lists.ubuntu.com/archives/ubuntu-announce/2007-February/
-            #   000098.html
-            return True
-        elif cpuarch == "sparc":
+        if cpuarch == "sparc":
             # https://lists.ubuntu.com/archives/ubuntu-devel-announce/
             #   2008-March/000400.html
             return True

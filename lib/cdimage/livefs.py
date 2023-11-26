@@ -505,8 +505,6 @@ def flavours(config, arch):
             return ["lowlatency"]
         else:
             return ["generic"]
-    elif cpuarch == "powerpc":
-        return ["powerpc-smp", "generic"]
     elif cpuarch == "ppc64el":
         return ["generic"]
     elif cpuarch == "s390x":

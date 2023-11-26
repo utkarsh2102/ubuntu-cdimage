@@ -65,11 +65,6 @@ class TestChecksumFile(TestCase):
             self.assertMirrorEqual(
                 "http://ftpmaster.internal/ubuntu/", "i386", series)
 
-    def test_powerpc(self):
-        for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "powerpc", series)
-
     def test_ppc64el(self):
         for series in all_series:
             self.assertMirrorEqual(
