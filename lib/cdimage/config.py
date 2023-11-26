@@ -320,7 +320,6 @@ _allowed_keys = (
     "LIVECD",
     "LIVECD_BASE",
     "SUBPROJECT",
-    "UBUNTU_DEFAULTS_LOCALE",
     "SSH_ORIGINAL_COMMAND",
     "EXTRA_PPAS",
     "CHANNEL",
@@ -429,8 +428,6 @@ class Config(defaultdict):
         want_project_bits = [self.project]
         if self.subproject:
             want_project_bits.append(self.subproject)
-        if self["UBUNTU_DEFAULTS_LOCALE"]:
-            want_project_bits.append(self["UBUNTU_DEFAULTS_LOCALE"])
         want_project = "-".join(want_project_bits)
         with open(default_arches) as f:
             for line in f:
@@ -460,8 +457,6 @@ class Config(defaultdict):
         want_project_bits = [self.project]
         if self.subproject:
             want_project_bits.append(self.subproject)
-        if self["UBUNTU_DEFAULTS_LOCALE"]:
-            want_project_bits.append(self["UBUNTU_DEFAULTS_LOCALE"])
         want_project = "-".join(want_project_bits)
         with open(mapping) as f:
             mapping_file = f.readlines()

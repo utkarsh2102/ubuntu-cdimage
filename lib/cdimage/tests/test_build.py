@@ -37,7 +37,6 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.build import (
-    UnknownLocale,
     _anonftpsync_config_path,
     _anonftpsync_options,
     anonftpsync,
@@ -45,7 +44,6 @@ from cdimage.build import (
     build_image_set,
     build_image_set_locked,
     build_livecd_base,
-    build_ubuntu_defaults_locale,
     configure_for_project,
     configure_splash,
     fix_permissions,
@@ -155,55 +153,6 @@ class TestUpdateLocalIndices(TestCase):
         self.assertTrue(os.path.exists(os.path.join(
             self.packages, "dists", "bionic", "local", "debian-installer",
             "binary-amd64")))
-
-
-class TestBuildUbuntuDefaultsLocale(TestCase):
-    def setUp(self):
-        super(TestBuildUbuntuDefaultsLocale, self).setUp()
-        self.config = Config(read=False)
-        self.config.root = self.use_temp_dir()
-        self.config["PROJECT"] = "ubuntu"
-        self.config["IMAGE_TYPE"] = "daily-live"
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.config["CDIMAGE_LIVE"] = "1"
-        with mkfile(os.path.join(
-                self.temp_dir, "production", "livefs-builders")) as f:
-            print("* * * mock-builder", file=f)
-
-    def test_requires_chinese_locale(self):
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "en"
-        self.assertRaises(
-            UnknownLocale, build_ubuntu_defaults_locale, self.config)
-
-    @mock.patch("subprocess.check_call")
-    @mock.patch("cdimage.osextras.fetch")
-    def test_modern(self, mock_fetch, mock_check_call):
-        def fetch_side_effect(config, source, target):
-            tail = os.path.basename(target).split(".", 1)[1]
-            if tail in ("iso", "manifest", "manifest-remove", "size"):
-                touch(target)
-            else:
-                raise osextras.FetchError
-
-        mock_fetch.side_effect = fetch_side_effect
-        self.config["DIST"] = "bionic"
-        self.config["ARCHES"] = "amd64"
-        build_ubuntu_defaults_locale(self.config)
-        output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-zh_CN", "bionic", "daily-live",
-            "live")
-        self.assertTrue(os.path.isdir(output_dir))
-        self.assertCountEqual([
-            "bionic-desktop-amd64.iso",
-            "bionic-desktop-amd64.list",
-            "bionic-desktop-amd64.manifest",
-            "bionic-desktop-amd64.manifest-remove",
-            "bionic-desktop-amd64.size",
-        ], os.listdir(output_dir))
-        mock_check_call.assert_called_once_with([
-            os.path.join(self.temp_dir, "debian-cd", "tools", "pi-makelist"),
-            os.path.join(output_dir, "bionic-desktop-amd64.iso"),
-        ], stdout=mock.ANY)
 
 
 class TestBuildLiveCDBase(TestCase):
@@ -520,24 +469,6 @@ class TestBuildImageSet(TestCase):
             self.assertEqual(0, mock_unlink_force.call_count)
         mock_unlink_force.assert_called_once_with(expected_lock_path)
 
-    @mock.patch("subprocess.check_call")
-    @mock.patch("cdimage.osextras.unlink_force")
-    def test_lock_build_image_set_chinese(self, mock_unlink_force,
-                                          mock_check_call):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily"
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        expected_lock_path = os.path.join(
-            self.temp_dir, "etc",
-            ".lock-build-image-set-ubuntu-chinese-edition-bionic-daily")
-        self.assertFalse(os.path.exists(expected_lock_path))
-        with lock_build_image_set(self.config):
-            mock_check_call.assert_called_once_with([
-                "lockfile", "-l", "7200", "-r", "0", expected_lock_path])
-            self.assertEqual(0, mock_unlink_force.call_count)
-        mock_unlink_force.assert_called_once_with(expected_lock_path)
-
     def test_configure_onlyfree_unsupported(self):
         for project, series, onlyfree, unsupported in (
             ("ubuntu", "bionic", False, False),
@@ -599,34 +530,6 @@ class TestBuildImageSet(TestCase):
             self.wait_for_pid(pid, 0)
             expected_log_path = os.path.join(
                 self.temp_dir, "log", "ubuntu", "bionic", "daily-20130224.log")
-            self.assertTrue(os.path.exists(expected_log_path))
-            with open(expected_log_path) as log:
-                self.assertEqual([
-                    "Log path: %s" % expected_log_path,
-                    "VERBOSE: 3",
-                    "Standard error",
-                ], log.read().splitlines())
-
-    def test_open_log_chinese(self):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily"
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.config["CDIMAGE_DATE"] = "20130224"
-        pid = os.fork()
-        if pid == 0:  # child
-            log_path = open_log(self.config)
-            print("Log path: %s" % log_path)
-            print("VERBOSE: %s" % self.config["VERBOSE"])
-            sys.stdout.flush()
-            print("Standard error", file=sys.stderr)
-            sys.stderr.flush()
-            os._exit(0)
-        else:  # parent
-            self.wait_for_pid(pid, 0)
-            expected_log_path = os.path.join(
-                self.temp_dir, "log", "ubuntu-chinese-edition", "bionic",
-                "daily-20130224.log")
             self.assertTrue(os.path.exists(expected_log_path))
             with open(expected_log_path) as log:
                 self.assertEqual([
@@ -957,26 +860,6 @@ class TestBuildImageSet(TestCase):
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
             "CD image ubuntu/bionic/daily failed to build on 20130225",
-            "build-image-set", ["foo@example.org"], mock.ANY)
-        self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
-
-    @mock.patch("cdimage.build.send_mail")
-    def test_notify_failure_chinese(self, mock_send_mail):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily"
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.config["CDIMAGE_DATE"] = "20130225"
-        path = os.path.join(self.temp_dir, "production", "notify-addresses")
-        with mkfile(path) as notify_addresses:
-            print("ALL\tfoo@example.org", file=notify_addresses)
-        log_path = os.path.join(self.temp_dir, "log")
-        with mkfile(log_path) as log:
-            print("Log", file=log)
-        notify_failure(self.config, log_path)
-        mock_send_mail.assert_called_once_with(
-            "CD image ubuntu-chinese-edition/bionic/daily failed to build on "
-            "20130225",
             "build-image-set", ["foo@example.org"], mock.ANY)
         self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
 

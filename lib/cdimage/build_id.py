@@ -26,16 +26,14 @@ from cdimage.atomicfile import AtomicFile
 def next_build_id(config, image_type):
     if not image_type:
         image_type = "daily"
-    project = config.project
-    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        project = "ubuntu-chinese-edition"
     if config.distribution == "ubuntu":
         full_series = config.series
     else:
         full_series = "%s-%s" % (config.distribution, config.series)
     stamp = os.path.join(
         config.root, "etc",
-        ".next-build-suffix-%s-%s-%s" % (project, full_series, image_type))
+        ".next-build-suffix-%s-%s-%s" %
+        (config.project, full_series, image_type))
     date = config["DATE"] or time.strftime("%Y%m%d")
 
     if config["DATE_SUFFIX"]:

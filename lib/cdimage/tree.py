@@ -129,17 +129,12 @@ class Tree:
 
     @staticmethod
     def get_daily(config, directory=None):
-        if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-            cls = ChinaDailyTree
-        else:
-            cls = DailyTree
+        cls = DailyTree
         return cls(config, directory=directory)
 
     @staticmethod
     def get_release(config, official, directory=None):
-        if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-            cls = ChinaReleaseTree
-        elif official in ("yes", "poolonly"):
+        if official in ("yes", "poolonly"):
             cls = SimpleReleaseTree
         elif official in ("named", "no", "inteliot"):
             cls = FullReleaseTree
@@ -158,11 +153,6 @@ class Tree:
                 cls = FullReleaseTree
         elif realpath.startswith(os.path.join(www, "simple") + "/"):
             cls = SimpleReleaseTree
-        elif realpath.startswith(os.path.join(www, "china-images") + "/"):
-            if status == "daily":
-                cls = ChinaDailyTree
-            else:
-                cls = ChinaReleaseTree
         else:
             # Allow operating on directories outside of any root, for ease
             # of testing (e.g. make-web-indices on a copied scratch
@@ -254,7 +244,6 @@ class Tree:
         parser = OptionParser("%prog [options] BUILD-ID")
         parser.add_option("-p", "--project", help="set project")
         parser.add_option("-S", "--subproject", help="set subproject")
-        parser.add_option("-l", "--locale", help="set locale")
         parser.add_option("-s", "--series", help="set series")
         parser.add_option("-t", "--publish-type", help="set publish type")
         parser.add_option("-i", "--image-type", help="set image type")
@@ -269,8 +258,6 @@ class Tree:
 
         if options.subproject:
             config["SUBPROJECT"] = options.subproject
-        if options.locale:
-            config["UBUNTU_DEFAULTS_LOCALE"] = options.locale
         if options.project:
             if not setenv_for_project(options.project):
                 parser.error("unrecognised project '%s'" % options.project)
@@ -392,10 +379,7 @@ class Publisher:
 
     @staticmethod
     def get_daily(tree, image_type):
-        if tree.config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-            cls = ChinaDailyTreePublisher
-        else:
-            cls = DailyTreePublisher
+        cls = DailyTreePublisher
         return cls(tree, image_type)
 
     def __init__(self, tree, image_type):
@@ -1105,10 +1089,6 @@ class Publisher:
             raise WebIndicesException("Unknown extension %s!" % extension)
 
     def web_heading(self, prefix):
-        full_project_bits = [self.project]
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            full_project_bits.append(self.config["UBUNTU_DEFAULTS_LOCALE"])
-        full_project = "-".join(full_project_bits)
         series = self.config["DIST"]
 
         if self.project in ("ubuntu-core", "ubuntu-core-desktop",
@@ -1118,7 +1098,7 @@ class Publisher:
                 self.config.capproject, self.config.core_series, channel)
         else:
             heading = "%s %s (%s)" % (
-                self.config.capproject, series.displayversion(full_project),
+                self.config.capproject, series.displayversion(self.project),
                 series.displayname)
 
         if "-alpha-" in prefix:
@@ -2327,11 +2307,7 @@ class DailyTreePublisher(Publisher):
         else:
             osextras.unlink_force("%s.OVERSIZED" % target_prefix)
 
-        qa_project = self.project
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            qa_project = "-".join(
-                [qa_project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
-        yield os.path.join(qa_project, self.image_type_dir, in_prefix)
+        yield os.path.join(self.project, self.image_type_dir, in_prefix)
 
     def publish_livecd_base(self, arch, date):
         source_dir = os.path.join(
@@ -2616,8 +2592,6 @@ class DailyTreePublisher(Publisher):
         want_project_bits = [self.project]
         if self.config.subproject:
             want_project_bits.append(self.config.subproject)
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            want_project_bits.append(self.config["UBUNTU_DEFAULTS_LOCALE"])
         want_project = "-".join(want_project_bits)
         with open(current_triggers_path) as current_triggers:
             for line in current_triggers:
@@ -2872,21 +2846,17 @@ class DailyTreePublisher(Publisher):
         return None
 
     def purge(self, days=None, count=None):
-        project = self.project
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "-".join(
-                [project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
-        project_image_type = "%s/%s" % (project, self.image_type)
+        project_image_type = "%s/%s" % (self.project, self.image_type)
 
         if days is None:
-            days = self.get_purge_data(project, "purge-days")
+            days = self.get_purge_data(self.project, "purge-days")
         if days is None:
             days = self.get_purge_data(project_image_type, "purge-days")
         if days is None:
             days = self.get_purge_data(self.image_type, "purge-days")
 
         if count is None:
-            count = self.get_purge_data(project, "purge-count")
+            count = self.get_purge_data(self.project, "purge-count")
         if count is None:
             count = self.get_purge_data(project_image_type, "purge-count")
         if count is None:
@@ -2978,67 +2948,15 @@ class DailyTreePublisher(Publisher):
             if self.config["DEBUG"] or self.config["CDIMAGE_NOPURGE"]:
                 logger.info(
                     "Would purge %s/%s/%s" %
-                    (project, self.image_type_dir, entry))
+                    (self.project, self.image_type_dir, entry))
             else:
                 logger.info(
-                    "Purging %s/%s/%s" % (project, self.image_type_dir, entry))
+                    "Purging %s/%s/%s" %
+                    (self.project, self.image_type_dir, entry))
                 if os.path.islink(entry_path):
                     osextras.unlink_force(entry_path)
                 else:
                     shutil.rmtree(entry_path)
-
-
-class ChinaDailyTree(DailyTree):
-    """A publication tree containing daily builds of the Chinese edition.
-
-    There isn't really any natural reason for Chinese to be special here,
-    but the Chinese edition was initially done as a special-case hack.  Its
-    successor, Ubuntu Kylin, is implemented more normally.
-    """
-
-    def __init__(self, config, directory=None):
-        if directory is None:
-            directory = os.path.join(config.root, "www", "china-images")
-        super(ChinaDailyTree, self).__init__(config, directory)
-
-    @property
-    def project_base(self):
-        return self.directory
-
-    @property
-    def site_name(self):
-        return "china-images.ubuntu.com"
-
-
-class ChinaDailyTreePublisher(DailyTreePublisher):
-    """An object that can publish daily builds of the Chinese edition."""
-
-    def image_output(self, arch):
-        project = "ubuntu"
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "-".join([
-                project, self.config["UBUNTU_DEFAULTS_LOCALE"]])
-        return os.path.join(
-            self.config.root, "scratch", self.config.subtree, project,
-            self.config.full_series, self.image_type, "live")
-
-    @property
-    def source_extension(self):
-        return "iso"
-
-    @property
-    def image_type_dir(self):
-        return os.path.join(
-            self.config.full_series, self.image_type.replace("_", "/"))
-
-    def size_limit(self, arch):
-        if self.publish_type == "dvd":
-            # http://en.wikipedia.org/wiki/DVD_plus_RW
-            return 4700372992
-        else:
-            # In the New World Order, we like round numbers, plus add
-            # another 50MB for Chinese localisation overhead.
-            return 850000000
 
 
 class ReleaseTreeMixin:
@@ -3076,12 +2994,6 @@ class FullReleaseTree(DailyTree, ReleaseTreeMixin):
     See also `SimpleReleaseTree`.
     """
 
-    def get_publisher(self, image_type, official, status=None, dry_run=False):
-        return FullReleasePublisher(
-            self, image_type, official, status=status, dry_run=dry_run)
-
-
-class ChinaReleaseTree(ChinaDailyTree, ReleaseTreeMixin):
     def get_publisher(self, image_type, official, status=None, dry_run=False):
         return FullReleasePublisher(
             self, image_type, official, status=status, dry_run=dry_run)
@@ -3745,8 +3657,7 @@ class ReleasePublisher(Publisher):
 class FullReleasePublisher(ReleasePublisher):
     """An object that can publish releases in a "full" layout.
 
-    This layout is used in the directory trees managed by DailyTree and
-    ChinaDailyTree.
+    This layout is used in the directory trees managed by DailyTree.
     """
 
     def __init__(self, *args, **kwargs):

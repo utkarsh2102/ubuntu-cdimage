@@ -1,6 +1,6 @@
 # PROJECT		IMAGE_TYPE		DIST		ARCH		[INSTANCE/]OWNER/NAME
 # Put more specific matches first.
-# Like etc/default-arches, "PROJECT" is in fact PROJECT[-SUBPROJECT][-LOCALE].
+# Like etc/default-arches, "PROJECT" is in fact PROJECT[-SUBPROJECT].
 
 ubuntu			daily-live		*		*		ubuntu-cdimage/ubuntu
 ubuntu-legacy		daily-legacy		*		*		ubuntu-cdimage/ubuntu-legacy

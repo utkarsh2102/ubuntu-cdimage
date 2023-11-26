@@ -21,10 +21,6 @@ Lubuntu Desktop Preinstalled armhf+ac100	lubuntu			daily-preinstalled	preinstall
 Mythbuntu Desktop amd64						mythbuntu		daily-live			desktop					amd64			iso
 Mythbuntu Desktop i386						mythbuntu		daily-live			desktop					i386			iso
 
-# Ubuntu Chinese Desktop
-Ubuntu Chinese Desktop amd64				ubuntu-zh_CN	daily-live			desktop					amd64			localized-iso-china
-Ubuntu Chinese Desktop i386					ubuntu-zh_CN	daily-live			desktop					i386			localized-iso-china
-
 # Ubuntu Base
 Ubuntu Base amd64							ubuntu-base		daily				base					amd64			iso
 Ubuntu Base arm64							ubuntu-base		daily				base					arm64			iso

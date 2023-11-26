@@ -41,9 +41,6 @@ from cdimage import osextras
 from cdimage.config import Config, Series, all_series
 from cdimage.tests.helpers import TestCase, date_to_time, mkfile, touch
 from cdimage.tree import (
-    ChinaDailyTree,
-    ChinaDailyTreePublisher,
-    ChinaReleaseTree,
     DailyTree,
     DailyTreePublisher,
     FullReleasePublisher,
@@ -74,11 +71,6 @@ class TestTree(TestCase):
         self.assertIsInstance(tree, DailyTree)
         self.assertEqual(self.config, tree.config)
         self.assertEqual(self.temp_dir, tree.directory)
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        tree = Tree.get_daily(self.config, self.temp_dir)
-        self.assertIsInstance(tree, ChinaDailyTree)
-        self.assertEqual(self.config, tree.config)
-        self.assertEqual(self.temp_dir, tree.directory)
 
     def test_get_release(self):
         for official, cls in (
@@ -94,11 +86,6 @@ class TestTree(TestCase):
         self.assertRaisesRegex(
             Exception, r"Unrecognised OFFICIAL setting: 'x'",
             Tree.get_release, self.config, "x")
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        tree = Tree.get_release(self.config, "yes", self.temp_dir)
-        self.assertIsInstance(tree, ChinaReleaseTree)
-        self.assertEqual(self.config, tree.config)
-        self.assertEqual(self.temp_dir, tree.directory)
 
     def test_get_for_directory(self):
         self.config.root = self.temp_dir
@@ -241,12 +228,6 @@ class TestPublisher(TestCase):
         self.assertIsInstance(publisher, DailyTreePublisher)
         self.assertEqual(tree, publisher.tree)
         self.assertEqual("daily", publisher.image_type)
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        tree = Tree.get_daily(self.config)
-        publisher = Publisher.get_daily(tree, "daily")
-        self.assertIsInstance(publisher, ChinaDailyTreePublisher)
-        self.assertEqual(tree, publisher.tree)
-        self.assertEqual("daily", publisher.image_type)
 
     def test_publish_type(self):
         for image_type, project, dist, publish_type in (
@@ -259,7 +240,6 @@ class TestPublisher(TestCase):
             ("daily-live", "edubuntu", "lunar", "desktop"),
             ("daily-live", "ubuntu-server", "bionic", "live-server"),
             ("daily-live", "ubuntu", "bionic", "desktop"),
-            ("daily-live", "ubuntu-zh_CN", "bionic", "desktop"),
             ("daily-live", "ubuntu-core", "bionic", "live-core"),
             ("daily-live", "ubuntu-core-desktop", "mantic",
              "live-core-desktop"),
@@ -1735,14 +1715,6 @@ class TestDailyTreePublisher(TestCase):
                 publisher.qa_product(
                     project, image_type, publish_type, "amd64"))
 
-    def test_qa_product_localized_tracker(self):
-        publisher = self.make_publisher("ubuntu-zh_CN", "daily-live")
-        self.assertEqual(
-            ("Ubuntu Chinese Desktop i386", "localized-iso-china"),
-            publisher.qa_product(
-                "ubuntu-zh_CN", "daily-live", "desktop",
-                "i386"))
-
     def test_qa_product_ubuntu_touch(self):
         publisher = self.make_publisher("ubuntu-touch", "daily-preinstalled")
         self.assertEqual(
@@ -1792,13 +1764,6 @@ class TestDailyTreePublisher(TestCase):
                 (project, image_type, publish_type, "i386"),
                 publisher.cdimage_project(
                     "%s i386" % product, "iso"))
-
-    def test_cdimage_project_localized_tracker(self):
-        publisher = self.make_publisher("ubuntu-zh_CN", "daily-live")
-        self.assertEqual(
-            ("ubuntu-zh_CN", "daily-live", "desktop", "i386"),
-            publisher.cdimage_project(
-                "Ubuntu Chinese Desktop i386", "localized-iso-china"))
 
     @mock_isotracker
     def test_post_qa(self):
@@ -2136,12 +2101,8 @@ class TestDailyTreePublisher(TestCase):
             print("daily 1", file=purge_days)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-            purge_desc = "%s/%s" % (project, self.config.series)
-        else:
-            project = "ubuntu"
-            purge_desc = project
+        project = "ubuntu"
+        purge_desc = project
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
             "Purging %s/daily/20130319" % purge_desc,
@@ -2161,10 +2122,7 @@ class TestDailyTreePublisher(TestCase):
             print("daily 1", file=purge_days)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-        else:
-            project = "ubuntu"
+        project = "ubuntu"
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
         ])
@@ -2183,10 +2141,7 @@ class TestDailyTreePublisher(TestCase):
             print("daily 1", file=purge_days)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-        else:
-            project = "ubuntu"
+        project = "ubuntu"
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
         ])
@@ -2209,12 +2164,8 @@ class TestDailyTreePublisher(TestCase):
             print("daily 1", file=purge_days)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-            purge_desc = "%s/%s" % (project, self.config.series)
-        else:
-            project = "ubuntu"
-            purge_desc = project
+        project = "ubuntu"
+        purge_desc = project
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
             "Purging %s/daily/20130318" % purge_desc,
@@ -2234,10 +2185,7 @@ class TestDailyTreePublisher(TestCase):
             print("daily 1", file=purge_days)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-        else:
-            project = "ubuntu"
+        project = "ubuntu"
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
         ])
@@ -2259,10 +2207,7 @@ class TestDailyTreePublisher(TestCase):
             print("daily 1", file=purge_days)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-        else:
-            project = "ubuntu"
+        project = "ubuntu"
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
         ])
@@ -2281,12 +2226,8 @@ class TestDailyTreePublisher(TestCase):
             print("daily 1", file=purge_days)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-            purge_desc = "%s/%s" % (project, self.config.series)
-        else:
-            project = "ubuntu"
-            purge_desc = project
+        project = "ubuntu"
+        purge_desc = project
         self.assertLogEqual([
             "Purging %s/daily images older than 1 day ..." % project,
             "Purging %s/daily/20130319.1" % purge_desc,
@@ -2303,12 +2244,8 @@ class TestDailyTreePublisher(TestCase):
             print("daily 2", file=purge_count)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-            purge_desc = "%s/%s" % (project, self.config.series)
-        else:
-            project = "ubuntu"
-            purge_desc = project
+        project = "ubuntu"
+        purge_desc = project
         self.assertLogEqual([
             "Purging %s/daily images to leave only the latest 2 images "
             "..." % project,
@@ -2329,10 +2266,7 @@ class TestDailyTreePublisher(TestCase):
         with mkfile(os.path.join(
                 self.temp_dir, "etc", "purge-count")) as purge_count:
             print("daily 3", file=purge_count)
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-        else:
-            project = "ubuntu"
+        project = "ubuntu"
         self.capture_logging()
         self.assertRaisesRegex(
             Exception, r"Both purge-days and purge-count are defined for "
@@ -2353,233 +2287,13 @@ class TestDailyTreePublisher(TestCase):
             print("daily 0", file=purge_days)
         self.capture_logging()
         publisher.purge()
-        if self.config["UBUNTU_DEFAULTS_LOCALE"]:
-            project = "ubuntu-zh_CN"
-        else:
-            project = "ubuntu"
+        project = "ubuntu"
         self.assertLogEqual([
             "Not purging images for %s/daily" % project,
         ])
         self.assertCountEqual(
             ["20130318", "20130319", "20130320", "20130321"],
             os.listdir(publisher.publish_base))
-
-
-class TestChinaDailyTree(TestDailyTree):
-    def setUp(self):
-        super(TestChinaDailyTree, self).setUp()
-        self.tree = ChinaDailyTree(self.config, self.temp_dir)
-
-    def test_default_directory(self):
-        self.config.root = self.temp_dir
-        self.assertEqual(
-            os.path.join(self.temp_dir, "www", "china-images"),
-            ChinaDailyTree(self.config).directory)
-
-    def test_project_base(self):
-        self.config.root = self.temp_dir
-        self.config["PROJECT"] = "ubuntu"
-        self.assertEqual(
-            os.path.join(self.temp_dir, "www", "china-images"),
-            ChinaDailyTree(self.config).project_base)
-
-    def test_site_name(self):
-        self.assertEqual("china-images.ubuntu.com", self.tree.site_name)
-
-
-class TestChinaDailyTreePublisher(TestDailyTreePublisher):
-    def setUp(self):
-        super(TestChinaDailyTreePublisher, self).setUp()
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-
-    def make_publisher(self, project, image_type, **kwargs):
-        self.config["PROJECT"] = project
-        self.tree = ChinaDailyTree(self.config)
-        osextras.ensuredir(self.tree.project_base)
-        publisher = ChinaDailyTreePublisher(self.tree, image_type, **kwargs)
-        osextras.ensuredir(publisher.image_output("i386"))
-        osextras.ensuredir(publisher.britney_report)
-        return publisher
-
-    def test_image_output(self):
-        self.config["DIST"] = "bionic"
-        self.assertEqual(
-            os.path.join(
-                self.config.root, "scratch", "ubuntu-zh_CN", "bionic",
-                "daily-live", "live"),
-            self.make_publisher("ubuntu", "daily-live").image_output("i386"))
-
-    def test_source_extension(self):
-        self.assertEqual(
-            "iso",
-            self.make_publisher("ubuntu", "daily-live").source_extension)
-
-    def test_image_type_dir(self):
-        publisher = self.make_publisher("ubuntu", "daily-live")
-        for series in all_series:
-            if series.distribution != "ubuntu":
-                continue
-            self.config["DIST"] = series
-            self.assertEqual(
-                os.path.join(series.name, "daily-live"),
-                publisher.image_type_dir)
-
-    def test_publish_base(self):
-        publisher = self.make_publisher("ubuntu", "daily-live")
-        for series in all_series:
-            if series.distribution != "ubuntu":
-                continue
-            self.config["DIST"] = series
-            self.assertEqual(
-                os.path.join(
-                    self.config.root, "www", "china-images",
-                    series.name, "daily-live"),
-                publisher.publish_base)
-
-    def test_size_limit(self):
-        for image_type, arch, size_limit in (
-            ("dvd", "i386", 4700372992),
-            ("daily-live", "i386", 850000000),
-        ):
-            publisher = self.make_publisher("ubuntu", image_type)
-            self.assertEqual(size_limit, publisher.size_limit(arch))
-
-    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("cdimage.tree.zsyncmake")
-    def test_publish_binary(self, mock_zsyncmake, *args):
-        publisher = self.make_publisher("ubuntu", "daily-live")
-        source_dir = publisher.image_output("i386")
-        touch(os.path.join(
-            source_dir, "%s-desktop-i386.iso" % self.config.series))
-        touch(os.path.join(
-            source_dir, "%s-desktop-i386.list" % self.config.series))
-        touch(os.path.join(
-            source_dir, "%s-desktop-i386.manifest" % self.config.series))
-        self.capture_logging()
-        self.assertEqual(
-            ["ubuntu-zh_CN/%s/daily-live/%s-desktop-i386" % (
-                self.config.series, self.config.series)],
-            list(publisher.publish_binary("desktop", "i386", "20120807")))
-        self.assertLogEqual([
-            "Publishing i386 ...",
-            "Unknown file type 'empty'; assuming .iso",
-            "Publishing i386 live manifest ...",
-            "Making i386 zsync metafile ...",
-        ])
-        target_dir = os.path.join(publisher.publish_base, "20120807")
-        self.assertEqual([], os.listdir(source_dir))
-        self.assertCountEqual([
-            "%s-desktop-i386.iso" % self.config.series,
-            "%s-desktop-i386.list" % self.config.series,
-            "%s-desktop-i386.manifest" % self.config.series,
-        ], os.listdir(target_dir))
-        mock_zsyncmake.assert_called_once_with(
-            os.path.join(
-                target_dir, "%s-desktop-i386.iso" % self.config.series),
-            os.path.join(
-                target_dir, "%s-desktop-i386.iso.zsync" % self.config.series),
-            "%s-desktop-i386.iso" % self.config.series)
-
-    def test_publish_core_binary(self):
-        pass
-
-    def test_publish_core_desktop_binary(self):
-        pass
-
-    def test_publish_netboot(self):
-        pass
-
-    def test_publish_appliance_binary(self):
-        pass
-
-    def test_publish_canary_binary(self):
-        pass
-
-    def test_publish_legacy_binary(self):
-        pass
-
-    def test_publish_minimal_binary(self):
-        pass
-
-    def test_publish_mini_iso_binary(self):
-        pass
-
-    def test_publish_livecd_base(self):
-        pass
-
-    def test_publish_source(self):
-        pass
-
-    # TODO: we should have a modified version of this for zh_CN
-    def test_post_qa(self):
-        pass
-
-    @mock_isotracker
-    def test_post_qa_oversized(self):
-        publisher = self.make_publisher("ubuntu", "daily-live")
-        touch(os.path.join(
-            self.temp_dir, "www", "china-images", "bionic", "daily-live",
-            "20130315", "bionic-desktop-i386.OVERSIZED"))
-        publisher.post_qa(
-            "20130315", ["ubuntu-zh_CN/bionic/daily-live/bionic-desktop-i386"])
-        expected_note = (
-            "<strong>WARNING: This image is OVERSIZED. This should never "
-            "happen during milestone testing.</strong>")
-        expected = [["Ubuntu Chinese Desktop i386", "20130315", expected_note]]
-        self.assertEqual("localized-iso-china-bionic",
-                         isotracker_module.tracker.target)
-        self.assertEqual(expected, isotracker_module.tracker.posted)
-
-    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("cdimage.tree.zsyncmake")
-    @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
-    def test_publish(self, mock_post_qa, *args):
-        self.config["ARCHES"] = "i386"
-        self.config["CDIMAGE_LIVE"] = "1"
-        publisher = self.make_publisher("ubuntu", "daily-live")
-        source_dir = publisher.image_output("i386")
-        touch(os.path.join(
-            source_dir, "%s-desktop-i386.iso" % self.config.series))
-        touch(os.path.join(
-            source_dir, "%s-desktop-i386.list" % self.config.series))
-        touch(os.path.join(
-            source_dir, "%s-desktop-i386.manifest" % self.config.series))
-        self.capture_logging()
-
-        publisher.publish("20120807")
-
-        self.assertLogEqual([
-            "Publishing i386 ...",
-            "Unknown file type 'empty'; assuming .iso",
-            "Publishing i386 live manifest ...",
-            "Making i386 zsync metafile ...",
-            "No keys found; not signing images.",
-        ])
-        target_dir = os.path.join(publisher.publish_base, "20120807")
-        self.assertEqual([], os.listdir(source_dir))
-        self.assertCountEqual([
-            ".htaccess",
-            ".marked_good",
-            ".publish_info",
-            "FOOTER.html",
-            "HEADER.html",
-            "SHA256SUMS",
-            "%s-desktop-i386.iso" % self.config.series,
-            "%s-desktop-i386.list" % self.config.series,
-            "%s-desktop-i386.manifest" % self.config.series,
-        ], os.listdir(target_dir))
-        self.assertCountEqual(
-            [".htaccess", "20120807", "current", "pending"],
-            os.listdir(publisher.publish_base))
-        mock_post_qa.assert_called_once_with(
-            "20120807",
-            ["ubuntu-zh_CN/%s/daily-live/%s-desktop-i386" % (
-                self.config.series, self.config.series)])
-
-    def test_publish_subtree(self):
-        # ChinaDailyTreePublisher is deprecated so we don't bother adding
-        # subtree support for it.
-        pass
 
 
 class TestFullReleaseTree(TestCase):

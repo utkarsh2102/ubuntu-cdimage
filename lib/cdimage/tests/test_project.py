@@ -28,7 +28,6 @@ class TestProject(TestCase):
         super(TestProject, self).setUp()
         os.environ.pop("PROJECT", None)
         os.environ.pop("CAPPROJECT", None)
-        os.environ.pop("UBUNTU_DEFAULTS_LOCALE", None)
 
     def test_nonexistent(self):
         self.assertFalse(setenv_for_project("nonexistent"))
@@ -39,9 +38,3 @@ class TestProject(TestCase):
         self.assertTrue(setenv_for_project("ubuntu"))
         self.assertEqual("ubuntu", os.environ["PROJECT"])
         self.assertEqual("Ubuntu", os.environ["CAPPROJECT"])
-
-    def test_ubuntu_zh_CN(self):
-        os.environ["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.assertTrue(setenv_for_project("ubuntu"))
-        self.assertEqual("ubuntu", os.environ["PROJECT"])
-        self.assertEqual("Ubuntu Chinese Edition", os.environ["CAPPROJECT"])

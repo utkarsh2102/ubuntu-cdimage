@@ -55,10 +55,7 @@ def _get_mirror_key(config):
     home_secret = os.path.expanduser("~/secret")
     if os.path.isdir(home_secret):
         secret = home_secret
-    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        base = "id-china-images"
-    else:
-        base = "auckland"
+    base = "auckland"
     return os.path.join(secret, base)
 
 
@@ -77,28 +74,21 @@ def _trigger_mirrors_production_config(config, trigger_type):
 
 
 def _get_mirrors(config):
-    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        return ["strix.canonical.com"]
-    elif config["TRIGGER_MIRRORS"]:
+    if config["TRIGGER_MIRRORS"]:
         return config["TRIGGER_MIRRORS"].split()
     else:
         return _trigger_mirrors_production_config(config, "sync")
 
 
 def _get_mirrors_async(config):
-    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        return []
-    elif config["TRIGGER_MIRRORS_ASYNC"]:
+    if config["TRIGGER_MIRRORS_ASYNC"]:
         return config["TRIGGER_MIRRORS_ASYNC"].split()
     else:
         return _trigger_mirrors_production_config(config, "async")
 
 
 def _trigger_command(config):
-    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        return "./china-sync"
-    else:
-        return "./releases-sync"
+    return "./releases-sync"
 
 
 def _trigger_mirror(config, key, user, host, background=False):

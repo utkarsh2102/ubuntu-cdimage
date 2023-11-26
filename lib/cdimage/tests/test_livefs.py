@@ -392,10 +392,6 @@ class TestLiveBuildCommand(TestCase):
         ]
         self.assertEqual(expected, live_build_command(self.config, "i386"))
 
-    def test_ubuntu_defaults_locale(self):
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.assertCommandContains(["-u", "zh_CN"], "i386")
-
     def test_pre_live_build(self):
         self.config["DIST"] = "bionic"
         self.assertIn("-l", live_build_command(self.config, "i386"))
@@ -854,12 +850,6 @@ class TestLiveCDBase(TestCase):
             self.base("celbalrai.buildd", "ubuntu-server-omap", "bionic"),
             "armel+omap", "ubuntu-server", "bionic")
 
-    def test_ubuntu_defaults_locale(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("cardamom.buildd", "ubuntu-zh_CN", series),
-                "i386", "ubuntu", series, ubuntu_defaults_locale="zh_CN")
-
 
 class TestFlavours(TestCase):
     def assertFlavoursEqual(self, expected, arch, project, series):
@@ -1041,12 +1031,6 @@ class TestDownloadLiveFilesystems(TestCase):
         expected = os.path.join(
             self.temp_dir, "scratch", "subtree", "test", "ubuntu", "bionic",
             "daily-live", "live")
-        self.assertEqual(expected, live_output_directory(self.config))
-        self.config.subtree = ""
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        expected = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-zh_CN", "bionic", "daily-live",
-            "live")
         self.assertEqual(expected, live_output_directory(self.config))
 
     @mock.patch("cdimage.osextras.fetch")

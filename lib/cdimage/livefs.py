@@ -146,8 +146,6 @@ def live_build_command(config, arch):
         "/home/buildd/bin/BuildLiveCD",
     ]
 
-    if config["UBUNTU_DEFAULTS_LOCALE"]:
-        command.extend(["-u", config["UBUNTU_DEFAULTS_LOCALE"]])
     command.append("-l")
 
     command.extend(live_build_options(config, arch))
@@ -245,8 +243,6 @@ def live_build_notify_failure(config, arch, lp_build=None):
     cpuarch, subarch = split_arch(config, arch)
     if subarch:
         livefs_id_bits.append(subarch)
-    if config["UBUNTU_DEFAULTS_LOCALE"]:
-        livefs_id_bits.append(config["UBUNTU_DEFAULTS_LOCALE"])
     livefs_id = "-".join(livefs_id_bits)
 
     datestamp = time.strftime("%Y%m%d")
@@ -277,8 +273,6 @@ def live_lp_info(config, arch):
     want_project_bits = [config.project]
     if config.subproject:
         want_project_bits.append(config.subproject)
-    if config["UBUNTU_DEFAULTS_LOCALE"]:
-        want_project_bits.append(config["UBUNTU_DEFAULTS_LOCALE"])
     want_project = "-".join(want_project_bits)
     image_type = config.image_type
 
@@ -461,8 +455,6 @@ def livecd_base(config, arch):
         liveproject += "-%s" % config["SUBPROJECT"]
     if subarch:
         liveproject += "-%s" % subarch
-    if config["UBUNTU_DEFAULTS_LOCALE"]:
-        liveproject += "-%s" % config["UBUNTU_DEFAULTS_LOCALE"]
 
     return "%s/%s/%s/current" % (root, series, liveproject)
 
@@ -629,12 +621,9 @@ def live_item_paths(config, arch, item):
 
 
 def live_output_directory(config):
-    project = config.project
-    if config["UBUNTU_DEFAULTS_LOCALE"]:
-        project = "-".join([project, config["UBUNTU_DEFAULTS_LOCALE"]])
     return os.path.join(
-        config.root, "scratch", config.subtree, project, config.full_series,
-        config.image_type, "live")
+        config.root, "scratch", config.subtree, config.project,
+        config.full_series, config.image_type, "live")
 
 
 def download_live_items(config, arch, item):
@@ -790,11 +779,6 @@ def download_live_filesystems(config):
                     got_image = True
                 else:
                     continue
-            elif config["UBUNTU_DEFAULTS_LOCALE"]:
-                if download_live_items(config, arch, "iso"):
-                    got_image = True
-                else:
-                    continue
             elif project == "ubuntu-mini-iso":
                 if download_live_items(config, arch, "iso"):
                     got_image = True
@@ -830,8 +814,7 @@ def download_live_filesystems(config):
             download_live_items(config, arch, "manifest-minimal-remove")
             download_live_items(config, arch, "size")
 
-            if (config["UBUNTU_DEFAULTS_LOCALE"] or
-                    config["CDIMAGE_PREINSTALLED"] or
+            if (config["CDIMAGE_PREINSTALLED"] or
                     config.subproject == "wubi"):
                 continue
 

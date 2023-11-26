@@ -50,9 +50,6 @@ __metaclass__ = type
 
 @contextlib.contextmanager
 def lock_build_image_set(config):
-    project = config.project
-    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        project = "ubuntu-chinese-edition"
     if config.distribution == "ubuntu":
         full_series = config.series
     else:
@@ -60,7 +57,7 @@ def lock_build_image_set(config):
     lock_path = os.path.join(
         config.root, "etc",
         ".lock-build-image-set-%s-%s-%s" % (
-            project, full_series, config.image_type))
+            config.project, full_series, config.image_type))
     try:
         subprocess.check_call(["lockfile", "-l", "7200", "-r", "0", lock_path])
     except subprocess.CalledProcessError:
@@ -98,11 +95,8 @@ def open_log(config):
     if config["DEBUG"] or config["CDIMAGE_NOLOG"]:
         return None
 
-    project = config.project
-    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        project = "ubuntu-chinese-edition"
     log_path = os.path.join(
-        config.root, "log", config.subtree, project, config.full_series,
+        config.root, "log", config.subtree, config.project, config.full_series,
         "%s-%s.log" % (config.image_type, config["CDIMAGE_DATE"]))
     osextras.ensuredir(os.path.dirname(log_path))
     log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666)
@@ -327,36 +321,6 @@ def build_britney(config):
     if os.path.isfile(os.path.join(update_out, "Makefile")):
         log_marker("Building britney")
         subprocess.check_call(["make", "-C", update_out])
-
-
-class UnknownLocale(Exception):
-    pass
-
-
-def build_ubuntu_defaults_locale(config):
-    locale = config["UBUNTU_DEFAULTS_LOCALE"]
-    if locale != "zh_CN":
-        raise UnknownLocale(
-            "UBUNTU_DEFAULTS_LOCALE='%s' not currently supported!" % locale)
-
-    series = config["DIST"]
-    log_marker("Downloading live filesystem images")
-    download_live_filesystems(config)
-    scratch = live_output_directory(config)
-    for entry in os.listdir(scratch):
-        if "." in entry:
-            os.rename(
-                os.path.join(scratch, entry),
-                os.path.join(scratch, "%s-desktop-%s" % (series, entry)))
-    pi_makelist = os.path.join(
-        config.root, "debian-cd", "tools", "pi-makelist")
-    for entry in os.listdir(scratch):
-        if entry.endswith(".iso"):
-            entry_path = os.path.join(scratch, entry)
-            list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
-            with open(list_path, "w") as list_file:
-                subprocess.check_call(
-                    [pi_makelist, entry_path], stdout=list_file)
 
 
 def add_android_support(config, arch, output_dir):
@@ -632,8 +596,6 @@ def notify_failure(config, log_path):
         return
 
     project = config.project
-    if config["UBUNTU_DEFAULTS_LOCALE"] == "zh_CN":
-        project = "ubuntu-chinese-edition"
     series = config.full_series
     image_type = config.image_type
     date = config["CDIMAGE_DATE"]
@@ -699,9 +661,7 @@ def build_image_set_locked(config, options):
 
             build_britney(config)
 
-        if config["UBUNTU_DEFAULTS_LOCALE"]:
-            build_ubuntu_defaults_locale(config)
-        elif is_live_fs_only(config):
+        if is_live_fs_only(config):
             build_livecd_base(config)
         else:
             assert not config["CDIMAGE_PREINSTALLED"]

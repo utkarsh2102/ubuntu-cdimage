@@ -160,8 +160,6 @@ class TestTriggerMirrors(TestCase):
             _get_mirrors(config))
         self.configure_triggers()
         self.assertEqual(["foo", "bar"], _get_mirrors(self.config))
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.assertEqual(["strix.canonical.com"], _get_mirrors(self.config))
 
     def test_get_mirrors_async(self):
         config = Config(read=False)
@@ -179,14 +177,10 @@ class TestTriggerMirrors(TestCase):
         self.configure_triggers()
         self.assertEqual(
             ["foo-async", "bar-async"], _get_mirrors_async(self.config))
-        self.config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.assertEqual([], _get_mirrors_async(self.config))
 
     def test_trigger_command(self):
         config = Config(read=False)
         self.assertEqual("./releases-sync", _trigger_command(config))
-        config["UBUNTU_DEFAULTS_LOCALE"] = "zh_CN"
-        self.assertEqual("./china-sync", _trigger_command(config))
 
     @mock.patch("subprocess.Popen")
     def test_trigger_mirror_background(self, mock_popen):

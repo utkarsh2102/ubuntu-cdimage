@@ -20,8 +20,8 @@ import os
 
 # Be careful about the values here; in most cases they are passed to
 # debian-cd, which will get upset if they contain a space, hence all the
-# odd-looking hyphens.  ubuntu-zh_CN and ubuntu-touch-preview are exceptions
-# to this, because they do not use debian-cd.
+# odd-looking hyphens.  ubuntu-touch-preview is an exception
+# to this, because it does not use debian-cd.
 # For projects that use debian-cd, it will construct an ISO9660 volume ID
 # as "$(CAPPROJECT) $(DEBVERSION) $(ARCH)", e.g. "Ubuntu 14.10 amd64"; for
 # powerpc, $(ARCH) is abbreviated to "ppc".  The volume ID is limited to 32
@@ -29,7 +29,6 @@ import os
 # values of 25 - (length of longest relevant architecture name).
 project_map = {
     "ubuntu": "Ubuntu",
-    "ubuntu-zh_CN": "Ubuntu Chinese Edition",
     "kubuntu": "Kubuntu",
     "edubuntu": "Edubuntu",
     "xubuntu": "Xubuntu",
@@ -56,12 +55,8 @@ project_map = {
 
 
 def setenv_for_project(project):
-    full_project = project
-    locale = os.environ.get("UBUNTU_DEFAULTS_LOCALE", None)
-    if locale:
-        full_project = "-".join([full_project, locale])
-    if full_project not in project_map:
+    if project not in project_map:
         return False
     os.environ["PROJECT"] = project
-    os.environ["CAPPROJECT"] = project_map[full_project]
+    os.environ["CAPPROJECT"] = project_map[project]
     return True
