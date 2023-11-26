@@ -36,7 +36,6 @@ def main():
     config = Config(IMAGE_TYPE="daily")
     config["CDIMAGE_INSTALL"] = "1"
     project = config.project
-    series = config["DIST"]
     if project == "ubuntu-server" and not config["CDIMAGE_NO_SQUASHFS_BASE"]:
         config["CDIMAGE_SQUASHFS_BASE"] = "1"
     if not build_image_set(config, options):

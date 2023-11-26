@@ -762,7 +762,6 @@ def write_autorun(config, arch, name, label):
 
 def download_live_filesystems(config):
     project = config.project
-    series = config["DIST"]
 
     output_dir = live_output_directory(config)
     osextras.mkemptydir(output_dir)

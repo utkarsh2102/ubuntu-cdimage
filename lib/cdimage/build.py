@@ -74,7 +74,6 @@ def lock_build_image_set(config):
 
 def configure_for_project(config):
     project = config.project
-    series = config["DIST"]
     if project == "gobuntu":
         config["CDIMAGE_ONLYFREE"] = "1"
     elif project in (

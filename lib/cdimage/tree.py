@@ -1012,7 +1012,6 @@ class Publisher:
             "kubuntu", "kubuntu-active",
             "ubuntu-mate",
             )
-        series = self.config["DIST"]
 
         yield "<br>"
         sentences = []

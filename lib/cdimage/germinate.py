@@ -69,7 +69,6 @@ class Germination:
         elif self.prefer_vcs:
             bzrpattern = "http://bazaar.launchpad.net/~%s/ubuntu-seeds/"
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
-            series = self.config["DIST"]
             sources = [gitpattern % "ubuntu-core-dev"]
             if project == "kubuntu":
                 sources.insert(0, gitpattern % "kubuntu-dev")
