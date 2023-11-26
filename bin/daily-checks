@@ -201,7 +201,11 @@ any questions, contact Steve Langasek <steve.langasek@canonical.com>.
                 continue
             body = """\
 This is a daily health check report on the %s CD images.
-If you have any questions, contact Colin Watson <cjwatson@ubuntu.com>.
+
+If you have any questions, or if images are reported here as oversized but
+should not be, please contact the Ubuntu Release Team:
+ * Mailing list: ubuntu-release@lists.ubuntu.com
+ * IRC: #ubuntu-release on LiberaChat
 
 %s
 """ % (project_title(project), these_warnings)
