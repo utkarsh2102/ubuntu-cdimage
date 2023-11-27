@@ -1011,8 +1011,6 @@ class Publisher:
         elif extension.endswith(".torrent"):
             return "%s download" % Link(
                 "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
-        elif extension == "jigdo":
-            return "%s download" % Link("http://atterer.org/jigdo", "jigdo")
         elif extension == "list":
             return "file listing"
         elif extension == "manifest":
@@ -1024,8 +1022,6 @@ class Publisher:
         elif extension == "manifest-minimal-remove":
             return "packages to remove from live filesystem on " + \
                    " installation when performing a minimal install"
-        elif extension == "template":
-            return "%s template" % Link("http://atterer.org/jigdo", "jigdo")
         elif extension.endswith(".zsync"):
             return "%s metafile" % Link("http://zsync.moria.org.uk/", "zsync")
         elif extension == "vmlinuz-ec2":
@@ -1454,11 +1450,11 @@ class Publisher:
                                     "img.gz.torrent", "img.gz.zsync", "img.gz",
                                     "img.xz", "img.tar.gz", "img.torrent",
                                     "img.zsync", "img", "iso.torrent",
-                                    "iso.zsync", "iso", "jigdo", "list",
+                                    "iso.zsync", "iso", "list",
                                     "manifest", "manifest-desktop",
                                     "manifest-remove",
                                     "manifest-minimal-remove",
-                                    "template", "tar.gz", "tar.gz.zsync",
+                                    "tar.gz", "tar.gz.zsync",
                                     "bootimg", "tar.xz", "custom.tar.gz",
                                 )
                             for extension in htaccess_extensions:
@@ -1695,7 +1691,6 @@ class Publisher:
                 ("folder.png", "^^DIRECTORY^^"),
                 ("iso.png", ".iso"),
                 ("img.png", ".img .img.xz .tar.gz .tar.xz"),
-                ("jigdo.png", ".jigdo .template"),
                 ("list.png", (
                     ".list .manifest .html .zsync "
                     "SHA256SUMS SHA256SUMS.gpg")),
@@ -1707,9 +1702,9 @@ class Publisher:
 
             for extension in (
                 "img.gz.torrent", "img.gz", "img.torrent", "img",
-                "iso.torrent", "iso", "jigdo", "list", "manifest",
+                "iso.torrent", "iso", "list", "manifest",
                 "manifest-desktop", "manifest-remove",
-                "manifest-minimal-remove", "template",
+                "manifest-minimal-remove",
             ):
                 mimetype = self.mimetypestr(extension)
                 if (mimetype and
@@ -2017,18 +2012,6 @@ class DailyTreePublisher(Publisher):
             logger.warning("Unknown file type '%s'; assuming .iso" % output)
             return "iso"
 
-    def jigdo_ports(self, arch):
-        cpuarch = arch.split("+")[0]
-        return cpuarch in ("arm64", "armel", "armhf", "ppc64el", "s390x")
-
-    def replace_jigdo_mirror(self, path, from_mirror, to_mirror):
-        with open(path) as jigdo_in:
-            with AtomicFile(path) as jigdo_out:
-                from_line = "Debian=%s" % from_mirror
-                to_line = "Debian=%s" % to_mirror
-                for line in jigdo_in:
-                    jigdo_out.write(line.replace(from_line, to_line))
-
     def publish_netboot(self, arch, image_path):
         # Publishing a netboot tarball is a bit more complicated than
         # just copying it into place, as we also unpack it into a
@@ -2089,21 +2072,6 @@ class DailyTreePublisher(Publisher):
         with ChecksumFileSet(
                 self.config, target_dir, sign=False) as checksum_files:
             checksum_files.remove("%s.%s" % (out_prefix, extension))
-
-        # Jigdo integration
-        if os.path.exists("%s.jigdo" % source_prefix):
-            logger.info("Publishing %s jigdo ..." % arch)
-            shutil.move("%s.jigdo" % source_prefix, "%s.jigdo" % target_prefix)
-            shutil.move(
-                "%s.template" % source_prefix, "%s.template" % target_prefix)
-            if self.jigdo_ports(arch):
-                self.replace_jigdo_mirror(
-                    "%s.jigdo" % target_prefix,
-                    "http://archive.ubuntu.com/ubuntu",
-                    "http://ports.ubuntu.com/ubuntu-ports")
-        else:
-            osextras.unlink_force("%s.jigdo" % target_prefix)
-            osextras.unlink_force("%s.template" % target_prefix)
 
         # Live filesystem manifests
         if os.path.exists("%s.manifest" % source_prefix):
@@ -2283,19 +2251,6 @@ class DailyTreePublisher(Publisher):
             with ChecksumFileSet(
                     self.config, target_dir, sign=False) as checksum_files:
                 checksum_files.remove("%s.iso" % out_prefix)
-
-            # Jigdo integration
-            if os.path.exists("%s.jigdo" % source_prefix):
-                logger.info("Publishing source %d jigdo ..." % i)
-                shutil.move(
-                    "%s.jigdo" % source_prefix, "%s.jigdo" % target_prefix)
-                shutil.move(
-                    "%s.template" % source_prefix,
-                    "%s.template" % target_prefix)
-            else:
-                logger.warning("No jigdo for source %d!" % i)
-                osextras.unlink_force("%s.jigdo" % target_prefix)
-                osextras.unlink_force("%s.template" % target_prefix)
 
             # zsync metafiles
             if osextras.find_on_path("zsyncmake"):
@@ -3110,16 +3065,6 @@ class ReleasePublisher(Publisher):
     def remove_tree(self, path):
         self.do("rm -rf %s" % path, shutil.rmtree, path)
 
-    def copy_jigdo(self, source, target):
-        if self.dry_run:
-            logger.info("Would fix up jigdo file")
-            return
-        source_pat = "=%s" % os.path.basename(source).rsplit(".", 1)[0]
-        target_pat = "=%s" % os.path.basename(target).rsplit(".", 1)[0]
-        with open(source) as sf, open(target, "w") as tf:
-            for line in sf:
-                tf.write(line.replace(source_pat, target_pat))
-
     def mkemptydir(self, path):
         if self.dry_run:
             logger.info("rm -rf %s" % path)
@@ -3263,32 +3208,6 @@ class ReleasePublisher(Publisher):
                 self.copy(daily(ext, "-"), dist(ext, "-"))
             if self.want_full:
                 self.copy(daily(ext, "-"), full(ext, "-"))
-
-        if publish_type in (
-            "install", "alternate", "server", "serveraddon", "addon", "src",
-            "legacy-server",
-        ):
-            if (os.path.exists(daily("jigdo")) and
-                    os.path.exists(daily("template"))):
-                if self.want_pool:
-                    self.copy(daily("template"), pool("template"))
-                    self.copy_jigdo(daily("jigdo"), pool("jigdo"))
-                if self.want_dist:
-                    self.symlink(pool("template"), dist("template"))
-                    self.symlink(pool("jigdo"), dist("jigdo"))
-                if self.want_full:
-                    self.copy(daily("template"), full("template"))
-                    self.copy_jigdo(daily("jigdo"), full("jigdo"))
-            else:
-                if self.want_pool:
-                    self.remove(pool("template"))
-                    self.remove(pool("jigdo"))
-                if self.want_dist:
-                    self.remove(dist("template"))
-                    self.remove(dist("jigdo"))
-                if self.want_full:
-                    self.remove(full("template"))
-                    self.remove(full("jigdo"))
 
         if self.want_manifest(publish_type, daily("manifest")):
             # Copy, to make sure we have a canonical version of this.
