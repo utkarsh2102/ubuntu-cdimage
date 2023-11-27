@@ -1939,9 +1939,9 @@ class DailyTreePublisher(Publisher):
                 # Ubuntu Studio is always DVD-sized for now.
                 return 4700372992
         elif self.project in ("kubuntu", "kubuntu-active"):
-            # Per IRC discussions on #ubuntu-release 2023-06-13
+            # Per IRC discussions on #ubuntu-release 2023-11-27
             if self.config["DIST"] >= "jammy":
-                return 4.4 * 1000 * 1000 * 1000
+                return 4.5 * 1000 * 1000 * 1000
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             elif self.config["DIST"] >= "focal":
                 return 4 * 1024 * 1024 * 1024

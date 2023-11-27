@@ -934,7 +934,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntustudio", "focal", "dvd", "i386", 4700372992),
             ("kubuntu", "bionic", "daily-live", "amd64", 2254857830),
             ("kubuntu", "focal", "daily-live", "amd64", 4294967296),
-            ("kubuntu", "jammy", "daily-live", "amd64", 4400000000),
+            ("kubuntu", "jammy", "daily-live", "amd64", 4500000000),
             ("ubuntu", "focal", "daily-live", "amd64", 4187593113),
             ("ubuntu", "jammy", "daily-live", "amd64", 4700000000),
             ("ubuntu", "mantic", "daily-live", "amd64", 5200000000),
