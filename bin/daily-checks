@@ -251,10 +251,10 @@ def main():
 
     for project in projects:
         for series in options.series:
-            for image in 'daily-live', 'daily', 'dvd':
+            for image in 'daily-live', 'daily', 'daily-preinstalled', 'dvd':
                 check_image(config, project, series, image)
 
-            for image in 'daily-live', 'daily', 'dvd':
+            for image in 'daily-live', 'daily', 'daily-preinstalled', 'dvd':
                 check_uninstallables(config, project, series, image)
 
     send_warnings(config, options, projects)
