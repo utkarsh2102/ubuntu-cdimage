@@ -17,8 +17,10 @@
 
 """Unit tests for cdimage.simplestreams."""
 
+import json
 import os
 import shutil
+import tarfile
 import tempfile
 
 try:
@@ -27,14 +29,27 @@ except ImportError:
     import mock
 
 from cdimage.metadata import (
+    arch_to_lxd_arch,
     lxd_metadata_from_assertion,
     generate_ubuntu_core_image_lxd_metadata)
 
 from cdimage.tests.helpers import TestCase
 
+
 class TestMetadata(TestCase):
     def setUp(self):
         super(TestMetadata, self).setUp()
+
+    def test_arch_to_lxd_arch(self):
+        self.assertEqual(arch_to_lxd_arch("amd64"), "x86_64")
+        self.assertEqual(arch_to_lxd_arch("armhf"), "armv7l")
+        self.assertEqual(arch_to_lxd_arch("arm64"), "aarch64")
+        self.assertEqual(arch_to_lxd_arch("ppc64el"), "ppc64le")
+        self.assertEqual(arch_to_lxd_arch("riscv64"), "riscv64")
+        self.assertEqual(arch_to_lxd_arch("s390x"), "s390x")
+        self.assertEqual(arch_to_lxd_arch("arm64+raspi"), "aarch64")
+        self.assertEqual(arch_to_lxd_arch("newarch"), "newarch")
+        self.assertEqual(arch_to_lxd_arch("newarch+v1"), "newarch")
 
     @mock.patch("cdimage.metadata.datetime.datetime")
     def test_lxd_metadata_from_assertion(self, mock_datetime):
@@ -56,7 +71,7 @@ class TestMetadata(TestCase):
                     "series": "core22",
                 },
             })
-        
+
     @mock.patch("cdimage.metadata.datetime.datetime")
     def test_lxd_metadata_from_assertion_description(self, mock_datetime):
         mock_datetime.now.return_value.timestamp.return_value = \
@@ -87,5 +102,15 @@ class TestMetadata(TestCase):
             shutil.copy(source_path, tmpdir)
             image_path = os.path.join(tmpdir, "ubuntu-core-22-amd64.img.xz")
             generate_ubuntu_core_image_lxd_metadata(image_path)
-            lxd_metadata = os.path.join(tmpdir, "ubuntu-core-22-amd64.lxd.tar.xz")
+            lxd_metadata = os.path.join(
+                tmpdir, "ubuntu-core-22-amd64.lxd.tar.xz")
             self.assertTrue(lxd_metadata)
+            with tarfile.open(lxd_metadata) as inf:
+                # Check if the metadata.yaml is there
+                self.assertIn("metadata.yaml", inf.getnames())
+                # Check if the metadata.yaml is valid json
+                metadata = json.loads(
+                    inf.extractfile("metadata.yaml").read())
+                self.assertTrue(metadata)
+                # No need to validate the whole metadata as other unit tests
+                # are already doing that
