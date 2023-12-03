@@ -1932,8 +1932,8 @@ class DailyTreePublisher(Publisher):
                 # Per IRC discussions on #ubuntu-release 2023-09-27
                 return int(5.8 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "jammy":
-                # Per IRC discussions on #ubuntu-release 2022-03-24
-                return 5 * 1000 * 1000 * 1000
+                # Per IRC discussions on #ubuntu-release 2023-12-03
+                return int(5.1 * 1000 * 1000 * 1000)
             else:
                 # All Edubuntu images are DVD sized (including arm).
                 # Ubuntu Studio is always DVD-sized for now.
