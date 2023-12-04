@@ -34,7 +34,6 @@ except ImportError:
     from urllib2 import URLError, unquote, urlopen
 
 from cdimage import osextras, sign
-from cdimage.config import Touch
 from cdimage.launchpad import get_launchpad
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
@@ -120,7 +119,7 @@ def live_build_options(config, arch):
         elif subarch in ("ac100", "nexus7"):
             options.extend(["-f", "plain"])
 
-    if config.project in ("ubuntu-base", "ubuntu-core", "ubuntu-touch"):
+    if config.project in ("ubuntu-base", "ubuntu-core"):
         options.extend(["-f", "plain"])
 
     if config.subproject == "wubi":
@@ -589,19 +588,6 @@ def live_item_paths(config, arch, item):
             for url in urls_for("livecd." + liveproject_subarch,
                                 item + "-" + flavour):
                 yield url
-    elif item in (
-        "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
-            for target in Touch.list_targets_by_ubuntu_arch(arch)
-    ) or item in (
-        "recovery-%s+%s.img" % (target.android_arch, target.subarch)
-            for target in Touch.list_targets_by_ubuntu_arch(arch)
-    ) or item in (
-        "system-%s+%s.img" % (target.android_arch, target.subarch)
-            for target in Touch.list_targets_by_ubuntu_arch(arch)
-    ):
-        for flavour in flavours(config, arch):
-            for url in urls_for("livecd." + liveproject_subarch, item):
-                yield url
     elif item == "kernel-efi-signed":
         if arch == "amd64":
             for flavour in flavours(config, arch):
@@ -648,45 +634,12 @@ def download_live_items(config, arch, item):
             except osextras.FetchError:
                 pass
     elif item in (
-        "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
-            for target in Touch.list_targets_by_ubuntu_arch(arch)
-    ):
-        for url in urls:
-            target = os.path.join(output_dir, item)
-            try:
-                osextras.fetch(config, url, target)
-                found = True
-            except osextras.FetchError:
-                pass
-    elif item in (
         "modules.squashfs",
     ):
         for url in urls:
             base = unquote(os.path.basename(url))
             base = "%s.%s" % (arch, base.split('.', 2)[2])
             target = os.path.join(output_dir, base)
-            try:
-                osextras.fetch(config, url, target)
-                found = True
-            except osextras.FetchError:
-                pass
-    elif item in (
-        "recovery-%s+%s.img" % (target.android_arch, target.subarch)
-            for target in Touch.list_targets_by_ubuntu_arch(arch)
-    ):
-        for url in urls:
-            target = os.path.join(output_dir, item)
-            try:
-                osextras.fetch(config, url, target)
-                found = True
-            except osextras.FetchError:
-                pass
-    elif item in (
-        "system-%s+%s.img" % (target.android_arch, target.subarch)
-            for target in Touch.list_targets_by_ubuntu_arch(arch)
-    ):
-        for url in urls:
-            target = os.path.join(output_dir, item)
             try:
                 osextras.fetch(config, url, target)
                 found = True
@@ -827,31 +780,6 @@ def download_live_filesystems(config):
 
         if not got_image:
             raise NoFilesystemImages("No filesystem images found.")
-
-    if config.project == "ubuntu-touch":
-        for arch in config.arches:
-            for abootimg in (
-                "boot-%s+%s.img" % (target.ubuntu_arch, target.subarch)
-                    for target in Touch.list_targets_by_ubuntu_arch(arch)
-            ):
-                download_live_items(
-                    config, arch, abootimg
-                )
-            for recoveryimg in (
-                "recovery-%s+%s.img" % (target.android_arch, target.subarch)
-                    for target in Touch.list_targets_by_ubuntu_arch(arch)
-            ):
-                download_live_items(
-                    config, arch, recoveryimg
-                )
-            for systemimg in (
-                "system-%s+%s.img" % (target.android_arch, target.subarch)
-                    for target in Touch.list_targets_by_ubuntu_arch(arch)
-            ):
-                download_live_items(
-                    config, arch, systemimg
-                )
-            download_live_items(config, arch, "custom.tar.gz")
 
     if config.project == "ubuntu-core":
         for arch in config.arches:

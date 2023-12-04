@@ -9,6 +9,5 @@ dvd 2
 # Ubuntu Core images are not purged per age
 ubuntu-core 0
 ubuntu-appliance 0
-ubuntu-touch 7
 source 1
 wubi 1

@@ -44,7 +44,7 @@ from cdimage.checksums import (
     ChecksumFileSet,
     checksum_directory,
 )
-from cdimage.config import Series, Touch
+from cdimage.config import Series
 from cdimage.log import logger, reset_logging
 from cdimage.mirror import trigger_mirrors
 from cdimage import osextras
@@ -395,8 +395,6 @@ class Publisher:
         if self.image_type.endswith("-preinstalled"):
             if self.project == "ubuntu-server":
                 return "preinstalled-server"
-            elif self.project == "ubuntu-touch":
-                return "preinstalled-touch"
             elif self.project == "ubuntu-core":
                 return "preinstalled-core"
             else:
@@ -553,8 +551,6 @@ class Publisher:
             return "preinstalled netbook %s" % cd
         elif publish_type == "preinstalled-active":
             return "preview preinstalled active image"
-        elif publish_type == "preinstalled-touch":
-            return "preinstalled touch image"
         elif publish_type == "preinstalled-core":
             return "preinstalled core image"
         elif publish_type == "wubi":
@@ -747,10 +743,6 @@ class Publisher:
             sentences.append(
                 "The Active Image allows you to unpack a preinstalled preview "
                 "of the Plasma Active workspace onto an SD card.")
-        elif publish_type == "preinstalled-touch":
-            sentences.append(
-                "The Preinstalled Touch Image allows you to install a "
-                "preinstalled preview of Ubuntu Touch onto a target device.")
         elif publish_type.startswith("preinstalled-"):
             sentences.append(
                 "The %s %s allows you to unpack a preinstalled version of %s "
@@ -1116,34 +1108,6 @@ class Publisher:
         heading = heading.replace('-', ' ')
         return heading
 
-    def ubuntu_touch_legal_notice(self):
-        yield "<h3>Legal Notice</h3>"
-        yield Paragraph([
-            "Ubuntu Touch is released for free non-commercial use.",
-            "It is provided without warranty, even the implied warranty of "
-            "merchantability, satisfaction or fitness for a particular use.",
-            "See the licence included with each program for details.",
-        ])
-        yield Paragraph([
-            "Some licences may grant additional rights; this notice shall not "
-            "limit your rights under each program's licence.",
-            "Licences for each program are available in the /usr/share/doc "
-            "directory.",
-            "Source code for Ubuntu can be downloaded from %s." % Link(
-                "http://archive.ubuntu.com/", "archive.ubuntu.com"),
-            "Ubuntu, the Ubuntu logo and Canonical are registered trademarks "
-            "of Canonical Ltd.",
-            "All other trademarks are the property of their respective "
-            "owners.",
-        ])
-        yield Paragraph([
-            "Ubuntu Touch is released for limited use due to the inclusion of "
-            "binary hardware support files.",
-            "The original components and licenses can be found at: %s." % Link(
-                "https://developers.google.com/android/nexus/drivers",
-                "https://developers.google.com/android/nexus/drivers"),
-        ])
-
     def find_images(self, directory, prefix, publish_type):
         images = []
         prefix_type = "%s-%s" % (prefix, publish_type)
@@ -1195,7 +1159,7 @@ class Publisher:
             "preinstalled-desktop", "preinstalled-netbook",
             "preinstalled-mobile", "preinstalled-active",
             "preinstalled-server",
-            "preinstalled-touch", "preinstalled-core", "wubi",
+            "preinstalled-core", "wubi",
             "live-core",
             "live-core-desktop",
             "desktop-canary",
@@ -1706,11 +1670,6 @@ class Publisher:
             if got_iso or got_img:
                 print(file=header)
 
-            if self.config.project == "ubuntu-touch":
-                for tag in self.ubuntu_touch_legal_notice():
-                    print(tag, file=header)
-                print(file=header)
-
             print("<div class='p-table-wrapper'>", file=header)
 
             print(
@@ -2209,30 +2168,6 @@ class DailyTreePublisher(Publisher):
         else:
             osextras.unlink_force("%s.squashfs" % target_prefix)
 
-        # Flashable Android boot images
-        if os.path.exists("%s.bootimg" % source_prefix):
-            logger.info("Publishing %s abootimg images ..." % arch)
-            shutil.move(
-                "%s.bootimg" % source_prefix, "%s.bootimg" % target_prefix)
-
-        for touch_target in Touch.list_targets_by_ubuntu_arch(arch):
-            boot_img = "%s-preinstalled-boot-%s+%s.img" % (
-                self.config.series, touch_target.ubuntu_arch,
-                touch_target.subarch)
-            system_img = "%s-preinstalled-system-%s+%s.img" % (
-                self.config.series, touch_target.android_arch,
-                touch_target.subarch)
-            recovery_img = "%s-preinstalled-recovery-%s+%s.img" % (
-                self.config.series, touch_target.android_arch,
-                touch_target.subarch)
-
-            for image in boot_img, system_img, recovery_img:
-                if os.path.exists(os.path.join(source_dir, image)):
-                    logger.info("Publishing %s ..." % image)
-                    shutil.move(
-                        os.path.join(source_dir, image),
-                        os.path.join(target_dir, image))
-
         if os.path.exists("%s.custom.tar.gz" % source_prefix):
             logger.info("Publishing %s custom tarball ..." % arch)
             shutil.move(
@@ -2522,16 +2457,6 @@ class DailyTreePublisher(Publisher):
             image_base = image.split(".", 1)[0]
             for arch in arches:
                 if image_base.endswith("-%s" % arch):
-                    matches = True
-                elif (self.config.project == "ubuntu-touch" and
-                      arch == "armhf" and
-                      ("-armel+" in image_base or "-armhf+" in image_base)):
-                    matches = True
-                elif (self.config.project == "ubuntu-touch" and
-                      arch == "i386" and "-i386+" in image_base):
-                    matches = True
-                elif (self.config.project == "ubuntu-touch" and
-                      arch == "arm64" and "-arm64+" in image_base):
                     matches = True
                 elif self.config.subproject == "wubi" and image_base == arch:
                     matches = True

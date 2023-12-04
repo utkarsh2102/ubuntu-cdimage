@@ -20,8 +20,7 @@ import os
 
 # Be careful about the values here; in most cases they are passed to
 # debian-cd, which will get upset if they contain a space, hence all the
-# odd-looking hyphens.  ubuntu-touch-preview is an exception
-# to this, because it does not use debian-cd.
+# odd-looking hyphens.
 # For projects that use debian-cd, it will construct an ISO9660 volume ID
 # as "$(CAPPROJECT) $(DEBVERSION) $(ARCH)", e.g. "Ubuntu 14.10 amd64"; for
 # powerpc, $(ARCH) is abbreviated to "ppc".  The volume ID is limited to 32
@@ -48,8 +47,6 @@ project_map = {
     "ubuntu-core-desktop": "Ubuntu Core Desktop",
     "ubuntu-appliance": "Ubuntu Appliance",
     "ubuntu-base": "Ubuntu-Base",
-    "ubuntu-touch-preview": "Ubuntu Touch Preview",
-    "ubuntu-touch": "Ubuntu Touch",
     "ubuntu-mini-iso": "Ubuntu-Mini-ISO",
 }
 
