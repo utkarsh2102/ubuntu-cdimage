@@ -56,18 +56,18 @@ class TestStatic(TestCase):
                         paths.append(os.path.join(dirpath, filename))
         return paths
 
-    def test_pep8_clean(self):
-        if not osextras.find_on_path("pep8"):
+    def test_pycodestyle_clean(self):
+        if not osextras.find_on_path("pycodestyle"):
             return
         if "SKIP_SLOW_TESTS" in os.environ:
             return
         subp = subprocess.Popen(
-            ["pep8"] + self.all_paths(),
+            ["pycodestyle"] + self.all_paths(),
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             universal_newlines=True)
         output = subp.communicate()[0]
         if output:
-            self.fail("pep8 produced output:\n\n" + output)
+            self.fail("pycodestyle produced output:\n\n" + output)
 
     def test_pyflakes_clean(self):
         if sys.version < "3":

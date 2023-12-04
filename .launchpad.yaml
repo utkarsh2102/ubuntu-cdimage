@@ -5,7 +5,7 @@ jobs:
     run-tests:
         series: jammy
         architectures: amd64
-        packages: [dctrl-tools, python3, python3, python3-mock, python3-simplestreams, procmail, squashfs-tools, file, pep8, pyflakes3]
+        packages: [dctrl-tools, python3, python3, python3-mock, python3-simplestreams, procmail, squashfs-tools, file, pycodestyle, pyflakes3]
         run: ./run-tests >output
         output:
             paths: [output]
