@@ -38,7 +38,7 @@ except ImportError:
     import mock
 
 from cdimage import osextras
-from cdimage.config import Config, Series, all_series
+from cdimage.config import Config, Series
 from cdimage.tests.helpers import TestCase, date_to_time, mkfile, touch
 from cdimage.tree import (
     DailyTree,
