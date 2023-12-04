@@ -714,7 +714,8 @@ def download_live_filesystems(config, builds):
         for arch in config.arches:
             if config["CDIMAGE_PREINSTALLED"]:
                 if project in ("ubuntu-server", ):
-                    if download_live_items(config, builds, arch, "disk1.img.xz"):
+                    if download_live_items(config, builds, arch,
+                                           "disk1.img.xz"):
                         got_image = True
                     elif download_live_items(config, builds, arch, "img.xz"):
                         got_image = True
@@ -726,7 +727,8 @@ def download_live_filesystems(config, builds):
                     got_image = True
                 elif download_live_items(config, builds, arch, "ext2"):
                     got_image = True
-                elif download_live_items(config, builds, arch, "rootfs.tar.gz"):
+                elif download_live_items(config, builds, arch,
+                                         "rootfs.tar.gz"):
                     got_image = True
                 elif download_live_items(config, builds, arch, "img.xz"):
                     got_image = True
@@ -762,9 +764,11 @@ def download_live_filesystems(config, builds):
                     download_live_items(config, builds, arch, "bootimg")
 
             download_live_items(config, builds, arch, "manifest")
-            if not download_live_items(config, builds, arch, "manifest-remove"):
+            if not download_live_items(config, builds, arch,
+                                       "manifest-remove"):
                 download_live_items(config, builds, arch, "manifest-desktop")
-            download_live_items(config, builds, arch, "manifest-minimal-remove")
+            download_live_items(config, builds, arch,
+                                "manifest-minimal-remove")
             download_live_items(config, builds, arch, "size")
 
             if (config["CDIMAGE_PREINSTALLED"] or
@@ -791,10 +795,12 @@ def download_live_filesystems(config, builds):
             download_live_items(config, builds, arch, "kernel.snap")
             if arch == "amd64":
                 for devarch in ("azure", "plano"):
-                    download_live_items(config, builds, arch, "%s.device.tar.gz" %
-                                        devarch)
+                    download_live_items(config, builds, arch,
+                                        "%s.device.tar.gz" % devarch)
             if arch == "armhf":
-                download_live_items(config, builds, arch, "raspi2.device.tar.gz")
+                download_live_items(config, builds, arch,
+                                    "raspi2.device.tar.gz")
                 download_live_items(config, builds, arch, "raspi2.kernel.snap")
             if arch == "arm64":
-                download_live_items(config, builds, arch, "dragonboard.kernel.snap")
+                download_live_items(config, builds, arch,
+                                    "dragonboard.kernel.snap")

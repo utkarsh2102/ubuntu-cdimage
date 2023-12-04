@@ -539,7 +539,8 @@ class TestRunLiveBuilds(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
         self.capture_logging()
-        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config)[0])
+        self.assertCountEqual(["amd64", "i386"],
+                              run_live_builds(self.config)[0])
         self.assertCountEqual([
             "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
             "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
@@ -672,7 +673,8 @@ class TestRunLiveBuilds(TestCase):
         mock_login.return_value = MockLaunchpad()
         mock_iter_buildstate.side_effect = lambda: (
             chain(["Needs building"] * 3, repeat("Successfully built")))
-        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config)[0])
+        self.assertCountEqual(["amd64", "i386"],
+                              run_live_builds(self.config)[0])
         self.assertCountEqual([
             "ubuntu-amd64 on Launchpad starting at 2013-03-15 13:48:51",
             "ubuntu-amd64: https://launchpad.example/amd64-build",
@@ -825,7 +827,8 @@ class TestLiveItemPaths(TestCase):
     def assertNoPaths(self, arch, item, project, series):
         self.config["PROJECT"] = project
         self.config["DIST"] = series
-        self.assertEqual([], list(live_item_paths(self.config, None, arch, item)))
+        self.assertEqual([],
+                         list(live_item_paths(self.config, None, arch, item)))
 
     def test_desktop_items(self):
         for item in (
@@ -921,7 +924,8 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertFalse(download_live_items(self.config, None, "i386", "squashfs"))
+        self.assertFalse(download_live_items(self.config, None, "i386",
+                                             "squashfs"))
         mock_fetch.assert_called_once_with(
             self.config,
             "http://cardamom.buildd/~buildd/LiveCD/bionic/ubuntu/current/"
@@ -935,7 +939,8 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, None, "amd64", "kernel"))
+        self.assertTrue(download_live_items(self.config, None, "amd64",
+                                            "kernel"))
         target_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "live")
@@ -985,7 +990,8 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, None, "i386", "kernel"))
+        self.assertTrue(download_live_items(self.config, None, "i386",
+                                            "kernel"))
         prefix = ("http://cardamom.buildd/~buildd/LiveCD/bionic/ubuntu/"
                   "current/livecd.ubuntu.kernel-")
         calls = []
@@ -1005,7 +1011,8 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
         self.assertTrue(
-            download_live_items(self.config, None, "amd64", "kernel-efi-signed"))
+            download_live_items(self.config, None, "amd64",
+                                "kernel-efi-signed"))
         prefix = ("http://kapok.buildd/~buildd/LiveCD/bionic/ubuntu/"
                   "current/livecd.ubuntu.kernel-")
         target_dir = os.path.join(
@@ -1052,7 +1059,8 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
-        self.assertTrue(download_live_items(self.config, None, "i386", "squashfs"))
+        self.assertTrue(download_live_items(self.config, None, "i386",
+                                            "squashfs"))
         url = ("http://cardamom.buildd/~buildd/LiveCD/bionic/ubuntu/"
                "current/livecd.ubuntu.squashfs")
         target_dir = os.path.join(
