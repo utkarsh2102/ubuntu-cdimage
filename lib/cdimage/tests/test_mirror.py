@@ -19,7 +19,10 @@
 
 from __future__ import print_function, with_statement
 
+import glob
 import os
+import subprocess
+import sys
 
 try:
     from unittest import mock
@@ -28,6 +31,7 @@ except ImportError:
 
 from cdimage.config import Config, all_series
 from cdimage.mirror import (
+    AptStateManager,
     UnknownManifestFile,
     _get_mirror_key,
     _get_mirrors,
@@ -220,3 +224,131 @@ class TestTriggerMirrors(TestCase):
                   "w"):
             trigger_mirrors(self.config)
             mock_trigger_mirror.assert_not_called()
+
+
+class TestAptStateManager(TestCase):
+    def test_output_dir(self):
+        config = Config(read=False)
+        config.root = "/cdimage"
+        config["PROJECT"] = "ubuntu"
+        config["DIST"] = "noble"
+        config["IMAGE_TYPE"] = "daily"
+        mgr = AptStateManager(config)
+        self.assertEqual(
+            "/cdimage/scratch/ubuntu/noble/daily/apt-state/amd64",
+            mgr._output_dir("amd64"))
+
+    def test_otherarch_no_foreign_arch(self):
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        mgr = AptStateManager(config)
+        self.assertEqual("arm64", mgr._otherarch("arm64"))
+
+    def test_otherarch_with_foreign_arch(self):
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        config["DIST"] = "noble"
+        # This is duplicating the implementation a bit too much to be
+        # a truly useful tests. But really this information should be
+        # moved into ubuntu-cdimage somewhere.
+        archlist_path = os.path.join(
+            config.root, "debian-cd", "data", config.series,
+            "multiarch", "arm64")
+        os.makedirs(os.path.dirname(archlist_path))
+        with open(archlist_path, 'w') as fp:
+            fp.write("armhf\n")
+        mgr = AptStateManager(config)
+        self.assertEqual("armhf", mgr._otherarch("arm64"))
+
+    def test_components(self):
+        config = Config(read=False)
+        mgr = AptStateManager(config)
+        self.assertEqual("main restricted", mgr._components())
+        config["CDIMAGE_ONLYFREE"] = "1"
+        self.assertEqual("main", mgr._components())
+        config["CDIMAGE_UNSUPPORTED"] = "1"
+        self.assertEqual("main universe", mgr._components())
+        del config["CDIMAGE_ONLYFREE"]
+        self.assertEqual(
+            "main restricted universe multiverse", mgr._components())
+
+    def test_suites(self):
+        config = Config(read=False)
+        config["DIST"] = "noble"
+        mgr = AptStateManager(config)
+        self.assertEqual("noble noble-security noble-updates", mgr._suites())
+        config["PROPOSED"] = "1"
+        self.assertEqual(
+            "noble noble-security noble-updates noble-proposed", mgr._suites())
+
+    @mock.patch("cdimage.mirror.find_mirror")
+    @mock.patch("cdimage.mirror.AptStateManager._components")
+    @mock.patch("cdimage.mirror.AptStateManager._suites")
+    def test_get_sources_text(self, m_suites, m_components, m_find_mirror):
+        m_find_mirror.return_value = "MIRROR"
+        m_components.return_value = "COMPONENTS"
+        m_suites.return_value = "SUITES"
+        config = Config(read=False)
+        config["DIST"] = "noble"
+        mgr = AptStateManager(config)
+        expected = """\
+Types: deb deb-src
+URIs: MIRROR
+Suites: SUITES
+Components: COMPONENTS
+Signed-By: /etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg
+"""
+        self.assertEqual(expected, mgr._get_sources_text("s390x"))
+
+    def _get_apt_config(self, apt_config, var, meth='find'):
+        env = dict(os.environ, APT_CONFIG=apt_config)
+        cmd = [
+            sys.executable,
+            "-c",
+            "import apt_pkg, sys; apt_pkg.init_config()\n"
+            "print(apt_pkg.config.{}(sys.argv[1]))".format(meth),
+            var
+            ]
+        cp = subprocess.run(
+            cmd, env=env, encoding='utf-8', stdout=subprocess.PIPE, check=True)
+        return cp.stdout.strip()
+
+    @mock.patch("cdimage.mirror.AptStateManager._output_dir")
+    @mock.patch("cdimage.mirror.AptStateManager._get_sources_text")
+    @mock.patch("cdimage.mirror.AptStateManager._otherarch")
+    def test_setup_arch(self, m_otherarch, m_get_sources_text, m_output_dir):
+        m_otherarch.return_value = "OTHERARCH"
+        # We *could* create a local apt repo with apt-ftparchive and
+        # arrange to point the apt update call _setup_arch does to it
+        # but that seems like a lot of effort.
+        m_get_sources_text.return_value = "# Our content\n"
+        m_output_dir.return_value = self.use_temp_dir()
+        config = Config(read=False)
+        config["DIST"] = "noble"
+        mgr = AptStateManager(config)
+        apt_conf = mgr._setup_arch("ARCH")
+        self.assertEqual(
+            "ARCH",
+            self._get_apt_config(apt_conf, "Apt::Architecture"))
+        self.assertEqual(
+            "OTHERARCH",
+            self._get_apt_config(apt_conf, "Apt::Architectures"))
+        sources_list_d = self._get_apt_config(
+            apt_conf, "Dir::Etc::sourceparts", meth='find_dir')
+        sources_files = glob.glob(os.path.join(sources_list_d, "*.sources"))
+        self.assertEqual(1, len(sources_files))
+        with open(sources_files[0]) as fp:
+            self.assertEqual("# Our content\n", fp.read())
+
+    @mock.patch("cdimage.mirror.AptStateManager._setup_arch")
+    def test_setup(self, m_setup_arch):
+        self.capture_logging()
+        m_setup_arch.side_effect = lambda arch: arch + 'dir'
+        config = Config(read=False)
+        config["ARCHES"] = "arch1 arch2"
+        mgr = AptStateManager(config)
+        mgr.setup()
+        self.assertEqual(
+            [mock.call("arch1"), mock.call("arch2")],
+            m_setup_arch.mock_calls)
+        self.assertEqual('arch1dir', mgr.apt_conf_for_arch('arch1'))
