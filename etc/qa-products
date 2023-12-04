@@ -17,10 +17,6 @@ Lubuntu Next Desktop amd64						lubuntu-next			daily-live			desktop					amd64			
 Lubuntu Next Desktop i386						lubuntu-next			daily-live			desktop					i386			iso
 Lubuntu Desktop Preinstalled armhf+ac100	lubuntu			daily-preinstalled	preinstalled-desktop	armhf+ac100		iso
 
-# Mythbuntu
-Mythbuntu Desktop amd64						mythbuntu		daily-live			desktop					amd64			iso
-Mythbuntu Desktop i386						mythbuntu		daily-live			desktop					i386			iso
-
 # Ubuntu Base
 Ubuntu Base amd64							ubuntu-base		daily				base					amd64			iso
 Ubuntu Base arm64							ubuntu-base		daily				base					arm64			iso

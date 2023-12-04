@@ -26,8 +26,6 @@ ubuntu-appliance	daily-live		bionic-			amd64+appliance-adguard-home-core18-amd64
 kubuntu			daily-live		bionic			amd64 i386
 kubuntu			daily-live		focal-			amd64
 
-mythbuntu		*			*			amd64 i386
-
 ubuntu			daily-live		bionic			amd64
 ubuntu			daily-live		focal-jammy		amd64 arm64 amd64+intel-iot
 ubuntu			daily-live		lunar			amd64 arm64

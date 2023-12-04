@@ -1746,7 +1746,6 @@ class TestDailyTreePublisher(TestCase):
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
             ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
-            ("mythbuntu", "daily-live", "desktop", "Mythbuntu Desktop"),
             ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
             ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
             ("lubuntu-next", "daily-live", "desktop", "Lubuntu Next Desktop"),
