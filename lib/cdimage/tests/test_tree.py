@@ -980,24 +980,11 @@ class TestDailyTreePublisher(TestCase):
             ["%s-alternate-amd64.iso" % self.config.series],
             os.listdir(os.path.join(publisher.publish_base, "20130319")))
 
-    def test_jigdo_ports_powerpc(self):
-        publisher = self.make_publisher("ubuntu", "daily")
-        for series in all_series[5:]:
-            publisher.config["DIST"] = series
-            self.assertTrue(publisher.jigdo_ports("powerpc"))
-
-    def test_jigdo_ports_sparc(self):
-        publisher = self.make_publisher("ubuntu", "daily")
-        for series in all_series[7:]:
-            publisher.config["DIST"] = series
-            self.assertTrue(publisher.jigdo_ports("sparc"))
-
     def test_jigdo_ports(self):
         publisher = self.make_publisher("ubuntu", "daily")
         for arch in ("amd64", "i386"):
             self.assertFalse(publisher.jigdo_ports(arch))
-        for arch in ("armel", "armhf", "hppa", "ia64", "ppc64el",
-                     "s390x"):
+        for arch in ("armel", "armhf", "ppc64el", "s390x"):
             self.assertTrue(publisher.jigdo_ports(arch))
 
     def test_replace_jigdo_mirror(self):

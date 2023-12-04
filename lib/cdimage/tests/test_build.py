@@ -708,7 +708,7 @@ class TestBuildImageSet(TestCase):
                 #! /bin/sh
                 PROJECT=ubuntu
                 CAPPROJECT=Ubuntu
-                ARCHES="amd64"
+                ARCHES="amd64 arm64"
                 """), file=f)
         os.environ["CDIMAGE_ROOT"] = self.temp_dir
         config = Config()
@@ -722,7 +722,7 @@ class TestBuildImageSet(TestCase):
         mock_call.assert_called_once_with(
             ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
         self.assertEqual(
-            "amd64", mock_call.call_args[1]["env"]["ARCHES"])
+            "amd64 arm64", mock_call.call_args[1]["env"]["ARCHES"])
 
     def test_fix_permissions(self):
         self.config["PROJECT"] = "ubuntu"

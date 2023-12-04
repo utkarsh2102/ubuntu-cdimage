@@ -60,20 +60,10 @@ class TestChecksumFile(TestCase):
             self.assertMirrorEqual(
                 "http://ftpmaster.internal/ubuntu/", "armel", series)
 
-    def test_hppa(self):
-        for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "hppa", series)
-
     def test_i386(self):
         for series in all_series:
             self.assertMirrorEqual(
                 "http://ftpmaster.internal/ubuntu/", "i386", series)
-
-    def test_powerpc(self):
-        for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "powerpc", series)
 
     def test_ppc64el(self):
         for series in all_series:
@@ -84,11 +74,6 @@ class TestChecksumFile(TestCase):
         for series in all_series:
             self.assertMirrorEqual(
                 "http://ftpmaster.internal/ubuntu/", "s390x", series)
-
-    def test_sparc(self):
-        for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "sparc", series)
 
 
 class TestTriggerMirrors(TestCase):

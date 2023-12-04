@@ -491,23 +491,15 @@ def flavours(config, arch):
             return ["linaro-lt-mx5"]
         else:
             return [subarch]
-    elif cpuarch == "hppa":
-        return ["hppa32", "hppa64"]
     elif cpuarch == "i386":
         if project == "ubuntustudio":
             return ["lowlatency"]
         else:
             return ["generic"]
-    elif cpuarch == "ia64":
-        return ["ia64"]
-    elif cpuarch == "powerpc":
-        return ["powerpc-smp", "generic"]
     elif cpuarch == "ppc64el":
         return ["generic"]
     elif cpuarch == "s390x":
         return ["generic"]
-    elif cpuarch == "sparc":
-        return ["sparc64"]
     elif cpuarch == "riscv64":
         return ["generic"]
     else:
