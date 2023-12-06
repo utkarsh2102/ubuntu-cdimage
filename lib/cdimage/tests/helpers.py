@@ -145,3 +145,8 @@ def touch(path):
 def date_to_time(date):
     """Return UTC seconds-since-epoch for a string in the form "20130321"."""
     return calendar.timegm(time.strptime(date, "%Y%m%d"))
+
+
+class StubAptStateManager:
+    def apt_conf_for_arch(self, arch):
+        return arch + "/apt.conf"

@@ -37,7 +37,7 @@ from cdimage.germinate import (
     NoMasterSeeds,
 )
 from cdimage.mail import text_file_type
-from cdimage.tests.helpers import TestCase, mkfile, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch, StubAptStateManager
 
 __metaclass__ = type
 
@@ -220,10 +220,6 @@ class TestGermination(TestCase):
             touch(os.path.join(output_dir, "amd64", "structure"))
 
         mock_check_call.side_effect = check_call_side_effect
-
-        class StubAptStateManager:
-            def apt_conf_for_arch(self, arch):
-                return arch + "/apt.conf"
 
         self.germination.apt_state_mgr = StubAptStateManager()
         self.germination.germinate_arch("amd64")
