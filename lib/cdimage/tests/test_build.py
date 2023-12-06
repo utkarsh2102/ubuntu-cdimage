@@ -671,8 +671,11 @@ class TestBuildImageSet(TestCase):
             self.temp_dir, "germinate", "bin", "germinate")
         touch(germinate_path)
         os.chmod(germinate_path, 0o755)
-        germinate_output = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "bionic", "daily", "germinate")
+        daily_dir = os.path.join(
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily")
+        germinate_output = os.path.join(daily_dir, "germinate")
+        apt_config = os.path.join(
+            daily_dir, "apt-state", "{ARCH}", "base.conf")
         log_dir = os.path.join(self.temp_dir, "log", "ubuntu", "bionic")
 
         def side_effect(command, *args, **kwargs):
@@ -697,9 +700,7 @@ class TestBuildImageSet(TestCase):
                         "--seed-dist", "ubuntu.bionic",
                         "--arch", arch,
                         "--no-rdepends",
-                        "--mirror", "http://ftpmaster.internal/ubuntu/",
-                        "--components", "main,restricted",
-                        "--dist", "bionic,bionic-security,bionic-updates",
+                        "--apt-config", apt_config.replace("{ARCH}", arch),
                         "--vcs=git",
                     ], cwd=os.path.join(germinate_output, arch), env=mock.ANY)
 

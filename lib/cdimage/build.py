@@ -456,11 +456,7 @@ def build_image_set_locked(config, options):
                 config["GENERATE_POOL"] = "0"
             else:
                 log_marker("Germinating")
-                # Cannot use apt_state_mgr for germination until
-                # https://code.launchpad.net/~mwhudson/germinate/+git/
-                #     germinate-1/+merge/456723
-                # is merged.
-                germination = Germination(config)
+                germination = Germination(config, apt_state_mgr=apt_state_mgr)
                 germination.run()
 
                 log_marker("Generating new task lists")
