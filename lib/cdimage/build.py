@@ -74,7 +74,6 @@ def configure_for_project(config):
         "edubuntu",
         "kubuntu",
         "ubuntustudio",
-        "mythbuntu",
         "lubuntu",
         "ubuntukylin",
         "ubuntu-gnome",

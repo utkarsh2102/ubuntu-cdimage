@@ -67,7 +67,6 @@ class Germination:
         if self.config["LOCAL_SEEDS"]:
             return [self.config["LOCAL_SEEDS"]]
         elif self.prefer_vcs:
-            bzrpattern = "http://bazaar.launchpad.net/~%s/ubuntu-seeds/"
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             sources = [gitpattern % "ubuntu-core-dev"]
             if project == "kubuntu":
@@ -76,8 +75,6 @@ class Germination:
                 sources.insert(0, gitpattern % "edubuntu-dev")
             elif project == "ubuntustudio":
                 sources.insert(0, gitpattern % "ubuntustudio-dev")
-            elif project == "mythbuntu":
-                sources.insert(0, bzrpattern % "mythbuntu-dev")
             elif project == "xubuntu":
                 sources.insert(0, gitpattern % "xubuntu-dev")
             elif project in ("lubuntu", "lubuntu-next"):

@@ -68,7 +68,6 @@ projects = [
     "kubuntu-netbook",
     "lubuntu",
     "lubuntu-next",
-    "mythbuntu",
     "ubuntu",
     "ubuntu-gnome",
     "ubuntu-budgie",
@@ -1892,16 +1891,12 @@ class DailyTreePublisher(Publisher):
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
             # Per IRC discussions on #ubuntu-release 2022-04-17
             return 2.8 * 1000 * 1000 * 1000
-        elif self.project in ("ubuntu-budgie", "mythbuntu", "xubuntu",
+        elif self.project in ("ubuntu-budgie", "xubuntu",
                               "ubuntu-gnome", "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
             # ubuntu-gnome per
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003740.html
-            # mythbuntu project has disbanded per
-            # https://bugs.launchpad.net/bugs/1639445, xenial images were
-            # oversized; executive decision by vorlon to raise the limit
-            # and suppress the warnings
             return 2 * 1000 * 1000 * 1000
         elif self.project == "ubuntu-unity":
             # Per IRC discussions on #ubuntu-release 2023-09-26

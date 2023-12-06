@@ -412,7 +412,6 @@ class TestBuildImageSet(TestCase):
             ("xubuntu", "bionic", False, True),
             ("kubuntu", "bionic", False, True),
             ("ubuntustudio", "bionic", False, True),
-            ("mythbuntu", "bionic", False, True),
             ("lubuntu", "bionic", False, True),
             ("ubuntukylin", "bionic", False, True),
             ("ubuntu-gnome", "bionic", False, True),

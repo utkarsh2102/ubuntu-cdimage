@@ -235,7 +235,6 @@ def main():
         'xubuntu',
         'ubuntustudio',
         'kubuntu-netbook',
-        'mythbuntu',
         'lubuntu',
         'lubuntu-next',
         'ubuntu-gnome',

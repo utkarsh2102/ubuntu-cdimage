@@ -16,7 +16,6 @@ ubuntu-server		daily-preinstalled	bionic-		*		ubuntu-cdimage/cpc
 #ubuntu-server		daily-canary	jammy		*		ubuntu-cdimage/cpc
 ubuntu-server-live	daily-live		bionic-		*		ubuntu-cdimage/ubuntu-server-live
 ubuntustudio		dvd			*		*		ubuntu-cdimage/ubuntustudio
-mythbuntu		daily-live		*		*		ubuntu-cdimage/mythbuntu
 lubuntu-next		daily-live		*		*		ubuntu-cdimage/lubuntu-next
 lubuntu			daily-live		*		*		ubuntu-cdimage/lubuntu
 livecd-base		livecd-base		*		*		ubuntu-cdimage/livecd-base
