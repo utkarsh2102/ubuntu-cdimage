@@ -300,6 +300,16 @@ Signed-By: /etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg
 """
         self.assertEqual(expected, mgr._get_sources_text("s390x"))
 
+    def test_get_sources_text_override(self):
+        config = Config(read=False)
+        sources_path = os.path.join(self.use_temp_dir(), "my.sources")
+        content = "# content\n"
+        with open(sources_path, 'w') as fp:
+            fp.write(content)
+        config["CDIMAGE_POOL_SOURCES"] = sources_path
+        mgr = AptStateManager(config)
+        self.assertEqual(content, mgr._get_sources_text("s390x"))
+
     def _get_apt_config(self, apt_config, var, meth='find'):
         env = dict(os.environ, APT_CONFIG=apt_config)
         cmd = [

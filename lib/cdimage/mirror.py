@@ -186,6 +186,10 @@ class AptStateManager:
             [pattern % self.config.series for pattern in suite_patterns])
 
     def _get_sources_text(self, arch):
+        if self.config["CDIMAGE_POOL_SOURCES"]:
+            with open(self.config["CDIMAGE_POOL_SOURCES"]) as fp:
+                return fp.read()
+
         keyring = "/etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg"
 
         return SOURCES_TMPL.format(
