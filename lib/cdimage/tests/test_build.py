@@ -914,12 +914,12 @@ class TestBuildImageSet(TestCase):
                     return mock.call([
                         germinate_path,
                         "--seed-source", mock.ANY,
-                        "--mirror", "http://ftpmaster.internal/ubuntu/",
                         "--seed-dist", "ubuntu.bionic",
-                        "--dist", "bionic,bionic-security,bionic-updates",
                         "--arch", arch,
-                        "--components", "main,restricted",
                         "--no-rdepends",
+                        "--mirror", "http://ftpmaster.internal/ubuntu/",
+                        "--components", "main,restricted",
+                        "--dist", "bionic,bionic-security,bionic-updates",
                         "--vcs=git",
                     ], cwd=os.path.join(germinate_output, arch), env=mock.ANY)
 

@@ -39,10 +39,11 @@ class GerminateNotInstalled(Exception):
 
 
 class Germination:
-    def __init__(self, config, prefer_vcs=True):
+    def __init__(self, config, prefer_vcs=True, apt_state_mgr=None):
         self.config = config
         # Set to False to use old-style seed checkouts.
         self.prefer_vcs = prefer_vcs
+        self.apt_state_mgr = apt_state_mgr
 
     @property
     def germinate_path(self):
@@ -152,13 +153,20 @@ class Germination:
         command = [
             self.germinate_path,
             "--seed-source", ",".join(self.seed_sources()),
-            "--mirror", find_mirror(self.config.project, arch),
             "--seed-dist", self.seed_dist(),
-            "--dist", ",".join(self.germinate_dists),
             "--arch", cpuarch,
-            "--components", ",".join(self.components),
             "--no-rdepends",
         ]
+        if self.apt_state_mgr is not None:
+            command.extend([
+                "--apt-config", self.apt_state_mgr.apt_conf_for_arch(arch),
+                ])
+        else:
+            command.extend([
+                "--mirror", find_mirror(self.config.project, arch),
+                "--components", ",".join(self.components),
+                "--dist", ",".join(self.germinate_dists),
+                ])
         if self.use_vcs:
             command.append("--vcs=git")
         proxy_check_call(

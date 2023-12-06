@@ -190,12 +190,51 @@ class TestGermination(TestCase):
             germinate_path,
             "--seed-source",
             "https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/",
-            "--mirror", "http://ftpmaster.internal/ubuntu/",
             "--seed-dist", "ubuntu.bionic",
-            "--dist", "bionic,bionic-security,bionic-updates",
             "--arch", "amd64",
-            "--components", "main,restricted",
             "--no-rdepends",
+            "--mirror", "http://ftpmaster.internal/ubuntu/",
+            "--components", "main,restricted",
+            "--dist", "bionic,bionic-security,bionic-updates",
+            "--vcs=git",
+        ]
+        self.assertEqual(1, mock_check_call.call_count)
+        self.assertEqual(expected_command, mock_check_call.call_args[0][0])
+        self.assertEqual(
+            "%s/amd64" % output_dir, mock_check_call.call_args[1]["cwd"])
+
+    @mock.patch("subprocess.check_call")
+    def test_germinate_arch_with_apt_state_manager(self, mock_check_call):
+        self.config.root = self.use_temp_dir()
+        germinate_path = os.path.join(
+            self.temp_dir, "germinate", "bin", "germinate")
+        touch(germinate_path)
+        os.chmod(germinate_path, 0o755)
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["PROJECT"] = "ubuntu"
+
+        output_dir = "%s/scratch/ubuntu/bionic/daily/germinate" % self.temp_dir
+
+        def check_call_side_effect(*args, **kwargs):
+            touch(os.path.join(output_dir, "amd64", "structure"))
+
+        mock_check_call.side_effect = check_call_side_effect
+
+        class StubAptStateManager:
+            def apt_conf_for_arch(self, arch):
+                return arch + "/apt.conf"
+
+        self.germination.apt_state_mgr = StubAptStateManager()
+        self.germination.germinate_arch("amd64")
+        expected_command = [
+            germinate_path,
+            "--seed-source",
+            "https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/",
+            "--seed-dist", "ubuntu.bionic",
+            "--arch", "amd64",
+            "--no-rdepends",
+            "--apt-config", "amd64/apt.conf",
             "--vcs=git",
         ]
         self.assertEqual(1, mock_check_call.call_count)
