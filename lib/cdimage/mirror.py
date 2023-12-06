@@ -225,7 +225,16 @@ class AptStateManager:
         with open(sources_path, 'w') as sources:
             sources.write(self._get_sources_text(arch))
 
-        # XXX set up apt proxy here?
+        if self.config["APT_PROXY"]:
+            proxy_conf_path = os.path.join(
+                state_dir, "etc/apt/apt.conf.d/proxy.conf")
+            with open(proxy_conf_path, "w") as proxy_conf:
+                proxy_conf.write(
+                    'Acquire::http::Proxy "{PROXY}";\n'.format(
+                        PROXY=self.config["APT_PROXY"]))
+                proxy_conf.write(
+                    'Acquire::https::Proxy "{PROXY}";\n'.format(
+                        PROXY=self.config["APT_PROXY"]))
 
         subprocess.check_call(
             ['apt-get', 'update'],

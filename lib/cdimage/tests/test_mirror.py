@@ -350,6 +350,20 @@ Signed-By: /etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg
         with open(sources_files[0]) as fp:
             self.assertEqual("# Our content\n", fp.read())
 
+    @mock.patch("subprocess.check_call")
+    def test_setup_arch_proxy(self, m_check_call):
+        config = Config(read=False)
+        config["DIST"] = "noble"
+        config["APT_PROXY"] = "http://localhost:3128"
+        mgr = AptStateManager(config)
+        apt_conf = mgr._setup_arch("ARCH")
+        self.assertEqual(
+            "http://localhost:3128",
+            self._get_apt_config(apt_conf, "Acquire::http::Proxy"))
+        self.assertEqual(
+            "http://localhost:3128",
+            self._get_apt_config(apt_conf, "Acquire::https::Proxy"))
+
     @mock.patch("cdimage.mirror.AptStateManager._setup_arch")
     def test_setup(self, m_setup_arch):
         self.capture_logging()
