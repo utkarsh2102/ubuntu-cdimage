@@ -919,7 +919,7 @@ class TestBuildImageSet(TestCase):
                         "--arch", arch,
                         "--components", "main,restricted",
                         "--no-rdepends",
-                        "--vcs=auto",
+                        "--vcs=git",
                     ], cwd=os.path.join(germinate_output, arch), env=mock.ANY)
 
                 mock_call.assert_has_calls([
