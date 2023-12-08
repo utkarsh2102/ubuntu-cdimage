@@ -532,7 +532,6 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../../cdicons/iso.png .iso\n"
                 "AddIcon ../../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
-                "AddIcon ../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
                 "SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../../cdicons/torrent.png .torrent\n",
@@ -623,7 +622,6 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../cdicons/iso.png .iso\n"
                 "AddIcon ../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
-                "AddIcon ../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../cdicons/list.png .list .manifest .html .zsync "
                 "SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../cdicons/torrent.png .torrent\n",
@@ -717,7 +715,6 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../../../cdicons/iso.png .iso\n"
                 "AddIcon ../../../cdicons/img.png .img .img.xz .tar.gz "
                 ".tar.xz\n"
-                "AddIcon ../../../cdicons/jigdo.png .jigdo .template\n"
                 "AddIcon ../../../cdicons/list.png .list .manifest .html "
                 ".zsync SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../../../cdicons/torrent.png .torrent\n",
@@ -979,29 +976,6 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             ["%s-alternate-amd64.iso" % self.config.series],
             os.listdir(os.path.join(publisher.publish_base, "20130319")))
-
-    def test_jigdo_ports(self):
-        publisher = self.make_publisher("ubuntu", "daily")
-        for arch in ("amd64", "i386"):
-            self.assertFalse(publisher.jigdo_ports(arch))
-        for arch in ("armel", "armhf", "ppc64el", "s390x"):
-            self.assertTrue(publisher.jigdo_ports(arch))
-
-    def test_replace_jigdo_mirror(self):
-        jigdo_path = os.path.join(self.temp_dir, "jigdo")
-        with mkfile(jigdo_path) as jigdo:
-            print("[Servers]", file=jigdo)
-            print("Debian=http://archive.ubuntu.com/ubuntu/ --try-last",
-                  file=jigdo)
-        publisher = self.make_publisher("ubuntu", "daily")
-        publisher.replace_jigdo_mirror(
-            jigdo_path, "http://archive.ubuntu.com/ubuntu/",
-            "http://ports.ubuntu.com/ubuntu-ports")
-        with open(jigdo_path) as jigdo:
-            self.assertEqual(dedent("""\
-                [Servers]
-                Debian=http://ports.ubuntu.com/ubuntu-ports --try-last
-                """), jigdo.read())
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
@@ -1336,35 +1310,23 @@ class TestDailyTreePublisher(TestCase):
         source_dir = publisher.image_output("src")
         touch(os.path.join(source_dir, "%s-src-1.raw" % self.config.series))
         touch(os.path.join(source_dir, "%s-src-1.list" % self.config.series))
-        touch(os.path.join(source_dir, "%s-src-1.jigdo" % self.config.series))
-        touch(os.path.join(
-            source_dir, "%s-src-1.template" % self.config.series))
         touch(os.path.join(source_dir, "%s-src-2.raw" % self.config.series))
         touch(os.path.join(source_dir, "%s-src-2.list" % self.config.series))
-        touch(os.path.join(source_dir, "%s-src-2.jigdo" % self.config.series))
-        touch(os.path.join(
-            source_dir, "%s-src-2.template" % self.config.series))
         self.capture_logging()
         list(publisher.publish_source("20120807"))
         self.assertLogEqual([
             "Publishing source 1 ...",
-            "Publishing source 1 jigdo ...",
             "Making source 1 zsync metafile ...",
             "Publishing source 2 ...",
-            "Publishing source 2 jigdo ...",
             "Making source 2 zsync metafile ...",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807", "source")
         self.assertEqual([], os.listdir(source_dir))
         self.assertCountEqual([
             "%s-src-1.iso" % self.config.series,
-            "%s-src-1.jigdo" % self.config.series,
             "%s-src-1.list" % self.config.series,
-            "%s-src-1.template" % self.config.series,
             "%s-src-2.iso" % self.config.series,
-            "%s-src-2.jigdo" % self.config.series,
             "%s-src-2.list" % self.config.series,
-            "%s-src-2.template" % self.config.series,
         ], os.listdir(target_dir))
         mock_zsyncmake.assert_has_calls([
             mock.call(
@@ -2512,20 +2474,6 @@ class TestReleasePublisherMixin:
         touch(path)
         self.get_publisher().remove_tree(os.path.dirname(path))
         self.assertFalse(os.path.exists(os.path.dirname(path)))
-
-    def test_copy_jigdo(self):
-        old_path = os.path.join(self.temp_dir, "raring-alternate-amd64.jigdo")
-        new_path = os.path.join(
-            self.temp_dir, "ubuntu-13.04-alternate-amd64.jigdo")
-        with mkfile(old_path) as old:
-            print("Filename=raring-alternate-amd64.jigdo", file=old)
-            print("Template=raring-alternate-amd64.template", file=old)
-        self.get_publisher().copy_jigdo(old_path, new_path)
-        with open(new_path) as new:
-            self.assertEqual(
-                "Filename=ubuntu-13.04-alternate-amd64.jigdo\n"
-                "Template=ubuntu-13.04-alternate-amd64.template\n",
-                new.read())
 
     def test_mkemptydir(self):
         path = os.path.join(self.temp_dir, "dir")
