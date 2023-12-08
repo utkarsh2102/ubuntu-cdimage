@@ -91,6 +91,8 @@ class Germination:
                 sources.insert(0, gitpattern % "ubuntucinnamon-dev")
             elif project == "ubuntukylin":
                 sources.insert(0, gitpattern % "ubuntukylin-members")
+            elif project == "ubuntu-oem":
+                sources.insert(0, gitpattern % "oem-solutions-engineers")
             return sources
         else:
             return ["http://people.canonical.com/~ubuntu-archive/seeds/"]

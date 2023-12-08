@@ -47,6 +47,7 @@ project_map = {
     "ubuntu-appliance": "Ubuntu Appliance",
     "ubuntu-base": "Ubuntu-Base",
     "ubuntu-mini-iso": "Ubuntu-Mini-ISO",
+    "ubuntu-oem": "Ubuntu OEM",
 }
 
 
