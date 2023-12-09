@@ -688,6 +688,7 @@ class TestBuildImageSet(TestCase):
     def test_run_debian_cd(self, mock_call):
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["ARCHES"] = "amd64 arm64"
+        self.config.set_default_cpuarches()
         self.capture_logging()
         run_debian_cd(self.config, StubAptStateManager())
         self.assertLogEqual([

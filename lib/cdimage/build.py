@@ -536,8 +536,8 @@ def run_debian_cd(config, apt_state_mgr):
     log_marker("Building %s daily CDs" % config.capproject)
     debian_cd_dir = os.path.join(config.root, "debian-cd")
     env = config.export()
-    for arch in config.arches:
-        env["APT_CONFIG_" + arch] = apt_state_mgr.apt_conf_for_arch(arch)
+    for cpuarch in config.cpuarches:
+        env["APT_CONFIG_" + cpuarch] = apt_state_mgr.apt_conf_for_arch(cpuarch)
     subprocess.call(["./build_all.sh"], cwd=debian_cd_dir, env=env)
 
 

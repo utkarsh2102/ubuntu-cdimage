@@ -369,10 +369,12 @@ Signed-By: /etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg
         self.capture_logging()
         m_setup_arch.side_effect = lambda arch: arch + 'dir'
         config = Config(read=False)
-        config["ARCHES"] = "arch1 arch2"
+        config["ARCHES"] = (
+            "arch1 arch1+subarch arch2+subarch1 arch2+subarch2 arch3")
+        config.set_default_cpuarches()
         mgr = AptStateManager(config)
         mgr.setup()
-        self.assertEqual(
-            [mock.call("arch1"), mock.call("arch2")],
+        self.assertCountEqual(
+            [mock.call("arch1"), mock.call("arch2"), mock.call("arch3")],
             m_setup_arch.mock_calls)
         self.assertEqual('arch1dir', mgr.apt_conf_for_arch('arch1'))

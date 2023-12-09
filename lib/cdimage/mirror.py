@@ -243,7 +243,7 @@ class AptStateManager:
         return conf_path
 
     def setup(self):
-        for arch in self.config.arches:
+        for arch in self.config.cpuarches:
             logger.info(
                 "Setting up apt state for %s/%s ...",
                 self.config.series, arch)

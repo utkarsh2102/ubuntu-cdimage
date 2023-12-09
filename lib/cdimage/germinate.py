@@ -159,7 +159,7 @@ class Germination:
         ]
         if self.apt_state_mgr is not None:
             command.extend([
-                "--apt-config", self.apt_state_mgr.apt_conf_for_arch(arch),
+                "--apt-config", self.apt_state_mgr.apt_conf_for_arch(cpuarch),
                 ])
         else:
             command.extend([
