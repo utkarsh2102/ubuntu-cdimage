@@ -31,10 +31,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 51 7 * * *	DIST=jammy for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled DIST=jammy for-project ubuntu cron.daily-preinstalled --live
 34 5 * * *	DIST=jammy for-project kubuntu cron.daily-live --live
 50 1 * * *	DIST=jammy for-project xubuntu cron.daily-live --live
-# Temporarily, we also add the tegra images as a subsequent build. They should
-# be part of a separate tree as they use PPAs and are not officially
-# releasable, but we'll do the switch once all the features are landed.
-49 3 * * *	DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live; DIST=jammy SUBPROJECT=live PROPOSED=0 for-project ubuntu-server cron.daily-live --live; EXTRA_PPAS="ubuntu-tegra/updates" ARCHES="arm64+tegra arm64+tegra-igx" DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live
+49 3 * * *	DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live; DIST=jammy SUBPROJECT=live PROPOSED=0 for-project ubuntu-server cron.daily-live --live
 # Tegra images under the nvidia-tegra subtree; this uses a PPA just to get a
 # backport of livecd-rootfs with u-i 3.x support
 30 2 * * *	CDIMAGE_SUBTREE=nvidia-tegra EXTRA_PPAS="ubuntu-tegra/updates" ARCHES="arm64+tegra arm64+tegra-igx" DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live
