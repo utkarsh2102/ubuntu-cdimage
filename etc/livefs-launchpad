@@ -9,6 +9,7 @@ ubuntu-desktop-preinstalled daily-preinstalled	focal-		*		ubuntu-cdimage/ubuntu-
 ubuntu-mini-iso		daily-live		lunar-		*		ubuntu-cdimage/ubuntu-mini-iso
 kubuntu			daily-live		*		*		ubuntu-cdimage/kubuntu
 edubuntu		daily-live		*		*		ubuntu-cdimage/edubuntu
+edubuntu		daily-preinstalled	*		*		ubuntu-cdimage/edubuntu-preinstalled
 xubuntu			daily-live		*		*		ubuntu-cdimage/xubuntu
 xubuntu-minimal		daily-minimal	        lunar-		*		ubuntu-cdimage/xubuntu-minimal
 ubuntu-server		daily-preinstalled	bionic-		*		ubuntu-cdimage/cpc
