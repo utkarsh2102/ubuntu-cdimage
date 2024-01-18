@@ -3,7 +3,6 @@
 # Like etc/default-arches, "PROJECT" is in fact PROJECT[-SUBPROJECT].
 
 ubuntu			daily-live		*		*		ubuntu-cdimage/ubuntu
-ubuntu-legacy		daily-legacy		*		*		ubuntu-cdimage/ubuntu-legacy
 ubuntu-canary		daily-canary		focal-		*		ubuntu-cdimage/ubuntu-canary
 ubuntu-desktop-preinstalled daily-preinstalled	focal-		*		ubuntu-cdimage/ubuntu-preinstalled
 ubuntu-mini-iso		daily-live		lunar-		*		ubuntu-cdimage/ubuntu-mini-iso
@@ -29,7 +28,6 @@ ubuntukylin		daily-live		*		*		ubuntu-cdimage/ubuntukylin
 ubuntu-gnome		daily-live		*		*		ubuntu-cdimage/ubuntu-gnome
 ubuntu-mate		daily-live		*		*		ubuntu-cdimage/ubuntu-mate
 ubuntu-budgie		daily-live		*		*		ubuntu-cdimage/ubuntu-budgie
-ubuntu-budgie-legacy	daily-legacy		*		*		ubuntu-cdimage/ubuntu-budgie-legacy
 ubuntu-unity		daily-live		*		*		ubuntu-cdimage/ubuntu-unity
 ubuntucinnamon		daily-live		*		*		ubuntu-cdimage/ubuntucinnamon
 ubuntu-wubi		wubi			*		*		ubuntu-cdimage/ubuntu-wubi

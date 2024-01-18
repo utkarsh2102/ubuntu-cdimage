@@ -53,7 +53,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 27 18 * * *	for-project ubuntustudio cron.dvd --live
 39 16 * * *	for-project lubuntu cron.daily-live --live
 24 22 * * *	for-project ubuntukylin cron.daily-live --live
-10 15 * * *	for-project ubuntu-budgie cron.daily-live --live; SUBPROJECT=legacy for-project ubuntu-budgie cron.daily-legacy --live
+10 15 * * *	for-project ubuntu-budgie cron.daily-live --live
 36 2 * * *	for-project ubuntu-mate cron.daily-live --live
 10 13 * * *	for-project ubuntu-unity cron.daily-live --live
 24 13 * * *	for-project ubuntucinnamon cron.daily-live --live
