@@ -801,6 +801,7 @@ class Publisher:
         "arm64+x13s": "Lenovo X13s Gen 1",
         "arm64+raspi": "Raspberry Pi Generic (64-bit ARM)",
         "arm64+raspi3": "Raspberry Pi 3 (64-bit ARM)",
+        "arm64+largemem": "64-bit ARM with a 64k page-size kernel",
         "armel": "ARM EABI",
         "armel+dove": "Marvell Dove",
         "armel+imx51": "Freescale i.MX51",
