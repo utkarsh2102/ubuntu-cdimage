@@ -667,6 +667,13 @@ def download_live_items(config, builds, arch, item):
             found = True
         except osextras.FetchError:
             pass
+    elif item == "img.xz":
+        target = os.path.join(output_dir, "%s.img.xz" % arch)
+        try:
+            osextras.fetch(config, urls[0], target)
+            found = True
+        except osextras.FetchError:
+            pass
     else:
         for url in urls:
             # strip livecd.<PROJECT> and replace by arch
@@ -738,6 +745,16 @@ def download_live_filesystems(config, builds):
                     continue
             elif project == "ubuntu-mini-iso":
                 if download_live_items(config, builds, arch, "iso"):
+                    got_image = True
+                else:
+                    continue
+            elif project == "ubuntu-core-desktop":
+                # The Ubuntu Core payload comes as a compressed raw image.
+                if (download_live_items(config, builds, arch, "squashfs") and
+                        download_live_items(config, builds, arch, "img.xz")):
+                    download_live_items(config, builds, arch,
+                                        "modules.squashfs")
+                    download_live_items(config, builds, arch, "yaml")
                     got_image = True
                 else:
                     continue
