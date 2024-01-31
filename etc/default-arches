@@ -1,12 +1,6 @@
 # PROJECT		IMAGE_TYPE		DIST			ARCHES
 # Put more specific matches first.
 
-# This is not yet ready as debian-cd has tons of i386 conditionals in the
-# source image code paths. We first need to fix that before we can
-# really use amd64 here.
-# *			source			focal-			amd64
-*			source			*			i386
-
 ubuntu-base		daily			bionic			amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-base		daily			focal-			amd64 arm64 armhf ppc64el riscv64 s390x
 ubuntu-core-system-image	daily-preinstalled	xenial-		amd64 arm64 armhf i386 ppc64el s390x

@@ -57,10 +57,7 @@ if sys.version < "3":
     input = raw_input
 
 
-# TODO: This should be in a configuration file.  ALL_PROJECTS is not
-# currently suitable, because it only lists projects currently being built,
-# but manifest generation needs to know about anything currently in a
-# published tree.
+# TODO: This should be in a configuration file.
 projects = [
     "edubuntu",
     "kubuntu",
@@ -2287,12 +2284,10 @@ class DailyTreePublisher(Publisher):
         """Apply various bits of polish to a published directory."""
         target_dir = os.path.join(self.publish_base, date)
 
-        if not self.config["CDIMAGE_ONLYSOURCE"]:
-            checksum_directory(
-                self.config, target_dir, old_directories=self.checksum_dirs,
-                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
-        if (self.config.project != "livecd-base" and
-                not self.config["CDIMAGE_ONLYSOURCE"]):
+        checksum_directory(
+            self.config, target_dir, old_directories=self.checksum_dirs,
+            map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
+        if self.config.project != "livecd-base":
             self.make_web_indices(
                 target_dir, self.config.series, status="daily")
 
@@ -2597,7 +2592,7 @@ class DailyTreePublisher(Publisher):
         elif self.config.subproject == "wubi":
             for arch in self.config.arches:
                 published.extend(list(self.publish_wubi(arch, date)))
-        elif not self.config["CDIMAGE_ONLYSOURCE"]:
+        else:
             for arch in self.config.arches:
                 published.extend(
                     list(self.publish_binary(self.publish_type, arch, date)))

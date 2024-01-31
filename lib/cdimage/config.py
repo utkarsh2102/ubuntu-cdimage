@@ -268,7 +268,6 @@ _allowed_keys = (
     "CAPPROJECT",
     "DIST",
     "PROPOSED",
-    "ALL_PROJECTS",
     "ARCHES",
     "CPUARCHES",
     "GNUPG_DIR",
@@ -512,10 +511,6 @@ class Config(defaultdict):
     @property
     def image_type(self):
         return self["IMAGE_TYPE"]
-
-    @property
-    def all_projects(self):
-        return self["ALL_PROJECTS"].split()
 
     @property
     def core_series(self):
