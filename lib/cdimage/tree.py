@@ -57,10 +57,7 @@ if sys.version < "3":
     input = raw_input
 
 
-# TODO: This should be in a configuration file.  ALL_PROJECTS is not
-# currently suitable, because it only lists projects currently being built,
-# but manifest generation needs to know about anything currently in a
-# published tree.
+# TODO: This should be in a configuration file.
 projects = [
     "edubuntu",
     "kubuntu",

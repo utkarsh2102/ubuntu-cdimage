@@ -433,14 +433,6 @@ class TestConfig(TestCase):
         self.assertEqual("amd64+generic", config.livefs_arch_for_arch("amd64"))
         self.assertEqual("arm64", config.livefs_arch_for_arch("arm64"))
 
-    def test_all_projects(self):
-        config = Config(read=False)
-        self.assertEqual([], config.all_projects)
-        config["ALL_PROJECTS"] = "ubuntu"
-        self.assertEqual(["ubuntu"], config.all_projects)
-        config["ALL_PROJECTS"] = "ubuntu kubuntu"
-        self.assertEqual(["ubuntu", "kubuntu"], config.all_projects)
-
     def test_export(self):
         os.environ["TEST_VAR"] = "1"
         config = Config(read=False)
