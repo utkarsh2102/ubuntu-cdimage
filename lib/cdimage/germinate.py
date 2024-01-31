@@ -307,9 +307,6 @@ class GerminateOutput:
         if self.config["CDIMAGE_ADDON"]:
             for seed in self.list_seeds("addon"):
                 yield seed
-        elif self.config["CDIMAGE_ONLYSOURCE"]:
-            for seed in self.list_seeds("all"):
-                yield seed
         else:
             for seed in self.list_seeds("installer"):
                 yield seed

@@ -461,20 +461,6 @@ class TestGerminateOutput(TestCase):
 
     # TODO: master_seeds addon untested
 
-    def test_master_seeds_onlysource(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["CDIMAGE_ONLYSOURCE"] = "1"
-        self.assertEqual([
-            "required", "minimal", "boot", "standard", "desktop-common",
-            "d-i-requirements", "installer", "live-common", "desktop",
-            "dns-server", "lamp-server", "openssh-server", "print-server",
-            "samba-server", "postgresql-server", "mail-server",
-            "tomcat-server", "virt-host", "server", "server-ship", "ship",
-            "live", "ship-live", "usb", "usb-live", "usb-langsupport",
-            "usb-ship-live",
-        ], list(output.master_seeds()))
-
     def test_master_seeds_dvd_ubuntu_bionic(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
