@@ -158,8 +158,6 @@ class Germination:
         ]
         if self.use_vcs:
             command.append("--vcs=git")
-        if self.config.image_type == "source":
-            command.append("--always-follow-build-depends")
         proxy_check_call(
             self.config, "germinate", command, cwd=arch_output_dir,
             env=dict(os.environ, GIT_TERMINAL_PROMPT="0"))
@@ -176,16 +174,9 @@ class Germination:
             self.germinate_arch(project, arch)
 
     def run(self):
-        if self.config.image_type == "source":
-            for project in self.config.all_projects:
-                self.germinate_project(project)
-        else:
-            self.germinate_project(self.config.project)
+        self.germinate_project(self.config.project)
 
     def output(self, project):
-        if project == "source":
-            # TODO cjwatson 2013-04-25: Work around layering violation.
-            project = self.config.all_projects[0]
         return GerminateOutput(self.config, self.output_dir(project))
 
 
@@ -340,15 +331,12 @@ class GerminateOutput:
                         if seed not in ("installer", "casper"):
                             yield seed
 
-    def master_task_entries(self, project, source=False):
+    def master_task_entries(self, project):
         series = self.config.series
 
         found = False
         for seed in self.master_seeds():
-            if source:
-                yield "#include <source/%s/%s:%s>" % (series, project, seed)
-            else:
-                yield "#include <%s/%s/%s>" % (project, series, seed)
+            yield "#include <%s/%s/%s>" % (project, series, seed)
             found = True
 
         if not found:
@@ -419,12 +407,8 @@ class GerminateOutput:
 
             yield input_seeds, task
 
-    def write_tasks_project(self, project, source=False):
-        if source:
-            master_project = "source"
-        else:
-            master_project = project
-        output_dir = self.tasks_output_dir(master_project)
+    def write_tasks_project(self, project):
+        output_dir = self.tasks_output_dir(project)
         osextras.ensuredir(output_dir)
 
         for arch in self.config.arches:
@@ -455,8 +439,6 @@ class GerminateOutput:
             # Help debian-cd to regenerate Task headers, to make sure that
             # we don't accidentally end up out of sync with the archive and
             # break the package installation step.
-            # Note that the results of this will be wrong for source images,
-            # but that doesn't matter since they won't be used there.
             override_path = os.path.join(output_dir, "override.%s" % arch)
             with open(override_path, "w") as override:
                 for pkg, tasknames in sorted(tasks.items()):
@@ -476,43 +458,12 @@ class GerminateOutput:
                         print(pkg, file=important_file)
 
             with open(os.path.join(output_dir, "MASTER"), "w") as master:
-                for entry in self.master_task_entries(project, source=source):
+                for entry in self.master_task_entries(project):
                     print(entry, file=master)
 
     def write_tasks(self):
-        if self.config.image_type == "source":
-            output_dir = self.tasks_output_dir("source")
-            osextras.mkemptydir(output_dir)
-
-            # Generate task output for all source projects.
-            for project in self.config.all_projects:
-                # TODO cjwatson 2013-04-25: Layering violation; refactor.
-                project_output = GerminateOutput(
-                    self.config,
-                    os.path.join(
-                        self.config.root, "scratch", self.config.subtree,
-                        project, self.config.full_series,
-                        self.config.image_type, "germinate"))
-                project_output.write_tasks_project(project, source=True)
-                # TODO: write_tasks_project should just write these files
-                # with the names we need in the first place.
-                for entry in os.listdir(output_dir):
-                    if ":" not in entry:
-                        os.rename(
-                            os.path.join(output_dir, entry),
-                            os.path.join(
-                                output_dir, "%s:%s" % (project, entry)))
-
-            # Make a super-master task file.
-            with open(os.path.join(output_dir, "MASTER"), "w") as master:
-                for project in self.config.all_projects:
-                    print(
-                        "#include <source/%s/%s:MASTER>" % (
-                            self.config.series, project),
-                        file=master)
-        else:
-            osextras.mkemptydir(self.tasks_output_dir(self.config.project))
-            self.write_tasks_project(self.config.project)
+        osextras.mkemptydir(self.tasks_output_dir(self.config.project))
+        self.write_tasks_project(self.config.project)
 
     def diff_tasks(self, output=None):
         tasks_dir = self.tasks_output_dir(self.config.project)

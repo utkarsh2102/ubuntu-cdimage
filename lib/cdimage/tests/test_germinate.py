@@ -222,14 +222,6 @@ class TestGermination(TestCase):
         self.germination.run()
         mock_germinate_project.assert_called_once_with("ubuntu")
 
-        mock_germinate_project.reset_mock()
-        del self.config["PROJECT"]
-        self.config["ALL_PROJECTS"] = "ubuntu kubuntu"
-        self.config["IMAGE_TYPE"] = "source"
-        self.germination.run()
-        mock_germinate_project.assert_has_calls(
-            [mock.call("ubuntu"), mock.call("kubuntu")])
-
     def test_output(self):
         self.config.root = self.use_temp_dir()
         self.config["DIST"] = "bionic"
