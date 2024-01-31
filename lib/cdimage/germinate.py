@@ -58,12 +58,14 @@ class Germination:
                 "Please check out lp:germinate in %s." %
                 os.path.join(self.config.root, "germinate"))
 
-    def output_dir(self, project):
+    def output_dir(self):
         return os.path.join(
-            self.config.root, "scratch", self.config.subtree, project,
-            self.config.full_series, self.config.image_type, "germinate")
+            self.config.root, "scratch", self.config.subtree,
+            self.config.project, self.config.full_series,
+            self.config.image_type, "germinate")
 
-    def seed_sources(self, project):
+    def seed_sources(self):
+        project = self.config.project
         if self.config["LOCAL_SEEDS"]:
             return [self.config["LOCAL_SEEDS"]]
         elif self.prefer_vcs:
@@ -115,7 +117,8 @@ class Germination:
                 dist_patterns.append("%s-proposed")
             return [pattern % self.config.series for pattern in dist_patterns]
 
-    def seed_dist(self, project):
+    def seed_dist(self):
+        project = self.config.project
         if project == "ubuntu-server":
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntukylin":
@@ -136,10 +139,10 @@ class Germination:
                 yield "multiverse"
 
     # TODO: convert to Germinate's native Python interface
-    def germinate_arch(self, project, arch):
+    def germinate_arch(self, arch):
         cpuarch = arch.split("+")[0]
 
-        arch_output_dir = os.path.join(self.output_dir(project), arch)
+        arch_output_dir = os.path.join(self.output_dir(), arch)
         osextras.mkemptydir(arch_output_dir)
         if (self.config["GERMINATE_HINTS"] and
                 os.path.isfile(self.config["GERMINATE_HINTS"])):
@@ -148,9 +151,9 @@ class Germination:
                 os.path.join(arch_output_dir, "hints"))
         command = [
             self.germinate_path,
-            "--seed-source", ",".join(self.seed_sources(project)),
-            "--mirror", find_mirror(project, arch),
-            "--seed-dist", self.seed_dist(project),
+            "--seed-source", ",".join(self.seed_sources()),
+            "--mirror", find_mirror(self.config.project, arch),
+            "--seed-dist", self.seed_dist(),
             "--dist", ",".join(self.germinate_dists),
             "--arch", cpuarch,
             "--components", ",".join(self.components),
@@ -161,23 +164,20 @@ class Germination:
         proxy_check_call(
             self.config, "germinate", command, cwd=arch_output_dir,
             env=dict(os.environ, GIT_TERMINAL_PROMPT="0"))
-        output_structure = os.path.join(self.output_dir(project), "STRUCTURE")
+        output_structure = os.path.join(self.output_dir(), "STRUCTURE")
         shutil.copy2(
             os.path.join(arch_output_dir, "structure"), output_structure)
 
-    def germinate_project(self, project):
-        osextras.mkemptydir(self.output_dir(project))
+    def run(self):
+        osextras.mkemptydir(self.output_dir())
 
         for arch in self.config.arches:
             logger.info(
                 "Germinating for %s/%s ..." % (self.config.series, arch))
-            self.germinate_arch(project, arch)
+            self.germinate_arch(arch)
 
-    def run(self):
-        self.germinate_project(self.config.project)
-
-    def output(self, project):
-        return GerminateOutput(self.config, self.output_dir(project))
+    def output(self):
+        return GerminateOutput(self.config, self.output_dir())
 
 
 class NoMasterSeeds(Exception):
@@ -328,7 +328,8 @@ class GerminateOutput:
                         if seed not in ("installer", "casper"):
                             yield seed
 
-    def master_task_entries(self, project):
+    def master_task_entries(self):
+        project = self.config.project
         series = self.config.series
 
         found = False
@@ -339,10 +340,11 @@ class GerminateOutput:
         if not found:
             raise NoMasterSeeds("No seeds found for master task!")
 
-    def tasks_output_dir(self, project):
+    def tasks_output_dir(self):
         return os.path.join(
-            self.config.root, "scratch", self.config.subtree, project,
-            self.config.full_series, self.config.image_type, "tasks")
+            self.config.root, "scratch", self.config.subtree,
+            self.config.project, self.config.full_series,
+            self.config.image_type, "tasks")
 
     def task_packages(self, arch, seed, seedsource):
         """Like seed_packages, but with various special-case hacks."""
@@ -365,12 +367,12 @@ class GerminateOutput:
 
             yield package
 
-    def task_project(self, project):
+    def task_project(self):
         # ubuntu-server really wants ubuntu-* tasks.
-        if project == "ubuntu-server":
+        if self.config.project == "ubuntu-server":
             return "ubuntu"
         else:
-            return project
+            return self.config.project
 
     def task_headers(self, arch, seed):
         headers = {}
@@ -389,8 +391,8 @@ class GerminateOutput:
                 raise
         return headers
 
-    def seed_task_mapping(self, project, arch):
-        task_project = self.task_project(project)
+    def seed_task_mapping(self, arch):
+        task_project = self.task_project()
         for seed in self.list_seeds("all"):
             # Tasks implemented via tasksel, with Task-Seeds to indicate
             # task/seed mapping.
@@ -404,9 +406,9 @@ class GerminateOutput:
 
             yield input_seeds, task
 
-    def write_tasks_project(self, project):
-        output_dir = self.tasks_output_dir(project)
-        osextras.ensuredir(output_dir)
+    def write_tasks(self):
+        output_dir = self.tasks_output_dir()
+        osextras.mkemptydir(self.tasks_output_dir())
 
         for arch in self.config.arches:
             packages = defaultdict(list)
@@ -428,7 +430,7 @@ class GerminateOutput:
                     print("#endif /* ARCH_%s */" % cpparch, file=task_file)
 
             tasks = defaultdict(list)
-            for input_seeds, task in self.seed_task_mapping(project, arch):
+            for input_seeds, task in self.seed_task_mapping(arch):
                 for input_seed in input_seeds:
                     for pkg in packages.get(input_seed, []):
                         tasks[pkg].append(task)
@@ -455,15 +457,11 @@ class GerminateOutput:
                         print(pkg, file=important_file)
 
             with open(os.path.join(output_dir, "MASTER"), "w") as master:
-                for entry in self.master_task_entries(project):
+                for entry in self.master_task_entries():
                     print(entry, file=master)
 
-    def write_tasks(self):
-        osextras.mkemptydir(self.tasks_output_dir(self.config.project))
-        self.write_tasks_project(self.config.project)
-
     def diff_tasks(self, output=None):
-        tasks_dir = self.tasks_output_dir(self.config.project)
+        tasks_dir = self.tasks_output_dir()
         previous_tasks_dir = "%s-previous" % tasks_dir
         for seed in ["MASTER"] + list(self.list_seeds("all")):
             old = os.path.join(previous_tasks_dir, seed)
@@ -475,7 +473,7 @@ class GerminateOutput:
                 subprocess.call(["diff", "-u", old, new], **kwargs)
 
     def update_tasks(self, date):
-        tasks_dir = self.tasks_output_dir(self.config.project)
+        tasks_dir = self.tasks_output_dir()
         previous_tasks_dir = "%s-previous" % tasks_dir
         debian_cd_tasks_dir = os.path.join(
             self.config.root, "debian-cd", "tasks", "auto",

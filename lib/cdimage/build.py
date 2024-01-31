@@ -655,7 +655,7 @@ def build_image_set_locked(config, options):
             germination.run()
 
             log_marker("Generating new task lists")
-            germinate_output = germination.output(config.project)
+            germinate_output = germination.output()
             germinate_output.write_tasks()
 
             log_marker("Checking for other task changes")
