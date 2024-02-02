@@ -1836,10 +1836,10 @@ class DailyTreePublisher(Publisher):
         elif self.project in ("kubuntu", "kubuntu-active"):
             # Per IRC discussions on #ubuntu-release 2023-11-27
             if self.config["DIST"] >= "jammy":
-                return 4.5 * 1000 * 1000 * 1000
+                return int(4.5 * 1000 * 1000 * 1000)
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             elif self.config["DIST"] >= "focal":
-                return 4 * 1024 * 1024 * 1024
+                return int(4 * 1024 * 1024 * 1024)
             else:
                 return int(2.1 * 1024 * 1024 * 1024)
         elif self.project in ("ubuntu", "ubuntukylin"):
@@ -1850,7 +1850,7 @@ class DailyTreePublisher(Publisher):
             if (self.config["DIST"] >= "jammy" and
                     self.project == "ubuntukylin"):
                 # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
-                return 4 * 1024 * 1024 * 1024
+                return int(4 * 1024 * 1024 * 1024)
             elif self.config["DIST"] >= "mantic":
                 # 2023-09-21, per seb128; size increased due to TPM support
                 return int(5.2 * 1000 * 1000 * 1000)
@@ -1877,20 +1877,20 @@ class DailyTreePublisher(Publisher):
         elif (self.project == "ubuntu-budgie" and
               self.config["DIST"] >= "focal"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
-            return 4 * 1024 * 1024 * 1024
+            return int(4 * 1024 * 1024 * 1024)
         elif self.project == "xubuntu" and self.config["DIST"] >= "lunar":
             # Per IRC discussions on #ubuntu-release 2023-09-29
-            return 3.2 * 1000 * 1000 * 1000
+            return int(3.2 * 1000 * 1000 * 1000)
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
             # Per IRC discussions on #ubuntu-release 2022-04-17
-            return 2.8 * 1000 * 1000 * 1000
+            return int(2.8 * 1000 * 1000 * 1000)
         elif self.project in ("ubuntu-budgie", "xubuntu",
                               "ubuntu-gnome", "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
             # ubuntu-gnome per
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003740.html
-            return 2 * 1000 * 1000 * 1000
+            return int(2 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-unity":
             # Per IRC discussions on #ubuntu-release 2023-09-26
             return int(3.6 * 1000 * 1000 * 1000)
@@ -1902,7 +1902,7 @@ class DailyTreePublisher(Publisher):
             return int(3.1 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu" and self.config["DIST"] >= "focal":
             # https://bugs.launchpad.net/bugs/1796368
-            return 2 * 1000 * 1000 * 1000
+            return int(2 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu":
             # https://irclogs.ubuntu.com/2017/07/27/%23ubuntu-release.html#t23:05
             return int(1.5 * 1000 * 1000 * 1000)
