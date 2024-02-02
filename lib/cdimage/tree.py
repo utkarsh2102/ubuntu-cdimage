@@ -1878,9 +1878,9 @@ class DailyTreePublisher(Publisher):
               self.config["DIST"] >= "focal"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             return int(4 * 1024 * 1024 * 1024)
-        elif self.project == "xubuntu" and self.config["DIST"] >= "lunar":
-            # Per IRC discussions on #ubuntu-release 2023-09-29
-            return int(3.2 * 1000 * 1000 * 1000)
+        elif self.project == "xubuntu" and self.config["DIST"] >= "noble":
+            # Per IRC discussions on #ubuntu-release 2024-02-02
+            return int(4 * 1000 * 1000 * 1000)
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
             # Per IRC discussions on #ubuntu-release 2022-04-17
             return int(2.8 * 1000 * 1000 * 1000)
