@@ -540,13 +540,22 @@ def live_item_paths(config, builds, arch, item):
                 break
         uris = list(lp_build.getFileUrls())
     else:
-        root = livecd_base(config, arch)
-        try:
-            uris = [os.path.join(root, u) for u in os.listdir(root)]
-        except OSError:
-            # fallback to exact given uri (for http://) in url_for as we can't
-            # list content.
-            pass
+        # Fallback to the old way of doing things
+        lp, lp_livefs = get_lp_livefs(config, arch)
+        if lp_livefs is not None:
+            lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
+            lp_build = lp_livefs.getLatestBuild(
+                lp_kwargs["distro_arch_series"],
+                unique_key=lp_kwargs.get("unique_key"))
+            uris = list(lp_build.getFileUrls())
+        else:
+            root = livecd_base(config, arch)
+            try:
+                uris = [os.path.join(root, u) for u in os.listdir(root)]
+            except OSError:
+                # fallback to exact given uri (for http://) in url_for as we
+                # can't list content.
+                pass
 
     def urls_for(base, item):
         if uris:
