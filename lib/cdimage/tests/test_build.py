@@ -786,6 +786,7 @@ class TestBuildImageSet(TestCase):
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["CDIMAGE_DATE"] = "20130225"
+        self.config.subtree = "test"
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
@@ -794,7 +795,7 @@ class TestBuildImageSet(TestCase):
             print("Log", file=log)
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
-            "CD image ubuntu/bionic/daily failed to build on 20130225",
+            "CD image test/ubuntu/bionic/daily failed to build on 20130225",
             "build-image-set", ["foo@example.org"], mock.ANY)
         self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
 

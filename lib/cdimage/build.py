@@ -583,6 +583,7 @@ def notify_failure(config, log_path):
     series = config.full_series
     image_type = config.image_type
     date = config["CDIMAGE_DATE"]
+    subtree = "%s/" % config.subtree if config.subtree else ""
 
     recipients = get_notify_addresses(config, project)
     if not recipients:
@@ -594,10 +595,10 @@ def notify_failure(config, log_path):
         else:
             body = open(log_path)
         send_mail(
-            "CD image %s%s/%s/%s failed to build on %s" % (
+            "CD image %s%s%s/%s/%s failed to build on %s" % (
                 ("(built by %s) " % config["SUDO_USER"]
                  if config["SUDO_USER"] else ""),
-                project, series, image_type, date),
+                subtree, project, series, image_type, date),
             "build-image-set", recipients, body)
     finally:
         if log_path is not None:
