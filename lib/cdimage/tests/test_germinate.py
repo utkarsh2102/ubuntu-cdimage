@@ -149,6 +149,7 @@ class TestGermination(TestCase):
             ("ubuntu", "bionic", "ubuntu.bionic"),
             ("ubuntu-server", "bionic", "ubuntu.bionic"),
             ("ubuntukylin", "bionic", "ubuntukylin.bionic"),
+            ("ubuntu-core-desktop", "noble", "ubuntu.noble"),
         ):
             self.config["DIST"] = series
             self.config["PROJECT"] = project

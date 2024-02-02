@@ -119,7 +119,7 @@ class Germination:
 
     def seed_dist(self):
         project = self.config.project
-        if project == "ubuntu-server":
+        if project in ("ubuntu-server", "ubuntu-core-desktop"):
             return "ubuntu.%s" % self.config.series
         elif project == "ubuntukylin":
             return "ubuntukylin.%s" % self.config.series
