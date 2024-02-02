@@ -625,6 +625,7 @@ def build_image_set_locked(config, options):
     image_type = config.image_type
     config["CDIMAGE_DATE"] = date = next_build_id(config, image_type)
     log_path = None
+    builds = None
 
     try:
         configure_for_project(config)
