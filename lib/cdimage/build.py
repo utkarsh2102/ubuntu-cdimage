@@ -609,7 +609,7 @@ def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
             "livecd-base", "ubuntu-base", "ubuntu-core",
-            "ubuntu-core-desktop", "ubuntu-appliance"):
+            "ubuntu-appliance"):
         live_fs_only = True
     elif (config.project in ("ubuntu", "ubuntu-server") and
           config.image_type == "daily-preinstalled"):
