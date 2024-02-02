@@ -76,6 +76,33 @@ class TestNextBuildId(TestCase):
         with open(stamp) as stamp_file:
             self.assertEqual("20130225:6\n", stamp_file.read())
 
+    def test_date_subtree(self, *args):
+        # Test that subtrees have a separate numbering from regular.
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        config["PROJECT"] = "ubuntu"
+        config["DIST"] = "noble"
+        config["DATE"] = "20240101"
+        os.mkdir(os.path.join(self.temp_dir, "etc"))
+        regular_stamp = os.path.join(
+            config.root, "etc", ".next-build-suffix-ubuntu-noble-daily-live")
+        self.assertFalse(os.path.exists(regular_stamp))
+        self.assertEqual("20240101", next_build_id(config, "daily-live"))
+        with open(regular_stamp) as stamp_file:
+            self.assertEqual("20240101:1\n", stamp_file.read())
+        self.assertEqual("20240101.1", next_build_id(config, "daily-live"))
+        with open(regular_stamp) as stamp_file:
+            self.assertEqual("20240101:2\n", stamp_file.read())
+        # Now check if the subtree numbering is separate
+        config.subtree = "test"
+        subtree_stamp = os.path.join(
+            config.root, "etc",
+            ".next-build-suffix-test-ubuntu-noble-daily-live")
+        self.assertFalse(os.path.exists(subtree_stamp))
+        self.assertEqual("20240101", next_build_id(config, "daily-live"))
+        with open(subtree_stamp) as stamp_file:
+            self.assertEqual("20240101:1\n", stamp_file.read())
+
     def test_debug(self):
         config = Config(read=False)
         config.root = self.use_temp_dir()
