@@ -449,16 +449,6 @@ class TestBuildImageSet(TestCase):
             else:
                 self.assertNotIn("CDIMAGE_UNSUPPORTED", config)
 
-    def test_configure_install_base(self):
-        config = Config(read=False)
-        configure_for_project(config)
-        self.assertNotIn("CDIMAGE_INSTALL_BASE", config)
-
-        config = Config(read=False)
-        config["CDIMAGE_INSTALL"] = "1"
-        configure_for_project(config)
-        self.assertEqual("1", config["CDIMAGE_INSTALL_BASE"])
-
     @mock.patch("os.open")
     def test_open_log_debug(self, mock_open):
         self.config["DEBUG"] = "1"

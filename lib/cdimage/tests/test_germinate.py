@@ -415,9 +415,6 @@ class TestGerminateOutput(TestCase):
     def test_list_seeds_installer(self):
         self.write_structure([["installer", []], ["casper", []]])
         output = GerminateOutput(self.config, self.temp_dir)
-        self.config["CDIMAGE_INSTALL_BASE"] = "1"
-        self.assertEqual(["installer"], list(output.list_seeds("installer")))
-        del self.config["CDIMAGE_INSTALL_BASE"]
         self.config["CDIMAGE_LIVE"] = "1"
         self.config["DIST"] = "bionic"
         self.assertEqual([], list(output.list_seeds("installer")))
@@ -492,30 +489,6 @@ class TestGerminateOutput(TestCase):
         self.assertEqual(
             ["usb-langsupport", "usb-ship-live"], list(output.master_seeds()))
 
-    def test_master_seeds_install_ubuntu_bionic(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["CDIMAGE_INSTALL"] = "1"
-        self.config["CDIMAGE_INSTALL_BASE"] = "1"
-        self.assertEqual([
-            "installer", "boot", "required", "minimal", "standard",
-            "desktop-common", "desktop", "d-i-requirements", "ship",
-        ], list(output.master_seeds()))
-
-    def test_master_seeds_live_ubuntu_bionic(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["CDIMAGE_INSTALL_BASE"] = "1"
-        self.config["CDIMAGE_LIVE"] = "1"
-        self.assertEqual([
-            "installer", "boot", "required", "minimal", "standard",
-            "ship-live",
-        ], list(output.master_seeds()))
-
     @mock.patch("cdimage.germinate.GerminateOutput.master_seeds")
     def test_master_task_entries(self, mock_master_seeds):
         def side_effect():
@@ -561,20 +534,6 @@ class TestGerminateOutput(TestCase):
         self.assertEqual(
             ["base-files", "base-passwd"],
             list(output.task_packages("i386", "base", "base")))
-
-    def test_task_packages_installer(self):
-        # kernel-image-* is excluded from the installer seed.
-        self.write_structure([["installer", []]])
-        self.write_seed_output(
-            "i386", "installer", [
-                "block-modules-3.8.0-6-generic-di",
-                "kernel-image-3.8.0-6-generic-di",
-            ])
-        self.config["CDIMAGE_INSTALL_BASE"] = "1"
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(
-            ["block-modules-3.8.0-6-generic-di"],
-            list(output.task_packages("i386", "installer", "installer")))
 
     def test_task_packages_squashfs(self):
         self.write_ubuntu_structure()

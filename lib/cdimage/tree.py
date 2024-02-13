@@ -2610,14 +2610,8 @@ class DailyTreePublisher(Publisher):
             logger.warning("No images produced!")
             return
 
-        source_report = os.path.join(
-            self.britney_report, "%s_probs.html" % self.config.series)
         target_report = os.path.join(self.publish_base, date, "report.html")
-        if (self.config["CDIMAGE_INSTALL_BASE"] and
-                os.path.exists(source_report)):
-            shutil.copy2(source_report, target_report)
-        else:
-            osextras.unlink_force(target_report)
+        osextras.unlink_force(target_report)
 
         self.polish_directory(date)
         self.link(date, "pending")

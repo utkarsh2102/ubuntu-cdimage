@@ -30,7 +30,6 @@ import traceback
 
 from cdimage import osextras
 from cdimage.build_id import next_build_id
-from cdimage.check_installable import check_installable
 from cdimage.germinate import Germination
 from cdimage.livefs import (
     LiveBuildsFailed,
@@ -87,9 +86,6 @@ def configure_for_project(config):
         "xubuntu",
     ):
         config["CDIMAGE_UNSUPPORTED"] = "1"
-
-    if config["CDIMAGE_INSTALL"]:
-        config["CDIMAGE_INSTALL_BASE"] = "1"
 
 
 def open_log(config):
@@ -670,12 +666,6 @@ def build_image_set_locked(config, options):
             run_debian_cd(config, apt_state_mgr)
             copy_netboot_tarballs(config)
             fix_permissions(config)
-
-        # Temporarily turned off for live builds.
-        if (config["CDIMAGE_INSTALL_BASE"] and
-                not config["CDIMAGE_PREINSTALLED"]):
-            log_marker("Producing installability report")
-            check_installable(config)
 
         if not config["DEBUG"] and not config["CDIMAGE_NOPUBLISH"]:
             log_marker("Publishing")

@@ -1866,7 +1866,6 @@ class TestDailyTreePublisher(TestCase):
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
     def test_publish(self, mock_post_qa, *args):
         self.config["ARCHES"] = "i386"
-        self.config["CDIMAGE_INSTALL_BASE"] = "1"
         publisher = self.make_publisher("ubuntu", "daily-live")
         source_dir = publisher.image_output("i386")
         touch(os.path.join(
@@ -1900,7 +1899,6 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.iso" % self.config.series,
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
-            "report.html",
         ], os.listdir(target_dir))
         self.assertCountEqual(
             [".htaccess", "20120807", "current", "pending"],
@@ -1921,7 +1919,6 @@ class TestDailyTreePublisher(TestCase):
     def test_publish_subtree(self, mock_post_qa, *args):
         self.config.subtree = "subtree/test"
         self.config["ARCHES"] = "i386"
-        self.config["CDIMAGE_INSTALL_BASE"] = "1"
         publisher = self.make_publisher("ubuntu", "daily-live")
         source_dir = publisher.image_output("i386")
         touch(os.path.join(
@@ -1960,7 +1957,6 @@ class TestDailyTreePublisher(TestCase):
             "%s-desktop-i386.iso" % self.config.series,
             "%s-desktop-i386.list" % self.config.series,
             "%s-desktop-i386.manifest" % self.config.series,
-            "report.html",
         ], os.listdir(target_dir))
         self.assertCountEqual(
             [".htaccess", "20120807", "current", "pending"],

@@ -252,8 +252,7 @@ class GerminateOutput:
                 yield "dns-server"
                 yield "lamp-server"
         elif mode == "installer":
-            if self.config["CDIMAGE_INSTALL_BASE"]:
-                yield "installer"
+            pass
         elif mode == "debootstrap":
             yield "required"
             yield "minimal"
@@ -312,15 +311,7 @@ class GerminateOutput:
             for seed in self.list_seeds("dvd"):
                 if seed not in ("installer", "casper"):
                     yield seed
-        elif self.config["CDIMAGE_INSTALL"]:
-            for seed in self.list_seeds("tasks"):
-                if seed not in ("installer", "casper"):
-                    yield seed
         else:
-            if self.config.get("CDIMAGE_INSTALL_BASE") == "1":
-                for seed in self.list_seeds("base"):
-                    if seed not in ("installer", "casper"):
-                        yield seed
             if self.config.get("CDIMAGE_LIVE") == "1":
                 for seed in self.list_seeds("ship-live"):
                     if seed not in ("installer", "casper"):
