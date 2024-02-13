@@ -356,29 +356,6 @@ class TestGerminateOutput(TestCase):
             ["active-ship-live", ["ship-live"]],
         ])
 
-    def test_inheritance_recurses(self):
-        """_inheritance recurses properly."""
-        self.write_structure([["a", []], ["b", ["a"]], ["c", ["b"]]])
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(["a"], output._inheritance("a"))
-        self.assertEqual(["a", "b"], output._inheritance("b"))
-        self.assertEqual(["a", "b", "c"], output._inheritance("c"))
-
-    def test_inheritance_avoids_duplicates(self):
-        """_inheritance avoids adding a seed more than once."""
-        self.write_structure([["a", []], ["b", ["a"]], ["c", ["a", "b"]]])
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(["a", "b", "c"], output._inheritance("c"))
-
-    def test_without_inheritance(self):
-        self.write_structure(
-            [["a", []], ["b", ["a"]], ["c", ["b"]], ["d", ["a", "c"]]])
-        output = GerminateOutput(self.config, self.temp_dir)
-        inheritance = output._inheritance("d")
-        self.assertEqual(["a", "b", "c", "d"], inheritance)
-        self.assertEqual(
-            ["c", "d"], output._without_inheritance("b", inheritance))
-
     def test_list_seeds_all(self):
         self.write_structure([["a", []], ["b", ["a"]], ["c", []]])
         output = GerminateOutput(self.config, self.temp_dir)
@@ -399,15 +376,6 @@ class TestGerminateOutput(TestCase):
             self.assertEqual(
                 ["required", "minimal"],
                 list(output.list_seeds("debootstrap")))
-
-    def test_list_seeds_base(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        for series in all_series[6:]:
-            self.config["DIST"] = series
-            self.assertEqual(
-                ["boot", "required", "minimal", "standard"],
-                list(output.list_seeds("base")))
 
     # TODO list_seeds ship-live/addon/dvd untested
 

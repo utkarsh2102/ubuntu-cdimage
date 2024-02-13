@@ -17,7 +17,7 @@
 
 from __future__ import print_function
 
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 import errno
 import os
 import re
@@ -206,30 +206,14 @@ class GerminateOutput:
         self._parse_structure()
 
     def _parse_structure(self):
-        self._seeds = OrderedDict()
+        self._seeds = []
         with open(self.structure) as structure:
             for line in structure:
                 line = line.strip()
                 if not line or line.startswith("#") or ":" not in line:
                     continue
                 seed, inherit = line.split(":", 1)
-                self._seeds[seed] = inherit.split()
-
-    def _expand_inheritance(self, seed, inherit):
-        for s in self._seeds.get(seed, ()):
-            self._expand_inheritance(s, inherit)
-        if seed not in inherit:
-            inherit.append(seed)
-
-    def _inheritance(self, seed):
-        inherit = []
-        self._expand_inheritance(seed, inherit)
-        return inherit
-
-    def _without_inheritance(self, subtract, seeds):
-        subtract_inherit = self._inheritance(subtract)
-        remaining = set(seeds) - set(subtract_inherit)
-        return [seed for seed in seeds if seed in remaining]
+                self._seeds.append(seed)
 
     def list_seeds(self, mode):
         project = self.config.project
@@ -241,11 +225,6 @@ class GerminateOutput:
         elif mode == "debootstrap":
             yield "required"
             yield "minimal"
-        elif mode == "base":
-            yield "boot"
-            yield "required"
-            yield "minimal"
-            yield "standard"
         elif mode == "ship-live":
             if project == "lubuntu" and series == "bionic":
                 yield "ship-live-gtk"
@@ -272,8 +251,7 @@ class GerminateOutput:
                 if series >= "bionic":
                     yield "ship-live"
             else:
-                for seed in self._inheritance("dvd"):
-                    yield seed
+                raise Exception("unsupported configuration")
 
     def seed_path(self, arch, seed):
         return os.path.join(self.directory, arch, seed)
