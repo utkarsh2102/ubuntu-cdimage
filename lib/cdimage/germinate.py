@@ -274,12 +274,6 @@ class GerminateOutput:
                 # TODO: we will probably need a legacy-ship-live seed
             else:
                 yield "ship-live"
-        elif mode == "addon":
-            ship = self._inheritance("ship")
-            ship_addon = self._inheritance("ship-addon")
-            for seed in ship_addon:
-                if seed not in ship:
-                    yield seed
         elif mode == "dvd":
             if project == "ubuntu":
                 # no inheritance; most of this goes on the live filesystem
