@@ -312,29 +312,25 @@ class GerminateOutput:
             return [line.split(None, 1)[0] for line in lines]
 
     def master_seeds(self):
-        if self.config["CDIMAGE_ADDON"]:
-            for seed in self.list_seeds("addon"):
-                yield seed
+        for seed in self.list_seeds("installer"):
+            yield seed
+        if self.config["CDIMAGE_DVD"]:
+            for seed in self.list_seeds("dvd"):
+                if seed not in ("installer", "casper"):
+                    yield seed
+        elif self.config["CDIMAGE_INSTALL"]:
+            for seed in self.list_seeds("tasks"):
+                if seed not in ("installer", "casper"):
+                    yield seed
         else:
-            for seed in self.list_seeds("installer"):
-                yield seed
-            if self.config["CDIMAGE_DVD"]:
-                for seed in self.list_seeds("dvd"):
+            if self.config.get("CDIMAGE_INSTALL_BASE") == "1":
+                for seed in self.list_seeds("base"):
                     if seed not in ("installer", "casper"):
                         yield seed
-            elif self.config["CDIMAGE_INSTALL"]:
-                for seed in self.list_seeds("tasks"):
+            if self.config.get("CDIMAGE_LIVE") == "1":
+                for seed in self.list_seeds("ship-live"):
                     if seed not in ("installer", "casper"):
                         yield seed
-            else:
-                if self.config.get("CDIMAGE_INSTALL_BASE") == "1":
-                    for seed in self.list_seeds("base"):
-                        if seed not in ("installer", "casper"):
-                            yield seed
-                if self.config.get("CDIMAGE_LIVE") == "1":
-                    for seed in self.list_seeds("ship-live"):
-                        if seed not in ("installer", "casper"):
-                            yield seed
 
     def master_task_entries(self):
         project = self.config.project
