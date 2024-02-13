@@ -251,8 +251,6 @@ class GerminateOutput:
                 # TODO cjwatson 2007-04-18: hideous hack to fix DVD tasks
                 yield "dns-server"
                 yield "lamp-server"
-        elif mode == "installer":
-            pass
         elif mode == "debootstrap":
             yield "required"
             yield "minimal"
@@ -305,8 +303,6 @@ class GerminateOutput:
             return [line.split(None, 1)[0] for line in lines]
 
     def master_seeds(self):
-        for seed in self.list_seeds("installer"):
-            yield seed
         if self.config["CDIMAGE_DVD"]:
             for seed in self.list_seeds("dvd"):
                 if seed not in ("installer", "casper"):
@@ -337,15 +333,7 @@ class GerminateOutput:
 
     def task_packages(self, arch, seed, seedsource):
         """Like seed_packages, but with various special-case hacks."""
-        installer_seeds = set(self.list_seeds("installer"))
-
         for package in self.seed_packages(arch, seedsource):
-            # Hackily exclude kernel-image-* from the installer and casper
-            # tasks.  Those udebs only exist to satisfy dependencies when
-            # building the debian-installer package.
-            if seed in installer_seeds and package.startswith("kernel-image-"):
-                continue
-
             yield package
 
     def task_project(self):
