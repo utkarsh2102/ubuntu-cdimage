@@ -331,11 +331,6 @@ class GerminateOutput:
             self.config.project, self.config.full_series,
             self.config.image_type, "tasks")
 
-    def task_packages(self, arch, seed, seedsource):
-        """Like seed_packages, but with various special-case hacks."""
-        for package in self.seed_packages(arch, seedsource):
-            yield package
-
     def task_project(self):
         # ubuntu-server really wants ubuntu-* tasks.
         if self.config.project == "ubuntu-server":
@@ -393,7 +388,7 @@ class GerminateOutput:
                 with open(os.path.join(output_dir, seed), "a") as task_file:
                     print("#ifdef ARCH_%s" % cpparch, file=task_file)
                     for package in sorted(
-                            self.task_packages(arch, seed, seedsource)):
+                            self.seed_packages(arch, seedsource)):
                         packages[seed].append(package)
                         print(package, file=task_file)
                     print("#endif /* ARCH_%s */" % cpparch, file=task_file)

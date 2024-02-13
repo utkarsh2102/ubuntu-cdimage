@@ -527,25 +527,6 @@ class TestGerminateOutput(TestCase):
                 "tasks"),
             output.tasks_output_dir())
 
-    def test_task_packages_plain(self):
-        self.write_structure([["base", []]])
-        self.write_seed_output("i386", "base", ["base-files", "base-passwd"])
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(
-            ["base-files", "base-passwd"],
-            list(output.task_packages("i386", "base", "base")))
-
-    def test_task_packages_squashfs(self):
-        self.write_ubuntu_structure()
-        self.config["PROJECT"] = "ubuntu-server"
-        self.config["DIST"] = "bionic"
-        self.write_seed_output(
-            "i386", "installer", ["base-installer", "bootstrap-base"])
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(
-            ["base-installer", "bootstrap-base"],
-            list(output.task_packages("i386", "installer", "installer")))
-
     # TODO: task_project untested
 
     def test_task_headers(self):
