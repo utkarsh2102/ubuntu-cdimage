@@ -238,19 +238,6 @@ class GerminateOutput:
         if mode == "all":
             for seed in self._seeds:
                 yield seed
-        elif mode == "tasks":
-            ship = "ship"
-            if "ship-addon" in self._seeds:
-                ship = "ship-addon"
-            if project == "ubuntu-server":
-                ship = "server-ship"
-            seeds = self._inheritance(ship)
-            for seed in seeds:
-                yield seed
-            if self.config["CDIMAGE_DVD"]:
-                # TODO cjwatson 2007-04-18: hideous hack to fix DVD tasks
-                yield "dns-server"
-                yield "lamp-server"
         elif mode == "debootstrap":
             yield "required"
             yield "minimal"

@@ -384,34 +384,6 @@ class TestGerminateOutput(TestCase):
         output = GerminateOutput(self.config, self.temp_dir)
         self.assertEqual(["a", "b", "c"], list(output.list_seeds("all")))
 
-    def test_list_seeds_tasks_ubuntu(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        expected = [
-            "boot", "installer", "required", "minimal", "standard",
-            "desktop-common", "desktop", "d-i-requirements", "ship",
-        ]
-        self.assertEqual(expected, list(output.list_seeds("tasks")))
-        self.config["CDIMAGE_DVD"] = "1"
-        expected.extend(["dns-server", "lamp-server"])
-        self.assertEqual(expected, list(output.list_seeds("tasks")))
-
-    def test_list_seeds_tasks_ubuntu_server(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["PROJECT"] = "ubuntu-server"
-        expected = [
-            "boot", "installer", "required", "minimal", "standard",
-            "dns-server", "lamp-server", "openssh-server", "print-server",
-            "samba-server", "postgresql-server", "mail-server", "server",
-            "tomcat-server", "virt-host", "d-i-requirements", "server-ship",
-        ]
-        for series in all_series[4:]:
-            self.config["DIST"] = series
-            self.assertEqual(expected, list(output.list_seeds("tasks")))
-
     def test_list_seeds_installer(self):
         self.write_structure([["installer", []], ["casper", []]])
         output = GerminateOutput(self.config, self.temp_dir)
