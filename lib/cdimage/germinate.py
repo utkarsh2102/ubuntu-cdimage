@@ -242,15 +242,9 @@ class GerminateOutput:
             ship = "ship"
             if "ship-addon" in self._seeds:
                 ship = "ship-addon"
-            in_squashfs = None
             if project == "ubuntu-server":
                 ship = "server-ship"
-                in_squashfs = ["minimal"]
             seeds = self._inheritance(ship)
-            if (self.config["CDIMAGE_SQUASHFS_BASE"] and
-                    in_squashfs is not None):
-                for subtract in in_squashfs:
-                    seeds = self._without_inheritance(subtract, seeds)
             for seed in seeds:
                 yield seed
             if self.config["CDIMAGE_DVD"]:
@@ -360,14 +354,6 @@ class GerminateOutput:
             # building the debian-installer package.
             if seed in installer_seeds and package.startswith("kernel-image-"):
                 continue
-
-            # Force the use of live-installer rather than bootstrap-base on
-            # squashfs-base images.  Seed expansion doesn't do the right
-            # thing here because the installer seed is expanded before
-            # considering server-ship.
-            if self.config["CDIMAGE_SQUASHFS_BASE"]:
-                if package == "bootstrap-base":
-                    package = "live-installer"
 
             yield package
 

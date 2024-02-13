@@ -21,8 +21,6 @@ from __future__ import print_function
 
 import gzip
 import os
-import subprocess
-from textwrap import dedent
 
 from cdimage.check_installable import (
     _check_installable_command,
@@ -30,7 +28,7 @@ from cdimage.check_installable import (
     _prepare_check_installable,
 )
 from cdimage.config import Config
-from cdimage.tests.helpers import TestCase, mkfile
+from cdimage.tests.helpers import TestCase
 
 
 class TestCheckInstallable(TestCase):
@@ -85,38 +83,6 @@ class TestCheckInstallable(TestCase):
         self.assertCountEqual(["Packages_i386", "Sources"], os.listdir(data))
         with open(os.path.join(data, "Packages_i386")) as packages_file:
             self.assertEqual("Package: foo\n\n", packages_file.read())
-
-    def test_prepare_squashfs_base(self):
-        self.config["CDIMAGE_SQUASHFS_BASE"] = "1"
-        _, image_top, live, data = _check_installable_dirs(self.config)
-        squashfs_dir = os.path.join(self.temp_dir, "squashfs")
-        status_path = os.path.join(
-            squashfs_dir, "var", "lib", "dpkg", "status")
-        fake_packages = dedent("""\
-            Package: base-files
-            Status: install ok installed
-            Version: 6.5
-
-            Package: libc6
-            Status: install ok installed
-            Version: 2.15-1
-            Provides: glibc
-
-            """)
-        with mkfile(status_path) as status:
-            print(fake_packages, end="", file=status)
-        os.makedirs(live)
-        with open("/dev/null", "w") as devnull:
-            subprocess.check_call(
-                ["mksquashfs", squashfs_dir,
-                 os.path.join(live, "i386.squashfs")],
-                stdout=devnull)
-        self.capture_logging()
-        _prepare_check_installable(self.config)
-        self.assertLogEqual([])
-        self.assertCountEqual(["Packages_i386", "Sources"], os.listdir(data))
-        with open(os.path.join(data, "Packages_i386")) as packages_file:
-            self.assertEqual(fake_packages, packages_file.read())
 
     def test_command(self):
         britney, _, _, data = _check_installable_dirs(self.config)

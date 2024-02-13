@@ -724,8 +724,7 @@ def download_live_filesystems(config, builds):
     output_dir = live_output_directory(config)
     osextras.mkemptydir(output_dir)
 
-    if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"] or
-            config["CDIMAGE_PREINSTALLED"]):
+    if config["CDIMAGE_LIVE"] or config["CDIMAGE_PREINSTALLED"]:
         got_image = False
         for arch in config.arches:
             if config["CDIMAGE_PREINSTALLED"]:
@@ -780,9 +779,7 @@ def download_live_filesystems(config, builds):
                 got_image = True
             else:
                 continue
-            if (project != "ubuntu-base" and
-                    not config["CDIMAGE_SQUASHFS_BASE"] and
-                    config.subproject != "wubi"):
+            if project != "ubuntu-base" and config.subproject != "wubi":
                 download_live_items(config, builds, arch, "kernel")
                 download_live_items(config, builds, arch, "initrd")
                 download_live_items(config, builds, arch, "kernel-efi-signed")

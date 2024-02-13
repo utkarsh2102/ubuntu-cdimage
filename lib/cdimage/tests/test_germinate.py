@@ -412,20 +412,6 @@ class TestGerminateOutput(TestCase):
             self.config["DIST"] = series
             self.assertEqual(expected, list(output.list_seeds("tasks")))
 
-    def test_list_seeds_task_ubuntu_server_squashfs(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["PROJECT"] = "ubuntu-server"
-        self.config["DIST"] = "bionic"
-        self.config["CDIMAGE_SQUASHFS_BASE"] = "1"
-        expected = [
-            "boot", "installer", "standard", "dns-server", "lamp-server",
-            "openssh-server", "print-server", "samba-server",
-            "postgresql-server", "mail-server", "server", "tomcat-server",
-            "virt-host", "d-i-requirements", "server-ship",
-        ]
-        self.assertEqual(expected, list(output.list_seeds("tasks")))
-
     def test_list_seeds_installer(self):
         self.write_structure([["installer", []], ["casper", []]])
         output = GerminateOutput(self.config, self.temp_dir)
@@ -599,10 +585,6 @@ class TestGerminateOutput(TestCase):
         output = GerminateOutput(self.config, self.temp_dir)
         self.assertEqual(
             ["base-installer", "bootstrap-base"],
-            list(output.task_packages("i386", "installer", "installer")))
-        self.config["CDIMAGE_SQUASHFS_BASE"] = "1"
-        self.assertEqual(
-            ["base-installer", "live-installer"],
             list(output.task_packages("i386", "installer", "installer")))
 
     # TODO: task_project untested

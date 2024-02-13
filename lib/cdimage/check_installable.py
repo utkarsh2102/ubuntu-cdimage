@@ -60,23 +60,6 @@ def _prepare_check_installable(config):
 
         packages = os.path.join(data, "Packages_%s" % arch)
         with open(packages, "wb") as packages_file:
-            if config["CDIMAGE_SQUASHFS_BASE"]:
-                squashfs = os.path.join(live, "%s.squashfs" % fullarch)
-                if os.path.exists(squashfs):
-                    _ensure_tempdir()
-                    with open("/dev/null", "w") as devnull:
-                        subprocess.check_call([
-                            "unsquashfs",
-                            "-d", os.path.join(_tempdir, fullarch),
-                            squashfs, "/var/lib/dpkg/status",
-                        ], stdout=devnull)
-                    status_path = os.path.join(
-                        _tempdir, fullarch, "var", "lib", "dpkg", "status")
-                    with open(os.path.join(status_path)) as status:
-                        subprocess.call([
-                            "grep-dctrl", "-XFStatus", "install ok installed",
-                        ], stdin=status, stdout=packages_file)
-
             for component in "main", "restricted", "universe", "multiverse":
                 packages_gz = os.path.join(
                     image_top, "%s-%s" % (config.series, fullarch), "CD1",

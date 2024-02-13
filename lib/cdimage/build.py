@@ -661,7 +661,7 @@ def build_image_set_locked(config, options):
             log_marker("Checking for other task changes")
             germinate_output.update_tasks(date)
 
-            if (config["CDIMAGE_LIVE"] or config["CDIMAGE_SQUASHFS_BASE"]):
+            if config["CDIMAGE_LIVE"]:
                 log_marker("Downloading live filesystem images")
                 download_live_filesystems(config, builds)
 
