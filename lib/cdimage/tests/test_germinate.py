@@ -55,11 +55,6 @@ class TestGermination(TestCase):
             GerminateNotInstalled, getattr, self.germination, "germinate_path")
 
         germinate_dir = os.path.join(self.temp_dir, "germinate")
-        old_germinate = os.path.join(germinate_dir, "germinate.py")
-        touch(old_germinate)
-        os.chmod(old_germinate, 0o755)
-        self.assertEqual(old_germinate, self.germination.germinate_path)
-
         new_germinate = os.path.join(germinate_dir, "bin", "germinate")
         touch(new_germinate)
         os.chmod(new_germinate, 0o755)

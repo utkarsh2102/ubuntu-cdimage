@@ -44,13 +44,9 @@ class Germination:
 
     @property
     def germinate_path(self):
-        paths = [
-            os.path.join(self.config.root, "germinate", "bin", "germinate"),
-            os.path.join(self.config.root, "germinate", "germinate.py"),
-        ]
-        for path in paths:
-            if os.access(path, os.X_OK):
-                return path
+        path = os.path.join(self.config.root, "germinate", "bin", "germinate")
+        if os.access(path, os.X_OK):
+            return path
         else:
             raise GerminateNotInstalled(
                 "Please check out lp:germinate in %s." %
