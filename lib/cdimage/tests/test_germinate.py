@@ -356,15 +356,6 @@ class TestGerminateOutput(TestCase):
             ["active-ship-live", ["ship-live"]],
         ])
 
-    def test_list_seeds_installer(self):
-        self.write_structure([["installer", []], ["casper", []]])
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["CDIMAGE_LIVE"] = "1"
-        self.config["DIST"] = "bionic"
-        self.assertEqual([], list(output.list_seeds("installer")))
-
-    # TODO list_seeds ship-live/addon/dvd untested
-
     def test_seed_path(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
@@ -404,8 +395,8 @@ class TestGerminateOutput(TestCase):
             ["base-files", "base-passwd"],
             output.seed_packages("i386", "base"))
 
-    @mock.patch("cdimage.germinate.GerminateOutput.master_seeds")
-    def test_master_task_entries(self, mock_master_seeds):
+    @mock.patch("cdimage.germinate.GerminateOutput.pool_seeds")
+    def test_master_task_entries(self, mock_pool_seeds):
         def side_effect():
             yield "required"
             yield "minimal"
@@ -414,21 +405,19 @@ class TestGerminateOutput(TestCase):
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["DIST"] = "bionic"
         self.config["PROJECT"] = "ubuntu"
-        mock_master_seeds.side_effect = side_effect
+        mock_pool_seeds.side_effect = side_effect
         self.assertEqual([
             "#include <ubuntu/bionic/required>",
             "#include <ubuntu/bionic/minimal>",
         ], list(output.master_task_entries()))
 
-    @mock.patch(
-        "cdimage.germinate.GerminateOutput.master_seeds", return_value=[])
-    def test_master_task_entries_no_seeds(self, mock_master_seeds):
+    def test_pool_seeds_invalid_config(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
         self.config["DIST"] = "bionic"
         self.config["PROJECT"] = "ubuntu"
         self.assertRaises(
-            NoMasterSeeds, list, output.master_task_entries())
+            NoMasterSeeds, list, output.pool_seeds())
 
     def test_tasks_output_dir(self):
         self.write_ubuntu_structure()

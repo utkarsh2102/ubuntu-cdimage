@@ -210,30 +210,24 @@ class GerminateOutput:
                 line = line.strip()
                 if not line or line.startswith("#") or ":" not in line:
                     continue
-                seed, inherit = line.split(":", 1)
-                self._seeds.append(seed)
+                self._seeds.append(line.split(":", 1)[0])
 
-    def list_seeds(self, mode):
+    def pool_seeds(self):
+        if not (self.config["CDIMAGE_DVD"] or self.config["CDIMAGE_LIVE"]):
+            raise NoMasterSeeds("No seeds found for master task!")
         project = self.config.project
-        series = self.config["DIST"]
 
-        if mode == "ship-live":
-            if project == "ubuntu-server" and series >= "bionic":
-                yield "server-ship-live"
-            elif project == "ubuntu" and self.config["SUBPROJECT"] == "canary":
-                # ubuntu-desktop-installer
-                yield "canary-ship-live"
-                # TODO: we will probably need a legacy-ship-live seed
-            else:
-                yield "ship-live"
-        elif mode == "dvd":
-            if project == "ubuntustudio":
-                # no inheritance; most of this goes on the live filesystem
-                yield "dvd"
-                if series >= "bionic":
-                    yield "ship-live"
-            else:
-                raise Exception("unsupported configuration")
+        if project == "ubuntustudio":
+            yield "dvd"
+            yield "ship-live"
+        elif project == "ubuntu-server":
+            yield "server-ship-live"
+        elif project == "ubuntu" and self.config["SUBPROJECT"] == "canary":
+            # ubuntu-desktop-installer
+            yield "canary-ship-live"
+            # TODO: will we need a legacy-ship-live seed?
+        else:
+            yield "ship-live"
 
     def seed_path(self, arch, seed):
         return os.path.join(self.directory, arch, seed)
@@ -243,28 +237,12 @@ class GerminateOutput:
             lines = seed_file.read().splitlines()[2:-2]
             return [line.split(None, 1)[0] for line in lines]
 
-    def master_seeds(self):
-        if self.config["CDIMAGE_DVD"]:
-            for seed in self.list_seeds("dvd"):
-                if seed not in ("installer", "casper"):
-                    yield seed
-        else:
-            if self.config.get("CDIMAGE_LIVE") == "1":
-                for seed in self.list_seeds("ship-live"):
-                    if seed not in ("installer", "casper"):
-                        yield seed
-
     def master_task_entries(self):
         project = self.config.project
         series = self.config.series
 
-        found = False
-        for seed in self.master_seeds():
+        for seed in self.pool_seeds():
             yield "#include <%s/%s/%s>" % (project, series, seed)
-            found = True
-
-        if not found:
-            raise NoMasterSeeds("No seeds found for master task!")
 
     def tasks_output_dir(self):
         return os.path.join(
