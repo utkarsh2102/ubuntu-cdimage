@@ -17,8 +17,6 @@
 
 from __future__ import print_function
 
-from collections import defaultdict
-import errno
 import os
 import re
 import shutil
@@ -290,51 +288,11 @@ class GerminateOutput:
             self.config.project, self.config.full_series,
             self.config.image_type, "tasks")
 
-    def task_project(self):
-        # ubuntu-server really wants ubuntu-* tasks.
-        if self.config.project == "ubuntu-server":
-            return "ubuntu"
-        else:
-            return self.config.project
-
-    def task_headers(self, arch, seed):
-        headers = {}
-        try:
-            with open("%s.seedtext" % self.seed_path(arch, seed)) as seedtext:
-                for line in seedtext:
-                    if not line.lower().startswith("task-"):
-                        continue
-                    line = line.rstrip("\n")
-                    key, value = line.split(":", 1)
-                    key = key[5:].lower()
-                    value = value.lstrip()
-                    headers[key] = value
-        except IOError as e:
-            if e.errno != errno.ENOENT:
-                raise
-        return headers
-
-    def seed_task_mapping(self, arch):
-        task_project = self.task_project()
-        for seed in self.list_seeds("all"):
-            # Tasks implemented via tasksel, with Task-Seeds to indicate
-            # task/seed mapping.
-            task = seed
-            headers = self.task_headers(arch, seed)
-            if not headers:
-                continue
-            input_seeds = [seed] + headers.get("seeds", "").split()
-            if "per-derivative" in headers:
-                task = "%s-%s" % (task_project, task)
-
-            yield input_seeds, task
-
     def write_tasks(self):
         output_dir = self.tasks_output_dir()
         osextras.mkemptydir(self.tasks_output_dir())
 
         for arch in self.config.arches:
-            packages = defaultdict(list)
             cpparch = arch.replace("+", "_").replace("-", "_")
             for seed in self.list_seeds("all"):
                 seed_path = self.seed_path(arch, seed)
@@ -343,36 +301,8 @@ class GerminateOutput:
                 with open(os.path.join(output_dir, seed), "a") as task_file:
                     print("#ifdef ARCH_%s" % cpparch, file=task_file)
                     for package in sorted(self.seed_packages(arch, seed)):
-                        packages[seed].append(package)
                         print(package, file=task_file)
                     print("#endif /* ARCH_%s */" % cpparch, file=task_file)
-
-            tasks = defaultdict(list)
-            for input_seeds, task in self.seed_task_mapping(arch):
-                for input_seed in input_seeds:
-                    for pkg in packages.get(input_seed, []):
-                        tasks[pkg].append(task)
-
-            # Help debian-cd to regenerate Task headers, to make sure that
-            # we don't accidentally end up out of sync with the archive and
-            # break the package installation step.
-            override_path = os.path.join(output_dir, "override.%s" % arch)
-            with open(override_path, "w") as override:
-                for pkg, tasknames in sorted(tasks.items()):
-                    print(
-                        "%s  Task  %s" % (pkg, ", ".join(tasknames)),
-                        file=override)
-            # Help debian-cd to get priorities in sync with the current base
-            # system, so that debootstrap >= 0.3.1 can work out the correct
-            # set of packages to install.
-            important_path = os.path.join(output_dir, "important.%s" % arch)
-            with open(important_path, "w") as important_file:
-                important = []
-                for seed in self.list_seeds("debootstrap"):
-                    important.extend(packages.get(seed, []))
-                for pkg in sorted(important):
-                    if not re_not_base.match(pkg):
-                        print(pkg, file=important_file)
 
             with open(os.path.join(output_dir, "MASTER"), "w") as master:
                 for entry in self.master_task_entries():

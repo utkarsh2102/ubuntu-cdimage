@@ -467,46 +467,6 @@ class TestGerminateOutput(TestCase):
                 "tasks"),
             output.tasks_output_dir())
 
-    # TODO: task_project untested
-
-    def test_task_headers(self):
-        self.write_ubuntu_structure()
-        seedtext_path = os.path.join(self.temp_dir, "i386", "desktop.seedtext")
-        with mkfile(seedtext_path) as seedtext:
-            print(dedent("""\
-                Task-Per-Derivative: 1
-                Task-Key: ubuntu-desktop
-                Task-Seeds: desktop-common
-
-                = Seed text starts here ="""), file=seedtext)
-        output = GerminateOutput(self.config, self.temp_dir)
-        expected = {
-            "per-derivative": "1",
-            "key": "ubuntu-desktop",
-            "seeds": "desktop-common",
-        }
-        self.assertEqual(expected, output.task_headers("i386", "desktop"))
-        self.assertEqual({}, output.task_headers("i386", "missing"))
-
-    def test_seed_task_mapping(self):
-        self.write_ubuntu_structure()
-        seed_dir = os.path.join(self.temp_dir, "i386")
-        with mkfile(os.path.join(seed_dir, "standard.seedtext")) as seedtext:
-            print("Task-Key: ubuntu-standard", file=seedtext)
-        with mkfile(os.path.join(seed_dir, "desktop.seedtext")) as seedtext:
-            print(dedent("""\
-                Task-Per-Derivative: 1
-                Task-Seeds: desktop-common"""), file=seedtext)
-        self.config["DIST"] = "bionic"
-        self.config["PROJECT"] = "ubuntu"
-        output = GerminateOutput(self.config, self.temp_dir)
-        expected = [
-            (["standard"], "standard"),
-            (["desktop", "desktop-common"], "ubuntu-desktop"),
-        ]
-        self.assertEqual(
-            expected, list(output.seed_task_mapping("i386")))
-
     def test_write_tasks(self):
         self.write_ubuntu_structure()
         for arch in "amd64", "i386":
@@ -535,8 +495,6 @@ class TestGerminateOutput(TestCase):
             "tasks")
         self.assertCountEqual([
             "required", "minimal", "desktop", "live",
-            "override.amd64", "override.i386",
-            "important.amd64", "important.i386",
             "MASTER",
         ], os.listdir(output_dir))
         with open(os.path.join(output_dir, "required")) as f:
@@ -585,28 +543,6 @@ class TestGerminateOutput(TestCase):
                     #endif /* ARCH_i386 */
                     """),
                 f.read())
-        with open(os.path.join(output_dir, "override.amd64")) as f:
-            self.assertEqual(
-                dedent("""\
-                    adduser-amd64  Task  minimal
-                    base-files-amd64  Task  minimal
-                    firefox  Task  ubuntu-desktop
-                    xterm  Task  ubuntu-desktop, ubuntu-live
-                    """),
-                f.read())
-        with open(os.path.join(output_dir, "override.i386")) as f:
-            self.assertEqual(
-                dedent("""\
-                    adduser-i386  Task  minimal
-                    base-files-i386  Task  minimal
-                    firefox  Task  ubuntu-desktop
-                    xterm  Task  ubuntu-desktop, ubuntu-live
-                    """),
-                f.read())
-        with open(os.path.join(output_dir, "important.amd64")) as f:
-            self.assertEqual("adduser-amd64\nbase-files-amd64\n", f.read())
-        with open(os.path.join(output_dir, "important.i386")) as f:
-            self.assertEqual("adduser-i386\nbase-files-i386\n", f.read())
         with open(os.path.join(output_dir, "MASTER")) as f:
             self.assertEqual("#include <ubuntu/bionic/ship-live>\n", f.read())
 
