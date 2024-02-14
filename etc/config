@@ -24,7 +24,8 @@ case $DIST in
 		export PROPOSED
 		;;
 	jammy)
-		PROPOSED="${PROPOSED:-1}"
+		# XXX: for 22.04.4
+		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
 esac
