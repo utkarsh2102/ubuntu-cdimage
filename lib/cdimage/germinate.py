@@ -337,17 +337,12 @@ class GerminateOutput:
             packages = defaultdict(list)
             cpparch = arch.replace("+", "_").replace("-", "_")
             for seed in self.list_seeds("all"):
-                if seed == "supported":
-                    seedsource = "%s+build-depends" % seed
-                else:
-                    seedsource = seed
-                seed_path = self.seed_path(arch, seedsource)
+                seed_path = self.seed_path(arch, seed)
                 if not os.path.exists(seed_path):
                     continue
                 with open(os.path.join(output_dir, seed), "a") as task_file:
                     print("#ifdef ARCH_%s" % cpparch, file=task_file)
-                    for package in sorted(
-                            self.seed_packages(arch, seedsource)):
+                    for package in sorted(self.seed_packages(arch, seed)):
                         packages[seed].append(package)
                         print(package, file=task_file)
                     print("#endif /* ARCH_%s */" % cpparch, file=task_file)
