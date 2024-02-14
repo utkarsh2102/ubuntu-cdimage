@@ -250,8 +250,7 @@ class GerminateOutput:
         for arch in self.config.arches:
             cpparch = arch.replace("+", "_").replace("-", "_")
             for seed in self._seeds:
-                seed_path = self.seed_path(arch, seed)
-                if not os.path.exists(seed_path):
+                if not os.path.exists(self.seed_path(arch, seed)):
                     continue
                 with open(os.path.join(output_dir, seed), "a") as task_file:
                     print("#ifdef ARCH_%s" % cpparch, file=task_file)
