@@ -221,13 +221,7 @@ class GerminateOutput:
             for seed in self._seeds:
                 yield seed
         elif mode == "ship-live":
-            if project == "lubuntu" and series == "bionic":
-                yield "ship-live-gtk"
-                yield "ship-live-share"
-            elif project == "lubuntu-next" and series == "bionic":
-                yield "ship-live-qt"
-                yield "ship-live-share"
-            elif project == "ubuntu-server" and series >= "bionic":
+            if project == "ubuntu-server" and series >= "bionic":
                 yield "server-ship-live"
             elif project == "ubuntu" and self.config["SUBPROJECT"] == "canary":
                 # ubuntu-desktop-installer
@@ -236,11 +230,7 @@ class GerminateOutput:
             else:
                 yield "ship-live"
         elif mode == "dvd":
-            if project == "ubuntu":
-                # no inheritance; most of this goes on the live filesystem
-                yield "usb-langsupport"
-                yield "usb-ship-live"
-            elif project == "ubuntustudio":
+            if project == "ubuntustudio":
                 # no inheritance; most of this goes on the live filesystem
                 yield "dvd"
                 if series >= "bionic":

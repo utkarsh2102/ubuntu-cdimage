@@ -409,17 +409,6 @@ class TestGerminateOutput(TestCase):
             ["base-files", "base-passwd"],
             output.seed_packages("i386", "base"))
 
-    # TODO: master_seeds addon untested
-
-    def test_master_seeds_dvd_ubuntu_bionic(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["CDIMAGE_DVD"] = "1"
-        self.assertEqual(
-            ["usb-langsupport", "usb-ship-live"], list(output.master_seeds()))
-
     @mock.patch("cdimage.germinate.GerminateOutput.master_seeds")
     def test_master_task_entries(self, mock_master_seeds):
         def side_effect():
