@@ -29,7 +29,7 @@ try:
 except ImportError:
     import mock
 
-from cdimage.config import Config, all_series
+from cdimage.config import Config
 from cdimage.germinate import (
     GerminateNotInstalled,
     GerminateOutput,
@@ -367,15 +367,6 @@ class TestGerminateOutput(TestCase):
         self.config["CDIMAGE_LIVE"] = "1"
         self.config["DIST"] = "bionic"
         self.assertEqual([], list(output.list_seeds("installer")))
-
-    def test_list_seeds_debootstrap(self):
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        for series in all_series[6:]:
-            self.config["DIST"] = series
-            self.assertEqual(
-                ["required", "minimal"],
-                list(output.list_seeds("debootstrap")))
 
     # TODO list_seeds ship-live/addon/dvd untested
 

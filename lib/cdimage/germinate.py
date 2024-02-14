@@ -220,9 +220,6 @@ class GerminateOutput:
         if mode == "all":
             for seed in self._seeds:
                 yield seed
-        elif mode == "debootstrap":
-            yield "required"
-            yield "minimal"
         elif mode == "ship-live":
             if project == "lubuntu" and series == "bionic":
                 yield "ship-live-gtk"
