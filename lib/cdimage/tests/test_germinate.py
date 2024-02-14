@@ -356,11 +356,6 @@ class TestGerminateOutput(TestCase):
             ["active-ship-live", ["ship-live"]],
         ])
 
-    def test_list_seeds_all(self):
-        self.write_structure([["a", []], ["b", ["a"]], ["c", []]])
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.assertEqual(["a", "b", "c"], list(output.list_seeds("all")))
-
     def test_list_seeds_installer(self):
         self.write_structure([["installer", []], ["casper", []]])
         output = GerminateOutput(self.config, self.temp_dir)

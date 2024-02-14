@@ -217,10 +217,7 @@ class GerminateOutput:
         project = self.config.project
         series = self.config["DIST"]
 
-        if mode == "all":
-            for seed in self._seeds:
-                yield seed
-        elif mode == "ship-live":
+        if mode == "ship-live":
             if project == "ubuntu-server" and series >= "bionic":
                 yield "server-ship-live"
             elif project == "ubuntu" and self.config["SUBPROJECT"] == "canary":
@@ -281,7 +278,7 @@ class GerminateOutput:
 
         for arch in self.config.arches:
             cpparch = arch.replace("+", "_").replace("-", "_")
-            for seed in self.list_seeds("all"):
+            for seed in self._seeds:
                 seed_path = self.seed_path(arch, seed)
                 if not os.path.exists(seed_path):
                     continue
@@ -298,7 +295,7 @@ class GerminateOutput:
     def diff_tasks(self, output=None):
         tasks_dir = self.tasks_output_dir()
         previous_tasks_dir = "%s-previous" % tasks_dir
-        for seed in ["MASTER"] + list(self.list_seeds("all")):
+        for seed in ["MASTER"] + list(self._seeds):
             old = os.path.join(previous_tasks_dir, seed)
             new = os.path.join(tasks_dir, seed)
             if os.path.exists(old) and os.path.exists(new):
