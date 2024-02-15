@@ -1885,11 +1885,9 @@ class DailyTreePublisher(Publisher):
             # Per IRC discussions on #ubuntu-release 2022-04-17
             return int(2.8 * 1000 * 1000 * 1000)
         elif self.project in ("ubuntu-budgie", "xubuntu",
-                              "ubuntu-gnome", "ubuntu-mate"):
+                              "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
-            # ubuntu-gnome per
-            # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003740.html
             return int(2 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-unity":
             # Per IRC discussions on #ubuntu-release 2023-09-26
