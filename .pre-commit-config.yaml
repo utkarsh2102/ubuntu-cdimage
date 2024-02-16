@@ -6,3 +6,13 @@ repos:
     hooks:
     -   id: woke-from-source
         files: .*
+-   repo: local
+    hooks:
+    -   id: run-tests
+        name: run run-tests script
+        stages:
+          [commit-msg, post-checkout, post-commit, post-merge, post-rewrite,
+           commit, merge-commit, push, prepare-commit-msg]
+        language: script
+        entry: ./run-tests
+        always_run: true
