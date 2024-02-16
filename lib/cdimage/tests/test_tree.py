@@ -902,7 +902,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntukylin", "jammy", "daily-live", "amd64", 4294967296),
             ("xubuntu", "bionic", "daily-live", "amd64", 2000000000),
             ("xubuntu", "focal", "daily-live", "amd64", 2000000000),
-            ("xubuntu", "jammy", "daily-live", "amd64", 2800000000),
+            ("xubuntu", "jammy", "daily-live", "amd64", 3000000000),
             ("ubuntu-budgie", "bionic", "daily-live", "amd64", 2000000000),
             ("ubuntu-budgie", "focal", "daily-live", "amd64", 4294967296),
             ("ubuntu-budgie", "jammy", "daily-live", "amd64", 4294967296),

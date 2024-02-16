@@ -1880,8 +1880,8 @@ class DailyTreePublisher(Publisher):
             # Per IRC discussions on #ubuntu-release 2024-02-02
             return int(4 * 1000 * 1000 * 1000)
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
-            # Per IRC discussions on #ubuntu-release 2022-04-17
-            return int(2.8 * 1000 * 1000 * 1000)
+            # Per IRC discussions on #ubuntu-flavors 2024-02-15
+            return int(3 * 1000 * 1000 * 1000)
         elif self.project in ("ubuntu-budgie", "xubuntu",
                               "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
