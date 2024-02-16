@@ -66,7 +66,6 @@ projects = [
     "lubuntu",
     "lubuntu-next",
     "ubuntu",
-    "ubuntu-gnome",
     "ubuntu-budgie",
     "ubuntu-mate",
     "ubuntu-unity",
@@ -963,8 +962,7 @@ class Publisher:
             sentences.append(
                 "However, you may still test it using a larger USB drive or a "
                 "virtual machine.")
-        elif self.project in ("ubuntu-gnome",
-                              "kubuntu",
+        elif self.project in ("kubuntu",
                               "ubuntu-mate",
                               "ubuntu-budgie",
                               "xubuntu"):
