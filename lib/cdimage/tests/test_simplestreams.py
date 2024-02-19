@@ -28,8 +28,8 @@ except ImportError:
     import mock
 
 from cdimage.simplestreams import (
-    SimpleStreams, DailySimpleStreams, FullReleaseSimpleStreams,
-    SimpleReleaseSimpleStreams)
+    CoreSimpleStreams, SimpleStreams, DailySimpleStreams,
+    FullReleaseSimpleStreams, SimpleReleaseSimpleStreams)
 from cdimage.config import Config, Series
 from cdimage.tree import (
     Tree, DailyTreePublisher, FullReleasePublisher,
@@ -222,22 +222,28 @@ class TestSimpleStreams(TestCase):
             FullReleaseTree(self.config, None), None, "named")
         simple_publisher = SimpleReleasePublisher(
             SimpleReleaseTree(self.config, None), None, "yes")
+        # The Ubuntu Core one needs a config with project ubuntu-core
+        core_config = Config(read=False)
+        core_config["PROJECT"] = "ubuntu-core"
+        core_daily_publisher = DailyTreePublisher(
+            Tree(core_config, None), None)
         test_cases = [
-            (daily_publisher, DailySimpleStreams),
-            (full_publisher, FullReleaseSimpleStreams),
-            (simple_publisher, SimpleReleaseSimpleStreams),
-            (None, None),
+            (self.config, daily_publisher, DailySimpleStreams),
+            (self.config, full_publisher, FullReleaseSimpleStreams),
+            (self.config, simple_publisher, SimpleReleaseSimpleStreams),
+            (core_config, core_daily_publisher, CoreSimpleStreams),
+            (self.config, None, None),
         ]
 
-        for publisher, cls_streams in test_cases:
+        for config, publisher, cls_streams in test_cases:
             if cls_streams:
                 streams = SimpleStreams.get_simplestreams(
-                    self.config, publisher)
+                    config, publisher)
                 self.assertIsInstance(streams, cls_streams)
             else:
                 with self.assertRaises(Exception):
                     SimpleStreams.get_simplestreams(
-                        self.config, publisher)
+                        config, publisher)
 
     def test_get_simplestreams_by_name(self):
         """Check if get_simplestreams_by_name() also works."""
@@ -246,6 +252,7 @@ class TestSimpleStreams(TestCase):
             'daily': DailySimpleStreams,
             'release': FullReleaseSimpleStreams,
             'official': SimpleReleaseSimpleStreams,
+            'core': CoreSimpleStreams,
             'wrong': None,
         }
 
@@ -296,6 +303,16 @@ test_all_series = [
     Series("groovy", "20.10", "Groovy Gorilla"),
     Series("hirsute", "21.04", "Hirsute Hippo"),
     Series("impish", "21.10", "Impish Indri"),
+]
+
+# Create a separate list of test series with jammy added so we can test
+# the core simplestreams separately.
+test_all_series_core = test_all_series + [
+    Series(
+        "jammy", "22.04", "Jammy Jellyfish",
+        pointversion="22.04.1",
+        all_lts_projects=True,
+        _core_series="22"),
 ]
 
 
@@ -451,6 +468,47 @@ class TestSimpleStreamsTree(TestCase):
             self.temp_root.name, "www", "simple", "streams", "v1")
         expected_dir = os.path.join(
             os.path.dirname(__file__), "data", "result", "simple")
+        streams_contents = sorted(os.listdir(streams_dir))
+        expected_contents = sorted(os.listdir(expected_dir))
+        self.assertListEqual(streams_contents, expected_contents)
+        for file in streams_contents:
+            if file.endswith(".gpg"):
+                continue
+            streams_path = os.path.join(streams_dir, file)
+            expected_path = os.path.join(expected_dir, file)
+            with open(streams_path) as sf, open(expected_path) as ef:
+                streams = json.load(sf)
+                expected = json.load(ef)
+            # Work-around the fact that product lists can have different
+            # order depending on the locale used.
+            if file == "index.json":
+                _sort_index_product_list(streams)
+                _sort_index_product_list(expected)
+            self.assertDictEqual(
+                streams, expected,
+                "SimpleStreams file %s has unexpected contents." % file)
+
+    @mock.patch("cdimage.config.all_series", test_all_series_core)
+    @mock.patch("cdimage.simplestreams.sign_cdimage")
+    @mock.patch("cdimage.simplestreams.timestamp")
+    def test_core_tree(self, timestamp, sign_cdimage):
+        """Check if we get a right simplestream for a ubuntu-core tree."""
+        timestamp.return_value = "TIMESTAMP"
+        sign_cdimage.side_effect = mock_sign_cdimage
+        # Setup the tree
+        tree_source = os.path.join(
+            os.path.dirname(__file__), "data", "www")
+        shutil.copytree(tree_source, os.path.join(self.temp_root.name, "www"),
+                        symlinks=True)
+        # Now the object under test
+        streams = CoreSimpleStreams(self.config)
+        streams.generate()
+        # Now compare it with the expected tree
+        streams_dir = os.path.join(
+            self.temp_root.name, "www", "full", "ubuntu-core", "streams", "v1")
+        streams_contents = sorted(os.listdir(streams_dir))
+        expected_dir = os.path.join(
+            os.path.dirname(__file__), "data", "result", "core")
         streams_contents = sorted(os.listdir(streams_dir))
         expected_contents = sorted(os.listdir(expected_dir))
         self.assertListEqual(streams_contents, expected_contents)

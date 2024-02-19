@@ -42,7 +42,10 @@ class SimpleStreams:
     def get_simplestreams(config, publisher):
         """Static function to easily get the right simplestream handler."""
         if isinstance(publisher, DailyTreePublisher):
-            cls = DailySimpleStreams
+            if config.project == "ubuntu-core":
+                cls = CoreSimpleStreams
+            else:
+                cls = DailySimpleStreams
         elif isinstance(publisher, FullReleasePublisher):
             cls = FullReleaseSimpleStreams
         elif isinstance(publisher, SimpleReleasePublisher):
@@ -58,6 +61,7 @@ class SimpleStreams:
             'daily': DailySimpleStreams,
             'release': FullReleaseSimpleStreams,
             'official': SimpleReleaseSimpleStreams,
+            'core': CoreSimpleStreams,
         }
         if type_name not in type_map:
             raise Exception("Unrecognised publisher for simplestreams")
@@ -75,6 +79,22 @@ class SimpleStreams:
         self.cdimage_items = []
         self.cdimage_products = {}
 
+    def get_series_name(self, series):
+        """Get the series name for the given series object."""
+        return series.name
+
+    def get_series_version(self, series):
+        """Get the series version for the given series object."""
+        return series.version
+
+    def get_series_displayname(self, series):
+        """Get the series real version for the given series object."""
+        return series.displayname
+
+    def get_series_displayversion(self, series, project):
+        """Get the series display name for the given series object."""
+        return series.displayversion(project)
+
     def prepare_product_info(self, product_name, project, series, image_type,
                              arch):
         """Prepares and stores detailed info about published products."""
@@ -83,11 +103,11 @@ class SimpleStreams:
         product_info = {
             "arch": arch,
             "os": project,
-            "release": series.name,
-            "release_codename": series.displayname,
-            "release_title": series.displayversion(project),
+            "release": self.get_series_name(series),
+            "release_codename": self.get_series_displayname(series),
+            "release_title": self.get_series_displayversion(series, project),
             "image_type": image_type,
-            "version": series.version
+            "version": self.get_series_version(series),
             }
         # TODO: Add support_eol, aliases etc.
         self.cdimage_products[product_name] = product_info
@@ -143,7 +163,8 @@ class SimpleStreams:
     def scan_published_item(self, publishing_dir, sha256sums, file):
         """Scan and generate simplestream data for a published file."""
         for extension in ("iso", "img", "img.xz", "manifest", "list",
-                          "iso.zsync", "img.zsync", "img.xz.zsync"):
+                          "iso.zsync", "img.zsync", "img.xz.zsync",
+                          "lxd.tar.xz"):
             if file.endswith(extension):
                 break
         else:
@@ -166,11 +187,25 @@ class SimpleStreams:
         data["path"] = full_path[len(self.tree_dir) + 1:]
         # The file type
         data["ftype"] = extension
+        # A special case for the lxd tarballs
+        if extension == "lxd.tar.xz":
+            # Let's find the .img.xz file corresponding to the tarball and
+            # fetch its checksum.
+            img_file = file.replace(extension, "img.xz")
+            disk1_sum = sha256sums.entries.get(img_file)
+            if disk1_sum is None:
+                img_path = os.path.join(publishing_dir, img_file)
+                disk1_sum = sha256sums.checksum(img_path)
+            # XXX: Right now this uses the checksum of the .img.xz file,
+            #  so we need to check up if maybe for lxd purposes we need to
+            #  provide uncompressed images.
+            data["combined_disk1-img_sha256"] = disk1_sum
         # Add the given image to the list of stream contents
         return data
 
     def scan_target(self, target_dir, series, project, image_type, identifier):
         """Scan a published directory, recording all files of interest."""
+        # For debugging, print out all method arguments
         sha256sums = ChecksumFile(
             self.config, target_dir, "SHA256SUMS", hashlib.sha256)
         sha256sums.read()
@@ -199,7 +234,8 @@ class SimpleStreams:
                 version_name = identifier
             content_id = "%s:%s" % (self.content_id, item_project)
             product_name = '%s:%s:%s:%s' % (content_id, item_image_type,
-                                            series.version, arch)
+                                            self.get_series_version(series),
+                                            arch)
             self.cdimage_items.append(
                 (content_id, product_name, version_name,
                  data['ftype'], data, ))
@@ -224,6 +260,7 @@ class SimpleStreams:
         # daily: project -> [series] -> image_type -> datestamp -> image
         # release: [project] -> 'releases' -> series -> 'release' -> image
         # simple: series -> image
+        # core: series -> channel -> datestamp -> image
         self.scan_tree()
 
         metadata = {"updated": timestamp(), "datatype": "image-downloads"}
@@ -368,3 +405,50 @@ class SimpleReleaseSimpleStreams(SimpleStreams):
                 continue
             target_dir = os.path.join(self.tree_dir, entry)
             self.scan_target(target_dir, series, None, None, None)
+
+
+class CoreSimpleStreams(SimpleStreams):
+    """Class for generating simplestreams for cdimage ubuntu-core images."""
+
+    def __init__(self, config):
+        super(CoreSimpleStreams, self).__init__(config)
+        self.content_id = "com.ubuntu.cdimage"
+        self.tree_dir = self.streams_dir = os.path.join(
+            self.config.root, "www", "full",
+            self.config.subtree, "ubuntu-core").rstrip("/")
+        self.publish_id_re = re.compile(r'^[0-9]{8}(\.[0-9]+)?$')
+
+    def get_series_name(self, series):
+        """Get the series name for the core series object."""
+        return series.core_series
+
+    def get_series_version(self, series):
+        """Get the series version for the core series object."""
+        return series.core_series
+
+    def get_series_displayversion(self, series, project):
+        """Get the series real version for the core series object."""
+        return "Ubuntu Core %s" % series.core_series
+
+    def get_series_displayname(self, series):
+        """Get the series display name for the core series object."""
+        return series.core_series
+
+    def scan_tree(self):
+        """Scan the dailies image tree."""
+        for series_name in os.listdir(self.tree_dir):
+            try:
+                series = Series.find_by_core_series(series_name)
+            except ValueError:
+                # Unrecognized series directory in the series tree, ignore
+                continue
+            # Now look through all the channels
+            series_dir = os.path.join(self.tree_dir, series_name)
+            for channel in os.listdir(series_dir):
+                channel_dir = os.path.join(series_dir, channel)
+                for publish_id in os.listdir(channel_dir):
+                    if not self.publish_id_re.match(publish_id):
+                        continue
+                    target_dir = os.path.join(channel_dir, publish_id)
+                    self.scan_target(target_dir, series, "ubuntu-core",
+                                     channel, publish_id)

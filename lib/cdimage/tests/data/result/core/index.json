@@ -1,0 +1,21 @@
+{
+  "format": "index:1.0",
+  "index": {
+    "com.ubuntu.cdimage:ubuntu-core": {
+      "datatype": "image-downloads",
+      "format": "products:1.0",
+      "path": "streams/v1/com.ubuntu.cdimage:ubuntu-core.json",
+      "products": [
+        "com.ubuntu.cdimage:ubuntu-core:stable:22:amd64",
+        "com.ubuntu.cdimage:ubuntu-core:stable:22:arm64+raspi",
+        "com.ubuntu.cdimage:ubuntu-core:stable:22:arm64",
+        "com.ubuntu.cdimage:ubuntu-core:stable:22:armhf+raspi"
+      ],
+      "updated": "TIMESTAMP"
+    }
+  },
+  "updated": {
+    "datatype": "image-downloads",
+    "updated": "TIMESTAMP"
+  }
+}

@@ -32,7 +32,8 @@ def main():
         "%prog TYPE\n"
         "TYPE=daily for the daily build tree (www/full/), release for "
         "the release subtrees on cdimage (www/full/releases etc.), "
-        "official for official (www/simple/) Ubuntu releases.")
+        "official for official (www/simple/) Ubuntu releases, core for "
+        "ubuntu-core images.")
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need type")
