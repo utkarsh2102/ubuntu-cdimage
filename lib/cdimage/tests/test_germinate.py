@@ -434,6 +434,7 @@ class TestGerminateOutput(TestCase):
             self.write_seed_output(arch, "minimal", ["adduser-%s" % arch])
             self.write_seed_output(arch, "desktop", ["xterm", "firefox"])
             self.write_seed_output(arch, "live", ["xterm"])
+            self.write_seed_output(arch, "ship-live", ["pool-pkg-%s" % arch])
             with mkfile(os.path.join(
                     seed_dir, "minimal.seedtext")) as seedtext:
                 print("Task-Seeds: required", file=seedtext)
@@ -453,7 +454,8 @@ class TestGerminateOutput(TestCase):
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "tasks")
         self.assertCountEqual([
-            "required", "minimal", "desktop", "live",
+            "required", "minimal", "desktop", "live", "ship-live",
+            "amd64-packages", "i386-packages",
             "MASTER",
         ], os.listdir(output_dir))
         with open(os.path.join(output_dir, "required")) as f:
@@ -504,6 +506,10 @@ class TestGerminateOutput(TestCase):
                 f.read())
         with open(os.path.join(output_dir, "MASTER")) as f:
             self.assertEqual("#include <ubuntu/bionic/ship-live>\n", f.read())
+        with open(os.path.join(output_dir, "amd64-packages")) as f:
+            self.assertEqual("pool-pkg-amd64\n", f.read())
+        with open(os.path.join(output_dir, "i386-packages")) as f:
+            self.assertEqual("pool-pkg-i386\n", f.read())
 
     @mock.patch("subprocess.call", return_value=1)
     def test_diff_tasks(self, mock_call):
