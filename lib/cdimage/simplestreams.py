@@ -444,11 +444,17 @@ class CoreSimpleStreams(SimpleStreams):
                 continue
             # Now look through all the channels
             series_dir = os.path.join(self.tree_dir, series_name)
+            if not os.path.isdir(series_dir):
+                continue
             for channel in os.listdir(series_dir):
                 channel_dir = os.path.join(series_dir, channel)
+                if not os.path.isdir(channel_dir):
+                    continue
                 for publish_id in os.listdir(channel_dir):
                     if not self.publish_id_re.match(publish_id):
                         continue
                     target_dir = os.path.join(channel_dir, publish_id)
+                    if not os.path.isdir(target_dir):
+                        continue
                     self.scan_target(target_dir, series, "ubuntu-core",
                                      channel, publish_id)
