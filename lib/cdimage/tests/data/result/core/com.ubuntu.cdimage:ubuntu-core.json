@@ -62,6 +62,35 @@
               "size": 30
             }
           }
+        },
+        "current": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "22/stable/current/ubuntu-core-22-amd64.img.xz",
+              "sha256": "527c91f2fdbeb7b42de900544def48eb7bf2fe1d2cf4dae77d0f5be2f4412979",
+              "size": 28
+            },
+            "img.xz.zsync": {
+              "ftype": "img.xz.zsync",
+              "path": "22/stable/current/ubuntu-core-22-amd64.img.xz.zsync",
+              "sha256": "7bc9b99e9f3d37a567e4a8f0b0be1f97a4c0259c0b3cd64cd40268d458a8daf5",
+              "size": 34
+            },
+            "lxd.tar.xz": {
+              "combined_disk1-img_sha256": "527c91f2fdbeb7b42de900544def48eb7bf2fe1d2cf4dae77d0f5be2f4412979",
+              "ftype": "lxd.tar.xz",
+              "path": "22/stable/current/ubuntu-core-22-amd64.lxd.tar.xz",
+              "sha256": "93263bb03b8607570d3315f72db0f43a7789f0cff6c1e68c7a4d711701b868c3",
+              "size": 32
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "22/stable/current/ubuntu-core-22-amd64.manifest",
+              "sha256": "27131f67be129f25c3b4218f43034f016b6b881a5f1cdeeab3b4cf6531e0d574",
+              "size": 30
+            }
+          }
         }
       }
     },
@@ -124,6 +153,35 @@
               "size": 30
             }
           }
+        },
+        "current": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "22/stable/current/ubuntu-core-22-arm64.img.xz",
+              "sha256": "dc5273df6f50be5f0f1a3ef1a36bd3aaa0577604be7277f28c1001e068f4792a",
+              "size": 28
+            },
+            "img.xz.zsync": {
+              "ftype": "img.xz.zsync",
+              "path": "22/stable/current/ubuntu-core-22-arm64.img.xz.zsync",
+              "sha256": "1918935381b0cfe6d34bea4f5eb8ec4f7125b3b6c9d5ed7e52542da8edbd21fb",
+              "size": 34
+            },
+            "lxd.tar.xz": {
+              "combined_disk1-img_sha256": "dc5273df6f50be5f0f1a3ef1a36bd3aaa0577604be7277f28c1001e068f4792a",
+              "ftype": "lxd.tar.xz",
+              "path": "22/stable/current/ubuntu-core-22-arm64.lxd.tar.xz",
+              "sha256": "d7356424fa3479cb154aa1e806c5d695b3684c8073051d2713965e6360fd588e",
+              "size": 32
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "22/stable/current/ubuntu-core-22-arm64.manifest",
+              "sha256": "4859909279164ef6d061200496a67cbc843ac9c90f556ecb5ab3ed74f9db8887",
+              "size": 30
+            }
+          }
         }
       }
     },
@@ -179,6 +237,28 @@
               "size": 36
             }
           }
+        },
+        "current": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "22/stable/current/ubuntu-core-22-arm64+raspi.img.xz",
+              "sha256": "3d35b95ad4c28dbea0069cc9b9cb695e521e5565619652d4a0de7d2e63168ad2",
+              "size": 34
+            },
+            "img.xz.zsync": {
+              "ftype": "img.xz.zsync",
+              "path": "22/stable/current/ubuntu-core-22-arm64+raspi.img.xz.zsync",
+              "sha256": "d912a2a6bde50f23ee2ffda750bad967185d1bb31c9c36a3a68b63686ef9ed3c",
+              "size": 40
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "22/stable/current/ubuntu-core-22-arm64+raspi.manifest",
+              "sha256": "ca16f743cb98411241b4f092456dc2abbe74fda4cef6038d10d5f3c86ba6540a",
+              "size": 36
+            }
+          }
         }
       }
     },
@@ -230,6 +310,28 @@
             "manifest": {
               "ftype": "manifest",
               "path": "22/stable/20230717.2/ubuntu-core-22-armhf+raspi.manifest",
+              "sha256": "1cc8f391de23d688d7eee525b41ff31f3b81b72bfabb43f3c719e6cbedb709bd",
+              "size": 36
+            }
+          }
+        },
+        "current": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "22/stable/current/ubuntu-core-22-armhf+raspi.img.xz",
+              "sha256": "d30d121c72ad900e67ddc975c512a632e2252d1f17e42867097c2ed83e8d6a6b",
+              "size": 34
+            },
+            "img.xz.zsync": {
+              "ftype": "img.xz.zsync",
+              "path": "22/stable/current/ubuntu-core-22-armhf+raspi.img.xz.zsync",
+              "sha256": "acf64ca12db309dfbc8872c461906032e9d782555bf4b979b41ba57e608cc7ee",
+              "size": 40
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "22/stable/current/ubuntu-core-22-armhf+raspi.manifest",
               "sha256": "1cc8f391de23d688d7eee525b41ff31f3b81b72bfabb43f3c719e6cbedb709bd",
               "size": 36
             }

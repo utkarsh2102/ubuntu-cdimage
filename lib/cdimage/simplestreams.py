@@ -416,7 +416,10 @@ class CoreSimpleStreams(SimpleStreams):
         self.tree_dir = self.streams_dir = os.path.join(
             self.config.root, "www", "full",
             self.config.subtree, "ubuntu-core").rstrip("/")
-        self.publish_id_re = re.compile(r'^[0-9]{8}(\.[0-9]+)?$')
+        # At least for core, for now, we want to include the 'current'
+        # images as well, since those are basically the 'release' ones.
+        self.publish_id_re = re.compile(
+            r'(^[0-9]{8}(\.[0-9]+)?$)|(^current$)')
 
     def get_series_name(self, series):
         """Get the series name for the core series object."""
