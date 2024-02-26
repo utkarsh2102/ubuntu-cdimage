@@ -34,8 +34,5 @@
       "updated": "TIMESTAMP"
     }
   },
-  "updated": {
-    "datatype": "image-downloads",
-    "updated": "TIMESTAMP"
-  }
+  "updated": "TIMESTAMP"
 }

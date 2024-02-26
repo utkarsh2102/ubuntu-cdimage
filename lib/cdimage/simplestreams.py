@@ -263,7 +263,8 @@ class SimpleStreams:
         # core: series -> channel -> datestamp -> image
         self.scan_tree()
 
-        metadata = {"updated": timestamp(), "datatype": "image-downloads"}
+        updated = timestamp()
+        metadata = {"updated": updated, "datatype": "image-downloads"}
         trees = generate_simplestreams.items2content_trees(
             self.cdimage_items, metadata)
         # Now we supplement that with additional product metadata that we
@@ -274,7 +275,7 @@ class SimpleStreams:
                     product.update(self.cdimage_products[product_id])
 
         filenames = generate_simplestreams.write_streams(
-            self.streams_dir, trees, metadata)
+            self.streams_dir, trees, updated)
         if sign:
             for file in filenames:
                 sign_cdimage(self.config, file)
