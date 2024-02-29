@@ -59,7 +59,7 @@ from cdimage.build import (
 from cdimage.config import Config
 from cdimage.log import logger
 from cdimage.mail import text_file_type
-from cdimage.tests.helpers import TestCase, mkfile, touch
+from cdimage.tests.helpers import TestCase, mkfile, touch, StubAptStateManager
 
 __metaclass__ = type
 
@@ -687,8 +687,10 @@ class TestBuildImageSet(TestCase):
     @mock.patch("subprocess.call", return_value=0)
     def test_run_debian_cd(self, mock_call):
         self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["ARCHES"] = "amd64 arm64"
+        self.config.set_default_cpuarches()
         self.capture_logging()
-        run_debian_cd(self.config)
+        run_debian_cd(self.config, StubAptStateManager())
         self.assertLogEqual([
             "===== Building Ubuntu daily CDs =====",
             self.epoch_date,
@@ -696,6 +698,9 @@ class TestBuildImageSet(TestCase):
         expected_cwd = os.path.join(self.temp_dir, "debian-cd")
         mock_call.assert_called_once_with(
             ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
+        env = mock_call.call_args.kwargs["env"]
+        self.assertEqual("amd64/apt.conf", env["APT_CONFIG_amd64"])
+        self.assertEqual("arm64/apt.conf", env["APT_CONFIG_arm64"])
 
     @mock.patch("subprocess.call", return_value=0)
     def test_run_debian_cd_reexports_config(self, mock_call):
@@ -712,7 +717,7 @@ class TestBuildImageSet(TestCase):
         os.environ["CDIMAGE_ROOT"] = self.temp_dir
         config = Config()
         self.capture_logging()
-        run_debian_cd(config)
+        run_debian_cd(config, StubAptStateManager())
         self.assertLogEqual([
             "===== Building Ubuntu daily CDs =====",
             self.epoch_date,
@@ -914,18 +919,20 @@ class TestBuildImageSet(TestCase):
                     return mock.call([
                         germinate_path,
                         "--seed-source", mock.ANY,
-                        "--mirror", "http://ftpmaster.internal/ubuntu/",
                         "--seed-dist", "ubuntu.bionic",
-                        "--dist", "bionic,bionic-security,bionic-updates",
                         "--arch", arch,
-                        "--components", "main,restricted",
                         "--no-rdepends",
+                        "--mirror", "http://ftpmaster.internal/ubuntu/",
+                        "--components", "main,restricted",
+                        "--dist", "bionic,bionic-security,bionic-updates",
                         "--vcs=git",
                     ], cwd=os.path.join(germinate_output, arch), env=mock.ANY)
 
                 mock_call.assert_has_calls([
                     mock.call([
                         "make", "-C", os.path.dirname(britney_makefile)]),
+                    mock.call(["apt-get", "update"], env=mock.ANY),
+                    mock.call(["apt-get", "update"], env=mock.ANY),
                     germinate_command("amd64"),
                     germinate_command("i386"),
                     mock.call(
@@ -964,6 +971,8 @@ class TestBuildImageSet(TestCase):
                     DATE
                     ===== Building britney =====
                     DATE
+                    Setting up apt state for bionic/amd64 ...
+                    Setting up apt state for bionic/i386 ...
                     ===== Germinating =====
                     DATE
                     Germinating for bionic/amd64 ...

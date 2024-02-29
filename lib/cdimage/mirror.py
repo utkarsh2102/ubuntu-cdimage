@@ -22,6 +22,7 @@ import os
 import subprocess
 
 from cdimage.log import logger
+from cdimage import osextras
 
 __metaclass__ = type
 
@@ -124,3 +125,129 @@ def trigger_mirrors(config):
 
     for host in _get_mirrors_async(config):
         _trigger_mirror(config, key, "archvsync", host, background=True)
+
+
+APT_CONF_TMPL = """\
+Apt {{
+   Architecture "{ARCH}";
+   Architectures "{OTHERARCH}";
+}};
+
+Dir "{DIR}";
+Dir::state::status "/dev/null";
+"""
+
+SOURCES_TMPL = """\
+Types: deb deb-src
+URIs: {MIRROR}
+Suites: {SUITES}
+Components: {COMPONENTS}
+Signed-By: {KEYRING}
+"""
+
+
+class AptStateManager:
+    def __init__(self, config):
+        self.config = config
+        self._apt_conf_per_arch = {}
+
+    def _output_dir(self, arch):
+        return os.path.join(
+            self.config.root, "scratch", self.config.subtree,
+            self.config.project, self.config.full_series,
+            self.config.image_type, "apt-state", arch)
+
+    def _otherarch(self, arch):
+        # XXX should probably move this knowledge into ubuntu-cdimage
+        # once debian-cd no longer cares.
+        debian_cd_dir = os.path.join(self.config.root, "debian-cd")
+        archlist_file = os.path.join(
+            debian_cd_dir, "data", self.config.series, "multiarch", arch)
+        if os.path.exists(archlist_file):
+            with open(archlist_file) as f:
+                return f.read().strip()
+        return arch
+
+    def _components(self):
+        components = ["main"]
+        if not self.config["CDIMAGE_ONLYFREE"]:
+            components.append("restricted")
+        if self.config["CDIMAGE_UNSUPPORTED"]:
+            components.append("universe")
+            if not self.config["CDIMAGE_ONLYFREE"]:
+                components.append("multiverse")
+        return " ".join(components)
+
+    def _suites(self):
+        suite_patterns = ["%s", "%s-security", "%s-updates"]
+        if self.config.get("PROPOSED", "0") not in ("", "0"):
+            suite_patterns.append("%s-proposed")
+        return " ".join(
+            [pattern % self.config.series for pattern in suite_patterns])
+
+    def _get_sources_text(self, arch):
+        if self.config["CDIMAGE_POOL_SOURCES"]:
+            with open(self.config["CDIMAGE_POOL_SOURCES"]) as fp:
+                return fp.read()
+
+        keyring = "/etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg"
+
+        return SOURCES_TMPL.format(
+            MIRROR=find_mirror(self.config, arch),
+            SUITES=self._suites(),
+            COMPONENTS=self._components(),
+            KEYRING=keyring)
+
+    def _setup_arch(self, arch):
+        state_dir = self._output_dir(arch)
+        osextras.mkemptydir(state_dir)
+
+        conf_path = os.path.join(state_dir, 'base.conf')
+        with open(conf_path, 'w') as conf:
+            conf.write(APT_CONF_TMPL.format(
+                ARCH=arch,
+                OTHERARCH=self._otherarch(arch),
+                DIR=state_dir))
+
+        needed_dirs = [
+            'etc/apt/sources.list.d',
+            'etc/apt/apt.conf.d',
+            'etc/apt/preferences.d',
+            'var/lib/apt/lists/partial',
+            ]
+
+        for path in needed_dirs:
+            osextras.mkemptydir(os.path.join(state_dir, path))
+
+        sources_path = os.path.join(
+            state_dir, 'etc/apt/sources.list.d/default.sources')
+
+        with open(sources_path, 'w') as sources:
+            sources.write(self._get_sources_text(arch))
+
+        if self.config["APT_PROXY"]:
+            proxy_conf_path = os.path.join(
+                state_dir, "etc/apt/apt.conf.d/proxy.conf")
+            with open(proxy_conf_path, "w") as proxy_conf:
+                proxy_conf.write(
+                    'Acquire::http::Proxy "{PROXY}";\n'.format(
+                        PROXY=self.config["APT_PROXY"]))
+                proxy_conf.write(
+                    'Acquire::https::Proxy "{PROXY}";\n'.format(
+                        PROXY=self.config["APT_PROXY"]))
+
+        subprocess.check_call(
+            ['apt-get', 'update'],
+            env=dict(os.environ, APT_CONFIG=conf_path))
+
+        return conf_path
+
+    def setup(self):
+        for arch in self.config.cpuarches:
+            logger.info(
+                "Setting up apt state for %s/%s ...",
+                self.config.series, arch)
+            self._apt_conf_per_arch[arch] = self._setup_arch(arch)
+
+    def apt_conf_for_arch(self, arch):
+        return self._apt_conf_per_arch[arch]

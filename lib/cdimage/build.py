@@ -40,7 +40,7 @@ from cdimage.livefs import (
 )
 from cdimage.log import logger, reset_logging
 from cdimage.mail import get_notify_addresses, send_mail
-from cdimage.mirror import trigger_mirrors
+from cdimage.mirror import AptStateManager, trigger_mirrors
 from cdimage.tracker import tracker_set_rebuild_status
 from cdimage.tree import Publisher, Tree
 
@@ -532,10 +532,13 @@ def configure_splash(config):
             config[key] = generic_image
 
 
-def run_debian_cd(config):
+def run_debian_cd(config, apt_state_mgr):
     log_marker("Building %s daily CDs" % config.capproject)
     debian_cd_dir = os.path.join(config.root, "debian-cd")
-    subprocess.call(["./build_all.sh"], cwd=debian_cd_dir, env=config.export())
+    env = config.export()
+    for cpuarch in config.cpuarches:
+        env["APT_CONFIG_" + cpuarch] = apt_state_mgr.apt_conf_for_arch(cpuarch)
+    subprocess.call(["./build_all.sh"], cwd=debian_cd_dir, env=env)
 
 
 def fix_permissions(config):
@@ -652,7 +655,14 @@ def build_image_set_locked(config, options):
         else:
             assert not config["CDIMAGE_PREINSTALLED"]
 
+            apt_state_mgr = AptStateManager(config)
+            apt_state_mgr.setup()
+
             log_marker("Germinating")
+            # Cannot use apt_state_mgr for germination until
+            # https://code.launchpad.net/~mwhudson/germinate/+git/
+            #     germinate-1/+merge/456723
+            # is merged.
             germination = Germination(config)
             germination.run()
 
@@ -669,7 +679,7 @@ def build_image_set_locked(config, options):
 
             configure_splash(config)
 
-            run_debian_cd(config)
+            run_debian_cd(config, apt_state_mgr)
             copy_netboot_tarballs(config)
             fix_permissions(config)
 

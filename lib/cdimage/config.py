@@ -288,6 +288,7 @@ _allowed_keys = (
     "EXTRA_PPAS",
     "CHANNEL",
     "SIMPLESTREAMS",
+    "APT_PROXY",
 )
 
 
