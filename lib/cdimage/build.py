@@ -614,8 +614,7 @@ def is_live_fs_only(config):
             "livecd-base", "ubuntu-base", "ubuntu-core",
             "ubuntu-appliance"):
         live_fs_only = True
-    elif (config.project in ("ubuntu", "ubuntu-server") and
-          config.image_type == "daily-preinstalled"):
+    elif config.image_type == "daily-preinstalled":
         live_fs_only = True
     elif config.project == "ubuntu-mini-iso":
         live_fs_only = True
