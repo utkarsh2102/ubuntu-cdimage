@@ -355,8 +355,11 @@ def build_livecd_base(config, builds):
     log_marker("Downloading live filesystem images")
     download_live_filesystems(config, builds)
 
-    if (config.project in ("ubuntu-server", ) and
-            config.image_type == "daily-preinstalled"):
+    if config.image_type == "daily-preinstalled":
+        if config.project == 'ubuntu-server':
+            image_type = 'server'
+        else:
+            image_type = 'desktop'
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.subtree, config.project,
@@ -373,29 +376,8 @@ def build_livecd_base(config, builds):
             if not os.path.exists(rootfs):
                 rootfs = "%s.disk1.img.xz" % (live_prefix)
             output_prefix = os.path.join(output_dir,
-                                         "%s-preinstalled-server-%s" %
-                                         (config.series, arch))
-            with open("%s.type" % output_prefix, "w") as f:
-                print("EXT4 Filesystem Image", file=f)
-            shutil.copy2(rootfs, "%s.raw" % output_prefix)
-            shutil.copy2(
-                "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
-
-    if (config.project in ("ubuntu", ) and
-            config.image_type == "daily-preinstalled"):
-        log_marker("Copying images to debian-cd output directory")
-        scratch_dir = os.path.join(
-            config.root, "scratch", config.subtree, config.project,
-            config.full_series, config.image_type)
-        live_dir = os.path.join(scratch_dir, "live")
-        for arch in config.arches:
-            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
-            osextras.ensuredir(output_dir)
-            live_prefix = os.path.join(live_dir, arch)
-            rootfs = "%s.img.xz" % (live_prefix)
-            output_prefix = os.path.join(output_dir,
-                                         "%s-preinstalled-desktop-%s" %
-                                         (config.series, arch))
+                                         "%s-preinstalled-%s-%s" %
+                                         (config.series, image_type, arch))
             with open("%s.type" % output_prefix, "w") as f:
                 print("EXT4 Filesystem Image", file=f)
             shutil.copy2(rootfs, "%s.raw" % output_prefix)
