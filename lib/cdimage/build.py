@@ -520,6 +520,10 @@ def run_debian_cd(config, apt_state_mgr):
     env = config.export()
     for cpuarch in config.cpuarches:
         env["APT_CONFIG_" + cpuarch] = apt_state_mgr.apt_conf_for_arch(cpuarch)
+    # For core image builds, for convenience pass the core series to debian-cd
+    # (for the image label to be correct)
+    if "ubuntu-core" in config.project:
+        env["CDIMAGE_CORE_SERIES"] = config.core_series
     subprocess.call(["./build_all.sh"], cwd=debian_cd_dir, env=env)
 
 

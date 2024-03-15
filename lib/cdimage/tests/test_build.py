@@ -703,6 +703,25 @@ class TestBuildImageSet(TestCase):
         self.assertEqual("arm64/apt.conf", env["APT_CONFIG_arm64"])
 
     @mock.patch("subprocess.call", return_value=0)
+    def test_run_debian_cd_for_core(self, mock_call):
+        self.config["CAPPROJECT"] = "Ubuntu Core Desktop"
+        self.config["PROJECT"] = "ubuntu-core-desktop"
+        self.config["ARCHES"] = "amd64"
+        self.config["DIST"] = "jammy"
+        self.config.set_default_cpuarches()
+        self.capture_logging()
+        run_debian_cd(self.config, StubAptStateManager())
+        self.assertLogEqual([
+            "===== Building Ubuntu Core Desktop daily CDs =====",
+            self.epoch_date,
+        ])
+        expected_cwd = os.path.join(self.temp_dir, "debian-cd")
+        mock_call.assert_called_once_with(
+            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
+        env = mock_call.call_args.kwargs["env"]
+        self.assertEqual("22", env["CDIMAGE_CORE_SERIES"])
+
+    @mock.patch("subprocess.call", return_value=0)
     def test_run_debian_cd_reexports_config(self, mock_call):
         # We need to re-export configuration to debian-cd even if we didn't
         # get it in our environment, since debian-cd won't read etc/config
