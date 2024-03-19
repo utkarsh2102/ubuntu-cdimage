@@ -53,10 +53,13 @@ def lock_build_image_set(config):
         full_series = config.series
     else:
         full_series = "%s-%s" % (config.distribution, config.series)
+    project = config.project
+    if config.subtree:
+        project = "%s-%s" % (config.subtree.replace("/", "-"), project)
     lock_path = os.path.join(
         config.root, "etc",
         ".lock-build-image-set-%s-%s-%s" % (
-            config.project, full_series, config.image_type))
+            project, full_series, config.image_type))
     try:
         subprocess.check_call(["lockfile", "-l", "7200", "-r", "0", lock_path])
     except subprocess.CalledProcessError:

@@ -405,6 +405,24 @@ class TestBuildImageSet(TestCase):
             self.assertEqual(0, mock_unlink_force.call_count)
         mock_unlink_force.assert_called_once_with(expected_lock_path)
 
+    @mock.patch("subprocess.check_call")
+    @mock.patch("cdimage.osextras.unlink_force")
+    def test_lock_build_image_set_subtree(
+            self, mock_unlink_force, mock_check_call):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config.subtree = "test/subtree"
+        expected_lock_path = os.path.join(
+            self.temp_dir, "etc",
+            ".lock-build-image-set-test-subtree-ubuntu-bionic-daily")
+        self.assertFalse(os.path.exists(expected_lock_path))
+        with lock_build_image_set(self.config):
+            mock_check_call.assert_called_once_with([
+                "lockfile", "-l", "7200", "-r", "0", expected_lock_path])
+            self.assertEqual(0, mock_unlink_force.call_count)
+        mock_unlink_force.assert_called_once_with(expected_lock_path)
+
     def test_configure_onlyfree_unsupported(self):
         for project, series, onlyfree, unsupported in (
             ("ubuntu", "bionic", False, False),
