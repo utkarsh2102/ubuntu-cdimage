@@ -1,7 +1,8 @@
-# QA PRODUCT								PROJECT		IMAGE_TYPE		PUBLISH_TYPE					ARCHITECTURE	TRACKER
+# QA PRODUCT							PROJECT		IMAGE_TYPE		PUBLISH_TYPE					ARCHITECTURE	TRACKER
 
 # Edubuntu
-Edubuntu Desktop amd64							edubuntu	daily-live			desktop					amd64			iso
+Edubuntu Desktop amd64						edubuntu	daily-live			desktop					amd64			iso
+Edubuntu Desktop arm64+raspi					edubuntu	daily-preinstalled		preinstalled-desktop			arm64+raspi		iso
 
 # Kubuntu
 Kubuntu Desktop amd64						kubuntu			daily-live			desktop					amd64			iso
