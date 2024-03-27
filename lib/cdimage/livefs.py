@@ -749,10 +749,13 @@ def download_live_filesystems(config, builds):
     if config["CDIMAGE_LOCAL_LIVEFS_ARTIFACTS"]:
         assert len(config.arches) == 1
         arch = config.arches[0]
+        if "+" in arch:
+            pname = f'{config["PROJECT"]}-{arch.split("+")[1]}'
+        else:
+            pname = config["PROJECT"]
         artifacts_dir = config["CDIMAGE_LOCAL_LIVEFS_ARTIFACTS"]
         for srcname in os.listdir(artifacts_dir):
-            destname = srcname.replace(
-                f'livecd.{config["PROJECT"]}.', f'{arch}.')
+            destname = srcname.replace(f"livecd.{pname}.", f"{arch}.")
             srcpath = os.path.join(artifacts_dir, srcname)
             destpath = os.path.join(output_dir, destname)
             logger.info("linking %r to %r", srcpath, destpath)
