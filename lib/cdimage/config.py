@@ -259,7 +259,9 @@ all_series.extend([
         pointversion="23.10.1",
         _core_series="22",  # XXX: temporary for Core Desktop experiments
         all_lts_projects=True),
-    Series("noble", "24.04", "Noble Numbat"),
+    Series(
+        "noble", "24.04", "Noble Numbat",
+        _core_series="24"),
 ])
 
 
