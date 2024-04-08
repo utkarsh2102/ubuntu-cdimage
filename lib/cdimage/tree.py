@@ -1899,10 +1899,10 @@ class DailyTreePublisher(Publisher):
             # Between Noble and R cycle, we expect a +5% increase in ISO size.
             # Adjust the warning accordingly.  -tsimonq2
             if self.config["DIST"] > "noble":
-                return int(3.47 * (1000 ** 3))
+                return int(3.5 * (1000 ** 3))
             # Warn if Noble increases by more than 2% from its Beta Freeze size
             elif self.config["DIST"] == "noble":
-                return int(3.37 * (1000 ** 3))
+                return int(3.4 * (1000 ** 3))
             elif self.config["DIST"] >= "jammy":
                 # Per IRC discussions on #ubuntu-release 2023-11-13
                 return int(3.1 * (1000 ** 3))
