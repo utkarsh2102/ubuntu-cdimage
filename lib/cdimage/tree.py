@@ -1891,17 +1891,18 @@ class DailyTreePublisher(Publisher):
             # Per IRC discussions on #ubuntu-release 2023-09-26
             return int(3.6 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu":
-            # As of 2024-04-07, the Noble ISO is at 3301478400 bytes while the
-            # Jammy ISO is at 3087104000 bytes. This is an increase of 7.028%.
+            # As of Noble Beta Freeze, the Noble ISO is at 3301478400 bytes while
+            # the Jammy ISO is at 3087104000 bytes. This is an increase of 7.028%.
             # The increase between Focal and Jammy is 53.778%, but that can be
             # partially attributed to the switch from the Firefox deb to snap.
             #
-            # Between Noble and RR, we expect a +5% increase in ISO size.
+            # Between Noble and R cycle, we expect a +5% increase in ISO size.
             # Adjust the warning accordingly.  -tsimonq2
             if self.config["DIST"] > "noble":
                 return int(3.47 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "noble":
-                return int(3.2 * 1000 * 1000 * 1000)
+            # Warn if Noble increases by more than 2% from its Beta Freeze size
+            elif self.config["DIST"] == "noble":
+                return int(3.37 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "jammy":
                 # Per IRC discussions on #ubuntu-release 2023-11-13
                 return int(3.1 * 1000 * 1000 * 1000)
