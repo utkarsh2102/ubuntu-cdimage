@@ -1890,14 +1890,15 @@ class DailyTreePublisher(Publisher):
         elif self.project == "ubuntu-unity":
             # Per IRC discussions on #ubuntu-release 2023-09-26
             return int(3.6 * 1000 * 1000 * 1000)
-        elif self.project == "lubuntu" and self.config["DIST"] >= "lunar":
-            # Per IRC discussions on #ubuntu-release 2023-09-24
-            return int(3.2 * 1000 * 1000 * 1000)
-        elif self.project == "lubuntu" and self.config["DIST"] >= "jammy":
-            # Per IRC discussions on #ubuntu-release 2023-11-13
-            return int(3.1 * 1000 * 1000 * 1000)
         elif self.project == "lubuntu":
-            return int(2.0 * 1000 * 1000 * 1000)
+            if self.config["DIST"] >= "lunar":
+                # Per IRC discussions on #ubuntu-release 2023-09-24
+                return int(3.2 * 1000 * 1000 * 1000)
+            elif self.config["DIST"] >= "jammy":
+                # Per IRC discussions on #ubuntu-release 2023-11-13
+                return int(3.1 * 1000 * 1000 * 1000)
+            else:
+                return int(2.0 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-server":
             if self.config["DIST"] >= "jammy":
                 # Our images have been >2GB for quite some time now, and nobody
