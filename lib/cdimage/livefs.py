@@ -478,8 +478,6 @@ def flavours(config, arch):
     elif cpuarch == "arm64":
         if subarch == "tegra":
             return ["nvidia-tegra"]
-        elif subarch == "x13s":
-            return ["laptop"]
         elif subarch == "largemem":
             return ["generic-64k"]
         else:
