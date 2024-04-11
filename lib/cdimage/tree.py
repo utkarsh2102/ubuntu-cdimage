@@ -1870,8 +1870,11 @@ class DailyTreePublisher(Publisher):
             # email with willcooke, 20190801
             else:
                 return int(2.2 * 1000 * 1000 * 1000)
-        elif self.project == "ubuntu-mate" and self.config["DIST"] >= "focal":
-            return int(4 * 1000 * 1000 * 1000)
+        elif self.project == "ubuntu-mate":
+            if self.config["DIST"] >= "noble":
+                return int(5 * 1000 * 1000 * 1000)
+            else:
+                return int(4 * 1000 * 1000 * 1000)
         elif (self.project == "ubuntu-budgie" and
               self.config["DIST"] >= "focal"):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
