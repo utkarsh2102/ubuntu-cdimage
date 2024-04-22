@@ -66,6 +66,7 @@ Ubuntu Server riscv64+unleashed					ubuntu-server	daily-preinstalled		preinstall
 Ubuntu Server riscv64+unmatched					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+unmatched	iso
 Ubuntu Server riscv64+visionfive			ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+visionfive	iso
 Ubuntu Server riscv64+visionfive2			ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+visionfive2	iso
+Ubuntu Server riscv64+milk-v-mars			ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+visionfive2	iso
 Ubuntu Server riscv64+nezha					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+nezha	iso
 Ubuntu Server riscv64+licheerv					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+licheerv	iso
 Ubuntu Server riscv64+icicle					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+icicle	iso
