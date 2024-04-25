@@ -229,7 +229,7 @@ class ChecksumFileSet:
     def merge_all(self, old_directories, map_expr=None):
         images = sorted(
             name for name in os.listdir(self.directory)
-            if self.want_image(name))
+            if self.want_image(name) and 'netboot' not in name)
         for image in images:
             image_names = [image]
             if map_expr:
