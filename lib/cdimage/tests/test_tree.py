@@ -2840,6 +2840,50 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
+    def test_publish_release_test_no_purge_torrent(self, mock_call, *args):
+        self.config["PROJECT"] = "kubuntu"
+        self.config["CAPPROJECT"] = "Kubuntu"
+        self.config["CDIMAGE_NO_PURGE"] = "1"
+        series = Series.latest()
+        try:
+            version = series.pointversion
+        except Exception:
+            version = series.version
+        self.config["DIST"] = series
+        self.config["ARCHES"] = "amd64 i386"
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327")
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-amd64.iso.zsync" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.iso" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.manifest" % series))
+        touch(os.path.join(daily_dir, "%s-desktop-i386.iso.zsync" % series))
+        target_dir = os.path.join(
+            self.temp_dir, "www", "full", "kubuntu", "releases", series.name,
+            "release")
+        torrent_dir = os.path.join(
+            self.temp_dir, "www", "torrent", "kubuntu", "releases",
+            series.name, "release", "desktop")
+        # Add existing published torrent set to see if it gets purged
+        touch(os.path.join(
+            torrent_dir, "kubuntu-%s-desktop-arm64.iso.torrent" % version))
+        touch(os.path.join(
+            torrent_dir, "kubuntu-%s-desktop-arm64.iso" % version))
+        self.capture_logging()
+        publisher = self.get_publisher(official="named")
+        publisher.publish_release("daily-live", "20130327", "desktop")
+        self.assertCountEqual([
+            "kubuntu-%s-desktop-amd64.iso" % version,
+            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+            "kubuntu-%s-desktop-i386.iso" % version,
+            "kubuntu-%s-desktop-i386.iso.torrent" % version,
+            "kubuntu-%s-desktop-arm64.iso" % version,
+            "kubuntu-%s-desktop-arm64.iso.torrent" % version,
+        ], os.listdir(torrent_dir))
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_simplestreams(self, mock_call, *args):
         self.config["PROJECT"] = "kubuntu"
         self.config["CAPPROJECT"] = "Kubuntu"

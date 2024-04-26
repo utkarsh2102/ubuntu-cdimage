@@ -3064,7 +3064,10 @@ class ReleasePublisher(Publisher):
         self.do("rm -f %s" % path, osextras.unlink_force, path)
 
     def remove_tree(self, path):
-        self.do("rm -rf %s" % path, shutil.rmtree, path)
+        try:
+            self.do("rm -rf %s" % path, shutil.rmtree, path)
+        except OSError:
+            pass
 
     def mkemptydir(self, path):
         if self.dry_run:
@@ -3353,17 +3356,18 @@ class ReleasePublisher(Publisher):
         if self.want_torrent(publish_type):
             # Prepare torrent trees for publication.
             torrent_dir = self.torrent_dir(source, publish_type)
-            if self.want_dist:
-                if not self.config["CDIMAGE_NO_PURGE"]:
-                    self.mkemptydir(torrent_dir)
-            if self.want_full:
-                torrent_releases_dir = os.path.dirname(
-                    os.path.dirname(torrent_dir))
-                for entry in osextras.listdir_force(torrent_releases_dir):
-                    entry_path = os.path.join(torrent_releases_dir, entry)
-                    if entry != self.status and os.path.isdir(entry_path):
-                        self.remove_tree(entry_path)
-                self.mkemptydir(torrent_dir)
+            if not self.config["CDIMAGE_NO_PURGE"]:
+                if self.want_dist:
+                    self.remove_tree(torrent_dir)
+                if self.want_full:
+                    torrent_releases_dir = os.path.dirname(
+                        os.path.dirname(torrent_dir))
+                    for entry in osextras.listdir_force(torrent_releases_dir):
+                        entry_path = os.path.join(torrent_releases_dir, entry)
+                        if entry != self.status and os.path.isdir(entry_path):
+                            self.remove_tree(entry_path)
+                    self.remove_tree(torrent_dir)
+            os.makedirs(torrent_dir, exist_ok=True)
 
         logger.info("Constructing release trees ...")
         for arch in arches:
