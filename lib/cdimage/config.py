@@ -262,6 +262,7 @@ all_series.extend([
     Series(
         "noble", "24.04", "Noble Numbat",
         _core_series="24"),
+    Series("oracular", "24.10", "Oracular Oriole"),
 ])
 
 
