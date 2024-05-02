@@ -2859,9 +2859,6 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         touch(os.path.join(daily_dir, "%s-desktop-i386.iso" % series))
         touch(os.path.join(daily_dir, "%s-desktop-i386.manifest" % series))
         touch(os.path.join(daily_dir, "%s-desktop-i386.iso.zsync" % series))
-        target_dir = os.path.join(
-            self.temp_dir, "www", "full", "kubuntu", "releases", series.name,
-            "release")
         torrent_dir = os.path.join(
             self.temp_dir, "www", "torrent", "kubuntu", "releases",
             series.name, "release", "desktop")
