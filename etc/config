@@ -23,7 +23,7 @@ case $DIST in
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
-	jammy)
+	jammy|noble)
 		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
