@@ -15,13 +15,13 @@ ubuntu-server		daily-preinstalled	bionic-		*		ubuntu-cdimage/cpc
 # Temporary experimental image-set, canary preinstalled images for custom arches
 #ubuntu-server		daily-canary	jammy		*		ubuntu-cdimage/cpc
 ubuntu-server-live	daily-live		bionic-		*		ubuntu-cdimage/ubuntu-server-live
-ubuntustudio		dvd			*		*		ubuntu-cdimage/ubuntustudio
+ubuntustudio		daily-live		*		*		ubuntu-cdimage/ubuntustudio
 lubuntu-next		daily-live		*		*		ubuntu-cdimage/lubuntu-next
 lubuntu			daily-live		*		*		ubuntu-cdimage/lubuntu
 livecd-base		livecd-base		*		*		ubuntu-cdimage/livecd-base
 ubuntu-base		daily			*		*		ubuntu-cdimage/ubuntu-base
 ubuntu-core		daily-live		*		*		ubuntu-cdimage/ubuntu-core
-ubuntu-core-desktop		daily-live		*		*		ubuntu-cdimage/ubuntu-core-desktop
+ubuntu-core-desktop	daily-live		*		*		ubuntu-cdimage/ubuntu-core-desktop
 ubuntu-appliance	daily-live		*		*		ubuntu-cdimage/ubuntu-core
 ubuntu-core-system-image daily-preinstalled	*		*		ubuntu-cdimage/ubuntu-core-system-image
 ubuntukylin		daily-live		*		*		ubuntu-cdimage/ubuntukylin

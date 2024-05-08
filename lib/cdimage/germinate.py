@@ -207,7 +207,8 @@ class GerminateOutput:
         project = self.config.project
 
         if project == "ubuntustudio":
-            yield "dvd"
+            if self.config.series <= "noble":
+                yield "dvd"
             yield "ship-live"
         elif project == "ubuntu-server":
             yield "server-ship-live"

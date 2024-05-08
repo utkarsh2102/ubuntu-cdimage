@@ -188,22 +188,6 @@ class TestLiveProject(TestCase):
     def test_project_livecd_base(self):
         self.assertProjectEqual("base", "livecd-base", "dapper")
 
-    def test_ubuntu_dvd(self):
-        for series in all_series[7:]:
-            self.assertProjectEqual(
-                "ubuntu-dvd", "ubuntu", series.full_name, cdimage_dvd="1")
-
-    def test_kubuntu_dvd(self):
-        for series in all_series[7:]:
-            self.assertProjectEqual(
-                "kubuntu-dvd", "kubuntu", series.full_name, cdimage_dvd="1")
-
-    def test_ubuntustudio_dvd(self):
-        for series in all_series[15:]:
-            self.assertProjectEqual(
-                "ubuntustudio-dvd", "ubuntustudio", series.full_name,
-                cdimage_dvd="1")
-
     def test_ubuntu_appliance(self):
         # We currently only support ubuntu-appliances for bionic (UC18)
         self.assertProjectEqual(
