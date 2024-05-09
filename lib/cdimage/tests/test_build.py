@@ -49,7 +49,6 @@ from cdimage.build import (
     notify_failure,
     open_log,
     run_debian_cd,
-    update_local_indices,
     want_live_builds,
 )
 from cdimage.config import Config
@@ -58,97 +57,6 @@ from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch, StubAptStateManager
 
 __metaclass__ = type
-
-
-class TestUpdateLocalIndices(TestCase):
-    def setUp(self):
-        super(TestUpdateLocalIndices, self).setUp()
-        self.config = Config(read=False)
-        self.config.root = self.use_temp_dir()
-        self.config["DIST"] = "bionic"
-        self.config["CPUARCHES"] = "amd64"
-        self.packages = os.path.join(self.temp_dir, "local", "packages")
-        self.database = os.path.join(self.temp_dir, "local", "database")
-        self.dists = os.path.join(self.database, "dists")
-        self.indices = os.path.join(self.database, "indices")
-        self.pool = os.path.join(self.packages, "pool", "local")
-
-    @mock.patch("subprocess.call")
-    def test_no_local_packages(self, mock_call):
-        self.assertFalse(os.path.exists(self.packages))
-        mock_call.side_effect = Exception(
-            "subprocess.call called when it should not have been")
-        update_local_indices(self.config)
-
-    def test_lists_and_overrides(self):
-        fake_dir = os.path.join(self.pool, "f", "fake")
-        self.make_deb(
-            os.path.join(fake_dir, "fake_1_amd64.deb"), "misc", "optional")
-        self.make_deb(
-            os.path.join(fake_dir, "fake_1_unknown.deb"), "misc", "optional")
-        self.make_deb(
-            os.path.join(fake_dir, "fake-nf_1_all.deb"),
-            "non-free/admin", "extra")
-        self.make_deb(
-            os.path.join(fake_dir, "fake-udeb_1_amd64.udeb"),
-            "debian-installer", "optional")
-        self.make_deb(
-            os.path.join(fake_dir, "fake-udeb_1_unknown.udeb"),
-            "debian-installer", "optional")
-        self.make_deb(
-            os.path.join(fake_dir, "fake-udeb-indep_1_all.udeb"),
-            "debian-installer", "extra")
-        touch(os.path.join(fake_dir, "random-file"))
-
-        with mock.patch("subprocess.call", return_value=0) as mock_call:
-            update_local_indices(self.config)
-
-            expected_command = [
-                "apt-ftparchive", "generate", "apt-ftparchive.conf"]
-            mock_call.assert_called_once_with(
-                expected_command, cwd=self.packages)
-
-        self.assertCountEqual([
-            "bionic_local_binary-amd64.list",
-            "bionic_local_debian-installer_binary-amd64.list",
-        ], os.listdir(self.dists))
-        with open(os.path.join(
-                self.dists, "bionic_local_binary-amd64.list")) as f:
-            self.assertCountEqual([
-                "pool/local/f/fake/fake_1_amd64.deb",
-                "pool/local/f/fake/fake-nf_1_all.deb",
-            ], f.read().splitlines())
-        with open(os.path.join(
-                self.dists,
-                "bionic_local_debian-installer_binary-amd64.list")) as f:
-            self.assertCountEqual([
-                "pool/local/f/fake/fake-udeb_1_amd64.udeb",
-                "pool/local/f/fake/fake-udeb-indep_1_all.udeb",
-            ], f.read().splitlines())
-
-        self.assertCountEqual([
-            "override.bionic.local.amd64",
-            "override.bionic.local.debian-installer.amd64",
-        ], os.listdir(self.indices))
-        with open(os.path.join(
-                self.indices, "override.bionic.local.amd64")) as f:
-            self.assertCountEqual([
-                "fake\toptional\tlocal/misc",
-                "fake-nf\textra\tlocal/admin",
-            ], f.read().splitlines())
-        with open(os.path.join(
-                self.indices,
-                "override.bionic.local.debian-installer.amd64")) as f:
-            self.assertCountEqual([
-                "fake-udeb\toptional\tlocal/debian-installer",
-                "fake-udeb-indep\textra\tlocal/debian-installer",
-            ], f.read().splitlines())
-
-        self.assertTrue(os.path.exists(os.path.join(
-            self.packages, "dists", "bionic", "local", "binary-amd64")))
-        self.assertTrue(os.path.exists(os.path.join(
-            self.packages, "dists", "bionic", "local", "debian-installer",
-            "binary-amd64")))
 
 
 class TestBuildLiveCDBase(TestCase):
