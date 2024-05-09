@@ -119,126 +119,6 @@ def want_live_builds(options):
     return options is not None and getattr(options, "live", False)
 
 
-def _anonftpsync_config_path(config):
-    if config["ANONFTPSYNC_CONF"]:
-        return config["ANONFTPSYNC_CONF"]
-    paths = [
-        os.path.join(config.root, "production", "anonftpsync"),
-        os.path.join(config.root, "etc", "anonftpsync"),
-    ]
-    for path in paths:
-        if os.path.exists(path):
-            return path
-    else:
-        return None
-
-
-def _anonftpsync_options(config):
-    env = {}
-    path = _anonftpsync_config_path(config)
-    if path:
-        allowed_keys = [
-            "RSYNC_EXCLUDE",
-            "RSYNC_ICONV",
-            "RSYNC_PASSWORD",
-            "RSYNC_PROXY",
-            "RSYNC_RSH",
-            "RSYNC_SRC",
-        ]
-        for key, value in osextras.read_shell_config(path, allowed_keys):
-            if key.startswith("RSYNC_"):
-                env[key] = value
-    if "RSYNC_SRC" not in env:
-        raise Exception(
-            "RSYNC_SRC not configured!  Edit %s or %s and try again." % (
-                os.path.join(config.root, "production", "anonftpsync"),
-                os.path.join(config.root, "etc", "anonftpsync")))
-    return env
-
-
-def anonftpsync(config):
-    env = dict(os.environ)
-    for key, value in _anonftpsync_options(config).items():
-        env[key] = value
-    target = os.path.join(config.root, "ftp")
-    fqdn = socket.getfqdn()
-    lock_base = "Archive-Update-in-Progress-%s" % fqdn
-    lock = os.path.join(target, lock_base)
-    if subprocess.call(
-            ["lockfile", "-!", "-l", "43200", "-r", "0", lock]) == 0:
-        raise Exception(
-            "%s is unable to start rsync; lock file exists." % fqdn)
-    try:
-        log_path = os.path.join(config.root, "log", "rsync.log")
-        osextras.ensuredir(os.path.dirname(log_path))
-        with open(log_path, "w") as log:
-            command_base = [
-                "rsync", "--recursive", "--links", "--hard-links", "--times",
-                "--verbose", "--stats", "--chmod=Dg+s,g+rwX",
-                "--exclude", lock_base,
-                "--exclude", "project/trace/%s" % fqdn,
-            ]
-            exclude = env.get("RSYNC_EXCLUDE", "").split()
-            source_target = ["%s/" % env["RSYNC_SRC"], "%s/" % target]
-
-            subprocess.call(
-                command_base + [
-                    "--exclude", "Packages*", "--exclude", "Sources*",
-                    "--exclude", "Release*", "--exclude", "InRelease",
-                    "--include", "i18n/by-hash/**", "--exclude", "i18n/*",
-                ] + exclude + source_target,
-                stdout=log, stderr=subprocess.STDOUT, env=env)
-
-            # Second pass to update metadata and clean up old files.
-            subprocess.call(
-                command_base + [
-                    "--delay-updates", "--delete", "--delete-after",
-                ] + exclude + source_target,
-                stdout=log, stderr=subprocess.STDOUT, env=env)
-
-        # Delete dangling symlinks.
-        for dirpath, _, filenames in os.walk(target):
-            for filename in filenames:
-                path = os.path.join(dirpath, filename)
-                if os.path.islink(path) and not os.path.exists(path):
-                    os.unlink(path)
-
-        trace_dir = os.path.join(target, "project", "trace")
-        osextras.ensuredir(trace_dir)
-        with open(os.path.join(trace_dir, fqdn), "w") as trace:
-            subprocess.check_call(["date", "-u"], stdout=trace)
-
-        # Note: if you don't have savelog, use any other log rotation
-        # facility, or comment this out, the log will simply be overwritten
-        # each time.
-        with open("/dev/null", "w") as devnull:
-            subprocess.call(
-                ["savelog", log_path],
-                stdout=devnull, stderr=subprocess.STDOUT)
-    finally:
-        osextras.unlink_force(lock)
-
-
-def sync_local_mirror(config):
-    if config["CDIMAGE_NOSYNC"]:
-        return
-
-    capproject = config.capproject
-    sync_lock = os.path.join(config.root, "etc", ".lock-archive-sync")
-    log_marker("Syncing %s mirror" % capproject)
-    # Acquire lock to allow parallel builds to ensure a consistent
-    # archive.
-    try:
-        subprocess.check_call(["lockfile", "-r", "4", sync_lock])
-    except subprocess.CalledProcessError:
-        logger.error("Couldn't acquire archive sync lock!")
-        return
-    try:
-        anonftpsync(config)
-    finally:
-        osextras.unlink_force(sync_lock)
-
-
 def _dpkg_field(path, field):
     return subprocess.check_output(
         ["dpkg", "-f", path, field], universal_newlines=True).rstrip("\n")
@@ -626,8 +506,6 @@ def build_image_set_locked(config, options):
             tracker_set_rebuild_status(config, [0, 1], 2)
 
         if not is_live_fs_only(config):
-            sync_local_mirror(config)
-
             if config["LOCAL"]:
                 log_marker("Updating archive of local packages")
                 update_local_indices(config)

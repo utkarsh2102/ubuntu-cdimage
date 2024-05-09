@@ -72,10 +72,6 @@ operation it is not necessary to be intimately familiar with all of these
 scripts, but fixing bugs may require some level of knowledge of them.
 Here's a quick run-down of the steps:
 
-  * anonftpsync
-
-    Sync cdimage's mirror of the Ubuntu archive.
-
   * update-local-indices
 
     Update index files for the local override archive; packages in this

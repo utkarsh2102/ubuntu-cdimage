@@ -1,9 +1,6 @@
 #! /bin/sh
 
-# Settings for building Ubuntu CD images.  The build procedure also involves
-# syncing a local Ubuntu mirror; see etc/anonftpsync (or
-# production/anonftpsync if it exists) for settings affecting what is
-# mirrored and where.
+# Settings for building Ubuntu CD images.
 
 # This will eventually become a more declarative configuration file.  In the
 # meantime, do not add new variable settings to this file unless you also
@@ -37,9 +34,6 @@ GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
 SIGNING_KEYID='EFE21092'
 
 #export LOCAL_SEEDS=file:///path/to/local_seeds
-
-# Do not update the local mirror
-#export CDIMAGE_NOSYNC=1 
 
 # Do not create source iso
 export CDIMAGE_NOSOURCE=1
