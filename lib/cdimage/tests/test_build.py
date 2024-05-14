@@ -24,7 +24,6 @@ import optparse
 import os
 import signal
 import stat
-import subprocess
 import sys
 from textwrap import dedent
 import time

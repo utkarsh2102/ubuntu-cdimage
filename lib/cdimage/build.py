@@ -21,7 +21,6 @@ import contextlib
 import os
 import shutil
 import signal
-import socket
 import stat
 import subprocess
 import sys
