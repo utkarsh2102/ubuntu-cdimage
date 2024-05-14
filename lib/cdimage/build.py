@@ -455,20 +455,23 @@ def build_image_set_locked(config, options):
             apt_state_mgr = AptStateManager(config)
             apt_state_mgr.setup()
 
-            log_marker("Germinating")
-            # Cannot use apt_state_mgr for germination until
-            # https://code.launchpad.net/~mwhudson/germinate/+git/
-            #     germinate-1/+merge/456723
-            # is merged.
-            germination = Germination(config)
-            germination.run()
+            if config.project == "ubuntu-core-desktop":
+                config["GENERATE_POOL"] = "0"
+            else:
+                log_marker("Germinating")
+                # Cannot use apt_state_mgr for germination until
+                # https://code.launchpad.net/~mwhudson/germinate/+git/
+                #     germinate-1/+merge/456723
+                # is merged.
+                germination = Germination(config)
+                germination.run()
 
-            log_marker("Generating new task lists")
-            germinate_output = germination.output()
-            germinate_output.write_tasks()
+                log_marker("Generating new task lists")
+                germinate_output = germination.output()
+                germinate_output.write_tasks()
 
-            log_marker("Checking for other task changes")
-            germinate_output.update_tasks(date)
+                log_marker("Checking for other task changes")
+                germinate_output.update_tasks(date)
 
             if config["CDIMAGE_LIVE"]:
                 log_marker("Downloading live filesystem images")
