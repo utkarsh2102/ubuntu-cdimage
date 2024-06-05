@@ -455,7 +455,8 @@ def build_image_set_locked(config, options):
             apt_state_mgr = AptStateManager(config)
             apt_state_mgr.setup()
 
-            if config.project == "ubuntu-core-desktop":
+            if config.project in (
+                    "ubuntu-core-desktop", "ubuntu-core-installer"):
                 config["GENERATE_POOL"] = "0"
             else:
                 log_marker("Germinating")
