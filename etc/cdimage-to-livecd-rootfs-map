@@ -1,10 +1,11 @@
-# PROJECT			IMAGE_TYPE			DIST		ARCH		SUBARCH		LIVEFS_PROJECT		LIVEFS_CPUARCH	LIVEFS_SUBARCH
+# PROJECT		IMAGE_TYPE		DIST		ARCH		SUBARCH		LIVEFS_PROJECT		LIVEFS_CPUARCH	LIVEFS_SUBARCH
 # Put more specific matches first.
 # Like etc/default-arches, "PROJECT" is in fact PROJECT[-SUBPROJECT]. "-" means 'empty'.
 
-ubuntu-server		daily-preinstalled	*			riscv64		unleashed	ubuntu-cpc			*				sifive_fu540
-ubuntu-server		daily-preinstalled	jammy			riscv64		unmatched	ubuntu-cpc			*				sifive_hifive_unmatched_fu740
-ubuntu-server		daily-preinstalled	*			*			-			ubuntu-cpc			*				generic
-ubuntu-server		daily-preinstalled	*			*			*			ubuntu-cpc			*				*
-ubuntu-appliance	*					*			*			*			ubuntu-core			*				*
-livecd-base			*					*			*			*			base				*				*
+ubuntu-server		daily-preinstalled	*		riscv64		unleashed	ubuntu-cpc		*		sifive_fu540
+ubuntu-server		daily-preinstalled	jammy		riscv64		unmatched	ubuntu-cpc		*		sifive_hifive_unmatched_fu740
+ubuntu-server		daily-preinstalled	*		*		-		ubuntu-cpc		*		generic
+ubuntu-server		daily-preinstalled	*		*		*		ubuntu-cpc		*		*
+ubuntu-appliance	*			*		*		*		ubuntu-core		*		*
+livecd-base		*			*		*		*		base			*		*
+ubuntustudio		*			-noble		*		*		ubuntustudio-dvd	*		*

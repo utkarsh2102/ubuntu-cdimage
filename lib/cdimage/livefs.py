@@ -129,13 +129,7 @@ def live_build_options(config, arch):
 
 
 def live_project(config, arch):
-    liveproject = config.livefs_project_for_arch(arch)
-
-    if config["CDIMAGE_DVD"]:
-        if config.project in ("ubuntu", "kubuntu", "ubuntustudio"):
-            liveproject += "-dvd"
-
-    return liveproject
+    return config.livefs_project_for_arch(arch)
 
 
 def live_build_command(config, arch):

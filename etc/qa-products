@@ -90,6 +90,7 @@ Ubuntu Server Subiquity riscv64					ubuntu-server/live	daily-live			live-server	
 
 # Ubuntu Studio
 Ubuntu Studio DVD amd64						ubuntustudio	dvd					dvd						amd64			iso
+Ubuntu Studio amd64						ubuntustudio	daily-live					dvd						amd64			iso
 Ubuntu Studio DVD i386						ubuntustudio	dvd					dvd						i386			iso
 
 # Ubuntu Kylin
