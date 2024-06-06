@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 
 def main():
     from cdimage.build import build_image_set
-    from cdimage.config import Config
+    from cdimage.config import Config, Series
 
     parser = OptionParser("%prog")
     parser.add_option(
@@ -36,12 +36,18 @@ def main():
 
     project = os.environ.get("PROJECT", None)
     subproject = os.environ.get("SUBPROJECT", None)
+    try:
+        series = Series.find_by_name(os.environ.get("DIST", None))
+    except TypeError:
+        series = Series.latest()
     if project == "livecd-base":
         image_type = "livecd-base"
     elif project == "ubuntu-base":
         image_type = "daily"
     elif subproject == "wubi":
         image_type = "wubi"
+    elif project == "ubuntustudio" and series <= "noble":
+        image_type = "dvd"
     else:
         image_type = "daily-live"
 
