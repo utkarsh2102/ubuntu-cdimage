@@ -409,6 +409,9 @@ class Publisher:
                 return "live-core-desktop"
             elif self.project == "ubuntu-mini-iso":
                 return "mini-iso"
+            elif (self.project == "ubuntustudio" and
+                  self.config["DIST"] <= "noble"):
+                return "dvd"
             else:
                 return "desktop"
         elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
@@ -445,7 +448,7 @@ class Publisher:
         elif publish_type == "minimal":
             return "daily-minimal"
         elif publish_type == "dvd":
-            return "dvd"
+            return "daily-live"
         elif publish_type in (
                 "addon", "alternate", "base", "install", "server",
                 "legacy-server"):
