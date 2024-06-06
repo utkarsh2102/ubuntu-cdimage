@@ -2043,7 +2043,10 @@ class DailyTreePublisher(Publisher):
             self.tree.url_for_path(image_path))
 
     def publish_binary(self, publish_type, arch, date):
-        in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
+        if self.project == "ubuntustudio" and self.config["DIST"] <= "noble":
+            in_prefix = "%s-%s-%s" % (self.config.series, "daily-live", arch)
+        else:
+            in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         if publish_type == "live-core":
             out_prefix = "ubuntu-core-%s-%s" % (self.config.core_series, arch)
         elif publish_type == "live-core-desktop":
