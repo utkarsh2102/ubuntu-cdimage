@@ -241,6 +241,8 @@ class TestPublisher(TestCase):
             ("daily-live", "ubuntu-core", "bionic", "live-core"),
             ("daily-live", "ubuntu-core-desktop", "mantic",
              "live-core-desktop"),
+            ("daily-live", "ubuntu-core-installer", "noble",
+             "ubuntu-core-installer"),
             ("daily", "ubuntu-base", "bionic", "base"),
             ("daily", "ubuntu-server", "bionic", "server"),
             ("daily", "ubuntu-server", "focal", "legacy-server"),
@@ -878,6 +880,12 @@ class TestDailyTreePublisher(TestCase):
                 self.config.core_series, "stable"),
             self.make_publisher("ubuntu-core-desktop",
                                 "daily-live").publish_base)
+        self.assertEqual(
+            os.path.join(
+                self.config.root, "www", "full", "ubuntu-core-installer",
+                "daily-live"),
+            self.make_publisher(
+                "ubuntu-core-installer", "daily-live").publish_base)
         self.assertEqual(
             os.path.join(
                 self.config.root, "www", "full", "kubuntu", "daily-live"),

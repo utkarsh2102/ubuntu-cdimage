@@ -403,6 +403,8 @@ class Publisher:
                 return "netbook"
             elif self.project == "ubuntu-server":
                 return "live-server"
+            elif self.project == "ubuntu-core-installer":
+                return "ubuntu-core-installer"
             elif self.project in ("ubuntu-core", "ubuntu-appliance"):
                 return "live-core"
             elif self.project == "ubuntu-core-desktop":
@@ -440,7 +442,7 @@ class Publisher:
         elif publish_type in (
                 "desktop", "live", "netbook",
                 "live-core", "live-core-desktop",
-                "live-server"):
+                "live-server", "ubuntu-core-installer"):
             return "daily-live"
         elif publish_type == "minimal":
             return "daily-minimal"
@@ -499,6 +501,8 @@ class Publisher:
             return "Ubuntu Core %s" % cd
         elif publish_type == "live-core-desktop":
             return "Ubuntu Core Desktop %s" % cd
+        elif publish_type == "ubuntu-core-installer":
+            return "Ubuntu Core Installer %s" % cd
         elif publish_type == "desktop":
             return "desktop %s" % cd
         elif publish_type == "desktop-canary":
@@ -758,6 +762,9 @@ class Publisher:
         elif publish_type == "ubuntu-core-desktop":
             sentences.append(
                 "Experimental Ubuntu Core Desktop installer images.")
+        elif publish_type == "ubuntu-core-installer":
+            sentences.append(
+                "Experimental installer for Ubuntu Core.")
         elif publish_type == "ubuntu-appliance":
             sentences.append(
                 "An Ubuntu Appliance turns a computer into a specialised "
@@ -1127,6 +1134,7 @@ class Publisher:
             "preinstalled-core", "wubi",
             "live-core",
             "live-core-desktop",
+            "ubuntu-core-installer",
             "desktop-canary",
             "desktop-legacy",
         )
