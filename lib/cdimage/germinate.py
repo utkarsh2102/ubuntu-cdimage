@@ -202,7 +202,7 @@ class GerminateOutput:
                 self._seeds.append(line.split(":", 1)[0])
 
     def pool_seeds(self):
-        if not (self.config["CDIMAGE_DVD"] or self.config["CDIMAGE_LIVE"]):
+        if not self.config["CDIMAGE_LIVE"]:
             raise NoMasterSeeds("No seeds found for master task!")
         project = self.config.project
 
