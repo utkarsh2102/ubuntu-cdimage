@@ -50,7 +50,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 52 4 * * *	PROPOSED=0 DIST=jammy for-project ubuntu-base cron.daily-live --live
 # noble daily builds
 41 10 * * *	DIST=noble for-project ubuntu-mini-iso cron.daily-live --live
-41 6 * * *	DIST=noble for-project ubuntu cron.daily-live --live; DIST=noble SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
+41 6 * * *	DIST=noble PROPOSED=0 for-project ubuntu cron.daily-live --live; DIST=noble SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
 21 8 * * *	DIST=noble for-project kubuntu cron.daily-live --live
 2 2 * * *	DIST=noble for-project xubuntu cron.daily-live --live; DIST=noble SUBPROJECT=minimal for-project xubuntu cron.daily-minimal --live
 41 3 * * *	DIST=noble for-project edubuntu cron.daily-live --live; DIST=noble for-project edubuntu cron.daily-preinstalled --live
