@@ -331,6 +331,7 @@ class TestChecksumFileSet(TestCase):
         self.assertTrue(checksum_files.want_image("foo.iso"))
         self.assertFalse(checksum_files.want_image("foo.list"))
         self.assertTrue(checksum_files.want_image("foo.squashfs"))
+        self.assertTrue(checksum_files.want_image("foo.qcow2"))
 
     def test_merge_all(self):
         old_dir = os.path.join(self.temp_dir, "old")

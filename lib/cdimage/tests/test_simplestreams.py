@@ -160,7 +160,8 @@ class TestSimpleStreams(TestCase):
         # where the entry is not in SHA256SUMS.
         sha256sums = mock.Mock()
         sha256sums.entries = {
-            "focal-test-server-amd64.iso": "1234123412"
+            "focal-test-server-amd64.iso":   "1234123412",
+            "focal-test-server-amd64.qcow2": "4321432143",
             }
         sha256sums.checksum.return_value = "51deeffec7"
         streams = SimpleStreams(self.config)
@@ -198,9 +199,14 @@ class TestSimpleStreams(TestCase):
                 "path": "ubuntu-server/release/focal-test-server-amd64.list",
                 "ftype": "list"
             },
+            "focal-test-server-amd64.qcow2": {
+                "sha256": "4321432143",
+                "size": 1234,
+                "path": "ubuntu-server/release/focal-test-server-amd64.qcow2",
+                "ftype": "disk1.img"
+            },
             "focal-test-server-amd64.tar.gz": None
         }
-
         for file, expected_data in test_cases.items():
             data = streams.scan_published_item(
                 "/tmp/cdimage/test/ubuntu-server/release",

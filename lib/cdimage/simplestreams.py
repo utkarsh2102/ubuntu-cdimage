@@ -164,7 +164,7 @@ class SimpleStreams:
         """Scan and generate simplestream data for a published file."""
         for extension in ("iso", "img", "img.xz", "manifest", "list",
                           "iso.zsync", "img.zsync", "img.xz.zsync",
-                          "lxd.tar.xz"):
+                          "lxd.tar.xz", ".qcow2"):
             if file.endswith(extension):
                 break
         else:
@@ -200,6 +200,10 @@ class SimpleStreams:
             #  so we need to check up if maybe for lxd purposes we need to
             #  provide uncompressed images.
             data["combined_disk1-img_sha256"] = disk1_sum
+        elif extension == ".qcow2":
+            # This is a special case for lxd purposes. LXD expects a qcow2
+            # image as the disk1.img ftype.
+            data["ftype"] = "disk1.img"
         # Add the given image to the list of stream contents
         return data
 
