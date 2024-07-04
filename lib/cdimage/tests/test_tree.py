@@ -1869,6 +1869,43 @@ class TestDailyTreePublisher(TestCase):
             # Make sure the .publish_info didn't get modified in this case.
             self.assertEqual("PLACEHOLDER", info.read())
 
+    @mock.patch("cdimage.tree.generate_ubuntu_core_image_lxd_metadata")
+    def test_generate_lxd_metadata(self, mock_generate):
+        self.config["DIST"] = "noble"
+        publisher = self.make_publisher("ubuntu-core", "daily-live")
+        source_dir = os.path.join(publisher.publish_base, "20130320")
+        image_path = os.path.join(
+            source_dir,
+            "ubuntu-core-%s-amd64.img.xz" % self.config.core_series)
+        touch(image_path)
+        publisher.generate_lxd_metadata("20130320")
+        mock_generate.assert_called_once_with(image_path)
+
+    @mock.patch("cdimage.tree.generate_ubuntu_core_image_lxd_metadata")
+    def test_generate_lxd_metadata_non_core(self, mock_generate):
+        self.config["DIST"] = "noble"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        source_dir = os.path.join(publisher.publish_base, "20130320")
+        image_path = os.path.join(
+            source_dir,
+            "ubuntu-core-%s-amd64.img.xz" % self.config.core_series)
+        touch(image_path)
+        publisher.generate_lxd_metadata("20130320")
+        mock_generate.assert_not_called()
+
+    @mock.patch("cdimage.tree.generate_ubuntu_core_image_lxd_metadata")
+    def test_generate_lxd_metadata_disabled(self, mock_generate):
+        self.config["DIST"] = "noble"
+        self.config["LXD_METADATA"] = "0"
+        publisher = self.make_publisher("ubuntu-core", "daily-live")
+        source_dir = os.path.join(publisher.publish_base, "20130320")
+        image_path = os.path.join(
+            source_dir,
+            "ubuntu-core-%s-amd64.img.xz" % self.config.core_series)
+        touch(image_path)
+        publisher.generate_lxd_metadata("20130320")
+        mock_generate.assert_not_called()
+
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")

@@ -292,6 +292,7 @@ _allowed_keys = (
     "CHANNEL",
     "SIMPLESTREAMS",
     "APT_PROXY",
+    "LXD_METADATA",
 )
 
 

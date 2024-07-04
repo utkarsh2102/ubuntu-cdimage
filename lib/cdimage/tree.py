@@ -49,6 +49,7 @@ from cdimage.log import logger, reset_logging
 from cdimage.mirror import trigger_mirrors
 from cdimage import osextras
 from cdimage.project import setenv_for_project
+from cdimage.metadata import generate_ubuntu_core_image_lxd_metadata
 
 __metaclass__ = type
 
@@ -2527,6 +2528,25 @@ class DailyTreePublisher(Publisher):
                     return (entry_project, entry_image_type,
                             entry_publish_type, entry_arch)
 
+    def generate_lxd_metadata(self, date):
+        """For the publisher cycle, generate the corresponding LXD metadata."""
+        if self.config.project != "ubuntu-core":
+            return
+        if self.config.get("LXD_METADATA") == "0":
+            logger.info("Skipping LXD metadata generation")
+            return
+
+        publish_date = os.path.join(self.publish_base, date)
+        if not os.path.exists(publish_date):
+            return
+
+        logger.info("Generating LXD metadata for ubuntu-core %s ..." % date)
+        for entry in os.listdir(publish_date):
+            if not entry.endswith(".img.xz"):
+                continue
+            entry_path = os.path.join(publish_date, entry)
+            generate_ubuntu_core_image_lxd_metadata(entry_path)
+
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
         try:
@@ -2620,6 +2640,8 @@ class DailyTreePublisher(Publisher):
 
         target_report = os.path.join(self.publish_base, date, "report.html")
         osextras.unlink_force(target_report)
+
+        self.generate_lxd_metadata(date)
 
         self.polish_directory(date)
         self.link(date, "pending")
