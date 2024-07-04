@@ -2545,7 +2545,11 @@ class DailyTreePublisher(Publisher):
             if not entry.endswith(".img.xz"):
                 continue
             entry_path = os.path.join(publish_date, entry)
-            generate_ubuntu_core_image_lxd_metadata(entry_path)
+            try:
+                generate_ubuntu_core_image_lxd_metadata(entry_path)
+            except Exception as e:
+                logger.error("Failed to generate LXD metadata for %s: %s" %
+                             (entry_path, e))
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""

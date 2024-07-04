@@ -1906,6 +1906,24 @@ class TestDailyTreePublisher(TestCase):
         publisher.generate_lxd_metadata("20130320")
         mock_generate.assert_not_called()
 
+    @mock.patch("cdimage.tree.generate_ubuntu_core_image_lxd_metadata")
+    def test_generate_lxd_metadata_failed(self, mock_generate):
+        self.config["DIST"] = "noble"
+        publisher = self.make_publisher("ubuntu-core", "daily-live")
+        source_dir = os.path.join(publisher.publish_base, "20130320")
+        image_path = os.path.join(
+            source_dir,
+            "ubuntu-core-%s-amd64.img.xz" % self.config.core_series)
+        touch(image_path)
+        mock_generate.side_effect = Exception("Failed")
+        self.capture_logging()
+        publisher.generate_lxd_metadata("20130320")
+        mock_generate.assert_called_once_with(image_path)
+        self.assertLogEqual([
+            "Generating LXD metadata for ubuntu-core 20130320 ...",
+            "Failed to generate LXD metadata for %s: Failed" % image_path,
+        ])
+
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
