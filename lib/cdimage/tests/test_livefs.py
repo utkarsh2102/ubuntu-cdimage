@@ -970,6 +970,21 @@ class TestDownloadLiveFilesystems(TestCase):
                 "daily-live", "live", "armhf+raspi3.img.xz"))
 
     @mock.patch("cdimage.osextras.fetch")
+    def test_download_live_items_qcow2(self, mock_fetch):
+        self.config["PROJECT"] = "ubuntu-core"
+        self.config["DIST"] = "noble"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.assertTrue(download_live_items(self.config, None, "amd64",
+                                            "qcow2"))
+        mock_fetch.assert_called_once_with(
+            self.config,
+            "http://kapok.buildd/~buildd/LiveCD/noble/ubuntu-core"
+            "/current/livecd.ubuntu-core.qcow2",
+            os.path.join(
+                self.temp_dir, "scratch", "ubuntu-core", "noble",
+                "daily-live", "live", "amd64.qcow2"))
+
+    @mock.patch("cdimage.osextras.fetch")
     def test_download_live_items_initrd(self, mock_fetch):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"

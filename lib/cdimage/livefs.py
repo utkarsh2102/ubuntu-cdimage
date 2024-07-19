@@ -796,7 +796,6 @@ def download_live_filesystems(config, builds):
                             "ubuntu-appliance") and
                     config["CDIMAGE_LIVE"]):
                 download_live_items(config, builds, arch, "model-assertion")
-            if project == "ubuntu-appliance":
                 download_live_items(config, builds, arch, "qcow2")
 
         if not got_image:
