@@ -2034,6 +2034,74 @@ class TestDailyTreePublisher(TestCase):
                 "%s-desktop-i386.iso 20120807\n" % self.config.series,
                 info.read())
 
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    @mock.patch("cdimage.tree.generate_ubuntu_core_image_lxd_metadata")
+    @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
+    def test_publish_core(self, mock_post_qa, mock_metadata, *args):
+        self.config["ARCHES"] = "amd64"
+        self.config["DIST"] = "noble"
+        publisher = self.make_publisher("ubuntu-core", "daily-live")
+        source_dir = publisher.image_output("amd64")
+        # For this test, we need the raw file to be an xz compressed file.
+        touch(os.path.join(
+            source_dir, "%s-live-core-amd64.qcow2" % self.config.series))
+        touch(os.path.join(
+            source_dir,
+            "%s-live-core-amd64.model-assertion" % self.config.series))
+        touch(os.path.join(
+            source_dir, "%s-live-core-amd64.manifest" % self.config.series))
+        xz_empty_source = os.path.join(
+            os.path.dirname(__file__), "data", "empty-xz-file.xz")
+        shutil.copy(
+            xz_empty_source,
+            os.path.join(
+                source_dir, "%s-live-core-amd64.raw" % self.config.series))
+        # And here we also rely on the .type file being generated.
+        type_path = os.path.join(
+            source_dir, "%s-live-core-amd64.type" % self.config.series)
+        with open(type_path, "w") as f:
+            print("Disk Image", file=f)
+        self.capture_logging()
+
+        publisher.publish("20240718")
+
+        # Check if the LXD metadata was generated.
+        target_dir = os.path.join(publisher.publish_base, "20240718")
+        mock_metadata.assert_called_once_with(
+            os.path.join(target_dir, "ubuntu-core-24-amd64.img.xz"))
+
+        self.assertLogEqual([
+            "Publishing amd64 ...",
+            "Unknown compressed file type 'Disk Image'; assuming .img.xz",
+            "Publishing amd64 live manifest ...",
+            "Publishing amd64 model assertion ...",
+            "Publishing amd64 qcow2 image ...",
+            "Making amd64 zsync metafile ...",
+            "Generating LXD metadata for ubuntu-core 20240718 ...",
+            "No keys found; not signing images.",
+        ])
+        self.assertEqual(["noble-live-core-amd64.type"],
+                         os.listdir(source_dir))
+        self.assertCountEqual([
+            ".htaccess",
+            ".marked_good",
+            ".publish_info",
+            "FOOTER.html",
+            "HEADER.html",
+            "SHA256SUMS",
+            "ubuntu-core-24-amd64.model-assertion",
+            "ubuntu-core-24-amd64.img.xz",
+            "ubuntu-core-24-amd64.manifest",
+            "ubuntu-core-24-amd64.qcow2",
+        ], os.listdir(target_dir))
+        self.assertCountEqual(
+            [".htaccess", "20240718", "current", "pending"],
+            os.listdir(publisher.publish_base))
+        mock_post_qa.assert_called_once_with(
+            "20240718",
+            ["ubuntu-core/24/edge/noble-live-core-amd64"])
+
     def test_get_purge_data_no_config(self):
         publisher = self.make_publisher("ubuntu", "daily")
         self.assertIsNone(publisher.get_purge_data("daily", "purge-days"))
