@@ -311,14 +311,19 @@ test_all_series = [
     Series("impish", "21.10", "Impish Indri"),
 ]
 
-# Create a separate list of test series with jammy added so we can test
-# the core simplestreams separately.
+# Create a separate list of test series with jammy and noble added so we can
+# test the core simplestreams separately.
 test_all_series_core = test_all_series + [
     Series(
         "jammy", "22.04", "Jammy Jellyfish",
         pointversion="22.04.1",
         all_lts_projects=True,
         _core_series="22"),
+    Series(
+        "noble", "24.04", "Noble Numbat",
+        pointversion="24.04.1",
+        all_lts_projects=True,
+        _core_series="24"),
 ]
 
 

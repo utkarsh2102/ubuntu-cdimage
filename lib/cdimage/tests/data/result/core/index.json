@@ -6,6 +6,8 @@
       "format": "products:1.0",
       "path": "streams/v1/com.ubuntu.cdimage:ubuntu-core.json",
       "products": [
+        "com.ubuntu.cdimage:ubuntu-core:stable:24:amd64",
+        "com.ubuntu.cdimage:ubuntu-core:stable:24:arm64+raspi",
         "com.ubuntu.cdimage:ubuntu-core:stable:22:amd64",
         "com.ubuntu.cdimage:ubuntu-core:stable:22:arm64+raspi",
         "com.ubuntu.cdimage:ubuntu-core:stable:22:arm64",

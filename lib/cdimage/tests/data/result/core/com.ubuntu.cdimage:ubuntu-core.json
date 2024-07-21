@@ -48,13 +48,6 @@
               "sha256": "7bc9b99e9f3d37a567e4a8f0b0be1f97a4c0259c0b3cd64cd40268d458a8daf5",
               "size": 34
             },
-            "lxd.tar.xz": {
-              "combined_disk1-img_sha256": "527c91f2fdbeb7b42de900544def48eb7bf2fe1d2cf4dae77d0f5be2f4412979",
-              "ftype": "lxd.tar.xz",
-              "path": "22/stable/20230717.2/ubuntu-core-22-amd64.lxd.tar.xz",
-              "sha256": "93263bb03b8607570d3315f72db0f43a7789f0cff6c1e68c7a4d711701b868c3",
-              "size": 32
-            },
             "manifest": {
               "ftype": "manifest",
               "path": "22/stable/20230717.2/ubuntu-core-22-amd64.manifest",
@@ -76,13 +69,6 @@
               "path": "22/stable/current/ubuntu-core-22-amd64.img.xz.zsync",
               "sha256": "7bc9b99e9f3d37a567e4a8f0b0be1f97a4c0259c0b3cd64cd40268d458a8daf5",
               "size": 34
-            },
-            "lxd.tar.xz": {
-              "combined_disk1-img_sha256": "527c91f2fdbeb7b42de900544def48eb7bf2fe1d2cf4dae77d0f5be2f4412979",
-              "ftype": "lxd.tar.xz",
-              "path": "22/stable/current/ubuntu-core-22-amd64.lxd.tar.xz",
-              "sha256": "93263bb03b8607570d3315f72db0f43a7789f0cff6c1e68c7a4d711701b868c3",
-              "size": 32
             },
             "manifest": {
               "ftype": "manifest",
@@ -139,13 +125,6 @@
               "sha256": "1918935381b0cfe6d34bea4f5eb8ec4f7125b3b6c9d5ed7e52542da8edbd21fb",
               "size": 34
             },
-            "lxd.tar.xz": {
-              "combined_disk1-img_sha256": "dc5273df6f50be5f0f1a3ef1a36bd3aaa0577604be7277f28c1001e068f4792a",
-              "ftype": "lxd.tar.xz",
-              "path": "22/stable/20230717.2/ubuntu-core-22-arm64.lxd.tar.xz",
-              "sha256": "d7356424fa3479cb154aa1e806c5d695b3684c8073051d2713965e6360fd588e",
-              "size": 32
-            },
             "manifest": {
               "ftype": "manifest",
               "path": "22/stable/20230717.2/ubuntu-core-22-arm64.manifest",
@@ -167,13 +146,6 @@
               "path": "22/stable/current/ubuntu-core-22-arm64.img.xz.zsync",
               "sha256": "1918935381b0cfe6d34bea4f5eb8ec4f7125b3b6c9d5ed7e52542da8edbd21fb",
               "size": 34
-            },
-            "lxd.tar.xz": {
-              "combined_disk1-img_sha256": "dc5273df6f50be5f0f1a3ef1a36bd3aaa0577604be7277f28c1001e068f4792a",
-              "ftype": "lxd.tar.xz",
-              "path": "22/stable/current/ubuntu-core-22-arm64.lxd.tar.xz",
-              "sha256": "d7356424fa3479cb154aa1e806c5d695b3684c8073051d2713965e6360fd588e",
-              "size": 32
             },
             "manifest": {
               "ftype": "manifest",
@@ -333,6 +305,85 @@
               "ftype": "manifest",
               "path": "22/stable/current/ubuntu-core-22-armhf+raspi.manifest",
               "sha256": "1cc8f391de23d688d7eee525b41ff31f3b81b72bfabb43f3c719e6cbedb709bd",
+              "size": 36
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu-core:stable:24:amd64": {
+      "arch": "amd64",
+      "image_type": "stable",
+      "os": "ubuntu-core",
+      "release": "24",
+      "release_codename": "24",
+      "release_title": "Ubuntu Core 24",
+      "version": "24",
+      "versions": {
+        "20240721": {
+          "items": {
+            "disk1.img": {
+              "ftype": "disk1.img",
+              "path": "24/stable/20240721/ubuntu-core-24-amd64.qcow2",
+              "sha256": "29edb0303f131f3ab5387db9b909ff32a0d509084bdb93138abcabbdabfeb9c5",
+              "size": 27
+            },
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "24/stable/20240721/ubuntu-core-24-amd64.img.xz",
+              "sha256": "527c91f2fdbeb7b42de900544def48eb7bf2fe1d2cf4dae77d0f5be2f4412979",
+              "size": 28
+            },
+            "img.xz.zsync": {
+              "ftype": "img.xz.zsync",
+              "path": "24/stable/20240721/ubuntu-core-24-amd64.img.xz.zsync",
+              "sha256": "07327ac1d19c3f6cd612ca9fa4acfbe3668dc1d3a0177bbfa3cc46d4217c02a7",
+              "size": 34
+            },
+            "lxd.tar.xz": {
+              "combined_disk1-img_sha256": "29edb0303f131f3ab5387db9b909ff32a0d509084bdb93138abcabbdabfeb9c5",
+              "ftype": "lxd.tar.xz",
+              "path": "24/stable/20240721/ubuntu-core-24-amd64.lxd.tar.xz",
+              "sha256": "e2cec10752f9786f54a7ebfd2822fbe2a0bab075769b472c3da4c93ae54d1ef0",
+              "size": 32
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "24/stable/20240721/ubuntu-core-24-amd64.manifest",
+              "sha256": "5ad85f00be94f1e7e4bff06eee2adb1f4d5ab6b9ee7d4b03b01036ec7d6c65bd",
+              "size": 30
+            }
+          }
+        }
+      }
+    },
+    "com.ubuntu.cdimage:ubuntu-core:stable:24:arm64+raspi": {
+      "arch": "arm64+raspi",
+      "image_type": "stable",
+      "os": "ubuntu-core",
+      "release": "24",
+      "release_codename": "24",
+      "release_title": "Ubuntu Core 24",
+      "version": "24",
+      "versions": {
+        "20240721": {
+          "items": {
+            "img.xz": {
+              "ftype": "img.xz",
+              "path": "24/stable/20240721/ubuntu-core-24-arm64+raspi.img.xz",
+              "sha256": "3d35b95ad4c28dbea0069cc9b9cb695e521e5565619652d4a0de7d2e63168ad2",
+              "size": 34
+            },
+            "img.xz.zsync": {
+              "ftype": "img.xz.zsync",
+              "path": "24/stable/20240721/ubuntu-core-24-arm64+raspi.img.xz.zsync",
+              "sha256": "90454e7bd5cb1d461722a840d070a39bbe6f21241db6eefcf679d7e95d5b4f25",
+              "size": 40
+            },
+            "manifest": {
+              "ftype": "manifest",
+              "path": "24/stable/20240721/ubuntu-core-24-arm64+raspi.manifest",
+              "sha256": "286b6c678d5e2482687f7c77be7b2c9cf00fe30ce150cf8fc9082360b18f7465",
               "size": 36
             }
           }

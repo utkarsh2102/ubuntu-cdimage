@@ -189,17 +189,16 @@ class SimpleStreams:
         data["ftype"] = extension
         # A special case for the lxd tarballs
         if extension == "lxd.tar.xz":
-            # Let's find the .img.xz file corresponding to the tarball and
-            # fetch its checksum.
-            img_file = file.replace(extension, "img.xz")
+            # Let's find the .qcow2 (disk1.img) file corresponding to the
+            # tarball and fetch its checksum.
+            img_file = file.replace(extension, "qcow2")
             disk1_sum = sha256sums.entries.get(img_file)
             if disk1_sum is None:
                 img_path = os.path.join(publishing_dir, img_file)
-                disk1_sum = sha256sums.checksum(img_path)
-            # XXX: Right now this uses the checksum of the .img.xz file,
-            #  so we need to check up if maybe for lxd purposes we need to
-            #  provide uncompressed images.
-            data["combined_disk1-img_sha256"] = disk1_sum
+                if os.path.exists(img_path):
+                    disk1_sum = sha256sums.checksum(img_path)
+            if disk1_sum is not None:
+                data["combined_disk1-img_sha256"] = disk1_sum
         elif extension == ".qcow2":
             # This is a special case for lxd purposes. LXD expects a qcow2
             # image as the disk1.img ftype.
