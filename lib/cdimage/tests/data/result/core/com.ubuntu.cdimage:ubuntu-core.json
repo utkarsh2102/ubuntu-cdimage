@@ -9,7 +9,7 @@
       "os": "ubuntu-core",
       "release": "22",
       "release_codename": "22",
-      "release_title": "Ubuntu Core 22",
+      "release_title": "Ubuntu Core 22 stable",
       "version": "22",
       "versions": {
         "20230707": {
@@ -86,7 +86,7 @@
       "os": "ubuntu-core",
       "release": "22",
       "release_codename": "22",
-      "release_title": "Ubuntu Core 22",
+      "release_title": "Ubuntu Core 22 stable",
       "version": "22",
       "versions": {
         "20230707": {
@@ -163,7 +163,7 @@
       "os": "ubuntu-core",
       "release": "22",
       "release_codename": "22",
-      "release_title": "Ubuntu Core 22",
+      "release_title": "Ubuntu Core 22 stable",
       "version": "22",
       "versions": {
         "20230707": {
@@ -240,7 +240,7 @@
       "os": "ubuntu-core",
       "release": "22",
       "release_codename": "22",
-      "release_title": "Ubuntu Core 22",
+      "release_title": "Ubuntu Core 22 stable",
       "version": "22",
       "versions": {
         "20230707": {
@@ -317,7 +317,7 @@
       "os": "ubuntu-core",
       "release": "24",
       "release_codename": "24",
-      "release_title": "Ubuntu Core 24",
+      "release_title": "Ubuntu Core 24 stable",
       "version": "24",
       "versions": {
         "20240721": {
@@ -363,7 +363,7 @@
       "os": "ubuntu-core",
       "release": "24",
       "release_codename": "24",
-      "release_title": "Ubuntu Core 24",
+      "release_title": "Ubuntu Core 24 stable",
       "version": "24",
       "versions": {
         "20240721": {

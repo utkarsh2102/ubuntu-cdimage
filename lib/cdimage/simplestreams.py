@@ -91,7 +91,7 @@ class SimpleStreams:
         """Get the series real version for the given series object."""
         return series.displayname
 
-    def get_series_displayversion(self, series, project):
+    def get_series_displayversion(self, series, project, image_type=None):
         """Get the series display name for the given series object."""
         return series.displayversion(project)
 
@@ -105,7 +105,8 @@ class SimpleStreams:
             "os": project,
             "release": self.get_series_name(series),
             "release_codename": self.get_series_displayname(series),
-            "release_title": self.get_series_displayversion(series, project),
+            "release_title": self.get_series_displayversion(series, project,
+                                                            image_type),
             "image_type": image_type,
             "version": self.get_series_version(series),
             }
@@ -433,9 +434,9 @@ class CoreSimpleStreams(SimpleStreams):
         """Get the series version for the core series object."""
         return series.core_series
 
-    def get_series_displayversion(self, series, project):
+    def get_series_displayversion(self, series, project, image_type=None):
         """Get the series real version for the core series object."""
-        return "Ubuntu Core %s" % series.core_series
+        return "Ubuntu Core %s %s" % (series.core_series, image_type)
 
     def get_series_displayname(self, series):
         """Get the series display name for the core series object."""
