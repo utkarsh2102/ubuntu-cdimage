@@ -436,7 +436,7 @@ class CoreSimpleStreams(SimpleStreams):
 
     def get_series_displayversion(self, series, project, image_type=None):
         """Get the series real version for the core series object."""
-        return "Ubuntu Core %s %s" % (series.core_series, image_type)
+        return "%s %s" % (series.core_series, image_type)
 
     def get_series_displayname(self, series):
         """Get the series display name for the core series object."""
