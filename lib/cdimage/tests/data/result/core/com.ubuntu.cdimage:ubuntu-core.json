@@ -4,6 +4,7 @@
   "format": "products:1.0",
   "products": {
     "com.ubuntu.cdimage:ubuntu-core:stable:22:amd64": {
+      "aliases": "22",
       "arch": "amd64",
       "image_type": "stable",
       "os": "ubuntu-core",
@@ -81,6 +82,7 @@
       }
     },
     "com.ubuntu.cdimage:ubuntu-core:stable:22:arm64": {
+      "aliases": "22",
       "arch": "arm64",
       "image_type": "stable",
       "os": "ubuntu-core",
@@ -158,6 +160,7 @@
       }
     },
     "com.ubuntu.cdimage:ubuntu-core:stable:22:arm64+raspi": {
+      "aliases": "22",
       "arch": "arm64+raspi",
       "image_type": "stable",
       "os": "ubuntu-core",
@@ -235,6 +238,7 @@
       }
     },
     "com.ubuntu.cdimage:ubuntu-core:stable:22:armhf+raspi": {
+      "aliases": "22",
       "arch": "armhf+raspi",
       "image_type": "stable",
       "os": "ubuntu-core",
@@ -312,6 +316,7 @@
       }
     },
     "com.ubuntu.cdimage:ubuntu-core:stable:24:amd64": {
+      "aliases": "24,default",
       "arch": "amd64",
       "image_type": "stable",
       "os": "ubuntu-core",
@@ -358,6 +363,7 @@
       }
     },
     "com.ubuntu.cdimage:ubuntu-core:stable:24:arm64+raspi": {
+      "aliases": "24,default",
       "arch": "arm64+raspi",
       "image_type": "stable",
       "os": "ubuntu-core",

@@ -95,6 +95,10 @@ class SimpleStreams:
         """Get the series display name for the given series object."""
         return series.displayversion(project)
 
+    def get_aliases(self, series, project, image_type):
+        """Get aliases for the given series object."""
+        return ""
+
     def prepare_product_info(self, product_name, project, series, image_type,
                              arch):
         """Prepares and stores detailed info about published products."""
@@ -109,6 +113,7 @@ class SimpleStreams:
                                                             image_type),
             "image_type": image_type,
             "version": self.get_series_version(series),
+            "aliases": self.get_aliases(series, project, image_type),
             }
         # TODO: Add support_eol, aliases etc.
         self.cdimage_products[product_name] = product_info
@@ -354,6 +359,10 @@ class FullReleaseSimpleStreams(SimpleStreams):
         self.tree_dir = os.path.join(self.config.root, "www", "full")
         self.streams_dir = os.path.join(self.tree_dir, "releases")
 
+    def get_aliases(self, series, project, image_type):
+        """Get aliases for the given series object."""
+        return ",".join([series.version, series.name])
+
     def scan_releases_project(self, base_dir, project):
         """Helper function to scan a project releases/ directory."""
         releases_dir = os.path.join(base_dir, "releases")
@@ -399,6 +408,10 @@ class SimpleReleaseSimpleStreams(SimpleStreams):
         self.tree_dir = self.streams_dir = os.path.join(
             self.config.root, "www", "simple")
 
+    def get_aliases(self, series, project, image_type):
+        """Get aliases for the given series object."""
+        return ",".join([series.version, series.name])
+
     def scan_tree(self):
         """Scan the releases.ubuntu.com (simple) tree."""
         for entry in os.listdir(self.tree_dir):
@@ -441,6 +454,15 @@ class CoreSimpleStreams(SimpleStreams):
     def get_series_displayname(self, series):
         """Get the series display name for the core series object."""
         return series.core_series
+
+    def get_aliases(self, series, project, image_type):
+        """Get aliases for the given series object."""
+        aliases = []
+        if image_type in ("stable", "dangerous-stable"):
+            aliases.append(series.core_series)
+        if Series.latest_core() == series:
+            aliases.append("default")
+        return ",".join(aliases)
 
     def scan_tree(self):
         """Scan the dailies image tree."""

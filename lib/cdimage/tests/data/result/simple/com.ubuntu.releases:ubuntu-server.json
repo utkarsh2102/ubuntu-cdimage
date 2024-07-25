@@ -4,6 +4,7 @@
   "format": "products:1.0",
   "products": {
     "com.ubuntu.releases:ubuntu-server:live-server:18.04:amd64": {
+      "aliases": "18.04,bionic",
       "arch": "amd64",
       "image_type": "live-server",
       "os": "ubuntu-server",
@@ -43,6 +44,7 @@
       }
     },
     "com.ubuntu.releases:ubuntu-server:live-server:20.04:amd64": {
+      "aliases": "20.04,focal",
       "arch": "amd64",
       "image_type": "live-server",
       "os": "ubuntu-server",

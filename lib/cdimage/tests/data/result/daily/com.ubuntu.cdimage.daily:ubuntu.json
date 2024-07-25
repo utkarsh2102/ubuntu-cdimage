@@ -4,6 +4,7 @@
   "format": "products:1.0",
   "products": {
     "com.ubuntu.cdimage.daily:ubuntu:daily-live:20.04:amd64": {
+      "aliases": "",
       "arch": "amd64",
       "image_type": "daily-live",
       "os": "ubuntu",
@@ -71,6 +72,7 @@
       }
     },
     "com.ubuntu.cdimage.daily:ubuntu:daily-live:20.04:arm64": {
+      "aliases": "",
       "arch": "arm64",
       "image_type": "daily-live",
       "os": "ubuntu",
@@ -138,6 +140,7 @@
       }
     },
     "com.ubuntu.cdimage.daily:ubuntu:daily-live:21.10:amd64": {
+      "aliases": "",
       "arch": "amd64",
       "image_type": "daily-live",
       "os": "ubuntu",
@@ -205,6 +208,7 @@
       }
     },
     "com.ubuntu.cdimage.daily:ubuntu:daily-live:21.10:arm64": {
+      "aliases": "",
       "arch": "arm64",
       "image_type": "daily-live",
       "os": "ubuntu",

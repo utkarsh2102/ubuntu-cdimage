@@ -6,8 +6,8 @@
       "format": "products:1.0",
       "path": "streams/v1/com.ubuntu.cdimage.daily:kubuntu.json",
       "products": [
-        "com.ubuntu.cdimage.daily:kubuntu:daily-live:20.04:amd64",
-        "com.ubuntu.cdimage.daily:kubuntu:daily-live:21.10:amd64"
+        "com.ubuntu.cdimage.daily:kubuntu:daily-live:21.10:amd64",
+        "com.ubuntu.cdimage.daily:kubuntu:daily-live:20.04:amd64"
       ],
       "updated": "TIMESTAMP"
     },
@@ -16,10 +16,10 @@
       "format": "products:1.0",
       "path": "streams/v1/com.ubuntu.cdimage.daily:ubuntu.json",
       "products": [
-        "com.ubuntu.cdimage.daily:ubuntu:daily-live:20.04:arm64",
-        "com.ubuntu.cdimage.daily:ubuntu:daily-live:20.04:amd64",
         "com.ubuntu.cdimage.daily:ubuntu:daily-live:21.10:amd64",
-        "com.ubuntu.cdimage.daily:ubuntu:daily-live:21.10:arm64"
+        "com.ubuntu.cdimage.daily:ubuntu:daily-live:21.10:arm64",
+        "com.ubuntu.cdimage.daily:ubuntu:daily-live:20.04:amd64",
+        "com.ubuntu.cdimage.daily:ubuntu:daily-live:20.04:arm64"
       ],
       "updated": "TIMESTAMP"
     },
@@ -28,20 +28,20 @@
       "format": "products:1.0",
       "path": "streams/v1/com.ubuntu.cdimage.daily:ubuntu-server.json",
       "products": [
-        "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:armhf+raspi",
+        "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:arm64",
         "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:riscv64+unleashed",
         "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:amd64",
         "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:arm64+raspi",
+        "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:armhf+raspi",
         "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:riscv64+unmatched",
-        "com.ubuntu.cdimage.daily:ubuntu-server:daily-preinstalled:21.10:arm64",
-        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:ppc64el",
-        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:arm64",
-        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:amd64",
-        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:s390x",
+        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:arm64",
+        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:ppc64el",
         "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:s390x",
         "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:amd64",
-        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:arm64",
-        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:21.10:ppc64el"
+        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:s390x",
+        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:ppc64el",
+        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:arm64",
+        "com.ubuntu.cdimage.daily:ubuntu-server:daily-live:20.04:amd64"
       ],
       "updated": "TIMESTAMP"
     }

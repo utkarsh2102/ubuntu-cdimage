@@ -72,6 +72,7 @@ class TestSimpleStreams(TestCase):
             streams.cdimage_products,
             {
                 "test:test-product": {
+                    "aliases": "",
                     "arch": "arm64+raspi",
                     "os": "ubuntu-server",
                     "release": "bionic",

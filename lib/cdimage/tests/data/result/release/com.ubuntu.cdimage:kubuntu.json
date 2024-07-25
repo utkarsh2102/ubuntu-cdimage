@@ -4,6 +4,7 @@
   "format": "products:1.0",
   "products": {
     "com.ubuntu.cdimage:kubuntu:desktop:18.04:amd64": {
+      "aliases": "18.04,bionic",
       "arch": "amd64",
       "image_type": "desktop",
       "os": "kubuntu",
@@ -43,6 +44,7 @@
       }
     },
     "com.ubuntu.cdimage:kubuntu:desktop:18.04:i386": {
+      "aliases": "18.04,bionic",
       "arch": "i386",
       "image_type": "desktop",
       "os": "kubuntu",
@@ -82,6 +84,7 @@
       }
     },
     "com.ubuntu.cdimage:kubuntu:desktop:20.04:amd64": {
+      "aliases": "20.04,focal",
       "arch": "amd64",
       "image_type": "desktop",
       "os": "kubuntu",
