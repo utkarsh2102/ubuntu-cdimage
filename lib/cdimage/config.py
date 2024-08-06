@@ -261,6 +261,7 @@ all_series.extend([
         all_lts_projects=True),
     Series(
         "noble", "24.04", "Noble Numbat",
+        pointversion="24.04.1",
         _core_series="24"),
     Series("oracular", "24.10", "Oracular Oriole"),
 ])
