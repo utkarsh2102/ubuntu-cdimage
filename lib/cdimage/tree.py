@@ -830,6 +830,7 @@ class Publisher:
         "riscv64+visionfive": "RISC-V for StarFive VisionFive",
         "riscv64+visionfive2": "RISC-V for StarFive VisionFive 2",
         "riscv64+milkvmars": "RISC-V for Milk-V Mars",
+        "riscv64+pic64gx": "RISC-V for Microchip PIC64GX",
         "riscv64+nezha": "RISC-V for Allwinner Nezha",
         "riscv64+licheerv": "RISC-V for Sipeed LicheeRV Dock",
         "riscv64+icicle": "RISC-V for Microchip Polarfire Icicle Kit",
@@ -930,6 +931,9 @@ class Publisher:
         elif arch == "riscv64+milkvmars":
             sentences.append(
                 "For RISC-V computers, with support for Milk-V Mars")
+        elif arch == "riscv64+pic64gx":
+            sentences.append(
+                "For RISC-V computers, with support for Microchip PIC64GX")
         elif arch == "riscv64+nezha":
             sentences.append(
                 "For RISC-V computers, with support for Allwinner Nezha")
@@ -1152,6 +1156,7 @@ class Publisher:
             "riscv64", "riscv64+unleashed", "riscv64+unmatched",
             "riscv64+visionfive", "riscv64+visionfive2", "riscv64+nezha",
             "riscv64+licheerv", "riscv64+icicle", "riscv64+milkvmars",
+            "riscv64+pic64gx",
             "s390x",
         )
 
