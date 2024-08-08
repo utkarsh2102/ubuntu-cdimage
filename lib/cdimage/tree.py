@@ -765,7 +765,7 @@ class Publisher:
                 "Experimental Ubuntu Core Desktop installer images.")
         elif publish_type == "ubuntu-core-installer":
             sentences.append(
-                "Experimental installer for Ubuntu Core.")
+                "Installer for Ubuntu Core.")
         elif publish_type == "ubuntu-appliance":
             sentences.append(
                 "An Ubuntu Appliance turns a computer into a specialised "
