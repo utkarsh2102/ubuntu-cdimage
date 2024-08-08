@@ -1061,6 +1061,8 @@ class Publisher:
             channel = self.config.get("CHANNEL", "edge")
             heading = "%s %s (%s)" % (
                 self.config.capproject, self.config.core_series, channel)
+        elif self.project == "ubuntu-core-installer":
+            heading = "Ubuntu Core %s Installer" % (self.config.core_series,)
         else:
             heading = "%s %s (%s)" % (
                 self.config.capproject, series.displayversion(self.project),
