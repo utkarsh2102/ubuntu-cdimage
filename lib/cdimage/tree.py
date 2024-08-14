@@ -765,7 +765,7 @@ class Publisher:
                 "Experimental Ubuntu Core Desktop installer images.")
         elif publish_type == "ubuntu-core-installer":
             sentences.append(
-                "Experimental installer for Ubuntu Core.")
+                "Installer for Ubuntu Core.")
         elif publish_type == "ubuntu-appliance":
             sentences.append(
                 "An Ubuntu Appliance turns a computer into a specialised "
@@ -1065,6 +1065,8 @@ class Publisher:
             channel = self.config.get("CHANNEL", "edge")
             heading = "%s %s (%s)" % (
                 self.config.capproject, self.config.core_series, channel)
+        elif self.project == "ubuntu-core-installer":
+            heading = "Ubuntu Core %s Installer" % (self.config.core_series,)
         else:
             heading = "%s %s (%s)" % (
                 self.config.capproject, series.displayversion(self.project),
