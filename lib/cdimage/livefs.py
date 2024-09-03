@@ -465,7 +465,7 @@ def flavours(config, arch):
             return ["intel-iotg"]
         if series >= "focal" and project == "ubuntu":
             return ["generic", "oem"]
-        if project == "ubuntustudio":
+        if series <= "noble" and project == "ubuntustudio":
             return ["lowlatency"]
         else:
             return ["generic"]

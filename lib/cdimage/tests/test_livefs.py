@@ -760,8 +760,12 @@ class TestFlavours(TestCase):
             self.assertFlavoursEqual(
                 "generic", "amd64", "ubuntu", series)
         for series in all_series[15:]:
-            self.assertFlavoursEqual(
-                "lowlatency", "amd64", "ubuntustudio", series)
+            if series <= "noble":
+                self.assertFlavoursEqual(
+                    "lowlatency", "amd64", "ubuntustudio", series)
+            else:
+                self.assertFlavoursEqual(
+                    "generic", "amd64", "ubuntustudio", series)
 
     def test_armel(self):
         for series in all_series[10:]:
