@@ -1634,7 +1634,7 @@ class TestDailyTreePublisher(TestCase):
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
-            ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
+            ("ubuntustudio", "daily-live", "desktop", "Ubuntu Studio DVD"),
             ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
             ("ubuntu-base", "daily", "base", "Ubuntu Base"),
             ("ubuntukylin", "daily-live", "desktop", "Ubuntu Kylin Desktop"),
@@ -1675,7 +1675,7 @@ class TestDailyTreePublisher(TestCase):
             ("kubuntu", "daily-live", "desktop", "Kubuntu Desktop"),
             ("xubuntu", "daily-live", "desktop", "Xubuntu Desktop"),
             ("ubuntu-server", "daily", "server", "Ubuntu Server"),
-            ("ubuntustudio", "dvd", "dvd", "Ubuntu Studio DVD"),
+            ("ubuntustudio", "daily-live", "desktop", "Ubuntu Studio DVD"),
             ("lubuntu", "daily", "alternate", "Lubuntu Alternate"),
             ("lubuntu", "daily-live", "desktop", "Lubuntu Desktop"),
             ("lubuntu-next", "daily-live", "desktop", "Lubuntu Next Desktop"),
@@ -1689,9 +1689,9 @@ class TestDailyTreePublisher(TestCase):
             # use the publisher's image_type at all.
             publisher = self.make_publisher(project, "daily")
             self.assertEqual(
-                (project, image_type, publish_type, "i386"),
+                (project, image_type, publish_type, "amd64"),
                 publisher.cdimage_project(
-                    "%s i386" % product, "iso"))
+                    "%s amd64" % product, "iso"))
 
     @mock_isotracker
     def test_post_qa(self):
