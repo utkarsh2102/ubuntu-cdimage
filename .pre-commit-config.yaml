@@ -16,3 +16,4 @@ repos:
         language: script
         entry: ./run-tests
         always_run: true
+        exclude: '.pre-commit-config.yaml|etc/crontab'
