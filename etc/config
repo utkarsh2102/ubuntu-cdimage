@@ -16,11 +16,11 @@ export IMAGE_FORMAT
 DIST="${DIST:-oracular}"
 
 case $DIST in
-	bionic|focal)
+	bionic|focal|jammy)
 		PROPOSED="${PROPOSED:-0}"
 		export PROPOSED
 		;;
-	jammy|noble)
+	noble)
 		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
