@@ -1088,34 +1088,6 @@ class TestDailyTreePublisher(TestCase):
     @mock.patch("cdimage.tree.DailyTreePublisher.detect_image_extension",
                 return_value="img.xz")
     @mock.patch("cdimage.tree.zsyncmake")
-    def test_publish_core_desktop_binary(self, mock_zsyncmake, *args):
-        self.config["DIST"] = "mantic"
-        publisher = self.make_publisher("ubuntu-core-desktop", "daily-live")
-        source_dir = publisher.image_output("amd64")
-        touch(os.path.join(
-            source_dir, "%s-live-core-desktop-amd64.raw" % self.config.series))
-        touch(os.path.join(
-            source_dir,
-            "%s-live-core-desktop-amd64.model-assertion" % self.config.series))
-        self.capture_logging()
-        list(publisher.publish_binary("live-core-desktop", "amd64",
-                                      "20230429"))
-        self.assertLogEqual([
-            "Publishing amd64 ...",
-            "Publishing amd64 model assertion ...",
-            "Making amd64 zsync metafile ...",
-        ])
-        target_dir = os.path.join(publisher.publish_base, "20230429")
-        self.assertEqual([], os.listdir(source_dir))
-        self.assertCountEqual([
-            "ubuntu-core-desktop-22-amd64.img.xz",
-            "ubuntu-core-desktop-22-amd64.model-assertion",
-        ], os.listdir(target_dir))
-
-    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
-    @mock.patch("cdimage.tree.DailyTreePublisher.detect_image_extension",
-                return_value="img.xz")
-    @mock.patch("cdimage.tree.zsyncmake")
     def test_publish_appliance_binary(self, mock_zsyncmake, *args):
         self.config["DIST"] = "bionic"
         publisher = self.make_publisher("ubuntu-appliance", "daily-live")
@@ -1385,21 +1357,6 @@ class TestDailyTreePublisher(TestCase):
         self.assertEqual(
             set(["ubuntu-core-16-amd64.img.xz", "ubuntu-core-16-i386.img.xz"]),
             publisher.published_images("20170429"))
-
-    def test_published_core_desktop_images(self):
-        self.config["DIST"] = "mantic"
-        self.config["ARCHES"] = "amd64"
-        publisher = self.make_publisher("ubuntu-core-desktop", "daily-live")
-        target_dir = os.path.join(publisher.publish_base, "20230429")
-        for name in (
-            "SHA256SUMS",
-            "ubuntu-core-desktop-22-amd64.img.xz",
-            "ubuntu-core-desktop-22-amd64.model-assertion",
-        ):
-            touch(os.path.join(target_dir, name))
-        self.assertEqual(
-            set(["ubuntu-core-desktop-22-amd64.img.xz"]),
-            publisher.published_images("20230429"))
 
     @mock.patch("cdimage.tree.DailyTreePublisher.polish_directory")
     def test_mark_current_missing_to_single(self, mock_polish_directory):
