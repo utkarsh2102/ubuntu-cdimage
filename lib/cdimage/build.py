@@ -224,17 +224,13 @@ def build_livecd_base(config, builds):
             # shutil.copy2(
             #    "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
 
-    if (config.project in ("ubuntu-core", "ubuntu-core-desktop",
-                           "ubuntu-appliance") and
+    if (config.project in ("ubuntu-core", "ubuntu-appliance") and
             config.image_type == "daily-live"):
         log_marker("Copying images to debian-cd output directory")
         scratch_dir = os.path.join(
             config.root, "scratch", config.subtree, config.project,
             config.full_series, config.image_type)
-        if config.project == "ubuntu-core-desktop":
-            publish_type = "live-core-desktop"
-        else:
-            publish_type = "live-core"
+        publish_type = "live-core"
         live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
             output_dir = os.path.join(scratch_dir, "debian-cd", arch)

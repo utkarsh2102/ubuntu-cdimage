@@ -1085,6 +1085,11 @@ class TestDownloadLiveFilesystems(TestCase):
         self.assert_live_download_items("ubuntu-server", "live", series, item,
                                         filenames, filenames)
 
+    def assert_core_desktop_live_download_items(self, series, item,
+                                                filenames):
+        self.assert_live_download_items("ubuntu-core-desktop", "", series,
+                                        item, filenames, filenames)
+
     @mock.patch("cdimage.osextras.fetch")
     def assert_live_download_items(self, project, subproject, series, item,
                                    filenames, expected_files, mock_fetch):
@@ -1246,39 +1251,4 @@ class TestDownloadLiveFilesystems(TestCase):
             "i386.manifest-minimal-remove",
             "i386.size",
             "i386.squashfs",
-        ], os.listdir(output_dir))
-
-    @mock.patch("cdimage.osextras.fetch")
-    def test_download_live_filesystems_ubuntu_core_desktop(self, mock_fetch):
-        def fetch_side_effect(config, source, target):
-            tail = os.path.basename(target).split(".", 1)[1]
-            if tail in (
-                "squashfs", "kernel-generic", "kernel-generic.efi.signed",
-                "initrd-generic", "manifest", "manifest-remove",
-                "img.xz", "size", "model-assertion",
-            ):
-                touch(target)
-            else:
-                raise osextras.FetchError
-
-        mock_fetch.side_effect = fetch_side_effect
-        self.config["PROJECT"] = "ubuntu-core-desktop"
-        self.config["DIST"] = "noble"
-        self.config["IMAGE_TYPE"] = "daily-live"
-        self.config["ARCHES"] = "amd64"
-        self.config["CDIMAGE_LIVE"] = "1"
-        download_live_filesystems(self.config, None)
-        output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-core-desktop", "noble",
-            "daily-live", "live")
-        self.assertCountEqual([
-            "amd64.initrd-generic",
-            "amd64.kernel-generic",
-            "amd64.kernel-generic.efi.signed",
-            "amd64.manifest",
-            "amd64.manifest-remove",
-            "amd64.img.xz",
-            "amd64.model-assertion",
-            "amd64.size",
-            "amd64.squashfs",
         ], os.listdir(output_dir))

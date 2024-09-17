@@ -748,16 +748,6 @@ def download_live_filesystems(config, builds):
                     got_image = True
                 else:
                     continue
-            elif project == "ubuntu-core-desktop":
-                # The Ubuntu Core payload comes as a compressed raw image.
-                if (download_live_items(config, builds, arch, "squashfs") and
-                        download_live_items(config, builds, arch, "img.xz")):
-                    download_live_items(config, builds, arch,
-                                        "modules.squashfs")
-                    download_live_items(config, builds, arch, "yaml")
-                    got_image = True
-                else:
-                    continue
             elif download_live_items(config, builds, arch, "img.xz"):
                 got_image = True
             elif download_live_items(config, builds, arch, "cloop"):
