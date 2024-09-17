@@ -9,3 +9,4 @@ ubuntu-server		daily-preinstalled	*		*		*		ubuntu-cpc		*		*
 ubuntu-appliance	*			*		*		*		ubuntu-core		*		*
 livecd-base		*			*		*		*		base			*		*
 ubuntustudio		*			-noble		*		*		ubuntustudio-dvd	*		*
+ubuntu-core-desktop	*			*		*		*		ubuntu-core-installer		*		*
