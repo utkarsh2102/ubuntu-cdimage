@@ -1869,6 +1869,10 @@ class DailyTreePublisher(Publisher):
                     self.project == "ubuntukylin"):
                 # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
                 return int(4 * 1024 * 1024 * 1024)
+            if self.config["DIST"] >= "oracular":
+                # 2024-10-04, vorlon set to match actual image size after
+                # optimizations
+                return int(6.1 * 1000 * 1000 * 1000)
             elif self.config["DIST"] >= "mantic":
                 # 2023-09-21, per seb128; size increased due to TPM support
                 return int(5.2 * 1000 * 1000 * 1000)
