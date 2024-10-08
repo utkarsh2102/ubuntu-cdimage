@@ -860,8 +860,8 @@ class Publisher:
             sentences.append("For Raspberry Pi 2 boards.")
         elif arch in ("arm64+raspi", "armhf+raspi",
                       "arm64+raspi3", "armhf+raspi3"):
-            sentences.append("For modern Raspberry Pi boards (Pi 2, Pi 3 and "
-                             "Pi 4).")
+            sentences.append("For modern Raspberry Pi boards (Pi 3, 4, 5, "
+                             "CM4, and Zero 2 W).")
         elif arch == "armel":
             sentences.append("For ARMv7 processors and above.")
         elif arch == "armel+dove":
