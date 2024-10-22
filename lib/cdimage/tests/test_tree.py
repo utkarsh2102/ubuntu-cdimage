@@ -183,7 +183,7 @@ class TestTree(TestCase):
 
             with open(os.path.join(publish_base, "20130321", ".marked_good"),
                       "r") as marked_good:
-                self.assertEqual("oracular-desktop-amd64.iso\n",
+                self.assertEqual("plucky-desktop-amd64.iso\n",
                                  marked_good.read())
 
             publish_current = os.path.join(publish_base, "current")
