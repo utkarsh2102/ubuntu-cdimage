@@ -16,12 +16,8 @@ export IMAGE_FORMAT
 DIST="${DIST:-plucky}"
 
 case $DIST in
-	bionic|focal|jammy)
+	bionic|focal|jammy|noble)
 		PROPOSED="${PROPOSED:-0}"
-		export PROPOSED
-		;;
-	noble)
-		PROPOSED="${PROPOSED:-1}"
 		export PROPOSED
 		;;
 esac
