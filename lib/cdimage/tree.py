@@ -1837,23 +1837,19 @@ class DailyTreePublisher(Publisher):
         return os.path.join(self.tree.project_base, self.image_type_dir)
 
     def size_limit(self, arch):
-        if self.project in ("edubuntu", "ubuntustudio"):
-            if (self.config["DIST"] >= "oracular"
-               and self.project == "edubuntu"):
+        if self.project == "edubuntu":
+            if self.config["DIST"] >= "oracular":
                 # Per IRC discussions on #ubuntu-release 2024-10-07
                 return int(6.9 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "noble" and self.project == "edubuntu":
-                return int(6.4 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "noble":
-                # Per IRC discussions on #ubuntu-release 2023-09-27
-                return int(5.8 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "jammy":
-                # Per IRC discussions on #ubuntu-flavors 2024-02-14
-                return int(5.2 * 1000 * 1000 * 1000)
             else:
-                # All Edubuntu images are DVD sized (including arm).
-                # Ubuntu Studio is always DVD-sized for now.
-                return 4700372992
+                return int(6.4 * 1000 * 1000 * 1000)
+        if self.project == "ubuntustudio":
+            if self.config["DIST"] >= "oracular":
+                # Per IRC discussions on #ubuntu-release 2024-10-22
+                return int(6.8 * 1000 * 1000 * 1000)
+            else:
+                # the 24.04 LTS image was bigger than 24.10's
+                return int(7.7 * 1000 * 1000 * 1000)
         elif self.project in ("kubuntu", "kubuntu-active"):
             # Per Matrix discussions 2024-10-07
             if self.config["DIST"] >= "oracular":

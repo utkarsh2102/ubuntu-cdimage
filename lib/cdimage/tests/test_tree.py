@@ -899,8 +899,8 @@ class TestDailyTreePublisher(TestCase):
 
     def test_size_limit(self):
         for project, dist, image_type, arch, size_limit in (
-            ("ubuntustudio", None, "dvd", "amd64", 5800000000),
-            ("ubuntustudio", "focal", "dvd", "i386", 4700372992),
+            ("ubuntustudio", None, "daily-live", "amd64", 6800000000),
+            ("ubuntustudio", "noble", "daily-live", "amd64", 7700000000),
             ("kubuntu", "jammy", "daily-live", "amd64", 4500000000),
             ("kubuntu", "oracular", "daily-live", "amd64", 4700000000),
             ("ubuntu", "focal", "daily-live", "amd64", 4187593113),
