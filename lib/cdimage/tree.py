@@ -1849,7 +1849,7 @@ class DailyTreePublisher(Publisher):
                 return int(6.8 * 1000 * 1000 * 1000)
             else:
                 # the 24.04 LTS image was bigger than 24.10's
-                return int(7.7 * 1000 * 1000 * 1000)
+                return int(7.3 * 1000 * 1000 * 1000)
         elif self.project in ("kubuntu", "kubuntu-active"):
             # Per Matrix discussions 2024-10-07
             if self.config["DIST"] >= "oracular":
