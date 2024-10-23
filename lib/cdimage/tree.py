@@ -1870,27 +1870,9 @@ class DailyTreePublisher(Publisher):
                 # 2024-10-04, vorlon set to match actual image size after
                 # optimizations
                 return int(6.1 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "mantic":
-                # 2023-09-21, per seb128; size increased due to TPM support
-                return int(5.2 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "jammy":
-                # The 22.04.3 point release was above this limit; work was
-                # done to bring the size down to where it's supposed to be
-                # by correcting the set of i386 packages in the pool, and the
-                # set of nvidia drivers being included.  But the images are
-                # still larger than for 22.04 GA due to added kernels etc.
-                return int(4.7 * 1000 * 1000 * 1000)
-            elif self.config["DIST"] >= "focal":
-                # laney. as of focal we include two kernels on the ISO which
-                # increases its size
-                # Further bumped in mail to internal Desktop team list,
-                # 2020-10-13, acked by seb128
-                # bumped 2022-08-22: LTS images increase in size over time
-                # due to addition of newer nvidia drivers. acked by jbicha
-                return int(3.9 * 1024 * 1024 * 1024)
-            # email with willcooke, 20190801
             else:
-                return int(2.2 * 1000 * 1000 * 1000)
+                # 2024-10-23, vorlon set to match actual image size
+                return int(6.3 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-mate":
             if self.config["DIST"] >= "noble":
                 return int(5 * 1000 * 1000 * 1000)
