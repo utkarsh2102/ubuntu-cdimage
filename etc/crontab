@@ -20,6 +20,13 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 36 11 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=dangerous-beta for-project ubuntu-core cron.daily-live --live
 36 12 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=stable for-project ubuntu-core cron.daily-live --live
 36 13 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=dangerous-stable for-project ubuntu-core cron.daily-live --live
+# Tegra core22 daily builds; using proposed for edge builds; not using
+# EXTRA_PPAS=snappy-dev/image as that should only be needed to build the core
+# snap itself at this point
+37 13 * * *	for channel in edge dangerous; do env PROPOSED=1 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-igx DIST=jammy CHANNEL=$channel for-project ubuntu-core cron.daily-live --live; done
+39 13 * * *	PROPOSED=0 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-igx DIST=jammy CHANNEL=beta for-project ubuntu-core cron.daily-live --live
+40 13 * * *	PROPOSED=0 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-igx DIST=jammy CHANNEL=candidate for-project ubuntu-core cron.daily-live --live
+41 13 * * *	PROPOSED=0 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-igx DIST=jammy CHANNEL=stable for-project ubuntu-core cron.daily-live --live
 # core24 daily builds
 36 14 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=dangerous-edge for-project ubuntu-core cron.daily-live --live
 36 15 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=dangerous-beta for-project ubuntu-core cron.daily-live --live
@@ -39,7 +46,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 49 3 * * *	DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live; DIST=jammy SUBPROJECT=live PROPOSED=0 for-project ubuntu-server cron.daily-live --live
 # Tegra images under the nvidia-tegra subtree; this uses a PPA just to get a
 # backport of livecd-rootfs with u-i 3.x support
-30 2 * * *	CDIMAGE_SUBTREE=nvidia-tegra EXTRA_PPAS="ubuntu-tegra/updates" ARCHES="arm64+tegra arm64+tegra-igx" DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live
+30 2 * * *	CDIMAGE_SUBTREE=nvidia-tegra EXTRA_PPAS="ubuntu-tegra/updates" ARCHES="arm64+tegra arm64+tegra-igx arm64+tegra-jetson" DIST=jammy for-project ubuntu-server cron.daily-preinstalled --live
 37 18 * * *	DIST=jammy for-project ubuntustudio cron.daily-live --live
 49 16 * * *	DIST=jammy for-project lubuntu cron.daily-live --live
 34 22 * * *	DIST=jammy for-project ubuntukylin cron.daily-live --live
