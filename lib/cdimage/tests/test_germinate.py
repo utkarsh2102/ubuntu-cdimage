@@ -94,22 +94,8 @@ class TestGermination(TestCase):
                 for owner in owners]
             self.assertEqual(sources, self.germination.seed_sources())
 
-    def test_seed_sources_non_bzr(self):
-        self.germination = Germination(self.config, prefer_vcs=False)
-        self.config["DIST"] = "bionic"
-        self.config["PROJECT"] = "ubuntu"
-        self.assertEqual(
-            ["http://people.canonical.com/~ubuntu-archive/seeds/"],
-            self.germination.seed_sources())
-
     def test_use_vcs_local_seeds(self):
         self.config["LOCAL_SEEDS"] = "http://www.example.org/"
-        self.assertFalse(self.germination.use_vcs)
-
-    def test_use_vcs_honours_preference(self):
-        self.assertTrue(self.germination.prefer_vcs)
-        self.assertTrue(self.germination.use_vcs)
-        self.germination.prefer_vcs = False
         self.assertFalse(self.germination.use_vcs)
 
     def test_germinate_dists_environment_override(self):

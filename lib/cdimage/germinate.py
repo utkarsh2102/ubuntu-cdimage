@@ -34,10 +34,8 @@ class GerminateNotInstalled(Exception):
 
 
 class Germination:
-    def __init__(self, config, prefer_vcs=True, apt_state_mgr=None):
+    def __init__(self, config, apt_state_mgr=None):
         self.config = config
-        # Set to False to use old-style seed checkouts.
-        self.prefer_vcs = prefer_vcs
         self.apt_state_mgr = apt_state_mgr
 
     @property
@@ -60,7 +58,7 @@ class Germination:
         project = self.config.project
         if self.config["LOCAL_SEEDS"]:
             return [self.config["LOCAL_SEEDS"]]
-        elif self.prefer_vcs:
+        else:
             gitpattern = "https://git.launchpad.net/~%s/ubuntu-seeds/+git/"
             sources = [gitpattern % "ubuntu-core-dev"]
             if project == "kubuntu":
@@ -88,16 +86,11 @@ class Germination:
             elif project == "ubuntu-oem":
                 sources.insert(0, gitpattern % "oem-solutions-engineers")
             return sources
-        else:
-            return ["http://people.canonical.com/~ubuntu-archive/seeds/"]
 
     @property
     def use_vcs(self):
-        if self.config["LOCAL_SEEDS"]:
-            # Local changes may well not be committed.
-            return False
-        else:
-            return self.prefer_vcs
+        # Local changes may well not be committed.
+        return not bool(self.config["LOCAL_SEEDS"])
 
     @property
     def germinate_dists(self):
