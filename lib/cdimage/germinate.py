@@ -223,7 +223,11 @@ class GerminateOutput:
         return os.path.join(self.directory, arch, seed)
 
     def seed_packages(self, arch, seed):
-        with open(self.seed_path(arch, seed)) as seed_file:
+        try:
+            seed_file = open(self.seed_path(arch, seed))
+        except FileNotFoundError:
+            return []
+        with seed_file:
             lines = seed_file.read().splitlines()[2:-2]
             return [line.split(None, 1)[0] for line in lines]
 
@@ -242,9 +246,15 @@ class GerminateOutput:
 
     def write_tasks(self):
         output_dir = self.tasks_output_dir()
-        osextras.mkemptydir(self.tasks_output_dir())
+        osextras.mkemptydir(output_dir)
 
         for arch in self.config.arches:
+            arch_packages = set()
+            for seed in self.pool_seeds():
+                arch_packages.update(self.seed_packages(arch, seed))
+            with open(os.path.join(output_dir, f"{arch}-packages"), "w") as fp:
+                for package in sorted(arch_packages):
+                    print(package, file=fp)
             cpparch = arch.replace("+", "_").replace("-", "_")
             for seed in self._seeds:
                 if not os.path.exists(self.seed_path(arch, seed)):
@@ -262,9 +272,13 @@ class GerminateOutput:
     def diff_tasks(self, output=None):
         tasks_dir = self.tasks_output_dir()
         previous_tasks_dir = "%s-previous" % tasks_dir
-        for seed in ["MASTER"] + list(self._seeds):
-            old = os.path.join(previous_tasks_dir, seed)
-            new = os.path.join(tasks_dir, seed)
+        filenames = ["MASTER"] + list(self._seeds)
+        for arch in self.config.arches:
+            filenames.append(f"{arch}-packages")
+
+        for filename in filenames:
+            old = os.path.join(previous_tasks_dir, filename)
+            new = os.path.join(tasks_dir, filename)
             if os.path.exists(old) and os.path.exists(new):
                 kwargs = {}
                 if output is not None:
