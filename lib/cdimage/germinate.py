@@ -20,11 +20,9 @@ from __future__ import print_function
 import os
 import shutil
 import subprocess
-import traceback
 
 from cdimage import osextras
 from cdimage.log import logger
-from cdimage.mail import send_mail
 from cdimage.mirror import find_mirror
 from cdimage.proxy import proxy_check_call
 
@@ -261,34 +259,6 @@ class GerminateOutput:
             self.config.root, "debian-cd", "tasks", "auto",
             self.config.image_type, self.config.project,
             self.config.full_series)
-
-        task_recipients = []
-        task_mail_path = os.path.join(self.config.root, "etc", "task-mail")
-        if os.path.exists(task_mail_path):
-            with open(task_mail_path) as task_mail:
-                task_recipients = task_mail.read().split()
-        if task_recipients:
-            read, write = os.pipe()
-            pid = os.fork()
-            if pid == 0:  # child
-                try:
-                    os.close(read)
-                    with os.fdopen(write, "w", 1) as write_file:
-                        self.diff_tasks(output=write_file)
-                    os._exit(0)
-                except Exception:
-                    traceback.print_exc()
-                finally:
-                    os._exit(1)
-            else:  # parent
-                os.close(write)
-                with os.fdopen(read) as read_file:
-                    send_mail(
-                        "Task changes for %s %s/%s on %s" % (
-                            self.config.capproject, self.config.image_type,
-                            self.config.full_series, date),
-                        "update-tasks", task_recipients, read_file)
-                os.waitpid(pid, 0)
 
         self.diff_tasks()
 

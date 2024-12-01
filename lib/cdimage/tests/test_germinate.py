@@ -19,10 +19,7 @@
 
 from __future__ import print_function
 
-from functools import partial
 import os
-import subprocess
-from textwrap import dedent
 
 try:
     from unittest import mock
@@ -36,7 +33,6 @@ from cdimage.germinate import (
     Germination,
     NoMasterSeeds,
 )
-from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch, StubAptStateManager
 
 __metaclass__ = type
@@ -479,7 +475,7 @@ class TestGerminateOutput(TestCase):
         ])
 
     @mock.patch("cdimage.germinate.GerminateOutput.diff_tasks")
-    def test_update_tasks_no_mail(self, mock_diff_tasks):
+    def test_update_tasks(self, mock_diff_tasks):
         self.write_ubuntu_structure()
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
@@ -498,89 +494,3 @@ class TestGerminateOutput(TestCase):
                 "ubuntu", "bionic")))
         self.assertCountEqual(
             ["required", "minimal"], os.listdir("%s-previous" % output_dir))
-
-    @mock.patch("cdimage.germinate.send_mail")
-    @mock.patch("cdimage.germinate.GerminateOutput.diff_tasks")
-    def test_update_tasks_no_recipients(self, mock_diff_tasks, mock_send_mail):
-        self.write_ubuntu_structure()
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily-live"
-        self.config["PROJECT"] = "ubuntu"
-        output = GerminateOutput(self.config, self.temp_dir)
-        os.makedirs(output.tasks_output_dir())
-        output.update_tasks("20130319")
-        self.assertEqual(0, mock_send_mail.call_count)
-        task_mail_path = os.path.join(self.temp_dir, "etc", "task-mail")
-        touch(task_mail_path)
-        output.update_tasks("20130319")
-        self.assertEqual(0, mock_send_mail.call_count)
-
-    def send_mail_to_file(self, path, subject, generator, recipients, body,
-                          dry_run=False):
-        with mkfile(path) as f:
-            print("To: %s" % ", ".join(recipients), file=f)
-            print("Subject: %s" % subject, file=f)
-            print("X-Generated-By: %s" % generator, file=f)
-            print("", file=f)
-            if isinstance(body, text_file_type):
-                for line in body:
-                    print(line.rstrip("\n"), file=f)
-            else:
-                for line in body.splitlines():
-                    print(line, file=f)
-
-    @mock.patch("cdimage.germinate.send_mail")
-    def test_update_tasks_sends_mail(self, mock_send_mail):
-        original_call = subprocess.call
-
-        def call_side_effect(command, *args, **kwargs):
-            if (len(command) >= 4 and command[:2] == ["diff", "-u"] and
-                    "stdout" in kwargs):
-                old = os.path.basename(command[2])
-                new = os.path.basename(command[3])
-                original_call(
-                    ["printf", "%s\\n", "--- %s" % old], *args, **kwargs)
-                original_call(
-                    ["printf", "%s\\n", "+++ %s" % new], *args, **kwargs)
-                return 1
-            else:
-                return original_call(command, *args, **kwargs)
-
-        self.write_ubuntu_structure()
-        self.config["PROJECT"] = "ubuntu"
-        self.config["CAPPROJECT"] = "Ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily-live"
-        self.config["ARCHES"] = "amd64 s390x"
-        output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
-            "tasks")
-        touch(os.path.join(output_dir, "required"))
-        touch(os.path.join(output_dir, "amd64-packages"))
-        touch(os.path.join(output_dir, "s390x-packages"))
-        touch(os.path.join(output_dir, "minimal"))
-        touch(os.path.join(output_dir, "standard"))
-        touch(os.path.join("%s-previous" % output_dir, "minimal"))
-        touch(os.path.join("%s-previous" % output_dir, "standard"))
-        touch(os.path.join("%s-previous" % output_dir, "amd64-packages"))
-        touch(os.path.join("%s-previous" % output_dir, "s390x-packages"))
-        task_mail_path = os.path.join(self.temp_dir, "etc", "task-mail")
-        with mkfile(task_mail_path) as task_mail:
-            print("foo@example.org", file=task_mail)
-        mock_send_mail.side_effect = partial(
-            self.send_mail_to_file, os.path.join(self.temp_dir, "mail"))
-        output = GerminateOutput(self.config, self.temp_dir)
-        with mock.patch("subprocess.call", side_effect=call_side_effect):
-            output.update_tasks("20130319")
-        with open(os.path.join(self.temp_dir, "mail")) as mail:
-            self.assertEqual(dedent("""\
-                To: foo@example.org
-                Subject: Task changes for Ubuntu daily-live/bionic on 20130319
-                X-Generated-By: update-tasks
-
-                --- amd64-packages
-                +++ amd64-packages
-                --- s390x-packages
-                +++ s390x-packages
-                """), mail.read())
