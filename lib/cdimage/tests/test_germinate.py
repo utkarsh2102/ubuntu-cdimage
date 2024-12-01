@@ -451,6 +451,7 @@ class TestGerminateOutput(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
+        self.config["ARCHES"] = "amd64 s390x"
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "tasks")
@@ -459,18 +460,22 @@ class TestGerminateOutput(TestCase):
         touch(os.path.join(output_dir, "standard"))
         touch(os.path.join("%s-previous" % output_dir, "minimal"))
         touch(os.path.join("%s-previous" % output_dir, "standard"))
+        touch(os.path.join(output_dir, "amd64-packages"))
+        touch(os.path.join(output_dir, "s390x-packages"))
+        touch(os.path.join("%s-previous" % output_dir, "amd64-packages"))
+        touch(os.path.join("%s-previous" % output_dir, "s390x-packages"))
         output = GerminateOutput(self.config, self.temp_dir)
         output.diff_tasks()
         self.assertEqual(2, mock_call.call_count)
         mock_call.assert_has_calls([
             mock.call([
                 "diff", "-u",
-                os.path.join("%s-previous" % output_dir, "minimal"),
-                os.path.join(output_dir, "minimal")]),
+                os.path.join("%s-previous" % output_dir, "amd64-packages"),
+                os.path.join(output_dir, "amd64-packages")]),
             mock.call([
                 "diff", "-u",
-                os.path.join("%s-previous" % output_dir, "standard"),
-                os.path.join(output_dir, "standard")]),
+                os.path.join("%s-previous" % output_dir, "s390x-packages"),
+                os.path.join(output_dir, "s390x-packages")]),
         ])
 
     @mock.patch("cdimage.germinate.GerminateOutput.diff_tasks")
@@ -547,14 +552,19 @@ class TestGerminateOutput(TestCase):
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily-live"
+        self.config["ARCHES"] = "amd64 s390x"
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "tasks")
         touch(os.path.join(output_dir, "required"))
+        touch(os.path.join(output_dir, "amd64-packages"))
+        touch(os.path.join(output_dir, "s390x-packages"))
         touch(os.path.join(output_dir, "minimal"))
         touch(os.path.join(output_dir, "standard"))
         touch(os.path.join("%s-previous" % output_dir, "minimal"))
         touch(os.path.join("%s-previous" % output_dir, "standard"))
+        touch(os.path.join("%s-previous" % output_dir, "amd64-packages"))
+        touch(os.path.join("%s-previous" % output_dir, "s390x-packages"))
         task_mail_path = os.path.join(self.temp_dir, "etc", "task-mail")
         with mkfile(task_mail_path) as task_mail:
             print("foo@example.org", file=task_mail)
@@ -569,8 +579,8 @@ class TestGerminateOutput(TestCase):
                 Subject: Task changes for Ubuntu daily-live/bionic on 20130319
                 X-Generated-By: update-tasks
 
-                --- minimal
-                +++ minimal
-                --- standard
-                +++ standard
+                --- amd64-packages
+                +++ amd64-packages
+                --- s390x-packages
+                +++ s390x-packages
                 """), mail.read())

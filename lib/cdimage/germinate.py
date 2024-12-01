@@ -189,17 +189,6 @@ class GerminateOutput:
     def __init__(self, config, directory):
         self.config = config
         self.directory = directory
-        self.structure = os.path.join(directory, "STRUCTURE")
-        self._parse_structure()
-
-    def _parse_structure(self):
-        self._seeds = []
-        with open(self.structure) as structure:
-            for line in structure:
-                line = line.strip()
-                if not line or line.startswith("#") or ":" not in line:
-                    continue
-                self._seeds.append(line.split(":", 1)[0])
 
     def pool_seeds(self):
         if not self.config["CDIMAGE_LIVE"]:
@@ -252,7 +241,7 @@ class GerminateOutput:
     def diff_tasks(self, output=None):
         tasks_dir = self.tasks_output_dir()
         previous_tasks_dir = "%s-previous" % tasks_dir
-        filenames = list(self._seeds)
+        filenames = []
         for arch in self.config.arches:
             filenames.append(f"{arch}-packages")
 
