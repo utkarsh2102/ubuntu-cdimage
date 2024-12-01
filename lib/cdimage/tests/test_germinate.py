@@ -42,7 +42,7 @@ class TestGermination(TestCase):
     def setUp(self):
         super(TestGermination, self).setUp()
         self.config = Config(read=False)
-        self.germination = Germination(self.config)
+        self.germination = Germination(self.config, StubAptStateManager())
 
     def test_germinate_path(self):
         self.config.root = self.use_temp_dir()
@@ -98,29 +98,6 @@ class TestGermination(TestCase):
         self.config["LOCAL_SEEDS"] = "http://www.example.org/"
         self.assertFalse(self.germination.use_vcs)
 
-    def test_germinate_dists_environment_override(self):
-        self.config["GERMINATE_DISTS"] = "sentinel,sentinel-updates"
-        self.assertEqual(
-            ["sentinel", "sentinel-updates"], self.germination.germinate_dists)
-
-    def test_germinate_dists_proposed(self):
-        self.config["DIST"] = "bionic"
-        self.config["PROPOSED"] = "1"
-        self.assertEqual([
-            "bionic",
-            "bionic-security",
-            "bionic-updates",
-            "bionic-proposed",
-        ], self.germination.germinate_dists)
-
-    def test_germinate_dists_no_proposed(self):
-        self.config["DIST"] = "bionic"
-        self.assertEqual([
-            "bionic",
-            "bionic-security",
-            "bionic-updates",
-        ], self.germination.germinate_dists)
-
     def test_seed_dist(self):
         for project, series, seed_dist in (
             ("ubuntu", "bionic", "ubuntu.bionic"),
@@ -131,19 +108,6 @@ class TestGermination(TestCase):
             self.config["DIST"] = series
             self.config["PROJECT"] = project
             self.assertEqual(seed_dist, self.germination.seed_dist())
-
-    def test_components(self):
-        self.assertEqual(
-            ["main", "restricted"], list(self.germination.components))
-        self.config["CDIMAGE_UNSUPPORTED"] = "1"
-        self.assertEqual(
-            ["main", "restricted", "universe", "multiverse"],
-            list(self.germination.components))
-        self.config["CDIMAGE_ONLYFREE"] = "1"
-        self.assertEqual(
-            ["main", "universe"], list(self.germination.components))
-        del self.config["CDIMAGE_UNSUPPORTED"]
-        self.assertEqual(["main"], list(self.germination.components))
 
     @mock.patch("subprocess.check_call")
     def test_germinate_arch(self, mock_check_call):
@@ -162,43 +126,7 @@ class TestGermination(TestCase):
             touch(os.path.join(output_dir, "amd64", "structure"))
 
         mock_check_call.side_effect = check_call_side_effect
-        self.germination.germinate_arch("amd64")
-        expected_command = [
-            germinate_path,
-            "--seed-source",
-            "https://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/",
-            "--seed-dist", "ubuntu.bionic",
-            "--arch", "amd64",
-            "--no-rdepends",
-            "--mirror", "http://ftpmaster.internal/ubuntu/",
-            "--components", "main,restricted",
-            "--dist", "bionic,bionic-security,bionic-updates",
-            "--vcs=git",
-        ]
-        self.assertEqual(1, mock_check_call.call_count)
-        self.assertEqual(expected_command, mock_check_call.call_args[0][0])
-        self.assertEqual(
-            "%s/amd64" % output_dir, mock_check_call.call_args[1]["cwd"])
 
-    @mock.patch("subprocess.check_call")
-    def test_germinate_arch_with_apt_state_manager(self, mock_check_call):
-        self.config.root = self.use_temp_dir()
-        germinate_path = os.path.join(
-            self.temp_dir, "germinate", "bin", "germinate")
-        touch(germinate_path)
-        os.chmod(germinate_path, 0o755)
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily"
-        self.config["PROJECT"] = "ubuntu"
-
-        output_dir = "%s/scratch/ubuntu/bionic/daily/germinate" % self.temp_dir
-
-        def check_call_side_effect(*args, **kwargs):
-            touch(os.path.join(output_dir, "amd64", "structure"))
-
-        mock_check_call.side_effect = check_call_side_effect
-
-        self.germination.apt_state_mgr = StubAptStateManager()
         self.germination.germinate_arch("amd64")
         expected_command = [
             germinate_path,

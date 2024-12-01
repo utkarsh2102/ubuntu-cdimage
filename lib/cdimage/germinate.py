@@ -23,7 +23,6 @@ import subprocess
 
 from cdimage import osextras
 from cdimage.log import logger
-from cdimage.mirror import find_mirror
 from cdimage.proxy import proxy_check_call
 
 __metaclass__ = type
@@ -34,7 +33,7 @@ class GerminateNotInstalled(Exception):
 
 
 class Germination:
-    def __init__(self, config, apt_state_mgr=None):
+    def __init__(self, config, apt_state_mgr):
         self.config = config
         self.apt_state_mgr = apt_state_mgr
 
@@ -92,16 +91,6 @@ class Germination:
         # Local changes may well not be committed.
         return not bool(self.config["LOCAL_SEEDS"])
 
-    @property
-    def germinate_dists(self):
-        if self.config["GERMINATE_DISTS"]:
-            return self.config["GERMINATE_DISTS"].split(",")
-        else:
-            dist_patterns = ["%s", "%s-security", "%s-updates"]
-            if self.config.get("PROPOSED", "0") not in ("", "0"):
-                dist_patterns.append("%s-proposed")
-            return [pattern % self.config.series for pattern in dist_patterns]
-
     def seed_dist(self):
         project = self.config.project
         if project in ("ubuntu-server", "ubuntu-core-desktop"):
@@ -112,16 +101,6 @@ class Germination:
             return "lubuntu.%s" % self.config.series
         else:
             return "%s.%s" % (project, self.config.series)
-
-    @property
-    def components(self):
-        yield "main"
-        if not self.config["CDIMAGE_ONLYFREE"]:
-            yield "restricted"
-        if self.config["CDIMAGE_UNSUPPORTED"]:
-            yield "universe"
-            if not self.config["CDIMAGE_ONLYFREE"]:
-                yield "multiverse"
 
     # TODO: convert to Germinate's native Python interface
     def germinate_arch(self, arch):
@@ -140,17 +119,8 @@ class Germination:
             "--seed-dist", self.seed_dist(),
             "--arch", cpuarch,
             "--no-rdepends",
+            "--apt-config", self.apt_state_mgr.apt_conf_for_arch(cpuarch),
         ]
-        if self.apt_state_mgr is not None:
-            command.extend([
-                "--apt-config", self.apt_state_mgr.apt_conf_for_arch(cpuarch),
-                ])
-        else:
-            command.extend([
-                "--mirror", find_mirror(self.config.project, arch),
-                "--components", ",".join(self.components),
-                "--dist", ",".join(self.germinate_dists),
-                ])
         if self.use_vcs:
             command.append("--vcs=git")
         proxy_check_call(
