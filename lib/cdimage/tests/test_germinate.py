@@ -390,22 +390,6 @@ class TestGerminateOutput(TestCase):
             ["base-files", "base-passwd"],
             output.seed_packages("i386", "base"))
 
-    @mock.patch("cdimage.germinate.GerminateOutput.pool_seeds")
-    def test_master_task_entries(self, mock_pool_seeds):
-        def side_effect():
-            yield "required"
-            yield "minimal"
-
-        self.write_ubuntu_structure()
-        output = GerminateOutput(self.config, self.temp_dir)
-        self.config["DIST"] = "bionic"
-        self.config["PROJECT"] = "ubuntu"
-        mock_pool_seeds.side_effect = side_effect
-        self.assertEqual([
-            "#include <ubuntu/bionic/required>",
-            "#include <ubuntu/bionic/minimal>",
-        ], list(output.master_task_entries()))
-
     def test_pool_seeds_invalid_config(self):
         self.write_ubuntu_structure()
         output = GerminateOutput(self.config, self.temp_dir)
@@ -454,58 +438,8 @@ class TestGerminateOutput(TestCase):
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live",
             "tasks")
         self.assertCountEqual([
-            "required", "minimal", "desktop", "live", "ship-live",
             "amd64-packages", "i386-packages",
-            "MASTER",
         ], os.listdir(output_dir))
-        with open(os.path.join(output_dir, "required")) as f:
-            self.assertEqual(
-                dedent("""\
-                    #ifdef ARCH_amd64
-                    base-files-amd64
-                    #endif /* ARCH_amd64 */
-                    #ifdef ARCH_i386
-                    base-files-i386
-                    #endif /* ARCH_i386 */
-                    """),
-                f.read())
-        with open(os.path.join(output_dir, "minimal")) as f:
-            self.assertEqual(
-                dedent("""\
-                    #ifdef ARCH_amd64
-                    adduser-amd64
-                    #endif /* ARCH_amd64 */
-                    #ifdef ARCH_i386
-                    adduser-i386
-                    #endif /* ARCH_i386 */
-                    """),
-                f.read())
-        with open(os.path.join(output_dir, "desktop")) as f:
-            self.assertEqual(
-                dedent("""\
-                    #ifdef ARCH_amd64
-                    firefox
-                    xterm
-                    #endif /* ARCH_amd64 */
-                    #ifdef ARCH_i386
-                    firefox
-                    xterm
-                    #endif /* ARCH_i386 */
-                    """),
-                f.read())
-        with open(os.path.join(output_dir, "live")) as f:
-            self.assertEqual(
-                dedent("""\
-                    #ifdef ARCH_amd64
-                    xterm
-                    #endif /* ARCH_amd64 */
-                    #ifdef ARCH_i386
-                    xterm
-                    #endif /* ARCH_i386 */
-                    """),
-                f.read())
-        with open(os.path.join(output_dir, "MASTER")) as f:
-            self.assertEqual("#include <ubuntu/bionic/ship-live>\n", f.read())
         with open(os.path.join(output_dir, "amd64-packages")) as f:
             self.assertEqual("pool-pkg-amd64\n", f.read())
         with open(os.path.join(output_dir, "i386-packages")) as f:

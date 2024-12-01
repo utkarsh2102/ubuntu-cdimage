@@ -231,13 +231,6 @@ class GerminateOutput:
             lines = seed_file.read().splitlines()[2:-2]
             return [line.split(None, 1)[0] for line in lines]
 
-    def master_task_entries(self):
-        project = self.config.project
-        series = self.config.series
-
-        for seed in self.pool_seeds():
-            yield "#include <%s/%s/%s>" % (project, series, seed)
-
     def tasks_output_dir(self):
         return os.path.join(
             self.config.root, "scratch", self.config.subtree,
@@ -255,24 +248,11 @@ class GerminateOutput:
             with open(os.path.join(output_dir, f"{arch}-packages"), "w") as fp:
                 for package in sorted(arch_packages):
                     print(package, file=fp)
-            cpparch = arch.replace("+", "_").replace("-", "_")
-            for seed in self._seeds:
-                if not os.path.exists(self.seed_path(arch, seed)):
-                    continue
-                with open(os.path.join(output_dir, seed), "a") as task_file:
-                    print("#ifdef ARCH_%s" % cpparch, file=task_file)
-                    for package in sorted(self.seed_packages(arch, seed)):
-                        print(package, file=task_file)
-                    print("#endif /* ARCH_%s */" % cpparch, file=task_file)
-
-            with open(os.path.join(output_dir, "MASTER"), "w") as master:
-                for entry in self.master_task_entries():
-                    print(entry, file=master)
 
     def diff_tasks(self, output=None):
         tasks_dir = self.tasks_output_dir()
         previous_tasks_dir = "%s-previous" % tasks_dir
-        filenames = ["MASTER"] + list(self._seeds)
+        filenames = list(self._seeds)
         for arch in self.config.arches:
             filenames.append(f"{arch}-packages")
 
