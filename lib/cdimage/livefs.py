@@ -712,6 +712,26 @@ def write_autorun(config, arch, name, label):
             VideoFiles=false""")) % (u(name), u(name), u(label)), file=autorun)
 
 
+def direct_download_paths(lp_builds):
+    paths = []
+    for lp_build in lp_builds:
+        uris = list(lp_build.getFileUrls())
+        arch = lp_build.distro_arch_series.architecture_tag
+        try:
+            metadata_subarch = lp_build.metadata_override.get("subarch", "")
+        except AttributeError:
+            metadata_subarch = ""
+        prefix = arch
+        if metadata_subarch:
+            prefix += "+" + metadata_subarch
+        prefix += "."
+        for uri in uris:
+            base = unquote(os.path.basename(uri))
+            base = base.split('.', 2)[2]
+            paths.append(prefix + base)
+    return paths
+
+
 def download_live_filesystems(config, builds):
     project = config.project
 
@@ -810,3 +830,13 @@ def download_live_filesystems(config, builds):
             if arch == "arm64":
                 download_live_items(config, builds, arch,
                                     "dragonboard.kernel.snap")
+
+    if builds is not None:
+        actual = sorted(os.listdir(output_dir))
+        expected = sorted(direct_download_paths(builds))
+        if actual != expected:
+            import difflib
+            print("DOWNLOADED PATHS DID NOT MATCH DIRECT DOWNLOAD!")
+            print("\n".join(difflib.unified_diff(actual, expected, fromfile="actual", tofile="direct", lineterm="")))
+        else:
+            print("Downloaded paths matched direct download")
