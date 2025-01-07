@@ -728,7 +728,12 @@ def direct_download_paths(lp_builds):
         for uri in uris:
             base = unquote(os.path.basename(uri))
             base = base.split('.', 2)[2]
-            paths.append(prefix + base)
+            path = prefix + base
+            if path.endswith(".manifest.full"):
+                continue
+            paths.append(path)
+            if path.endswith('.squashfs'):
+                paths.append(path + '.gpg')
     return paths
 
 
@@ -837,6 +842,8 @@ def download_live_filesystems(config, builds):
         if actual != expected:
             import difflib
             print("DOWNLOADED PATHS DID NOT MATCH DIRECT DOWNLOAD!")
-            print("\n".join(difflib.unified_diff(actual, expected, fromfile="actual", tofile="direct", lineterm="")))
+            print("\n".join(difflib.unified_diff(
+                actual, expected,
+                fromfile="actual", tofile="direct", lineterm="")))
         else:
             print("Downloaded paths matched direct download")
