@@ -1916,7 +1916,11 @@ class DailyTreePublisher(Publisher):
             else:
                 return int(2.0 * (1000 ** 3))
         elif self.project == "ubuntu-server":
-            if self.config["DIST"] >= "jammy":
+            if self.config["DIST"] >= "noble":
+                # As of today (2025-01-25) the riscv64 noble images reach
+                # 3.41 GB. Let's use a limit that fits on a 4 GB USB stick.
+                return int(3.6 * 1000 * 1000 * 1000)
+            elif self.config["DIST"] >= "jammy":
                 # Our images have been >2GB for quite some time now, and nobody
                 # complained. Looks like 4GB USB sticks are common enough.
                 # The next limit not to cross are the 4.7GB of a standard
