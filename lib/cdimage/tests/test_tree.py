@@ -919,6 +919,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-server", "focal", "daily", "amd64", 1500000000),
             ("ubuntu-server", "jammy", "daily", "amd64", 3300000000),
             ("ubuntu-server", "jammy", "daily", "ppc64el", 3300000000),
+            ("ubuntu-server", "noble", "daily", "riscv64", 3600000000),
         ):
             if dist is not None:
                 self.config["DIST"] = dist
