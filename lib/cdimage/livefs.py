@@ -607,9 +607,6 @@ def live_output_directory(config):
 
 
 def download_live_items(config, builds, arch, item):
-    if config['CDIMAGE_LOCAL_LIVEFS_ARTIFACTS']:
-        return True
-
     output_dir = live_output_directory(config)
     found = False
 
@@ -744,6 +741,7 @@ def download_live_filesystems(config, builds):
             destpath = os.path.join(output_dir, destname)
             logger.info("linking %r to %r", srcpath, destpath)
             os.link(srcpath, destpath)
+        return
 
     if (config["CDIMAGE_LIVE"] or config["CDIMAGE_PREINSTALLED"]):
         got_image = False
