@@ -369,7 +369,7 @@ def run_live_builds(config):
             builds[proc.pid] = (proc, arch, full_name, machine)
 
     successful = set()
-    successful_builds = []
+    successful_builds = {}
 
     def live_build_finished(arch, full_name, machine, status, text_status,
                             lp_build=None):
@@ -380,7 +380,7 @@ def run_live_builds(config):
             tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
             successful.add(arch)
             if lp_build:
-                successful_builds.append(lp_build)
+                successful_builds[arch] = lp_build
         else:
             tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
             live_build_notify_failure(config, arch, lp_build=lp_build)
@@ -520,16 +520,7 @@ def live_item_paths(config, builds, arch, item):
     uris = []
     root = ""
     if builds is not None:
-        for build in builds:
-            try:
-                metadata_subarch = build.metadata_override.get("subarch", "")
-            except AttributeError:
-                metadata_subarch = ""
-            if (build.distro_arch_series.architecture_tag == cpuarch
-                    and metadata_subarch == subarch
-                    and build.buildstate == "Successfully built"):
-                lp_build = build
-                break
+        lp_build = builds[arch]
         uris = list(lp_build.getFileUrls())
     else:
         # Fallback to the old way of doing things
@@ -715,25 +706,18 @@ def write_autorun(config, arch, name, label):
             VideoFiles=false""")) % (u(name), u(name), u(label)), file=autorun)
 
 
-def direct_download_paths(lp_builds):
+def direct_download_paths(config, lp_builds):
     paths = []
-    for lp_build in lp_builds:
-        uris = list(lp_build.getFileUrls())
-        arch = lp_build.distro_arch_series.architecture_tag
-        try:
-            metadata_subarch = lp_build.metadata_override.get("subarch", "")
-        except AttributeError:
-            metadata_subarch = ""
-        prefix = arch
-        if metadata_subarch:
-            prefix += "+" + metadata_subarch
-        prefix += "."
-        for uri in uris:
+    for arch, lp_build in lp_builds.items():
+        for uri in lp_build.getFileUrls():
             base = unquote(os.path.basename(uri))
             base = base.split('.', 2)[2]
-            path = prefix + base
-            if path.endswith(".manifest.full"):
+            ext = base.split('.')[-1]
+            if ext in ('full', 'filelist', 'ext2', 'ext3', 'ext4'):
                 continue
+            if config.project == "ubuntu-mini-iso" and base == "rootfs.tar.gz":
+                continue
+            path = arch + '.' + base
             paths.append(path)
             if path.endswith('.squashfs'):
                 paths.append(path + '.gpg')
