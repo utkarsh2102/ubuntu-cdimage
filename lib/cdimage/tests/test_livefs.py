@@ -1252,3 +1252,131 @@ class TestDownloadLiveFilesystems(TestCase):
             "i386.size",
             "i386.squashfs",
         ], os.listdir(output_dir))
+
+    def assertDirectDownloadArtifacts(
+        self, *, project, built_artefacts, expected_downloads
+    ):
+        self.config["PROJECT"] = project
+        self.config["DIST"] = "plucky"
+        self.config["ARCHES"] = " ".join(list(built_artefacts))
+        builds = {}
+        for arch, names in built_artefacts.items():
+            builds[arch] = build = MockLiveFSBuild()
+            build.getFileUrls.return_value = [
+                f"http://librarian.internal/xzy/{name}" for name in names
+            ]
+
+        output_dir = live_output_directory(self.config).rstrip("/") + "/"
+        downloads = []
+
+        def mock_fetch(config, uri, target):
+            downloads.append(target[len(output_dir):])
+
+        def mock_sign(config, target):
+            downloads.append(target[len(output_dir):] + ".gpg")
+
+        with mock.patch("cdimage.osextras.fetch", mock_fetch):
+            with mock.patch("cdimage.sign.sign_cdimage", mock_sign):
+                download_live_filesystems(self.config, builds)
+
+        self.assertEqual(sorted(downloads), sorted(expected_downloads))
+
+    def loadDataFile(self, path):
+        fullpath = os.path.join(os.path.dirname(__file__), "data", path)
+        with open(fullpath) as fp:
+            return [line.strip() for line in fp]
+
+    def test_simplified_ubuntu(self):
+        # All builds are in practice a bit more complicated than
+        # this. But it helps to have a simpler test case for ease of
+        # understanding.
+        self.config["CDIMAGE_LIVE"] = "1"
+        self.assertDirectDownloadArtifacts(
+            project="ubuntu",
+            built_artefacts={
+                "amd64": ["livecd.ubuntu.filesystem.squashfs"],
+                "arm64": ["livecd.ubuntu.filesystem.squashfs"],
+            },
+            expected_downloads=[
+                "amd64.filesystem.squashfs",
+                "amd64.filesystem.squashfs.gpg",
+                "arm64.filesystem.squashfs",
+                "arm64.filesystem.squashfs.gpg",
+            ],
+        )
+
+    def test_ubuntu_server_preinstalled(self):
+        # Some preinstalled server livefs builds produce artifacts
+        # (.ext4 and .filelist) which are not used, so we skip
+        # downloading them.
+        self.config["CDIMAGE_PREINSTALLED"] = "1"
+        self.assertDirectDownloadArtifacts(
+            project="ubuntu-server",
+            built_artefacts={
+                "amd64": [
+                    "livecd.ubuntu-cpc-generic.ext4",
+                    "livecd.ubuntu-cpc-generic.filelist",
+                    "livecd.ubuntu-cpc-generic.initrd-generic",
+                    "livecd.ubuntu-cpc-generic.kernel-generic",
+                    "livecd.ubuntu-cpc-generic.manifest",
+                    "livecd.ubuntu-cpc.disk1.img.xz",
+                ],
+                "arm64": [
+                    "livecd.ubuntu-cpc-generic.ext4",
+                    "livecd.ubuntu-cpc-generic.filelist",
+                    "livecd.ubuntu-cpc-generic.initrd-generic",
+                    "livecd.ubuntu-cpc-generic.kernel-generic",
+                    "livecd.ubuntu-cpc-generic.manifest",
+                    "livecd.ubuntu-cpc.disk1.img.xz",
+                ],
+                "arm64+raspi": [
+                    "livecd.ubuntu-cpc-raspi.img.xz",
+                    "livecd.ubuntu-cpc-raspi.manifest",
+                ],
+            },
+            expected_downloads=[
+                "amd64.disk1.img.xz",
+                "amd64.initrd-generic",
+                "amd64.kernel-generic",
+                "amd64.manifest",
+                "arm64+raspi.img.xz",
+                "arm64+raspi.manifest",
+                "arm64.disk1.img.xz",
+                "arm64.initrd-generic",
+                "arm64.kernel-generic",
+                "arm64.manifest",
+            ],
+        )
+
+    def test_ubuntu_mini_iso(self):
+        # The mini iso build creates a rootfs.tar.gz artifact (for
+        # now). Do not download it.
+        self.config["CDIMAGE_LIVE"] = "1"
+        self.assertDirectDownloadArtifacts(
+            project="ubuntu-mini-iso",
+            built_artefacts={
+                "amd64": [
+                    "livecd.ubuntu-mini-iso.iso",
+                    "livecd.ubuntu-mini-iso.manifest",
+                    "livecd.ubuntu-mini-iso.rootfs.tar.gz",
+                ],
+            },
+            expected_downloads=[
+                "amd64.iso",
+                "amd64.manifest",
+            ],
+        )
+
+    def test_full_ubuntu(self):
+        # This test case is a record of the existing behaviour of a
+        # build of the "ubuntu" project (specifically the 20240114
+        # build for plucky) for regression testing.
+        self.config["CDIMAGE_LIVE"] = "1"
+        self.assertDirectDownloadArtifacts(
+            project="ubuntu",
+            built_artefacts={
+                "amd64": self.loadDataFile("livefses/ubuntu-amd64-artifacts"),
+                "arm64": self.loadDataFile("livefses/ubuntu-arm64-artifacts"),
+                },
+            expected_downloads=self.loadDataFile("livefses/ubuntu-downloads"),
+            )
