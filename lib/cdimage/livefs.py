@@ -840,7 +840,7 @@ def download_live_filesystems(config, builds):
 
     if builds is not None:
         actual = sorted(os.listdir(output_dir))
-        expected = sorted(direct_download_paths(builds))
+        expected = sorted(direct_download_paths(config, builds))
         if actual != expected:
             import difflib
             print("DOWNLOADED PATHS DID NOT MATCH DIRECT DOWNLOAD!")
