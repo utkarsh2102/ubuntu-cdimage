@@ -700,6 +700,35 @@ def write_autorun(config, arch, name, label):
             VideoFiles=false""")) % (u(name), u(name), u(label)), file=autorun)
 
 
+def live_build_notify_download_failure(config, arch, exc):
+    if config["DEBUG"]:
+        return
+
+    project = config.project
+    recipients = get_notify_addresses(config, project)
+    if not recipients:
+        return
+
+    livefs_id_bits = [project]
+    if config.subproject:
+        livefs_id_bits.append(config.subproject)
+    cpuarch, subarch = split_arch(config, arch)
+    if subarch:
+        livefs_id_bits.append(subarch)
+    livefs_id = "-".join(livefs_id_bits)
+
+    datestamp = time.strftime("%Y%m%d")
+    body = f"""
+An artefact failed to download with error:
+
+{exc}
+"""
+    subject = "LiveFS %s%s/%s/%s failed to download on %s" % (
+        "(built by %s) " % config["SUDO_USER"] if config["SUDO_USER"] else "",
+        livefs_id, config.full_series, arch, datestamp)
+    send_mail(subject, "download_live_filesystems", recipients, body)
+
+
 def download_livefs_artifacts(config, arch, lp_build, output_dir):
     for uri in lp_build.getFileUrls():
         base = unquote(os.path.basename(uri))
@@ -743,8 +772,8 @@ def download_live_filesystems(config, builds):
             for arch, build in builds.items():
                 try:
                     download_livefs_artifacts(config, arch, build, output_dir)
-                except osextras.FetchError:
-                    # Should probably notify failure here.
+                except osextras.FetchError as exc:
+                    live_build_notify_download_failure(config, arch, exc)
                     continue
                 successful_builds[arch] = build
             return successful_builds

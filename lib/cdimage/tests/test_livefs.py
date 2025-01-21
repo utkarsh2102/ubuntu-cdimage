@@ -1410,7 +1410,11 @@ class TestDownloadLiveFilesystems(TestCase):
                 self.fail("mock_fetch got unexpected uri: %r" % (uri,))
 
         with mock.patch("cdimage.osextras.fetch", mock_fetch):
-            new_builds = download_live_filesystems(self.config, builds)
+            with mock.patch(
+                    "cdimage.livefs.live_build_notify_download_failure"
+                    ) as lbndf:
+                new_builds = download_live_filesystems(self.config, builds)
+                lbndf.assert_called_once()
 
         self.assertEqual(
             new_builds,
