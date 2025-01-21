@@ -739,9 +739,15 @@ def download_live_filesystems(config, builds):
 
     if (config["CDIMAGE_LIVE"] or config["CDIMAGE_PREINSTALLED"]):
         if config["DIST"] >= "plucky":
+            successful_builds = {}
             for arch, build in builds.items():
-                download_livefs_artifacts(config, arch, build, output_dir)
-            return builds
+                try:
+                    download_livefs_artifacts(config, arch, build, output_dir)
+                except osextras.FetchError:
+                    # Should probably notify failure here.
+                    continue
+                successful_builds[arch] = build
+            return successful_builds
 
         got_image = False
         for arch in config.arches:

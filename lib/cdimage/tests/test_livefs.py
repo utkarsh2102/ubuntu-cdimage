@@ -1255,9 +1255,7 @@ class TestDownloadLiveFilesystems(TestCase):
             "i386.squashfs",
         ], os.listdir(output_dir))
 
-    def assertDirectDownloadArtifacts(
-        self, *, project, built_artefacts, expected_downloads
-    ):
+    def setupForDirectDownloads(self, project, built_artefacts):
         self.config["PROJECT"] = project
         self.config["DIST"] = "plucky"
         self.config["ARCHES"] = " ".join(list(built_artefacts))
@@ -1267,6 +1265,12 @@ class TestDownloadLiveFilesystems(TestCase):
             build.getFileUrls.return_value = [
                 f"http://librarian.internal/xzy/{name}" for name in names
             ]
+        return builds
+
+    def assertDirectDownloadArtifacts(
+        self, *, project, built_artefacts, expected_downloads
+    ):
+        builds = self.setupForDirectDownloads(project, built_artefacts)
 
         output_dir = live_output_directory(self.config).rstrip("/") + "/"
         downloads = []
@@ -1279,8 +1283,9 @@ class TestDownloadLiveFilesystems(TestCase):
 
         with mock.patch("cdimage.osextras.fetch", mock_fetch):
             with mock.patch("cdimage.sign.sign_cdimage", mock_sign):
-                download_live_filesystems(self.config, builds)
+                got_builds = download_live_filesystems(self.config, builds)
 
+        self.assertEqual(got_builds, builds)
         self.assertEqual(sorted(downloads), sorted(expected_downloads))
 
     def loadDataFile(self, path):
@@ -1382,3 +1387,31 @@ class TestDownloadLiveFilesystems(TestCase):
                 },
             expected_downloads=self.loadDataFile("livefses/ubuntu-downloads"),
             )
+
+    def test_failed_download(self):
+        self.config["CDIMAGE_LIVE"] = "1"
+        builds = self.setupForDirectDownloads(
+            project="ubuntu",
+            built_artefacts={
+                "amd64": [
+                    "livecd.ubuntu.download-ok",
+                    "livecd.ubuntu.download-fail",
+                    ],
+                "arm64": ["livecd.ubuntu.download-ok"],
+            },
+        )
+
+        def mock_fetch(config, uri, target):
+            if 'download-ok' in uri:
+                return
+            elif 'download-fail' in uri:
+                raise osextras.FetchError
+            else:
+                self.fail("mock_fetch got unexpected uri: %r" % (uri,))
+
+        with mock.patch("cdimage.osextras.fetch", mock_fetch):
+            new_builds = download_live_filesystems(self.config, builds)
+
+        self.assertEqual(
+            new_builds,
+            {'arm64': builds['arm64']})
