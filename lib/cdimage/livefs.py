@@ -368,7 +368,6 @@ def run_live_builds(config):
             proc = subprocess.Popen(live_build_command(config, arch))
             builds[proc.pid] = (proc, arch, full_name, machine)
 
-    successful = set()
     successful_builds = {}
 
     def live_build_finished(arch, full_name, machine, status, text_status,
@@ -378,9 +377,7 @@ def run_live_builds(config):
             full_name, machine, timestamp, text_status))
         if status == 0:
             tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
-            successful.add(arch)
-            if lp_build:
-                successful_builds[arch] = lp_build
+            successful_builds[arch] = lp_build
         else:
             tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
             live_build_notify_failure(config, arch, lp_build=lp_build)
@@ -429,9 +426,9 @@ def run_live_builds(config):
             # interrupt this sleep with SIGCHLD.
             time.sleep(15)
 
-    if not successful:
+    if not successful_builds:
         raise LiveBuildsFailed("No live filesystem builds succeeded.")
-    return successful, successful_builds
+    return successful_builds
 
 
 def livecd_base(config, arch):

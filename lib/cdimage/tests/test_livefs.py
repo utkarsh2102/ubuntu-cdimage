@@ -524,7 +524,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["ARCHES"] = "amd64 i386"
         self.capture_logging()
         self.assertCountEqual(["amd64", "i386"],
-                              run_live_builds(self.config)[0])
+                              run_live_builds(self.config).keys())
         self.assertCountEqual([
             "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
             "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
@@ -570,7 +570,7 @@ class TestRunLiveBuilds(TestCase):
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
         self.assertCountEqual(
-            ["amd64"], run_live_builds(self.config)[0])
+            ["amd64"], run_live_builds(self.config).keys())
         expected_command = [
             "ssh", "-n", "-o", "StrictHostKeyChecking=no",
             "-o", "BatchMode=yes",
@@ -602,7 +602,9 @@ class TestRunLiveBuilds(TestCase):
                     return original_Popen(["false"])
 
             mock_popen.side_effect = Popen_side_effect
-            self.assertCountEqual(["amd64"], run_live_builds(self.config)[0])
+            self.assertCountEqual(
+                ["amd64"],
+                run_live_builds(self.config).keys())
             self.assertCountEqual([
                 "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
                 "ubuntu-i386 on cardamom.buildd starting at "
@@ -658,7 +660,7 @@ class TestRunLiveBuilds(TestCase):
         mock_iter_buildstate.side_effect = lambda: (
             chain(["Needs building"] * 3, repeat("Successfully built")))
         self.assertCountEqual(["amd64", "i386"],
-                              run_live_builds(self.config)[0])
+                              run_live_builds(self.config).keys())
         self.assertCountEqual([
             "ubuntu-amd64 on Launchpad starting at 2013-03-15 13:48:51",
             "ubuntu-amd64: https://launchpad.example/amd64-build",
