@@ -54,8 +54,13 @@ from cdimage.config import Config
 from cdimage.log import logger
 from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch, StubAptStateManager
+from cdimage.tests.test_livefs import MockLiveFSBuild
 
 __metaclass__ = type
+
+
+def mock_builds_for_config(config):
+    return {arch: MockLiveFSBuild() for arch in config.arches}
 
 
 class TestBuildLiveCDBase(TestCase):
@@ -96,7 +101,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "livecd-base"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config, None)
+        build_livecd_base(self.config, mock_builds_for_config(self.config))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -124,7 +129,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config, None)
+        build_livecd_base(self.config, mock_builds_for_config(self.config))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -159,7 +164,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.config["ARCHES"] = "armhf+raspi2"
         self.capture_logging()
-        build_livecd_base(self.config, None)
+        build_livecd_base(self.config, mock_builds_for_config(self.config))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -193,7 +198,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "armhf+raspi3"
         self.capture_logging()
-        build_livecd_base(self.config, None)
+        build_livecd_base(self.config, mock_builds_for_config(self.config))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -227,7 +232,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "armhf+raspi"
         self.capture_logging()
-        build_livecd_base(self.config, None)
+        build_livecd_base(self.config, mock_builds_for_config(self.config))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -262,7 +267,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config, None)
+        build_livecd_base(self.config, mock_builds_for_config(self.config))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,

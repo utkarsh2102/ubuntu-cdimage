@@ -151,7 +151,8 @@ def build_ubuntu_defaults_locale(config, builds):
 
     series = config["DIST"]
     log_marker("Downloading live filesystem images")
-    download_live_filesystems(config, builds)
+    builds = download_live_filesystems(config, builds)
+    config.limit_arches_for_builds(builds)
     scratch = live_output_directory(config)
     for entry in os.listdir(scratch):
         if "." in entry:
@@ -171,7 +172,8 @@ def build_ubuntu_defaults_locale(config, builds):
 
 def build_livecd_base(config, builds):
     log_marker("Downloading live filesystem images")
-    download_live_filesystems(config, builds)
+    builds = download_live_filesystems(config, builds)
+    config.limit_arches_for_builds(builds)
 
     if config.image_type == "daily-preinstalled":
         if config.project == 'ubuntu-server':
@@ -468,7 +470,8 @@ def build_image_set_locked(config, options):
 
             if config["CDIMAGE_LIVE"]:
                 log_marker("Downloading live filesystem images")
-                download_live_filesystems(config, builds)
+                builds = download_live_filesystems(config, builds)
+                config.limit_arches_for_builds(builds)
 
             configure_splash(config)
 

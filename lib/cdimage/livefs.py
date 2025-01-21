@@ -735,13 +735,13 @@ def download_live_filesystems(config, builds):
             destpath = os.path.join(output_dir, destname)
             logger.info("linking %r to %r", srcpath, destpath)
             os.link(srcpath, destpath)
-        return
+        return builds
 
     if (config["CDIMAGE_LIVE"] or config["CDIMAGE_PREINSTALLED"]):
         if config["DIST"] >= "plucky":
             for arch, build in builds.items():
                 download_livefs_artifacts(config, arch, build, output_dir)
-            return
+            return builds
 
         got_image = False
         for arch in config.arches:
@@ -834,3 +834,5 @@ def download_live_filesystems(config, builds):
             if arch == "arm64":
                 download_live_items(config, builds, arch,
                                     "dragonboard.kernel.snap")
+
+    return builds
