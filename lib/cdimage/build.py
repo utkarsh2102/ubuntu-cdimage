@@ -436,7 +436,7 @@ def build_image_set_locked(config, options):
         if want_live_builds(options):
             log_marker("Building live filesystems")
             builds = run_live_builds(config)
-            config.limit_arches(list(builds.keys()))
+            config.limit_arches_for_builds(builds)
         else:
             tracker_set_rebuild_status(config, [0, 1], 2)
 

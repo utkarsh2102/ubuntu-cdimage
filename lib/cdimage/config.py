@@ -478,7 +478,8 @@ class Config(defaultdict):
         self["CPUARCHES"] = " ".join(
             sorted(set(arch.split("+")[0] for arch in self.arches)))
 
-    def limit_arches(self, new_arches):
+    def limit_arches_for_builds(self, builds):
+        new_arches = list(builds.keys())
         self["ARCHES"] = " ".join(
             arch for arch in self.arches if arch in new_arches)
         new_cpuarches = " ".join(

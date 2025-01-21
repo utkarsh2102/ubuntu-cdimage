@@ -330,9 +330,9 @@ class TestConfig(TestCase):
         self.assertEqual("amd64", config["ARCHES"])
         self.assertEqual("amd64", config["CPUARCHES"])
 
-    def test_limit_arches(self):
-        # limit_arches reduces ARCHES and CPUARCHES to only those items also
-        # present in the iterable passed as a parameter.
+    def test_limit_arches_for_builds(self):
+        # limit_arches_for_builds reduces ARCHES and CPUARCHES to only
+        # those items also present as keys in the parameter
         self.use_temp_dir()
         os.environ["CDIMAGE_ROOT"] = self.temp_dir
         os.environ["ARCHES"] = "amd64 arm64"
@@ -342,13 +342,15 @@ class TestConfig(TestCase):
         self.assertEqual(["amd64", "arm64"], config.cpuarches)
         self.assertEqual("amd64 arm64", os.environ["CPUARCHES"])
 
-        config.limit_arches(["amd64", "arm64", "s390x"])
+        config.limit_arches_for_builds(
+            {arch: None for arch in ("amd64", "arm64", "s390x")})
         self.assertEqual(["amd64", "arm64"], config.arches)
         self.assertEqual("amd64 arm64", os.environ["ARCHES"])
         self.assertEqual(["amd64", "arm64"], config.cpuarches)
         self.assertEqual("amd64 arm64", os.environ["CPUARCHES"])
 
-        config.limit_arches(["amd64"])
+        config.limit_arches_for_builds(
+            {arch: None for arch in ("amd64",)})
         self.assertEqual(["amd64"], config.arches)
         self.assertEqual("amd64", os.environ["ARCHES"])
         self.assertEqual(["amd64"], config.cpuarches)
