@@ -1217,13 +1217,18 @@ class TestDownloadLiveFilesystems(TestCase):
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_filesystems_ubuntu_live(self, mock_fetch):
+        from cdimage.tests.test_build import mock_builds_for_config
+        artifacts = (
+            "squashfs", "kernel-generic", "kernel-generic.efi.signed",
+            "initrd-generic", "manifest", "manifest-remove",
+            "manifest-minimal-remove", "size",
+            )
+        artifacts_by_arch = {"amd64": list(artifacts), "i386": list(artifacts)}
+        artifacts_by_arch['i386'].remove("kernel-generic.efi.signed")
+
         def fetch_side_effect(config, source, target):
             tail = os.path.basename(target).split(".", 1)[1]
-            if tail in (
-                "squashfs", "kernel-generic", "kernel-generic.efi.signed",
-                "initrd-generic", "manifest", "manifest-remove",
-                "manifest-minimal-remove", "size",
-            ):
+            if tail in artifacts:
                 touch(target)
             else:
                 raise osextras.FetchError
@@ -1234,7 +1239,11 @@ class TestDownloadLiveFilesystems(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "amd64 i386"
         self.config["CDIMAGE_LIVE"] = "1"
-        download_live_filesystems(self.config, None)
+        download_live_filesystems(
+            self.config,
+            mock_builds_for_config(
+                self.config,
+                artifact_names=artifacts_by_arch))
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live", "live")
         self.assertCountEqual([

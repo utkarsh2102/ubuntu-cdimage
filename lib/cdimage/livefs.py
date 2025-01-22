@@ -745,8 +745,6 @@ def download_livefs_artifacts(config, arch, lp_build, output_dir):
 
 
 def download_live_filesystems(config, builds):
-    project = config.project
-
     output_dir = live_output_directory(config)
     osextras.mkemptydir(output_dir)
 
@@ -766,108 +764,12 @@ def download_live_filesystems(config, builds):
             os.link(srcpath, destpath)
         return {arch: None}
 
-    if (config["CDIMAGE_LIVE"] or config["CDIMAGE_PREINSTALLED"]):
-        if config["DIST"] >= "plucky" or config.project == "ubuntu-wsl":
-            successful_builds = {}
-            for arch, build in builds.items():
-                try:
-                    download_livefs_artifacts(config, arch, build, output_dir)
-                except osextras.FetchError as exc:
-                    live_build_notify_download_failure(config, arch, exc)
-                    continue
-                successful_builds[arch] = build
-            return successful_builds
-
-        got_image = False
-        for arch in config.arches:
-            if config["CDIMAGE_PREINSTALLED"]:
-                if project in ("ubuntu-server", ):
-                    if download_live_items(config, builds, arch,
-                                           "disk1.img.xz"):
-                        got_image = True
-                    elif download_live_items(config, builds, arch, "img.xz"):
-                        got_image = True
-                    else:
-                        continue
-                elif download_live_items(config, builds, arch, "ext4"):
-                    got_image = True
-                elif download_live_items(config, builds, arch, "ext3"):
-                    got_image = True
-                elif download_live_items(config, builds, arch, "ext2"):
-                    got_image = True
-                elif download_live_items(config, builds, arch,
-                                         "rootfs.tar.gz"):
-                    got_image = True
-                elif download_live_items(config, builds, arch, "img.xz"):
-                    got_image = True
-                else:
-                    continue
-            elif project == "ubuntu-mini-iso":
-                if download_live_items(config, builds, arch, "iso"):
-                    got_image = True
-                else:
-                    continue
-            elif download_live_items(config, builds, arch, "img.xz"):
-                got_image = True
-            elif download_live_items(config, builds, arch, "cloop"):
-                got_image = True
-            elif download_live_items(config, builds, arch, "squashfs"):
-                download_live_items(config, builds, arch, "modules.squashfs")
-                download_live_items(config, builds, arch, "yaml")
-                download_live_items(config, builds, arch, "netboot.tar.gz")
-                got_image = True
-            elif download_live_items(config, builds, arch, "rootfs.tar.gz"):
-                got_image = True
-            elif download_live_items(config, builds, arch, "tar.xz"):
-                got_image = True
-            else:
-                continue
-            if project != "ubuntu-base" and config.subproject != "wubi":
-                download_live_items(config, builds, arch, "kernel")
-                download_live_items(config, builds, arch, "initrd")
-                download_live_items(config, builds, arch, "kernel-efi-signed")
-                if config["CDIMAGE_PREINSTALLED"]:
-                    download_live_items(config, builds, arch, "bootimg")
-
-            download_live_items(config, builds, arch, "manifest")
-            if not download_live_items(config, builds, arch,
-                                       "manifest-remove"):
-                download_live_items(config, builds, arch, "manifest-desktop")
-            download_live_items(config, builds, arch,
-                                "manifest-minimal-remove")
-            download_live_items(config, builds, arch, "size")
-
-            if (config["CDIMAGE_PREINSTALLED"] or
-                    config.subproject == "wubi"):
-                continue
-
-            if (project in ("ubuntu-core", "ubuntu-core-desktop",
-                            "ubuntu-appliance") and
-                    config["CDIMAGE_LIVE"]):
-                download_live_items(config, builds, arch, "model-assertion")
-                download_live_items(config, builds, arch, "qcow2")
-
-        if not got_image:
-            raise NoFilesystemImages("No filesystem images found.")
-
-    if config.project == "ubuntu-core":
-        for arch in config.arches:
-            download_live_items(config, builds, arch, "device.tar.gz")
-
-    if config.project == "ubuntu-core":
-        for arch in config.arches:
-            download_live_items(config, builds, arch, "os.snap")
-            download_live_items(config, builds, arch, "kernel.snap")
-            if arch == "amd64":
-                for devarch in ("azure", "plano"):
-                    download_live_items(config, builds, arch,
-                                        "%s.device.tar.gz" % devarch)
-            if arch == "armhf":
-                download_live_items(config, builds, arch,
-                                    "raspi2.device.tar.gz")
-                download_live_items(config, builds, arch, "raspi2.kernel.snap")
-            if arch == "arm64":
-                download_live_items(config, builds, arch,
-                                    "dragonboard.kernel.snap")
-
-    return builds
+    successful_builds = {}
+    for arch, build in builds.items():
+        try:
+            download_livefs_artifacts(config, arch, build, output_dir)
+        except osextras.FetchError as exc:
+            live_build_notify_download_failure(config, arch, exc)
+            continue
+        successful_builds[arch] = build
+    return successful_builds

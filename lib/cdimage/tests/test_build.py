@@ -58,8 +58,17 @@ from cdimage.tests.test_livefs import MockLiveFSBuild
 __metaclass__ = type
 
 
-def mock_builds_for_config(config):
-    return {arch: MockLiveFSBuild() for arch in config.arches}
+def mock_builds_for_config(config, artifact_names=()):
+    if not isinstance(artifact_names, dict):
+        artifact_names = {arch: artifact_names for arch in config.arches}
+    builds = {}
+    for arch in config.arches:
+        build = MockLiveFSBuild()
+        build.getFileUrls.return_value = [
+            f"https://librarian.internal/a.b.{artifact_name}"
+            for artifact_name in artifact_names.get(arch, [])]
+        builds[arch] = build
+    return builds
 
 
 class TestBuildLiveCDBase(TestCase):
@@ -100,7 +109,11 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "livecd-base"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config, mock_builds_for_config(self.config))
+        build_livecd_base(
+            self.config,
+            mock_builds_for_config(
+                self.config,
+                artifact_names=['squashfs', 'manifest']))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -128,7 +141,12 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config, mock_builds_for_config(self.config))
+        build_livecd_base(
+            self.config,
+            mock_builds_for_config(
+                self.config,
+                artifact_names=['manifest', 'rootfs.tar.gz'],
+                ))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -163,7 +181,12 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-preinstalled"
         self.config["ARCHES"] = "armhf+raspi2"
         self.capture_logging()
-        build_livecd_base(self.config, mock_builds_for_config(self.config))
+        build_livecd_base(
+            self.config,
+            mock_builds_for_config(
+                self.config,
+                ['disk1.img.xz', 'manifest'],
+                ))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -197,7 +220,12 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "armhf+raspi3"
         self.capture_logging()
-        build_livecd_base(self.config, mock_builds_for_config(self.config))
+        build_livecd_base(
+            self.config,
+            mock_builds_for_config(
+                self.config,
+                ['img.xz', 'model-assertion', 'manifest'],
+                ))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -231,7 +259,12 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "armhf+raspi"
         self.capture_logging()
-        build_livecd_base(self.config, mock_builds_for_config(self.config))
+        build_livecd_base(
+            self.config,
+            mock_builds_for_config(
+                self.config,
+                ['img.xz', 'model-assertion', 'manifest'],
+                ))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
@@ -266,7 +299,12 @@ class TestBuildLiveCDBase(TestCase):
         self.config["IMAGE_TYPE"] = "daily-live"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
-        build_livecd_base(self.config, mock_builds_for_config(self.config))
+        build_livecd_base(
+            self.config,
+            mock_builds_for_config(
+                self.config,
+                ['img.xz', 'model-assertion', 'manifest', 'qcow2'],
+                ))
         self.assertLogEqual([
             "===== Downloading live filesystem images =====",
             self.epoch_date,
