@@ -118,20 +118,6 @@ def want_live_builds(options):
     return options is not None and getattr(options, "live", False)
 
 
-def _dpkg_field(path, field):
-    return subprocess.check_output(
-        ["dpkg", "-f", path, field], universal_newlines=True).rstrip("\n")
-
-
-def _find_endswith(path, suffixes):
-    for dirpath, _, filenames in os.walk(path):
-        for filename in filenames:
-            for suffix in suffixes:
-                if filename.endswith(suffix):
-                    yield dirpath, filename
-                    break
-
-
 def build_britney(config):
     update_out = os.path.join(config.root, "britney", "update_out")
     if os.path.isfile(os.path.join(update_out, "Makefile")):
