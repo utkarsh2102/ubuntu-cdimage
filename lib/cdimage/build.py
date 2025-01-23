@@ -33,7 +33,6 @@ from cdimage.germinate import Germination
 from cdimage.livefs import (
     LiveBuildsFailed,
     download_live_filesystems,
-    live_output_directory,
     run_live_builds,
 )
 from cdimage.log import logger, reset_logging
@@ -118,148 +117,149 @@ def want_live_builds(options):
     return options is not None and getattr(options, "live", False)
 
 
+def copy_artifact(
+        config,
+        arch: str,
+        publish_type: str,
+        suffix: str,
+        *,
+        target_suffix: None | str = None,
+        ftype: None | str = None,
+        missing_ok: bool = False,
+        ) -> bool:
+    """Copy an artifact from the "live" directory to the "output" directory.
+
+    The artifact is expected to be named "{arch}.{suffix}" and the file
+    will be named "{series}-{publish_type}-{arch}.{target_suffix}" in
+    the output directory.
+
+    Returns True if a file was copied, False if the source was not found
+    (and missing_ok is true) and raises FileNotFoundError if the source
+    was not found (and missing_ok is false).
+    """
+    if target_suffix is None:
+        target_suffix = suffix
+    scratch_dir = os.path.join(
+        config.root, "scratch", config.subtree, config.project,
+        config.full_series, config.image_type)
+    output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+    output_basename = f"{config.series}-{publish_type}-{arch}"
+    src = os.path.join(scratch_dir, "live", f"{arch}.{suffix}")
+    if os.path.exists(src):
+        osextras.ensuredir(output_dir)
+        shutil.copy2(
+            src,
+            os.path.join(output_dir, f"{output_basename}.{target_suffix}"))
+    elif not missing_ok:
+        raise FileNotFoundError(src)
+    else:
+        return False
+    if ftype is not None:
+        ftype_path = os.path.join(output_dir, f"{output_basename}.type")
+        with open(ftype_path, "w") as f:
+            print(ftype, file=f)
+    return True
+
+
 def build_livecd_base(config, builds):
+    """Copy an artifacts from the "live" directory to the "output" directory.
+
+    For installers, we run debian-cd which (amongst other things) takes
+    the livefs artifacts from the "live" directory and bundles them up
+    into an ISO in the "output" directory, from where the publication
+    code in tree.py copies them to the directory tree that will be
+    synced to cdimage.ubuntu.com and/or releases.ubuntu.com.
+
+    For non-installer images (which is what this function is handling),
+    we just copy the livefs artifacts from directly to the output
+    directory, with various silly contortions to fit into the naming
+    conventions both for where the livefs artifacts get downloaded to
+    and where the publication code expects to find things.
+    """
     log_marker("Downloading live filesystem images")
     builds = download_live_filesystems(config, builds)
     config.limit_arches_for_builds(builds)
 
     if config.image_type == "daily-preinstalled":
         if config.project == 'ubuntu-server':
-            image_type = 'server'
+            publish_type = 'preinstalled-server'
         else:
-            image_type = 'desktop'
+            publish_type = 'preinstalled-desktop'
         log_marker("Copying images to debian-cd output directory")
-        scratch_dir = os.path.join(
-            config.root, "scratch", config.subtree, config.project,
-            config.full_series, config.image_type)
-        live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
-            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
-            osextras.ensuredir(output_dir)
-            live_prefix = os.path.join(live_dir, arch)
-            rootfs = "%s.img.xz" % (live_prefix)
-            # Previously for server images we expected a .disk1.img.xz
-            # artifact, so still support it before we migrate all the
-            # images to the new format.
-            if not os.path.exists(rootfs):
-                rootfs = "%s.disk1.img.xz" % (live_prefix)
-            output_prefix = os.path.join(output_dir,
-                                         "%s-preinstalled-%s-%s" %
-                                         (config.series, image_type, arch))
-            with open("%s.type" % output_prefix, "w") as f:
-                print("EXT4 Filesystem Image", file=f)
-            shutil.copy2(rootfs, "%s.raw" % output_prefix)
-            shutil.copy2(
-                "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
+            for suffix in "img.xz", "disk1.img.xz":
+                if copy_artifact(
+                        config, arch, publish_type, suffix,
+                        target_suffix="raw",
+                        ftype="EXT4 Filesystem Image",
+                        missing_ok=True):
+                    break
+            else:
+                raise Exception("no rootfs found")
+            copy_artifact(config, arch, publish_type, "manifest")
 
-    if (config.project in ("ubuntu-mini-iso", ) and
+    if (config.project == "ubuntu-mini-iso" and
             config.image_type == "daily-live"):
         log_marker("Copying mini iso to debian-cd output directory")
-        scratch_dir = os.path.join(
-            config.root, "scratch", config.subtree, config.project,
-            config.full_series, config.image_type)
-        live_dir = os.path.join(scratch_dir, "live")
+        publish_type = "mini-iso"
         for arch in config.arches:
-            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
-            osextras.ensuredir(output_dir)
-            live_prefix = os.path.join(live_dir, arch)
-            iso = "%s.iso" % (live_prefix)
-            output_prefix = os.path.join(output_dir,
-                                         "%s-mini-iso-%s" %
-                                         (config.series, arch))
-            with open("%s.type" % output_prefix, "w") as f:
-                print("ISO 9660 CD-ROM filesystem data", file=f)
-            shutil.copy2(iso, "%s.raw" % output_prefix)
+            copy_artifact(
+                config, arch, publish_type, "iso",
+                target_suffix="raw",
+                ftype="ISO 9660 CD-ROM filesystem data")
             # XXX: I don't think we need the manifest for a mini iso
-            # shutil.copy2(
-            #    "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
+            # copy_artifact(arch, "mini-iso", "manifest")
 
     if (config.project in ("ubuntu-core", "ubuntu-appliance") and
             config.image_type == "daily-live"):
         log_marker("Copying images to debian-cd output directory")
-        scratch_dir = os.path.join(
-            config.root, "scratch", config.subtree, config.project,
-            config.full_series, config.image_type)
         publish_type = "live-core"
-        live_dir = os.path.join(scratch_dir, "live")
         for arch in config.arches:
-            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
-            osextras.ensuredir(output_dir)
-            live_prefix = os.path.join(live_dir, arch)
-            rootfs = "%s.img.xz" % (live_prefix)
-            output_prefix = os.path.join(output_dir,
-                                         "%s-%s-%s" %
-                                         (config.series, publish_type, arch))
-            with open("%s.type" % output_prefix, "w") as f:
-                print("Disk Image", file=f)
-            shutil.copy2(rootfs, "%s.raw" % output_prefix)
-            shutil.copy2(
-                "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
-            shutil.copy2(
-                "%s.model-assertion" % live_prefix,
-                "%s.model-assertion" % output_prefix)
-            # qcow2 images for appliances are optional
-            live_qcow2 = "%s.qcow2" % live_prefix
-            if os.path.exists(live_qcow2):
-                shutil.copy2(
-                    live_qcow2, "%s.qcow2" % output_prefix)
+            copy_artifact(
+                config, arch, publish_type, "img.xz",
+                target_suffix="raw",
+                ftype="Disk Image")
+            copy_artifact(config, arch, publish_type, "manifest")
+            copy_artifact(config, arch, publish_type, "model-assertion")
+            copy_artifact(
+                config, arch, publish_type, "qcow2", missing_ok=True)
 
     if (config.project == "ubuntu-base" or
         (config.project == "ubuntu-core" and
          config.subproject == "system-image")):
         log_marker("Copying images to debian-cd output directory")
-        scratch_dir = os.path.join(
-            config.root, "scratch", config.subtree, config.project,
-            config.full_series, config.image_type)
-        live_dir = os.path.join(scratch_dir, "live")
+        if config.project == "ubuntu-core":
+            publish_type = "preinstalled-core"
+        elif config.project == "ubuntu-base":
+            publish_type = "base"
         for arch in config.arches:
-            live_prefix = os.path.join(live_dir, arch)
-            rootfs = "%s.rootfs.tar.gz" % live_prefix
-            if os.path.exists(rootfs):
-                output_dir = os.path.join(scratch_dir, "debian-cd", arch)
-                osextras.ensuredir(output_dir)
-                if config.project == "ubuntu-core":
-                    output_prefix = os.path.join(
-                        output_dir,
-                        "%s-preinstalled-core-%s" % (config.series, arch))
-                elif config.project == "ubuntu-base":
-                    output_prefix = os.path.join(
-                        output_dir, "%s-base-%s" % (config.series, arch))
-                shutil.copy2(rootfs, "%s.raw" % output_prefix)
-                with open("%s.type" % output_prefix, "w") as f:
-                    print("tar archive", file=f)
-                shutil.copy2(
-                    "%s.manifest" % live_prefix, "%s.manifest" % output_prefix)
-                if config.project == "ubuntu-core":
-                    for dev in ("azure.device", "device", "raspi2.device",
-                                "plano.device"):
-                        device = "%s.%s.tar.gz" % (live_prefix, dev)
-                        if os.path.exists(device):
-                            shutil.copy2(
-                                device, "%s.%s.tar.gz" % (output_prefix, dev))
-                    for snaptype in ("os", "kernel", "raspi2.kernel",
-                                     "dragonboard.kernel"):
-                        snap = "%s.%s.snap" % (live_prefix, snaptype)
-                        if os.path.exists(snap):
-                            shutil.copy2(
-                                snap, "%s.%s.snap" % (output_prefix, snaptype))
+            found = copy_artifact(
+                config, arch, publish_type, "rootfs.tar.gz",
+                target_suffix="raw",
+                ftype="tar archive",
+                missing_ok=True)
+            if not found:
+                continue
+            copy_artifact(config, arch, publish_type, "manifest")
+            if config.project != "ubuntu-core":
+                continue
+            for dev in ("azure.device", "device", "raspi2.device",
+                        "plano.device"):
+                copy_artifact(
+                    config, arch, publish_type, "%s.tar.gz" % (dev,),
+                    missing_ok=True)
+            for snaptype in ("os", "kernel", "raspi2.kernel",
+                             "dragonboard.kernel"):
+                copy_artifact(
+                    config, arch, publish_type, "%s.snap" % (snaptype,),
+                    missing_ok=True)
 
 
 def copy_netboot_tarballs(config):
-    # cp $scratch/$arch.netboot.tar.gz $output/$series-netboot-$arch.tar.gz
-    scratch_dir = os.path.join(
-        config.root, "scratch", config.subtree, config.project,
-        config.full_series, config.image_type)
     for arch in config.arches:
-        netboot_path = os.path.join(
-            live_output_directory(config),
-            '%s.netboot.tar.gz' % (arch,))
-        if os.path.exists(netboot_path):
-            output_dir = os.path.join(scratch_dir, "debian-cd", arch)
-            shutil.copy2(
-                netboot_path, os.path.join(
-                    output_dir,
-                    '%s-netboot-%s.tar.gz' % (config.series, arch)))
+        copy_artifact(
+            config, arch, "netboot", "netboot.tar.gz",
+            target_suffix="tar.gz", missing_ok=True)
 
 
 def configure_splash(config):
