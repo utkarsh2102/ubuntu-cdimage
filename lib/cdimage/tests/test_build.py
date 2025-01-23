@@ -36,7 +36,6 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.build import (
-    build_britney,
     build_image_set,
     build_image_set_locked,
     build_livecd_base,
@@ -408,23 +407,6 @@ class TestBuildImageSet(TestCase):
         options = optparse.Values({"live": True})
         self.assertTrue(want_live_builds(options))
 
-    @mock.patch("subprocess.check_call")
-    def test_build_britney_no_makefile(self, mock_check_call):
-        self.capture_logging()
-        build_britney(self.config)
-        self.assertLogEqual([])
-        self.assertEqual(0, mock_check_call.call_count)
-
-    @mock.patch("subprocess.check_call")
-    def test_build_britney_with_makefile(self, mock_check_call):
-        path = os.path.join(self.temp_dir, "britney", "update_out", "Makefile")
-        touch(path)
-        self.capture_logging()
-        build_britney(self.config)
-        self.assertLogEqual(["===== Building britney =====", self.epoch_date])
-        mock_check_call.assert_called_once_with(
-            ["make", "-C", os.path.dirname(path)])
-
     def test_configure_splash(self):
         data_dir = os.path.join(self.temp_dir, "debian-cd", "data", "bionic")
         for key, extension in (
@@ -668,9 +650,6 @@ class TestBuildImageSet(TestCase):
         self.config["ARCHES"] = "amd64 i386"
         self.config["CPUARCHES"] = "amd64 i386"
 
-        britney_makefile = os.path.join(
-            self.temp_dir, "britney", "update_out", "Makefile")
-        touch(britney_makefile)
         os.makedirs(os.path.join(self.temp_dir, "etc"))
         germinate_path = os.path.join(
             self.temp_dir, "germinate", "bin", "germinate")
@@ -710,8 +689,6 @@ class TestBuildImageSet(TestCase):
                     ], cwd=os.path.join(germinate_output, arch), env=mock.ANY)
 
                 mock_call.assert_has_calls([
-                    mock.call([
-                        "make", "-C", os.path.dirname(britney_makefile)]),
                     mock.call(["apt-get", "update"], env=mock.ANY),
                     mock.call(["apt-get", "update"], env=mock.ANY),
                     germinate_command("amd64"),
@@ -747,8 +724,6 @@ class TestBuildImageSet(TestCase):
             log_path = os.path.join(log_dir, log_entries[0])
             with open(log_path) as log:
                 self.assertEqual(dedent("""\
-                    ===== Building britney =====
-                    DATE
                     Setting up apt state for bionic/amd64 ...
                     Setting up apt state for bionic/i386 ...
                     ===== Germinating =====

@@ -118,13 +118,6 @@ def want_live_builds(options):
     return options is not None and getattr(options, "live", False)
 
 
-def build_britney(config):
-    update_out = os.path.join(config.root, "britney", "update_out")
-    if os.path.isfile(os.path.join(update_out, "Makefile")):
-        log_marker("Building britney")
-        subprocess.check_call(["make", "-C", update_out])
-
-
 def build_livecd_base(config, builds):
     log_marker("Downloading live filesystem images")
     builds = download_live_filesystems(config, builds)
@@ -396,9 +389,6 @@ def build_image_set_locked(config, options):
             config.limit_arches_for_builds(builds)
         else:
             tracker_set_rebuild_status(config, [0, 1], 2)
-
-        if not is_live_fs_only(config):
-            build_britney(config)
 
         if is_live_fs_only(config):
             build_livecd_base(config, builds)
