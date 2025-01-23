@@ -161,6 +161,50 @@ def copy_artifact(
     return True
 
 
+def copy_artifact(
+        config,
+        arch: str,
+        publish_type: str,
+        suffix: str,
+        *,
+        target_suffix: None | str = None,
+        ftype: None | str = None,
+        missing_ok: bool = False,
+        ) -> bool:
+    """Copy an artifact from the "live" directory to the "output" directory.
+
+    The artifact is expected to be named "{arch}.{suffix}" and the file
+    will be named "{series}-{publish_type}-{arch}.{target_suffix}" in
+    the output directory.
+
+    Returns True if a file was copied, False if the source was not found
+    (and missing_ok is true) and raises FileNotFoundError if the source
+    was not found (and missing_ok is false).
+    """
+    if target_suffix is None:
+        target_suffix = suffix
+    scratch_dir = os.path.join(
+        config.root, "scratch", config.subtree, config.project,
+        config.full_series, config.image_type)
+    output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+    output_basename = f"{config.series}-{publish_type}-{arch}"
+    src = os.path.join(scratch_dir, "live", f"{arch}.{suffix}")
+    if os.path.exists(src):
+        osextras.ensuredir(output_dir)
+        shutil.copy2(
+            src,
+            os.path.join(output_dir, f"{output_basename}.{target_suffix}"))
+    elif not missing_ok:
+        raise FileNotFoundError(src)
+    else:
+        return False
+    if ftype is not None:
+        ftype_path = os.path.join(output_dir, f"{output_basename}.type")
+        with open(ftype_path, "w") as f:
+            print(ftype, file=f)
+    return True
+
+
 def build_livecd_base(config, builds):
     """Copy an artifacts from the "live" directory to the "output" directory.
 
