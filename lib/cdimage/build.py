@@ -161,50 +161,6 @@ def copy_artifact(
     return True
 
 
-def copy_artifact(
-        config,
-        arch: str,
-        publish_type: str,
-        suffix: str,
-        *,
-        target_suffix: None | str = None,
-        ftype: None | str = None,
-        missing_ok: bool = False,
-        ) -> bool:
-    """Copy an artifact from the "live" directory to the "output" directory.
-
-    The artifact is expected to be named "{arch}.{suffix}" and the file
-    will be named "{series}-{publish_type}-{arch}.{target_suffix}" in
-    the output directory.
-
-    Returns True if a file was copied, False if the source was not found
-    (and missing_ok is true) and raises FileNotFoundError if the source
-    was not found (and missing_ok is false).
-    """
-    if target_suffix is None:
-        target_suffix = suffix
-    scratch_dir = os.path.join(
-        config.root, "scratch", config.subtree, config.project,
-        config.full_series, config.image_type)
-    output_dir = os.path.join(scratch_dir, "debian-cd", arch)
-    output_basename = f"{config.series}-{publish_type}-{arch}"
-    src = os.path.join(scratch_dir, "live", f"{arch}.{suffix}")
-    if os.path.exists(src):
-        osextras.ensuredir(output_dir)
-        shutil.copy2(
-            src,
-            os.path.join(output_dir, f"{output_basename}.{target_suffix}"))
-    elif not missing_ok:
-        raise FileNotFoundError(src)
-    else:
-        return False
-    if ftype is not None:
-        ftype_path = os.path.join(output_dir, f"{output_basename}.type")
-        with open(ftype_path, "w") as f:
-            print(ftype, file=f)
-    return True
-
-
 def build_livecd_base(config, builds):
     """Copy an artifacts from the "live" directory to the "output" directory.
 
@@ -253,6 +209,16 @@ def build_livecd_base(config, builds):
                 ftype="ISO 9660 CD-ROM filesystem data")
             # XXX: I don't think we need the manifest for a mini iso
             # copy_artifact(arch, "mini-iso", "manifest")
+
+    if config.project == "ubuntu-wsl" and config.image_type == "daily-live":
+        log_marker("Copying images to debian-cd output directory")
+        publish_type = "wsl"
+        for arch in config.arches:
+            copy_artifact(
+                config, arch, publish_type, "wsl",
+                target_suffix="raw",
+                ftype="WSL")
+            copy_artifact(config, arch, publish_type, "manifest")
 
     if (config.project in ("ubuntu-core", "ubuntu-appliance") and
             config.image_type == "daily-live"):
@@ -406,7 +372,7 @@ def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
             "livecd-base", "ubuntu-base", "ubuntu-core",
-            "ubuntu-appliance"):
+            "ubuntu-appliance", "ubuntu-wsl"):
         live_fs_only = True
     elif config.image_type == "daily-preinstalled":
         live_fs_only = True

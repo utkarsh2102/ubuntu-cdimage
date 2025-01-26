@@ -31,6 +31,7 @@ ubuntu			daily-live		oracular-		amd64 arm64
 ubuntu-desktop-preinstalled daily-preinstalled	jammy-		arm64+raspi
 
 ubuntu-mini-iso		*			*			amd64
+ubuntu-wsl		*			*			amd64 arm64
 
 ubuntu-gnome		*			*			amd64 i386
 

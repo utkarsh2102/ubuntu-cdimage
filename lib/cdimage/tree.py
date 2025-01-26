@@ -412,6 +412,8 @@ class Publisher:
                 return "live-core-desktop"
             elif self.project == "ubuntu-mini-iso":
                 return "mini-iso"
+            elif self.project == "ubuntu-wsl":
+                return "wsl"
             else:
                 return "desktop"
         elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
@@ -443,7 +445,8 @@ class Publisher:
         elif publish_type in (
                 "desktop", "live", "netbook",
                 "live-core", "live-core-desktop",
-                "live-server", "ubuntu-core-installer"):
+                "live-server", "ubuntu-core-installer",
+                "wsl"):
             return "daily-live"
         elif publish_type == "minimal":
             return "daily-minimal"
@@ -525,6 +528,8 @@ class Publisher:
             return "netboot tarball"
         elif publish_type == "mini-iso":
             return "mini ISO"
+        elif publish_type == "wsl":
+            return "WSL image"
         elif publish_type == "legacy-server":
             return "legacy server install %s" % cd
         elif publish_type == "serveraddon":
@@ -617,6 +622,10 @@ class Publisher:
             sentences.append(
                 "The mini ISO image is a small ISO image that can be used "
                 "to choose which other Ubuntu image to download and install.")
+        elif publish_type == "wsl":
+            sentences.append(
+                "The WSL image is the root filesystem to be installed and "
+                "launched by the Windows Subsystem for Linux.")
         elif publish_type == "alternate":
             sentences.append(
                 "The alternate install %s allows you to perform certain "
@@ -1100,6 +1109,7 @@ class Publisher:
                 if (entry.endswith(".list") or
                         entry.endswith(".img.gz") or
                         entry.endswith(".tar.gz") or
+                        entry.endswith(".wsl") or
                         entry.endswith(".img.xz")):
                     images.append(entry)
         return images
@@ -1128,7 +1138,7 @@ class Publisher:
             "live-server",
             "netboot",
             "legacy-server",
-            "mini-iso",
+            "mini-iso", "wsl",
             "server", "install", "alternate",
             "serveraddon", "addon",
             "dvd",
@@ -1362,7 +1372,7 @@ class Publisher:
                         arches = all_arches
                     for image_format in (
                         "iso", "img", "img.gz", "img.xz", "img.tar.gz",
-                        "tar.gz", "tar.xz", "custom.tar.gz"
+                        "tar.gz", "tar.xz", "custom.tar.gz", "wsl",
                     ):
                         paths = []
                         if image_format == "img" or image_format == "img.xz":
@@ -1705,7 +1715,7 @@ class Publisher:
             for icon, patterns in (
                 ("folder.png", "^^DIRECTORY^^"),
                 ("iso.png", ".iso"),
-                ("img.png", ".img .img.xz .tar.gz .tar.xz"),
+                ("img.png", ".img .img.xz .tar.gz .tar.xz .wsl"),
                 ("list.png", (
                     ".list .manifest .html .zsync "
                     "SHA256SUMS SHA256SUMS.gpg")),
@@ -2009,6 +2019,8 @@ class DailyTreePublisher(Publisher):
                 return "img.%s" % compressed_extension
             elif real_output.startswith("tar archive"):
                 return "tar.%s" % compressed_extension
+            elif real_output.startswith("WSL"):
+                return "wsl"
             else:
                 logger.warning(
                     "Unknown compressed file type '%s'; assuming .img.%s" %
@@ -3104,7 +3116,7 @@ class ReleasePublisher(Publisher):
         if publish_type in (
             "live", "desktop", "desktop-canary", "desktop-legacy", "netbook",
             "uec", "server-uec", "core", "wubi", "server", "live-server",
-            "legacy-server",
+            "legacy-server", "wsl",
         ):
             return True
         elif publish_type.startswith("preinstalled") and os.path.exists(path):

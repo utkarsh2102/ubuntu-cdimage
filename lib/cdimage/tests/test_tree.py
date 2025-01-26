@@ -533,7 +533,8 @@ class TestPublisherWebIndices(TestCase):
                 "IconWidth=22 HTMLTable\n"
                 "AddIcon ../../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../../cdicons/iso.png .iso\n"
-                "AddIcon ../../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
+                "AddIcon ../../cdicons/img.png .img .img.xz .tar.gz .tar.xz "
+                ".wsl\n"
                 "AddIcon ../../cdicons/list.png .list .manifest .html .zsync "
                 "SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../../cdicons/torrent.png .torrent\n",
@@ -623,7 +624,8 @@ class TestPublisherWebIndices(TestCase):
                 "IconWidth=22 HTMLTable\n"
                 "AddIcon ../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../cdicons/iso.png .iso\n"
-                "AddIcon ../cdicons/img.png .img .img.xz .tar.gz .tar.xz\n"
+                "AddIcon ../cdicons/img.png .img .img.xz .tar.gz .tar.xz "
+                ".wsl\n"
                 "AddIcon ../cdicons/list.png .list .manifest .html .zsync "
                 "SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../cdicons/torrent.png .torrent\n",
@@ -716,7 +718,7 @@ class TestPublisherWebIndices(TestCase):
                 "AddIcon ../../../cdicons/folder.png ^^DIRECTORY^^\n"
                 "AddIcon ../../../cdicons/iso.png .iso\n"
                 "AddIcon ../../../cdicons/img.png .img .img.xz .tar.gz "
-                ".tar.xz\n"
+                ".tar.xz .wsl\n"
                 "AddIcon ../../../cdicons/list.png .list .manifest .html "
                 ".zsync SHA256SUMS SHA256SUMS.gpg\n"
                 "AddIcon ../../../cdicons/torrent.png .torrent\n",
