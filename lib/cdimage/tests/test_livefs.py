@@ -42,7 +42,6 @@ from cdimage.launchpad import get_launchpad, launchpad_available
 from cdimage.livefs import (
     LiveBuildsFailed,
     download_live_filesystems,
-    flavours,
     live_build_command,
     live_build_full_name,
     live_build_notify_failure,
@@ -739,63 +738,6 @@ class TestLiveCDBase(TestCase):
         self.assertBaseEqual(
             self.base("celbalrai.buildd", "ubuntu-server-omap", "bionic"),
             "armel+omap", "ubuntu-server", "bionic")
-
-
-class TestFlavours(TestCase):
-    def assertFlavoursEqual(self, expected, arch, project, series):
-        config = Config(read=False)
-        config["PROJECT"] = project
-        config["DIST"] = series
-        self.assertEqual(expected.split(), flavours(config, arch))
-
-    def test_amd64(self):
-        for series in all_series[4:31]:
-            self.assertFlavoursEqual(
-                "generic", "amd64", "ubuntu", series)
-        for series in all_series[31:-2]:
-            self.assertFlavoursEqual(
-                "generic oem", "amd64", "ubuntu", series)
-        for series in all_series[-2:0]:
-            self.assertFlavoursEqual(
-                "generic", "amd64", "ubuntu", series)
-        for series in all_series[15:]:
-            if series <= "noble":
-                self.assertFlavoursEqual(
-                    "lowlatency", "amd64", "ubuntustudio", series)
-            else:
-                self.assertFlavoursEqual(
-                    "generic", "amd64", "ubuntustudio", series)
-
-    def test_armel(self):
-        for series in all_series[10:]:
-            self.assertFlavoursEqual(
-                "linaro-lt-mx5", "armel+mx5", "ubuntu", series)
-            self.assertFlavoursEqual("omap", "armel+omap", "ubuntu", series)
-            self.assertFlavoursEqual("imx51", "armel+imx51", "ubuntu", series)
-
-    def test_armhf(self):
-        for series in all_series:
-            self.assertFlavoursEqual(
-                "linaro-lt-mx5", "armhf+mx5", "ubuntu", series)
-            self.assertFlavoursEqual("omap4", "armhf+omap4", "ubuntu", series)
-
-    def test_i386(self):
-        for series in all_series[4:]:
-            self.assertFlavoursEqual("generic", "i386", "ubuntu", series)
-        for series in all_series[4:]:
-            self.assertFlavoursEqual("generic", "i386", "xubuntu", series)
-            self.assertFlavoursEqual("generic", "i386", "lubuntu", series)
-        for series in all_series[16:]:
-            self.assertFlavoursEqual(
-                "lowlatency", "i386", "ubuntustudio", series)
-
-    def test_ppc64el(self):
-        for series in all_series:
-            self.assertFlavoursEqual("generic", "ppc64el", "ubuntu", series)
-
-    def test_s390x(self):
-        for series in all_series:
-            self.assertFlavoursEqual("generic", "s390x", "ubuntu", series)
 
 
 class TestDownloadLiveFilesystems(TestCase):

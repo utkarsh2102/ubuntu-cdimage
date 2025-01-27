@@ -450,55 +450,6 @@ def livecd_base(config, arch):
     return "%s/%s/%s/current" % (root, series, liveproject)
 
 
-def flavours(config, arch):
-    cpuarch, subarch = split_arch(config, arch)
-    project = config.project
-    series = config["DIST"]
-
-    if cpuarch == "amd64":
-        if subarch == "intel-iot":
-            return ["intel-iotg"]
-        if series >= "focal" and project == "ubuntu":
-            return ["generic", "oem"]
-        if series <= "noble" and project == "ubuntustudio":
-            return ["lowlatency"]
-        else:
-            return ["generic"]
-    elif cpuarch == "arm64":
-        if subarch == "tegra":
-            return ["nvidia-tegra"]
-        elif subarch == "largemem":
-            return ["generic-64k"]
-        else:
-            return ["generic"]
-    elif cpuarch == "armel":
-        if subarch == "mx5":
-            return ["linaro-lt-mx5"]
-        else:
-            # Assume one kernel flavour for each subarch named like the
-            # subarch.
-            return [subarch]
-    elif cpuarch == "armhf":
-        if subarch == "mx5":
-            return ["linaro-lt-mx5"]
-        else:
-            return [subarch]
-    elif cpuarch == "i386":
-        if project == "ubuntustudio":
-            return ["lowlatency"]
-        else:
-            return ["generic"]
-    elif cpuarch == "ppc64el":
-        return ["generic"]
-    elif cpuarch == "s390x":
-        return ["generic"]
-    elif cpuarch == "riscv64":
-        return ["generic"]
-    else:
-        raise UnknownArchitecture(
-            "No live filesystem source known for %s" % arch)
-
-
 def live_output_directory(config):
     return os.path.join(
         config.root, "scratch", config.subtree, config.project,
