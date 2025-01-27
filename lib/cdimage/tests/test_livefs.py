@@ -48,7 +48,6 @@ from cdimage.livefs import (
     live_build_notify_failure,
     live_build_options,
     live_builder,
-    live_item_paths,
     live_output_directory,
     live_project,
     livecd_base,
@@ -797,85 +796,6 @@ class TestFlavours(TestCase):
     def test_s390x(self):
         for series in all_series:
             self.assertFlavoursEqual("generic", "s390x", "ubuntu", series)
-
-
-class TestLiveItemPaths(TestCase):
-    def setUp(self):
-        super(TestLiveItemPaths, self).setUp()
-        self.config = Config(read=False)
-        self.config.root = self.use_temp_dir()
-        make_livefs_production_config(self.config)
-
-    def assertPathsEqual(self, expected, arch, item, project, series):
-        self.config["PROJECT"] = project
-        self.config["DIST"] = series
-        self.assertEqual(
-            expected, list(live_item_paths(self.config, None, arch, item)))
-
-    def assertNoPaths(self, arch, item, project, series):
-        self.config["PROJECT"] = project
-        self.config["DIST"] = series
-        self.assertEqual([],
-                         list(live_item_paths(self.config, None, arch, item)))
-
-    def test_desktop_items(self):
-        for item in (
-            "cloop", "squashfs", "manifest", "manifest-desktop",
-            "manifest-remove", "manifest-minimal-remove", "size", "ext2",
-            "ext3", "ext4", "rootfs.tar.gz", "custom.tar.gz", "tar.xz", "iso",
-            "device.tar.gz", "azure.device.tar.gz", "plano.device.tar.gz",
-            "raspi2.device.tar.gz",
-        ):
-            self.assertPathsEqual(
-                ["http://kapok.buildd/~buildd/LiveCD/bionic/kubuntu/"
-                 "current/livecd.kubuntu.%s" % item],
-                "amd64", item, "kubuntu", "bionic")
-
-    def test_imgxz(self):
-        for item in ("img.xz", "model-assertion"):
-            self.assertPathsEqual(
-                ["http://kapok.buildd/~buildd/LiveCD/bionic/ubuntu-core/"
-                 "current/livecd.ubuntu-core.%s" % item],
-                "amd64", item, "ubuntu-core", "bionic")
-            self.assertPathsEqual(
-                ["http://kishi00.buildd/~buildd/LiveCD/bionic/"
-                 "ubuntu-core-raspi2/current/"
-                 "livecd.ubuntu-core-raspi2.%s" % item],
-                "armhf+raspi2", item, "ubuntu-core", "bionic")
-
-    def test_qcow(self):
-        self.assertPathsEqual(
-            ["http://kapok.buildd/~buildd/LiveCD/focal/ubuntu-core/"
-             "current/livecd.ubuntu-core.qcow2"],
-            "amd64", "qcow2", "ubuntu-core", "focal")
-
-    def test_kernel_items(self):
-        for item in ("kernel", "initrd", "bootimg"):
-            root = "http://kapok.buildd/~buildd/LiveCD/bionic/kubuntu/current"
-            self.assertPathsEqual(
-                ["%s/livecd.kubuntu.%s-generic" % (root, item),
-                 "%s/livecd.kubuntu.%s-generic-hwe" % (root, item)],
-                "amd64", item, "kubuntu", "bionic")
-
-    def test_kernel_efi_signed(self):
-        self.assertNoPaths("i386", "kernel-efi-signed", "ubuntu", "bionic")
-        root = "http://kapok.buildd/~buildd/LiveCD/bionic/ubuntu/current"
-        self.assertPathsEqual(
-            ["%s/livecd.ubuntu.kernel-generic.efi.signed" % root],
-            "amd64", "kernel-efi-signed", "ubuntu", "bionic")
-        root = "http://kapok.buildd/~buildd/LiveCD/quantal/ubuntu/current"
-        self.assertPathsEqual(
-            ["%s/livecd.ubuntu.kernel-generic.efi.signed" % root],
-            "amd64", "kernel-efi-signed", "ubuntu", "quantal")
-
-    def test_wubi(self):
-        for series in all_series[6:]:
-            path = ("http://people.canonical.com/~ubuntu-archive/wubi/%s/"
-                    "stable" % series)
-            self.assertPathsEqual([path], "amd64", "wubi", "ubuntu", series)
-            self.assertPathsEqual([path], "i386", "wubi", "ubuntu", series)
-        self.assertNoPaths("i386", "wubi", "xubuntu", "bionic")
-        self.assertNoPaths("arm64", "wubi", "ubuntu", "bionic")
 
 
 class TestDownloadLiveFilesystems(TestCase):
