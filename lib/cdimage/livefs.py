@@ -22,7 +22,6 @@ import fnmatch
 from gzip import GzipFile
 import io
 import os
-import re
 import subprocess
 import time
 try:
@@ -600,81 +599,6 @@ def live_output_directory(config):
     return os.path.join(
         config.root, "scratch", config.subtree, config.project,
         config.full_series, config.image_type, "live")
-
-
-def download_live_items(config, builds, arch, item):
-    output_dir = live_output_directory(config)
-    found = False
-
-    urls = list(live_item_paths(config, builds, arch, item))
-    if not urls:
-        return False
-
-    if item in (
-        "kernel", "initrd", "bootimg"
-    ):
-        for url in urls:
-            flavour = re.sub(
-                r"^.*?\..*?\..*?-", "", unquote(os.path.basename(url)))
-            target = os.path.join(
-                output_dir, "%s.%s-%s" % (arch, item, flavour))
-            try:
-                osextras.fetch(config, url, target)
-                found = True
-            except osextras.FetchError:
-                pass
-    elif item in (
-        "modules.squashfs",
-    ):
-        for url in urls:
-            base = unquote(os.path.basename(url))
-            base = "%s.%s" % (arch, base.split('.', 2)[2])
-            target = os.path.join(output_dir, base)
-            try:
-                osextras.fetch(config, url, target)
-                found = True
-            except osextras.FetchError:
-                pass
-    elif item == "kernel-efi-signed":
-        for url in urls:
-            base = unquote(os.path.basename(url))
-            if base.endswith(".efi.signed"):
-                base = base[:-len(".efi.signed")]
-            flavour = re.sub(r"^.*?\..*?\..*?-", "", base)
-            target = os.path.join(
-                output_dir, "%s.kernel-%s.efi.signed" % (arch, flavour))
-            try:
-                osextras.fetch(config, url, target)
-                found = True
-            except osextras.FetchError:
-                pass
-    elif item == "wubi":
-        target = os.path.join(output_dir, "%s.%s.exe" % (arch, item))
-        try:
-            osextras.fetch(config, urls[0], target)
-            found = True
-        except osextras.FetchError:
-            pass
-    elif item == "img.xz":
-        target = os.path.join(output_dir, "%s.img.xz" % arch)
-        try:
-            osextras.fetch(config, urls[0], target)
-            found = True
-        except osextras.FetchError:
-            pass
-    else:
-        for url in urls:
-            # strip livecd.<PROJECT> and replace by arch
-            filename = unquote(os.path.basename(url)).split('.', 2)[-1]
-            target = os.path.join(output_dir, "%s.%s" % (arch, filename))
-            try:
-                osextras.fetch(config, url, target)
-                if target.endswith("squashfs"):
-                    sign.sign_cdimage(config, target)
-                found = True
-            except osextras.FetchError:
-                pass
-    return found
 
 
 def live_build_notify_download_failure(config, arch, exc):
