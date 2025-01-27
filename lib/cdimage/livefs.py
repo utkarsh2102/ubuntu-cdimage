@@ -429,27 +429,6 @@ def run_live_builds(config):
     return successful_builds
 
 
-def livecd_base(config, arch):
-    if config["LIVECD_BASE"]:
-        return config["LIVECD_BASE"]
-
-    cpuarch, subarch = split_arch(config, arch)
-    series = config["DIST"]
-
-    if config["LIVECD"]:
-        root = config["LIVECD"]
-    else:
-        root = "http://%s/~buildd/LiveCD" % live_builder(config, arch)
-
-    liveproject = live_project(config, arch)
-    if config["SUBPROJECT"]:
-        liveproject += "-%s" % config["SUBPROJECT"]
-    if subarch:
-        liveproject += "-%s" % subarch
-
-    return "%s/%s/%s/current" % (root, series, liveproject)
-
-
 def live_output_directory(config):
     return os.path.join(
         config.root, "scratch", config.subtree, config.project,

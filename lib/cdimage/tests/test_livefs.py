@@ -49,7 +49,6 @@ from cdimage.livefs import (
     live_builder,
     live_output_directory,
     live_project,
-    livecd_base,
     run_live_builds,
     split_arch,
 )
@@ -692,52 +691,6 @@ class TestRunLiveBuilds(TestCase):
         self.assertEqual("Successfully built", builds[0].buildstate)
         self.assertEqual("Successfully built", builds[1].buildstate)
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
-
-
-class TestLiveCDBase(TestCase):
-    def setUp(self):
-        super(TestLiveCDBase, self).setUp()
-        self.config = Config(read=False)
-        self.config.root = self.use_temp_dir()
-        make_livefs_production_config(self.config)
-
-    def assertBaseEqual(self, expected, arch, project, series, **kwargs):
-        self.config["PROJECT"] = project
-        self.config["DIST"] = series
-        for key, value in kwargs.items():
-            self.config[key.upper()] = value
-        self.assertEqual(expected, livecd_base(self.config, arch))
-
-    def base(self, builder, project, series):
-        return "http://%s/~buildd/LiveCD/%s/%s/current" % (
-            builder, series, project)
-
-    def test_livecd_base_override(self):
-        self.assertBaseEqual(
-            "ftp://blah", "amd64", "ubuntu", "dapper",
-            livecd_base="ftp://blah")
-
-    def test_livecd_override(self):
-        self.assertBaseEqual(
-            "ftp://blah/bionic/ubuntu/current", "i386", "ubuntu", "bionic",
-            livecd="ftp://blah")
-
-    def test_subproject(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("cardamom.buildd", "ubuntu-wubi", series),
-                "i386", "ubuntu", series, subproject="wubi")
-
-    def test_no_subarch(self):
-        for series in all_series:
-            self.assertBaseEqual(
-                self.base("cardamom.buildd", "ubuntu", series),
-                "i386", "ubuntu", series)
-
-    def test_subarch(self):
-        self.assertBaseEqual(
-            self.base("celbalrai.buildd", "ubuntu-server-omap", "bionic"),
-            "armel+omap", "ubuntu-server", "bionic")
 
 
 class TestDownloadLiveFilesystems(TestCase):
