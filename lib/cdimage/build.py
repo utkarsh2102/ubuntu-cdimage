@@ -139,37 +139,6 @@ def build_britney(config):
         subprocess.check_call(["make", "-C", update_out])
 
 
-class UnknownLocale(Exception):
-    pass
-
-
-def build_ubuntu_defaults_locale(config, builds):
-    locale = config["UBUNTU_DEFAULTS_LOCALE"]
-    if locale != "zh_CN":
-        raise UnknownLocale(
-            "UBUNTU_DEFAULTS_LOCALE='%s' not currently supported!" % locale)
-
-    series = config["DIST"]
-    log_marker("Downloading live filesystem images")
-    builds = download_live_filesystems(config, builds)
-    config.limit_arches_for_builds(builds)
-    scratch = live_output_directory(config)
-    for entry in os.listdir(scratch):
-        if "." in entry:
-            os.rename(
-                os.path.join(scratch, entry),
-                os.path.join(scratch, "%s-desktop-%s" % (series, entry)))
-    pi_makelist = os.path.join(
-        config.root, "debian-cd", "tools", "pi-makelist")
-    for entry in os.listdir(scratch):
-        if entry.endswith(".iso"):
-            entry_path = os.path.join(scratch, entry)
-            list_path = "%s.list" % entry_path.rsplit(".", 1)[0]
-            with open(list_path, "w") as list_file:
-                subprocess.check_call(
-                    [pi_makelist, entry_path], stdout=list_file)
-
-
 def build_livecd_base(config, builds):
     log_marker("Downloading live filesystem images")
     builds = download_live_filesystems(config, builds)
