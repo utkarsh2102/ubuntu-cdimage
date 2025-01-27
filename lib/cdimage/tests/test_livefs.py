@@ -55,7 +55,6 @@ from cdimage.livefs import (
     livecd_base,
     run_live_builds,
     split_arch,
-    write_autorun,
 )
 from cdimage.tests.helpers import TestCase, mkfile, touch
 
@@ -1191,29 +1190,6 @@ class TestDownloadLiveFilesystems(TestCase):
                 # This can't be amd64.minimal.standard.live.squashfs for
                 # instance
                 "amd64.squashfs"))
-
-    def test_write_autorun(self):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily-live"
-        output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "bionic", "daily-live", "live")
-        os.makedirs(output_dir)
-        write_autorun(self.config, "i386", "wubi.exe", "Install Ubuntu")
-        autorun_path = os.path.join(output_dir, "i386.autorun.inf")
-        self.assertTrue(os.path.exists(autorun_path))
-        with open(autorun_path, "rb") as autorun:
-            self.assertEqual(
-                b"[autorun]\r\n"
-                b"open=wubi.exe\r\n"
-                b"icon=wubi.exe,0\r\n"
-                b"label=Install Ubuntu\r\n"
-                b"\r\n"
-                b"[Content]\r\n"
-                b"MusicFiles=false\r\n"
-                b"PictureFiles=false\r\n"
-                b"VideoFiles=false\r\n",
-                autorun.read())
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_filesystems_ubuntu_live(self, mock_fetch):

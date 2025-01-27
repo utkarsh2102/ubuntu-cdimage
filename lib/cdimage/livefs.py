@@ -24,7 +24,6 @@ import io
 import os
 import re
 import subprocess
-from textwrap import dedent
 import time
 try:
     from urllib.error import URLError
@@ -676,28 +675,6 @@ def download_live_items(config, builds, arch, item):
             except osextras.FetchError:
                 pass
     return found
-
-
-def write_autorun(config, arch, name, label):
-    output_dir = live_output_directory(config)
-    autorun_path = os.path.join(output_dir, "%s.autorun.inf" % arch)
-    with io.open(autorun_path, "w", newline="\r\n") as autorun:
-        if str is bytes:
-            def u(s):
-                return unicode(s, "unicode_escape")
-        else:
-            def u(s):
-                return s
-        print(u(dedent("""\
-            [autorun]
-            open=%s
-            icon=%s,0
-            label=%s
-
-            [Content]
-            MusicFiles=false
-            PictureFiles=false
-            VideoFiles=false""")) % (u(name), u(name), u(label)), file=autorun)
 
 
 def live_build_notify_download_failure(config, arch, exc):
