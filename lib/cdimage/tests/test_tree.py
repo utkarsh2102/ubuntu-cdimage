@@ -900,15 +900,17 @@ class TestDailyTreePublisher(TestCase):
     def test_size_limit(self):
         for project, dist, image_type, arch, size_limit in (
             ("ubuntustudio", None, "daily-live", "amd64", 6800000000),
-            ("ubuntustudio", "noble", "daily-live", "amd64", 7300000000),
+            ("ubuntustudio", "noble", "daily-live", "amd64", 7700000000),
             ("kubuntu", "jammy", "daily-live", "amd64", 4500000000),
             ("kubuntu", "oracular", "daily-live", "amd64", 4700000000),
-            ("ubuntu", "noble", "daily-live", "amd64", 6300000000),
+            ("ubuntu", "noble", "daily-live", "amd64", 6400000000),
             ("ubuntu", "plucky", "daily-live", "amd64", 6100000000),
             ("ubuntukylin", "jammy", "daily-live", "amd64", 4294967296),
+            ("ubuntukylin", "noble", "daily-live", "amd64", 5500000000),
             ("xubuntu", "bionic", "daily-live", "amd64", 2000000000),
             ("xubuntu", "focal", "daily-live", "amd64", 2000000000),
             ("xubuntu", "jammy", "daily-live", "amd64", 3000000000),
+            ("xubuntu", "noble", "daily-live", "amd64", 4200000000),
             ("ubuntu-budgie", "bionic", "daily-live", "amd64", 2000000000),
             ("ubuntu-budgie", "focal", "daily-live", "amd64", 4294967296),
             ("ubuntu-budgie", "jammy", "daily-live", "amd64", 4294967296),
@@ -920,6 +922,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntu-server", "jammy", "daily", "amd64", 3300000000),
             ("ubuntu-server", "jammy", "daily", "ppc64el", 3300000000),
             ("ubuntu-server", "noble", "daily", "riscv64", 3600000000),
+            ("ubuntucinnamon", "noble", "daily", "amd64", 5400000000),
         ):
             if dist is not None:
                 self.config["DIST"] = dist

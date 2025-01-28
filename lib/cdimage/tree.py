@@ -1849,7 +1849,7 @@ class DailyTreePublisher(Publisher):
                 return int(6.8 * 1000 * 1000 * 1000)
             else:
                 # the 24.04 LTS image was bigger than 24.10's
-                return int(7.3 * 1000 * 1000 * 1000)
+                return int(7.7 * 1000 * 1000 * 1000)
         elif self.project in ("kubuntu", "kubuntu-active"):
             # Per Matrix discussions 2024-10-07
             if self.config["DIST"] >= "oracular":
@@ -1860,7 +1860,7 @@ class DailyTreePublisher(Publisher):
         elif self.project == "ubuntukylin":
             if self.config["DIST"] >= "mantic":
                 # 2023-10-08, mentioned on #ubuntu-flavors
-                return int(4.5 * 1000 * 1000 * 1000)
+                return int(5.5 * 1000 * 1000 * 1000)
             if self.config["DIST"] >= "jammy":
                 # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
                 return int(4 * 1024 * 1024 * 1024)
@@ -1870,8 +1870,8 @@ class DailyTreePublisher(Publisher):
                 # optimizations
                 return int(6.1 * 1000 * 1000 * 1000)
             else:
-                # 2024-10-23, vorlon set to match actual image size
-                return int(6.3 * 1000 * 1000 * 1000)
+                # 2025-01-28, per Mattermost discussions
+                return int(6.4 * 1000 * 1000 * 1000)
         elif self.project == "ubuntu-mate":
             if self.config["DIST"] >= "noble":
                 return int(5 * 1000 * 1000 * 1000)
@@ -1882,8 +1882,8 @@ class DailyTreePublisher(Publisher):
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             return int(4 * 1024 * 1024 * 1024)
         elif self.project == "xubuntu" and self.config["DIST"] >= "noble":
-            # Per IRC discussions on #ubuntu-release 2024-02-02
-            return int(4 * 1000 * 1000 * 1000)
+            # Per Matrix discussions on #flavors:ubuntu.com 2025-01-27
+            return int(4.2 * 1000 * 1000 * 1000)
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
             # Per IRC discussions on #ubuntu-flavors 2024-02-15
             return int(3 * 1000 * 1000 * 1000)
@@ -1936,7 +1936,8 @@ class DailyTreePublisher(Publisher):
                 # email with powersj, 20200108
                 return int(1.2 * 1000 * 1000 * 1000)
         elif self.project == "ubuntucinnamon":
-            return int(4.2 * 1000 * 1000 * 1000)
+            # 2025-01-28, skia to match actual size for Noble .2
+            return int(5.4 * 1000 * 1000 * 1000)
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW
