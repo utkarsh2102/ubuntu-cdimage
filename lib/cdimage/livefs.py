@@ -75,26 +75,6 @@ def split_arch(config, arch):
     return cpuarch, subarch
 
 
-def live_build_options(config, arch):
-    options = []
-
-    cpuarch, subarch = split_arch(config, arch)
-    if (cpuarch in ("armel", "armhf") and
-            config.image_type == "daily-preinstalled"):
-        if subarch in ("mx5", "omap", "omap4"):
-            options.extend(["-f", "ext4"])
-        elif subarch in ("ac100", "nexus7"):
-            options.extend(["-f", "plain"])
-
-    if config.project in ("ubuntu-base", "ubuntu-core"):
-        options.extend(["-f", "plain"])
-
-    if config.subproject == "wubi":
-        options.extend(["-f", "ext3"])
-
-    return options
-
-
 def live_build_lp_kwargs(config, lp, lp_livefs, arch):
     cpuarch, subarch = split_arch(config, arch)
     kwargs = {}

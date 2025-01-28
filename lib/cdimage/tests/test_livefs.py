@@ -44,7 +44,6 @@ from cdimage.livefs import (
     download_live_filesystems,
     live_build_full_name,
     live_build_notify_failure,
-    live_build_options,
     live_output_directory,
     run_live_builds,
     split_arch,
@@ -186,59 +185,6 @@ def make_livefs_production_config(config):
             *\t\t*\t\ti386\t\t\tcardamom.buildd
             *\t\t*\t\tppc64el\t\t\tfisher01.buildd
             """), file=f)
-
-
-class TestLiveBuildOptions(TestCase):
-    def setUp(self):
-        super(TestLiveBuildOptions, self).setUp()
-        self.config = Config(read=False)
-
-    def test_armel_preinstalled(self):
-        self.config["IMAGE_TYPE"] = "daily-preinstalled"
-        for subarch, fstype in (
-            ("mx5", "ext4"),
-            ("omap", "ext4"),
-            ("omap4", "ext4"),
-            ("ac100", "plain"),
-            ("nexus7", "plain"),
-        ):
-            self.assertEqual(
-                ["-f", fstype],
-                live_build_options(self.config, "armel+%s" % subarch))
-        self.assertEqual([], live_build_options(self.config, "armel+other"))
-
-    def test_armhf_preinstalled(self):
-        self.config["IMAGE_TYPE"] = "daily-preinstalled"
-        for subarch, fstype in (
-            ("mx5", "ext4"),
-            ("omap", "ext4"),
-            ("omap4", "ext4"),
-            ("ac100", "plain"),
-            ("nexus7", "plain"),
-        ):
-            self.assertEqual(
-                ["-f", fstype],
-                live_build_options(self.config, "armhf+%s" % subarch))
-        self.assertEqual([], live_build_options(self.config, "armhf+other"))
-
-    def test_ubuntu_core(self):
-        self.config["PROJECT"] = "ubuntu-core"
-        self.assertEqual(
-            ["-f", "plain"], live_build_options(self.config, "i386"))
-
-    def test_ubuntu_base(self):
-        self.config["PROJECT"] = "ubuntu-base"
-        self.assertEqual(
-            ["-f", "plain"], live_build_options(self.config, "i386"))
-
-    def test_wubi(self):
-        self.config["SUBPROJECT"] = "wubi"
-        for series, fstype in (
-            ("bionic", "ext3"),  # ext4
-        ):
-            self.config["DIST"] = series
-            self.assertEqual(
-                ["-f", fstype], live_build_options(self.config, "i386"))
 
 
 def mock_strftime(secs):
