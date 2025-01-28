@@ -767,7 +767,7 @@ def download_live_filesystems(config, builds):
         return builds
 
     if (config["CDIMAGE_LIVE"] or config["CDIMAGE_PREINSTALLED"]):
-        if config["DIST"] >= "plucky":
+        if config["DIST"] >= "plucky" or config.project == "ubuntu-wsl":
             successful_builds = {}
             for arch, build in builds.items():
                 try:
