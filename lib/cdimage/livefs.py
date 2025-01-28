@@ -129,35 +129,6 @@ def live_project(config, arch):
     return config.livefs_project_for_arch(arch)
 
 
-def live_build_command(config, arch):
-    command = [
-        "ssh", "-n", "-o", "StrictHostKeyChecking=no", "-o", "BatchMode=yes",
-        "buildd@%s" % live_builder(config, arch),
-        "/home/buildd/bin/BuildLiveCD",
-    ]
-
-    command.append("-l")
-
-    command.extend(live_build_options(config, arch))
-
-    cpuarch, subarch = split_arch(config, arch)
-    if cpuarch:
-        command.extend(["-A", cpuarch])
-    if subarch:
-        command.extend(["-s", subarch])
-
-    if config.get("PROPOSED", "0") not in ("", "0"):
-        command.append("-p")
-    if config.series:
-        command.extend(["-d", config.series])
-
-    if config.subproject:
-        command.extend(["-r", config.subproject])
-    command.append(live_project(config, arch))
-
-    return command
-
-
 def live_build_lp_kwargs(config, lp, lp_livefs, arch):
     cpuarch, subarch = split_arch(config, arch)
     kwargs = {}

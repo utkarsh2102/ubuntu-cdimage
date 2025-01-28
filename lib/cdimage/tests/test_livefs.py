@@ -42,7 +42,6 @@ from cdimage.launchpad import get_launchpad
 from cdimage.livefs import (
     LiveBuildsFailed,
     download_live_filesystems,
-    live_build_command,
     live_build_full_name,
     live_build_notify_failure,
     live_build_options,
@@ -325,68 +324,6 @@ class TestLiveBuildOptions(TestCase):
             self.config["DIST"] = series
             self.assertEqual(
                 ["-f", fstype], live_build_options(self.config, "i386"))
-
-
-class TestLiveBuildCommand(TestCase):
-    def setUp(self):
-        super(TestLiveBuildCommand, self).setUp()
-        self.config = Config(read=False)
-        self.config.root = self.use_temp_dir()
-        make_livefs_production_config(self.config)
-        self.base_expected = [
-            "ssh", "-n", "-o", "StrictHostKeyChecking=no",
-            "-o", "BatchMode=yes",
-        ]
-
-    def contains_subsequence(self, haystack, needle):
-        # This is inefficient, but it doesn't matter much here.
-        for i in range(len(haystack) - len(needle) + 1):
-            if haystack[i:i + len(needle)] == needle:
-                return True
-        return False
-
-    def assertCommandContains(self, subsequence, arch):
-        observed = live_build_command(self.config, arch)
-        if not self.contains_subsequence(observed, subsequence):
-            self.fail("%s does not contain %s" % (observed, subsequence))
-
-    def test_basic(self):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        expected = self.base_expected + [
-            "buildd@cardamom.buildd", "/home/buildd/bin/BuildLiveCD",
-            "-l", "-A", "i386", "-d", "bionic", "ubuntu",
-        ]
-        self.assertEqual(expected, live_build_command(self.config, "i386"))
-
-    def test_pre_live_build(self):
-        self.config["DIST"] = "bionic"
-        self.assertIn("-l", live_build_command(self.config, "i386"))
-
-    @mock.patch(
-        "cdimage.livefs.live_build_options", return_value=["-f", "plain"])
-    def test_uses_live_build_options(self, *args):
-        self.assertCommandContains(["-f", "plain"], "i386")
-
-    def test_subarch(self):
-        self.assertCommandContains(["-s", "omap4"], "armhf+omap4")
-
-    def test_proposed(self):
-        self.config["PROPOSED"] = "1"
-        self.assertIn("-p", live_build_command(self.config, "i386"))
-
-    def test_series(self):
-        self.config["DIST"] = "bionic"
-        self.assertCommandContains(["-d", "bionic"], "i386")
-
-    def test_subproject(self):
-        self.config["SUBPROJECT"] = "wubi"
-        self.assertCommandContains(["-r", "wubi"], "i386")
-
-    def test_project(self):
-        self.config["PROJECT"] = "kubuntu"
-        self.assertEqual(
-            "kubuntu", live_build_command(self.config, "i386")[-1])
 
 
 def mock_strftime(secs):
