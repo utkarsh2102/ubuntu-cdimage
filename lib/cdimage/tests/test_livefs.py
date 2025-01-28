@@ -47,7 +47,6 @@ from cdimage.livefs import (
     live_build_options,
     live_builder,
     live_output_directory,
-    live_project,
     run_live_builds,
     split_arch,
 )
@@ -169,36 +168,6 @@ class TestSplitArch(TestCase):
     def test_i386(self):
         config = Config(read=False)
         self.assertEqual(("i386", ""), split_arch(config, "i386"))
-
-
-class TestLiveProject(TestCase):
-    def assertProjectEqual(self, expected, project, series, arch="i386",
-                           **kwargs):
-        os.environ["CDIMAGE_ROOT"] = self.use_temp_dir()
-        os.environ["ARCHES"] = arch
-        etc_dir = os.path.join(self.temp_dir, "etc")
-        with mkfile(os.path.join(etc_dir, "config")) as f:
-            print(dedent("""\
-                #! /bin/sh
-                PROJECT=%s
-                DIST=%s
-                """ % (project, series)), file=f)
-        with mkfile(os.path.join(etc_dir, "cdimage-to-livecd-rootfs-map")) \
-             as f:
-            print("ubuntu-appliance\t*\t*\t*\t*\tubuntu-core\t*\t*\n"
-                  "livecd-base\t*\t*\t*\t*\tbase\t*\t*", file=f)
-        config = Config()
-        for key, value in kwargs.items():
-            config[key.upper()] = value
-        self.assertEqual(expected, live_project(config, arch))
-
-    def test_project_livecd_base(self):
-        self.assertProjectEqual("base", "livecd-base", "dapper")
-
-    def test_ubuntu_appliance(self):
-        # We currently only support ubuntu-appliances for bionic (UC18)
-        self.assertProjectEqual(
-            "ubuntu-core", "ubuntu-appliance", "bionic")
 
 
 def make_livefs_production_config(config):

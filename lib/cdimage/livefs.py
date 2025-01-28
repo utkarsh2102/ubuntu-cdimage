@@ -125,10 +125,6 @@ def live_build_options(config, arch):
     return options
 
 
-def live_project(config, arch):
-    return config.livefs_project_for_arch(arch)
-
-
 def live_build_lp_kwargs(config, lp, lp_livefs, arch):
     cpuarch, subarch = split_arch(config, arch)
     kwargs = {}
