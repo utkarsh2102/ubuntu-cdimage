@@ -1028,6 +1028,8 @@ class Publisher:
             return "preinstalled SD Card image"
         elif extension == "iso":
             return "standard download"
+        elif extension == "wsl":
+            return "standard download"
         elif extension.endswith(".torrent"):
             return "%s download" % Link(
                 "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
@@ -1360,6 +1362,8 @@ class Publisher:
             bt_link = Link(
                 "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
 
+            found_publish_types = set()
+
             for prefix in prefixes:
                 for publish_type in all_publish_types:
                     if not self.find_images(directory, prefix, publish_type):
@@ -1400,6 +1404,8 @@ class Publisher:
                                 paths.append((path, arch, base))
                         if not paths:
                             continue
+
+                        found_publish_types.add(publish_type)
 
                         print('<div class="row p-divider">'
                               + '<div class="p-card">',
@@ -1481,6 +1487,7 @@ class Publisher:
                                     "manifest-minimal-remove",
                                     "tar.gz", "tar.gz.zsync",
                                     "bootimg", "tar.xz", "custom.tar.gz",
+                                    "wsl",
                                 )
                             for extension in htaccess_extensions:
                                 extpath = "%s.%s" % (base, extension)
@@ -1610,7 +1617,7 @@ class Publisher:
                 print("</tbody></table>", file=header)
 
             if ([entry for entry in os.listdir(directory)
-                 if "-arm" in entry]):
+                 if "-arm" in entry]) and found_publish_types != set(["wsl"]):
                 link = Link(
                     "https://wiki.ubuntu.com/ARM/Server/Install",
                     "ARM/Server/Install")
@@ -2160,7 +2167,7 @@ class DailyTreePublisher(Publisher):
                 "%s.qcow2" % target_prefix)
 
         # zsync metafiles
-        if osextras.find_on_path("zsyncmake"):
+        if osextras.find_on_path("zsyncmake") and publish_type != "wsl":
             logger.info("Making %s zsync metafile ..." % arch)
             osextras.unlink_force("%s.%s.zsync" % (target_prefix, extension))
             zsyncmake(
