@@ -24,7 +24,6 @@ from itertools import chain, repeat
 import gzip
 import os
 import subprocess
-from textwrap import dedent
 import time
 try:
     from urllib.request import urlopen
@@ -166,25 +165,6 @@ class TestSplitArch(TestCase):
     def test_i386(self):
         config = Config(read=False)
         self.assertEqual(("i386", ""), split_arch(config, "i386"))
-
-
-def make_livefs_production_config(config):
-    config_path = os.path.join(config.root, "production", "livefs-builders")
-    # TODO: This is just a copy of the current production configuration as
-    # of 2014-05-09; it's not really in the spirit of unit testing, and we
-    # should be writing more specific tests instead.
-    with mkfile(config_path) as f:
-        print(dedent("""\
-            *\t\t*\t\tamd64\t\t\tkapok.buildd
-            *\t\t*\t\tarm64\t\t\tmagic.buildd
-            *\t\t*\t\tarmel\t\t\tcelbalrai.buildd
-            ubuntu-server\t*\t\tarmhf+omap4\t\tcelbalrai.buildd
-            *\t\t*\t\tarmhf+ac100\t\tcelbalrai.buildd
-            *\t\t*\t\tarmhf+nexus7\t\tcelbalrai.buildd
-            *\t\t*\t\tarmhf\t\t\tkishi00.buildd
-            *\t\t*\t\ti386\t\t\tcardamom.buildd
-            *\t\t*\t\tppc64el\t\t\tfisher01.buildd
-            """), file=f)
 
 
 def mock_strftime(secs):
