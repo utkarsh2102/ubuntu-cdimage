@@ -1857,15 +1857,14 @@ class DailyTreePublisher(Publisher):
             # Per IRC discussions on #ubuntu-release 2023-11-27
             else:
                 return int(4.5 * 1000 * 1000 * 1000)
-        elif self.project in ("ubuntu", "ubuntukylin"):
-            if (self.config["DIST"] >= "mantic" and
-                    self.project == "ubuntukylin"):
+        elif self.project == "ubuntukylin":
+            if self.config["DIST"] >= "mantic":
                 # 2023-10-08, mentioned on #ubuntu-flavors
                 return int(4.5 * 1000 * 1000 * 1000)
-            if (self.config["DIST"] >= "jammy" and
-                    self.project == "ubuntukylin"):
+            if self.config["DIST"] >= "jammy":
                 # Per IRC discussions on #ubuntu-flavors on the 2020-10-08
                 return int(4 * 1024 * 1024 * 1024)
+        elif self.project == "ubuntu":
             if self.config["DIST"] >= "oracular":
                 # 2024-10-04, vorlon set to match actual image size after
                 # optimizations
