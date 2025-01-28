@@ -69,6 +69,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 41 3 * * *	DIST=noble for-project ubuntu-mate cron.daily-live --live
 10 12 * * *	DIST=noble PROPOSED=1 for-project ubuntu-unity cron.daily-live --live
 24 12 * * *	DIST=noble for-project ubuntucinnamon cron.daily-live --live
+21 02 * * *	DIST=noble for-project ubuntu-wsl cron.daily-live --live
 # The daily ubuntu-base images are used by core-next, so we can't build it
 # with proposed enabled.
 12 5 * * *	DIST=noble PROPOSED=0 for-project ubuntu-base cron.daily-live --live
@@ -86,6 +87,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 36 2 * * *	for-project ubuntu-mate cron.daily-live --live
 10 13 * * *	for-project ubuntu-unity cron.daily-live --live
 24 13 * * *	for-project ubuntucinnamon cron.daily-live --live
+21 02 * * *	for-project ubuntu-wsl cron.daily-live --live
 # The daily ubuntu-base images are used by core-next, so we can't build it
 # with proposed enabled.
 42 4 * * *	PROPOSED=0 for-project ubuntu-base cron.daily-live --live
