@@ -185,7 +185,7 @@ def live_build_full_name(config, arch):
     return "-".join(bits)
 
 
-def live_build_notify_failure(config, arch, lp_build=None):
+def live_build_notify_failure(config, arch, lp_build):
     if config["DEBUG"]:
         return
 
@@ -204,19 +204,13 @@ def live_build_notify_failure(config, arch, lp_build=None):
 
     datestamp = time.strftime("%Y%m%d")
     try:
-        if lp_build is not None:
-            if lp_build.build_log_url is None:
-                raise URLError(
-                    "Failed build %s has no build_log_url" % lp_build.web_link)
-            with closing(urlopen(lp_build.build_log_url, timeout=30)) as comp:
-                with closing(io.BytesIO(comp.read())) as comp_bytes:
-                    with closing(GzipFile(fileobj=comp_bytes)) as f:
-                        body = f.read()
-        else:
-            log_url = "http://%s/~buildd/LiveCD/%s/%s/latest/livecd-%s.out" % (
-                live_builder(config, arch), config.series, livefs_id, cpuarch)
-            with closing(urlopen(log_url, timeout=30)) as f:
-                body = f.read()
+        if lp_build.build_log_url is None:
+            raise URLError(
+                "Failed build %s has no build_log_url" % lp_build.web_link)
+        with closing(urlopen(lp_build.build_log_url, timeout=30)) as comp:
+            with closing(io.BytesIO(comp.read())) as comp_bytes:
+                with closing(GzipFile(fileobj=comp_bytes)) as f:
+                    body = f.read()
     except URLError:
         body = b""
     subject = "LiveFS %s%s/%s/%s failed to build on %s" % (
@@ -294,9 +288,7 @@ def run_live_builds(config):
         full_name = live_build_full_name(config, arch)
         timestamp = time.strftime("%F %T")
         lp, lp_livefs = get_lp_livefs(config, arch)
-        machine = "Launchpad"
-        logger.info(
-            "%s on %s starting at %s" % (full_name, machine, timestamp))
+        logger.info("%s on Launchpad starting at %s", full_name, timestamp)
         tracker_set_rebuild_status(config, [0, 1], 2, arch)
         lp_build = None
         if config["CDIMAGE_REUSE_BUILD"]:
@@ -319,36 +311,33 @@ def run_live_builds(config):
             lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
             lp_build = lp_livefs.requestBuild(**lp_kwargs)
             logger.info("%s: %s" % (full_name, lp_build.web_link))
-        lp_builds.append((lp_build, arch, full_name, machine, None))
+        lp_builds.append((lp_build, arch, full_name, None))
 
     successful_builds = {}
 
-    def live_build_finished(arch, full_name, machine, status, text_status,
-                            lp_build=None):
-        timestamp = time.strftime("%F %T")
-        logger.info("%s on %s finished at %s (%s)" % (
-            full_name, machine, timestamp, text_status))
-        if status == 0:
+    def live_build_finished(arch, full_name, lp_build):
+        logger.info(
+            "%s on Launchpad finished at %s (%s)",
+            full_name, time.strftime("%F %T"), lp_build.buildstate)
+        if lp_build.buildstate == "Successfully built":
             tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
             successful_builds[arch] = lp_build
         else:
             tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
-            live_build_notify_failure(config, arch, lp_build=lp_build)
+            live_build_notify_failure(config, arch, lp_build)
 
     while lp_builds:
         # Check for Launchpad build results.
         pending_lp_builds = []
         for lp_item in lp_builds:
-            lp_build, arch, full_name, machine, log_timeout = lp_item
+            lp_build, arch, full_name, log_timeout = lp_item
             lp_build.lp_refresh()
             if lp_build.buildstate in (
                     "Needs building", "Currently building",
                     "Gathering build output", "Uploading build"):
                 pending_lp_builds.append(lp_item)
             elif lp_build.buildstate == "Successfully built":
-                live_build_finished(
-                    arch, full_name, machine, 0, lp_build.buildstate,
-                    lp_build=lp_build)
+                live_build_finished(arch, full_name, lp_build)
             elif (lp_build.build_log_url is None and
                   (log_timeout is None or time.time() < log_timeout)):
                 # Wait up to five minutes for Launchpad to fetch the build
@@ -357,11 +346,9 @@ def run_live_builds(config):
                 if log_timeout is None:
                     log_timeout = time.time() + 300
                 pending_lp_builds.append(
-                    (lp_build, arch, full_name, machine, log_timeout))
+                    (lp_build, arch, full_name, log_timeout))
             else:
-                live_build_finished(
-                    arch, full_name, machine, 1, lp_build.buildstate,
-                    lp_build=lp_build)
+                live_build_finished(arch, full_name, lp_build)
         lp_builds = pending_lp_builds
 
         if lp_builds:
