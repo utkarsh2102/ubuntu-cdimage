@@ -212,7 +212,8 @@ class Tree:
         """Return true if a given file is allowed in the manifest."""
         if (path.endswith(".iso") or path.endswith(".img") or
                 path.endswith(".img.gz") or path.endswith(".img.xz") or
-                path.endswith(".tar.gz") or path.endswith(".tar.xz")):
+                path.endswith(".tar.gz") or path.endswith(".tar.xz") or
+                path.endswith(".wsl")):
             try:
                 if stat.S_ISREG(os.stat(path).st_mode):
                     return True
