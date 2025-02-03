@@ -222,7 +222,8 @@ class ChecksumFileSet:
                 image.endswith(".tar.xz") or
                 image.endswith(".cloop") or
                 image.endswith(".squashfs") or
-                image.endswith(".qcow2")):
+                image.endswith(".qcow2") or
+                image.endswith(".wsl")):
             return True
         else:
             return False
