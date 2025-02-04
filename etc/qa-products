@@ -113,8 +113,9 @@ Xubuntu Minimal amd64						xubuntu/minimal		daily-minimal		minimal					amd64			i
 # Ubuntu Mini ISO
 Ubuntu Mini ISO amd64						ubuntu-mini-iso	daily-live			mini-iso				amd64			iso
 
-# Ubuntu WSL (special case, not built via cdimage)
+# Ubuntu WSL
 Ubuntu WSL									ubuntu			wsl					desktop					amd64			iso
+Ubuntu WSL									ubuntu			wsl					desktop					arm64			iso
 
 # Ubuntu Core
 Ubuntu Core amd64 stable					ubuntu-core		stable				live-core				amd64			iso
