@@ -764,7 +764,7 @@ def download_live_filesystems(config, builds):
             destpath = os.path.join(output_dir, destname)
             logger.info("linking %r to %r", srcpath, destpath)
             os.link(srcpath, destpath)
-        return builds
+        return {arch: None}
 
     if (config["CDIMAGE_LIVE"] or config["CDIMAGE_PREINSTALLED"]):
         if config["DIST"] >= "plucky" or config.project == "ubuntu-wsl":
