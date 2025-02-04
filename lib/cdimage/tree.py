@@ -1874,7 +1874,7 @@ class DailyTreePublisher(Publisher):
                 return int(4.7 * 1000 * 1000 * 1000)
             # Per IRC discussions on #ubuntu-release 2023-11-27
             else:
-                return int(4.5 * 1000 * 1000 * 1000)
+                return int(4.6 * 1000 * 1000 * 1000)
         elif self.project == "ubuntukylin":
             if self.config["DIST"] >= "mantic":
                 # 2023-10-08, mentioned on #ubuntu-flavors
@@ -1901,7 +1901,7 @@ class DailyTreePublisher(Publisher):
             return int(4 * 1024 * 1024 * 1024)
         elif self.project == "xubuntu" and self.config["DIST"] >= "noble":
             # Per Matrix discussions on #flavors:ubuntu.com 2025-01-27
-            return int(4.2 * 1000 * 1000 * 1000)
+            return int(4.3 * 1000 * 1000 * 1000)
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
             # Per IRC discussions on #ubuntu-flavors 2024-02-15
             return int(3 * 1000 * 1000 * 1000)
@@ -1955,7 +1955,7 @@ class DailyTreePublisher(Publisher):
                 return int(1.2 * 1000 * 1000 * 1000)
         elif self.project == "ubuntucinnamon":
             # 2025-01-28, skia to match actual size for Noble .2
-            return int(5.4 * 1000 * 1000 * 1000)
+            return int(5.5 * 1000 * 1000 * 1000)
         else:
             if self.publish_type == "dvd":
                 # http://en.wikipedia.org/wiki/DVD_plus_RW
