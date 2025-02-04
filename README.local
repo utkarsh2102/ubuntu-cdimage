@@ -1,0 +1,38 @@
+Running ubuntu-cdimage locally
+------------------------------
+
+It is now possible to run ubuntu-cdimage (and debian-cd) locally
+without too much pain.
+
+Here are the generic preparation steps:
+
+$ git clone https://git.launchpad.net/ubuntu-cdimage
+$ cd ubuntu-cdimage
+$ git clone https://git.launchpad.net/~ubuntu-cdimage/debian-cd/+git/ubuntu debian-cd
+$ git clone http://git.launchpad.net/germinate
+$ export CDIMAGE_ROOT=$(pwd) PATH=$(pwd)/bin:$PATH
+
+(if you have python3-germinate installed you will need to remove it so
+that the one from HEAD is used in preference to the installed version)
+
+Then for a particular build, set up the deb822 sources that describe
+where you want to get pool packages from. Most of the time this will
+be something like:
+
+$ cat plucky.sources
+Types: deb
+URIs: http://archive.ubuntu.com/ubuntu
+Suites: plucky plucky-updates
+Components: main restricted
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Thhe once you have downloaded the livefs artefacts somewhere, let's
+say ~/build.output for now, "just" run something like:
+
+$ CDIMAGE_LOCAL_LIVEFS_ARTIFACTS=~/build.output/ CDIMAGE_POOL_SOURCES=plucky.sources \
+  ARCHES=amd64 DIST=plucky DEBUG=1 for-project ubuntu-server cron.daily-live
+
+You can also set APT_PROXY to point at a caching proxy to speed things
+up for repeated builds (you will need to change some squid options
+like maximum_object_size and cache_dir from the defaults to make it
+behave usefully for this).
