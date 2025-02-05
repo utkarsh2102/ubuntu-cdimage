@@ -1605,6 +1605,7 @@ class TestDailyTreePublisher(TestCase):
             ("ubuntucinnamon", "daily-live", "desktop",
                 "Ubuntu Cinnamon Desktop"),
             ("ubuntu-mini-iso", "daily-live", "mini-iso", "Ubuntu Mini ISO"),
+            ("ubuntu-wsl", "daily-live", "desktop", "Ubuntu WSL"),
         ):
             # Use "daily" here to match bin/post-qa; qa_product shouldn't
             # use the publisher's image_type at all.
