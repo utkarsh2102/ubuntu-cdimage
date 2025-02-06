@@ -3196,7 +3196,7 @@ class ReleasePublisher(Publisher):
         main_img = None
 
         for ext in ("iso", "img", "img.gz", "img.xz", "tar.gz", "img.tar.gz",
-                    "tar.xz"):
+                    "tar.xz", "wsl"):
             if os.path.exists(daily(ext)):
                 main_img = daily(ext)
                 break
@@ -3206,7 +3206,7 @@ class ReleasePublisher(Publisher):
         # Copy, to make sure we have a canonical version of this.
         artifacts = ["iso", "list", "img", "img.gz", "img.xz", "tar.gz",
                      "img.tar.gz", "tar.xz", "bootimg", "custom.tar.gz",
-                     "device.tar.gz", "azure.device.tar.gz"]
+                     "device.tar.gz", "azure.device.tar.gz", "wsl"]
         for ext in artifacts:
             if not os.path.exists(daily(ext)):
                 continue
@@ -3348,7 +3348,7 @@ class ReleasePublisher(Publisher):
             for arch in arches:
                 paths = []
                 for ext in ("iso", "img", "img.gz", "img.xz", "img.tar.gz",
-                            "tar.gz"):
+                            "tar.gz", "wsl"):
                     paths.append(os.path.join(
                         daily_dir,
                         "%s-%s-%s.%s" % (series, publish_type, arch, ext)))
