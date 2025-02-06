@@ -1317,7 +1317,7 @@ class Publisher:
             if ("full" in reldir.split(os.pardir) and
                     "-alpha-" not in base_prefix and
                     base_prefix != self.config.series):
-                if self.project in ("ubuntu", "ubuntu-server"):
+                if self.project in ("ubuntu", "ubuntu-server", "ubuntu-wsl"):
                     url = "http://releases.ubuntu.com/"
                 else:
                     url = None
@@ -3047,7 +3047,7 @@ class ReleasePublisher(Publisher):
         if self.official in ("yes", "poolonly", "named", "inteliot"):
             project = self.project
             version = self.version
-            if project == "ubuntu-server":
+            if project in ["ubuntu-server", "ubuntu-wsl"]:
                 project = "ubuntu"
             # For intel-iot image publishing, we do not use pointversion
             # as the product does not follow the regular Ubuntu release
