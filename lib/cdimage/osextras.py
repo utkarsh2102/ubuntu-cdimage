@@ -113,7 +113,17 @@ def fetch(config, source, target):
         os.environ.get('LP_DISABLE_SSL_CERTIFICATE_VALIDATION', False))
 
     # This should arguably use urllib2/urllib.request or similar instead.
-    command = ["wget", "-nv"]
+    command = [
+        "wget",
+        "-nv",
+        "--retry-connrefused",  # retry in case of fatal errors
+        "--waitretry=5",  # wait 5 seconds between retries
+        "--read-timeout=20",  # 20 seconds of not data received before retry
+        "--timeout=15",  # wait 15 seconds before initial connection timeout
+        "-t",
+        "20",  # retry 20 times in total
+        "--continue",  # pick up where the last attempt left off
+    ]
     if no_check_certificate:
         command.append("--no-check-certificate")
     command.extend([source, "-O", target])

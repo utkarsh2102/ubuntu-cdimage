@@ -195,8 +195,22 @@ class TestOSExtras(TestCase):
         osextras.fetch(config, "http://example.org/source", target)
         self.assertEqual(1, mock_call.call_count)
         self.assertEqual(
-            ["wget", "-nv", "http://example.org/source", "-O", target],
-            mock_call.call_args[0][0])
+            [
+                "wget",
+                "-nv",
+                "--retry-connrefused",
+                "--waitretry=5",
+                "--read-timeout=20",
+                "--timeout=15",
+                "-t",
+                "20",
+                "--continue",
+                "http://example.org/source",
+                "-O",
+                target,
+            ],
+            mock_call.call_args[0][0],
+        )
 
     def test_read_shell_config(self):
         os.environ["ONE"] = "one"
