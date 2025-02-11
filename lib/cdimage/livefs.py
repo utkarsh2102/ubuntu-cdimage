@@ -484,17 +484,17 @@ def download_live_filesystems(config, builds):
     osextras.mkemptydir(output_dir)
 
     if config["CDIMAGE_LOCAL_LIVEFS_ARTIFACTS"]:
+        # There might be some clever way we could fake up a livefs
+        # build-like object to point at the artifacts in this
+        # directory and then use download_livefs_artifacts, but for
+        # now a bit of duplicated logic will have to do.
+        artifacts_dir = config["CDIMAGE_LOCAL_LIVEFS_ARTIFACTS"]
         assert len(config.arches) == 1
         arch = config.arches[0]
-        if "+" in arch:
-            pname = f'{config["PROJECT"]}-{arch.split("+")[1]}'
-        else:
-            pname = config["PROJECT"]
-        artifacts_dir = config["CDIMAGE_LOCAL_LIVEFS_ARTIFACTS"]
         for srcname in os.listdir(artifacts_dir):
-            destname = srcname.replace(f"livecd.{pname}.", f"{arch}.")
+            base = srcname.split('.', 2)[2]
             srcpath = os.path.join(artifacts_dir, srcname)
-            destpath = os.path.join(output_dir, destname)
+            destpath = os.path.join(output_dir, f"{arch}.{base}")
             logger.info("linking %r to %r", srcpath, destpath)
             os.link(srcpath, destpath)
         return {arch: None}
