@@ -90,7 +90,7 @@ Ubuntu Server Subiquity s390x					ubuntu-server/live	daily-live			live-server			
 Ubuntu Server Subiquity riscv64					ubuntu-server/live	daily-live			live-server				riscv64			iso
 
 # Ubuntu Studio
-Ubuntu Studio DVD amd64						ubuntustudio	dvd			desktop					amd64			iso
+Ubuntu Studio DVD amd64						ubuntustudio	dvd			dvd					amd64			iso
 Ubuntu Studio Desktop amd64					ubuntustudio	daily-live			desktop					amd64			iso
 Ubuntu Studio DVD i386						ubuntustudio	dvd					dvd						i386			iso
 
