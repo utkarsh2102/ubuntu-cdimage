@@ -47,11 +47,11 @@ mv_checksum() {
         # pass
     fi
 
-    if grep -q "$image" $target_checksum; then
+    if grep -q "${image}." $target_checksum; then
         echo "Image already present in the target checksum file, please proceed manually!"
         exit 1
     fi
-    if ! grep -q "$image" $source_checksum; then
+    if ! grep -q "${image}." $source_checksum; then
         echo "Image not present in the source checksum file, please proceed manually!"
         exit 1
     fi
