@@ -43,24 +43,23 @@ mv_checksum() {
     fi
     if [ ! -e "$target_checksum" ]; then
         echo "No destination SHA256SUM file available, creating a new one. Make sure this is correct."
-        touch $target_checksum
-        # pass
+        touch "$target_checksum"
     fi
 
-    if grep -q "$image" $target_checksum; then
+    if grep -q "${image}." "$target_checksum"; then
         echo "Image already present in the target checksum file, please proceed manually!"
         exit 1
     fi
-    if ! grep -q "$image" $source_checksum; then
+    if ! grep -q "${image}." "$source_checksum"; then
         echo "Image not present in the source checksum file, please proceed manually!"
         exit 1
     fi
 
-    grep "\*$image\." $source_checksum >>$target_checksum
-    grep "\*$image\." -v $source_checksum >$source_checksum.new
-    mv $source_checksum.new $source_checksum
-    sign-cdimage $target_checksum
-    sign-cdimage $source_checksum
+    grep "\*$image\." "$source_checksum" >>"$target_checksum"
+    grep "\*$image\." -v "$source_checksum" >"$source_checksum".new
+    mv "$source_checksum".new "$source_checksum"
+    sign-cdimage "$target_checksum"
+    sign-cdimage "$source_checksum"
 }
 
 [ $# -ne 1 ] && usage "Requires exactly one argument."
@@ -74,7 +73,7 @@ CDIMAGE_SIMPLE="/srv/cdimage.ubuntu.com/www/simple"
 OLD_IMAGES="/srv/cdimage.ubuntu.com/old-images"
 OLD_RELEASES="/srv/cdimage.ubuntu.com/www/old-releases"
 
-images_arg=$(realpath -s $1)
+images_arg=$(realpath -s "$1")
 # Remove .img, .img.xz, .img.gz or .iso suffix, in case it's given
 images_arg=${images_arg%.iso}
 images_arg=${images_arg%.img}
@@ -101,17 +100,16 @@ case $images_source in
         if [ ! -d "$images_dest" ]; then
             echo "Destination directory non-existing, creating..."
             mkdir -p "$images_dest"
-            # pass
         fi
 
         echo "Archiving image to old-releases..."
 
         # These come from full/, so no symlinks
-        if ! mv $images_arg* "$images_dest"; then
+        if ! mv "$images_arg"* "$images_dest"; then
             echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
             exit 1
         fi
-        mv_checksum $images_base $images_source $images_dest
+        mv_checksum "$images_base" "$images_source" "$images_dest"
         ;;
 
     $CDIMAGE_FULL/*)
@@ -129,16 +127,15 @@ case $images_source in
         if [ ! -d "$images_dest" ]; then
             echo "Destination directory non-existing, creating..."
             mkdir -p "$images_dest"
-            # pass
         fi
 
         echo "Archiving image to old-images..."
 
-        if ! mv $images_arg* "$images_dest"; then
+        if ! mv "$images_arg"* "$images_dest"; then
             echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
             exit 1
         fi 
-        mv_checksum $images_base $images_source $images_dest
+        mv_checksum "$images_base" "$images_source" "$images_dest"
         ;;
 
     $CDIMAGE_SIMPLE/*)
@@ -156,24 +153,23 @@ case $images_source in
         if [ ! -d "$images_dest" ] || [ ! -d "$images_dest_pool" ]; then
             echo "Destination directory non-existing, creating..."
             mkdir -p "$images_dest" "$images_dest_pool"
-            # pass
         fi
 
         echo "Archiving image to old-releases..."
 
         # First archive .pool
-        if ! mv $images_source_pool/$images_base* "$images_dest_pool"; then
+        if ! mv "$images_source_pool/$images_base"* "$images_dest_pool"; then
             echo "Archival of images from $images_source_pool to $images_dest_pool failed! Please double check the image state!"
             exit 1
         fi 
         # ...then remains and symlinks from the main directory
-        if ! mv $images_arg* "$images_dest"; then
+        if ! mv "$images_arg"* "$images_dest"; then
             echo "Archival of images from $images_source to $images_dest failed! Please double check the image state!"
             exit 1
         fi
 
         # Only now it's safe to move the checksums
-        mv_checksum $images_base $images_source_pool $images_dest_pool
-        mv_checksum $images_base $images_source $images_dest
+        mv_checksum "$images_base" "$images_source_pool" "$images_dest_pool"
+        mv_checksum "$images_base" "$images_source" "$images_dest"
         ;;
 esac
