@@ -21,6 +21,7 @@ from __future__ import print_function
 
 from collections import defaultdict
 from itertools import chain, repeat
+import gzip
 import os
 import subprocess
 from textwrap import dedent
@@ -404,6 +405,8 @@ def mock_Popen(command):
 
 
 def mock_urlopen(data):
+    if data:
+        data = gzip.compress(data)
     mock_obj = mock.MagicMock(name="urlopen", spec=urlopen)
     handle = mock.MagicMock(spec=["__enter__", "close", "read"])
     handle.__enter__.return_value = handle
@@ -417,7 +420,17 @@ class TestRunLiveBuilds(TestCase):
         super(TestRunLiveBuilds, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
-        make_livefs_production_config(self.config)
+        with mkfile(os.path.join(
+                self.config.root, "production", "livefs-launchpad")) as f:
+            print("*\t*\t*\t*\tubuntu-cdimage/ubuntu-desktop", file=f)
+        mocks = [
+            mock.patch(
+                "cdimage.launchpad.login", return_value=MockLaunchpad()),
+            mock.patch("time.sleep"),
+            ]
+        for m in mocks:
+            m.start()
+            self.addCleanup(m.stop)
 
     def test_live_build_full_name(self):
         self.config["PROJECT"] = "ubuntu"
@@ -434,12 +447,12 @@ class TestRunLiveBuilds(TestCase):
     @mock.patch("cdimage.livefs.get_notify_addresses")
     def test_live_build_notify_failure_debug(self, mock_notify_addresses):
         self.config["DEBUG"] = "1"
-        live_build_notify_failure(self.config, None)
+        live_build_notify_failure(self.config, None, MockLiveFSBuild())
         self.assertEqual(0, mock_notify_addresses.call_count)
 
     @mock.patch("cdimage.livefs.send_mail")
     def test_live_build_notify_failure_no_recipients(self, mock_send_mail):
-        live_build_notify_failure(self.config, None)
+        live_build_notify_failure(self.config, None, MockLiveFSBuild())
         self.assertEqual(0, mock_send_mail.call_count)
 
     @mock.patch("time.strftime", return_value="20130315")
@@ -450,10 +463,15 @@ class TestRunLiveBuilds(TestCase):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "i386"
+
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
-        live_build_notify_failure(self.config, "i386")
+
+        [lp_build] = mock_builds_for_config(self.config).values()
+
+        live_build_notify_failure(self.config, "i386", lp_build)
         mock_send_mail.assert_called_once_with(
             "LiveFS ubuntu/bionic/i386 failed to build on 20130315",
             "buildlive", ["foo@example.org"], b"")
@@ -464,26 +482,33 @@ class TestRunLiveBuilds(TestCase):
         self.config["PROJECT"] = "kubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "armhf+omap4"
+
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
+
         mock_urlopen_obj = mock_urlopen(b"Log data\n")
+        [lp_build] = mock_builds_for_config(self.config).values()
+        lp_build.build_log_url = 'http://librarian.internal/build.log.gz'
+
         with mock.patch("cdimage.livefs.urlopen", mock_urlopen_obj):
-            live_build_notify_failure(self.config, "armhf+omap4")
+            live_build_notify_failure(self.config, "armhf+omap4", lp_build)
+
         mock_urlopen_obj.assert_called_once_with(
-            "http://kishi00.buildd/~buildd/LiveCD/bionic/kubuntu-omap4/latest/"
-            "livecd-armhf.out", timeout=30)
+            "http://librarian.internal/build.log.gz",
+            timeout=30)
         mock_send_mail.assert_called_once_with(
             "LiveFS kubuntu-omap4/bionic/armhf+omap4 failed to build on "
             "20130315",
             "buildlive", ["foo@example.org"], b"Log data\n")
 
     @mock_strftime(1363355331)
-    @mock.patch("cdimage.livefs.live_build_command", return_value=["false"])
     @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
     @mock.patch("cdimage.livefs.send_mail")
-    def test_run_live_builds_notifies_on_failure(self, mock_send_mail,
-                                                 mock_tracker, *args):
+    def test_run_live_builds_notifies_on_failure(
+            self, mock_send_mail, mock_request_build, mock_tracker, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
@@ -492,17 +517,27 @@ class TestRunLiveBuilds(TestCase):
         with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         self.capture_logging()
+
+        def requestBuild(distro_arch_series, **kw):
+            build = MockLiveFSBuild(distro_arch_series=distro_arch_series)
+            build._buildstates = chain(
+                ["Needs building"] * 3, repeat("Failed to build"))
+            return build
+        mock_request_build.side_effect = requestBuild
+
         with mock.patch("cdimage.livefs.urlopen", mock_urlopen(b"Log data\n")):
             self.assertRaisesRegex(
                 LiveBuildsFailed, "No live filesystem builds succeeded.",
                 run_live_builds, self.config)
         self.assertCountEqual([
-            "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
-            "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
-            "ubuntu-amd64 on kapok.buildd finished at 2013-03-15 13:48:51 "
-            "(failed)",
-            "ubuntu-i386 on cardamom.buildd finished at 2013-03-15 13:48:51 "
-            "(failed)",
+            "ubuntu-amd64 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-amd64: https://launchpad.example/amd64-build",
+            "ubuntu-i386 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-i386: https://launchpad.example/i386-build",
+            "ubuntu-amd64 on Launchpad finished at 2013-03-15 13:48:51"
+            " (Failed to build)",
+            "ubuntu-i386 on Launchpad finished at 2013-03-15 13:48:51"
+            " (Failed to build)",
         ], self.captured_log_messages())
         mock_send_mail.assert_has_calls([
             mock.call(
@@ -519,138 +554,90 @@ class TestRunLiveBuilds(TestCase):
             mock.call(self.config, [0, 1, 2], 5, "i386")
         ])
 
-    @mock_strftime(1363355331)
     @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
-    @mock_Popen(["true"])
-    @mock.patch("cdimage.livefs.live_build_notify_failure")
-    def test_run_live_builds(self, mock_live_build_notify_failure, mock_popen,
-                             mock_tracker_set_rebuild_status, *args):
-        self.config["PROJECT"] = "ubuntu"
-        self.config["DIST"] = "bionic"
-        self.config["IMAGE_TYPE"] = "daily"
-        self.config["ARCHES"] = "amd64 i386"
-        self.capture_logging()
-        self.assertCountEqual(["amd64", "i386"],
-                              run_live_builds(self.config).keys())
-        self.assertCountEqual([
-            "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
-            "ubuntu-i386 on cardamom.buildd starting at 2013-03-15 13:48:51",
-            "ubuntu-amd64 on kapok.buildd finished at 2013-03-15 13:48:51 "
-            "(success)",
-            "ubuntu-i386 on cardamom.buildd finished at 2013-03-15 13:48:51 "
-            "(success)",
-        ], self.captured_log_messages())
-        self.assertEqual(4, mock_tracker_set_rebuild_status.call_count)
-        mock_tracker_set_rebuild_status.assert_has_calls([
-            mock.call(self.config, [0, 1], 2, "amd64"),
-            mock.call(self.config, [0, 1], 2, "i386"),
-            mock.call(self.config, [0, 1, 2], 3, "amd64"),
-            mock.call(self.config, [0, 1, 2], 3, "i386"),
-        ])
-        expected_command_base = [
-            "ssh", "-n", "-o", "StrictHostKeyChecking=no",
-            "-o", "BatchMode=yes",
-        ]
-        mock_popen.assert_has_calls([
-            mock.call(
-                expected_command_base + [
-                    "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
-                    "-l", "-A", "amd64", "-d", "bionic", "ubuntu",
-                ]),
-            mock.call(
-                expected_command_base + [
-                    "buildd@cardamom.buildd", "/home/buildd/bin/BuildLiveCD",
-                    "-l", "-A", "i386", "-d", "bionic", "ubuntu",
-                ])
-        ])
-        self.assertEqual(0, mock_live_build_notify_failure.call_count)
-
-    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
-    @mock_Popen(["true"])
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
     @mock.patch("cdimage.livefs.live_build_notify_failure")
     def test_run_live_builds_skips_amd64_mac(self,
                                              mock_live_build_notify_failure,
-                                             mock_popen, *args):
+                                             mock_request_build,
+                                             *args):
+        # XXX mwhudson, 2025-02-28: I don't understand what this test is
+        # testing.
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64"
         self.capture_logging()
+
+        def requestBuild(distro_arch_series, **kw):
+            build = MockLiveFSBuild(distro_arch_series=distro_arch_series)
+            build._buildstates = chain(
+                ["Needs building"] * 3, repeat("Successfully built"))
+            return build
+        mock_request_build.side_effect = requestBuild
+
         self.assertCountEqual(
             ["amd64"], run_live_builds(self.config).keys())
-        expected_command = [
-            "ssh", "-n", "-o", "StrictHostKeyChecking=no",
-            "-o", "BatchMode=yes",
-            "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
-            "-l", "-A", "amd64", "-d", "bionic", "ubuntu",
-        ]
-        mock_popen.assert_called_once_with(expected_command)
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
 
     @mock_strftime(1363355331)
     @mock.patch("cdimage.livefs.urlopen", mock_urlopen(b"Log data\n"))
     @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
     @mock.patch("cdimage.livefs.send_mail")
-    def test_run_live_builds_partial_success(self, mock_send_mail, *args):
+    def test_run_live_builds_partial_success(
+            self, mock_send_mail, mock_reqest_build, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config["ARCHES"] = "amd64 i386"
+
+        def requestBuild(distro_arch_series, **kw):
+            build = MockLiveFSBuild(distro_arch_series=distro_arch_series)
+            if distro_arch_series.architecture_tag == "amd64":
+                build._buildstates = chain(
+                    ["Needs building"] * 3, repeat("Successfully built"))
+            else:
+                build._buildstates = chain(
+                    ["Needs building"] * 3, repeat("Failed to build"))
+            return build
+
+        mock_reqest_build.side_effect = requestBuild
+
+        osextras.unlink_force(os.path.join(
+            self.config.root, "production", "livefs-builders"))
+        with mkfile(os.path.join(
+                self.config.root, "production", "livefs-launchpad")) as f:
+            print("*\t*\t*\t*\tubuntu-cdimage/ubuntu-desktop", file=f)
+
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
         with mkfile(path) as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         self.capture_logging()
-        original_Popen = subprocess.Popen
-        with mock.patch("subprocess.Popen") as mock_popen:
-            def Popen_side_effect(command, *args, **kwargs):
-                if "amd64" in command:
-                    return original_Popen(["true"])
-                else:
-                    return original_Popen(["false"])
-
-            mock_popen.side_effect = Popen_side_effect
-            self.assertCountEqual(
-                ["amd64"],
-                run_live_builds(self.config).keys())
-            self.assertCountEqual([
-                "ubuntu-amd64 on kapok.buildd starting at 2013-03-15 13:48:51",
-                "ubuntu-i386 on cardamom.buildd starting at "
-                "2013-03-15 13:48:51",
-                "ubuntu-amd64 on kapok.buildd finished at "
-                "2013-03-15 13:48:51 (success)",
-                "ubuntu-i386 on cardamom.buildd finished at "
-                "2013-03-15 13:48:51 (failed)",
-            ], self.captured_log_messages())
-            expected_command_base = [
-                "ssh", "-n", "-o", "StrictHostKeyChecking=no",
-                "-o", "BatchMode=yes",
-            ]
-            mock_popen.assert_has_calls([
-                mock.call(
-                    expected_command_base + [
-                        "buildd@kapok.buildd", "/home/buildd/bin/BuildLiveCD",
-                        "-l", "-A", "amd64", "-d", "bionic", "ubuntu",
-                    ]),
-                mock.call(
-                    expected_command_base + [
-                        "buildd@cardamom.buildd",
-                        "/home/buildd/bin/BuildLiveCD",
-                        "-l", "-A", "i386", "-d", "bionic", "ubuntu",
-                    ]),
-            ])
-            mock_send_mail.assert_called_once_with(
-                "LiveFS ubuntu/bionic/i386 failed to build on 20130315",
-                "buildlive", ["foo@example.org"], b"Log data\n")
+        self.assertCountEqual(
+            ["amd64"],
+            run_live_builds(self.config).keys())
+        self.assertCountEqual([
+            "ubuntu-amd64 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-amd64: https://launchpad.example/amd64-build",
+            "ubuntu-i386 on Launchpad starting at 2013-03-15 13:48:51",
+            "ubuntu-i386: https://launchpad.example/i386-build",
+            "ubuntu-amd64 on Launchpad finished at 2013-03-15 13:48:51"
+            " (Successfully built)",
+            "ubuntu-i386 on Launchpad finished at 2013-03-15 13:48:51"
+            " (Failed to build)",
+        ], self.captured_log_messages())
+        mock_send_mail.assert_called_once_with(
+            "LiveFS ubuntu/bionic/i386 failed to build on 20130315",
+            "buildlive", ["foo@example.org"], b"Log data\n")
 
     @mock_strftime(1363355331)
-    @mock.patch("time.sleep")
     @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
     @mock.patch("cdimage.livefs.live_build_notify_failure")
-    @mock.patch("cdimage.tests.test_livefs.MockLiveFSBuild._iter_buildstate")
-    @mock.patch("cdimage.launchpad.login")
-    def test_run_live_builds_lp(self, mock_login, mock_iter_buildstate,
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
+    def test_run_live_builds_lp(self, mock_reqest_build,
                                 mock_live_build_notify_failure,
-                                mock_tracker_set_rebuild_status, mock_sleep,
+                                mock_tracker_set_rebuild_status,
                                 *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
@@ -662,9 +649,14 @@ class TestRunLiveBuilds(TestCase):
                 self.config.root, "production", "livefs-launchpad")) as f:
             print("*\t*\t*\t*\tubuntu-cdimage/ubuntu-desktop", file=f)
         self.capture_logging()
-        mock_login.return_value = MockLaunchpad()
-        mock_iter_buildstate.side_effect = lambda: (
-            chain(["Needs building"] * 3, repeat("Successfully built")))
+
+        def requestBuild(distro_arch_series, **kw):
+            build = MockLiveFSBuild(distro_arch_series=distro_arch_series)
+            build._buildstates = chain(
+                ["Needs building"] * 3, repeat("Successfully built"))
+            return build
+        mock_reqest_build.side_effect = requestBuild
+
         self.assertCountEqual(["amd64", "i386"],
                               run_live_builds(self.config).keys())
         self.assertCountEqual([
@@ -684,8 +676,8 @@ class TestRunLiveBuilds(TestCase):
             mock.call(self.config, [0, 1, 2], 3, "amd64"),
             mock.call(self.config, [0, 1, 2], 3, "i386"),
         ])
-        self.assertEqual(3, mock_sleep.call_count)
-        mock_sleep.assert_has_calls([mock.call(15)] * 3)
+        self.assertEqual(3, time.sleep.call_count)
+        time.sleep.assert_has_calls([mock.call(15)] * 3)
         lp = get_launchpad()
         owner = lp.people["ubuntu-cdimage"]
         ubuntu = lp.distributions["ubuntu"]
