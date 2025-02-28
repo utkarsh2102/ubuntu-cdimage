@@ -701,7 +701,6 @@ class TestDownloadLiveFilesystems(TestCase):
         super(TestDownloadLiveFilesystems, self).setUp()
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
-        make_livefs_production_config(self.config)
 
     def test_live_output_directory(self):
         self.config["PROJECT"] = "ubuntu"
