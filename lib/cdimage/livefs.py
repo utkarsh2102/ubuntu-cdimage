@@ -22,7 +22,6 @@ import fnmatch
 from gzip import GzipFile
 import io
 import os
-import subprocess
 import time
 try:
     from urllib.error import URLError
@@ -303,10 +302,7 @@ def live_lp_info(config, arch):
 
 
 def get_lp_livefs(config, arch):
-    try:
-        lp_info = live_lp_info(config, arch)
-    except UnknownLaunchpadLiveFS:
-        return None, None
+    lp_info = live_lp_info(config, arch)
     if len(lp_info) > 2:
         instance, owner, name = lp_info
     else:
@@ -326,45 +322,37 @@ def get_lp_livefs(config, arch):
 
 
 def run_live_builds(config):
-    builds = {}
     lp_builds = []
     for arch in config.arches:
         full_name = live_build_full_name(config, arch)
         timestamp = time.strftime("%F %T")
         lp, lp_livefs = get_lp_livefs(config, arch)
-        if lp_livefs is None:
-            machine = live_builder(config, arch)
-        else:
-            machine = "Launchpad"
+        machine = "Launchpad"
         logger.info(
             "%s on %s starting at %s" % (full_name, machine, timestamp))
         tracker_set_rebuild_status(config, [0, 1], 2, arch)
-        if lp_livefs is not None:
-            lp_build = None
-            if config["CDIMAGE_REUSE_BUILD"]:
-                cpuarch, subarch = split_arch(config, arch)
-                for build in lp_livefs.builds:
-                    try:
-                        metadata_subarch = build.metadata_override.get(
-                            "subarch", "")
-                    except AttributeError:
-                        metadata_subarch = ""
-                    if (build.distro_arch_series.architecture_tag == cpuarch
-                            and metadata_subarch == subarch
-                            and build.buildstate == "Successfully built"):
-                        logger.info("reusing build %s", build)
-                        lp_build = build
-                        break
-                else:
-                    raise Exception("no build found to reuse for %s" % (arch,))
-            if lp_build is None:
-                lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
-                lp_build = lp_livefs.requestBuild(**lp_kwargs)
-                logger.info("%s: %s" % (full_name, lp_build.web_link))
-            lp_builds.append((lp_build, arch, full_name, machine, None))
-        else:
-            proc = subprocess.Popen(live_build_command(config, arch))
-            builds[proc.pid] = (proc, arch, full_name, machine)
+        lp_build = None
+        if config["CDIMAGE_REUSE_BUILD"]:
+            cpuarch, subarch = split_arch(config, arch)
+            for build in lp_livefs.builds:
+                try:
+                    metadata_subarch = build.metadata_override.get(
+                        "subarch", "")
+                except AttributeError:
+                    metadata_subarch = ""
+                if (build.distro_arch_series.architecture_tag == cpuarch
+                        and metadata_subarch == subarch
+                        and build.buildstate == "Successfully built"):
+                    logger.info("reusing build %s", build)
+                    lp_build = build
+                    break
+            else:
+                raise Exception("no build found to reuse for %s" % (arch,))
+        if lp_build is None:
+            lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
+            lp_build = lp_livefs.requestBuild(**lp_kwargs)
+            logger.info("%s: %s" % (full_name, lp_build.web_link))
+        lp_builds.append((lp_build, arch, full_name, machine, None))
 
     successful_builds = {}
 
@@ -380,16 +368,7 @@ def run_live_builds(config):
             tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
             live_build_notify_failure(config, arch, lp_build=lp_build)
 
-    while builds or lp_builds:
-        # Check for non-Launchpad build results.
-        for pid, (proc, arch, full_name, machine) in list(builds.items()):
-            status = proc.poll()
-            if status is not None:
-                del builds[pid]
-                live_build_finished(
-                    arch, full_name, machine, status,
-                    "success" if status == 0 else "failed")
-
+    while lp_builds:
         # Check for Launchpad build results.
         pending_lp_builds = []
         for lp_item in lp_builds:
@@ -419,9 +398,6 @@ def run_live_builds(config):
         lp_builds = pending_lp_builds
 
         if lp_builds:
-            # Wait a while before polling Launchpad again.  If a
-            # non-Launchpad build completes in the meantime, it will
-            # interrupt this sleep with SIGCHLD.
             time.sleep(15)
 
     if not successful_builds:
