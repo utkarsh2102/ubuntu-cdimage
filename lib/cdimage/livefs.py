@@ -39,18 +39,6 @@ from cdimage.tracker import tracker_set_rebuild_status
 __metaclass__ = type
 
 
-class UnknownArchitecture(Exception):
-    pass
-
-
-class UnknownLiveItem(Exception):
-    pass
-
-
-class NoFilesystemImages(Exception):
-    pass
-
-
 class LiveBuildsFailed(Exception):
     pass
 

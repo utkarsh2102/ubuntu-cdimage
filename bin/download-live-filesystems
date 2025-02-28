@@ -28,16 +28,12 @@ sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 
 def main():
     from cdimage.config import Config
-    from cdimage.livefs import NoFilesystemImages, download_live_filesystems
+    from cdimage.livefs import download_live_filesystems
 
     parser = OptionParser("%prog")
     parser.parse_args()
     config = Config()
-    try:
-        download_live_filesystems(config)
-    except NoFilesystemImages as e:
-        print(e, file=sys.stderr)
-        sys.exit(1)
+    download_live_filesystems(config)
 
 
 if __name__ == "__main__":
