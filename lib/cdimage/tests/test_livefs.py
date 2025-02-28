@@ -140,6 +140,19 @@ class MockLaunchpad(mock.MagicMock):
         self.livefses = MockLiveFSes()
 
 
+def mock_builds_for_config(config, artifact_names=()):
+    if not isinstance(artifact_names, dict):
+        artifact_names = {arch: artifact_names for arch in config.arches}
+    builds = {}
+    for arch in config.arches:
+        build = MockLiveFSBuild()
+        build.getFileUrls.return_value = [
+            f"https://librarian.internal/a.b.{artifact_name}"
+            for artifact_name in artifact_names.get(arch, [])]
+        builds[arch] = build
+    return builds
+
+
 class TestSplitArch(TestCase):
     def test_amd64(self):
         config = Config(read=False)
@@ -713,7 +726,6 @@ class TestDownloadLiveFilesystems(TestCase):
 
     @mock.patch("cdimage.osextras.fetch")
     def test_download_live_filesystems_ubuntu_live(self, mock_fetch):
-        from cdimage.tests.test_build import mock_builds_for_config
         artifacts = (
             "squashfs", "kernel-generic", "kernel-generic.efi.signed",
             "initrd-generic", "manifest", "manifest-remove",

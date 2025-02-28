@@ -53,22 +53,9 @@ from cdimage.config import Config
 from cdimage.log import logger
 from cdimage.mail import text_file_type
 from cdimage.tests.helpers import TestCase, mkfile, touch, StubAptStateManager
-from cdimage.tests.test_livefs import MockLiveFSBuild
+from cdimage.tests.test_livefs import mock_builds_for_config
 
 __metaclass__ = type
-
-
-def mock_builds_for_config(config, artifact_names=()):
-    if not isinstance(artifact_names, dict):
-        artifact_names = {arch: artifact_names for arch in config.arches}
-    builds = {}
-    for arch in config.arches:
-        build = MockLiveFSBuild()
-        build.getFileUrls.return_value = [
-            f"https://librarian.internal/a.b.{artifact_name}"
-            for artifact_name in artifact_names.get(arch, [])]
-        builds[arch] = build
-    return builds
 
 
 class TestBuildLiveCDBase(TestCase):
