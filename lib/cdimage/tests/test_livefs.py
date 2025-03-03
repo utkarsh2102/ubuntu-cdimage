@@ -29,7 +29,6 @@ try:
     from urllib.request import urlopen
 except ImportError:
     from urllib2 import urlopen
-from unittest import skipUnless
 
 try:
     from unittest import mock
@@ -38,7 +37,7 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.config import Config, all_series
-from cdimage.launchpad import get_launchpad, launchpad_available
+from cdimage.launchpad import get_launchpad
 from cdimage.livefs import (
     LiveBuildsFailed,
     download_live_filesystems,
@@ -630,7 +629,6 @@ class TestRunLiveBuilds(TestCase):
                 "LiveFS ubuntu/bionic/i386 failed to build on 20130315",
                 "buildlive", ["foo@example.org"], b"Log data\n")
 
-    @skipUnless(launchpad_available, "launchpadlib not available")
     @mock_strftime(1363355331)
     @mock.patch("time.sleep")
     @mock.patch("cdimage.livefs.tracker_set_rebuild_status")

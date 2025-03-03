@@ -23,13 +23,8 @@ try:
 except ImportError:
     from collections import Mapping
 
-try:
-    from launchpadlib.launchpad import Launchpad
-    from lazr.restfulclient.resource import Resource
-    launchpad_available = True
-except ImportError:
-    Resource = type
-    launchpad_available = False
+from launchpadlib.launchpad import Launchpad
+from lazr.restfulclient.resource import Resource
 
 __metaclass__ = type
 
@@ -170,7 +165,6 @@ def login(instance):
 
 class _LaunchpadCache:
     def __init__(self, instance=None):
-        assert launchpad_available
         if not instance:
             instance = "production"
         if instance == "dogfood":
