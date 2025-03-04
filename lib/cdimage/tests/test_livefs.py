@@ -37,7 +37,7 @@ except ImportError:
     import mock
 
 from cdimage import osextras
-from cdimage.config import Config, all_series
+from cdimage.config import Config
 from cdimage.launchpad import get_launchpad
 from cdimage.livefs import (
     LiveBuildsFailed,
@@ -45,7 +45,6 @@ from cdimage.livefs import (
     live_build_full_name,
     live_build_notify_failure,
     live_build_options,
-    live_builder,
     live_output_directory,
     run_live_builds,
     split_arch,
@@ -187,59 +186,6 @@ def make_livefs_production_config(config):
             *\t\t*\t\ti386\t\t\tcardamom.buildd
             *\t\t*\t\tppc64el\t\t\tfisher01.buildd
             """), file=f)
-
-
-class TestLiveBuilder(TestCase):
-    def setUp(self):
-        super(TestLiveBuilder, self).setUp()
-        self.config = Config(read=False)
-        self.config.root = self.use_temp_dir()
-        make_livefs_production_config(self.config)
-
-    def assertBuilderEqual(self, expected, arch, series, project=None):
-        self.config["DIST"] = series
-        if project is not None:
-            self.config["PROJECT"] = project
-        self.assertEqual(expected, live_builder(self.config, arch))
-
-    def test_amd64(self):
-        for series in all_series:
-            self.assertBuilderEqual("kapok.buildd", "amd64", series)
-
-    def test_armel(self):
-        for series in all_series:
-            self.assertBuilderEqual("celbalrai.buildd", "armel", series)
-
-    def test_arm64(self):
-        for series in all_series:
-            self.assertBuilderEqual("magic.buildd", "arm64", series)
-
-    def test_armhf(self):
-        for series in all_series:
-            self.assertBuilderEqual(
-                "kishi00.buildd", "armhf+mx5", series, project="ubuntu")
-            self.assertBuilderEqual(
-                "kishi00.buildd", "armhf+omap", series, project="ubuntu")
-            self.assertBuilderEqual(
-                "kishi00.buildd", "armhf+omap4", series, project="ubuntu")
-            self.assertBuilderEqual(
-                "kishi00.buildd", "armhf+omap", series,
-                project="ubuntu-server")
-            self.assertBuilderEqual(
-                "celbalrai.buildd", "armhf+omap4", series,
-                project="ubuntu-server")
-            self.assertBuilderEqual("celbalrai.buildd", "armhf+ac100", series)
-            self.assertBuilderEqual("celbalrai.buildd", "armhf+nexus7", series)
-            self.assertBuilderEqual(
-                "kishi00.buildd", "armhf+somethingelse", series)
-
-    def test_i386(self):
-        for series in all_series:
-            self.assertBuilderEqual("cardamom.buildd", "i386", series)
-
-    def test_ppc64el(self):
-        for series in all_series:
-            self.assertBuilderEqual("fisher01.buildd", "ppc64el", series)
 
 
 class TestLiveBuildOptions(TestCase):

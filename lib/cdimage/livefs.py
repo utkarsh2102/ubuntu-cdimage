@@ -75,36 +75,6 @@ def split_arch(config, arch):
     return cpuarch, subarch
 
 
-def live_builder(config, arch):
-    cpuarch, subarch = split_arch(config, arch)
-    project = config.project
-
-    path = os.path.join(config.root, "production", "livefs-builders")
-    if os.path.exists(path):
-        with open(path) as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                try:
-                    f_project, f_series, f_arch, builder = line.split(None, 3)
-                except ValueError:
-                    continue
-                if not fnmatch.fnmatchcase(project, f_project):
-                    continue
-                if not config.match_series(f_series):
-                    continue
-                if "+" in f_arch:
-                    want_arch = arch
-                else:
-                    want_arch = cpuarch
-                if not fnmatch.fnmatchcase(want_arch, f_arch):
-                    continue
-                return builder
-
-    raise UnknownArchitecture("No live filesystem builder known for %s" % arch)
-
-
 def live_build_options(config, arch):
     options = []
 
