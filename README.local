@@ -2,7 +2,7 @@ Running ubuntu-cdimage locally
 ------------------------------
 
 It is now possible to run ubuntu-cdimage (and debian-cd) locally
-without too much pain.
+without *too* much pain.
 
 Here are the generic preparation steps:
 
@@ -26,13 +26,28 @@ Suites: plucky plucky-updates
 Components: main restricted
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
-Thhe once you have downloaded the livefs artefacts somewhere, let's
-say ~/build.output for now, "just" run something like:
+Then once you have downloaded the livefs artefacts somewhere, let's
+say ~/build.output, possibly using this script:
+
+  https://gist.github.com/mwhudson/69c77f9ecad2ca793a0fa089ab2b10d7
+
+which you can invoke like:
+
+ python3 dl-livefs.py '/~mwhudson/+livefs/ubuntu/plucky/test/+build/738945' ~/build.output
+
+Then "just" invoke something like:
 
 $ CDIMAGE_LOCAL_LIVEFS_ARTIFACTS=~/build.output/ CDIMAGE_POOL_SOURCES=plucky.sources \
   ARCHES=amd64 DIST=plucky DEBUG=1 for-project ubuntu-server cron.daily-live
 
-You can also set APT_PROXY to point at a caching proxy to speed things
-up for repeated builds (you will need to change some squid options
-like maximum_object_size and cache_dir from the defaults to make it
-behave usefully for this).
+(You can also set APT_PROXY to point at a caching proxy to speed
+things up for repeated builds -- if you use squid for this you will
+need to change some options like maximum_object_size and cache_dir
+from the defaults to make it useful for this).
+
+The ISO will be generated at a path resembling
+"scratch/ubuntu/plucky/daily-live/debian-cd/amd64/plucky-desktop-amd64.raw".
+
+The package pool (if any) on this ISO will not be signed. You can use
+the --resign-pool command from https://github.com/mwhudson/livefs-editor
+to sign it.
