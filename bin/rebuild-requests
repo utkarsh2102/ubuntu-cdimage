@@ -49,6 +49,11 @@ def main():
     if len(args) < 2:
         parser.error("need series and instance")
 
+    # Constructing a config modifies the ARCHES and CPUARCHES
+    # environment variables which we do not want to set when invoking
+    # builds, so copy the environment now.
+    clean_env = dict(os.environ)
+
     config = Config()
     tree = Tree.get_daily(config)
     publisher = Publisher.get_daily(tree, "daily")
@@ -219,7 +224,7 @@ def main():
                     env_str += "%s=\"%s\" " % (key, value)
                 print("Dry-run: %s%s" % (env_str, " ".join(cmd)))
         else:
-            exec_env = dict(os.environ)
+            exec_env = clean_env.copy()
             exec_env.update(env)
             processes.append(subprocess.Popen(cmd, env=exec_env))
         if not options.quiet:
