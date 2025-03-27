@@ -15,7 +15,6 @@
 
 """Proxy handling."""
 
-from functools import partial
 import os
 import subprocess
 
@@ -33,28 +32,23 @@ def _select_proxy(config, call_site):
     return None
 
 
-def _child_set_http_proxy(http_proxy):
-    if http_proxy is None:
-        os.environ.pop("http_proxy", None)
-    else:
-        os.environ["http_proxy"] = http_proxy
-
-
-def _set_preexec_fn(config, call_site, call_kwargs):
+def _set_proxy_env(config, call_site, call_kwargs):
     http_proxy = _select_proxy(config, call_site)
     if http_proxy is None:
         return
+    env = dict(call_kwargs.get("env", os.environ))
     if http_proxy == "unset":
-        call_kwargs["preexec_fn"] = partial(_child_set_http_proxy, None)
+        env.pop("http_proxy", None)
     else:
-        call_kwargs["preexec_fn"] = partial(_child_set_http_proxy, http_proxy)
+        env["http_proxy"] = http_proxy
+    call_kwargs["env"] = env
 
 
 def proxy_call(config, call_site, *args, **kwargs):
-    _set_preexec_fn(config, call_site, kwargs)
+    _set_proxy_env(config, call_site, kwargs)
     return subprocess.call(*args, **kwargs)
 
 
 def proxy_check_call(config, call_site, *args, **kwargs):
-    _set_preexec_fn(config, call_site, kwargs)
+    _set_proxy_env(config, call_site, kwargs)
     subprocess.check_call(*args, **kwargs)
