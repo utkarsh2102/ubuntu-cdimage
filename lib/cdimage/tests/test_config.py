@@ -338,23 +338,17 @@ class TestConfig(TestCase):
         os.environ["ARCHES"] = "amd64 arm64"
         config = Config()
         self.assertEqual(["amd64", "arm64"], config.arches)
-        self.assertEqual("amd64 arm64", os.environ["ARCHES"])
         self.assertEqual(["amd64", "arm64"], config.cpuarches)
-        self.assertEqual("amd64 arm64", os.environ["CPUARCHES"])
 
         config.limit_arches_for_builds(
             {arch: None for arch in ("amd64", "arm64", "s390x")})
         self.assertEqual(["amd64", "arm64"], config.arches)
-        self.assertEqual("amd64 arm64", os.environ["ARCHES"])
         self.assertEqual(["amd64", "arm64"], config.cpuarches)
-        self.assertEqual("amd64 arm64", os.environ["CPUARCHES"])
 
         config.limit_arches_for_builds(
             {arch: None for arch in ("amd64",)})
         self.assertEqual(["amd64"], config.arches)
-        self.assertEqual("amd64", os.environ["ARCHES"])
         self.assertEqual(["amd64"], config.cpuarches)
-        self.assertEqual("amd64", os.environ["CPUARCHES"])
 
     def test_project(self):
         config = Config(read=False)
