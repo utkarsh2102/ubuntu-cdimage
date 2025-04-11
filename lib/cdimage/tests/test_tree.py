@@ -1617,12 +1617,21 @@ class TestDailyTreePublisher(TestCase):
                     project, image_type, publish_type, "amd64"))
 
     def test_qa_product_ubuntu_preinstalled(self):
-        publisher = self.make_publisher("ubuntu", "daily")
-        self.assertEqual(
-            ("Ubuntu Desktop Preinstalled armhf+nexus7", "iso"),
-            publisher.qa_product(
-                "ubuntu", "daily-preinstalled", "preinstalled-desktop",
-                "armhf+nexus7"))
+        for project, image_type, publish_type, arch, product in (
+            ("ubuntu", "daily-preinstalled", "preinstalled-desktop",
+             "armhf+nexus7", "Ubuntu Desktop Preinstalled armhf+nexus7"),
+            ("ubuntu-server", "daily-preinstalled", "preinstalled-server",
+             "riscv64+icicle", "Ubuntu Server riscv64+icicle"),
+            ("ubuntu-server", "daily-preinstalled", "preinstalled-server",
+             "riscv64+jh7110", "Ubuntu Server riscv64+jh7110"),
+        ):
+            # Use "daily" here to match bin/post-qa; qa_product shouldn't
+            # use the publisher's image_type at all.
+            publisher = self.make_publisher(project, "daily")
+            self.assertEqual(
+                (product, "iso"),
+                publisher.qa_product(
+                    project, image_type, publish_type, arch))
 
     def test_qa_product_lubuntu_preinstalled(self):
         publisher = self.make_publisher("lubuntu", "daily")
