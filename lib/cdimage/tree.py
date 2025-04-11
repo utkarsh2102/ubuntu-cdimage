@@ -2597,8 +2597,14 @@ class DailyTreePublisher(Publisher):
             product = self.qa_product(project, image_type, publish_type, arch)
             if product is None:
                 logger.warning(
-                    "No iso.qa.ubuntu.com product found for %s; skipping." %
-                    image)
+                    "No iso.qa.ubuntu.com product found for '%s', '%s', '%s', "
+                    "'%s' (image: %s); skipping.",
+                    project,
+                    image_type,
+                    publish_type,
+                    arch,
+                    image
+                )
                 continue
 
             # For Ubuntu Core projects we have a seperate set of milestones
