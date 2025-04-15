@@ -3373,16 +3373,6 @@ class ReleasePublisher(Publisher):
                     raise PublishReleaseException(
                         "No daily for %s %s on %s!" % (series, arch, date))
 
-                oversized_path = os.path.join(
-                    daily_dir,
-                    "%s-%s-%s.OVERSIZED" % (series, publish_type, arch))
-                if os.path.exists(oversized_path):
-                    yesno = input(
-                        "Daily for %s %s on %s is oversized!  "
-                        "Continue? [yN] " % (series, arch, date))
-                    if not yesno.lower().startswith("y"):
-                        sys.exit(1)
-
         if self.want_pool:
             self.do("mkdir -p %s" % pool_dir, osextras.ensuredir, pool_dir)
         if self.want_dist or self.want_full:
