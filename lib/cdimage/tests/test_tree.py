@@ -2911,11 +2911,8 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
                 target_dir, version),
             "Checksumming full tree ...",
             "No keys found; not signing images.",
-            "Refreshing simplestreams...",
-            "No keys found; not signing images.",
-            "No keys found; not signing images.",
-            "Done!  Remember to sync-mirrors after checking that everything "
-            "is OK.",
+            "Done!  Remember to sync-mirrors and regenerate-streams after "
+            "checking that everything is OK.",
         ])
         self.assertCountEqual([
             ".htaccess", "FOOTER.html", "HEADER.html",
@@ -3000,8 +2997,6 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         target_dir = os.path.join(
             self.temp_dir, "www", "full", "kubuntu", "releases", series.name,
             "release")
-        streams_dir = os.path.join(
-            self.temp_dir, "www", "full", "releases", "streams", "v1")
         self.capture_logging()
         publisher = self.get_publisher(official="named")
         publisher.publish_release("daily-live", "20130327", "desktop")
@@ -3013,11 +3008,8 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
                 target_dir, version),
             "Checksumming full tree ...",
             "No keys found; not signing images.",
-            "Refreshing simplestreams...",
-            "No keys found; not signing images.",
-            "No keys found; not signing images.",
-            "Done!  Remember to sync-mirrors after checking that everything "
-            "is OK.",
+            "Done!  Remember to sync-mirrors and regenerate-streams after "
+            "checking that everything is OK.",
         ])
         # Double check if we still published everything
         self.assertCountEqual([
@@ -3028,10 +3020,6 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "kubuntu-%s-desktop-amd64.iso.zsync" % version,
             "kubuntu-%s-desktop-amd64.manifest" % version,
         ], os.listdir(target_dir))
-        # ...and that the streams got generated as expected
-        self.assertCountEqual([
-            "index.json", "com.ubuntu.cdimage:kubuntu.json"
-        ], os.listdir(streams_dir))
 
 
 class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
@@ -3315,10 +3303,8 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "No keys found; not signing images.",
             "Checksumming simple tree (%s) ..." % series,
             "No keys found; not signing images.",
-            "Refreshing simplestreams...",
-            "No keys found; not signing images.",
-            "Done!  Remember to sync-mirrors after checking that everything "
-            "is OK.",
+            "Done!  Remember to sync-mirrors and regenerate-streams after "
+            "checking that everything is OK.",
         ])
         self.assertCountEqual([
             "SHA256SUMS",
@@ -3376,8 +3362,6 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             self.temp_dir, "www", "simple", ".pool")
         target_dir = os.path.join(
             self.temp_dir, "www", "simple", series.name)
-        streams_dir = os.path.join(
-            self.temp_dir, "www", "simple", "streams", "v1")
         self.capture_logging()
         publisher = self.get_publisher(official="yes")
         publisher.publish_release("daily-live", "20130327", "desktop")
@@ -3391,11 +3375,8 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "No keys found; not signing images.",
             "Checksumming simple tree (%s) ..." % series,
             "No keys found; not signing images.",
-            "Refreshing simplestreams...",
-            "No keys found; not signing images.",
-            "No keys found; not signing images.",
-            "Done!  Remember to sync-mirrors after checking that everything "
-            "is OK.",
+            "Done!  Remember to sync-mirrors and regenerate-streams after "
+            "checking that everything is OK.",
         ])
         # Double check if we still published everything
         self.assertCountEqual([
@@ -3414,7 +3395,3 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         ], os.listdir(target_dir))
         self.assertFalse(os.path.exists(os.path.join(
             self.temp_dir, "www", "full", "releases")))
-        # ...and that the streams got generated as expected
-        self.assertCountEqual([
-            "index.json", "com.ubuntu.releases:ubuntu.json"
-        ], os.listdir(streams_dir))
