@@ -3488,11 +3488,9 @@ class ReleasePublisher(Publisher):
                     with open(os.path.join(trace_dir, fqdn), "w") as trace:
                         subprocess.check_call(["date", "-u"], stdout=trace)
 
-        self.refresh_simplestreams()
-
         logger.info(
-            "Done!  Remember to sync-mirrors after checking that everything "
-            "is OK.")
+            "Done!  Remember to sync-mirrors and regenerate-streams after "
+            "checking that everything is OK.")
 
 
 class FullReleasePublisher(ReleasePublisher):
