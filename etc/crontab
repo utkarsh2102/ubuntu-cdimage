@@ -8,18 +8,26 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # core16 daily builds
 30 8 * * *	DIST=xenial for-project ubuntu-core cron.daily-live --live
+
+
 # core18 daily builds
 33 8 * * *	DIST=bionic for-project ubuntu-core cron.daily-live --live
+
+
 # core20 daily builds
 36 6 * * *	EXTRA_PPAS=snappy-dev/image DIST=focal CHANNEL=dangerous-edge for-project ubuntu-core cron.daily-live --live
 36 7 * * *	EXTRA_PPAS=snappy-dev/image DIST=focal CHANNEL=dangerous-beta for-project ubuntu-core cron.daily-live --live
 #36 8 * * *	EXTRA_PPAS=snappy-dev/image DIST=focal for-project ubuntu-core cron.daily-live --live
 #36 9 * * *	EXTRA_PPAS=snappy-dev/image DIST=focal CHANNEL=beta for-project ubuntu-core cron.daily-live --live
+
+
 # core22 daily builds
 36 10 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=dangerous-edge for-project ubuntu-core cron.daily-live --live
 36 11 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=dangerous-beta for-project ubuntu-core cron.daily-live --live
 #36 12 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=stable for-project ubuntu-core cron.daily-live --live
 #36 13 * * *	EXTRA_PPAS=snappy-dev/image DIST=jammy CHANNEL=dangerous-stable for-project ubuntu-core cron.daily-live --live
+
+
 # Tegra core22 daily builds; using proposed for edge builds; not using
 # EXTRA_PPAS=snappy-dev/image as that should only be needed to build the core
 # snap itself at this point, but using ubuntu-tegra/tegra-jetson-sru while
@@ -28,11 +36,15 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #39 13 * * *	PROPOSED=0 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-jetson DIST=jammy CHANNEL=beta for-project ubuntu-core cron.daily-live --live
 #40 13 * * *	PROPOSED=0 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-jetson DIST=jammy CHANNEL=candidate for-project ubuntu-core cron.daily-live --live
 #41 13 * * *	PROPOSED=0 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-jetson DIST=jammy CHANNEL=stable for-project ubuntu-core cron.daily-live --live
+
+
 # core24 daily builds
 36 14 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=dangerous-edge for-project ubuntu-core cron.daily-live --live
 36 15 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=dangerous-beta for-project ubuntu-core cron.daily-live --live
 #36 16 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=stable for-project ubuntu-core cron.daily-live --live
 36 17 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=beta for-project ubuntu-core cron.daily-live --live
+
+
 # bionic ubuntu-base tarball still building
 # The daily ubuntu-base bionic images are used by core18, so we can't build it
 # with proposed enabled.
@@ -40,6 +52,8 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The daily ubuntu-base focal images are used by core20, so we can't build it
 # with proposed enabled.
 32 4 * * *	PROPOSED=0 DIST=focal for-project ubuntu-base cron.daily-live --live
+
+
 # jammy daily builds
 # Tegra images under the nvidia-tegra subtree; this uses a PPA just to get a
 # backport of livecd-rootfs with u-i 3.x support
@@ -47,6 +61,8 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The daily ubuntu-base jammy images are used by core22, so we can't build it
 # with proposed enabled.
 52 4 * * *	PROPOSED=0 DIST=jammy for-project ubuntu-base cron.daily-live --live
+
+
 # noble daily builds
 41 10 * * *	DIST=noble for-project ubuntu-mini-iso cron.daily-live --live
 41 6 * * *	DIST=noble PROPOSED=0 for-project ubuntu cron.daily-live --live; DIST=noble SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
@@ -90,6 +106,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 */15 * * * *	mirror-image-build-logs
 5 11 * * *	daily-checks
+
 
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q jammy iso
