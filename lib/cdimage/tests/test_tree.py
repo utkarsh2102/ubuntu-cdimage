@@ -183,7 +183,7 @@ class TestTree(TestCase):
 
             with open(os.path.join(publish_base, "20130321", ".marked_good"),
                       "r") as marked_good:
-                self.assertEqual("plucky-desktop-amd64.iso\n",
+                self.assertEqual("questing-desktop-amd64.iso\n",
                                  marked_good.read())
 
             publish_current = os.path.join(publish_base, "current")
@@ -906,7 +906,7 @@ class TestDailyTreePublisher(TestCase):
             ("kubuntu", "jammy", "daily-live", "amd64", 4600000000),
             ("kubuntu", "oracular", "daily-live", "amd64", 4700000000),
             ("ubuntu", "noble", "daily-live", "amd64", 6400000000),
-            ("ubuntu", "plucky", "daily-live", "amd64", 6100000000),
+            ("ubuntu", "questing", "daily-live", "amd64", 6100000000),
             ("ubuntukylin", "jammy", "daily-live", "amd64", 4294967296),
             ("ubuntukylin", "noble", "daily-live", "amd64", 5500000000),
             ("xubuntu", "bionic", "daily-live", "amd64", 2000000000),

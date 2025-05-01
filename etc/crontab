@@ -66,7 +66,9 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The daily ubuntu-base images are used by core-next, so we can't build it
 # with proposed enabled.
 12 5 * * *	DIST=noble PROPOSED=0 for-project ubuntu-base cron.daily-live --live
-# regular plucky daily builds
+
+
+# regular questing daily builds
 41 9 * * *	for-project ubuntu-mini-iso cron.daily-live --live
 24 5 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
 41 7 * * *	for-project kubuntu cron.daily-live --live
@@ -85,12 +87,13 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # with proposed enabled.
 42 4 * * *	PROPOSED=0 for-project ubuntu-base cron.daily-live --live
 
+
 */15 * * * *	mirror-image-build-logs
 5 11 * * *	daily-checks
 
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q jammy iso
 */5 * * * *	rebuild-requests -b -q noble iso
-*/5 * * * *	rebuild-requests -b -q plucky iso
+*/5 * * * *	rebuild-requests -b -q questing iso
 */5 * * * *	rebuild-requests -b -q 20 iso
 */5 * * * *	rebuild-requests -b -q 22 iso

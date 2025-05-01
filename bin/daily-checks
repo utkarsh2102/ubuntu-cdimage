@@ -245,8 +245,8 @@ def main():
         'ubuntucinnamon',
         )
     if not options.series:
-        options.series = ('bionic',
-                          'focal', 'jammy', 'noble', 'oracular', 'plucky')
+        options.series = ('bionic', 'focal', 'jammy', 'noble',
+                          'oracular', 'plucky', 'questing')
 
     for project in projects:
         for series in options.series:

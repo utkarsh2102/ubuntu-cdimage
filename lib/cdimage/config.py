@@ -268,6 +268,9 @@ all_series.extend([
     Series(
         "plucky", "25.04", "Plucky Puffin",
         _core_series="24"),  # XXX: temporary for Core Desktop experiments),
+    Series(
+        "questing", "25.10", "Questing Quokka",
+        _core_series="24"),  # XXX: temporary for Core Desktop experiments),
 ])
 
 
