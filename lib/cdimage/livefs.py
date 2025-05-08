@@ -360,7 +360,11 @@ def download_live_filesystems(config, builds):
         assert len(config.arches) == 1
         arch = config.arches[0]
         for srcname in os.listdir(artifacts_dir):
-            base = srcname.split('.', 2)[2]
+            parts = srcname.split('.', 2)
+            if len(parts) < 3:
+                logger.info("skipping linking file: %r", srcname)
+                continue
+            base = parts[2]
             srcpath = os.path.join(artifacts_dir, srcname)
             destpath = os.path.join(output_dir, f"{arch}.{base}")
             logger.info("linking %r to %r", srcpath, destpath)
