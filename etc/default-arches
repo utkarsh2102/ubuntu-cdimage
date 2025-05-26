@@ -46,7 +46,8 @@ ubuntu-server		daily-preinstalled	focal			armhf+raspi arm64+raspi riscv64+unleas
 ubuntu-server		daily-preinstalled	jammy			armhf+raspi arm64+raspi riscv64+unmatched riscv64+visionfive riscv64+nezha riscv64+licheerv riscv64+icicle amd64 arm64
 ubuntu-server		daily-preinstalled	lunar			armhf+raspi arm64+raspi riscv64+unmatched riscv64+visionfive riscv64+visionfive2 riscv64+nezha riscv64+licheerv riscv64+icicle amd64 arm64
 ubuntu-server		daily-preinstalled	mantic			armhf+raspi arm64+raspi riscv64+unmatched riscv64+visionfive riscv64+visionfive2 riscv64+nezha riscv64+licheerv riscv64+icicle riscv64 amd64 arm64
-ubuntu-server		daily-preinstalled	noble-oracular			arm64+raspi riscv64+unmatched riscv64+visionfive2 riscv64+nezha riscv64+licheerv riscv64+icicle riscv64+milkvmars riscv64+pic64gx riscv64 amd64 arm64
+ubuntu-server		daily-preinstalled	noble			arm64+raspi riscv64+unmatched riscv64+nezha riscv64+licheerv riscv64+icicle riscv64+jh7110 riscv64+pic64gx riscv64 amd64 arm64
+ubuntu-server		daily-preinstalled	oracular		arm64+raspi riscv64+unmatched riscv64+visionfive2 riscv64+nezha riscv64+licheerv riscv64+icicle riscv64+milkvmars riscv64+pic64gx riscv64 amd64 arm64
 ubuntu-server		daily-preinstalled	plucky			arm64+raspi riscv64+unmatched riscv64+nezha riscv64+licheerv riscv64+icicle riscv64+jh7110 riscv64+pic64gx riscv64 amd64 arm64
 ubuntu-server		daily-preinstalled	questing-		arm64+raspi riscv64 amd64 arm64
 ubuntu-server		*			bionic-focal		amd64 arm64 ppc64el s390x
