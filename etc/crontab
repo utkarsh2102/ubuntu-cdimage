@@ -41,7 +41,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # core24 daily builds
 36 14 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=dangerous-edge for-project ubuntu-core cron.daily-live --live
 36 15 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=dangerous-beta for-project ubuntu-core cron.daily-live --live
-#36 16 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=stable for-project ubuntu-core cron.daily-live --live
+36 16 1,15 * * DIST=noble CHANNEL=stable for-project ubuntu-core cron.daily-live --live
 36 17 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=beta for-project ubuntu-core cron.daily-live --live
 
 
