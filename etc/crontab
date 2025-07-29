@@ -82,7 +82,8 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The daily ubuntu-base images are used by core-next, so we can't build it
 # with proposed enabled.
 12 5 * * *	DIST=noble PROPOSED=0 for-project ubuntu-base cron.daily-live --live
-
+# Tegra noble-images under the nvidia-tegra subtree
+45 2 * * *	CDIMAGE_SUBTREE=nvidia-tegra ARCHES="arm64+tegra-jetson" DIST=noble for-project ubuntu-server cron.daily-preinstalled --live
 
 # regular questing daily builds
 41 9 * * *	for-project ubuntu-mini-iso cron.daily-live --live
