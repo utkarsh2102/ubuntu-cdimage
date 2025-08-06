@@ -179,6 +179,11 @@ class GerminateOutput:
             # ubuntu-desktop-installer
             yield "canary-ship-live"
             # TODO: will we need a legacy-ship-live seed?
+        elif project == "ubuntu-oem" and self.config["SUBPROJECT"]:
+            # in ubuntu-oem, SUBPROJECT is kernel flavour
+            kernel = self.config["SUBPROJECT"]
+            yield "ship-live-" + kernel
+            yield "ship-live"
         else:
             yield "ship-live"
 
