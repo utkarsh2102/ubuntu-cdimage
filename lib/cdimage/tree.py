@@ -100,6 +100,10 @@ def rewrite_and_unpack_tarball(dry_run, source_path, target_path, iso_url):
     iso_url_b = iso_url.encode('utf-8')
     netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
     osextras.ensuredir(netboot_dir)
+    # Unlink the original netboot tarball, if it exists, so older artifacts
+    # are not updated (LP: #2120484).
+    if os.path.exists(target_path):
+        os.unlink(target_path)
 
     with tarfile.open(source_path) as inf:
         with tarfile.open(target_path, 'w:gz') as outf:
