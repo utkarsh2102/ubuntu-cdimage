@@ -183,7 +183,7 @@ def send_warnings(config, options, projects):
         subj = subj + ' - OK'
     body = """\
 This is a daily health check report on all CD images.  If you have
-any questions, contact Steve Langasek <steve.langasek@canonical.com>.
+any questions, contact Utkarsh Gupta <utkarsh.gupta@canonical.com>.
 
 %s
 """ % all_warnings
@@ -205,7 +205,7 @@ This is a daily health check report on the %s CD images.
 If you have any questions, or if images are reported here as oversized but
 should not be, please contact the Ubuntu Release Team:
  * Mailing list: ubuntu-release@lists.ubuntu.com
- * IRC: #ubuntu-release on LiberaChat
+ * Matrix: Ubuntu Release (#release:ubuntu.com)
 
 %s
 """ % (project_title(project), these_warnings)
