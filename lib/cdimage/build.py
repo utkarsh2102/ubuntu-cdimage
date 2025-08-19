@@ -320,6 +320,8 @@ def fix_permissions(config):
                 pass
 
     def fix_file(path):
+        if os.path.islink(path):
+            return
         old_mode = os.stat(path).st_mode
         new_mode = old_mode | stat.S_IRGRP | stat.S_IWGRP
         if new_mode & (stat.S_IXUSR | stat.S_IXOTH):
