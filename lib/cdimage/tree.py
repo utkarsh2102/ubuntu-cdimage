@@ -421,6 +421,8 @@ class Publisher:
                 return "wsl"
             else:
                 return "desktop"
+        elif self.image_type.endswith("-dangerous"):
+            return "desktop"
         elif self.image_type.endswith("_dvd") or self.image_type == "dvd":
             return "dvd"
         elif self.image_type == "daily-canary":
