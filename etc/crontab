@@ -106,7 +106,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # daily-dangerous devel desktop build
 # This is a live desktop image with all snaps from edge, for quicker testing
 # of things like snapd, prompting client, the desktop installer, etc
-24 5 * * *	SUBPROJECT=dangerous CHANNEL=edge for-project ubuntu cron.daily-dangerous --live
+24 5 * * *	CHANNEL=edge for-project ubuntu cron.daily-dangerous --live
 
 
 */15 * * * *	mirror-image-build-logs
