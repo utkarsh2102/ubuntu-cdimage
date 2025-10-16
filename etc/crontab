@@ -85,7 +85,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Tegra noble-images under the nvidia-tegra subtree
 45 2 * * *	CDIMAGE_SUBTREE=nvidia-tegra ARCHES="arm64+tegra-jetson" DIST=noble for-project ubuntu-server cron.daily-preinstalled --live
 
-# regular questing daily builds
+# regular resolute daily builds
 41 9 * * *	for-project ubuntu-mini-iso cron.daily-live --live
 24 5 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
 41 7 * * *	for-project kubuntu cron.daily-live --live
@@ -116,7 +116,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Self-rebuilds
 */5 * * * *	rebuild-requests -b -q jammy iso
 */5 * * * *	rebuild-requests -b -q noble iso
-*/5 * * * *	rebuild-requests -b -q questing iso
+*/5 * * * *	rebuild-requests -b -q resolute iso
 */5 * * * *	rebuild-requests -b -q 20 iso
 */5 * * * *	rebuild-requests -b -q 22 iso
 

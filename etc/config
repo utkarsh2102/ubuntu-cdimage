@@ -13,7 +13,7 @@ PROJECT="${PROJECT:-ubuntu}"
 CAPPROJECT="${CAPPROJECT:-Ubuntu}"
 IMAGE_FORMAT=${IMAGE_FORMAT:-iso}
 export IMAGE_FORMAT
-DIST="${DIST:-questing}"
+DIST="${DIST:-resolute}"
 
 case $DIST in
 	bionic|focal|jammy|noble)

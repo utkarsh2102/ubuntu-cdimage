@@ -271,6 +271,10 @@ all_series.extend([
     Series(
         "questing", "25.10", "Questing Quokka",
         _core_series="24"),  # XXX: temporary for Core Desktop experiments),
+    Series(
+        "resolute", "26.04", "Resolute Raccoon",
+        all_lts_projects=True,
+        _core_series="26"),
 ])
 
 
