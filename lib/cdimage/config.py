@@ -262,15 +262,9 @@ all_series.extend([
         "noble", "24.04", "Noble Numbat",
         pointversion="24.04.3",
         _core_series="24"),
-    Series(
-        "oracular", "24.10", "Oracular Oriole",
-        _core_series="24"),  # XXX: temporary for Core Desktop experiments),
-    Series(
-        "plucky", "25.04", "Plucky Puffin",
-        _core_series="24"),  # XXX: temporary for Core Desktop experiments),
-    Series(
-        "questing", "25.10", "Questing Quokka",
-        _core_series="24"),  # XXX: temporary for Core Desktop experiments),
+    Series("oracular", "24.10", "Oracular Oriole"),
+    Series("plucky", "25.04", "Plucky Puffin"),
+    Series("questing", "25.10", "Questing Quokka"),
     Series(
         "resolute", "26.04", "Resolute Raccoon",
         all_lts_projects=True,
