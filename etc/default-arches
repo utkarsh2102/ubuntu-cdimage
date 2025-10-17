@@ -1,5 +1,7 @@
 # PROJECT		IMAGE_TYPE		DIST			ARCHES
 # Put more specific matches first.
+# An hyphen in a series name means a range, which can be open-ended
+# e.g: `jammy-` means everything starting at jammy
 
 ubuntu-base		daily			bionic			amd64 arm64 armhf i386 ppc64el s390x
 ubuntu-base		daily			focal-			amd64 arm64 armhf ppc64el riscv64 s390x

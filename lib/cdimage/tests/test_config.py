@@ -63,7 +63,7 @@ class TestSeries(TestCase):
         mantic = Series("mantic", "23.10", "Mantic Minotaur")
         mantic._override_is_latest = True
         self.assertEqual("22", jammy.core_series)
-        self.assertEqual("26", mantic.core_series)
+        self.assertEqual("28", mantic.core_series)
         self.assertEqual(None, impish.core_series)
 
     def test_str(self):
