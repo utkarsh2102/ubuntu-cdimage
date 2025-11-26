@@ -124,5 +124,5 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 42 23 * * *	regenerate-streams official
 
 # Auto-update the cdimage and debian-cd git repositories
-21 02 * * *	cd ~/cdimage && git stash >/dev/null && git pull >/dev/null && git stash pop >/dev/null
-21 02 * * *	cd ~/cdimage/debian-cd && git stash >/dev/null && git pull >/dev/null && git stash pop >/dev/null
+21 02 * * *	cd ~/cdimage && git stash >/tmp/cdimage.git.log && git pull >/tmp/cdimage.git.log && git stash pop >/tmp/cdimage.git.log
+21 02 * * *	cd ~/cdimage/debian-cd && git stash >/tmp/debian-cd.git.log && git pull >/tmp/debian-cd.git.log && git stash pop >/tmp/debian-cd.git.log
