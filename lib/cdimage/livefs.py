@@ -30,7 +30,7 @@ try:
 except ImportError:
     from urllib2 import URLError, unquote, urlopen
 
-from cdimage import osextras, sign
+from cdimage import osextras
 from cdimage.launchpad import get_launchpad
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
@@ -343,8 +343,6 @@ def download_livefs_artifacts(config, arch, lp_build, output_dir):
             continue
         target = os.path.join(output_dir, arch + '.' + base)
         osextras.fetch(config, uri, target)
-        if target.endswith("squashfs"):
-            sign.sign_cdimage(config, target)
 
 
 def download_live_filesystems(config, builds):
