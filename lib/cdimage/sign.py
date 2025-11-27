@@ -33,6 +33,14 @@ def _gnupg_files(config):
 
 
 def can_sign(config):
+    lp_signing_conf = config.get("LP_SIGN_CONFIG")
+    if lp_signing_conf:
+        if os.path.exists(lp_signing_conf):
+            return True
+        else:
+            logger.warning("LP_SIGN_CONFIG set but not found.")
+            return False
+
     _, _, secring, privkeydir, pubring, trustdb = _gnupg_files(config)
     if (not (os.path.exists(privkeydir) or os.path.exists(secring)) or
         not os.path.exists(pubring) or not os.path.exists(trustdb) or
@@ -65,6 +73,19 @@ def _signing_command(config):
 def sign_cdimage(config, path):
     if not can_sign(config):
         return False
+
+    lp_signing_conf = config.get("LP_SIGN_CONFIG")
+    if lp_signing_conf:
+        with open("%s.gpg" % path, "wb") as outfile:
+            try:
+                subprocess.check_call(
+                    ["lp-sign", "--config-file", lp_signing_conf, path],
+                    stdout=outfile,
+                    )
+            except subprocess.CalledProcessError:
+                osextras.unlink_force("%s.gpg" % path)
+                raise
+        return True
 
     with open(path, "rb") as infile:
         with open("%s.gpg" % path, "wb") as outfile:

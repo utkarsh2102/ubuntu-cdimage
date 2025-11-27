@@ -299,6 +299,7 @@ _allowed_keys = (
     "SIMPLESTREAMS",
     "APT_PROXY",
     "LXD_METADATA",
+    "LP_SIGN_CONFIG",
 )
 
 

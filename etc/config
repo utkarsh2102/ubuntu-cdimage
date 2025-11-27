@@ -26,6 +26,9 @@ esac
 # following line
 #ARCHES=i386
 
+# Set this to use lp-signing instead of local gpg
+#LP_SIGN_CONFIG="$CDIMAGE_ROOT/secret/lp-sign.conf"
+
 GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
 SIGNING_KEYID='EFE21092'
 
