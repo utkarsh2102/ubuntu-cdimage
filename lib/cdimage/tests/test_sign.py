@@ -117,6 +117,39 @@ class TestSign(TestCase):
         self.assertEqual("%s.gpg" % sign_path, call[1]["stdout"].name)
 
     @mock.patch("subprocess.check_call")
+    def test_sign_cdimage_lp_sign_conf_missing(self, mock_check_call):
+        config = Config(read=False)
+        temp_dir = self.use_temp_dir()
+        conf_path = os.path.join(temp_dir, "lp-signing.conf")
+        config["LP_SIGN_CONFIG"] = conf_path
+        sign_path = os.path.join(temp_dir, "to-sign")
+        touch(sign_path)
+        self.capture_logging()
+        self.assertFalse(sign_cdimage(config, sign_path))
+        self.assertLogEqual(["LP_SIGN_CONFIG set but not found."])
+        mock_check_call.assert_not_called()
+
+    @mock.patch("subprocess.check_call")
+    def test_sign_cdimage_lp_sign(self, mock_check_call):
+        config = Config(read=False)
+        temp_dir = self.use_temp_dir()
+        conf_path = os.path.join(temp_dir, "lp-signing.conf")
+        config["LP_SIGN_CONFIG"] = conf_path
+        sign_path = os.path.join(temp_dir, "to-sign")
+        for path in conf_path, sign_path:
+            touch(path)
+        self.capture_logging()
+        self.assertTrue(sign_cdimage(config, sign_path))
+        self.assertLogEqual([])
+        expected_command = [
+            "lp-sign", "--config-file", conf_path, sign_path
+            ]
+        mock_check_call.assert_called_once_with(
+            expected_command, stdout=mock.ANY)
+        call = mock_check_call.call_args
+        self.assertEqual("%s.gpg" % sign_path, call[1]["stdout"].name)
+
+    @mock.patch("subprocess.check_call")
     def test_sign_cdimage_subprocess_error(self, mock_check_call):
         mock_check_call.side_effect = subprocess.CalledProcessError(1, "")
         config = Config(read=False)

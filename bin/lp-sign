@@ -1,0 +1,156 @@
+#!/usr/bin/python3
+
+"""
+Sign the contents of a file with an lp-signing service.
+
+The design of this is to be easy to use from cdimage.sign; it takes a
+config file and a file name on the command line and outputs a detached
+signature on stdout, for example:
+
+$ bin/lp-sign --config-file local-sign.conf \
+    www/full/ubuntu/daily-live/20250211/SHA256SUMS
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEyJFm/5oC6IL/ql6hZzQiQOiSalgFAmknolUACgkQZzQiQOiS
+...
+
+The config file is a basic .ini style. It looks like this:
+
+[service]
+# The URL of the lp-signing endpoint
+url: http://10.9.68.37:8000
+
+[auth]
+# The private key material, JSON-encoded, to use to talk to the lp-signing
+# endpoint. See https://lp-signing.readthedocs.io/en/latest/ for more on how
+# to generate / register these keys.
+private_key: "Z4UZtxxg43FSB5vGsOLiOs5vkptBomA6b+cf7lqLf8Y="
+
+[key]
+# The fingerprint of the key to sign with.
+fingerprint: C89166FF9A02E882FFAA5EA167342240E8926A58
+
+"""
+
+import argparse
+import base64
+import configparser
+import json
+import os
+import sys
+
+from nacl.encoding import Base64Encoder
+from nacl.public import (
+    Box,
+    PrivateKey,
+    PublicKey,
+)
+from nacl.utils import random
+import requests
+
+
+class LPSigningConnection:
+
+    def __init__(self, url):
+        self.url = url
+        self.service_key = None
+        self.private_key = None
+
+    def _get(self, path):
+        response = requests.get(f"{self.url}{path}")
+        response.raise_for_status()
+        return response
+
+    def _post(self, path, **kw):
+        response = requests.post(f"{self.url}{path}", **kw)
+        response.raise_for_status()
+        return response
+
+    def get_service_key(self):
+        response = self._get("/service-key")
+        self.service_key = PublicKey(
+            response.json()["service-key"], encoder=Base64Encoder
+        )
+
+    def load_private_key(self, data):
+        self.private_key = PrivateKey(data, encoder=Base64Encoder)
+
+    def _get_nonce(self):
+        return base64.b64decode(
+            self._post("/nonce").json()["nonce"].encode("UTF-8"),
+            )
+
+    def _box(self):
+        return Box(self.private_key, self.service_key)
+
+    def _decrypt_response_json(self, response, response_nonce):
+        return json.loads(
+            self._box().decrypt(
+                response.content,
+                response_nonce,
+                encoder=Base64Encoder,
+                )
+        )
+
+    def sign(self, key_type, fingerprint, message_name, message, mode):
+        nonce = self._get_nonce()
+        response_nonce = random(Box.NONCE_SIZE)
+        data = json.dumps(
+            {
+                "key-type": key_type,
+                "fingerprint": fingerprint,
+                "message-name": message_name,
+                "message": base64.b64encode(message).decode("UTF-8"),
+                "mode": mode,
+            }
+        ).encode("UTF-8")
+        encrypted_message = self._box().encrypt(
+            data,
+            nonce,
+            encoder=Base64Encoder,
+            )
+        response = self._post(
+            "/sign",
+            headers={
+                "Content-Type": "application/x-boxed-json",
+                "X-Client-Public-Key": self.private_key.public_key.encode(
+                    encoder=Base64Encoder
+                ).decode("UTF-8"),
+                "X-Nonce": encrypted_message.nonce.decode("UTF-8"),
+                "X-Response-Nonce": (
+                    Base64Encoder.encode(response_nonce).decode("UTF-8")
+                ),
+            },
+            data=encrypted_message.ciphertext,
+        )
+        return self._decrypt_response_json(response, response_nonce)
+
+
+def read_config(config_file):
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    return {sec: dict(config.items(sec)) for sec in config.sections()}
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config-file")
+    parser.add_argument("path")
+    args = parser.parse_args()
+    config = read_config(args.config_file)
+    conn = LPSigningConnection(config["service"]["url"].rstrip('/'))
+    conn.get_service_key()
+    conn.load_private_key(json.loads(config["auth"]["private_key"]))
+    with open(args.path, "rb") as f:
+        response_json = conn.sign(
+            "OPENPGP",
+            config["key"]["fingerprint"],
+            os.path.basename(args.path),
+            f.read(),
+            "DETACHED",
+        )
+    sys.stdout.buffer.write(base64.b64decode(response_json["signed-message"]))
+
+
+if __name__ == "__main__":
+    main()
