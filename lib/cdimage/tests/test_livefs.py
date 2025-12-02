@@ -592,9 +592,7 @@ class TestDownloadLiveFilesystems(TestCase):
             },
             expected_downloads=[
                 "amd64.filesystem.squashfs",
-                "amd64.filesystem.squashfs.gpg",
                 "arm64.filesystem.squashfs",
-                "arm64.filesystem.squashfs.gpg",
             ],
         )
 

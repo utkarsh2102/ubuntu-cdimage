@@ -110,7 +110,7 @@ class TestBuildLiveCDBase(TestCase):
             "live")
         self.assertTrue(os.path.isdir(live_dir))
         self.assertCountEqual(
-            ["amd64.manifest", "amd64.squashfs", "amd64.squashfs.gpg"],
+            ["amd64.manifest", "amd64.squashfs"],
             os.listdir(live_dir))
 
     @mock.patch("cdimage.osextras.fetch")
