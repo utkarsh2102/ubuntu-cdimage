@@ -76,6 +76,7 @@ def sign_cdimage(config, path):
 
     lp_signing_conf = config.get("LP_SIGN_CONFIG")
     if lp_signing_conf:
+        logger.info("Signing %s using LP signing service", path)
         with open("%s.gpg" % path, "wb") as outfile:
             try:
                 subprocess.check_call(
@@ -87,6 +88,7 @@ def sign_cdimage(config, path):
                 raise
         return True
 
+    logger.info("Signing %s using local GPG", path)
     with open(path, "rb") as infile:
         with open("%s.gpg" % path, "wb") as outfile:
             try:

@@ -101,7 +101,7 @@ class TestSign(TestCase):
             touch(path)
         self.capture_logging()
         self.assertTrue(sign_cdimage(config, sign_path))
-        self.assertLogEqual([])
+        self.assertLogEqual(["Signing %s using local GPG" % sign_path])
         expected_command = [
             "gpg", "--options", gpgconf,
             "--homedir", config["GNUPG_DIR"],
@@ -140,7 +140,8 @@ class TestSign(TestCase):
             touch(path)
         self.capture_logging()
         self.assertTrue(sign_cdimage(config, sign_path))
-        self.assertLogEqual([])
+        self.assertLogEqual([
+            "Signing %s using LP signing service" % sign_path])
         expected_command = [
             "lp-sign", "--config-file", conf_path, sign_path
             ]
@@ -165,5 +166,5 @@ class TestSign(TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             sign_cdimage(config, sign_path)
             mock_check_call.assert_called()
-        self.assertLogEqual([])
+        self.assertLogEqual(["Signing %s using local GPG" % sign_path])
         self.assertFalse(os.path.exists("%s.gpg" % sign_path))
