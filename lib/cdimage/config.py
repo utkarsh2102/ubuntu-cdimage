@@ -279,7 +279,6 @@ _allowed_keys = (
     "PROPOSED",
     "ARCHES",
     "CPUARCHES",
-    "GNUPG_DIR",
     "SIGNING_KEYID",
     "LOCAL",
     "LOCALDEBS",

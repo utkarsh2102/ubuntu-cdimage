@@ -1921,7 +1921,7 @@ class TestDailyTreePublisher(TestCase):
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
             "Making i386 zsync metafile ...",
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         self.assertEqual([], os.listdir(source_dir))
@@ -1975,7 +1975,7 @@ class TestDailyTreePublisher(TestCase):
             "Unknown file type 'empty'; assuming .iso",
             "Publishing i386 live manifest ...",
             "Making i386 zsync metafile ...",
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
         ])
         target_dir = os.path.join(publisher.publish_base, "20120807")
         # Check if we published to the right place.
@@ -2052,7 +2052,7 @@ class TestDailyTreePublisher(TestCase):
             "Publishing amd64 qcow2 image ...",
             "Making amd64 zsync metafile ...",
             "Generating LXD metadata for ubuntu-core 20240718 ...",
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
         ])
         self.assertEqual(["noble-live-core-amd64.type"],
                          os.listdir(source_dir))
@@ -2910,7 +2910,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..." % (
                 target_dir, version),
             "Checksumming full tree ...",
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
             "Done!  Remember to sync-mirrors and regenerate-streams after "
             "checking that everything is OK.",
         ])
@@ -3007,7 +3007,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
                 target_dir, version),
             "Checksumming full tree ...",
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
             "Done!  Remember to sync-mirrors and regenerate-streams after "
             "checking that everything is OK.",
         ])
@@ -3300,9 +3300,9 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..." % (
                 target_dir, version),
             "Checksumming simple tree (pool) ...",
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
             "Checksumming simple tree (%s) ..." % series,
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
             "Done!  Remember to sync-mirrors and regenerate-streams after "
             "checking that everything is OK.",
         ])
@@ -3372,9 +3372,9 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             "Creating torrent for %s/ubuntu-%s-desktop-amd64.iso ..." % (
                 target_dir, version),
             "Checksumming simple tree (pool) ...",
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
             "Checksumming simple tree (%s) ..." % series,
-            "No keys found; not signing images.",
+            "LP_SIGN_CONFIG set but not found.",
             "Done!  Remember to sync-mirrors and regenerate-streams after "
             "checking that everything is OK.",
         ])
