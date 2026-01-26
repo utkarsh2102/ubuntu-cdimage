@@ -51,6 +51,7 @@ from cdimage.mirror import trigger_mirrors
 from cdimage import osextras
 from cdimage.project import setenv_for_project
 from cdimage.metadata import generate_ubuntu_core_image_lxd_metadata
+from cdimage.test_observer import TestObserver
 
 __metaclass__ = type
 
@@ -2546,6 +2547,24 @@ class DailyTreePublisher(Publisher):
                 for entry, d in publish_dates.items():
                     fd.write("%s %s\n" % (entry, d))
 
+    def post_to(self, date):
+        publish_dir = os.path.join(self.publish_base, date)
+        if os.path.islink(publish_dir):
+            return
+        for entry in self.published_images(date):
+            entry_path = os.path.join(publish_dir, entry)
+            if os.path.islink(entry_path):
+                continue
+
+            try:
+                TestObserver(self.config).publish_image(
+                    self,
+                    entry_path,
+                    date,
+                )
+            except Exception as e:
+                logger.warning("Couldn't submit artifact to Test Observer: %s", e)
+
     def polish_directory(self, date):
         """Apply various bits of polish to a published directory."""
         target_dir = os.path.join(self.publish_base, date)
@@ -2572,6 +2591,14 @@ class DailyTreePublisher(Publisher):
         # Now, populate the .publish_info file with datestamps of published
         # binaries.
         self.create_publish_info_file(date)
+
+        # Publish artifacts to Test Observer
+        if "TO_CONFIG" in self.config and os.path.isfile(self.config["TO_CONFIG"]):
+            self.post_to(date)
+        else:
+            logger.warning(
+                "Test Observer is not properly configured, not submitting artifacts"
+            )
 
     def link(self, date, name):
         osextras.symlink_force(date, os.path.join(self.publish_base, name))

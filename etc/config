@@ -29,6 +29,9 @@ esac
 # Set this to use lp-signing instead of local gpg
 LP_SIGN_CONFIG="$CDIMAGE_ROOT/secret/lp-sign.conf"
 
+# Set this to publish artifacts to a Test Observer instance
+TO_CONFIG="$CDIMAGE_ROOT/secret/test-observer.conf"
+
 GNUPG_DIR="$CDIMAGE_ROOT/secret/dot-gnupg"
 SIGNING_KEYID='EFE21092'
 

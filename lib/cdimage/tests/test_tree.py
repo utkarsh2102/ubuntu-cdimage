@@ -2170,6 +2170,7 @@ class TestDailyTreePublisher(TestCase):
                 "Publishing i386 live manifest ...",
                 "Making i386 zsync metafile ...",
                 "No keys found; not signing images.",
+                "Test Observer is not properly configured, not submitting artifacts",
             ]
         )
         target_dir = os.path.join(publisher.publish_base, "20120807")
@@ -2228,6 +2229,7 @@ class TestDailyTreePublisher(TestCase):
                 "Publishing i386 live manifest ...",
                 "Making i386 zsync metafile ...",
                 "No keys found; not signing images.",
+                "Test Observer is not properly configured, not submitting artifacts",
             ]
         )
         target_dir = os.path.join(publisher.publish_base, "20120807")
@@ -2316,6 +2318,7 @@ class TestDailyTreePublisher(TestCase):
                 "Making amd64 zsync metafile ...",
                 "Generating LXD metadata for ubuntu-core 20240718 ...",
                 "No keys found; not signing images.",
+                "Test Observer is not properly configured, not submitting artifacts",
             ]
         )
         self.assertEqual(["noble-live-core-amd64.type"], os.listdir(source_dir))
