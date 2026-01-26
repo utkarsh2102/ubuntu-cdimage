@@ -1,7 +1,17 @@
 pipeline:
-- [run-tests, lint]
+- [ruff, run-tests, lint]
 
 jobs:
+    ruff:
+        series: noble
+        architectures: amd64
+        snaps:
+          - name: ruff
+            classic: false
+        # Workaround some apparmor/snapd issues in the context of lpci by
+        # calling `ruff` directly like that, instead of through the snap wrapper
+        run: /snap/ruff/current/bin/ruff format --check --exclude='bin/archive-*' --force-exclude lib bin/*
+
     run-tests:
         series: jammy
         architectures: amd64
