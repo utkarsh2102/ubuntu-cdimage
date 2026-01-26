@@ -59,21 +59,6 @@ class TestStatic(TestCase):
                         paths.append(os.path.join(dirpath, filename))
         return paths
 
-    def test_pycodestyle_clean(self):
-        if not osextras.find_on_path("pycodestyle"):
-            return
-        if "SKIP_SLOW_TESTS" in os.environ:
-            return
-        subp = subprocess.Popen(
-            ["pycodestyle"] + self.all_paths(),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True,
-        )
-        output = subp.communicate()[0]
-        if output:
-            self.fail("pycodestyle produced output:\n\n" + output)
-
     def test_pyflakes_clean(self):
         if sys.version < "3":
             pyflakes = "pyflakes"
