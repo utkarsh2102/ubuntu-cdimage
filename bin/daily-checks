@@ -32,44 +32,46 @@ class BritneyParser(HTMLParser):
             parser_kwargs["convert_charrefs"] = True
         HTMLParser.__init__(self, **parser_kwargs)
         self.state = self.STATE_BEGIN
-        self.formatted = ''
+        self.formatted = ""
 
     def handle_starttag(self, tag, attrs):
         if self.state == self.STATE_BEGIN:
-            if tag == 'p':
+            if tag == "p":
                 self.state = self.STATE_SEEN_INTRO_P
         elif self.state == self.STATE_SEEN_INTRO_TEXT:
-            if tag == 'ul':
+            if tag == "ul":
                 self.state = self.STATE_UNINST_LIST
         elif self.state == self.STATE_UNINST_LIST:
-            if tag == 'li':
+            if tag == "li":
                 self.state = self.STATE_UNINST_LIST_ITEM
         elif self.state == self.STATE_UNINST_LIST_ITEM:
-            if tag == 'ul':
+            if tag == "ul":
                 self.state = self.STATE_UNINST_LIST_ARCH_LIST
         elif self.state == self.STATE_UNINST_LIST_ARCH_LIST:
-            if tag == 'li':
+            if tag == "li":
                 self.state = self.STATE_UNINST_LIST_ARCH_ITEM
 
     def handle_endtag(self, tag):
         if self.state in (self.STATE_UNINST_LIST, self.STATE_UNINST_LIST_ITEM):
-            if tag == 'ul':
+            if tag == "ul":
                 self.state = self.STATE_DONE
-        elif self.state in (self.STATE_UNINST_LIST_ARCH_LIST,
-                            self.STATE_UNINST_LIST_ARCH_ITEM):
-            if tag == 'ul':
+        elif self.state in (
+            self.STATE_UNINST_LIST_ARCH_LIST,
+            self.STATE_UNINST_LIST_ARCH_ITEM,
+        ):
+            if tag == "ul":
                 self.state = self.STATE_UNINST_LIST_ITEM
 
     def handle_data(self, data):
         if self.state == self.STATE_SEEN_INTRO_P:
-            if data.startswith('First, uninstallable packages:'):
+            if data.startswith("First, uninstallable packages:"):
                 self.state = self.STATE_SEEN_INTRO_TEXT
         elif self.state == self.STATE_UNINST_LIST_ITEM:
             if data:
-                self.formatted += data.rstrip() + '\n'
+                self.formatted += data.rstrip() + "\n"
         elif self.state == self.STATE_UNINST_LIST_ARCH_ITEM:
             if data:
-                self.formatted += '  * ' + data.rstrip() + '\n'
+                self.formatted += "  * " + data.rstrip() + "\n"
 
 
 def warn(project, image, message):
@@ -81,10 +83,10 @@ def warn(project, image, message):
 
 
 def project_title(project):
-    if project == 'ubuntu-server':
-        return 'Ubuntu Server'
-    elif project == 'ubuntustudio':
-        return 'Ubuntu Studio'
+    if project == "ubuntu-server":
+        return "Ubuntu Server"
+    elif project == "ubuntustudio":
+        return "Ubuntu Studio"
     else:
         return project.title()
 
@@ -97,13 +99,13 @@ def check_image(config, project, series, image):
     tree = Tree.get_daily(config)
     publisher = Publisher.get_daily(tree, image)
 
-    curdir = os.path.join(publisher.publish_base, 'current')
+    curdir = os.path.join(publisher.publish_base, "current")
     if not os.path.exists(curdir):
         return
 
     files = sorted(os.listdir(curdir))
     sizelimit = publisher.size_limit
-    for oversized in filter(lambda x: x.endswith('.OVERSIZED'), files):
+    for oversized in filter(lambda x: x.endswith(".OVERSIZED"), files):
         base = oversized[:-10]
         iso = "%s.iso" % base
         try:
@@ -113,21 +115,23 @@ def check_image(config, project, series, image):
         arch = base.split("-")[-1]
         sizelimit = publisher.size_limit(arch)
         if size > sizelimit:
-            warn(project, image, "%s oversized by %d bytes (%d)" %
-                                 (iso, size - sizelimit, size))
+            warn(
+                project,
+                image,
+                "%s oversized by %d bytes (%d)" % (iso, size - sizelimit, size),
+            )
 
-    if project == 'xubuntu':
+    if project == "xubuntu":
         for manifest in filter(
-                lambda x: x.endswith('.list') or x.endswith('.manifest'),
-                files):
-            if manifest.endswith('.list'):
+            lambda x: x.endswith(".list") or x.endswith(".manifest"), files
+        ):
+            if manifest.endswith(".list"):
                 iso = manifest[:-5]
             else:
                 iso = manifest[:-9]
             with open(os.path.join(curdir, manifest)) as manifest_file:
-                if 'openoffice.org-core' in manifest_file.read():
-                    warn(project, image,
-                         "%s contains openoffice.org-core" % iso)
+                if "openoffice.org-core" in manifest_file.read():
+                    warn(project, image, "%s contains openoffice.org-core" % iso)
 
 
 def check_uninstallables(config, project, series, image):
@@ -138,17 +142,20 @@ def check_uninstallables(config, project, series, image):
     tree = Tree.get_daily(config)
     publisher = Publisher.get_daily(tree, image)
 
-    curdir = os.path.join(publisher.publish_base, 'current')
-    report_path = os.path.join(curdir, 'report.html')
+    curdir = os.path.join(publisher.publish_base, "current")
+    report_path = os.path.join(curdir, "report.html")
     if not os.path.exists(report_path):
         return
 
     with open(report_path) as report:
         parser = BritneyParser()
         parser.feed(report.read())
-    if parser.formatted != '':
-        warn(project, image, "Uninstallable packages:\n\n%s" %
-                             parser.formatted.rstrip('\n'))
+    if parser.formatted != "":
+        warn(
+            project,
+            image,
+            "Uninstallable packages:\n\n%s" % parser.formatted.rstrip("\n"),
+        )
 
 
 def get_warnings(project):
@@ -157,10 +164,10 @@ def get_warnings(project):
     if project in warnings:
         for image in warnings[project]:
             if lines and warnings[project][image]:
-                lines.append('')
+                lines.append("")
             for message in warnings[project][image]:
                 lines.append("%s/%s: %s" % (project, image, message))
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def get_all_warnings(projects):
@@ -169,7 +176,7 @@ def get_all_warnings(projects):
         text = get_warnings(project)
         if text:
             texts.append(text)
-    return '\n\n\n'.join(texts)
+    return "\n\n\n".join(texts)
 
 
 def send_warnings(config, options, projects):
@@ -177,27 +184,30 @@ def send_warnings(config, options, projects):
 
     releasers = get_notify_addresses(config)
     all_warnings = get_all_warnings(projects)
-    subj = 'Daily CD health checks'
-    if all_warnings == '':
-        all_warnings = 'No problems found!'
-        subj = subj + ' - OK'
-    body = """\
+    subj = "Daily CD health checks"
+    if all_warnings == "":
+        all_warnings = "No problems found!"
+        subj = subj + " - OK"
+    body = (
+        """\
 This is a daily health check report on all CD images.  If you have
 any questions, contact Utkarsh Gupta <utkarsh.gupta@canonical.com>.
 
 %s
-""" % all_warnings
-    send_mail(
-        subj, "daily-checks", releasers, body,
-        dry_run=options.stdout)
+"""
+        % all_warnings
+    )
+    send_mail(subj, "daily-checks", releasers, body, dry_run=options.stdout)
 
     for project in projects:
         owners = [
-            owner for owner in get_notify_addresses(config, project)
-            if owner not in releasers]
+            owner
+            for owner in get_notify_addresses(config, project)
+            if owner not in releasers
+        ]
         if owners:
             these_warnings = get_warnings(project)
-            if these_warnings == '':
+            if these_warnings == "":
                 continue
             body = """\
 This is a daily health check report on the %s CD images.
@@ -208,10 +218,17 @@ should not be, please contact the Ubuntu Release Team:
  * Matrix: Ubuntu Release (#release:ubuntu.com)
 
 %s
-""" % (project_title(project), these_warnings)
+""" % (
+                project_title(project),
+                these_warnings,
+            )
             send_mail(
                 "%s daily CD health check" % project_title(project),
-                "daily-checks", owners, body, dry_run=options.stdout)
+                "daily-checks",
+                owners,
+                body,
+                dry_run=options.stdout,
+            )
 
 
 def main():
@@ -219,40 +236,44 @@ def main():
 
     parser = OptionParser("%prog [options]")
     parser.add_option(
-        "--stdout", default=False, action="store_true",
-        help="write to standard output rather than sending mail")
+        "--stdout",
+        default=False,
+        action="store_true",
+        help="write to standard output rather than sending mail",
+    )
     parser.add_option(
-        "--series", action="append", help="restrict checks to this series")
+        "--series", action="append", help="restrict checks to this series"
+    )
     options, _ = parser.parse_args()
 
     config = Config()
 
     projects = (
-        'ubuntu',
-        'ubuntu-server',
-        'kubuntu',
-        'edubuntu',
-        'xubuntu',
-        'ubuntustudio',
-        'kubuntu-netbook',
-        'lubuntu',
-        'lubuntu-next',
-        'ubuntu-gnome',
-        'ubuntu-mate',
-        'ubuntukylin',
-        'ubuntu-budgie',
-        'ubuntu-unity',
-        'ubuntucinnamon',
-        )
+        "ubuntu",
+        "ubuntu-server",
+        "kubuntu",
+        "edubuntu",
+        "xubuntu",
+        "ubuntustudio",
+        "kubuntu-netbook",
+        "lubuntu",
+        "lubuntu-next",
+        "ubuntu-gnome",
+        "ubuntu-mate",
+        "ubuntukylin",
+        "ubuntu-budgie",
+        "ubuntu-unity",
+        "ubuntucinnamon",
+    )
     if not options.series:
-        options.series = ('bionic', 'focal', 'jammy', 'noble', 'resolute')
+        options.series = ("bionic", "focal", "jammy", "noble", "resolute")
 
     for project in projects:
         for series in options.series:
-            for image in 'daily-live', 'daily', 'daily-preinstalled', 'dvd':
+            for image in "daily-live", "daily", "daily-preinstalled", "dvd":
                 check_image(config, project, series, image)
 
-            for image in 'daily-live', 'daily', 'daily-preinstalled', 'dvd':
+            for image in "daily-live", "daily", "daily-preinstalled", "dvd":
                 check_uninstallables(config, project, series, image)
 
     send_warnings(config, options, projects)

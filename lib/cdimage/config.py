@@ -20,6 +20,7 @@ to co-exist until such time as the whole of cdimage is rewritten.
 """
 
 from collections import defaultdict
+
 try:
     from collections.abc import Iterable
 except ImportError:
@@ -42,8 +43,7 @@ all_series = []
 
 
 class Series(Iterable):
-    def __init__(self, name, version, displayname, distribution="ubuntu",
-                 **kwargs):
+    def __init__(self, name, version, displayname, distribution="ubuntu", **kwargs):
         self.name = name
         self.version = version
         self.displayname = displayname
@@ -73,12 +73,10 @@ class Series(Iterable):
         else:
             distribution = "ubuntu"
         for series in all_series:
-            if (series.distribution == distribution and
-                    series.version == version):
+            if series.distribution == distribution and series.version == version:
                 return series
         else:
-            raise ValueError(
-                "No series with version %s/%s" % (distribution, version))
+            raise ValueError("No series with version %s/%s" % (distribution, version))
 
     @classmethod
     def latest(self, distribution="ubuntu"):
@@ -93,8 +91,7 @@ class Series(Iterable):
             if series.core_series == core_series:
                 return series
         else:
-            raise ValueError(
-                "No Ubuntu Core series %s" % core_series)
+            raise ValueError("No Ubuntu Core series %s" % core_series)
 
     @classmethod
     def latest_core(self):
@@ -120,8 +117,7 @@ class Series(Iterable):
     @property
     def index(self):
         if self._index is None:
-            self._index = [
-                series.name for series in all_series].index(self.name)
+            self._index = [series.name for series in all_series].index(self.name)
         return self._index
 
     @property
@@ -158,8 +154,9 @@ class Series(Iterable):
 
     def displayversion(self, project):
         version = getattr(self, "pointversion", self.version)
-        if (project in getattr(self, "lts_projects", []) or
-                getattr(self, "all_lts_projects", False)):
+        if project in getattr(self, "lts_projects", []) or getattr(
+            self, "all_lts_projects", False
+        ):
             version += " LTS"
         return version
 
@@ -180,96 +177,134 @@ class Series(Iterable):
 
 
 # TODO: This should probably come from a configuration file.
-all_series.extend([
-    Series("warty", "4.10", "Warty Warthog"),
-    Series("hoary", "5.04", "Hoary Hedgehog"),
-    Series("breezy", "5.10", "Breezy Badger"),
-    Series(
-        "dapper", "6.06", "Dapper Drake",
-        pointversion="6.06.2",
-        lts_projects=["ubuntu", "kubuntu", "edubuntu", "ubuntu-server"]),
-    Series("edgy", "6.10", "Edgy Eft"),
-    Series("feisty", "7.04", "Feisty Fawn"),
-    Series("gutsy", "7.10", "Gutsy Gibbon"),
-    Series(
-        "hardy", "8.04", "Hardy Heron",
-        pointversion="8.04.4", lts_projects=["ubuntu", "ubuntu-server"]),
-    Series("intrepid", "8.10", "Intrepid Ibex"),
-    Series("jaunty", "9.04", "Jaunty Jackalope"),
-    Series("karmic", "9.10", "Karmic Koala"),
-    Series(
-        "lucid", "10.04", "Lucid Lynx",
-        pointversion="10.04.4",
-        lts_projects=["ubuntu", "kubuntu", "ubuntu-server"]),
-    Series("maverick", "10.10", "Maverick Meerkat"),
-    Series("natty", "11.04", "Natty Narwhal"),
-    Series("oneiric", "11.10", "Oneiric Ocelot"),
-    Series(
-        "precise", "12.04", "Precise Pangolin",
-        pointversion="12.04.5",
-        lts_projects=[
-            "ubuntu", "kubuntu", "ubuntu-server", "edubuntu", "xubuntu",
-            "mythbuntu", "ubuntustudio",
-        ]),
-    Series("quantal", "12.10", "Quantal Quetzal"),
-    Series("raring", "13.04", "Raring Ringtail"),
-    Series("saucy", "13.10", "Saucy Salamander"),
-    Series(
-        "trusty", "14.04", "Trusty Tahr",
-        pointversion="14.04.6",
-        all_lts_projects=True),
-    Series("utopic", "14.10", "Utopic Unicorn"),
-    Series("vivid", "15.04", "Vivid Vervet"),
-    Series("wily", "15.10", "Wily Werewolf"),
-    Series(
-        "xenial", "16.04", "Xenial Xerus",
-        pointversion="16.04.7",
-        all_lts_projects=True,
-        _core_series="16"),
-    Series("yakkety", "16.10", "Yakkety Yak"),
-    Series("zesty", "17.04", "Zesty Zapus"),
-    Series("artful", "17.10", "Artful Aardvark"),
-    Series(
-        "bionic", "18.04", "Bionic Beaver",
-        pointversion="18.04.6",
-        all_lts_projects=True,
-        _core_series="18"),
-    Series("cosmic", "18.10", "Cosmic Cuttlefish"),
-    Series("disco", "19.04", "Disco Dingo"),
-    Series(
-        "eoan", "19.10", "Eoan Ermine",
-        pointversion="19.10.1"),
-    Series(
-        "focal", "20.04", "Focal Fossa",
-        pointversion="20.04.6",
-        all_lts_projects=True,
-        _core_series="20"),
-    Series("groovy", "20.10", "Groovy Gorilla"),
-    Series("hirsute", "21.04", "Hirsute Hippo"),
-    Series("impish", "21.10", "Impish Indri"),
-    Series(
-        "jammy", "22.04", "Jammy Jellyfish",
-        pointversion="22.04.5",
-        all_lts_projects=True,
-        _core_series="22"),
-    Series("kinetic", "22.10", "Kinetic Kudu"),
-    Series("lunar", "23.04", "Lunar Lobster"),
-    Series(
-        "mantic", "23.10", "Mantic Minotaur",
-        pointversion="23.10.1",
-        all_lts_projects=True),
-    Series(
-        "noble", "24.04", "Noble Numbat",
-        pointversion="24.04.3",
-        _core_series="24"),
-    Series("oracular", "24.10", "Oracular Oriole"),
-    Series("plucky", "25.04", "Plucky Puffin"),
-    Series("questing", "25.10", "Questing Quokka"),
-    Series(
-        "resolute", "26.04", "Resolute Raccoon",
-        all_lts_projects=True,
-        _core_series="26"),
-])
+all_series.extend(
+    [
+        Series("warty", "4.10", "Warty Warthog"),
+        Series("hoary", "5.04", "Hoary Hedgehog"),
+        Series("breezy", "5.10", "Breezy Badger"),
+        Series(
+            "dapper",
+            "6.06",
+            "Dapper Drake",
+            pointversion="6.06.2",
+            lts_projects=["ubuntu", "kubuntu", "edubuntu", "ubuntu-server"],
+        ),
+        Series("edgy", "6.10", "Edgy Eft"),
+        Series("feisty", "7.04", "Feisty Fawn"),
+        Series("gutsy", "7.10", "Gutsy Gibbon"),
+        Series(
+            "hardy",
+            "8.04",
+            "Hardy Heron",
+            pointversion="8.04.4",
+            lts_projects=["ubuntu", "ubuntu-server"],
+        ),
+        Series("intrepid", "8.10", "Intrepid Ibex"),
+        Series("jaunty", "9.04", "Jaunty Jackalope"),
+        Series("karmic", "9.10", "Karmic Koala"),
+        Series(
+            "lucid",
+            "10.04",
+            "Lucid Lynx",
+            pointversion="10.04.4",
+            lts_projects=["ubuntu", "kubuntu", "ubuntu-server"],
+        ),
+        Series("maverick", "10.10", "Maverick Meerkat"),
+        Series("natty", "11.04", "Natty Narwhal"),
+        Series("oneiric", "11.10", "Oneiric Ocelot"),
+        Series(
+            "precise",
+            "12.04",
+            "Precise Pangolin",
+            pointversion="12.04.5",
+            lts_projects=[
+                "ubuntu",
+                "kubuntu",
+                "ubuntu-server",
+                "edubuntu",
+                "xubuntu",
+                "mythbuntu",
+                "ubuntustudio",
+            ],
+        ),
+        Series("quantal", "12.10", "Quantal Quetzal"),
+        Series("raring", "13.04", "Raring Ringtail"),
+        Series("saucy", "13.10", "Saucy Salamander"),
+        Series(
+            "trusty",
+            "14.04",
+            "Trusty Tahr",
+            pointversion="14.04.6",
+            all_lts_projects=True,
+        ),
+        Series("utopic", "14.10", "Utopic Unicorn"),
+        Series("vivid", "15.04", "Vivid Vervet"),
+        Series("wily", "15.10", "Wily Werewolf"),
+        Series(
+            "xenial",
+            "16.04",
+            "Xenial Xerus",
+            pointversion="16.04.7",
+            all_lts_projects=True,
+            _core_series="16",
+        ),
+        Series("yakkety", "16.10", "Yakkety Yak"),
+        Series("zesty", "17.04", "Zesty Zapus"),
+        Series("artful", "17.10", "Artful Aardvark"),
+        Series(
+            "bionic",
+            "18.04",
+            "Bionic Beaver",
+            pointversion="18.04.6",
+            all_lts_projects=True,
+            _core_series="18",
+        ),
+        Series("cosmic", "18.10", "Cosmic Cuttlefish"),
+        Series("disco", "19.04", "Disco Dingo"),
+        Series("eoan", "19.10", "Eoan Ermine", pointversion="19.10.1"),
+        Series(
+            "focal",
+            "20.04",
+            "Focal Fossa",
+            pointversion="20.04.6",
+            all_lts_projects=True,
+            _core_series="20",
+        ),
+        Series("groovy", "20.10", "Groovy Gorilla"),
+        Series("hirsute", "21.04", "Hirsute Hippo"),
+        Series("impish", "21.10", "Impish Indri"),
+        Series(
+            "jammy",
+            "22.04",
+            "Jammy Jellyfish",
+            pointversion="22.04.5",
+            all_lts_projects=True,
+            _core_series="22",
+        ),
+        Series("kinetic", "22.10", "Kinetic Kudu"),
+        Series("lunar", "23.04", "Lunar Lobster"),
+        Series(
+            "mantic",
+            "23.10",
+            "Mantic Minotaur",
+            pointversion="23.10.1",
+            all_lts_projects=True,
+        ),
+        Series(
+            "noble", "24.04", "Noble Numbat", pointversion="24.04.3", _core_series="24"
+        ),
+        Series("oracular", "24.10", "Oracular Oriole"),
+        Series("plucky", "25.04", "Plucky Puffin"),
+        Series("questing", "25.10", "Questing Quokka"),
+        Series(
+            "resolute",
+            "26.04",
+            "Resolute Raccoon",
+            all_lts_projects=True,
+            _core_series="26",
+        ),
+    ]
+)
 
 
 _allowed_keys = (
@@ -324,15 +359,13 @@ class Config(defaultdict):
                 self.read()
 
     def read(self, config_path=None):
-        for key, value in osextras.read_shell_config(
-                config_path, _allowed_keys):
+        for key, value in osextras.read_shell_config(config_path, _allowed_keys):
             if key.startswith("CDIMAGE_") or key in _allowed_keys:
                 super(Config, self).__setitem__(key, value)
 
         # Special entries.
         if "DIST" in self:
-            super(Config, self).__setitem__(
-                "DIST", Series.find_by_name(self["DIST"]))
+            super(Config, self).__setitem__("DIST", Series.find_by_name(self["DIST"]))
         if "ARCHES" not in self:
             self.set_default_arches()
         if "CPUARCHES" not in self:
@@ -416,8 +449,7 @@ class Config(defaultdict):
 
     def set_livefs_mapping(self):
         self.livefs_arch_mapping = {}
-        mapping = os.path.join(self.root, "etc",
-                               "cdimage-to-livecd-rootfs-map")
+        mapping = os.path.join(self.root, "etc", "cdimage-to-livecd-rootfs-map")
         if not os.path.exists(mapping):
             return
         want_project_bits = [self.project]
@@ -433,9 +465,16 @@ class Config(defaultdict):
                 if not line or line.startswith("#"):
                     continue
                 try:
-                    (project, image_type, series, cpuarch, subarch,
-                     livefs_project, livefs_cpuarch, livefs_subarch) = \
-                        line.split(None, 7)
+                    (
+                        project,
+                        image_type,
+                        series,
+                        cpuarch,
+                        subarch,
+                        livefs_project,
+                        livefs_cpuarch,
+                        livefs_subarch,
+                    ) = line.split(None, 7)
                 except ValueError:
                     continue
                 if not fnmatch.fnmatchcase(want_project, project):
@@ -461,23 +500,26 @@ class Config(defaultdict):
                     livefs_subarch = want_subarch
                 elif livefs_subarch == "-":
                     livefs_subarch = None
-                livefs_arch = ("%s+%s" % (livefs_cpuarch, livefs_subarch)
-                               if livefs_subarch else livefs_cpuarch)
+                livefs_arch = (
+                    "%s+%s" % (livefs_cpuarch, livefs_subarch)
+                    if livefs_subarch
+                    else livefs_cpuarch
+                )
                 self.livefs_arch_mapping[arch] = (livefs_project, livefs_arch)
                 break
 
     def set_default_cpuarches(self):
         self["CPUARCHES"] = " ".join(
-            sorted(set(arch.split("+")[0] for arch in self.arches)))
+            sorted(set(arch.split("+")[0] for arch in self.arches))
+        )
 
     def limit_arches_for_builds(self, builds):
         new_arches = list(builds.keys())
-        self["ARCHES"] = " ".join(
-            arch for arch in self.arches if arch in new_arches)
-        new_cpuarches = " ".join(
-            sorted(set(arch.split("+")[0] for arch in new_arches)))
+        self["ARCHES"] = " ".join(arch for arch in self.arches if arch in new_arches)
+        new_cpuarches = " ".join(sorted(set(arch.split("+")[0] for arch in new_arches)))
         self["CPUARCHES"] = " ".join(
-            cpuarch for cpuarch in self.cpuarches if cpuarch in new_cpuarches)
+            cpuarch for cpuarch in self.cpuarches if cpuarch in new_cpuarches
+        )
 
     @property
     def project(self):

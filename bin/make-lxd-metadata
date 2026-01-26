@@ -28,8 +28,8 @@ def main():
     from cdimage.metadata import generate_ubuntu_core_image_lxd_metadata
 
     parser = OptionParser(
-        "%prog IMAGE_PATH\n"
-        "Currently supports only Ubuntu Core images.")
+        "%prog IMAGE_PATH\nCurrently supports only Ubuntu Core images."
+    )
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need path to the image")

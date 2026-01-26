@@ -30,8 +30,11 @@ def main():
 
     parser = OptionParser("%prog [--live] [IMAGE_TYPE]")
     parser.add_option(
-        "--live", default=False, action="store_true",
-        help="build live filesystems first")
+        "--live",
+        default=False,
+        action="store_true",
+        help="build live filesystems first",
+    )
     options, args = parser.parse_args()
     config = Config()
     if args:

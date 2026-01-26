@@ -40,11 +40,11 @@ class TestProxy(TestCase):
             print("test1\thttp://foo.example.org:3128/", file=f)
             print("test2\thttp://bar.example.org:3128/", file=f)
         self.assertEqual(
-            "http://foo.example.org:3128/",
-            _select_proxy(self.config, "test1"))
+            "http://foo.example.org:3128/", _select_proxy(self.config, "test1")
+        )
         self.assertEqual(
-            "http://bar.example.org:3128/",
-            _select_proxy(self.config, "test2"))
+            "http://bar.example.org:3128/", _select_proxy(self.config, "test2")
+        )
         self.assertIsNone(_select_proxy(self.config, "other-caller"))
 
     def test_call_set_proxy(self):
@@ -56,8 +56,9 @@ class TestProxy(TestCase):
             self.assertEqual(
                 0,
                 proxy_call(
-                    self.config, "caller",
-                    "echo \"$http_proxy\"", stdout=fp, shell=True))
+                    self.config, "caller", 'echo "$http_proxy"', stdout=fp, shell=True
+                ),
+            )
         with open(path) as fp:
             self.assertEqual(http_proxy, fp.read().rstrip("\n"))
 
@@ -70,8 +71,9 @@ class TestProxy(TestCase):
             self.assertEqual(
                 0,
                 proxy_call(
-                    self.config, "caller",
-                    "echo \"$http_proxy\"", stdout=fp, shell=True))
+                    self.config, "caller", 'echo "$http_proxy"', stdout=fp, shell=True
+                ),
+            )
         with open(path) as fp:
             self.assertEqual("", fp.read().rstrip("\n"))
 
@@ -85,12 +87,21 @@ class TestProxy(TestCase):
             self.assertEqual(
                 0,
                 proxy_call(
-                    self.config, "other-caller",
-                    "echo \"$http_proxy\"", stdout=fp, shell=True))
+                    self.config,
+                    "other-caller",
+                    'echo "$http_proxy"',
+                    stdout=fp,
+                    shell=True,
+                ),
+            )
         with open(path) as fp:
             self.assertEqual(http_proxy, fp.read().rstrip("\n"))
 
     def test_check_call_checks(self):
         self.assertRaises(
             subprocess.CalledProcessError,
-            proxy_check_call, self.config, "any-caller", ["false"])
+            proxy_check_call,
+            self.config,
+            "any-caller",
+            ["false"],
+        )

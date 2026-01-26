@@ -18,6 +18,7 @@
 from __future__ import print_function
 
 from collections import defaultdict
+
 try:
     from collections.abc import Mapping
 except ImportError:
@@ -33,8 +34,10 @@ class _CachingDict(Mapping):
     def __init__(self, lp_mapping, item_factory=None):
         self._lp_mapping = lp_mapping
         if item_factory is None:
+
             def item_factory(v):
                 return v
+
         self._item_factory = item_factory
         self._cache = {}
 
@@ -65,8 +68,9 @@ class _CachingDistroSeries(Resource):
 
     def getDistroArchSeries(self, archtag=None):
         if archtag not in self._das_cache:
-            self._das_cache[archtag] = (
-                self._lp_distroseries.getDistroArchSeries(archtag=archtag))
+            self._das_cache[archtag] = self._lp_distroseries.getDistroArchSeries(
+                archtag=archtag
+            )
         return self._das_cache[archtag]
 
 
@@ -81,9 +85,8 @@ class _CachingDistribution(Resource):
     def getSeries(self, name_or_version=None):
         if name_or_version not in self._series_cache:
             self._series_cache[name_or_version] = _CachingDistroSeries(
-                self,
-                self._lp_distribution.getSeries(
-                    name_or_version=name_or_version))
+                self, self._lp_distribution.getSeries(name_or_version=name_or_version)
+            )
         return self._series_cache[name_or_version]
 
 
@@ -103,10 +106,9 @@ class _CachingLiveFS(Resource):
 
     def requestBuild(self, distro_arch_series=None, unique_key=None, **kwargs):
         archtag = distro_arch_series.architecture_tag
-        self._current_build_cache[archtag][unique_key] = (
-            self._lp_livefs.requestBuild(
-                distro_arch_series=distro_arch_series, unique_key=unique_key,
-                **kwargs))
+        self._current_build_cache[archtag][unique_key] = self._lp_livefs.requestBuild(
+            distro_arch_series=distro_arch_series, unique_key=unique_key, **kwargs
+        )
         return self._current_build_cache[archtag][unique_key]
 
     def getLatestBuild(self, distro_arch_series, unique_key=None):
@@ -115,9 +117,11 @@ class _CachingLiveFS(Resource):
             # If we didn't run the build ourselves, then use the latest
             # completed build for this DAS.
             for build in self.completed_builds:
-                if (build.distro_arch_series == distro_arch_series and
-                        (not unique_key or build.unique_key == unique_key) and
-                        build.buildstate == "Successfully built"):
+                if (
+                    build.distro_arch_series == distro_arch_series
+                    and (not unique_key or build.unique_key == unique_key)
+                    and build.buildstate == "Successfully built"
+                ):
                     self._current_build_cache[archtag][unique_key] = build
                     break
             else:
@@ -129,38 +133,37 @@ class _CachingLiveFSes:
     def __init__(self, lp_livefses):
         self._lp_livefses = lp_livefses
         # [owner][distribution][distroseries][livefs]
-        self._cache = defaultdict(
-            lambda: defaultdict(lambda: defaultdict(dict)))
+        self._cache = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
 
     def __getattr__(self, name):
         return getattr(self._lp_livefses, name)
 
     def getByName(self, owner=None, distro_series=None, name=None):
         cache = self._cache[owner.name][distro_series.distribution.name][
-            distro_series.name]
+            distro_series.name
+        ]
         if name not in cache:
             cache[name] = _CachingLiveFS(
                 distro_series,
                 self._lp_livefses.getByName(
-                    owner=owner, distro_series=distro_series, name=name))
+                    owner=owner, distro_series=distro_series, name=name
+                ),
+            )
         return cache[name]
 
 
 def login(instance):
     try:
         import launchpadlib.credentials
-        store = launchpadlib.credentials.KeyringCredentialStore(None,
-                                                                fallback=True)
-        return Launchpad.login_with("ubuntu-cdimage",
-                                    instance,
-                                    version="devel",
-                                    credential_store=store)
+
+        store = launchpadlib.credentials.KeyringCredentialStore(None, fallback=True)
+        return Launchpad.login_with(
+            "ubuntu-cdimage", instance, version="devel", credential_store=store
+        )
     except TypeError:
         # prior to focal (1.10.13), the fallback= kwarg didn't exist and
         # Launchpadlib worked under sudo
-        return Launchpad.login_with("ubuntu-cdimage",
-                                    instance,
-                                    version="devel")
+        return Launchpad.login_with("ubuntu-cdimage", instance, version="devel")
 
 
 class _LaunchpadCache:
@@ -172,8 +175,7 @@ class _LaunchpadCache:
             instance = "https://api.dogfood.paddev.net/"
         self.lp = login(instance)
         self.people = _CachingDict(self.lp.people)
-        self.distributions = _CachingDict(
-            self.lp.distributions, _CachingDistribution)
+        self.distributions = _CachingDict(self.lp.distributions, _CachingDistribution)
         self.livefses = _CachingLiveFSes(self.lp.livefses)
 
     def __getattr__(self, name):

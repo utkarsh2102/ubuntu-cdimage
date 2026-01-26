@@ -28,8 +28,8 @@ def main():
     from cdimage.launchpad import get_launchpad
 
     parser = OptionParser(
-        "%prog INSTANCE\n"
-        "Helper to authenticate Launchpad for livefs build support.")
+        "%prog INSTANCE\nHelper to authenticate Launchpad for livefs build support."
+    )
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need instance type")

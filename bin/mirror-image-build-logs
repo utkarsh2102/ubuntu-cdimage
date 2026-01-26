@@ -37,18 +37,22 @@ def main():
     config = Config()
 
     hostname = subprocess.Popen(["hostname", "-f"], stdout=subprocess.PIPE)
-    if hostname.communicate()[0].rstrip(b"\n").split(b".", 1)[1] \
-            not in (b'internal', b'canonical.com'):
+    if hostname.communicate()[0].rstrip(b"\n").split(b".", 1)[1] not in (
+        b"internal",
+        b"canonical.com",
+    ):
         sys.exit(0)
 
-    subprocess.check_call([
-        "rsync",
-        "-azessh -i /home/cdimage/.ssh/id-cd-build-logs",
-        "--delete",
-        os.path.join(config.root, "log/"),
-        "ubuntu-archive@ubuntu-archive-toolbox.internal:"
-        "/home/ubuntu-archive/public_html/cd-build-logs/",
-    ])
+    subprocess.check_call(
+        [
+            "rsync",
+            "-azessh -i /home/cdimage/.ssh/id-cd-build-logs",
+            "--delete",
+            os.path.join(config.root, "log/"),
+            "ubuntu-archive@ubuntu-archive-toolbox.internal:"
+            "/home/ubuntu-archive/public_html/cd-build-logs/",
+        ]
+    )
 
 
 if __name__ == "__main__":

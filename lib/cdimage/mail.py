@@ -28,6 +28,7 @@ __metaclass__ = type
 
 if sys.version >= "3":
     import io
+
     text_file_type = io.TextIOBase
 else:
     text_file_type = file
@@ -53,8 +54,9 @@ def get_notify_addresses(config, project=None):
         all_addresses = []
         for line in fp:
             this_project, addresses = line.split(None, 1)
-            if (this_project == "ALL" or
-                    (project is not None and this_project == project)):
+            if this_project == "ALL" or (
+                project is not None and this_project == project
+            ):
                 all_addresses.extend(addresses.split())
         return all_addresses
 
@@ -75,8 +77,14 @@ def send_mail(subject, generator, recipients, body, dry_run=False):
         logger.info("")
     else:
         command = [
-            "mail", "-s", subject, "-r", "noreply+ubuntu-cdimage@ubuntu.com",
-            "-a", "X-Generated-By: %s" % generator]
+            "mail",
+            "-s",
+            subject,
+            "-r",
+            "noreply+ubuntu-cdimage@ubuntu.com",
+            "-a",
+            "X-Generated-By: %s" % generator,
+        ]
         command.extend(recipients)
         if isinstance(body, text_file_type):
             mailer = subprocess.Popen(command, stdin=body)

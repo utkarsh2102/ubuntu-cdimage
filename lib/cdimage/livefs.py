@@ -23,6 +23,7 @@ from gzip import GzipFile
 import io
 import os
 import time
+
 try:
     from urllib.error import URLError
     from urllib.parse import unquote
@@ -143,8 +144,7 @@ def live_build_notify_failure(config, arch, lp_build):
     datestamp = time.strftime("%Y%m%d")
     try:
         if lp_build.build_log_url is None:
-            raise URLError(
-                "Failed build %s has no build_log_url" % lp_build.web_link)
+            raise URLError("Failed build %s has no build_log_url" % lp_build.web_link)
         with closing(urlopen(lp_build.build_log_url, timeout=30)) as comp:
             with closing(io.BytesIO(comp.read())) as comp_bytes:
                 with closing(GzipFile(fileobj=comp_bytes)) as f:
@@ -153,7 +153,11 @@ def live_build_notify_failure(config, arch, lp_build):
         body = b""
     subject = "LiveFS %s%s/%s/%s failed to build on %s" % (
         "(built by %s) " % config["SUDO_USER"] if config["SUDO_USER"] else "",
-        livefs_id, config.full_series, arch, datestamp)
+        livefs_id,
+        config.full_series,
+        arch,
+        datestamp,
+    )
     send_mail(subject, "buildlive", recipients, body)
 
 
@@ -177,8 +181,9 @@ def live_lp_info(config, arch):
                 if not line or line.startswith("#"):
                     continue
                 try:
-                    f_project, f_image_type, f_series, f_arch, lp_info = (
-                        line.split(None, 4))
+                    f_project, f_image_type, f_series, f_arch, lp_info = line.split(
+                        None, 4
+                    )
                 except ValueError:
                     continue
                 if not fnmatch.fnmatchcase(want_project, f_project):
@@ -196,8 +201,9 @@ def live_lp_info(config, arch):
                 return lp_info.split("/")
 
     raise UnknownLaunchpadLiveFS(
-        "No Launchpad live filesystem definition known for %s/%s/%s/%s" %
-        (want_project, image_type, config.full_series, arch))
+        "No Launchpad live filesystem definition known for %s/%s/%s/%s"
+        % (want_project, image_type, config.full_series, arch)
+    )
 
 
 def get_lp_livefs(config, arch):
@@ -211,12 +217,12 @@ def get_lp_livefs(config, arch):
     lp_owner = lp.people[owner]
     lp_distribution = lp.distributions[config.distribution]
     lp_ds = lp_distribution.getSeries(name_or_version=config.series)
-    livefs = lp.livefses.getByName(
-        owner=lp_owner, distro_series=lp_ds, name=name)
+    livefs = lp.livefses.getByName(owner=lp_owner, distro_series=lp_ds, name=name)
     if livefs is None:
         raise MissingLaunchpadLiveFS(
-            "Live filesystem %s/%s/%s not found on %s" %
-            (owner, config.full_series, name, lp._root_uri))
+            "Live filesystem %s/%s/%s not found on %s"
+            % (owner, config.full_series, name, lp._root_uri)
+        )
     return lp, livefs
 
 
@@ -233,13 +239,14 @@ def run_live_builds(config):
             cpuarch, subarch = split_arch(config, arch)
             for build in lp_livefs.builds:
                 try:
-                    metadata_subarch = build.metadata_override.get(
-                        "subarch", "")
+                    metadata_subarch = build.metadata_override.get("subarch", "")
                 except AttributeError:
                     metadata_subarch = ""
-                if (build.distro_arch_series.architecture_tag == cpuarch
-                        and metadata_subarch == subarch
-                        and build.buildstate == "Successfully built"):
+                if (
+                    build.distro_arch_series.architecture_tag == cpuarch
+                    and metadata_subarch == subarch
+                    and build.buildstate == "Successfully built"
+                ):
                     logger.info("reusing build %s", build)
                     lp_build = build
                     break
@@ -256,7 +263,10 @@ def run_live_builds(config):
     def live_build_finished(arch, full_name, lp_build):
         logger.info(
             "%s on Launchpad finished at %s (%s)",
-            full_name, time.strftime("%F %T"), lp_build.buildstate)
+            full_name,
+            time.strftime("%F %T"),
+            lp_build.buildstate,
+        )
         if lp_build.buildstate == "Successfully built":
             tracker_set_rebuild_status(config, [0, 1, 2], 3, arch)
             successful_builds[arch] = lp_build
@@ -271,20 +281,23 @@ def run_live_builds(config):
             lp_build, arch, full_name, log_timeout = lp_item
             lp_build.lp_refresh()
             if lp_build.buildstate in (
-                    "Needs building", "Currently building",
-                    "Gathering build output", "Uploading build"):
+                "Needs building",
+                "Currently building",
+                "Gathering build output",
+                "Uploading build",
+            ):
                 pending_lp_builds.append(lp_item)
             elif lp_build.buildstate == "Successfully built":
                 live_build_finished(arch, full_name, lp_build)
-            elif (lp_build.build_log_url is None and
-                  (log_timeout is None or time.time() < log_timeout)):
+            elif lp_build.build_log_url is None and (
+                log_timeout is None or time.time() < log_timeout
+            ):
                 # Wait up to five minutes for Launchpad to fetch the build
                 # log from the remote.  We need a timeout since in rare cases
                 # this might fail.
                 if log_timeout is None:
                     log_timeout = time.time() + 300
-                pending_lp_builds.append(
-                    (lp_build, arch, full_name, log_timeout))
+                pending_lp_builds.append((lp_build, arch, full_name, log_timeout))
             else:
                 live_build_finished(arch, full_name, lp_build)
         lp_builds = pending_lp_builds
@@ -299,8 +312,14 @@ def run_live_builds(config):
 
 def live_output_directory(config):
     return os.path.join(
-        config.root, "scratch", config.subtree, config.project,
-        config.full_series, config.image_type, "live")
+        config.root,
+        "scratch",
+        config.subtree,
+        config.project,
+        config.full_series,
+        config.image_type,
+        "live",
+    )
 
 
 def live_build_notify_download_failure(config, arch, exc):
@@ -328,20 +347,24 @@ An artefact failed to download with error:
 """
     subject = "LiveFS %s%s/%s/%s failed to download on %s" % (
         "(built by %s) " % config["SUDO_USER"] if config["SUDO_USER"] else "",
-        livefs_id, config.full_series, arch, datestamp)
+        livefs_id,
+        config.full_series,
+        arch,
+        datestamp,
+    )
     send_mail(subject, "download_live_filesystems", recipients, body)
 
 
 def download_livefs_artifacts(config, arch, lp_build, output_dir):
     for uri in lp_build.getFileUrls():
         base = unquote(os.path.basename(uri))
-        base = base.split('.', 2)[2]
-        ext = base.split('.')[-1]
-        if ext in ('full', 'filelist', 'ext2', 'ext3', 'ext4'):
+        base = base.split(".", 2)[2]
+        ext = base.split(".")[-1]
+        if ext in ("full", "filelist", "ext2", "ext3", "ext4"):
             continue
         if config.project == "ubuntu-mini-iso" and base == "rootfs.tar.gz":
             continue
-        target = os.path.join(output_dir, arch + '.' + base)
+        target = os.path.join(output_dir, arch + "." + base)
         osextras.fetch(config, uri, target)
 
 
@@ -358,7 +381,7 @@ def download_live_filesystems(config, builds):
         assert len(config.arches) == 1
         arch = config.arches[0]
         for srcname in os.listdir(artifacts_dir):
-            parts = srcname.split('.', 2)
+            parts = srcname.split(".", 2)
             if len(parts) < 3:
                 logger.info("skipping linking file: %r", srcname)
                 continue

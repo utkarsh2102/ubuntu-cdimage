@@ -44,9 +44,12 @@ class TestStatic(TestCase):
                 if ignore in dirnames:
                     dirnames.remove(ignore)
             filenames = [
-                n for n in filenames
-                if not n.startswith(".") and not n.endswith("~") and
-                n not in excluded_filenames]
+                n
+                for n in filenames
+                if not n.startswith(".")
+                and not n.endswith("~")
+                and n not in excluded_filenames
+            ]
             if dirpath.split(os.sep)[-1] == "bin":
                 for filename in filenames:
                     paths.append(os.path.join(dirpath, filename))
@@ -63,8 +66,10 @@ class TestStatic(TestCase):
             return
         subp = subprocess.Popen(
             ["pycodestyle"] + self.all_paths(),
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            universal_newlines=True)
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
         output = subp.communicate()[0]
         if output:
             self.fail("pycodestyle produced output:\n\n" + output)
@@ -92,7 +97,9 @@ class TestStatic(TestCase):
 
         subp = subprocess.Popen(
             [pyflakes] + self.all_paths(),
-            stdout=subprocess.PIPE, universal_newlines=True)
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         output = subp.communicate()[0].splitlines()
         not_excluded = []
         for line in output:
@@ -105,5 +112,4 @@ class TestStatic(TestCase):
                 not_excluded.append(line)
 
         if not_excluded:
-            self.fail(
-                "pyflakes produced output:\n\n" + "\n".join(not_excluded))
+            self.fail("pyflakes produced output:\n\n" + "\n".join(not_excluded))

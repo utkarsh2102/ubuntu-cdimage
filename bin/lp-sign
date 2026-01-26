@@ -50,7 +50,6 @@ import requests
 
 
 class LPSigningConnection:
-
     def __init__(self, url):
         self.url = url
         self.service_key = None
@@ -78,7 +77,7 @@ class LPSigningConnection:
     def _get_nonce(self):
         return base64.b64decode(
             self._post("/nonce").json()["nonce"].encode("UTF-8"),
-            )
+        )
 
     def _box(self):
         return Box(self.private_key, self.service_key)
@@ -89,7 +88,7 @@ class LPSigningConnection:
                 response.content,
                 response_nonce,
                 encoder=Base64Encoder,
-                )
+            )
         )
 
     def sign(self, key_type, fingerprint, message_name, message, mode):
@@ -108,7 +107,7 @@ class LPSigningConnection:
             data,
             nonce,
             encoder=Base64Encoder,
-            )
+        )
         response = self._post(
             "/sign",
             headers={
@@ -138,7 +137,7 @@ def main():
     parser.add_argument("path")
     args = parser.parse_args()
     config = read_config(args.config_file)
-    conn = LPSigningConnection(config["service"]["url"].rstrip('/'))
+    conn = LPSigningConnection(config["service"]["url"].rstrip("/"))
     conn.get_service_key()
     conn.load_private_key(json.loads(config["auth"]["private_key"]))
     with open(args.path, "rb") as f:

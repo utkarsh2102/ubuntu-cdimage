@@ -165,8 +165,7 @@ class TestOSExtras(TestCase):
     def test_fetch_empty(self):
         config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
-        self.assertRaises(
-            osextras.FetchError, osextras.fetch, config, "", target)
+        self.assertRaises(osextras.FetchError, osextras.fetch, config, "", target)
         self.assertFalse(os.path.exists(target))
 
     def test_fetch_file(self):
@@ -184,8 +183,12 @@ class TestOSExtras(TestCase):
         target = os.path.join(self.temp_dir, "target")
         touch(target)
         self.assertRaises(
-            osextras.FetchError, osextras.fetch, config,
-            "http://example.org/source", target)
+            osextras.FetchError,
+            osextras.fetch,
+            config,
+            "http://example.org/source",
+            target,
+        )
         self.assertFalse(os.path.exists(target))
 
     @mock.patch("subprocess.call", return_value=0)
@@ -216,12 +219,16 @@ class TestOSExtras(TestCase):
         os.environ["ONE"] = "one"
         config_path = os.path.join(self.temp_dir, "config")
         with mkfile(config_path) as config:
-            print(dedent("""\
+            print(
+                dedent(
+                    """\
                 ONE="$ONE two three"
                 TWO=two
-                THREE=three"""), file=config)
-        config_dict = dict(
-            osextras.read_shell_config(config_path, ["ONE", "TWO"]))
+                THREE=three"""
+                ),
+                file=config,
+            )
+        config_dict = dict(osextras.read_shell_config(config_path, ["ONE", "TWO"]))
         self.assertEqual("one two three", config_dict["ONE"])
         self.assertEqual("two", config_dict["TWO"])
         self.assertNotIn("three", config_dict)

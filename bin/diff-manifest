@@ -26,16 +26,16 @@ def next_package(manifest):
             continue
         bits = line.split()
         if len(bits) < 2:
-            print("WARNING: '%s' not in format 'package version'" % line,
-                  file=sys.stderr)
+            print(
+                "WARNING: '%s' not in format 'package version'" % line, file=sys.stderr
+            )
         else:
             return bits
     return None
 
 
 def manifest_pairs(ma, mb):
-    """Generate a current pair of packages, one from each manifest to compare.
-    """
+    """Generate a current pair of packages, one from each manifest to compare."""
     left = next_package(ma)
     right = next_package(mb)
     while left and right:
@@ -83,5 +83,5 @@ def main():
             print("> %s\t--\t%s" % (b[0], b[1]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

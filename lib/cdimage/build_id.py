@@ -33,9 +33,11 @@ def next_build_id(config, image_type):
     # Subtrees need to have their own numbering
     subtree = "-%s" % config.subtree if config.subtree else ""
     stamp = os.path.join(
-        config.root, "etc",
-        ".next-build-suffix%s-%s-%s-%s" %
-        (subtree, config.project, full_series, image_type))
+        config.root,
+        "etc",
+        ".next-build-suffix%s-%s-%s-%s"
+        % (subtree, config.project, full_series, image_type),
+    )
     date = config["DATE"] or time.strftime("%Y%m%d")
 
     if config["DATE_SUFFIX"]:

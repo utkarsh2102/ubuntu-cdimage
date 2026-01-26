@@ -25,6 +25,7 @@ from itertools import count
 from optparse import OptionParser
 import os
 import re
+
 try:
     from shlex import quote as shell_quote
 except ImportError:
@@ -92,13 +93,11 @@ def zsyncmake(infile, outfile, url, dry_run=False):
 
 
 def rewrite_and_unpack_tarball(dry_run, source_path, target_path, iso_url):
-    logger.info(
-        "Rewriting %s to %s with iso_url=%s",
-        source_path, target_path, iso_url)
+    logger.info("Rewriting %s to %s with iso_url=%s", source_path, target_path, iso_url)
     if dry_run:
         return
-    iso_url_b = iso_url.encode('utf-8')
-    netboot_dir = os.path.join(os.path.dirname(target_path), 'netboot')
+    iso_url_b = iso_url.encode("utf-8")
+    netboot_dir = os.path.join(os.path.dirname(target_path), "netboot")
     osextras.ensuredir(netboot_dir)
     # Unlink the original netboot tarball, if it exists, so older artifacts
     # are not updated (LP: #2120484).
@@ -106,17 +105,15 @@ def rewrite_and_unpack_tarball(dry_run, source_path, target_path, iso_url):
         os.unlink(target_path)
 
     with tarfile.open(source_path) as inf:
-        with tarfile.open(target_path, 'w:gz') as outf:
+        with tarfile.open(target_path, "w:gz") as outf:
             for ti in inf:
-                if ti.name.endswith('.in'):
+                if ti.name.endswith(".in"):
                     new_ti = inf.getmember(ti.name)
                     new_ti.name = ti.name[:-3]
                     content = inf.extractfile(ti).read()
                     content = content.replace(b"#ISOURL#", iso_url_b)
                     new_ti.size = len(content)
-                    with open(
-                            os.path.join(netboot_dir, new_ti.name),
-                            'wb') as fp:
+                    with open(os.path.join(netboot_dir, new_ti.name), "wb") as fp:
                         fp.write(content)
                     outf.addfile(new_ti, io.BytesIO(content))
                 else:
@@ -214,10 +211,15 @@ class Tree:
 
     def manifest_file_allowed(self, path):
         """Return true if a given file is allowed in the manifest."""
-        if (path.endswith(".iso") or path.endswith(".img") or
-                path.endswith(".img.gz") or path.endswith(".img.xz") or
-                path.endswith(".tar.gz") or path.endswith(".tar.xz") or
-                path.endswith(".wsl")):
+        if (
+            path.endswith(".iso")
+            or path.endswith(".img")
+            or path.endswith(".img.gz")
+            or path.endswith(".img.xz")
+            or path.endswith(".tar.gz")
+            or path.endswith(".tar.xz")
+            or path.endswith(".wsl")
+        ):
             try:
                 if stat.S_ISREG(os.stat(path).st_mode):
                     return True
@@ -231,9 +233,12 @@ class Tree:
 
     def manifest(self):
         """Return a manifest of this tree as a sequence of lines."""
-        return sorted(filter(
-            lambda line: line is not None,
-            (self.path_to_manifest(path) for path in self.manifest_files())))
+        return sorted(
+            filter(
+                lambda line: line is not None,
+                (self.path_to_manifest(path) for path in self.manifest_files()),
+            )
+        )
 
     @staticmethod
     def mark_current_trigger(config, args=None, quiet=False):
@@ -251,8 +256,12 @@ class Tree:
         parser.add_option("-a", "--architecture", help="set architecture")
         if "SSH_ORIGINAL_COMMAND" not in config:
             parser.add_option(
-                "--no-log", dest="log", default=True, action="store_false",
-                help="don't write to log file; don't trigger mirrors")
+                "--no-log",
+                dest="log",
+                default=True,
+                action="store_false",
+                help="don't write to log file; don't trigger mirrors",
+            )
         options, parsed_args = parser.parse_args(args)
         if "SSH_ORIGINAL_COMMAND" in config:
             options.log = True
@@ -274,10 +283,10 @@ class Tree:
             config["IMAGE_TYPE"] = options.image_type
         elif options.publish_type:
             config["IMAGE_TYPE"] = DailyTreePublisher._guess_image_type(
-                options.publish_type)
+                options.publish_type
+            )
             if not config["IMAGE_TYPE"]:
-                parser.error(
-                    "unrecognised publish type '%s'" % options.publish_type)
+                parser.error("unrecognised publish type '%s'" % options.publish_type)
         else:
             parser.error("need image type or publish type")
 
@@ -295,16 +304,15 @@ class Tree:
             if options.log:
                 log_path = os.path.join(config.root, "log", "mark-current.log")
                 osextras.ensuredir(os.path.dirname(log_path))
-                log = os.open(
-                    log_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o666)
+                log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o666)
                 os.dup2(log, 1)
                 os.close(log)
                 sys.stdout = os.fdopen(1, "w", 1)
                 reset_logging()
 
             logger.info(
-                "[%s] mark-current %s" %
-                (time.strftime("%F %T"), " ".join(args)))
+                "[%s] mark-current %s" % (time.strftime("%F %T"), " ".join(args))
+            )
 
             tree = Tree.get_daily(config)
             publisher = Publisher.get_daily(tree, config["IMAGE_TYPE"])
@@ -313,14 +321,13 @@ class Tree:
                     if not publisher.current_uses_trigger(arch):
                         logger.warning(
                             "%s is not trigger-controlled; update "
-                            "production/current-triggers" % arch)
+                            "production/current-triggers" % arch
+                        )
                 publisher.mark_current(date, arches)
                 if options.log:
                     trigger_mirrors(config)
                 if not quiet:
-                    print(
-                        "mark-current %s: success" % " ".join(args),
-                        file=old_stdout)
+                    print("mark-current %s: success" % " ".join(args), file=old_stdout)
             except Exception:
                 for line in traceback.format_exc().splitlines():
                     logger.error(line)
@@ -349,8 +356,7 @@ class UnorderedList:
         self.elements = list(elements)
 
     def __str__(self):
-        return "<ul>\n%s\n</ul>" % "\n".join(
-            ["<li>%s</li>" % e for e in self.elements])
+        return "<ul>\n%s\n</ul>" % "\n".join(["<li>%s</li>" % e for e in self.elements])
 
 
 class Span:
@@ -359,8 +365,10 @@ class Span:
         self.sentences = list(sentences)
 
     def __str__(self):
-        return "<span class=\"%s\">%s</span>" % (
-            self.attr_class, "  ".join(self.sentences))
+        return '<span class="%s">%s</span>' % (
+            self.attr_class,
+            "  ".join(self.sentences),
+        )
 
 
 class Link:
@@ -370,9 +378,11 @@ class Link:
         self.show_class = show_class
 
     def __str__(self):
-        return "<a%s href=\"%s\">%s</a>" % (
-            " class=\"http\"" if self.show_class else "",
-            self.target, self.text)
+        return '<a%s href="%s">%s</a>' % (
+            ' class="http"' if self.show_class else "",
+            self.target,
+            self.text,
+        )
 
 
 class Publisher:
@@ -450,18 +460,28 @@ class Publisher:
         elif publish_type == "mini-iso":
             return "daily-live"
         elif publish_type in (
-                "desktop", "live", "netbook",
-                "live-core", "live-core-desktop",
-                "live-server", "ubuntu-core-installer",
-                "wsl"):
+            "desktop",
+            "live",
+            "netbook",
+            "live-core",
+            "live-core-desktop",
+            "live-server",
+            "ubuntu-core-installer",
+            "wsl",
+        ):
             return "daily-live"
         elif publish_type == "minimal":
             return "daily-minimal"
         elif publish_type == "dvd":
             return "dvd"
         elif publish_type in (
-                "addon", "alternate", "base", "install", "server",
-                "legacy-server"):
+            "addon",
+            "alternate",
+            "base",
+            "install",
+            "server",
+            "legacy-server",
+        ):
             return "daily"
         elif publish_type == "desktop-canary":
             return "daily-canary"
@@ -489,8 +509,9 @@ class Publisher:
             return ""
 
     def cssincludes(self):
-        vanilla = "https://assets.ubuntu.com/v1/" + \
-                  "vanilla-framework-version-1.8.0.min.css"
+        vanilla = (
+            "https://assets.ubuntu.com/v1/" + "vanilla-framework-version-1.8.0.min.css"
+        )
         if self.project == "kubuntu":
             return [vanilla, "//cdimage.ubuntu.com/include/kubuntu/style.css"]
         if self.project in ("lubuntu", "lubuntu-next"):
@@ -584,225 +605,259 @@ class Publisher:
         else:
             cd = "image"
 
-        desktop_req = (
-            "You will need at least %sMiB of RAM to install from this %s." %
-            (desktop_ram, cd))
+        desktop_req = "You will need at least %sMiB of RAM to install from this %s." % (
+            desktop_ram,
+            cd,
+        )
 
         sentences = []
         if publish_type == "live":
             sentences.append(
                 "The live %s allows you to try %s without changing your "
                 "computer at all, and at your option to install it "
-                "permanently later.</p>" % (cd, capproject))
+                "permanently later.</p>" % (cd, capproject)
+            )
         elif publish_type in ("desktop", "desktop-canary", "desktop-legacy"):
             sentences.append(
                 "The desktop %s allows you to try %s without changing your "
                 "computer at all, and at your option to install it "
-                "permanently later." % (cd, capproject))
+                "permanently later." % (cd, capproject)
+            )
             if self.project != "edubuntu" and not self.prefmsg_emitted:
                 sentences.append(
-                    "This type of %s is what most people will want to use." %
-                    cd)
+                    "This type of %s is what most people will want to use." % cd
+                )
                 self.prefmsg_emitted = True
             if publish_type == "desktop-canary":
-                sentences.append(
-                    "This type of %s is experimental." %
-                    cd)
+                sentences.append("This type of %s is experimental." % cd)
             if publish_type == "desktop-legacy":
-                sentences.append(
-                    "This type of %s uses the legacy installer." %
-                    cd)
+                sentences.append("This type of %s uses the legacy installer." % cd)
             sentences.append(desktop_req)
             if self.project == "edubuntu":
                 sentences.append(
                     "You can install additional educational programs using "
-                    "the classroom server add-on %s." % cd)
+                    "the classroom server add-on %s." % cd
+                )
         elif publish_type == "install":
             sentences.append(
                 "The install %s allows you to install %s permanently on a "
-                "computer." % (cd, capproject))
+                "computer." % (cd, capproject)
+            )
         elif publish_type == "netboot":
             sentences.append(
                 "The netboot tarball contains files needed to boot the %s "
-                "installer over the network." % (capproject,))
+                "installer over the network." % (capproject,)
+            )
         elif publish_type == "mini-iso":
             sentences.append(
                 "The mini ISO image is a small ISO image that can be used "
-                "to choose which other Ubuntu image to download and install.")
+                "to choose which other Ubuntu image to download and install."
+            )
         elif publish_type == "wsl":
             sentences.append(
                 "The WSL image is the root filesystem to be installed and "
-                "launched by the Windows Subsystem for Linux.")
+                "launched by the Windows Subsystem for Linux."
+            )
         elif publish_type == "alternate":
             sentences.append(
                 "The alternate install %s allows you to perform certain "
-                "specialist installations of %s." % (cd, capproject))
+                "specialist installations of %s." % (cd, capproject)
+            )
             sentences.append("It provides for the following situations:")
             yield Paragraph(sentences)
-            yield UnorderedList([
-                "setting up automated deployments;",
-                "upgrading from older installations without network access;",
-                "LVM and/or RAID partitioning;",
-                ("installs on systems with less than about %sMiB of RAM "
-                    "(although note that low-memory systems may not be able "
-                    "to run a full desktop environment reasonably)." %
-                    desktop_ram),
-            ])
+            yield UnorderedList(
+                [
+                    "setting up automated deployments;",
+                    "upgrading from older installations without network access;",
+                    "LVM and/or RAID partitioning;",
+                    (
+                        "installs on systems with less than about %sMiB of RAM "
+                        "(although note that low-memory systems may not be able "
+                        "to run a full desktop environment reasonably)." % desktop_ram
+                    ),
+                ]
+            )
             bug_link = Link(
-                "https://bugs.launchpad.net/ubuntu/+source/debian-installer/"
-                "+filebug",
-                "debian-installer")
-            yield Paragraph([
-                "In the event that you encounter a bug using the alternate "
-                "installer, please file a bug on the %s package." % bug_link,
-            ])
+                "https://bugs.launchpad.net/ubuntu/+source/debian-installer/+filebug",
+                "debian-installer",
+            )
+            yield Paragraph(
+                [
+                    "In the event that you encounter a bug using the alternate "
+                    "installer, please file a bug on the %s package." % bug_link,
+                ]
+            )
             return
         elif publish_type in ("server", "live-server", "legacy-server"):
             if self.project == "edubuntu":
                 sentences.append(
                     "The classroom server %s allows you to install %s "
-                    "permanently on a computer." % (cd, capproject))
+                    "permanently on a computer." % (cd, capproject)
+                )
                 sentences.append(
                     "It includes LTSP (Linux Terminal Server Project) "
-                    "support, providing out-of-the-box thin client support.")
+                    "support, providing out-of-the-box thin client support."
+                )
                 sentences.append(
                     "After installation you can install additional "
                     "educational programs using the classroom server add-on "
-                    "%s." % cd)
+                    "%s." % cd
+                )
             else:
                 sentences.append(
                     "The server install %s allows you to install %s "
-                    "permanently on a computer for use as a server." %
-                    (cd, capproject))
-                sentences.append(
-                    "It will not install a graphical user interface.")
+                    "permanently on a computer for use as a server." % (cd, capproject)
+                )
+                sentences.append("It will not install a graphical user interface.")
         elif publish_type == "netbook":
             if capproject.endswith("-Netbook"):
-                capproject = capproject[:-len("-Netbook")]
+                capproject = capproject[: -len("-Netbook")]
             sentences.append(
                 "The live %s allows you to try %s Netbook Edition without "
                 "changing your computer at all, and at your option to install "
-                "it permanently later." % (cd, capproject))
+                "it permanently later." % (cd, capproject)
+            )
             sentences.append(
-                "This live %s is optimized for netbooks with screens up to "
-                "10\"." % cd)
+                'This live %s is optimized for netbooks with screens up to 10".' % cd
+            )
             sentences.append(desktop_req)
         elif publish_type == "active":
             # Kubuntu only
             sentences.append(
                 "The Active Image offers a preview of the Plasma Active "
-                "workspace to try or install.")
+                "workspace to try or install."
+            )
         elif publish_type == "serveraddon":
             # Edubuntu only
             sentences.append(
                 "The classroom server add-on %s contains additional useful "
                 "packages, including many educational programs and all "
-                "available language packs." % cd)
+                "available language packs." % cd
+            )
             sentences.append(
-                "It requires that an %s desktop be installed on the machine." %
-                capproject)
+                "It requires that an %s desktop be installed on the machine."
+                % capproject
+            )
         elif publish_type == "addon":
             # Edubuntu only
             sentences.append(
                 "The Ubuntu educational add-on %s contains additional useful "
-                "packages, including many educational programs." % cd)
+                "packages, including many educational programs." % cd
+            )
             sentences.append(
-                "It requires that an Ubuntu desktop system already be "
-                "installed.")
+                "It requires that an Ubuntu desktop system already be installed."
+            )
         elif publish_type == "dvd":
             if self.project == "edubuntu":
                 sentences.append(
                     "The install DVD allows you to install %s permanently on "
-                    "a computer." % capproject)
+                    "a computer." % capproject
+                )
             else:
                 sentences.append(
                     "The combined install/live DVD allows you either to "
                     "install %s permanently on a computer, or (by entering "
                     "'live' at the boot prompt) to try %s without changing "
-                    "your computer at all." % (capproject, capproject))
+                    "your computer at all." % (capproject, capproject)
+                )
         elif publish_type == "src":
-            yield Paragraph([
-                "The source %ss contain the source code used to build %s." %
-                (cd, capproject),
-            ])
+            yield Paragraph(
+                [
+                    "The source %ss contain the source code used to build %s."
+                    % (cd, capproject),
+                ]
+            )
             sentences.append(
                 "Some source package versions on this image may not match "
                 "related binary images, depending on exactly when the images "
-                "were built.")
+                "were built."
+            )
             sentences.append(
                 "You can always find every version of Ubuntu source packages "
-                "on Launchpad, using URLs of the following form:")
+                "on Launchpad, using URLs of the following form:"
+            )
             yield Paragraph(sentences)
             prefix = "https://launchpad.net/ubuntu/+source/SOURCE-PACKAGE-NAME"
-            yield UnorderedList([
-                "<code>%s/+publishinghistory</code> (index)" % prefix,
-                "<code>%s/VERSION</code> (specific version)" % prefix,
-            ])
+            yield UnorderedList(
+                [
+                    "<code>%s/+publishinghistory</code> (index)" % prefix,
+                    "<code>%s/VERSION</code> (specific version)" % prefix,
+                ]
+            )
             return
         elif publish_type in ("server-uec", "uec"):
             uec_link = Link(
-                "http://www.ubuntu.com/products/whatisubuntu/serveredition/"
-                "cloud/uec",
-                "Ubuntu Enterprise Cloud", show_class=True)
+                "http://www.ubuntu.com/products/whatisubuntu/serveredition/cloud/uec",
+                "Ubuntu Enterprise Cloud",
+                show_class=True,
+            )
             sentences.append(
                 "The Ubuntu Enterprise Cloud image can be run on your "
                 "personal %s, or modified, rebundled and uploaded to Amazon "
-                "EC2." % uec_link)
+                "EC2." % uec_link
+            )
             gs_link = Link(
                 "https://help.ubuntu.com/community/Eucalyptus",
                 "Getting Started with Ubuntu Enterprise Cloud",
-                show_class=True)
+                show_class=True,
+            )
             sentences.append(
                 "For further instruction on setting up a personal Ubuntu "
-                "Enterprise Cloud, see %s." % gs_link)
+                "Enterprise Cloud, see %s." % gs_link
+            )
         elif publish_type == "preinstalled-active":
             sentences.append(
                 "The Active Image allows you to unpack a preinstalled preview "
-                "of the Plasma Active workspace onto an SD card.")
+                "of the Plasma Active workspace onto an SD card."
+            )
         elif publish_type.startswith("preinstalled-"):
             sentences.append(
                 "The %s %s allows you to unpack a preinstalled version of %s "
-                "onto a target device." % (publish_type, cd, capproject))
+                "onto a target device." % (publish_type, cd, capproject)
+            )
         elif publish_type in ("ubuntu-core", "preinstalled-core"):
             sentences.append(
                 "Ubuntu Core is a minimal rootfs for use in the creation of "
-                "custom images for specific needs.")
+                "custom images for specific needs."
+            )
             sentences.append(
                 "Ubuntu Core strives to create a suitable minimal environment "
                 "for use in Board Support Packages, constrained or integrated "
                 "environments, or as the basis for application demonstration "
-                "images.")
+                "images."
+            )
             link = Link(
-                "https://wiki.ubuntu.com/Core", "Ubuntu Core wiki page",
-                show_class=True)
+                "https://wiki.ubuntu.com/Core", "Ubuntu Core wiki page", show_class=True
+            )
             sentences.append("See the %s for more information." % link)
         elif publish_type == "ubuntu-core-desktop":
-            sentences.append(
-                "Experimental Ubuntu Core Desktop installer images.")
+            sentences.append("Experimental Ubuntu Core Desktop installer images.")
         elif publish_type == "ubuntu-core-installer":
-            sentences.append(
-                "Installer for Ubuntu Core.")
+            sentences.append("Installer for Ubuntu Core.")
         elif publish_type == "ubuntu-appliance":
             sentences.append(
                 "An Ubuntu Appliance turns a computer into a specialised "
                 "appliance for home or work. It is a system disk image for a "
-                "PC or Raspberry Pi, built for security and simplicity.")
+                "PC or Raspberry Pi, built for security and simplicity."
+            )
             sentences.append(
                 "Ubuntu Appliances have strong privacy policies and long term "
                 "security maintenance guarantees. They are published by "
                 "companies and open source communities, who follow the Ubuntu "
                 "code of conduct and appliance guidelines, together with "
-                "Canonical, the publisher of Ubuntu.")
+                "Canonical, the publisher of Ubuntu."
+            )
             link = Link(
-                "https://ubuntu.com/appliance", "Ubuntu Appliance page",
-                show_class=True)
+                "https://ubuntu.com/appliance", "Ubuntu Appliance page", show_class=True
+            )
             sentences.append("See the %s for more information." % link)
         elif publish_type == "wubi":
             sentences.append(
                 "This is a filesystem image downloaded by Wubi (a system "
                 "which installs Ubuntu into disk image files on a Windows "
                 "filesystem).  You should not normally need to download it "
-                "separately.")
+                "separately."
+            )
         else:
             raise WebIndicesException("Unknown image type %s!" % publish_type)
 
@@ -861,12 +916,14 @@ class Publisher:
             sentences.append(
                 "Choose this if you have a computer based on the AMD64 or "
                 "EM64T architecture (e.g., Athlon64, Opteron, EM64T "
-                "Xeon, Core 2).")
-            if 'i386' in self.config.arches:
+                "Xeon, Core 2)."
+            )
+            if "i386" in self.config.arches:
                 sentences.append(
                     "If you have a non-64-bit processor made by AMD, or if "
                     "you need full support for 32-bit code, use the i386 "
-                    "images instead.")
+                    "images instead."
+                )
             else:
                 sentences.append("Choose this if you are at all unsure.")
         elif arch == "arm64":
@@ -875,10 +932,10 @@ class Publisher:
             sentences.append("For Lenovo X13s Gen 1.")
         elif arch == "armhf+raspi2":
             sentences.append("For Raspberry Pi 2 boards.")
-        elif arch in ("arm64+raspi", "armhf+raspi",
-                      "arm64+raspi3", "armhf+raspi3"):
-            sentences.append("For modern Raspberry Pi boards (Pi 3, 4, 5, "
-                             "CM4, and Zero 2 W).")
+        elif arch in ("arm64+raspi", "armhf+raspi", "arm64+raspi3", "armhf+raspi3"):
+            sentences.append(
+                "For modern Raspberry Pi boards (Pi 3, 4, 5, CM4, and Zero 2 W)."
+            )
         elif arch == "armel":
             sentences.append("For ARMv7 processors and above.")
         elif arch == "armel+dove":
@@ -888,32 +945,27 @@ class Publisher:
         elif arch in ("armel+mx5", "armhf+mx5"):
             sentences.append("For Freescale i.MX5x boards.")
             link = Link("https://wiki.ubuntu.com/ARM/MX5", "ARM/MX5")
-            sentences.append(
-                "See %s for detailed installation information." % link)
+            sentences.append("See %s for detailed installation information." % link)
         elif arch in ("armel+omap", "armhf+omap"):
             sentences.append("For OMAP3 boards.")
             link = Link("https://wiki.ubuntu.com/ARM/OMAP", "ARM/OMAP")
-            sentences.append(
-                "See %s for detailed installation information." % link)
+            sentences.append("See %s for detailed installation information." % link)
         elif arch in ("armel+omap4", "armhf+omap4"):
             sentences.append("For OMAP4 boards.")
             link = Link("https://wiki.ubuntu.com/ARM/OMAP", "ARM/OMAP")
-            sentences.append(
-                "See %s for detailed installation information." % link)
+            sentences.append("See %s for detailed installation information." % link)
         elif arch in ("armel+ac100", "armhf+ac100"):
             sentences.append("For Toshiba AC100 / Dynabook AZ netbooks.")
-            link = Link(
-                "https://wiki.ubuntu.com/ARM/TEGRA/AC100", "ARM/TEGRA/AC100")
+            link = Link("https://wiki.ubuntu.com/ARM/TEGRA/AC100", "ARM/TEGRA/AC100")
             sentences.append(
                 "See %s for detailed installation information (please make "
                 "sure to download the .bootimg file alongside with the "
-                "filesystem archive)." % link)
+                "filesystem archive)." % link
+            )
         elif arch == "armhf+nexus7":
             sentences.append("For the Asus/Google Nexus7 tablet.")
-            link = Link(
-                "https://wiki.ubuntu.com/Nexus7", "the Nexus7 wiki pages")
-            sentences.append(
-                "See %s for detailed installation information." % link)
+            link = Link("https://wiki.ubuntu.com/Nexus7", "the Nexus7 wiki pages")
+            sentences.append("See %s for detailed installation information." % link)
         elif arch == "armhf":
             sentences.append("For ARMv7 processors and above (Hard-Float).")
         elif arch == "i386":
@@ -922,60 +974,62 @@ class Publisher:
                 "This includes most machines with Intel/AMD/etc type "
                 "processors and almost all computers that run Microsoft "
                 "Windows, as well as newer Apple Macintosh systems based on "
-                "Intel processors.")
+                "Intel processors."
+            )
         elif arch == "ppc64el":
             if series >= "jammy":
-                sentences.append(
-                    "For POWER9 and POWER10 Little-Endian systems.")
+                sentences.append("For POWER9 and POWER10 Little-Endian systems.")
             else:
                 sentences.append(
                     "For POWER8 and POWER9 Little-Endian systems, especially "
-                    "the \"LC\" Linux-only servers.")
+                    'the "LC" Linux-only servers.'
+                )
         elif arch == "riscv64+unleashed":
             sentences.append(
                 "For RISC-V computers, with support for SiFive HiFive "
-                "Unleashed and QEMU.")
+                "Unleashed and QEMU."
+            )
         elif arch == "riscv64+unmatched":
             sentences.append(
-                "For RISC-V computers, with support for SiFive HiFive "
-                "Unmatched.")
+                "For RISC-V computers, with support for SiFive HiFive Unmatched."
+            )
         elif arch == "riscv64+visionfive":
             sentences.append(
-                "For RISC-V computers, with support for StarFive VisionFive")
+                "For RISC-V computers, with support for StarFive VisionFive"
+            )
         elif arch == "riscv64+visionfive2":
             sentences.append(
-                "For RISC-V computers, with support for StarFive VisionFive 2")
+                "For RISC-V computers, with support for StarFive VisionFive 2"
+            )
         elif arch == "riscv64+milkvmars":
-            sentences.append(
-                "For RISC-V computers, with support for Milk-V Mars")
+            sentences.append("For RISC-V computers, with support for Milk-V Mars")
         elif arch == "riscv64+jh7110":
-            sentences.append(
-                "For RISC-V computers, with support for JH7110 boards")
+            sentences.append("For RISC-V computers, with support for JH7110 boards")
         elif arch == "riscv64+pic64gx":
-            sentences.append(
-                "For RISC-V computers, with support for Microchip PIC64GX")
+            sentences.append("For RISC-V computers, with support for Microchip PIC64GX")
         elif arch == "riscv64+nezha":
-            sentences.append(
-                "For RISC-V computers, with support for Allwinner Nezha")
+            sentences.append("For RISC-V computers, with support for Allwinner Nezha")
         elif arch == "riscv64+licheerv":
             sentences.append(
-                "For RISC-V computers, with support for Sipeed LicheeRV Dock")
+                "For RISC-V computers, with support for Sipeed LicheeRV Dock"
+            )
         elif arch == "riscv64+icicle":
             sentences.append(
-                "For RISC-V computers, with support for Microchip Polarfire "
-                "Icicle Kit")
+                "For RISC-V computers, with support for Microchip Polarfire Icicle Kit"
+            )
         elif arch == "riscv64":
             sentences.append(
                 "For RISC-V computers. Requires copying your own first "
                 "stage bootloader (like u-boot) and relevant DTBs onto the "
                 "image before usage on real hardware (like the SiFive HiFive "
-                "Unmatched).")
+                "Unmatched)."
+            )
             if publish_type.startswith("preinstalled-"):
-                sentences.append(
-                    "Usable on RISC-V QEMU.")
+                sentences.append("Usable on RISC-V QEMU.")
         elif arch == "s390x":
             sentences.append(
-                "For IBM System z series mainframes, such as IBM LinuxONE.")
+                "For IBM System z series mainframes, such as IBM LinuxONE."
+            )
         else:
             raise WebIndicesException("Unknown architecture %s!" % arch)
         return "  ".join(sentences)
@@ -985,44 +1039,52 @@ class Publisher:
             return
 
         usb_projects = (
-            "kubuntu", "kubuntu-active",
+            "kubuntu",
+            "kubuntu-active",
             "ubuntu-mate",
-            )
+        )
 
         yield "<br>"
         sentences = []
         if publish_type == "dvd" or self.project == "ubuntustudio":
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
-                "not fit onto a single-sided single-layer DVD.")
+                "not fit onto a single-sided single-layer DVD."
+            )
             sentences.append(
                 "However, you may still test it using a larger USB drive or a "
-                "virtual machine.")
-        elif self.project in ("kubuntu",
-                              "ubuntu-mate",
-                              "ubuntu-budgie",
-                              "xubuntu"):
+                "virtual machine."
+            )
+        elif self.project in ("kubuntu", "ubuntu-mate", "ubuntu-budgie", "xubuntu"):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
-                "not fit onto a 2GB USB stick.")
+                "not fit onto a 2GB USB stick."
+            )
             sentences.append(
                 "However, you may still test it using a DVD, a larger USB "
-                "drive, or a virtual machine.")
-        elif (self.project in usb_projects or
-                self.project in ("xubuntu", "ubuntu-gnome")):
+                "drive, or a virtual machine."
+            )
+        elif self.project in usb_projects or self.project in (
+            "xubuntu",
+            "ubuntu-gnome",
+        ):
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
-                "not fit onto a 1GB USB stick.")
+                "not fit onto a 1GB USB stick."
+            )
             sentences.append(
                 "However, you may still test it using a DVD, a larger USB "
-                "drive, or a virtual machine.")
+                "drive, or a virtual machine."
+            )
         else:
             sentences.append(
                 "Warning: This image is oversized (which is a bug) and will "
-                "not fit onto a standard 703MiB CD.")
+                "not fit onto a standard 703MiB CD."
+            )
             sentences.append(
                 "However, you may still test it using a DVD, a USB drive, or "
-                "a virtual machine.")
+                "a virtual machine."
+            )
         yield Span("urgent", sentences)
 
     def mimetypestr(self, extension):
@@ -1043,7 +1105,8 @@ class Publisher:
             return "standard download"
         elif extension.endswith(".torrent"):
             return "%s download" % Link(
-                "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
+                "https://help.ubuntu.com/community/BitTorrent", "BitTorrent"
+            )
         elif extension == "list":
             return "file listing"
         elif extension == "manifest":
@@ -1053,8 +1116,10 @@ class Publisher:
         elif extension == "manifest-remove":
             return "packages to remove from live filesystem on installation"
         elif extension == "manifest-minimal-remove":
-            return "packages to remove from live filesystem on " + \
-                   " installation when performing a minimal install"
+            return (
+                "packages to remove from live filesystem on "
+                + " installation when performing a minimal install"
+            )
         elif extension.endswith(".zsync"):
             return "%s metafile" % Link("http://zsync.moria.org.uk/", "zsync")
         elif extension == "vmlinuz-ec2":
@@ -1082,17 +1147,21 @@ class Publisher:
     def web_heading(self, prefix):
         series = self.config["DIST"]
 
-        if self.project in ("ubuntu-core", "ubuntu-core-desktop",
-                            "ubuntu-appliance"):
+        if self.project in ("ubuntu-core", "ubuntu-core-desktop", "ubuntu-appliance"):
             channel = self.config.get("CHANNEL", "edge")
             heading = "%s %s (%s)" % (
-                self.config.capproject, self.config.core_series, channel)
+                self.config.capproject,
+                self.config.core_series,
+                channel,
+            )
         elif self.project == "ubuntu-core-installer":
             heading = "Ubuntu Core %s Installer" % (self.config.core_series,)
         else:
             heading = "%s %s (%s)" % (
-                self.config.capproject, series.displayversion(self.project),
-                series.displayname)
+                self.config.capproject,
+                series.displayversion(self.project),
+                series.displayname,
+            )
 
         if "-alpha-" in prefix:
             heading += " Alpha %s" % re.sub(r"^.*-alpha-", "", prefix)
@@ -1106,7 +1175,7 @@ class Publisher:
             heading += " Release Candidate"
         elif prefix == series.name:
             heading += " Daily Build"
-        heading = heading.replace('-', ' ')
+        heading = heading.replace("-", " ")
         return heading
 
     def find_images(self, directory, prefix, publish_type):
@@ -1119,11 +1188,13 @@ class Publisher:
                 # Wubi images are just "ARCH.tar.xz", with no prefix.
                 images.append(entry)
             elif entry.startswith("%s-" % prefix_type):
-                if (entry.endswith(".list") or
-                        entry.endswith(".img.gz") or
-                        entry.endswith(".tar.gz") or
-                        entry.endswith(".wsl") or
-                        entry.endswith(".img.xz")):
+                if (
+                    entry.endswith(".list")
+                    or entry.endswith(".img.gz")
+                    or entry.endswith(".tar.gz")
+                    or entry.endswith(".wsl")
+                    or entry.endswith(".img.xz")
+                ):
                     images.append(entry)
         return images
 
@@ -1136,9 +1207,13 @@ class Publisher:
         return sorted(numbers)
 
     def find_any_with_extension(self, directory, extension):
-        return bool([
-            entry for entry in os.listdir(directory)
-            if entry.endswith(".%s" % extension)])
+        return bool(
+            [
+                entry
+                for entry in os.listdir(directory)
+                if entry.endswith(".%s" % extension)
+            ]
+        )
 
     def make_web_indices(self, directory, base_prefix, status="release"):
         prefixes = [base_prefix]
@@ -1147,21 +1222,32 @@ class Publisher:
             prefixes.append(base_prefix.rsplit(".", 1)[0])
 
         all_publish_types = (
-            "live", "desktop",
+            "live",
+            "desktop",
             "live-server",
             "netboot",
             "legacy-server",
-            "mini-iso", "wsl",
-            "server", "install", "alternate",
-            "serveraddon", "addon",
+            "mini-iso",
+            "wsl",
+            "server",
+            "install",
+            "alternate",
+            "serveraddon",
+            "addon",
             "dvd",
             "src",
-            "netbook", "mobile", "active",
-            "uec", "server-uec",
-            "preinstalled-desktop", "preinstalled-netbook",
-            "preinstalled-mobile", "preinstalled-active",
+            "netbook",
+            "mobile",
+            "active",
+            "uec",
+            "server-uec",
+            "preinstalled-desktop",
+            "preinstalled-netbook",
+            "preinstalled-mobile",
+            "preinstalled-active",
             "preinstalled-server",
-            "preinstalled-core", "wubi",
+            "preinstalled-core",
+            "wubi",
             "live-core",
             "live-core-desktop",
             "ubuntu-core-installer",
@@ -1170,18 +1256,41 @@ class Publisher:
         )
 
         all_arches = (
-            "amd64", "amd64+mac",
+            "amd64",
+            "amd64+mac",
             "i386",
-            "armel", "armel+dove", "armel+imx51", "armel+omap", "armel+omap4",
-            "armel+ac100", "armel+mx5",
-            "armhf", "armhf+omap", "armhf+omap4", "armhf+ac100", "armhf+mx5",
-            "armhf+nexus7", "armhf+raspi", "armhf+raspi2", "armhf+raspi3",
-            "arm64", "arm64+raspi", "arm64+raspi3", "arm64+x13s",
+            "armel",
+            "armel+dove",
+            "armel+imx51",
+            "armel+omap",
+            "armel+omap4",
+            "armel+ac100",
+            "armel+mx5",
+            "armhf",
+            "armhf+omap",
+            "armhf+omap4",
+            "armhf+ac100",
+            "armhf+mx5",
+            "armhf+nexus7",
+            "armhf+raspi",
+            "armhf+raspi2",
+            "armhf+raspi3",
+            "arm64",
+            "arm64+raspi",
+            "arm64+raspi3",
+            "arm64+x13s",
             "ppc64el",
-            "riscv64", "riscv64+unleashed", "riscv64+unmatched",
-            "riscv64+visionfive", "riscv64+visionfive2", "riscv64+nezha",
-            "riscv64+licheerv", "riscv64+icicle", "riscv64+milkvmars",
-            "riscv64+pic64gx", "riscv64+jh7110",
+            "riscv64",
+            "riscv64+unleashed",
+            "riscv64+unmatched",
+            "riscv64+visionfive",
+            "riscv64+visionfive2",
+            "riscv64+nezha",
+            "riscv64+licheerv",
+            "riscv64+icicle",
+            "riscv64+milkvmars",
+            "riscv64+pic64gx",
+            "riscv64+jh7110",
             "s390x",
         )
 
@@ -1191,19 +1300,22 @@ class Publisher:
         footer_path = os.path.join(directory, "FOOTER.html")
         htaccess_path = os.path.join(directory, ".htaccess")
         reldir = os.path.realpath(directory)
-        if 'simple' in reldir.split('/'):
-            site = 'releases.ubuntu.com'
-            suburl = reldir.split('simple/')[-1]
+        if "simple" in reldir.split("/"):
+            site = "releases.ubuntu.com"
+            suburl = reldir.split("simple/")[-1]
         else:
-            site = 'cdimage.ubuntu.com'
-            suburl = reldir.split('full/')[-1]
+            site = "cdimage.ubuntu.com"
+            suburl = reldir.split("full/")[-1]
 
-        with AtomicFile(header_path) as header, \
-                AtomicFile(footer_path) as footer, \
-                AtomicFile(htaccess_path) as htaccess:
+        with (
+            AtomicFile(header_path) as header,
+            AtomicFile(footer_path) as footer,
+            AtomicFile(htaccess_path) as htaccess,
+        ):
             heading = self.web_heading(base_prefix)
             print(
-                dedent("""\
+                dedent(
+                    """\
         <!doctype html>
         <html lang="en">
         <head>
@@ -1214,14 +1326,19 @@ class Publisher:
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href="https://%s/%s">
         <!-- Main style sheets for CSS2 capable browsers -->
-        <style type="text/css" media="screen">""")
+        <style type="text/css" media="screen">"""
+                )
                 % (heading, heading, site, suburl),
-                file=header)
-            assets = 'https://assets.ubuntu.com/v1/'
-            print(dedent("""\
+                file=header,
+            )
+            assets = "https://assets.ubuntu.com/v1/"
+            print(
+                dedent(
+                    """\
                     .p-strip--image {
                         background-image: url('"""
-                         + assets + """775cc62b-vanilla-grad-background.png');
+                    + assets
+                    + """775cc62b-vanilla-grad-background.png');
                         background-position: 75% 25%;
                     }
 
@@ -1264,33 +1381,45 @@ class Publisher:
                     td:nth-of-type(5) {
                     }
                 </style>
-                """), file=header)
+                """
+                ),
+                file=header,
+            )
             for css in self.cssincludes():
                 print(
-                    '<link rel="stylesheet" type="text/css" '
-                    'href="%s">' % css, file=header)
+                    '<link rel="stylesheet" type="text/css" href="%s">' % css,
+                    file=header,
+                )
             if self.project == "kubuntu":
                 print(
                     '<link rel="shortcut icon" type="image/x-icon" '
                     'href="//cdimage.ubuntu.com/include/kubuntu/'
-                    'images/favicon.ico">', file=header)
-                header_href = 'https://kubuntu.org/'
+                    'images/favicon.ico">',
+                    file=header,
+                )
+                header_href = "https://kubuntu.org/"
             elif self.project in ("lubuntu", "lubuntu-next"):
                 print(
                     '<link rel="icon" type="image/png" '
                     'href="//cdimage.ubuntu.com/include/lubuntu/'
-                    'favicon.png">', file=header)
-                header_href = 'https://lubuntu.me/'
+                    'favicon.png">',
+                    file=header,
+                )
+                header_href = "https://lubuntu.me/"
             elif self.project == "xubuntu":
                 print(
                     '<link rel="icon" type="image/png" '
                     'href="//cdimage.ubuntu.com/include/xubuntu/'
-                    'favicon.png">', file=header)
-                header_href = 'https://xubuntu.org/'
+                    'favicon.png">',
+                    file=header,
+                )
+                header_href = "https://xubuntu.org/"
             else:
-                header_href = 'http://www.ubuntu.com/'
+                header_href = "http://www.ubuntu.com/"
 
-            print(dedent("""\
+            print(
+                dedent(
+                    """\
             </head>
             <body>
                 <header id="navigation" class="p-navigation">
@@ -1299,8 +1428,9 @@ class Publisher:
                         <div class="p-navigation__logo">
                           <a class="p-navigation__link" href="/">
                           <img class="p-navigation__image"
-                           src=" """ + assets
-                  + """411e1474-releases-lockup.svg"
+                           src=" """
+                    + assets
+                    + """411e1474-releases-lockup.svg"
                            alt="">
                           </a>
                         </div>
@@ -1321,12 +1451,18 @@ class Publisher:
                 <div id="pageWrapper" class="p-strip">
                     <div class="row">
                         <div id="main">
-            """) % (header_href, heading), file=header)
+            """
+                )
+                % (header_href, heading),
+                file=header,
+            )
 
             mirrors_url = "http://www.ubuntu.com/getubuntu/downloadmirrors"
-            if ("full" in reldir.split(os.pardir) and
-                    "-alpha-" not in base_prefix and
-                    base_prefix != self.config.series):
+            if (
+                "full" in reldir.split(os.pardir)
+                and "-alpha-" not in base_prefix
+                and base_prefix != self.config.series
+            ):
                 if self.project in ("ubuntu", "ubuntu-server", "ubuntu-wsl"):
                     url = "http://releases.ubuntu.com/"
                 else:
@@ -1336,9 +1472,11 @@ class Publisher:
                         "<p>This directory contains only less-used images "
                         "which are not mirrored widely.  For the most "
                         "frequently downloaded images, see "
-                        "<a href=\"%s\">releases.ubuntu.com</a>.  Please "
-                        "use a <a href=\"%s\">mirror</a> if possible.</p>" %
-                        (url, mirrors_url), file=header)
+                        '<a href="%s">releases.ubuntu.com</a>.  Please '
+                        'use a <a href="%s">mirror</a> if possible.</p>'
+                        % (url, mirrors_url),
+                        file=header,
+                    )
                     print(file=header)
             elif "simple" in reldir.split(os.pardir):
                 cdimage_url = "http://cdimage.ubuntu.com/"
@@ -1346,10 +1484,11 @@ class Publisher:
                     "<p>This directory contains the most frequently "
                     "downloaded %s images.  Other images, including DVDs and "
                     "source CDs, may be available on the "
-                    "<a href=\"%s\">cdimage server</a>.  See also the "
-                    "<a href=\"%s\">list of download mirrors</a>.</p>" %
-                    (self.config.capproject, cdimage_url, mirrors_url),
-                    file=header)
+                    '<a href="%s">cdimage server</a>.  See also the '
+                    '<a href="%s">list of download mirrors</a>.</p>'
+                    % (self.config.capproject, cdimage_url, mirrors_url),
+                    file=header,
+                )
                 print(file=header)
 
             print("<h2>Select an image</h2>", file=header)
@@ -1364,14 +1503,13 @@ class Publisher:
             if cdtypecount > 1:
                 print(
                     "<p>%s is distributed on %s types of images described "
-                    "below." %
-                    (self.config.capproject, self.numbers[cdtypecount]),
-                    file=header)
+                    "below." % (self.config.capproject, self.numbers[cdtypecount]),
+                    file=header,
+                )
                 print(file=header)
 
             foundtorrent = False
-            bt_link = Link(
-                "https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
+            bt_link = Link("https://help.ubuntu.com/community/BitTorrent", "BitTorrent")
 
             found_publish_types = set()
 
@@ -1386,21 +1524,31 @@ class Publisher:
                     else:
                         arches = all_arches
                     for image_format in (
-                        "iso", "img", "img.gz", "img.xz", "img.tar.gz",
-                        "tar.gz", "tar.xz", "custom.tar.gz", "wsl",
+                        "iso",
+                        "img",
+                        "img.gz",
+                        "img.xz",
+                        "img.tar.gz",
+                        "tar.gz",
+                        "tar.xz",
+                        "custom.tar.gz",
+                        "wsl",
                     ):
                         paths = []
                         if image_format == "img" or image_format == "img.xz":
                             base = os.path.join(
-                                directory,
-                                "%s-%s" % (prefix, publish_type))
+                                directory, "%s-%s" % (prefix, publish_type)
+                            )
                             path = "%s.%s" % (base, image_format)
                             if os.path.exists(path):
                                 paths.append((path, None, base))
-                        elif (image_format == "tar.xz" and
-                              # skip source images explicitly, which are
-                              # always .iso and have bodged arches
-                              publish_type != "src"):
+                        elif (
+                            image_format == "tar.xz"
+                            and
+                            # skip source images explicitly, which are
+                            # always .iso and have bodged arches
+                            publish_type != "src"
+                        ):
                             for arch in arches:
                                 base = os.path.join(directory, arch)
                                 path = "%s.%s" % (base, image_format)
@@ -1408,8 +1556,8 @@ class Publisher:
                                     paths.append((path, arch, base))
                         for arch in arches:
                             base = os.path.join(
-                                directory,
-                                "%s-%s-%s" % (prefix, publish_type, arch))
+                                directory, "%s-%s-%s" % (prefix, publish_type, arch)
+                            )
                             path = "%s.%s" % (base, image_format)
                             if os.path.exists(path):
                                 paths.append((path, arch, base))
@@ -1418,15 +1566,13 @@ class Publisher:
 
                         found_publish_types.add(publish_type)
 
-                        print('<div class="row p-divider">'
-                              + '<div class="p-card">',
-                              file=header)
-                        cdtypestr = self.cdtypestr(publish_type, image_format)
-                        print('<div class="col-6 p-divider__block">',
-                              file=header)
                         print(
-                            "<h3>%s</h3>" % self.titlecase(cdtypestr),
-                            file=header)
+                            '<div class="row p-divider">' + '<div class="p-card">',
+                            file=header,
+                        )
+                        cdtypestr = self.cdtypestr(publish_type, image_format)
+                        print('<div class="col-6 p-divider__block">', file=header)
+                        print("<h3>%s</h3>" % self.titlecase(cdtypestr), file=header)
                         print(file=header)
                         for tag in self.cdtypedesc(publish_type, image_format):
                             print(tag, file=header)
@@ -1434,18 +1580,16 @@ class Publisher:
 
                         print(file=header)
 
-                        print('</div>', file=header)
-                        print('<div class="col-6 p-divider__block">',
-                              file=header)
+                        print("</div>", file=header)
+                        print('<div class="col-6 p-divider__block">', file=header)
 
                         for path, arch, base in paths:
                             if arch is None:
                                 raise WebIndicesException(
-                                    "Unknown image type %s!" %
-                                    publish_type)
+                                    "Unknown image type %s!" % publish_type
+                                )
                             elif publish_type == "src":
-                                imagestr = "%s %s" % (
-                                    self.titlecase(cdtypestr), arch)
+                                imagestr = "%s %s" % (self.titlecase(cdtypestr), arch)
                                 htaccessimagestr = imagestr
                             else:
                                 if publish_type in ("server-uec", "uec"):
@@ -1454,21 +1598,24 @@ class Publisher:
                                     archstr = self.arch_strings[arch]
                                 imagestr = "%s %s" % (archstr, cdtypestr)
                                 htaccessimagestr = "%s for %s computers" % (
-                                    self.titlecase(cdtypestr), archstr)
+                                    self.titlecase(cdtypestr),
+                                    archstr,
+                                )
                                 archdesc = self.archdesc(arch, publish_type)
 
                             if os.path.exists(path):
                                 print(
-                                    "<a href=\"%s\">%s</a>" %
-                                    (os.path.basename(path), imagestr),
-                                    file=header)
+                                    '<a href="%s">%s</a>'
+                                    % (os.path.basename(path), imagestr),
+                                    file=header,
+                                )
                             elif os.path.exists("%s.torrent" % path):
                                 print(
-                                    "<a href=\"%s.torrent\">%s</a> "
-                                    "(%s only)" % (
-                                        os.path.basename(path), imagestr,
-                                        bt_link),
-                                    file=header)
+                                    '<a href="%s.torrent">%s</a> '
+                                    "(%s only)"
+                                    % (os.path.basename(path), imagestr, bt_link),
+                                    file=header,
+                                )
                             else:
                                 continue
 
@@ -1480,7 +1627,8 @@ class Publisher:
                                 print(file=header)
                                 desc = archdesc
                                 for tag in self.maybe_oversized(
-                                        status, oversized_path, publish_type):
+                                    status, oversized_path, publish_type
+                                ):
                                     desc += "\n%s" % tag
                                 print("<p>%s</p>" % desc, file=header)
                                 print(file=header)
@@ -1489,15 +1637,27 @@ class Publisher:
                                 htaccess_extensions = ("img", "manifest")
                             else:
                                 htaccess_extensions = (
-                                    "img.gz.torrent", "img.gz.zsync", "img.gz",
-                                    "img.xz", "img.tar.gz", "img.torrent",
-                                    "img.zsync", "img", "iso.torrent",
-                                    "iso.zsync", "iso", "list",
-                                    "manifest", "manifest-desktop",
+                                    "img.gz.torrent",
+                                    "img.gz.zsync",
+                                    "img.gz",
+                                    "img.xz",
+                                    "img.tar.gz",
+                                    "img.torrent",
+                                    "img.zsync",
+                                    "img",
+                                    "iso.torrent",
+                                    "iso.zsync",
+                                    "iso",
+                                    "list",
+                                    "manifest",
+                                    "manifest-desktop",
                                     "manifest-remove",
                                     "manifest-minimal-remove",
-                                    "tar.gz", "tar.gz.zsync",
-                                    "bootimg", "tar.xz", "custom.tar.gz",
+                                    "tar.gz",
+                                    "tar.gz.zsync",
+                                    "bootimg",
+                                    "tar.xz",
+                                    "custom.tar.gz",
                                     "wsl",
                                 )
                             for extension in htaccess_extensions:
@@ -1507,13 +1667,20 @@ class Publisher:
                                 extstr = self.extensionstr(extension)
                                 extstr = extstr.replace('"', '\\"')
                                 print(
-                                    "AddDescription \"%s (%s)\" %s" % (
-                                        htaccessimagestr, extstr,
-                                        os.path.basename(extpath)),
-                                    file=htaccess)
+                                    'AddDescription "%s (%s)" %s'
+                                    % (
+                                        htaccessimagestr,
+                                        extstr,
+                                        os.path.basename(extpath),
+                                    ),
+                                    file=htaccess,
+                                )
                             if status == "release":
                                 for extension in (
-                                    "iso", "img", "img.gz", "img.xz",
+                                    "iso",
+                                    "img",
+                                    "img.gz",
+                                    "img.xz",
                                 ):
                                     extpath = "%s.%s" % (base, extension)
                                     if not os.path.exists(extpath):
@@ -1522,29 +1689,37 @@ class Publisher:
                                     if not os.path.isabs(absdir):
                                         absdir = os.path.abspath(absdir)
                                     relbase = os.path.relpath(
-                                        absdir, self.tree.directory)
+                                        absdir, self.tree.directory
+                                    )
                                     relbase = os.path.join("/", relbase)
                                     relpath = os.path.join(
-                                        relbase, os.path.basename(extpath))
+                                        relbase, os.path.basename(extpath)
+                                    )
                                     if base_prefix.count(".") >= 2:
-                                        latest_prefix = base_prefix.rsplit(
-                                            ".", 1)[0]
+                                        latest_prefix = base_prefix.rsplit(".", 1)[0]
                                     else:
                                         latest_prefix = base_prefix
-                                    latest_prefix = \
-                                        "%s-latest" % latest_prefix
+                                    latest_prefix = "%s-latest" % latest_prefix
                                     latest_path = os.path.join(
                                         relbase,
-                                        "%s-%s-%s.%s" % (
-                                            latest_prefix, publish_type,
-                                            arch, extension))
+                                        "%s-%s-%s.%s"
+                                        % (
+                                            latest_prefix,
+                                            publish_type,
+                                            arch,
+                                            extension,
+                                        ),
+                                    )
                                     print(
-                                        "RedirectPermanent %s %s" % (
-                                            latest_path, relpath),
-                                        file=htaccess)
+                                        "RedirectPermanent %s %s"
+                                        % (latest_path, relpath),
+                                        file=htaccess,
+                                    )
                             for extension in (
-                                "initrd-ec2", "initrd-virtual",
-                                "vmlinuz-ec2", "vmlinuz-virtual",
+                                "initrd-ec2",
+                                "initrd-virtual",
+                                "vmlinuz-ec2",
+                                "vmlinuz-virtual",
                             ):
                                 extpath = "%s-%s" % (base, extension)
                                 if not os.path.exists(extpath):
@@ -1552,63 +1727,83 @@ class Publisher:
                                 extstr = self.extensionstr(extension)
                                 extstr = extstr.replace('"', '\\"')
                                 print(
-                                    "AddDescription \"%s (%s)\" %s" % (
-                                        htaccessimagestr, extstr,
-                                        os.path.basename(extpath)),
-                                    file=htaccess)
-                        print('</div>', file=header)
-                        print('</div></div>', file=header)
+                                    'AddDescription "%s (%s)" %s'
+                                    % (
+                                        htaccessimagestr,
+                                        extstr,
+                                        os.path.basename(extpath),
+                                    ),
+                                    file=htaccess,
+                                )
+                        print("</div>", file=header)
+                        print("</div></div>", file=header)
 
             published_ec2_path = os.path.join(
-                directory, "published-ec2-%s.txt" % status)
+                directory, "published-ec2-%s.txt" % status
+            )
             if os.path.exists(published_ec2_path):
                 print("<h3>Amazon EC2 Published AMIs</h3>", file=header)
                 print(file=header)
                 features_link = Link(
                     "http://www.ubuntu.com/products/whatisubuntu/"
                     "serveredition/features/ec2",
-                    "Amazon EC2", show_class=True)
+                    "Amazon EC2",
+                    show_class=True,
+                )
                 guide_link = Link(
                     "https://help.ubuntu.com/community/EC2StartersGuide",
-                    "EC2 Starters Guide", show_class=True)
-                print(str(Paragraph([
-                    "The images have been published to %s, and can be used "
-                    "immediately with no need to download anything." %
-                    features_link,
-                    "See the table below for the AMI ids.",
-                    "For further instruction on getting started with Amazon "
-                    "EC2, see the %s." % guide_link,
-                ])), file=header)
+                    "EC2 Starters Guide",
+                    show_class=True,
+                )
+                print(
+                    str(
+                        Paragraph(
+                            [
+                                "The images have been published to %s, and can be used "
+                                "immediately with no need to download anything."
+                                % features_link,
+                                "See the table below for the AMI ids.",
+                                "For further instruction on getting started with Amazon "
+                                "EC2, see the %s." % guide_link,
+                            ]
+                        )
+                    ),
+                    file=header,
+                )
                 print(file=header)
 
-                print(dedent("""\
+                print(
+                    dedent(
+                        """\
                     <table><tbody><tr>
                       <td><p> Availability Zone </p></td>
                       <td><p> arch </p></td>
                       <td><p> ami </p></td>
                       <td><p> ec2 command</p></td>
-                    </tr>"""), file=header)
+                    </tr>"""
+                    ),
+                    file=header,
+                )
                 with open(published_ec2_path) as published_ec2:
                     for line in published_ec2:
                         if "ami" not in line:
                             continue
                         zone, ami, manifest = line.split(None, 2)
-                        base_url = (
-                            "http://developer.amazonwebservices.com/connect")
+                        base_url = "http://developer.amazonwebservices.com/connect"
 
                         if "amd64" in manifest:
                             arch = "64-bit"
                             url = (
                                 "%s/entry%21default.jspa?categoryID=223&amp;"
-                                "externalID=2755&amp;fromSearchPage=true" %
-                                base_url)
+                                "externalID=2755&amp;fromSearchPage=true" % base_url
+                            )
                             args = "--instance-type m1.large"
                         elif "i386" in manifest:
                             arch = "32-bit"
                             url = (
                                 "%s/kbclick.jspa?categoryID=223&amp;"
-                                "externalID=2754&amp;searchID=1818410" %
-                                base_url)
+                                "externalID=2754&amp;searchID=1818410" % base_url
+                            )
                             args = "--instance-type m1.small"
                         link = Link(url, "<tt>%s</tt>" % ami, show_class=True)
 
@@ -1618,66 +1813,80 @@ class Publisher:
                         elif zone == "us-east-1":
                             zonename = "US"
 
-                        command = (
-                            "ec2-run-instances %s --key ${EC2_KEYPAIR} %s" %
-                            (ami, args))
+                        command = "ec2-run-instances %s --key ${EC2_KEYPAIR} %s" % (
+                            ami,
+                            args,
+                        )
                         command = "<tt>%s</tt>" % command
                         print("<tr>", file=header)
                         for cell in (zonename, arch, link, command):
                             print("  <td><p>%s</p></td>" % cell, file=header)
                 print("</tbody></table>", file=header)
 
-            if ([entry for entry in os.listdir(directory)
-                 if "-arm" in entry]) and found_publish_types != set(["wsl"]):
+            if (
+                [entry for entry in os.listdir(directory) if "-arm" in entry]
+            ) and found_publish_types != set(["wsl"]):
                 link = Link(
-                    "https://wiki.ubuntu.com/ARM/Server/Install",
-                    "ARM/Server/Install")
+                    "https://wiki.ubuntu.com/ARM/Server/Install", "ARM/Server/Install"
+                )
                 print(
                     "<p>For ARM hardware for which we do not ship "
                     "preinstalled images, see %s for detailed installation "
-                    "information.</p>" % link, file=header)
+                    "information.</p>" % link,
+                    file=header,
+                )
                 print(file=header)
 
             if foundtorrent:
                 print(
                     "<p>A full list of available files, including %s files, "
-                    "can be found below.</p>" % bt_link, file=header)
+                    "can be found below.</p>" % bt_link,
+                    file=header,
+                )
             else:
                 print(
-                    "<p>A full list of available files can be found "
-                    "below.</p>", file=header)
+                    "<p>A full list of available files can be found below.</p>",
+                    file=header,
+                )
             print(file=header)
 
             got_iso = self.find_any_with_extension(directory, "iso")
             got_img = self.find_any_with_extension(directory, "img")
             iso_link = Link(
                 "https://help.ubuntu.com/community/BurningIsoHowto",
-                "Image Burning Guide")
+                "Image Burning Guide",
+            )
             img_link = Link(
                 "https://wiki.ubuntu.com/MobileTeam/Mobile/HowTo/ImageWriting",
-                "USB Image Writing Guide")
+                "USB Image Writing Guide",
+            )
             if got_iso and got_img:
                 print(
                     "<p>If you need help burning these images to disk, see "
                     "the %s or the %s.</p>" % (iso_link, img_link),
-                    file=header)
+                    file=header,
+                )
             elif got_iso:
                 print(
                     "<p>If you need help burning these images to disk, see "
-                    "the %s.</p>" % iso_link, file=header)
+                    "the %s.</p>" % iso_link,
+                    file=header,
+                )
             elif got_img:
                 print(
                     "<p>It is recommended you have at least a 1GB USB storage "
                     "device to burn the image to.  If you need help burning "
                     "these images to disk, see the %s.</p>" % img_link,
-                    file=header)
+                    file=header,
+                )
             if got_iso or got_img:
                 print(file=header)
 
             print("<div class='p-table-wrapper'>", file=header)
 
             print(
-                dedent("""\
+                dedent(
+                    """\
          </div></div></div></div>
          <footer class="p-footer">
            <div class="row">
@@ -1702,8 +1911,10 @@ class Publisher:
              </nav>
            </div>
          </footer>
-         </body></html>"""),
-                file=footer)
+         </body></html>"""
+                ),
+                file=footer,
+            )
 
             # We may not be mirrored to the webserver root, so calculate a
             # relative path for the icons.
@@ -1724,37 +1935,42 @@ class Publisher:
                 "IndexIgnore .htaccess HEADER.html FOOTER.html "
                 "published-ec2-daily.txt published-ec2-release.txt "
                 ".*.tar.gz",
-                file=htaccess)
+                file=htaccess,
+            )
             print(
                 "IndexOptions NameWidth=* DescriptionWidth=* "
                 "SuppressHTMLPreamble FancyIndexing "
                 "IconHeight=22 IconWidth=22 HTMLTable",
-                file=htaccess)
+                file=htaccess,
+            )
             for icon, patterns in (
                 ("folder.png", "^^DIRECTORY^^"),
                 ("iso.png", ".iso"),
                 ("img.png", ".img .img.xz .tar.gz .tar.xz .wsl"),
-                ("list.png", (
-                    ".list .manifest .html .zsync "
-                    "SHA256SUMS SHA256SUMS.gpg")),
+                (
+                    "list.png",
+                    (".list .manifest .html .zsync SHA256SUMS SHA256SUMS.gpg"),
+                ),
                 ("torrent.png", ".torrent"),
             ):
-                print(
-                    "AddIcon %s%s %s" % (cdicons, icon, patterns),
-                    file=htaccess)
+                print("AddIcon %s%s %s" % (cdicons, icon, patterns), file=htaccess)
 
             for extension in (
-                "img.gz.torrent", "img.gz", "img.torrent", "img",
-                "iso.torrent", "iso", "list", "manifest",
-                "manifest-desktop", "manifest-remove",
+                "img.gz.torrent",
+                "img.gz",
+                "img.torrent",
+                "img",
+                "iso.torrent",
+                "iso",
+                "list",
+                "manifest",
+                "manifest-desktop",
+                "manifest-remove",
                 "manifest-minimal-remove",
             ):
                 mimetype = self.mimetypestr(extension)
-                if (mimetype and
-                        self.find_any_with_extension(directory, extension)):
-                    print(
-                        "AddType %s .%s" % (mimetype, extension),
-                        file=htaccess)
+                if mimetype and self.find_any_with_extension(directory, extension):
+                    print("AddType %s .%s" % (mimetype, extension), file=htaccess)
 
     def refresh_simplestreams(self):
         """For the publisher cycle, refresh the corresponding sstreams."""
@@ -1764,6 +1980,7 @@ class Publisher:
         logger.info("Refreshing simplestreams...")
 
         from cdimage.simplestreams import SimpleStreams
+
         sstreams = SimpleStreams.get_simplestreams(self.config, self)
         sstreams.generate()
 
@@ -1774,8 +1991,9 @@ class DailyTree(Tree):
     def __init__(self, config, directory=None):
         if directory is None:
             # Strip trailing slash to not to confuse cdimage.
-            directory = os.path.join(config.root, "www", "full",
-                                     config.subtree).rstrip('/')
+            directory = os.path.join(config.root, "www", "full", config.subtree).rstrip(
+                "/"
+            )
         super(DailyTree, self).__init__(config, directory)
 
     def name_to_series(self, name):
@@ -1788,20 +2006,19 @@ class DailyTree(Tree):
         return "cdimage.ubuntu.com"
 
     def url_for_path(self, path):
-        logger.info(
-            "url_for_path(%s), self.directory = %s", path, self.directory)
+        logger.info("url_for_path(%s), self.directory = %s", path, self.directory)
         if not path.startswith(self.directory):
             raise Exception(
                 "url_for_path(%r) did not start with self.directory (%r)"
-                % (path, self.directory))
-        url_path = path[len(self.directory):].lstrip('/')
+                % (path, self.directory)
+            )
+        url_path = path[len(self.directory) :].lstrip("/")
         return "https://%s/%s" % (self.site_name, url_path)
 
     def manifest_files(self):
         """Yield all the files to include in a manifest of this tree."""
         seen_inodes = []
-        for dirpath, dirnames, filenames in os.walk(
-                self.directory, followlinks=True):
+        for dirpath, dirnames, filenames in os.walk(self.directory, followlinks=True):
             # Detect loops.
             st = os.stat(dirpath)
             dev_ino = (st.st_dev, st.st_ino)
@@ -1814,7 +2031,7 @@ class DailyTree(Tree):
 
             dirpath_bits = dirpath.split(os.sep)
             if "current" in dirpath_bits or "pending" in dirpath_bits:
-                relative_dirpath = dirpath[len(self.directory) + 1:]
+                relative_dirpath = dirpath[len(self.directory) + 1 :]
                 for filename in filenames:
                     path = os.path.join(dirpath, filename)
                     if self.manifest_file_allowed(path):
@@ -1833,8 +2050,15 @@ class DailyTreePublisher(Publisher):
 
     def image_output(self, arch):
         return os.path.join(
-            self.config.root, "scratch", self.config.subtree, self.project,
-            self.config.full_series, self.image_type, "debian-cd", arch)
+            self.config.root,
+            "scratch",
+            self.config.subtree,
+            self.project,
+            self.config.full_series,
+            self.image_type,
+            "debian-cd",
+            arch,
+        )
 
     @property
     def source_extension(self):
@@ -1843,21 +2067,21 @@ class DailyTreePublisher(Publisher):
     @property
     def britney_report(self):
         return os.path.join(
-            self.config.root, "britney", "report", self.project,
-            self.image_type)
+            self.config.root, "britney", "report", self.project, self.image_type
+        )
 
     @property
     def image_type_dir(self):
-        if (self.config.project in ("ubuntu-core", "ubuntu-core-desktop",
-                                    "ubuntu-appliance") and
-                self.image_type == 'daily-live'):
+        if (
+            self.config.project
+            in ("ubuntu-core", "ubuntu-core-desktop", "ubuntu-appliance")
+            and self.image_type == "daily-live"
+        ):
             channel = self.config.get("CHANNEL", "edge")
             return os.path.join(self.config.core_series, channel)
         image_type_dir = self.image_type.replace("_", "/")
-        if (self.config.distribution != "ubuntu" or
-                not self.config["DIST"].is_latest):
-            image_type_dir = os.path.join(
-                self.config.full_series, image_type_dir)
+        if self.config.distribution != "ubuntu" or not self.config["DIST"].is_latest:
+            image_type_dir = os.path.join(self.config.full_series, image_type_dir)
         return image_type_dir
 
     @property
@@ -1905,8 +2129,7 @@ class DailyTreePublisher(Publisher):
                 return int(5 * 1000 * 1000 * 1000)
             else:
                 return int(4 * 1000 * 1000 * 1000)
-        elif (self.project == "ubuntu-budgie" and
-              self.config["DIST"] >= "focal"):
+        elif self.project == "ubuntu-budgie" and self.config["DIST"] >= "focal":
             # Per IRC discussions on #ubuntu-flavors on the 2020-10-05
             return int(4 * 1024 * 1024 * 1024)
         elif self.project == "xubuntu" and self.config["DIST"] >= "noble":
@@ -1915,8 +2138,7 @@ class DailyTreePublisher(Publisher):
         elif self.project == "xubuntu" and self.config["DIST"] >= "jammy":
             # Per IRC discussions on #ubuntu-flavors 2024-02-15
             return int(3 * 1000 * 1000 * 1000)
-        elif self.project in ("ubuntu-budgie", "xubuntu",
-                              "ubuntu-mate"):
+        elif self.project in ("ubuntu-budgie", "xubuntu", "ubuntu-mate"):
             # https://lists.ubuntu.com/archives/ubuntu-release/2016-May/003744.html
             # https://irclogs.ubuntu.com/2019/02/17/%23ubuntu-release.html#t03:04
             return int(2 * 1000 * 1000 * 1000)
@@ -1933,15 +2155,15 @@ class DailyTreePublisher(Publisher):
             # Between Noble and R cycle, we expect a +5% increase in ISO size.
             # Adjust the warning accordingly.  -tsimonq2
             if self.config["DIST"] > "noble":
-                return int(3.5 * (1000 ** 3))
+                return int(3.5 * (1000**3))
             # Warn if Noble increases by more than 2% from its Beta Freeze size
             elif self.config["DIST"] == "noble":
-                return int(3.4 * (1000 ** 3))
+                return int(3.4 * (1000**3))
             elif self.config["DIST"] >= "jammy":
                 # Per IRC discussions on #ubuntu-release 2023-11-13
-                return int(3.1 * (1000 ** 3))
+                return int(3.1 * (1000**3))
             else:
-                return int(2.0 * (1000 ** 3))
+                return int(2.0 * (1000**3))
         elif self.project == "ubuntu-server":
             if self.config["DIST"] >= "noble":
                 # As of today (2025-01-25) the riscv64 noble images reach
@@ -2003,18 +2225,21 @@ class DailyTreePublisher(Publisher):
             publish_previous = os.path.join(publish_base, previous_name)
             if os.path.exists(publish_previous):
                 for name in sorted(os.listdir(publish_previous)):
-                    if name.endswith('.metalink'):
+                    if name.endswith(".metalink"):
                         continue
                     if name.startswith("%s-" % self.config.series):
                         os.link(
                             os.path.join(publish_previous, name),
-                            os.path.join(publish_date, name))
+                            os.path.join(publish_date, name),
+                        )
                 break
 
     def detect_image_extension(self, source_prefix):
         subp = subprocess.Popen(
             ["file", "-b", "%s.%s" % (source_prefix, self.source_extension)],
-            stdout=subprocess.PIPE, universal_newlines=True)
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         output = subp.communicate()[0].rstrip("\n")
         if output.startswith("# "):
             output = output[2:]
@@ -2041,8 +2266,9 @@ class DailyTreePublisher(Publisher):
                 return "wsl"
             else:
                 logger.warning(
-                    "Unknown compressed file type '%s'; assuming .img.%s" %
-                    (real_output, compressed_extension))
+                    "Unknown compressed file type '%s'; assuming .img.%s"
+                    % (real_output, compressed_extension)
+                )
                 return "img.%s" % compressed_extension
         else:
             logger.warning("Unknown file type '%s'; assuming .iso" % output)
@@ -2062,23 +2288,21 @@ class DailyTreePublisher(Publisher):
         if not os.path.exists(source_path):
             return
 
-        save_target_path = os.path.join(
-            os.path.dirname(image_path), '.' + tarname)
+        save_target_path = os.path.join(os.path.dirname(image_path), "." + tarname)
         target_path = os.path.join(os.path.dirname(image_path), tarname)
 
         shutil.move(source_path, save_target_path)
 
         rewrite_and_unpack_tarball(
-            False, save_target_path, target_path,
-            self.tree.url_for_path(image_path))
+            False, save_target_path, target_path, self.tree.url_for_path(image_path)
+        )
 
     def publish_binary(self, publish_type, arch, date):
         in_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         if publish_type == "live-core":
             out_prefix = "ubuntu-core-%s-%s" % (self.config.core_series, arch)
         elif publish_type == "live-core-desktop":
-            out_prefix = "ubuntu-core-desktop-%s-%s" % (
-                self.config.core_series, arch)
+            out_prefix = "ubuntu-core-desktop-%s-%s" % (self.config.core_series, arch)
         else:
             out_prefix = "%s-%s-%s" % (self.config.series, publish_type, arch)
         source_dir = self.image_output(arch)
@@ -2086,8 +2310,7 @@ class DailyTreePublisher(Publisher):
         target_dir = os.path.join(self.publish_base, date)
         target_prefix = os.path.join(target_dir, out_prefix)
 
-        if not os.path.exists(
-                "%s.%s" % (source_prefix, self.source_extension)):
+        if not os.path.exists("%s.%s" % (source_prefix, self.source_extension)):
             logger.warning("No %s image for %s!" % (publish_type, arch))
             for name in osextras.listdir_force(target_dir):
                 if name.startswith("%s." % out_prefix):
@@ -2098,22 +2321,18 @@ class DailyTreePublisher(Publisher):
         osextras.ensuredir(target_dir)
         extension = self.detect_image_extension(source_prefix)
         target_path = "%s.%s" % (target_prefix, extension)
-        shutil.move(
-            "%s.%s" % (source_prefix, self.source_extension),
-            target_path)
+        shutil.move("%s.%s" % (source_prefix, self.source_extension), target_path)
         self.publish_netboot(arch, target_path)
         if os.path.exists("%s.list" % source_prefix):
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
         self.checksum_dirs.append(source_dir)
-        with ChecksumFileSet(
-                self.config, target_dir, sign=False) as checksum_files:
+        with ChecksumFileSet(self.config, target_dir, sign=False) as checksum_files:
             checksum_files.remove("%s.%s" % (out_prefix, extension))
 
         # Live filesystem manifests
         if os.path.exists("%s.manifest" % source_prefix):
             logger.info("Publishing %s live manifest ..." % arch)
-            shutil.move(
-                "%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
+            shutil.move("%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
         else:
             osextras.unlink_force("%s.manifest" % target_prefix)
 
@@ -2122,60 +2341,57 @@ class DailyTreePublisher(Publisher):
         if os.path.exists("%s.custom.tar.gz" % source_prefix):
             logger.info("Publishing %s custom tarball ..." % arch)
             shutil.move(
-                "%s.custom.tar.gz" % source_prefix,
-                "%s.custom.tar.gz" % target_prefix)
+                "%s.custom.tar.gz" % source_prefix, "%s.custom.tar.gz" % target_prefix
+            )
 
         if os.path.exists("%s.device.tar.gz" % source_prefix):
             logger.info("Publishing %s device tarball ..." % arch)
             shutil.move(
-                "%s.device.tar.gz" % source_prefix,
-                "%s.device.tar.gz" % target_prefix)
+                "%s.device.tar.gz" % source_prefix, "%s.device.tar.gz" % target_prefix
+            )
 
             for devarch in ("azure", "plano", "raspi2"):
-                if os.path.exists("%s.%s.device.tar.gz" % (source_prefix,
-                                                           devarch)):
-                    logger.info("Publishing %s %s device tarball ..." %
-                                (arch, devarch))
+                if os.path.exists("%s.%s.device.tar.gz" % (source_prefix, devarch)):
+                    logger.info("Publishing %s %s device tarball ..." % (arch, devarch))
                     shutil.move(
                         "%s.%s.device.tar.gz" % (source_prefix, devarch),
-                        "%s.%s.device.tar.gz" % (target_prefix, devarch))
+                        "%s.%s.device.tar.gz" % (target_prefix, devarch),
+                    )
 
         # os snap packages
         if os.path.exists("%s.os.snap" % source_prefix):
             logger.info("Publishing %s os snap package ..." % arch)
-            shutil.move(
-                "%s.os.snap" % source_prefix,
-                "%s.os.snap" % target_prefix)
+            shutil.move("%s.os.snap" % source_prefix, "%s.os.snap" % target_prefix)
 
         # kernel snap packages
         if os.path.exists("%s.kernel.snap" % source_prefix):
             logger.info("Publishing %s kernel snap package ..." % arch)
             shutil.move(
-                "%s.kernel.snap" % source_prefix,
-                "%s.kernel.snap" % target_prefix)
+                "%s.kernel.snap" % source_prefix, "%s.kernel.snap" % target_prefix
+            )
 
             for devarch in ("dragonboard", "raspi2"):
-                if os.path.exists("%s.%s.kernel.snap" % (source_prefix,
-                                                         devarch)):
-                    logger.info("Publishing %s %s kernel snap package ..." %
-                                (arch, devarch))
+                if os.path.exists("%s.%s.kernel.snap" % (source_prefix, devarch)):
+                    logger.info(
+                        "Publishing %s %s kernel snap package ..." % (arch, devarch)
+                    )
                     shutil.move(
                         "%s.%s.kernel.snap" % (source_prefix, devarch),
-                        "%s.%s.kernel.snap" % (target_prefix, devarch))
+                        "%s.%s.kernel.snap" % (target_prefix, devarch),
+                    )
 
         # snappy model assertions
         if os.path.exists("%s.model-assertion" % source_prefix):
             logger.info("Publishing %s model assertion ..." % arch)
             shutil.move(
                 "%s.model-assertion" % source_prefix,
-                "%s.model-assertion" % target_prefix)
+                "%s.model-assertion" % target_prefix,
+            )
 
         # appliance qcow2 images (for LXD/multipass consumption)
         if os.path.exists("%s.qcow2" % source_prefix):
             logger.info("Publishing %s qcow2 image ..." % arch)
-            shutil.move(
-                "%s.qcow2" % source_prefix,
-                "%s.qcow2" % target_prefix)
+            shutil.move("%s.qcow2" % source_prefix, "%s.qcow2" % target_prefix)
 
         # zsync metafiles
         if osextras.find_on_path("zsyncmake") and publish_type != "wsl":
@@ -2184,7 +2400,8 @@ class DailyTreePublisher(Publisher):
             zsyncmake(
                 "%s.%s" % (target_prefix, extension),
                 "%s.%s.zsync" % (target_prefix, extension),
-                "%s.%s" % (out_prefix, extension))
+                "%s.%s" % (out_prefix, extension),
+            )
 
         size = os.stat("%s.%s" % (target_prefix, extension)).st_size
         if size > self.size_limit_extension(arch, extension):
@@ -2197,8 +2414,14 @@ class DailyTreePublisher(Publisher):
 
     def publish_livecd_base(self, arch, date):
         source_dir = os.path.join(
-            self.config.root, "scratch", self.config.subtree, self.project,
-            self.config.full_series, self.image_type, "live")
+            self.config.root,
+            "scratch",
+            self.config.subtree,
+            self.project,
+            self.config.full_series,
+            self.image_type,
+            "live",
+        )
         source_prefix = os.path.join(source_dir, arch)
         target_dir = os.path.join(self.publish_base, date)
         target_prefix = os.path.join(target_dir, arch)
@@ -2213,35 +2436,40 @@ class DailyTreePublisher(Publisher):
 
         logger.info("Publishing %s ..." % arch)
         osextras.ensuredir(target_dir)
-        shutil.copy2(
-            "%s.%s" % (source_prefix, fs), "%s.%s" % (target_prefix, fs))
+        shutil.copy2("%s.%s" % (source_prefix, fs), "%s.%s" % (target_prefix, fs))
         if os.path.exists("%s.kernel" % source_prefix):
-            shutil.copy2(
-                "%s.kernel" % source_prefix, "%s.kernel" % target_prefix)
+            shutil.copy2("%s.kernel" % source_prefix, "%s.kernel" % target_prefix)
         if os.path.exists("%s.initrd" % source_prefix):
-            shutil.copy2(
-                "%s.initrd" % source_prefix, "%s.initrd" % target_prefix)
-        shutil.copy2(
-            "%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
+            shutil.copy2("%s.initrd" % source_prefix, "%s.initrd" % target_prefix)
+        shutil.copy2("%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
         if os.path.exists("%s.manifest-remove" % source_prefix):
             shutil.copy2(
                 "%s.manifest-remove" % source_prefix,
-                "%s.manifest-remove" % target_prefix)
+                "%s.manifest-remove" % target_prefix,
+            )
         if os.path.exists("%s.manifest-minimal-remove" % source_prefix):
             shutil.copy2(
                 "%s.manifest-minimal-remove" % source_prefix,
-                "%s.manifest-minimal-remove" % target_prefix)
+                "%s.manifest-minimal-remove" % target_prefix,
+            )
         elif os.path.exists("%s.manifest-desktop" % source_prefix):
             shutil.copy2(
                 "%s.manifest-desktop" % source_prefix,
-                "%s.manifest-desktop" % target_prefix)
+                "%s.manifest-desktop" % target_prefix,
+            )
 
         yield os.path.join("livecd-base", self.image_type_dir, arch)
 
     def publish_wubi(self, arch, date):
         source_dir = os.path.join(
-            self.config.root, "scratch", self.config.subtree, self.project,
-            self.config.full_series, self.image_type, "live")
+            self.config.root,
+            "scratch",
+            self.config.subtree,
+            self.project,
+            self.config.full_series,
+            self.image_type,
+            "live",
+        )
         source_prefix = os.path.join(source_dir, arch)
         target_dir = os.path.join(self.publish_base, date)
         target_prefix = os.path.join(target_dir, arch)
@@ -2253,12 +2481,11 @@ class DailyTreePublisher(Publisher):
         logger.info("Publishing %s ..." % arch)
         osextras.ensuredir(target_dir)
         shutil.copy2("%s.tar.xz" % source_prefix, "%s.tar.xz" % target_prefix)
-        shutil.copy2(
-            "%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
+        shutil.copy2("%s.manifest" % source_prefix, "%s.manifest" % target_prefix)
 
         yield os.path.join(
-            self.project, self.image_type_dir,
-            "%s-wubi-%s" % (self.config.series, arch))
+            self.project, self.image_type_dir, "%s-wubi-%s" % (self.config.series, arch)
+        )
 
     def publish_source(self, date):
         for i in count(1):
@@ -2268,18 +2495,17 @@ class DailyTreePublisher(Publisher):
             source_prefix = os.path.join(source_dir, in_prefix)
             target_dir = os.path.join(self.publish_base, date, "source")
             target_prefix = os.path.join(target_dir, out_prefix)
-            if not os.path.exists(
-                    "%s.%s" % (source_prefix, self.source_extension)):
+            if not os.path.exists("%s.%s" % (source_prefix, self.source_extension)):
                 break
 
             logger.info("Publishing source %d ..." % i)
             osextras.ensuredir(target_dir)
             shutil.move(
                 "%s.%s" % (source_prefix, self.source_extension),
-                "%s.iso" % target_prefix)
+                "%s.iso" % target_prefix,
+            )
             shutil.move("%s.list" % source_prefix, "%s.list" % target_prefix)
-            with ChecksumFileSet(
-                    self.config, target_dir, sign=False) as checksum_files:
+            with ChecksumFileSet(self.config, target_dir, sign=False) as checksum_files:
                 checksum_files.remove("%s.iso" % out_prefix)
 
             # zsync metafiles
@@ -2287,11 +2513,14 @@ class DailyTreePublisher(Publisher):
                 logger.info("Making source %d zsync metafile ..." % i)
                 osextras.unlink_force("%s.iso.zsync" % target_prefix)
                 zsyncmake(
-                    "%s.iso" % target_prefix, "%s.iso.zsync" % target_prefix,
-                    "%s.iso" % out_prefix)
+                    "%s.iso" % target_prefix,
+                    "%s.iso.zsync" % target_prefix,
+                    "%s.iso" % out_prefix,
+                )
 
             yield os.path.join(
-                self.project, self.image_type, "%s-src" % self.config.series)
+                self.project, self.image_type, "%s-src" % self.config.series
+            )
 
     def create_publish_info_file(self, date):
         """Create a .publish_info file with the publisher timestamps."""
@@ -2304,8 +2533,8 @@ class DailyTreePublisher(Publisher):
             entry_path = os.path.join(publish_dir, entry)
             if os.path.islink(entry_path):
                 publish_date = os.path.basename(
-                    os.path.dirname(
-                        os.path.realpath(entry_path)))
+                    os.path.dirname(os.path.realpath(entry_path))
+                )
             else:
                 publish_date = date
             publish_dates[entry] = publish_date
@@ -2322,20 +2551,23 @@ class DailyTreePublisher(Publisher):
         target_dir = os.path.join(self.publish_base, date)
 
         checksum_directory(
-            self.config, target_dir, old_directories=self.checksum_dirs,
-            map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
+            self.config,
+            target_dir,
+            old_directories=self.checksum_dirs,
+            map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/",
+        )
         if self.config.project != "livecd-base":
-            self.make_web_indices(
-                target_dir, self.config.series, status="daily")
+            self.make_web_indices(target_dir, self.config.series, status="daily")
 
         target_dir_source = os.path.join(target_dir, "source")
         if os.path.isdir(target_dir_source):
             checksum_directory(
-                self.config, target_dir_source,
+                self.config,
+                target_dir_source,
                 old_directories=[self.image_output("src")],
-                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/")
-            self.make_web_indices(
-                target_dir_source, self.config.series, status="daily")
+                map_expr=r"s/\.\(img\|img\.gz\|iso\|iso\.gz\|tar\.gz\)$/.raw/",
+            )
+            self.make_web_indices(target_dir_source, self.config.series, status="daily")
 
         # Now, populate the .publish_info file with datestamps of published
         # binaries.
@@ -2352,13 +2584,16 @@ class DailyTreePublisher(Publisher):
             entry_path = os.path.join(publish_dir, entry)
             if not self.tree.manifest_file_allowed(entry_path):
                 continue
-            if (entry.startswith("%s-" % self.config.series) or
-                (self.config.subproject == "wubi" and
-                 entry.endswith(".tar.xz")) or
-                (self.config.project in ("ubuntu-core", "ubuntu-core-desktop",
-                                         "ubuntu-appliance") and
-                 self.image_type == "daily-live" and
-                 entry.endswith(".img.xz"))):
+            if (
+                entry.startswith("%s-" % self.config.series)
+                or (self.config.subproject == "wubi" and entry.endswith(".tar.xz"))
+                or (
+                    self.config.project
+                    in ("ubuntu-core", "ubuntu-core-desktop", "ubuntu-appliance")
+                    and self.image_type == "daily-live"
+                    and entry.endswith(".img.xz")
+                )
+            ):
                 images.add(entry)
         return images
 
@@ -2404,21 +2639,19 @@ class DailyTreePublisher(Publisher):
                     break
 
         # Update the list of tested images
-        with open(os.path.join(self.publish_base,
-                               date, ".marked_good"), "a+") as fd:
+        with open(os.path.join(self.publish_base, date, ".marked_good"), "a+") as fd:
             fd.seek(0)
             current_entries = fd.read().split("\n")
-            for entry in [image for image, image_date in existing.items()
-                          if image_date == date]:
+            for entry in [
+                image for image, image_date in existing.items() if image_date == date
+            ]:
                 if entry not in current_entries:
                     fd.write("%s\n" % entry)
 
-        if (set(existing) == available and
-                set(existing.values()) == set([date])):
+        if set(existing) == available and set(existing.values()) == set([date]):
             # Everything is consistent and complete.  Replace "current" with
             # a single symlink.
-            if (not os.path.islink(publish_current) and
-                    os.path.isdir(publish_current)):
+            if not os.path.islink(publish_current) and os.path.isdir(publish_current):
                 shutil.rmtree(publish_current)
             self.link(date, "current")
         else:
@@ -2447,7 +2680,8 @@ class DailyTreePublisher(Publisher):
     def current_uses_trigger(self, arch):
         """Find out whether the "current" symlink is trigger-controlled."""
         current_triggers_path = os.path.join(
-            self.config.root, "production", "current-triggers")
+            self.config.root, "production", "current-triggers"
+        )
         if not os.path.exists(current_triggers_path):
             return False
         want_project_bits = [self.project]
@@ -2477,18 +2711,16 @@ class DailyTreePublisher(Publisher):
     def set_link_descriptions(self):
         """Set standard link descriptions in publish_base/.htaccess."""
         descriptions = {
-            "pending": (
-                "Most recently built images; not yet automatically tested"),
+            "pending": ("Most recently built images; not yet automatically tested"),
             "current": (
-                "Latest images to have passed any automatic testing; "
-                "try this first"),
+                "Latest images to have passed any automatic testing; try this first"
+            ),
         }
         htaccess_path = os.path.join(self.publish_base, ".htaccess")
         if not os.path.exists(htaccess_path):
             with AtomicFile(htaccess_path) as htaccess:
                 for name, description in sorted(descriptions.items()):
-                    print('AddDescription "%s" %s' % (description, name),
-                          file=htaccess)
+                    print('AddDescription "%s" %s' % (description, name), file=htaccess)
                 print("IndexOptions FancyIndexing", file=htaccess)
 
     def qa_product(self, project, image_type, publish_type, arch):
@@ -2507,9 +2739,14 @@ class DailyTreePublisher(Publisher):
                     continue
 
                 try:
-                    entry_qaproduct, entry_project, entry_image_type, \
-                        entry_publish_type, entry_arch, entry_qatarget = \
-                        re.sub("\t+", "\t", line).strip().split("\t")
+                    (
+                        entry_qaproduct,
+                        entry_project,
+                        entry_image_type,
+                        entry_publish_type,
+                        entry_arch,
+                        entry_qatarget,
+                    ) = re.sub("\t+", "\t", line).strip().split("\t")
                 except ValueError:
                     continue
 
@@ -2542,15 +2779,24 @@ class DailyTreePublisher(Publisher):
                     continue
 
                 try:
-                    entry_qaproduct, entry_project, entry_image_type, \
-                        entry_publish_type, entry_arch, entry_qatarget = \
-                        re.sub("\t+", "\t", line).strip().split("\t")
+                    (
+                        entry_qaproduct,
+                        entry_project,
+                        entry_image_type,
+                        entry_publish_type,
+                        entry_arch,
+                        entry_qatarget,
+                    ) = re.sub("\t+", "\t", line).strip().split("\t")
                 except ValueError:
                     continue
 
                 if entry_qaproduct == qaproduct and entry_qatarget == qatarget:
-                    return (entry_project, entry_image_type,
-                            entry_publish_type, entry_arch)
+                    return (
+                        entry_project,
+                        entry_image_type,
+                        entry_publish_type,
+                        entry_arch,
+                    )
 
     def generate_lxd_metadata(self, date):
         """For the publisher cycle, generate the corresponding LXD metadata."""
@@ -2572,8 +2818,9 @@ class DailyTreePublisher(Publisher):
             try:
                 generate_ubuntu_core_image_lxd_metadata(entry_path)
             except Exception as e:
-                logger.error("Failed to generate LXD metadata for %s: %s" %
-                             (entry_path, e))
+                logger.error(
+                    "Failed to generate LXD metadata for %s: %s" % (entry_path, e)
+                )
 
     def post_qa(self, date, images):
         """Post a list of images to the QA tracker."""
@@ -2594,8 +2841,7 @@ class DailyTreePublisher(Publisher):
                 project, image_series, image_type, base = image_bits
                 image_distribution = None
             else:
-                project, image_distribution, image_series, image_type, base = (
-                    image_bits)
+                project, image_distribution, image_series, image_type, base = image_bits
             base_match = re.match(r"(.*?)-(.*)-(.*)", base)
             if not base_match:
                 continue
@@ -2609,13 +2855,12 @@ class DailyTreePublisher(Publisher):
                     image_type,
                     publish_type,
                     arch,
-                    image
+                    image,
                 )
                 continue
 
             # For Ubuntu Core projects we have a seperate set of milestones
-            if project in ("ubuntu-core", "ubuntu-core-desktop",
-                           "ubuntu-appliance"):
+            if project in ("ubuntu-core", "ubuntu-core-desktop", "ubuntu-appliance"):
                 # ...image_series in this case is 18, 20, 22 etc.
                 dist = image_series
             target = "%s-%s" % (product[1], dist)
@@ -2631,13 +2876,15 @@ class DailyTreePublisher(Publisher):
             iso_path = os.path.join(*iso_path_bits)
             if not os.path.isdir(os.path.dirname(iso_path)):
                 raise Exception(
-                    "Cannot post images from nonexistent directory: '%s'" %
-                    os.path.dirname(iso_path))
+                    "Cannot post images from nonexistent directory: '%s'"
+                    % os.path.dirname(iso_path)
+                )
             note = ""
             if os.path.exists("%s.OVERSIZED" % iso_path):
                 note = (
                     "<strong>WARNING: This image is OVERSIZED. This should "
-                    "never happen during milestone testing.</strong>")
+                    "never happen during milestone testing.</strong>"
+                )
 
             try:
                 if tracker is None or tracker.target != target:
@@ -2661,11 +2908,13 @@ class DailyTreePublisher(Publisher):
         else:
             for arch in self.config.arches:
                 published.extend(
-                    list(self.publish_binary(self.publish_type, arch, date)))
+                    list(self.publish_binary(self.publish_type, arch, date))
+                )
             if self.project == "edubuntu" and self.publish_type == "server":
                 for arch in self.config.arches:
                     published.extend(
-                        list(self.publish_binary("serveraddon", arch, date)))
+                        list(self.publish_binary("serveraddon", arch, date))
+                    )
         published.extend(list(self.publish_source(date)))
 
         if not published:
@@ -2680,27 +2929,24 @@ class DailyTreePublisher(Publisher):
         self.polish_directory(date)
         self.link(date, "pending")
         current_arches = [
-            arch for arch in self.config.arches
-            if not self.current_uses_trigger(arch)]
+            arch for arch in self.config.arches if not self.current_uses_trigger(arch)
+        ]
         if current_arches:
             self.mark_current(date, current_arches)
         self.set_link_descriptions()
 
-        manifest_lock = os.path.join(
-            self.config.root, "etc", ".lock-manifest-daily")
+        manifest_lock = os.path.join(self.config.root, "etc", ".lock-manifest-daily")
         try:
             subprocess.check_call(["lockfile", "-r", "4", manifest_lock])
         except subprocess.CalledProcessError:
             logger.error("Couldn't acquire manifest-daily lock!")
             raise
         try:
-            manifest_daily = os.path.join(
-                self.tree.directory, ".manifest-daily")
+            manifest_daily = os.path.join(self.tree.directory, ".manifest-daily")
             with AtomicFile(manifest_daily) as manifest_daily_file:
                 for line in self.tree.manifest():
                     print(line, file=manifest_daily_file)
-            os.chmod(
-                manifest_daily, os.stat(manifest_daily).st_mode | stat.S_IWGRP)
+            os.chmod(manifest_daily, os.stat(manifest_daily).st_mode | stat.S_IWGRP)
 
             # Create timestamps for this run.
             trace_dir = os.path.join(self.tree.directory, ".trace")
@@ -2752,32 +2998,34 @@ class DailyTreePublisher(Publisher):
             logger.info("Not purging images for %s" % project_image_type)
             return
         elif days and count:
-            raise Exception("Both purge-days and purge-count are defined for "
-                            "%s. Such scenario is currently unsupported." %
-                            project_image_type)
+            raise Exception(
+                "Both purge-days and purge-count are defined for "
+                "%s. Such scenario is currently unsupported." % project_image_type
+            )
 
         image_count = 0
         oldest = 0
 
         if days:
             logger.info(
-                "Purging %s images older than %d %s ..." %
-                (project_image_type, days, "day" if days == 1 else "days"))
-            oldest = int(time.strftime(
-                "%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days)))
+                "Purging %s images older than %d %s ..."
+                % (project_image_type, days, "day" if days == 1 else "days")
+            )
+            oldest = int(
+                time.strftime("%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days))
+            )
         elif count:
             logger.info(
-                "Purging %s images to leave only the latest %d %s ..." %
-                (project_image_type, count,
-                 "image" if count == 1 else "images"))
+                "Purging %s images to leave only the latest %d %s ..."
+                % (project_image_type, count, "image" if count == 1 else "images")
+            )
 
         to_purge = []
         publish_pending = os.path.join(self.publish_base, "pending")
         publish_current = os.path.join(self.publish_base, "current")
         publish_manual = os.path.join(self.publish_base, "manual")
 
-        for entry in sorted(
-                osextras.listdir_force(self.publish_base), reverse=True):
+        for entry in sorted(osextras.listdir_force(self.publish_base), reverse=True):
             entry_path = os.path.join(self.publish_base, entry)
 
             # Directory?
@@ -2795,13 +3043,16 @@ class DailyTreePublisher(Publisher):
             # In the case where both cut-off date and image count have been
             # defined, we purge anything that doesn't satisfy both of the above
             # conditions at once
-            if ((not days or oldest <= int(entry.split(".", 1)[0])) and
-                    (not count or image_count <= count)):
+            if (not days or oldest <= int(entry.split(".", 1)[0])) and (
+                not count or image_count <= count
+            ):
                 continue
 
             # Pointed to by "pending" or "current" symlink?
-            if (os.path.islink(publish_pending) and
-                    os.readlink(publish_pending) == entry):
+            if (
+                os.path.islink(publish_pending)
+                and os.readlink(publish_pending) == entry
+            ):
                 continue
             if os.path.islink(publish_current):
                 if os.readlink(publish_current) == entry:
@@ -2809,23 +3060,25 @@ class DailyTreePublisher(Publisher):
             elif os.path.isdir(publish_current):
                 found_current = False
                 for current_entry in os.listdir(publish_current):
-                    current_entry_path = os.path.join(
-                        publish_current, current_entry)
+                    current_entry_path = os.path.join(publish_current, current_entry)
                     if os.path.islink(current_entry_path):
-                        target_bits = os.readlink(
-                            current_entry_path).split(os.sep)
-                        if (len(target_bits) == 3 and
-                                target_bits[0] == os.pardir and
-                                target_bits[1] == entry and
-                                target_bits[2] == current_entry):
+                        target_bits = os.readlink(current_entry_path).split(os.sep)
+                        if (
+                            len(target_bits) == 3
+                            and target_bits[0] == os.pardir
+                            and target_bits[1] == entry
+                            and target_bits[2] == current_entry
+                        ):
                             found_current = True
                             break
                 if found_current:
                     continue
             # Experimentally, we also support manually 'preserving' certain
             # images by using a 'manual' symlink to a published image set.
-            if (os.path.islink(publish_manual) and
-                    os.path.normpath(os.readlink(publish_manual)) == entry):
+            if (
+                os.path.islink(publish_manual)
+                and os.path.normpath(os.readlink(publish_manual)) == entry
+            ):
                 continue
 
             to_purge.append((entry, entry_path))
@@ -2833,12 +3086,12 @@ class DailyTreePublisher(Publisher):
         for entry, entry_path in to_purge:
             if self.config["DEBUG"] or self.config["CDIMAGE_NOPURGE"]:
                 logger.info(
-                    "Would purge %s/%s/%s" %
-                    (self.project, self.image_type_dir, entry))
+                    "Would purge %s/%s/%s" % (self.project, self.image_type_dir, entry)
+                )
             else:
                 logger.info(
-                    "Purging %s/%s/%s" %
-                    (self.project, self.image_type_dir, entry))
+                    "Purging %s/%s/%s" % (self.project, self.image_type_dir, entry)
+                )
                 if os.path.islink(entry_path):
                     osextras.unlink_force(entry_path)
                 else:
@@ -2850,7 +3103,7 @@ class ReleaseTreeMixin:
 
     def tree_suffix(self, source):
         # Publish ports/daily to ports/releases/..., etc.
-        ubuntu_projects = ("ubuntu-server", )
+        ubuntu_projects = ("ubuntu-server",)
         if "/" in source:
             project, tail = source.split("/", 1)
             if project in ubuntu_projects:
@@ -2864,8 +3117,8 @@ class ReleaseTreeMixin:
             return ""
 
     def publish_target(self, source):
-        if self.config.image_type == 'legacy-server':
-            return self.project_base.replace('server', 'legacy-server')
+        if self.config.image_type == "legacy-server":
+            return self.project_base.replace("server", "legacy-server")
         return self.project_base
 
 
@@ -2882,7 +3135,8 @@ class FullReleaseTree(DailyTree, ReleaseTreeMixin):
 
     def get_publisher(self, image_type, official, status=None, dry_run=False):
         return FullReleasePublisher(
-            self, image_type, official, status=status, dry_run=dry_run)
+            self, image_type, official, status=status, dry_run=dry_run
+        )
 
 
 class SimpleReleaseTree(Tree, ReleaseTreeMixin):
@@ -2909,7 +3163,8 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
 
     def get_publisher(self, image_type, official, status=None, dry_run=False):
         return SimpleReleasePublisher(
-            self, image_type, official, status=status, dry_run=dry_run)
+            self, image_type, official, status=status, dry_run=dry_run
+        )
 
     def name_to_series(self, name):
         """Return the series for a file basename."""
@@ -2928,7 +3183,7 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
         """Yield all the files to include in a manifest of this tree."""
         main_filenames = set()
         for dirpath, dirnames, filenames in os.walk(self.directory):
-            relative_dirpath = dirpath[len(self.directory) + 1:]
+            relative_dirpath = dirpath[len(self.directory) + 1 :]
             try:
                 del dirnames[dirnames.index(".pool")]
             except ValueError:
@@ -2941,7 +3196,7 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
 
         for dirpath, _, filenames in os.walk(self.directory):
             if os.path.basename(dirpath) == ".pool":
-                relative_dirpath = dirpath[len(self.directory) + 1:]
+                relative_dirpath = dirpath[len(self.directory) + 1 :]
                 for filename in filenames:
                     if filename not in main_filenames:
                         path = os.path.join(dirpath, filename)
@@ -2992,8 +3247,7 @@ class ReleasePublisher(Publisher):
         if publish_type == "wubi":
             return os.path.join(daily_dir, arch)
         else:
-            return os.path.join(
-                daily_dir, "%s-%s-%s" % (series, publish_type, arch))
+            return os.path.join(daily_dir, "%s-%s-%s" % (series, publish_type, arch))
 
     def target_dir(self, source, date, publish_type):
         raise NotImplementedError
@@ -3014,13 +3268,15 @@ class ReleasePublisher(Publisher):
         command = ["mktorrent", "-a", self.torrent_tracker]
         if isinstance(self.tree, SimpleReleaseTree):
             command.extend(["-a", self.ipv6_torrent_tracker])
-        command.extend([
-            "--comment",
-            "%s CD %s" % (self.config.capproject, self.tree.site_name),
-            "--output",
-            "%s.torrent" % path,
-            path,
-        ])
+        command.extend(
+            [
+                "--comment",
+                "%s CD %s" % (self.config.capproject, self.tree.site_name),
+                "--output",
+                "%s.torrent" % path,
+                path,
+            ]
+        )
         if self.dry_run:
             logger.info(" ".join(shell_quote(arg) for arg in command))
         else:
@@ -3032,9 +3288,11 @@ class ReleasePublisher(Publisher):
         for entry in osextras.listdir_force(directory):
             if not entry.endswith(".iso") and not entry.endswith(".img"):
                 continue
-            if (entry.startswith("%s-" % prefix) or
-                    entry == "%s.iso" % prefix or
-                    entry == "%s.img" % prefix):
+            if (
+                entry.startswith("%s-" % prefix)
+                or entry == "%s.iso" % prefix
+                or entry == "%s.img" % prefix
+            ):
                 images.append(entry)
 
         for image in sorted(images):
@@ -3103,14 +3361,16 @@ class ReleasePublisher(Publisher):
         relpath = os.path.relpath(source, os.path.dirname(link_name))
         self.do(
             "ln -sf %s %s" % (relpath, link_name),
-            osextras.symlink_force, relpath, link_name)
-        self.remove_checksum(
-            os.path.dirname(link_name), os.path.basename(link_name))
+            osextras.symlink_force,
+            relpath,
+            link_name,
+        )
+        self.remove_checksum(os.path.dirname(link_name), os.path.basename(link_name))
 
     def hardlink(self, source, link_name):
         self.do(
-            "ln -f %s %s" % (source, link_name),
-            osextras.link_force, source, link_name)
+            "ln -f %s %s" % (source, link_name), osextras.link_force, source, link_name
+        )
 
     def remove(self, path):
         self.do("rm -f %s" % path, osextras.unlink_force, path)
@@ -3130,17 +3390,30 @@ class ReleasePublisher(Publisher):
 
     def checksum_directory(self, dirs, map_expr=None):
         self.do(
-            "checksum-directory %s%s" % (
-                "--map %s " % map_expr if map_expr else "",
-                " ".join(dirs)),
+            "checksum-directory %s%s"
+            % ("--map %s " % map_expr if map_expr else "", " ".join(dirs)),
             checksum_directory,
-            self.config, dirs[0], old_directories=dirs, map_expr=map_expr)
+            self.config,
+            dirs[0],
+            old_directories=dirs,
+            map_expr=map_expr,
+        )
 
     def want_manifest(self, publish_type, path):
         if publish_type in (
-            "live", "desktop", "desktop-canary", "desktop-legacy", "netbook",
-            "uec", "server-uec", "core", "wubi", "server", "live-server",
-            "legacy-server", "wsl",
+            "live",
+            "desktop",
+            "desktop-canary",
+            "desktop-legacy",
+            "netbook",
+            "uec",
+            "server-uec",
+            "core",
+            "wubi",
+            "server",
+            "live-server",
+            "legacy-server",
+            "wsl",
         ):
             return True
         elif publish_type.startswith("preinstalled") and os.path.exists(path):
@@ -3163,15 +3436,17 @@ class ReleasePublisher(Publisher):
         if not os.path.exists(source_tarpath):
             return
 
-        logger.info("Copying netboot-%s image ..." % (arch, ))
+        logger.info("Copying netboot-%s image ..." % (arch,))
 
         target_tarname = "%s-netboot-%s.tar.gz" % (prefix, arch)
-        target_tarpath = os.path.join(
-            os.path.dirname(image_path), target_tarname)
+        target_tarpath = os.path.join(os.path.dirname(image_path), target_tarname)
 
         rewrite_and_unpack_tarball(
-            self.dry_run, source_tarpath, target_tarpath,
-            self.tree.url_for_path(image_path))
+            self.dry_run,
+            source_tarpath,
+            target_tarpath,
+            self.tree.url_for_path(image_path),
+        )
 
     def publish_release_arch(self, source, date, publish_type, arch):
         """Publish release images for a single architecture."""
@@ -3187,32 +3462,41 @@ class ReleasePublisher(Publisher):
 
         def pool(ext, sep="."):
             return os.path.join(
-                self.pool_dir(source), "%s%s%s" % (base_status, sep, ext))
+                self.pool_dir(source), "%s%s%s" % (base_status, sep, ext)
+            )
 
         def dist(ext, sep="."):
             return os.path.join(
                 self.target_dir(source, date, publish_type),
-                "%s%s%s" % (base_status, sep, ext))
+                "%s%s%s" % (base_status, sep, ext),
+            )
 
         def full(ext, sep="."):
             return os.path.join(
                 self.target_dir(source, date, publish_type),
-                "%s%s%s" % (base_plain, sep, ext))
+                "%s%s%s" % (base_plain, sep, ext),
+            )
 
         def torrent(ext, sep="."):
             torrent_dir = self.torrent_dir(source, publish_type)
             if self.want_dist:
-                return os.path.join(
-                    torrent_dir, "%s%s%s" % (base_status, sep, ext))
+                return os.path.join(torrent_dir, "%s%s%s" % (base_status, sep, ext))
             else:
                 assert self.want_full
-                return os.path.join(
-                    torrent_dir, "%s%s%s" % (base_plain, sep, ext))
+                return os.path.join(torrent_dir, "%s%s%s" % (base_plain, sep, ext))
 
         main_img = None
 
-        for ext in ("iso", "img", "img.gz", "img.xz", "tar.gz", "img.tar.gz",
-                    "tar.xz", "wsl"):
+        for ext in (
+            "iso",
+            "img",
+            "img.gz",
+            "img.xz",
+            "tar.gz",
+            "img.tar.gz",
+            "tar.xz",
+            "wsl",
+        ):
             if os.path.exists(daily(ext)):
                 main_img = daily(ext)
                 break
@@ -3220,9 +3504,21 @@ class ReleasePublisher(Publisher):
             return
 
         # Copy, to make sure we have a canonical version of this.
-        artifacts = ["iso", "list", "img", "img.gz", "img.xz", "tar.gz",
-                     "img.tar.gz", "tar.xz", "bootimg", "custom.tar.gz",
-                     "device.tar.gz", "azure.device.tar.gz", "wsl"]
+        artifacts = [
+            "iso",
+            "list",
+            "img",
+            "img.gz",
+            "img.xz",
+            "tar.gz",
+            "img.tar.gz",
+            "tar.xz",
+            "bootimg",
+            "custom.tar.gz",
+            "device.tar.gz",
+            "azure.device.tar.gz",
+            "wsl",
+        ]
         for ext in artifacts:
             if not os.path.exists(daily(ext)):
                 continue
@@ -3232,21 +3528,20 @@ class ReleasePublisher(Publisher):
                 self.symlink(pool(ext), dist(ext))
                 if daily(ext) == main_img:
                     self.publish_release_netboot(
-                        os.path.dirname(daily(ext)),
-                        prefix_status,
-                        arch,
-                        dist(ext))
+                        os.path.dirname(daily(ext)), prefix_status, arch, dist(ext)
+                    )
             if self.want_full:
                 self.hardlink(os.path.realpath(daily(ext)), full(ext))
                 if daily(ext) == main_img:
                     self.publish_release_netboot(
-                        os.path.dirname(daily(ext)),
-                        prefix,
-                        arch,
-                        full(ext))
+                        os.path.dirname(daily(ext)), prefix, arch, full(ext)
+                    )
 
         for ext in (
-            "initrd-ec2", "initrd-virtual", "vmlinuz-ec2", "vmlinuz-virtual",
+            "initrd-ec2",
+            "initrd-virtual",
+            "vmlinuz-ec2",
+            "vmlinuz-virtual",
         ):
             if not os.path.exists(daily(ext, "-")):
                 continue
@@ -3257,7 +3552,7 @@ class ReleasePublisher(Publisher):
             if self.want_full:
                 self.copy(daily(ext, "-"), full(ext, "-"))
 
-        for ext in ("kernel-info.txt", ):
+        for ext in ("kernel-info.txt",):
             if not os.path.exists(daily(ext, "-")):
                 continue
             if self.want_dist:
@@ -3283,15 +3578,21 @@ class ReleasePublisher(Publisher):
                     logger.info("Making %s zsync metafile ..." % arch)
                     self.remove(pool(zsyncext))
                     zsyncmake(
-                        pool(ext), pool(zsyncext), os.path.basename(pool(ext)),
-                        dry_run=self.dry_run)
+                        pool(ext),
+                        pool(zsyncext),
+                        os.path.basename(pool(ext)),
+                        dry_run=self.dry_run,
+                    )
             elif self.want_full and self.official in ("named", "inteliot"):
                 if osextras.find_on_path("zsyncmake"):
                     logger.info("Making %s zsync metafile ..." % arch)
                     self.remove(full(zsyncext))
                     zsyncmake(
-                        full(ext), full(zsyncext), os.path.basename(full(ext)),
-                        dry_run=self.dry_run)
+                        full(ext),
+                        full(zsyncext),
+                        os.path.basename(full(ext)),
+                        dry_run=self.dry_run,
+                    )
             elif self.want_full:
                 self.copy(daily(zsyncext), full(zsyncext))
             if self.want_dist:
@@ -3324,22 +3625,20 @@ class ReleasePublisher(Publisher):
 
         # Do what I mean.
         if source.endswith("/source"):
-            source = source[:-len("/source")]
+            source = source[: -len("/source")]
 
         if series.distribution != "ubuntu" or not series.is_latest:
             # TODO does this need "legacy" handling?
             if source == "ubuntu-server/daily":
-                source = os.path.join(
-                    "ubuntu-server", series.full_name, "daily")
+                source = os.path.join("ubuntu-server", series.full_name, "daily")
             elif source == "ubuntu-server/daily-live":
-                source = os.path.join(
-                    "ubuntu-server", series.full_name, "daily-live")
+                source = os.path.join("ubuntu-server", series.full_name, "daily-live")
             elif source == "ubuntu-server/daily-preinstalled":
                 source = os.path.join(
-                    "ubuntu-server", series.full_name, "daily-preinstalled")
+                    "ubuntu-server", series.full_name, "daily-preinstalled"
+                )
             elif source == "ubuntu-wsl/daily-live":
-                source = os.path.join(
-                    "ubuntu-wsl", series.full_name, "daily-live")
+                source = os.path.join("ubuntu-wsl", series.full_name, "daily-live")
             else:
                 source = os.path.join(series.full_name, source)
 
@@ -3354,30 +3653,42 @@ class ReleasePublisher(Publisher):
             # Coherence-check.
             if not arches:
                 raise PublishReleaseException(
-                    "No source daily for %s on %s!" % (series, date))
+                    "No source daily for %s on %s!" % (series, date)
+                )
 
         # Override the architecture list for these types unconditionally.
         # TODO: should reset default-arches for the source project instead
-        if (publish_type == "netbook" and
-                not [arch for arch in arches if arch.startswith("armel")]):
+        if publish_type == "netbook" and not [
+            arch for arch in arches if arch.startswith("armel")
+        ]:
             arches = ["i386"]
 
         # Coherence-check.
         if publish_type not in ("netbook", "src"):
             for arch in arches:
                 paths = []
-                for ext in ("iso", "img", "img.gz", "img.xz", "img.tar.gz",
-                            "tar.gz", "wsl"):
-                    paths.append(os.path.join(
-                        daily_dir,
-                        "%s-%s-%s.%s" % (series, publish_type, arch, ext)))
+                for ext in (
+                    "iso",
+                    "img",
+                    "img.gz",
+                    "img.xz",
+                    "img.tar.gz",
+                    "tar.gz",
+                    "wsl",
+                ):
+                    paths.append(
+                        os.path.join(
+                            daily_dir, "%s-%s-%s.%s" % (series, publish_type, arch, ext)
+                        )
+                    )
                 paths.append(os.path.join(daily_dir, "%s.tar.xz" % arch))
                 for path in paths:
                     if os.path.exists(path):
                         break
                 else:
                     raise PublishReleaseException(
-                        "No daily for %s %s on %s!" % (series, arch, date))
+                        "No daily for %s %s on %s!" % (series, arch, date)
+                    )
 
         if self.want_pool:
             self.do("mkdir -p %s" % pool_dir, osextras.ensuredir, pool_dir)
@@ -3388,7 +3699,10 @@ class ReleasePublisher(Publisher):
                 if not os.path.islink(version_link):
                     self.do(
                         "ln -ns %s %s" % (series, version_link),
-                        os.symlink, series.name, version_link)
+                        os.symlink,
+                        series.name,
+                        version_link,
+                    )
         if self.want_dist and not self.config["CDIMAGE_NO_PURGE"]:
             entries = osextras.listdir_force(target_dir)
             for entry in entries:
@@ -3405,8 +3719,7 @@ class ReleasePublisher(Publisher):
                 if self.want_dist:
                     self.remove_tree(torrent_dir)
                 if self.want_full:
-                    torrent_releases_dir = os.path.dirname(
-                        os.path.dirname(torrent_dir))
+                    torrent_releases_dir = os.path.dirname(os.path.dirname(torrent_dir))
                     for entry in osextras.listdir_force(torrent_releases_dir):
                         entry_path = os.path.join(torrent_releases_dir, entry)
                         if entry != self.status and os.path.isdir(entry_path):
@@ -3438,7 +3751,8 @@ class ReleasePublisher(Publisher):
 
         if publish_type in ("uec", "server-uec"):
             for name in (
-                "published-ec2-release.txt", "tool-version-info.txt",
+                "published-ec2-release.txt",
+                "tool-version-info.txt",
                 "build-info.txt",
             ):
                 path = os.path.join(daily_dir, name)
@@ -3450,27 +3764,34 @@ class ReleasePublisher(Publisher):
         if self.want_dist:
             self.do(
                 "make-web-indices %s %s" % (target_dir, prefix_status),
-                self.make_web_indices, target_dir, prefix_status)
+                self.make_web_indices,
+                target_dir,
+                prefix_status,
+            )
         if self.want_full:
             self.do(
                 "make-web-indices %s %s" % (target_dir, prefix),
-                self.make_web_indices, target_dir, prefix)
+                self.make_web_indices,
+                target_dir,
+                prefix,
+            )
 
         if self.want_pool:
             logger.info("Checksumming simple tree (pool) ...")
             self.checksum_directory(
-                [pool_dir, daily_dir],
-                map_expr="s/^%s-/%s-/" % (prefix_status, series))
+                [pool_dir, daily_dir], map_expr="s/^%s-/%s-/" % (prefix_status, series)
+            )
         if self.want_dist:
             logger.info("Checksumming simple tree (%s) ..." % series)
             self.checksum_directory(
                 [target_dir, daily_dir],
-                map_expr="s/^%s-/%s-/" % (prefix_status, series))
+                map_expr="s/^%s-/%s-/" % (prefix_status, series),
+            )
         if self.want_full:
             logger.info("Checksumming full tree ...")
             self.checksum_directory(
-                [target_dir, daily_dir],
-                map_expr="s/^%s-/%s-/" % (prefix, series))
+                [target_dir, daily_dir], map_expr="s/^%s-/%s-/" % (prefix, series)
+            )
 
         if self.want_dist or self.want_pool:
             if self.dry_run:
@@ -3480,9 +3801,7 @@ class ReleasePublisher(Publisher):
                 with AtomicFile(manifest_path) as manifest:
                     for line in self.tree.manifest():
                         print(line, file=manifest)
-                os.chmod(
-                    manifest_path,
-                    os.stat(manifest_path).st_mode | stat.S_IWGRP)
+                os.chmod(manifest_path, os.stat(manifest_path).st_mode | stat.S_IWGRP)
 
                 # Create timestamps for this run.
                 if self.dry_run:
@@ -3496,7 +3815,8 @@ class ReleasePublisher(Publisher):
 
         logger.info(
             "Done!  Remember to sync-mirrors and regenerate-streams after "
-            "checking that everything is OK.")
+            "checking that everything is OK."
+        )
 
 
 class FullReleasePublisher(ReleasePublisher):
@@ -3524,8 +3844,11 @@ class FullReleasePublisher(ReleasePublisher):
 
     def target_dir(self, source, date, publish_type):
         target_dir = os.path.join(
-            self.tree.publish_target(source), "releases",
-            self.config.full_series, self.status)
+            self.tree.publish_target(source),
+            "releases",
+            self.config.full_series,
+            self.status,
+        )
         if self.official == "inteliot":
             target_dir = os.path.join(target_dir, "inteliot")
         if date.endswith("/unpacked"):
@@ -3536,13 +3859,18 @@ class FullReleasePublisher(ReleasePublisher):
 
     def version_link(self, source):
         return os.path.join(
-            self.tree.publish_target(source), "releases", self.full_version)
+            self.tree.publish_target(source), "releases", self.full_version
+        )
 
     def torrent_dir(self, source, publish_type):
         torrent_tree = TorrentTree(self.config)
         return os.path.join(
-            torrent_tree.publish_target(source), "releases",
-            self.config.full_series, self.status, publish_type)
+            torrent_tree.publish_target(source),
+            "releases",
+            self.config.full_series,
+            self.status,
+            publish_type,
+        )
 
     def want_torrent(self, publish_type):
         if self.official == "inteliot":
@@ -3573,14 +3901,14 @@ class SimpleReleasePublisher(ReleasePublisher):
 
     def target_dir(self, source, date, publish_type):
         target_dir = os.path.join(
-            self.tree.publish_target(source), self.config.full_series)
+            self.tree.publish_target(source), self.config.full_series
+        )
         if publish_type == "src":
             target_dir = os.path.join(target_dir, "source")
         return target_dir
 
     def version_link(self, source):
-        return os.path.join(
-            self.tree.publish_target(source), self.full_version)
+        return os.path.join(self.tree.publish_target(source), self.full_version)
 
     def pool_dir(self, source):
         return os.path.join(self.tree.publish_target(source), ".pool")
@@ -3588,8 +3916,11 @@ class SimpleReleasePublisher(ReleasePublisher):
     def torrent_dir(self, source, publish_type):
         torrent_tree = TorrentTree(self.config)
         return os.path.join(
-            torrent_tree.publish_target(source), "simple",
-            self.config.full_series, publish_type)
+            torrent_tree.publish_target(source),
+            "simple",
+            self.config.full_series,
+            publish_type,
+        )
 
     def want_torrent(self, publish_type):
         if self.want_dist:

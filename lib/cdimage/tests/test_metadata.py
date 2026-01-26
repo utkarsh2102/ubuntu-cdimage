@@ -31,7 +31,8 @@ except ImportError:
 from cdimage.metadata import (
     arch_to_lxd_arch,
     lxd_metadata_from_assertion,
-    generate_ubuntu_core_image_lxd_metadata)
+    generate_ubuntu_core_image_lxd_metadata,
+)
 
 from cdimage.tests.helpers import TestCase
 
@@ -53,11 +54,10 @@ class TestMetadata(TestCase):
 
     @mock.patch("cdimage.metadata.datetime.datetime")
     def test_lxd_metadata_from_assertion(self, mock_datetime):
-        mock_datetime.now.return_value.timestamp.return_value = \
-            1631088000
+        mock_datetime.now.return_value.timestamp.return_value = 1631088000
         assertion_path = os.path.join(
-            os.path.dirname(__file__), "data",
-            "ubuntu-core-22-amd64.model-assertion")
+            os.path.dirname(__file__), "data", "ubuntu-core-22-amd64.model-assertion"
+        )
         metadata = lxd_metadata_from_assertion(assertion_path)
         self.assertDictEqual(
             metadata,
@@ -70,15 +70,17 @@ class TestMetadata(TestCase):
                     "os": "Ubuntu",
                     "series": "core22",
                 },
-            })
+            },
+        )
 
     @mock.patch("cdimage.metadata.datetime.datetime")
     def test_lxd_metadata_from_assertion_description(self, mock_datetime):
-        mock_datetime.now.return_value.timestamp.return_value = \
-            1631088000
+        mock_datetime.now.return_value.timestamp.return_value = 1631088000
         assertion_path = os.path.join(
-            os.path.dirname(__file__), "data",
-            "ubuntu-core-18-amd64+appliance-lxd-core18-amd64.model-assertion")
+            os.path.dirname(__file__),
+            "data",
+            "ubuntu-core-18-amd64+appliance-lxd-core18-amd64.model-assertion",
+        )
         metadata = lxd_metadata_from_assertion(assertion_path)
         self.assertDictEqual(
             metadata,
@@ -91,26 +93,25 @@ class TestMetadata(TestCase):
                     "os": "Ubuntu",
                     "series": "core18",
                 },
-            })
+            },
+        )
 
     def test_generate_ubuntu_core_image_lxd_metadata(self):
         source_path = os.path.join(
-            os.path.dirname(__file__), "data",
-            "ubuntu-core-22-amd64.model-assertion")
+            os.path.dirname(__file__), "data", "ubuntu-core-22-amd64.model-assertion"
+        )
         with tempfile.TemporaryDirectory() as tmpdir:
             # Copy manifest to the temporary directory
             shutil.copy(source_path, tmpdir)
             image_path = os.path.join(tmpdir, "ubuntu-core-22-amd64.img.xz")
             generate_ubuntu_core_image_lxd_metadata(image_path)
-            lxd_metadata = os.path.join(
-                tmpdir, "ubuntu-core-22-amd64.lxd.tar.xz")
+            lxd_metadata = os.path.join(tmpdir, "ubuntu-core-22-amd64.lxd.tar.xz")
             self.assertTrue(lxd_metadata)
             with tarfile.open(lxd_metadata) as inf:
                 # Check if the metadata.yaml is there
                 self.assertIn("metadata.yaml", inf.getnames())
                 # Check if the metadata.yaml is valid json
-                metadata = json.loads(
-                    inf.extractfile("metadata.yaml").read())
+                metadata = json.loads(inf.extractfile("metadata.yaml").read())
                 self.assertTrue(metadata)
                 # No need to validate the whole metadata as other unit tests
                 # are already doing that

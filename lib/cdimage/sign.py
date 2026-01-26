@@ -42,9 +42,12 @@ def can_sign(config):
             return False
 
     _, _, secring, privkeydir, pubring, trustdb = _gnupg_files(config)
-    if (not (os.path.exists(privkeydir) or os.path.exists(secring)) or
-        not os.path.exists(pubring) or not os.path.exists(trustdb) or
-       not config["SIGNING_KEYID"]):
+    if (
+        not (os.path.exists(privkeydir) or os.path.exists(secring))
+        or not os.path.exists(pubring)
+        or not os.path.exists(trustdb)
+        or not config["SIGNING_KEYID"]
+    ):
         logger.warning("No keys found; not signing images.")
         return False
     return True
@@ -53,17 +56,24 @@ def can_sign(config):
 def _signing_command(config):
     gpgdir, gpgconf, _, _, _, _ = _gnupg_files(config)
     cmd = [
-        "gpg", "--options", gpgconf,
-        "--homedir", gpgdir,
-        "--no-options", "--batch", "--no-tty",
-        "--armour", "--detach-sign",
+        "gpg",
+        "--options",
+        gpgconf,
+        "--homedir",
+        gpgdir,
+        "--no-options",
+        "--batch",
+        "--no-tty",
+        "--armour",
+        "--detach-sign",
         # FBB75451 and EFE21092 have different digest preferences.  GnuPG
         # refuses to consider multiple signatures unless they use the same
         # signature class and digest algorithm.  We must therefore force the
         # digest algorithm to something both keys can do.  Fortunately, gpg
         # supports SHA-512 hashes with 1024-bit DSA keys by way of taking
         # the leftmost 160 bits of the hash; so we can use SHA-512 for both.
-        "--digest-algo", "SHA512",
+        "--digest-algo",
+        "SHA512",
     ]
     for key_id in config["SIGNING_KEYID"].split():
         cmd.extend(["-u", key_id])
@@ -82,7 +92,7 @@ def sign_cdimage(config, path):
                 subprocess.check_call(
                     ["lp-sign", "--config-file", lp_signing_conf, path],
                     stdout=outfile,
-                    )
+                )
             except subprocess.CalledProcessError:
                 osextras.unlink_force("%s.gpg" % path)
                 raise
@@ -93,7 +103,8 @@ def sign_cdimage(config, path):
         with open("%s.gpg" % path, "wb") as outfile:
             try:
                 subprocess.check_call(
-                    _signing_command(config), stdin=infile, stdout=outfile)
+                    _signing_command(config), stdin=infile, stdout=outfile
+                )
             except subprocess.CalledProcessError:
                 osextras.unlink_force("%s.gpg" % path)
                 raise

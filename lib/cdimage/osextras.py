@@ -17,6 +17,7 @@
 
 import errno
 import os
+
 try:
     from shlex import quote as shell_quote
 except ImportError:
@@ -72,9 +73,9 @@ def link_force(source, link_name):
 
 def find_on_path(command):
     """Is command on the executable search path?"""
-    if 'PATH' not in os.environ:
+    if "PATH" not in os.environ:
         return False
-    path = os.environ['PATH']
+    path = os.environ["PATH"]
     for element in path.split(os.pathsep):
         if not element:
             continue
@@ -110,7 +111,8 @@ def fetch(config, source, target):
     # Match lazr.restfulclient, for convenience when working with
     # development instances of Launchpad.
     no_check_certificate = bool(
-        os.environ.get('LP_DISABLE_SSL_CERTIFICATE_VALIDATION', False))
+        os.environ.get("LP_DISABLE_SSL_CERTIFICATE_VALIDATION", False)
+    )
 
     # This should arguably use urllib2/urllib.request or similar instead.
     command = [
@@ -139,8 +141,8 @@ def fetch(config, source, target):
 
 def _read_nullsep_output(command):
     raw = subprocess.Popen(
-        command, stdout=subprocess.PIPE,
-        universal_newlines=True).communicate()[0]
+        command, stdout=subprocess.PIPE, universal_newlines=True
+    ).communicate()[0]
     out = {}
     for line in raw.split("\0"):
         try:
@@ -158,8 +160,8 @@ def read_shell_config(config_path=None, allowed_keys=[]):
     commands.append("cat /proc/self/environ")
     for key in allowed_keys:
         commands.append(
-            "test -z \"${KEY+x}\" || printf '%s\\0' \"KEY=$KEY\"".replace(
-                "KEY", key))
+            'test -z "${KEY+x}" || printf \'%s\\0\' "KEY=$KEY"'.replace("KEY", key)
+        )
     env = _read_nullsep_output(["sh", "-c", "; ".join(commands)])
     for key, value in env.items():
         yield key, value
