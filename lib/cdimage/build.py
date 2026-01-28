@@ -481,7 +481,7 @@ def build_image_set_locked(config, options):
             copy_netboot_tarballs(config)
             fix_permissions(config)
 
-        if not config["DEBUG"] and not config["CDIMAGE_NOPUBLISH"]:
+        if not config["CDIMAGE_NOPUBLISH"]:
             log_marker("Publishing")
             tree = Tree.get_daily(config)
             publisher = Publisher.get_daily(tree, image_type)
