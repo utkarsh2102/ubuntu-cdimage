@@ -34,8 +34,7 @@ class TestSign(TestCase):
     def test_gnupg_files(self):
         config = Config(read=False)
         config["GNUPG_DIR"] = "/path"
-        gpgdir, gpgconf, secring, privkeydir, pubring, trustdb = \
-            _gnupg_files(config)
+        gpgdir, gpgconf, secring, privkeydir, pubring, trustdb = _gnupg_files(config)
         self.assertEqual("/path", gpgdir)
         self.assertEqual("/path/gpg.conf", gpgconf)
         self.assertEqual("/path/secring.gpg", secring)
@@ -48,28 +47,52 @@ class TestSign(TestCase):
         config["GNUPG_DIR"] = "/path"
         config["SIGNING_KEYID"] = "01234567"
         command = _signing_command(config)
-        self.assertEqual([
-            "gpg", "--options", "/path/gpg.conf",
-            "--homedir", "/path",
-            "--no-options", "--batch", "--no-tty",
-            "--armour", "--detach-sign",
-            "--digest-algo", "SHA512",
-            "-u", "01234567",
-        ], command)
+        self.assertEqual(
+            [
+                "gpg",
+                "--options",
+                "/path/gpg.conf",
+                "--homedir",
+                "/path",
+                "--no-options",
+                "--batch",
+                "--no-tty",
+                "--armour",
+                "--detach-sign",
+                "--digest-algo",
+                "SHA512",
+                "-u",
+                "01234567",
+            ],
+            command,
+        )
 
     def test_signing_command_two_keys(self):
         config = Config(read=False)
         config["GNUPG_DIR"] = "/path"
         config["SIGNING_KEYID"] = "01234567 89ABCDEF"
         command = _signing_command(config)
-        self.assertEqual([
-            "gpg", "--options", "/path/gpg.conf",
-            "--homedir", "/path",
-            "--no-options", "--batch", "--no-tty",
-            "--armour", "--detach-sign",
-            "--digest-algo", "SHA512",
-            "-u", "01234567", "-u", "89ABCDEF",
-        ], command)
+        self.assertEqual(
+            [
+                "gpg",
+                "--options",
+                "/path/gpg.conf",
+                "--homedir",
+                "/path",
+                "--no-options",
+                "--batch",
+                "--no-tty",
+                "--armour",
+                "--detach-sign",
+                "--digest-algo",
+                "SHA512",
+                "-u",
+                "01234567",
+                "-u",
+                "89ABCDEF",
+            ],
+            command,
+        )
 
     def test_sign_cdimage_missing_gnupg_files(self):
         config = Config(read=False)
@@ -94,8 +117,7 @@ class TestSign(TestCase):
         config = Config(read=False)
         config["GNUPG_DIR"] = self.use_temp_dir()
         config["SIGNING_KEYID"] = "01234567"
-        gpgdir, gpgconf, secring, privkeydir, pubring, trustdb = \
-            _gnupg_files(config)
+        gpgdir, gpgconf, secring, privkeydir, pubring, trustdb = _gnupg_files(config)
         sign_path = os.path.join(self.temp_dir, "to-sign")
         for path in gpgconf, secring, pubring, trustdb, sign_path:
             touch(path)
@@ -103,15 +125,24 @@ class TestSign(TestCase):
         self.assertTrue(sign_cdimage(config, sign_path))
         self.assertLogEqual(["Signing %s using local GPG" % sign_path])
         expected_command = [
-            "gpg", "--options", gpgconf,
-            "--homedir", config["GNUPG_DIR"],
-            "--no-options", "--batch", "--no-tty",
-            "--armour", "--detach-sign",
-            "--digest-algo", "SHA512",
-            "-u", "01234567",
+            "gpg",
+            "--options",
+            gpgconf,
+            "--homedir",
+            config["GNUPG_DIR"],
+            "--no-options",
+            "--batch",
+            "--no-tty",
+            "--armour",
+            "--detach-sign",
+            "--digest-algo",
+            "SHA512",
+            "-u",
+            "01234567",
         ]
         mock_check_call.assert_called_once_with(
-            expected_command, stdin=mock.ANY, stdout=mock.ANY)
+            expected_command, stdin=mock.ANY, stdout=mock.ANY
+        )
         call = mock_check_call.call_args
         self.assertEqual(sign_path, call[1]["stdin"].name)
         self.assertEqual("%s.gpg" % sign_path, call[1]["stdout"].name)
@@ -140,13 +171,9 @@ class TestSign(TestCase):
             touch(path)
         self.capture_logging()
         self.assertTrue(sign_cdimage(config, sign_path))
-        self.assertLogEqual([
-            "Signing %s using LP signing service" % sign_path])
-        expected_command = [
-            "lp-sign", "--config-file", conf_path, sign_path
-            ]
-        mock_check_call.assert_called_once_with(
-            expected_command, stdout=mock.ANY)
+        self.assertLogEqual(["Signing %s using LP signing service" % sign_path])
+        expected_command = ["lp-sign", "--config-file", conf_path, sign_path]
+        mock_check_call.assert_called_once_with(expected_command, stdout=mock.ANY)
         call = mock_check_call.call_args
         self.assertEqual("%s.gpg" % sign_path, call[1]["stdout"].name)
 
@@ -156,8 +183,7 @@ class TestSign(TestCase):
         config = Config(read=False)
         config["GNUPG_DIR"] = self.use_temp_dir()
         config["SIGNING_KEYID"] = "01234567"
-        gpgdir, gpgconf, secring, privkeydir, pubring, trustdb = \
-            _gnupg_files(config)
+        gpgdir, gpgconf, secring, privkeydir, pubring, trustdb = _gnupg_files(config)
         sign_path = os.path.join(self.temp_dir, "to-sign")
         for path in gpgconf, secring, pubring, trustdb, sign_path:
             touch(path)

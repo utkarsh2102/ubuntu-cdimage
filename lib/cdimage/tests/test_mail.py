@@ -63,14 +63,16 @@ class TestNotify(TestCase):
         with mkfile(path) as f:
             print("ALL\tfoo@example.org bar@example.org", file=f)
         self.assertEqual(
-            ["foo@example.org", "bar@example.org"],
-            get_notify_addresses(self.config))
+            ["foo@example.org", "bar@example.org"], get_notify_addresses(self.config)
+        )
         self.assertEqual(
             ["foo@example.org", "bar@example.org"],
-            get_notify_addresses(self.config, "ubuntu"))
+            get_notify_addresses(self.config, "ubuntu"),
+        )
         self.assertEqual(
             ["foo@example.org", "bar@example.org"],
-            get_notify_addresses(self.config, "kubuntu"))
+            get_notify_addresses(self.config, "kubuntu"),
+        )
 
     def test_get_notify_addresses_projects_match_exactly(self):
         path = os.path.join(self.temp_dir, "production", "notify-addresses")
@@ -78,11 +80,11 @@ class TestNotify(TestCase):
             print("ubuntu\tubuntu@example.org", file=f)
             print("kubuntu\tkubuntu@example.org", file=f)
         self.assertEqual(
-            ["ubuntu@example.org"],
-            get_notify_addresses(self.config, "ubuntu"))
+            ["ubuntu@example.org"], get_notify_addresses(self.config, "ubuntu")
+        )
         self.assertEqual(
-            ["kubuntu@example.org"],
-            get_notify_addresses(self.config, "kubuntu"))
+            ["kubuntu@example.org"], get_notify_addresses(self.config, "kubuntu")
+        )
         self.assertEqual([], get_notify_addresses(self.config, "edubuntu"))
 
     def test_send_mail_dry_run_from_file(self):
@@ -93,35 +95,42 @@ class TestNotify(TestCase):
         self.capture_logging()
         with open(path) as body:
             send_mail(
-                "Test subject", "test_notify", ["foo@example.org"], body,
-                dry_run=True)
-        self.assertLogEqual([
-            "Would send mail to: foo@example.org",
-            "",
-            "Subject: Test subject",
-            "X-Generated-By: test_notify",
-            "",
-            "Body",
-            "Text",
-            "",
-        ])
+                "Test subject", "test_notify", ["foo@example.org"], body, dry_run=True
+            )
+        self.assertLogEqual(
+            [
+                "Would send mail to: foo@example.org",
+                "",
+                "Subject: Test subject",
+                "X-Generated-By: test_notify",
+                "",
+                "Body",
+                "Text",
+                "",
+            ]
+        )
 
     def test_send_mail_dry_run_from_string(self):
         self.capture_logging()
         send_mail(
-            "Test subject", "test_notify",
-            ["foo@example.org", "bar@example.org"], "Body\nText\n",
-            dry_run=True)
-        self.assertLogEqual([
-            "Would send mail to: foo@example.org, bar@example.org",
-            "",
-            "Subject: Test subject",
-            "X-Generated-By: test_notify",
-            "",
-            "Body",
-            "Text",
-            "",
-        ])
+            "Test subject",
+            "test_notify",
+            ["foo@example.org", "bar@example.org"],
+            "Body\nText\n",
+            dry_run=True,
+        )
+        self.assertLogEqual(
+            [
+                "Would send mail to: foo@example.org, bar@example.org",
+                "",
+                "Subject: Test subject",
+                "X-Generated-By: test_notify",
+                "",
+                "Body",
+                "Text",
+                "",
+            ]
+        )
 
     @mock.patch("subprocess.Popen")
     def test_send_mail_from_file(self, mock_popen):
@@ -130,12 +139,15 @@ class TestNotify(TestCase):
             print("Body", file=body)
             print("Text", file=body)
         with open(path) as body:
-            send_mail(
-                "Test subject", "test_notify", ["foo@example.org"], body)
+            send_mail("Test subject", "test_notify", ["foo@example.org"], body)
             expected_command = [
-                "mail", "-s", "Test subject",
-                "-r", "noreply+ubuntu-cdimage@ubuntu.com",
-                "-a", "X-Generated-By: test_notify",
+                "mail",
+                "-s",
+                "Test subject",
+                "-r",
+                "noreply+ubuntu-cdimage@ubuntu.com",
+                "-a",
+                "X-Generated-By: test_notify",
                 "foo@example.org",
             ]
             mock_popen.assert_called_once_with(expected_command, stdin=body)
@@ -143,15 +155,21 @@ class TestNotify(TestCase):
     @mock.patch("subprocess.Popen")
     def test_send_mail_from_string(self, mock_popen):
         send_mail(
-            "Test subject", "test_notify",
-            ["foo@example.org", "bar@example.org"], "Body\nText\n")
+            "Test subject",
+            "test_notify",
+            ["foo@example.org", "bar@example.org"],
+            "Body\nText\n",
+        )
         expected_command = [
-            "mail", "-s", "Test subject",
-            "-r", "noreply+ubuntu-cdimage@ubuntu.com",
-            "-a", "X-Generated-By: test_notify",
-            "foo@example.org", "bar@example.org",
+            "mail",
+            "-s",
+            "Test subject",
+            "-r",
+            "noreply+ubuntu-cdimage@ubuntu.com",
+            "-a",
+            "X-Generated-By: test_notify",
+            "foo@example.org",
+            "bar@example.org",
         ]
-        mock_popen.assert_called_once_with(
-            expected_command, stdin=subprocess.PIPE)
-        mock_popen.return_value.stdin.write.assert_called_once_with(
-            b"Body\nText\n")
+        mock_popen.assert_called_once_with(expected_command, stdin=subprocess.PIPE)
+        mock_popen.return_value.stdin.write.assert_called_once_with(b"Body\nText\n")

@@ -31,8 +31,8 @@ def main():
     from cdimage.germinate import GerminateOutput
 
     parser = OptionParser(
-        "%prog DIRECTORY "
-        "all|tasks|installer|debootstrap|base|ship-live|addon|dvd")
+        "%prog DIRECTORY all|tasks|installer|debootstrap|base|ship-live|addon|dvd"
+    )
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need Germinate output directory")

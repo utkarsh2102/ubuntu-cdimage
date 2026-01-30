@@ -26,9 +26,7 @@ from cdimage.log import logger
 from cdimage.tree import Publisher, Tree
 
 
-def tracker_set_rebuild_status(config, current_state, new_state,
-                               arches=None):
-
+def tracker_set_rebuild_status(config, current_state, new_state, arches=None):
     if not isinstance(arches, list):
         arches = [arches]
 
@@ -48,8 +46,7 @@ def tracker_set_rebuild_status(config, current_state, new_state,
     # Build a dict of tracker instance and product list
     qa_products = {}
     for arch in arches:
-        qaproduct = publisher.qa_product(config.project, config.image_type,
-                                         None, arch)
+        qaproduct = publisher.qa_product(config.project, config.image_type, None, arch)
 
         if not qaproduct:
             continue
@@ -62,8 +59,7 @@ def tracker_set_rebuild_status(config, current_state, new_state,
     # Iterate through the trackers and set the new status
     for instance, products in qa_products.items():
         try:
-            tracker = ISOTracker(
-                target="%s-%s" % (instance, config.full_series))
+            tracker = ISOTracker(target="%s-%s" % (instance, config.full_series))
         except xmlrpclib.Error as e:
             logger.warning("Unable to contact tracker: %s" % e)
             continue

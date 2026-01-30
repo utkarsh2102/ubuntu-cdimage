@@ -32,14 +32,15 @@ def main():
 
     parser = OptionParser("%prog [options] DIR [OLD_DIR ...]")
     parser.add_option(
-        "--map", metavar="s/REGEXP/REPLACEMENT/",
-        help="apply s/// expression to old entries to find matching checksum")
+        "--map",
+        metavar="s/REGEXP/REPLACEMENT/",
+        help="apply s/// expression to old entries to find matching checksum",
+    )
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need directory")
     config = Config()
-    checksum_directory(
-        config, args[0], old_directories=args, map_expr=options.map)
+    checksum_directory(config, args[0], old_directories=args, map_expr=options.map)
 
 
 if __name__ == "__main__":

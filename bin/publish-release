@@ -32,10 +32,15 @@ def main():
         "%prog [--dry-run] DAILY-SOURCE DAILY-DATE TYPE OFFICIAL [STATUS]\n"
         "OFFICIAL=yes to publish to releases.ubuntu.com, poolonly to "
         "pre-publish, named to publish to cdimage.ubuntu.com as "
-        "$PROJECT-$VERSION-*, otherwise no.")
+        "$PROJECT-$VERSION-*, otherwise no."
+    )
     parser.add_option(
-        "-n", "--dry-run", default=False, action="store_true",
-        help="Show equivalent commands rather than running them.")
+        "-n",
+        "--dry-run",
+        default=False,
+        action="store_true",
+        help="Show equivalent commands rather than running them.",
+    )
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need daily-source")
@@ -54,7 +59,8 @@ def main():
     tree = Tree.get_release(config, official)
     # image_type unused
     publisher = tree.get_publisher(
-        "daily", official, status=status, dry_run=options.dry_run)
+        "daily", official, status=status, dry_run=options.dry_run
+    )
     publisher.publish_release(source, date, publish_type)
 
 

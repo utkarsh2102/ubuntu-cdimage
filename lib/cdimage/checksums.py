@@ -35,8 +35,11 @@ def apply_sed(text, expression):
     for now.
     """
     sed = subprocess.Popen(
-        ["sed", expression], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-        universal_newlines=True)
+        ["sed", expression],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    )
     try:
         sed.stdin.write(text)
         sed.stdin.close()
@@ -94,9 +97,9 @@ class ChecksumFile:
             this_time = None
         entry_path = os.path.join(self.directory, entry_name)
         entry_time = self._entry_time(entry_path, None)
-        if (entry_name not in self.entries or
-            (this_time is not None and entry_time is not None and
-             entry_time > this_time)):
+        if entry_name not in self.entries or (
+            this_time is not None and entry_time is not None and entry_time > this_time
+        ):
             self.entries[entry_name] = self.checksum(entry_path)
             self.changed = True
 
@@ -119,12 +122,17 @@ class ChecksumFile:
                 try:
                     if os.path.samefile(directory, target_dir):
                         target_checksum_file = ChecksumFile(
-                            self.config, directory, self.name,
-                            self.hash_method, sign=self.sign)
+                            self.config,
+                            directory,
+                            self.name,
+                            self.hash_method,
+                            sign=self.sign,
+                        )
                         target_checksum_file.read()
                         if target_name in target_checksum_file.entries:
-                            self.entries[entry_name] = (
-                                target_checksum_file.entries[target_name])
+                            self.entries[entry_name] = target_checksum_file.entries[
+                                target_name
+                            ]
                             self.changed = True
                             return
                 except OSError:
@@ -141,8 +149,8 @@ class ChecksumFile:
             if entry_time > dir_time:
                 continue
             old_checksum_file = ChecksumFile(
-                self.config, directory, self.name, self.hash_method,
-                sign=self.sign)
+                self.config, directory, self.name, self.hash_method, sign=self.sign
+            )
             old_checksum_file.read()
             for name in possible_entry_names:
                 if name in old_checksum_file.entries:
@@ -156,8 +164,10 @@ class ChecksumFile:
         if self.entries:
             with AtomicFile(self.path) as checksums:
                 for entry_name in sorted(self.entries):
-                    print("%s *%s" % (self.entries[entry_name], entry_name),
-                          file=checksums)
+                    print(
+                        "%s *%s" % (self.entries[entry_name], entry_name),
+                        file=checksums,
+                    )
             if self.sign:
                 sign_cdimage(self.config, self.path)
         else:
@@ -188,7 +198,8 @@ class ChecksumFileSet:
         self.sign = sign
         self.checksum_files = [
             ChecksumFile(config, directory, filename, hash_method, sign=sign)
-            for filename, hash_method in self.checksum_file_methods.items()]
+            for filename, hash_method in self.checksum_file_methods.items()
+        ]
 
     def read(self):
         for checksum_file in self.checksum_files:
@@ -208,30 +219,34 @@ class ChecksumFileSet:
 
     def want_image(self, image):
         """Return true if and only if we want to checksum this image."""
-        if (image.endswith(".img") or
-                image.endswith(".iso") or
-                image.endswith(".exe") or
-                image.endswith(".img.xz") or
-                image.endswith(".img.gz") or
-                image.endswith(".img.tar.xz") or
-                image.endswith(".img.tar.gz") or
-                "-vmlinuz-" in image or
-                "-initrd-" in image or
-                image.endswith(".tar.gz") or
-                image.endswith(".bootimg") or
-                image.endswith(".tar.xz") or
-                image.endswith(".cloop") or
-                image.endswith(".squashfs") or
-                image.endswith(".qcow2") or
-                image.endswith(".wsl")):
+        if (
+            image.endswith(".img")
+            or image.endswith(".iso")
+            or image.endswith(".exe")
+            or image.endswith(".img.xz")
+            or image.endswith(".img.gz")
+            or image.endswith(".img.tar.xz")
+            or image.endswith(".img.tar.gz")
+            or "-vmlinuz-" in image
+            or "-initrd-" in image
+            or image.endswith(".tar.gz")
+            or image.endswith(".bootimg")
+            or image.endswith(".tar.xz")
+            or image.endswith(".cloop")
+            or image.endswith(".squashfs")
+            or image.endswith(".qcow2")
+            or image.endswith(".wsl")
+        ):
             return True
         else:
             return False
 
     def merge_all(self, old_directories, map_expr=None):
         images = sorted(
-            name for name in os.listdir(self.directory)
-            if self.want_image(name) and 'netboot' not in name)
+            name
+            for name in os.listdir(self.directory)
+            if self.want_image(name) and "netboot" not in name
+        )
         for image in images:
             image_names = [image]
             if map_expr:
@@ -256,8 +271,9 @@ class ChecksumFileSet:
             self.write()
 
 
-def checksum_directory(config, directory, old_directories=None, sign=True,
-                       map_expr=None):
+def checksum_directory(
+    config, directory, old_directories=None, sign=True, map_expr=None
+):
     if old_directories is None:
         old_directories = [directory]
 

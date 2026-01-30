@@ -27,6 +27,7 @@ import subprocess
 import tempfile
 from textwrap import dedent
 import time
+
 try:
     import unittest2 as unittest
 except ImportError:
@@ -91,24 +92,28 @@ class TestCase(unittest.TestCase):
             name, version, arch = base.split("_")
             control_dir = os.path.join(build_dir, "DEBIAN")
             with mkfile(os.path.join(control_dir, "control")) as control:
-                print(dedent("""\
+                print(
+                    dedent(
+                        """\
                     Package: %s
                     Version: %s
                     Architecture: %s
                     Section: %s
                     Priority: %s
                     Maintainer: Fake Maintainer <fake@example.org>
-                    Description: fake package""") % (
-                    name, version, arch, section, priority),
-                    file=control)
+                    Description: fake package"""
+                    )
+                    % (name, version, arch, section, priority),
+                    file=control,
+                )
             for file_path, file_contents in files.items():
-                rel_path = os.path.join(
-                    build_dir, os.path.relpath(file_path, "/"))
+                rel_path = os.path.join(build_dir, os.path.relpath(file_path, "/"))
                 with mkfile(rel_path, mode="wb") as fp:
                     fp.write(file_contents)
             with open("/dev/null", "w") as devnull:
                 subprocess.check_call(
-                    ["dpkg-deb", "-b", build_dir, path], stdout=devnull)
+                    ["dpkg-deb", "-b", build_dir, path], stdout=devnull
+                )
         finally:
             shutil.rmtree(build_dir)
 
@@ -122,11 +127,11 @@ class TestCase(unittest.TestCase):
                     raise
 
     # Monkey-patch for Python 2/3 compatibility.
-    if not hasattr(unittest.TestCase, 'assertCountEqual'):
+    if not hasattr(unittest.TestCase, "assertCountEqual"):
         assertCountEqual = unittest.TestCase.assertItemsEqual
-    if not hasattr(unittest.TestCase, 'assertRegex'):
+    if not hasattr(unittest.TestCase, "assertRegex"):
         assertRegex = unittest.TestCase.assertRegexpMatches
-    if not hasattr(unittest.TestCase, 'assertRaisesRegex'):
+    if not hasattr(unittest.TestCase, "assertRaisesRegex"):
         assertRaisesRegex = unittest.TestCase.assertRaisesRegexp
 
 

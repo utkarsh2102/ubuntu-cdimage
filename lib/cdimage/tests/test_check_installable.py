@@ -47,16 +47,19 @@ class TestCheckInstallable(TestCase):
         self.assertEqual(os.path.join(self.config.root, "britney"), britney)
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu", "bionic", "daily",
-                "tmp"),
-            image_top)
+                self.config.root, "scratch", "ubuntu", "bionic", "daily", "tmp"
+            ),
+            image_top,
+        )
         self.assertEqual(
             os.path.join(
-                self.config.root, "scratch", "ubuntu", "bionic", "daily",
-                "live"),
-            live)
+                self.config.root, "scratch", "ubuntu", "bionic", "daily", "live"
+            ),
+            live,
+        )
         self.assertEqual(
-            os.path.join(britney, "data", "ubuntu", "daily", "bionic"), data)
+            os.path.join(britney, "data", "ubuntu", "daily", "bionic"), data
+        )
 
     def test_prepare_no_packages(self):
         _, _, _, data = _check_installable_dirs(self.config)
@@ -69,8 +72,15 @@ class TestCheckInstallable(TestCase):
     def test_prepare_with_packages(self):
         _, image_top, _, data = _check_installable_dirs(self.config)
         packages_gz = os.path.join(
-            image_top, "bionic-i386", "CD1", "dists", "bionic", "main",
-            "binary-i386", "Packages.gz")
+            image_top,
+            "bionic-i386",
+            "CD1",
+            "dists",
+            "bionic",
+            "main",
+            "binary-i386",
+            "Packages.gz",
+        )
         os.makedirs(os.path.dirname(packages_gz))
         packages_gz_file = gzip.open(packages_gz, "wb")
         try:
@@ -87,9 +97,14 @@ class TestCheckInstallable(TestCase):
     def test_command(self):
         britney, _, _, data = _check_installable_dirs(self.config)
         command = _check_installable_command(self.config)
-        self.assertEqual([
-            "timeout", "30",
-            os.path.join(britney, "rptprobs.sh"), data,
-            os.path.join(
-                britney, "report", "ubuntu", "daily", "bionic_probs.html"),
-            "Ubuntu bionic"], command)
+        self.assertEqual(
+            [
+                "timeout",
+                "30",
+                os.path.join(britney, "rptprobs.sh"),
+                data,
+                os.path.join(britney, "report", "ubuntu", "daily", "bionic_probs.html"),
+                "Ubuntu bionic",
+            ],
+            command,
+        )

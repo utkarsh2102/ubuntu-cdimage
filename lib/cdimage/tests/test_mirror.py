@@ -51,33 +51,29 @@ class TestChecksumFile(TestCase):
     def assertMirrorEqual(self, base, arch, series):
         config = Config(read=False)
         config["DIST"] = series
-        self.assertEqual(
-            base, find_mirror(config, arch))
+        self.assertEqual(base, find_mirror(config, arch))
 
     def test_amd64(self):
         for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "amd64", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "amd64", series)
 
     def test_armel(self):
         for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "armel", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "armel", series)
 
     def test_i386(self):
         for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "i386", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "i386", series)
 
     def test_ppc64el(self):
         for series in all_series:
             self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "ppc64el", series)
+                "http://ftpmaster.internal/ubuntu/", "ppc64el", series
+            )
 
     def test_s390x(self):
         for series in all_series:
-            self.assertMirrorEqual(
-                "http://ftpmaster.internal/ubuntu/", "s390x", series)
+            self.assertMirrorEqual("http://ftpmaster.internal/ubuntu/", "s390x", series)
 
 
 class TestTriggerMirrors(TestCase):
@@ -92,8 +88,9 @@ class TestTriggerMirrors(TestCase):
         manifest = os.path.join(self.temp_dir, "www", "simple", ".manifest")
         with mkfile(manifest) as f:
             print(
-                "ubuntu\tbionic\t/bionic/ubuntu-18.04.2-desktop-i386.iso\t"
-                "726970368", file=f)
+                "ubuntu\tbionic\t/bionic/ubuntu-18.04.2-desktop-i386.iso\t726970368",
+                file=f,
+            )
         self.assertRaises(UnknownManifestFile, check_manifest, config)
 
     def test_check_manifest_unreadable_file(self):
@@ -110,11 +107,18 @@ class TestTriggerMirrors(TestCase):
         manifest = os.path.join(self.temp_dir, "www", "simple", ".manifest")
         with mkfile(manifest) as f:
             print(
-                "ubuntu\tbionic\t/bionic/ubuntu-18.04.2-desktop-i386.iso\t"
-                "726970368", file=f)
-        touch(os.path.join(
-            self.temp_dir, "www", "simple", "bionic",
-            "ubuntu-18.04.2-desktop-i386.iso"))
+                "ubuntu\tbionic\t/bionic/ubuntu-18.04.2-desktop-i386.iso\t726970368",
+                file=f,
+            )
+        touch(
+            os.path.join(
+                self.temp_dir,
+                "www",
+                "simple",
+                "bionic",
+                "ubuntu-18.04.2-desktop-i386.iso",
+            )
+        )
 
     def configure_triggers(self):
         self.config = Config(read=False)
@@ -137,24 +141,22 @@ class TestTriggerMirrors(TestCase):
     def test_get_mirrors(self):
         config = Config(read=False)
         config.root = self.use_temp_dir()
-        production_path = os.path.join(
-            self.temp_dir, "production", "trigger-mirrors")
+        production_path = os.path.join(self.temp_dir, "production", "trigger-mirrors")
         os.makedirs(os.path.dirname(production_path))
         with mkfile(production_path) as production:
             print("sync x.example.org", file=production)
             print("async other.example.org", file=production)
             print("sync y.example.org z.example.org", file=production)
         self.assertEqual(
-            ["x.example.org", "y.example.org", "z.example.org"],
-            _get_mirrors(config))
+            ["x.example.org", "y.example.org", "z.example.org"], _get_mirrors(config)
+        )
         self.configure_triggers()
         self.assertEqual(["foo", "bar"], _get_mirrors(self.config))
 
     def test_get_mirrors_async(self):
         config = Config(read=False)
         config.root = self.use_temp_dir()
-        production_path = os.path.join(
-            self.temp_dir, "production", "trigger-mirrors")
+        production_path = os.path.join(self.temp_dir, "production", "trigger-mirrors")
         with mkfile(production_path) as production:
             print("sync x.example.org", file=production)
             print("async a.example.org b.example.org", file=production)
@@ -162,10 +164,10 @@ class TestTriggerMirrors(TestCase):
             print("async c.example.org", file=production)
         self.assertEqual(
             ["a.example.org", "b.example.org", "c.example.org"],
-            _get_mirrors_async(config))
+            _get_mirrors_async(config),
+        )
         self.configure_triggers()
-        self.assertEqual(
-            ["foo-async", "bar-async"], _get_mirrors_async(self.config))
+        self.assertEqual(["foo-async", "bar-async"], _get_mirrors_async(self.config))
 
     def test_trigger_command(self):
         config = Config(read=False)
@@ -175,16 +177,21 @@ class TestTriggerMirrors(TestCase):
     def test_trigger_mirror_background(self, mock_popen):
         config = Config(read=False)
         self.capture_logging()
-        _trigger_mirror(
-            config, "id-test", "archvsync", "remote", background=True)
+        _trigger_mirror(config, "id-test", "archvsync", "remote", background=True)
         self.assertLogEqual(["remote:"])
-        mock_popen.assert_called_once_with([
-            "ssh", "-i", "id-test",
-            "-o", "StrictHostKeyChecking no",
-            "-o", "BatchMode yes",
-            "archvsync@remote",
-            "./releases-sync",
-        ])
+        mock_popen.assert_called_once_with(
+            [
+                "ssh",
+                "-i",
+                "id-test",
+                "-o",
+                "StrictHostKeyChecking no",
+                "-o",
+                "BatchMode yes",
+                "archvsync@remote",
+                "./releases-sync",
+            ]
+        )
 
     @mock.patch("subprocess.call", return_value=0)
     def test_trigger_mirror_foreground(self, mock_call):
@@ -192,13 +199,19 @@ class TestTriggerMirrors(TestCase):
         self.capture_logging()
         _trigger_mirror(config, "id-test", "archvsync", "remote")
         self.assertLogEqual(["remote:"])
-        mock_call.assert_called_once_with([
-            "ssh", "-i", "id-test",
-            "-o", "StrictHostKeyChecking no",
-            "-o", "BatchMode yes",
-            "archvsync@remote",
-            "./releases-sync",
-        ])
+        mock_call.assert_called_once_with(
+            [
+                "ssh",
+                "-i",
+                "id-test",
+                "-o",
+                "StrictHostKeyChecking no",
+                "-o",
+                "BatchMode yes",
+                "archvsync@remote",
+                "./releases-sync",
+            ]
+        )
 
     @mock.patch("os.path.expanduser")
     @mock.patch("cdimage.mirror._trigger_mirror")
@@ -207,21 +220,20 @@ class TestTriggerMirrors(TestCase):
         mock_expanduser.return_value = self.home_secret
         key = os.path.join(self.temp_dir, "secret", "auckland")
         trigger_mirrors(self.config)
-        mock_trigger_mirror.assert_has_calls([
-            mock.call(self.config, key, "archvsync", "foo"),
-            mock.call(self.config, key, "archvsync", "bar"),
-            mock.call(
-                self.config, key, "archvsync", "foo-async", background=True),
-            mock.call(
-                self.config, key, "archvsync", "bar-async", background=True),
-        ])
+        mock_trigger_mirror.assert_has_calls(
+            [
+                mock.call(self.config, key, "archvsync", "foo"),
+                mock.call(self.config, key, "archvsync", "bar"),
+                mock.call(self.config, key, "archvsync", "foo-async", background=True),
+                mock.call(self.config, key, "archvsync", "bar-async", background=True),
+            ]
+        )
 
     @mock.patch("cdimage.mirror._trigger_mirror")
     def test_no_trigger_mirrors_when_stopped(self, mock_trigger_mirror):
         self.configure_triggers()
         os.mkdir(os.path.join(self.config.root, "etc"))
-        with open(os.path.join(self.config.root, "etc", "STOP_SYNC_MIRRORS"),
-                  "w"):
+        with open(os.path.join(self.config.root, "etc", "STOP_SYNC_MIRRORS"), "w"):
             trigger_mirrors(self.config)
             mock_trigger_mirror.assert_not_called()
 
@@ -236,7 +248,8 @@ class TestAptStateManager(TestCase):
         mgr = AptStateManager(config)
         self.assertEqual(
             "/cdimage/scratch/ubuntu/noble/daily/apt-state/amd64",
-            mgr._output_dir("amd64"))
+            mgr._output_dir("amd64"),
+        )
 
     def test_otherarch_no_foreign_arch(self):
         config = Config(read=False)
@@ -252,10 +265,10 @@ class TestAptStateManager(TestCase):
         # a truly useful tests. But really this information should be
         # moved into ubuntu-cdimage somewhere.
         archlist_path = os.path.join(
-            config.root, "debian-cd", "data", config.series,
-            "multiarch", "arm64")
+            config.root, "debian-cd", "data", config.series, "multiarch", "arm64"
+        )
         os.makedirs(os.path.dirname(archlist_path))
-        with open(archlist_path, 'w') as fp:
+        with open(archlist_path, "w") as fp:
             fp.write("armhf\n")
         mgr = AptStateManager(config)
         self.assertEqual("armhf", mgr._otherarch("arm64"))
@@ -269,8 +282,7 @@ class TestAptStateManager(TestCase):
         config["CDIMAGE_UNSUPPORTED"] = "1"
         self.assertEqual("main universe", mgr._components())
         del config["CDIMAGE_ONLYFREE"]
-        self.assertEqual(
-            "main restricted universe multiverse", mgr._components())
+        self.assertEqual("main restricted universe multiverse", mgr._components())
 
     def test_suites(self):
         config = Config(read=False)
@@ -279,7 +291,8 @@ class TestAptStateManager(TestCase):
         self.assertEqual("noble noble-security noble-updates", mgr._suites())
         config["PROPOSED"] = "1"
         self.assertEqual(
-            "noble noble-security noble-updates noble-proposed", mgr._suites())
+            "noble noble-security noble-updates noble-proposed", mgr._suites()
+        )
 
     @mock.patch("cdimage.mirror.find_mirror")
     @mock.patch("cdimage.mirror.AptStateManager._components")
@@ -304,23 +317,24 @@ Signed-By: /etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg
         config = Config(read=False)
         sources_path = os.path.join(self.use_temp_dir(), "my.sources")
         content = "# content\n"
-        with open(sources_path, 'w') as fp:
+        with open(sources_path, "w") as fp:
             fp.write(content)
         config["CDIMAGE_POOL_SOURCES"] = sources_path
         mgr = AptStateManager(config)
         self.assertEqual(content, mgr._get_sources_text("s390x"))
 
-    def _get_apt_config(self, apt_config, var, meth='find'):
+    def _get_apt_config(self, apt_config, var, meth="find"):
         env = dict(os.environ, APT_CONFIG=apt_config)
         cmd = [
             sys.executable,
             "-c",
             "import apt_pkg, sys; apt_pkg.init_config()\n"
             "print(apt_pkg.config.{}(sys.argv[1]))".format(meth),
-            var
-            ]
+            var,
+        ]
         cp = subprocess.run(
-            cmd, env=env, encoding='utf-8', stdout=subprocess.PIPE, check=True)
+            cmd, env=env, encoding="utf-8", stdout=subprocess.PIPE, check=True
+        )
         return cp.stdout.strip()
 
     @mock.patch("cdimage.mirror.AptStateManager._output_dir")
@@ -337,14 +351,13 @@ Signed-By: /etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg
         config["DIST"] = "noble"
         mgr = AptStateManager(config)
         apt_conf = mgr._setup_arch("ARCH")
+        self.assertEqual("ARCH", self._get_apt_config(apt_conf, "Apt::Architecture"))
         self.assertEqual(
-            "ARCH",
-            self._get_apt_config(apt_conf, "Apt::Architecture"))
-        self.assertEqual(
-            "OTHERARCH",
-            self._get_apt_config(apt_conf, "Apt::Architectures"))
+            "OTHERARCH", self._get_apt_config(apt_conf, "Apt::Architectures")
+        )
         sources_list_d = self._get_apt_config(
-            apt_conf, "Dir::Etc::sourceparts", meth='find_dir')
+            apt_conf, "Dir::Etc::sourceparts", meth="find_dir"
+        )
         sources_files = glob.glob(os.path.join(sources_list_d, "*.sources"))
         self.assertEqual(1, len(sources_files))
         with open(sources_files[0]) as fp:
@@ -359,22 +372,24 @@ Signed-By: /etc/apt/trusted.gpg.d/ubuntu-keyring-2018-archive.gpg
         apt_conf = mgr._setup_arch("ARCH")
         self.assertEqual(
             "http://localhost:3128",
-            self._get_apt_config(apt_conf, "Acquire::http::Proxy"))
+            self._get_apt_config(apt_conf, "Acquire::http::Proxy"),
+        )
         self.assertEqual(
             "http://localhost:3128",
-            self._get_apt_config(apt_conf, "Acquire::https::Proxy"))
+            self._get_apt_config(apt_conf, "Acquire::https::Proxy"),
+        )
 
     @mock.patch("cdimage.mirror.AptStateManager._setup_arch")
     def test_setup(self, m_setup_arch):
         self.capture_logging()
-        m_setup_arch.side_effect = lambda arch: arch + 'dir'
+        m_setup_arch.side_effect = lambda arch: arch + "dir"
         config = Config(read=False)
-        config["ARCHES"] = (
-            "arch1 arch1+subarch arch2+subarch1 arch2+subarch2 arch3")
+        config["ARCHES"] = "arch1 arch1+subarch arch2+subarch1 arch2+subarch2 arch3"
         config.set_default_cpuarches()
         mgr = AptStateManager(config)
         mgr.setup()
         self.assertCountEqual(
             [mock.call("arch1"), mock.call("arch2"), mock.call("arch3")],
-            m_setup_arch.mock_calls)
-        self.assertEqual('arch1dir', mgr.apt_conf_for_arch('arch1'))
+            m_setup_arch.mock_calls,
+        )
+        self.assertEqual("arch1dir", mgr.apt_conf_for_arch("arch1"))

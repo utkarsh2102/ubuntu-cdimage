@@ -34,8 +34,14 @@ def main():
         parser.error("need image-type")
     config = Config(IMAGE_TYPE=args[0])
     directory = os.path.join(
-        config.root, "scratch", config.subtree, config.project, config.series,
-        config.image_type, "germinate")
+        config.root,
+        "scratch",
+        config.subtree,
+        config.project,
+        config.series,
+        config.image_type,
+        "germinate",
+    )
     germinate_output = GerminateOutput(config, directory)
     germinate_output.write_tasks()
 

@@ -29,8 +29,9 @@ def main():
 
     parser = OptionParser(
         "%prog PROJECT [COMMAND ARGS...]\n"
-        "Recognised projects:\n" +
-        "\n".join("  %s" % project for project in sorted(project_map)))
+        "Recognised projects:\n"
+        + "\n".join("  %s" % project for project in sorted(project_map))
+    )
     parser.disable_interspersed_args()
     _, args = parser.parse_args()
     if len(args) < 1:

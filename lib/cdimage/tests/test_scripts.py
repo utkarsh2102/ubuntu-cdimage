@@ -33,16 +33,17 @@ class TestScripts(TestCase):
         paths = []
         for dirpath, _, filenames in os.walk("bin"):
             filenames = [
-                n for n in filenames
-                if not n.startswith(".") and not n.endswith("~")]
+                n for n in filenames if not n.startswith(".") and not n.endswith("~")
+            ]
             for filename in filenames:
                 paths.append(os.path.join(dirpath, filename))
         for path in paths:
             subp = subprocess.Popen(
                 [path, "--help"],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                universal_newlines=True)
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+            )
             err = subp.communicate()[1]
             self.assertEqual("", err, "%s --help produced error output" % path)
-            self.assertEqual(
-                0, subp.returncode, "%s --help exited non-zero" % path)
+            self.assertEqual(0, subp.returncode, "%s --help exited non-zero" % path)

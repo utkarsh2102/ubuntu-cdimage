@@ -29,14 +29,13 @@ class AtomicFile:
     def __init__(self, filename):
         self.filename = filename
         if sys.version_info[0] < 3:
-            self.fd = codecs.open(
-                '%s.new' % self.filename, 'w', 'UTF-8', 'replace')
+            self.fd = codecs.open("%s.new" % self.filename, "w", "UTF-8", "replace")
         else:
             # io.open is available from Python 2.6, but we only use it with
             # Python 3 because it raises exceptions when passed bytes.
             self.fd = io.open(
-                '%s.new' % self.filename, mode='w',
-                encoding='UTF-8', errors='replace')
+                "%s.new" % self.filename, mode="w", encoding="UTF-8", errors="replace"
+            )
 
     def __enter__(self):
         return self.fd
@@ -44,7 +43,7 @@ class AtomicFile:
     def __exit__(self, exc_type, unused_exc_value, unused_exc_tb):
         self.fd.close()
         if exc_type is None:
-            os.rename('%s.new' % self.filename, self.filename)
+            os.rename("%s.new" % self.filename, self.filename)
 
     # Not really necessary, but reduces pychecker confusion.
     def write(self, s):

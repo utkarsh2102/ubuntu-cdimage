@@ -54,9 +54,10 @@ def lock_build_image_set(config):
     if config.subtree:
         project = "%s-%s" % (config.subtree.replace("/", "-"), project)
     lock_path = os.path.join(
-        config.root, "etc",
-        ".lock-build-image-set-%s-%s-%s" % (
-            project, full_series, config.image_type))
+        config.root,
+        "etc",
+        ".lock-build-image-set-%s-%s-%s" % (project, full_series, config.image_type),
+    )
     try:
         subprocess.check_call(["lockfile", "-l", "7200", "-r", "0", lock_path])
     except subprocess.CalledProcessError:
@@ -91,8 +92,13 @@ def open_log(config):
         return None
 
     log_path = os.path.join(
-        config.root, "log", config.subtree, config.project, config.full_series,
-        "%s-%s.log" % (config.image_type, config["CDIMAGE_DATE"]))
+        config.root,
+        "log",
+        config.subtree,
+        config.project,
+        config.full_series,
+        "%s-%s.log" % (config.image_type, config["CDIMAGE_DATE"]),
+    )
     osextras.ensuredir(os.path.dirname(log_path))
     log = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666)
     os.dup2(log, 1)
@@ -118,15 +124,15 @@ def want_live_builds(options):
 
 
 def copy_artifact(
-        config,
-        arch: str,
-        publish_type: str,
-        suffix: str,
-        *,
-        target_suffix: None | str = None,
-        ftype: None | str = None,
-        missing_ok: bool = False,
-        ) -> bool:
+    config,
+    arch: str,
+    publish_type: str,
+    suffix: str,
+    *,
+    target_suffix: None | str = None,
+    ftype: None | str = None,
+    missing_ok: bool = False,
+) -> bool:
     """Copy an artifact from the "live" directory to the "output" directory.
 
     The artifact is expected to be named "{arch}.{suffix}" and the file
@@ -140,16 +146,21 @@ def copy_artifact(
     if target_suffix is None:
         target_suffix = suffix
     scratch_dir = os.path.join(
-        config.root, "scratch", config.subtree, config.project,
-        config.full_series, config.image_type)
+        config.root,
+        "scratch",
+        config.subtree,
+        config.project,
+        config.full_series,
+        config.image_type,
+    )
     output_dir = os.path.join(scratch_dir, "debian-cd", arch)
     output_basename = f"{config.series}-{publish_type}-{arch}"
     src = os.path.join(scratch_dir, "live", f"{arch}.{suffix}")
     if os.path.exists(src):
         osextras.ensuredir(output_dir)
         shutil.copy2(
-            src,
-            os.path.join(output_dir, f"{output_basename}.{target_suffix}"))
+            src, os.path.join(output_dir, f"{output_basename}.{target_suffix}")
+        )
     elif not missing_ok:
         raise FileNotFoundError(src)
     else:
@@ -181,32 +192,39 @@ def build_livecd_base(config, builds):
     config.limit_arches_for_builds(builds)
 
     if config.image_type == "daily-preinstalled":
-        if config.project == 'ubuntu-server':
-            publish_type = 'preinstalled-server'
+        if config.project == "ubuntu-server":
+            publish_type = "preinstalled-server"
         else:
-            publish_type = 'preinstalled-desktop'
+            publish_type = "preinstalled-desktop"
         log_marker("Copying images to debian-cd output directory")
         for arch in config.arches:
             for suffix in "img.xz", "disk1.img.xz":
                 if copy_artifact(
-                        config, arch, publish_type, suffix,
-                        target_suffix="raw",
-                        ftype="EXT4 Filesystem Image",
-                        missing_ok=True):
+                    config,
+                    arch,
+                    publish_type,
+                    suffix,
+                    target_suffix="raw",
+                    ftype="EXT4 Filesystem Image",
+                    missing_ok=True,
+                ):
                     break
             else:
                 raise Exception("no rootfs found")
             copy_artifact(config, arch, publish_type, "manifest")
 
-    if (config.project == "ubuntu-mini-iso" and
-            config.image_type == "daily-live"):
+    if config.project == "ubuntu-mini-iso" and config.image_type == "daily-live":
         log_marker("Copying mini iso to debian-cd output directory")
         publish_type = "mini-iso"
         for arch in config.arches:
             copy_artifact(
-                config, arch, publish_type, "iso",
+                config,
+                arch,
+                publish_type,
+                "iso",
                 target_suffix="raw",
-                ftype="ISO 9660 CD-ROM filesystem data")
+                ftype="ISO 9660 CD-ROM filesystem data",
+            )
             # XXX: I don't think we need the manifest for a mini iso
             # copy_artifact(arch, "mini-iso", "manifest")
 
@@ -215,28 +233,32 @@ def build_livecd_base(config, builds):
         publish_type = "wsl"
         for arch in config.arches:
             copy_artifact(
-                config, arch, publish_type, "wsl",
-                target_suffix="raw",
-                ftype="WSL")
+                config, arch, publish_type, "wsl", target_suffix="raw", ftype="WSL"
+            )
             copy_artifact(config, arch, publish_type, "manifest")
 
-    if (config.project in ("ubuntu-core", "ubuntu-appliance") and
-            config.image_type == "daily-live"):
+    if (
+        config.project in ("ubuntu-core", "ubuntu-appliance")
+        and config.image_type == "daily-live"
+    ):
         log_marker("Copying images to debian-cd output directory")
         publish_type = "live-core"
         for arch in config.arches:
             copy_artifact(
-                config, arch, publish_type, "img.xz",
+                config,
+                arch,
+                publish_type,
+                "img.xz",
                 target_suffix="raw",
-                ftype="Disk Image")
+                ftype="Disk Image",
+            )
             copy_artifact(config, arch, publish_type, "manifest")
             copy_artifact(config, arch, publish_type, "model-assertion")
-            copy_artifact(
-                config, arch, publish_type, "qcow2", missing_ok=True)
+            copy_artifact(config, arch, publish_type, "qcow2", missing_ok=True)
 
-    if (config.project == "ubuntu-base" or
-        (config.project == "ubuntu-core" and
-         config.subproject == "system-image")):
+    if config.project == "ubuntu-base" or (
+        config.project == "ubuntu-core" and config.subproject == "system-image"
+    ):
         log_marker("Copying images to debian-cd output directory")
         if config.project == "ubuntu-core":
             publish_type = "preinstalled-core"
@@ -244,32 +266,39 @@ def build_livecd_base(config, builds):
             publish_type = "base"
         for arch in config.arches:
             found = copy_artifact(
-                config, arch, publish_type, "rootfs.tar.gz",
+                config,
+                arch,
+                publish_type,
+                "rootfs.tar.gz",
                 target_suffix="raw",
                 ftype="tar archive",
-                missing_ok=True)
+                missing_ok=True,
+            )
             if not found:
                 continue
             copy_artifact(config, arch, publish_type, "manifest")
             if config.project != "ubuntu-core":
                 continue
-            for dev in ("azure.device", "device", "raspi2.device",
-                        "plano.device"):
+            for dev in ("azure.device", "device", "raspi2.device", "plano.device"):
                 copy_artifact(
-                    config, arch, publish_type, "%s.tar.gz" % (dev,),
-                    missing_ok=True)
-            for snaptype in ("os", "kernel", "raspi2.kernel",
-                             "dragonboard.kernel"):
+                    config, arch, publish_type, "%s.tar.gz" % (dev,), missing_ok=True
+                )
+            for snaptype in ("os", "kernel", "raspi2.kernel", "dragonboard.kernel"):
                 copy_artifact(
-                    config, arch, publish_type, "%s.snap" % (snaptype,),
-                    missing_ok=True)
+                    config, arch, publish_type, "%s.snap" % (snaptype,), missing_ok=True
+                )
 
 
 def copy_netboot_tarballs(config):
     for arch in config.arches:
         copy_artifact(
-            config, arch, "netboot", "netboot.tar.gz",
-            target_suffix="tar.gz", missing_ok=True)
+            config,
+            arch,
+            "netboot",
+            "netboot.tar.gz",
+            target_suffix="tar.gz",
+            missing_ok=True,
+        )
 
 
 def configure_splash(config):
@@ -304,8 +333,13 @@ def run_debian_cd(config, apt_state_mgr):
 def fix_permissions(config):
     """Kludge to work around permission-handling problems elsewhere."""
     scratch_dir = os.path.join(
-        config.root, "scratch", config.subtree, config.project,
-        config.full_series, config.image_type)
+        config.root,
+        "scratch",
+        config.subtree,
+        config.project,
+        config.full_series,
+        config.image_type,
+    )
     if not os.path.isdir(scratch_dir):
         return
 
@@ -360,11 +394,19 @@ def notify_failure(config, log_path):
         else:
             body = open(log_path)
         send_mail(
-            "CD image %s%s%s/%s/%s failed to build on %s" % (
-                ("(built by %s) " % config["SUDO_USER"]
-                 if config["SUDO_USER"] else ""),
-                subtree, project, series, image_type, date),
-            "build-image-set", recipients, body)
+            "CD image %s%s%s/%s/%s failed to build on %s"
+            % (
+                ("(built by %s) " % config["SUDO_USER"] if config["SUDO_USER"] else ""),
+                subtree,
+                project,
+                series,
+                image_type,
+                date,
+            ),
+            "build-image-set",
+            recipients,
+            body,
+        )
     finally:
         if log_path is not None:
             body.close()
@@ -373,8 +415,12 @@ def notify_failure(config, log_path):
 def is_live_fs_only(config):
     live_fs_only = False
     if config.project in (
-            "livecd-base", "ubuntu-base", "ubuntu-core",
-            "ubuntu-appliance", "ubuntu-wsl"):
+        "livecd-base",
+        "ubuntu-base",
+        "ubuntu-core",
+        "ubuntu-appliance",
+        "ubuntu-wsl",
+    ):
         live_fs_only = True
     elif config.image_type == "daily-preinstalled":
         live_fs_only = True
@@ -410,8 +456,7 @@ def build_image_set_locked(config, options):
             apt_state_mgr = AptStateManager(config)
             apt_state_mgr.setup()
 
-            if config.project in (
-                    "ubuntu-core-desktop", "ubuntu-core-installer"):
+            if config.project in ("ubuntu-core-desktop", "ubuntu-core-installer"):
                 config["GENERATE_POOL"] = "0"
             else:
                 log_marker("Germinating")
@@ -477,6 +522,7 @@ def handle_signals():
     These need to turn into Python exceptions so that we have an opportunity
     to release locks.
     """
+
     def handler(signum, frame):
         raise SignalExit(signum)
 

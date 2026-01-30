@@ -31,7 +31,8 @@ def main():
     parser = OptionParser(
         "%prog DIRECTORY PREFIX [STATUS]\n"
         "STATUS=daily for daily builds, release for release builds; "
-        "default is release.")
+        "default is release."
+    )
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need directory")

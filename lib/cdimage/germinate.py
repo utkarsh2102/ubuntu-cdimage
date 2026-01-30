@@ -44,14 +44,20 @@ class Germination:
             return path
         else:
             raise GerminateNotInstalled(
-                "Please check out lp:germinate in %s." %
-                os.path.join(self.config.root, "germinate"))
+                "Please check out lp:germinate in %s."
+                % os.path.join(self.config.root, "germinate")
+            )
 
     def output_dir(self):
         return os.path.join(
-            self.config.root, "scratch", self.config.subtree,
-            self.config.project, self.config.full_series,
-            self.config.image_type, "germinate")
+            self.config.root,
+            "scratch",
+            self.config.subtree,
+            self.config.project,
+            self.config.full_series,
+            self.config.image_type,
+            "germinate",
+        )
 
     def seed_sources(self):
         project = self.config.project
@@ -108,34 +114,41 @@ class Germination:
 
         arch_output_dir = os.path.join(self.output_dir(), arch)
         osextras.mkemptydir(arch_output_dir)
-        if (self.config["GERMINATE_HINTS"] and
-                os.path.isfile(self.config["GERMINATE_HINTS"])):
+        if self.config["GERMINATE_HINTS"] and os.path.isfile(
+            self.config["GERMINATE_HINTS"]
+        ):
             shutil.copy2(
-                self.config["GERMINATE_HINTS"],
-                os.path.join(arch_output_dir, "hints"))
+                self.config["GERMINATE_HINTS"], os.path.join(arch_output_dir, "hints")
+            )
         command = [
             self.germinate_path,
-            "--seed-source", ",".join(self.seed_sources()),
-            "--seed-dist", self.seed_dist(),
-            "--arch", cpuarch,
+            "--seed-source",
+            ",".join(self.seed_sources()),
+            "--seed-dist",
+            self.seed_dist(),
+            "--arch",
+            cpuarch,
             "--no-rdepends",
-            "--apt-config", self.apt_state_mgr.apt_conf_for_arch(cpuarch),
+            "--apt-config",
+            self.apt_state_mgr.apt_conf_for_arch(cpuarch),
         ]
         if self.use_vcs:
             command.append("--vcs=git")
         proxy_check_call(
-            self.config, "germinate", command, cwd=arch_output_dir,
-            env=dict(os.environ, GIT_TERMINAL_PROMPT="0"))
+            self.config,
+            "germinate",
+            command,
+            cwd=arch_output_dir,
+            env=dict(os.environ, GIT_TERMINAL_PROMPT="0"),
+        )
         output_structure = os.path.join(self.output_dir(), "STRUCTURE")
-        shutil.copy2(
-            os.path.join(arch_output_dir, "structure"), output_structure)
+        shutil.copy2(os.path.join(arch_output_dir, "structure"), output_structure)
 
     def run(self):
         osextras.mkemptydir(self.output_dir())
 
         for arch in self.config.arches:
-            logger.info(
-                "Germinating for %s/%s ..." % (self.config.series, arch))
+            logger.info("Germinating for %s/%s ..." % (self.config.series, arch))
             self.germinate_arch(arch)
 
     def output(self):
@@ -183,9 +196,14 @@ class GerminateOutput:
 
     def tasks_output_dir(self):
         return os.path.join(
-            self.config.root, "scratch", self.config.subtree,
-            self.config.project, self.config.full_series,
-            self.config.image_type, "tasks")
+            self.config.root,
+            "scratch",
+            self.config.subtree,
+            self.config.project,
+            self.config.full_series,
+            self.config.image_type,
+            "tasks",
+        )
 
     def write_tasks(self):
         output_dir = self.tasks_output_dir()
@@ -219,9 +237,14 @@ class GerminateOutput:
         tasks_dir = self.tasks_output_dir()
         previous_tasks_dir = "%s-previous" % tasks_dir
         debian_cd_tasks_dir = os.path.join(
-            self.config.root, "debian-cd", "tasks", "auto",
-            self.config.image_type, self.config.project,
-            self.config.full_series)
+            self.config.root,
+            "debian-cd",
+            "tasks",
+            "auto",
+            self.config.image_type,
+            self.config.project,
+            self.config.full_series,
+        )
 
         self.diff_tasks()
 
@@ -229,8 +252,8 @@ class GerminateOutput:
         osextras.mkemptydir(previous_tasks_dir)
         for entry in os.listdir(tasks_dir):
             shutil.copy2(
-                os.path.join(tasks_dir, entry),
-                os.path.join(debian_cd_tasks_dir, entry))
+                os.path.join(tasks_dir, entry), os.path.join(debian_cd_tasks_dir, entry)
+            )
             shutil.copy2(
-                os.path.join(tasks_dir, entry),
-                os.path.join(previous_tasks_dir, entry))
+                os.path.join(tasks_dir, entry), os.path.join(previous_tasks_dir, entry)
+            )

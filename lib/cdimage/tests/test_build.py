@@ -64,8 +64,7 @@ class TestBuildLiveCDBase(TestCase):
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
         self.config["CDIMAGE_LIVE"] = "1"
-        with mkfile(os.path.join(
-                self.temp_dir, "production", "livefs-builders")) as f:
+        with mkfile(os.path.join(self.temp_dir, "production", "livefs-builders")) as f:
             print("* * * mock-builder", file=f)
         mock_gmtime = mock.patch("time.gmtime", return_value=time.gmtime(0))
         mock_gmtime.start()
@@ -99,25 +98,27 @@ class TestBuildLiveCDBase(TestCase):
         build_livecd_base(
             self.config,
             mock_builds_for_config(
-                self.config,
-                artifact_names=['squashfs', 'manifest']))
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-        ])
+                self.config, artifact_names=["squashfs", "manifest"]
+            ),
+        )
+        self.assertLogEqual(
+            [
+                "===== Downloading live filesystem images =====",
+                self.epoch_date,
+            ]
+        )
         live_dir = os.path.join(
-            self.temp_dir, "scratch", "livecd-base", "bionic", "livecd-base",
-            "live")
+            self.temp_dir, "scratch", "livecd-base", "bionic", "livecd-base", "live"
+        )
         self.assertTrue(os.path.isdir(live_dir))
         self.assertCountEqual(
-            ["amd64.manifest", "amd64.squashfs"],
-            os.listdir(live_dir))
+            ["amd64.manifest", "amd64.squashfs"], os.listdir(live_dir)
+        )
 
     @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_base(self, mock_fetch):
         def fetch_side_effect(config, source, target):
-            if (target.endswith(".manifest") or
-                    target.endswith(".rootfs.tar.gz")):
+            if target.endswith(".manifest") or target.endswith(".rootfs.tar.gz"):
                 touch(target)
             else:
                 raise osextras.FetchError
@@ -132,31 +133,42 @@ class TestBuildLiveCDBase(TestCase):
             self.config,
             mock_builds_for_config(
                 self.config,
-                artifact_names=['manifest', 'rootfs.tar.gz'],
-                ))
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-            "===== Copying images to debian-cd output directory =====",
-            self.epoch_date,
-        ])
+                artifact_names=["manifest", "rootfs.tar.gz"],
+            ),
+        )
+        self.assertLogEqual(
+            [
+                "===== Downloading live filesystem images =====",
+                self.epoch_date,
+                "===== Copying images to debian-cd output directory =====",
+                self.epoch_date,
+            ]
+        )
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-base", "bionic", "daily",
-            "debian-cd", "amd64")
+            self.temp_dir,
+            "scratch",
+            "ubuntu-base",
+            "bionic",
+            "daily",
+            "debian-cd",
+            "amd64",
+        )
         self.assertTrue(os.path.isdir(output_dir))
-        self.assertCountEqual([
-            "bionic-base-amd64.manifest",
-            "bionic-base-amd64.raw",
-            "bionic-base-amd64.type",
-        ], os.listdir(output_dir))
+        self.assertCountEqual(
+            [
+                "bionic-base-amd64.manifest",
+                "bionic-base-amd64.raw",
+                "bionic-base-amd64.type",
+            ],
+            os.listdir(output_dir),
+        )
         with open(os.path.join(output_dir, "bionic-base-amd64.type")) as f:
             self.assertEqual("tar archive\n", f.read())
 
     @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_server_preinstalled_raspi2(self, mock_fetch):
         def fetch_side_effect(config, source, target):
-            if (target.endswith(".manifest") or
-                    target.endswith(".disk1.img.xz")):
+            if target.endswith(".manifest") or target.endswith(".disk1.img.xz"):
                 touch(target)
             else:
                 raise osextras.FetchError
@@ -172,30 +184,44 @@ class TestBuildLiveCDBase(TestCase):
             self.config,
             mock_builds_for_config(
                 self.config,
-                ['disk1.img.xz', 'manifest'],
-                ))
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-            "===== Copying images to debian-cd output directory =====",
-            self.epoch_date,
-        ])
+                ["disk1.img.xz", "manifest"],
+            ),
+        )
+        self.assertLogEqual(
+            [
+                "===== Downloading live filesystem images =====",
+                self.epoch_date,
+                "===== Copying images to debian-cd output directory =====",
+                self.epoch_date,
+            ]
+        )
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-server", "bionic",
-            "daily-preinstalled", "debian-cd", "armhf+raspi2")
+            self.temp_dir,
+            "scratch",
+            "ubuntu-server",
+            "bionic",
+            "daily-preinstalled",
+            "debian-cd",
+            "armhf+raspi2",
+        )
         self.assertTrue(os.path.isdir(output_dir))
-        self.assertCountEqual([
-            "bionic-preinstalled-server-armhf+raspi2.manifest",
-            "bionic-preinstalled-server-armhf+raspi2.raw",
-            "bionic-preinstalled-server-armhf+raspi2.type",
-        ], os.listdir(output_dir))
+        self.assertCountEqual(
+            [
+                "bionic-preinstalled-server-armhf+raspi2.manifest",
+                "bionic-preinstalled-server-armhf+raspi2.raw",
+                "bionic-preinstalled-server-armhf+raspi2.type",
+            ],
+            os.listdir(output_dir),
+        )
 
     @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_core_raspi3(self, mock_fetch):
         def fetch_side_effect(config, source, target):
-            if (target.endswith(".model-assertion") or
-                    target.endswith(".manifest") or
-                    target.endswith(".img.xz")):
+            if (
+                target.endswith(".model-assertion")
+                or target.endswith(".manifest")
+                or target.endswith(".img.xz")
+            ):
                 touch(target)
             else:
                 raise osextras.FetchError
@@ -211,30 +237,38 @@ class TestBuildLiveCDBase(TestCase):
             self.config,
             mock_builds_for_config(
                 self.config,
-                ['img.xz', 'model-assertion', 'manifest'],
-                ))
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-            "===== Copying images to debian-cd output directory =====",
-            self.epoch_date,
-        ])
+                ["img.xz", "model-assertion", "manifest"],
+            ),
+        )
+        self.assertLogEqual(
+            [
+                "===== Downloading live filesystem images =====",
+                self.epoch_date,
+                "===== Copying images to debian-cd output directory =====",
+                self.epoch_date,
+            ]
+        )
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-core", "bionic",
-            "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu-core", "bionic", "daily-live", "live"
+        )
         self.assertTrue(os.path.isdir(output_dir))
-        self.assertCountEqual([
-            "armhf+raspi3.img.xz",
-            "armhf+raspi3.model-assertion",
-            "armhf+raspi3.manifest",
-        ], os.listdir(output_dir))
+        self.assertCountEqual(
+            [
+                "armhf+raspi3.img.xz",
+                "armhf+raspi3.model-assertion",
+                "armhf+raspi3.manifest",
+            ],
+            os.listdir(output_dir),
+        )
 
     @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_appliance_raspi(self, mock_fetch):
         def fetch_side_effect(config, source, target):
-            if (target.endswith(".model-assertion") or
-                    target.endswith(".manifest") or
-                    target.endswith(".img.xz")):
+            if (
+                target.endswith(".model-assertion")
+                or target.endswith(".manifest")
+                or target.endswith(".img.xz")
+            ):
                 touch(target)
             else:
                 raise osextras.FetchError
@@ -250,31 +284,39 @@ class TestBuildLiveCDBase(TestCase):
             self.config,
             mock_builds_for_config(
                 self.config,
-                ['img.xz', 'model-assertion', 'manifest'],
-                ))
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-            "===== Copying images to debian-cd output directory =====",
-            self.epoch_date,
-        ])
+                ["img.xz", "model-assertion", "manifest"],
+            ),
+        )
+        self.assertLogEqual(
+            [
+                "===== Downloading live filesystem images =====",
+                self.epoch_date,
+                "===== Copying images to debian-cd output directory =====",
+                self.epoch_date,
+            ]
+        )
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-appliance", "bionic",
-            "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu-appliance", "bionic", "daily-live", "live"
+        )
         self.assertTrue(os.path.isdir(output_dir))
-        self.assertCountEqual([
-            "armhf+raspi.img.xz",
-            "armhf+raspi.model-assertion",
-            "armhf+raspi.manifest",
-        ], os.listdir(output_dir))
+        self.assertCountEqual(
+            [
+                "armhf+raspi.img.xz",
+                "armhf+raspi.model-assertion",
+                "armhf+raspi.manifest",
+            ],
+            os.listdir(output_dir),
+        )
 
     @mock.patch("cdimage.osextras.fetch")
     def test_ubuntu_appliance_amd64(self, mock_fetch):
         def fetch_side_effect(config, source, target):
-            if (target.endswith(".model-assertion") or
-                    target.endswith(".manifest") or
-                    target.endswith(".img.xz") or
-                    target.endswith(".qcow2")):
+            if (
+                target.endswith(".model-assertion")
+                or target.endswith(".manifest")
+                or target.endswith(".img.xz")
+                or target.endswith(".qcow2")
+            ):
                 touch(target)
             else:
                 raise osextras.FetchError
@@ -290,24 +332,30 @@ class TestBuildLiveCDBase(TestCase):
             self.config,
             mock_builds_for_config(
                 self.config,
-                ['img.xz', 'model-assertion', 'manifest', 'qcow2'],
-                ))
-        self.assertLogEqual([
-            "===== Downloading live filesystem images =====",
-            self.epoch_date,
-            "===== Copying images to debian-cd output directory =====",
-            self.epoch_date,
-        ])
+                ["img.xz", "model-assertion", "manifest", "qcow2"],
+            ),
+        )
+        self.assertLogEqual(
+            [
+                "===== Downloading live filesystem images =====",
+                self.epoch_date,
+                "===== Copying images to debian-cd output directory =====",
+                self.epoch_date,
+            ]
+        )
         output_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu-appliance", "bionic",
-            "daily-live", "live")
+            self.temp_dir, "scratch", "ubuntu-appliance", "bionic", "daily-live", "live"
+        )
         self.assertTrue(os.path.isdir(output_dir))
-        self.assertCountEqual([
-            "amd64.img.xz",
-            "amd64.model-assertion",
-            "amd64.manifest",
-            "amd64.qcow2",
-        ], os.listdir(output_dir))
+        self.assertCountEqual(
+            [
+                "amd64.img.xz",
+                "amd64.model-assertion",
+                "amd64.manifest",
+                "amd64.qcow2",
+            ],
+            os.listdir(output_dir),
+        )
 
 
 class TestBuildImageSet(TestCase):
@@ -316,7 +364,8 @@ class TestBuildImageSet(TestCase):
         self.config = Config(read=False)
         self.config.root = self.use_temp_dir()
         self.expected_sync_lock = os.path.join(
-            self.temp_dir, "etc", ".lock-archive-sync")
+            self.temp_dir, "etc", ".lock-archive-sync"
+        )
         mock_gmtime = mock.patch("time.gmtime", return_value=time.gmtime(0))
         mock_gmtime.start()
         self.addCleanup(mock_gmtime.stop)
@@ -329,29 +378,33 @@ class TestBuildImageSet(TestCase):
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         expected_lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily"
+        )
         self.assertFalse(os.path.exists(expected_lock_path))
         with lock_build_image_set(self.config):
-            mock_check_call.assert_called_once_with([
-                "lockfile", "-l", "7200", "-r", "0", expected_lock_path])
+            mock_check_call.assert_called_once_with(
+                ["lockfile", "-l", "7200", "-r", "0", expected_lock_path]
+            )
             self.assertEqual(0, mock_unlink_force.call_count)
         mock_unlink_force.assert_called_once_with(expected_lock_path)
 
     @mock.patch("subprocess.check_call")
     @mock.patch("cdimage.osextras.unlink_force")
-    def test_lock_build_image_set_subtree(
-            self, mock_unlink_force, mock_check_call):
+    def test_lock_build_image_set_subtree(self, mock_unlink_force, mock_check_call):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         self.config.subtree = "test/subtree"
         expected_lock_path = os.path.join(
-            self.temp_dir, "etc",
-            ".lock-build-image-set-test-subtree-ubuntu-bionic-daily")
+            self.temp_dir,
+            "etc",
+            ".lock-build-image-set-test-subtree-ubuntu-bionic-daily",
+        )
         self.assertFalse(os.path.exists(expected_lock_path))
         with lock_build_image_set(self.config):
-            mock_check_call.assert_called_once_with([
-                "lockfile", "-l", "7200", "-r", "0", expected_lock_path])
+            mock_check_call.assert_called_once_with(
+                ["lockfile", "-l", "7200", "-r", "0", expected_lock_path]
+            )
             self.assertEqual(0, mock_unlink_force.call_count)
         mock_unlink_force.assert_called_once_with(expected_lock_path)
 
@@ -404,14 +457,18 @@ class TestBuildImageSet(TestCase):
         else:  # parent
             self.wait_for_pid(pid, 0)
             expected_log_path = os.path.join(
-                self.temp_dir, "log", "ubuntu", "bionic", "daily-20130224.log")
+                self.temp_dir, "log", "ubuntu", "bionic", "daily-20130224.log"
+            )
             self.assertTrue(os.path.exists(expected_log_path))
             with open(expected_log_path) as log:
-                self.assertEqual([
-                    "Log path: %s" % expected_log_path,
-                    "VERBOSE: 3",
-                    "Standard error",
-                ], log.read().splitlines())
+                self.assertEqual(
+                    [
+                        "Log path: %s" % expected_log_path,
+                        "VERBOSE: 3",
+                        "Standard error",
+                    ],
+                    log.read().splitlines(),
+                )
 
     def test_log_marker(self):
         self.capture_logging()
@@ -445,9 +502,9 @@ class TestBuildImageSet(TestCase):
                 config["PROJECT"] = "kubuntu"
                 config["DIST"] = "bionic"
                 path = os.path.join(
-                    data_dir, "%s.%s" % (
-                        "kubuntu" if project_specific else "splash",
-                        extension))
+                    data_dir,
+                    "%s.%s" % ("kubuntu" if project_specific else "splash", extension),
+                )
                 touch(path)
                 configure_splash(config)
                 self.assertEqual(path, config[key])
@@ -460,13 +517,16 @@ class TestBuildImageSet(TestCase):
         self.config.set_default_cpuarches()
         self.capture_logging()
         run_debian_cd(self.config, StubAptStateManager())
-        self.assertLogEqual([
-            "===== Building Ubuntu daily CDs =====",
-            self.epoch_date,
-        ])
+        self.assertLogEqual(
+            [
+                "===== Building Ubuntu daily CDs =====",
+                self.epoch_date,
+            ]
+        )
         expected_cwd = os.path.join(self.temp_dir, "debian-cd")
         mock_call.assert_called_once_with(
-            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
+            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY
+        )
         env = mock_call.call_args.kwargs["env"]
         self.assertEqual("amd64/apt.conf", env["APT_CONFIG_amd64"])
         self.assertEqual("arm64/apt.conf", env["APT_CONFIG_arm64"])
@@ -480,13 +540,16 @@ class TestBuildImageSet(TestCase):
         self.config.set_default_cpuarches()
         self.capture_logging()
         run_debian_cd(self.config, StubAptStateManager())
-        self.assertLogEqual([
-            "===== Building Ubuntu Core Desktop daily CDs =====",
-            self.epoch_date,
-        ])
+        self.assertLogEqual(
+            [
+                "===== Building Ubuntu Core Desktop daily CDs =====",
+                self.epoch_date,
+            ]
+        )
         expected_cwd = os.path.join(self.temp_dir, "debian-cd")
         mock_call.assert_called_once_with(
-            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
+            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY
+        )
         env = mock_call.call_args.kwargs["env"]
         self.assertEqual("22", env["CDIMAGE_CORE_SERIES"])
 
@@ -496,32 +559,40 @@ class TestBuildImageSet(TestCase):
         # get it in our environment, since debian-cd won't read etc/config
         # for itself.
         with mkfile(os.path.join(self.temp_dir, "etc", "config")) as f:
-            print(dedent("""\
+            print(
+                dedent(
+                    """\
                 #! /bin/sh
                 PROJECT=ubuntu
                 CAPPROJECT=Ubuntu
                 ARCHES="amd64 arm64"
-                """), file=f)
+                """
+                ),
+                file=f,
+            )
         os.environ["CDIMAGE_ROOT"] = self.temp_dir
         config = Config()
         self.capture_logging()
         run_debian_cd(config, StubAptStateManager())
-        self.assertLogEqual([
-            "===== Building Ubuntu daily CDs =====",
-            self.epoch_date,
-        ])
+        self.assertLogEqual(
+            [
+                "===== Building Ubuntu daily CDs =====",
+                self.epoch_date,
+            ]
+        )
         expected_cwd = os.path.join(self.temp_dir, "debian-cd")
         mock_call.assert_called_once_with(
-            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY)
-        self.assertEqual(
-            "amd64 arm64", mock_call.call_args[1]["env"]["ARCHES"])
+            ["./build_all.sh"], cwd=expected_cwd, env=mock.ANY
+        )
+        self.assertEqual("amd64 arm64", mock_call.call_args[1]["env"]["ARCHES"])
 
     def test_fix_permissions(self):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         scratch_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "bionic", "daily")
+            self.temp_dir, "scratch", "ubuntu", "bionic", "daily"
+        )
         subdir = os.path.join(scratch_dir, "x")
         dir_one = os.path.join(subdir, "1")
         file_two = os.path.join(subdir, "2")
@@ -571,7 +642,10 @@ class TestBuildImageSet(TestCase):
         notify_failure(self.config, None)
         mock_send_mail.assert_called_once_with(
             "CD image ubuntu/bionic/daily failed to build on 20130225",
-            "build-image-set", ["foo@example.org"], "")
+            "build-image-set",
+            ["foo@example.org"],
+            "",
+        )
 
     @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_log(self, mock_send_mail):
@@ -589,11 +663,15 @@ class TestBuildImageSet(TestCase):
         notify_failure(self.config, log_path)
         mock_send_mail.assert_called_once_with(
             "CD image test/ubuntu/bionic/daily failed to build on 20130225",
-            "build-image-set", ["foo@example.org"], mock.ANY)
+            "build-image-set",
+            ["foo@example.org"],
+            mock.ANY,
+        )
         self.assertEqual(log_path, mock_send_mail.call_args[0][3].name)
 
-    def send_mail_to_file(self, path, subject, generator, recipients, body,
-                          dry_run=False):
+    def send_mail_to_file(
+        self, path, subject, generator, recipients, body, dry_run=False
+    ):
         with mkfile(path) as f:
             print("To: %s" % ", ".join(recipients), file=f)
             print("Subject: %s" % subject, file=f)
@@ -611,7 +689,8 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.build.is_live_fs_only")
     @mock.patch("cdimage.build.send_mail")
     def test_build_image_set_locked_notifies_on_failure(
-            self, mock_send_mail, mock_livefs_only, *args):
+        self, mock_send_mail, mock_livefs_only, *args
+    ):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
@@ -620,7 +699,8 @@ class TestBuildImageSet(TestCase):
         with mkfile(path, "w") as notify_addresses:
             print("ALL\tfoo@example.org", file=notify_addresses)
         log_path = os.path.join(
-            self.temp_dir, "log", "ubuntu", "bionic", "daily-20130225.log")
+            self.temp_dir, "log", "ubuntu", "bionic", "daily-20130225.log"
+        )
         os.makedirs(os.path.join(self.temp_dir, "etc"))
 
         def force_failure(*args):
@@ -629,7 +709,8 @@ class TestBuildImageSet(TestCase):
 
         mock_livefs_only.side_effect = force_failure
         mock_send_mail.side_effect = partial(
-            self.send_mail_to_file, os.path.join(self.temp_dir, "mail"))
+            self.send_mail_to_file, os.path.join(self.temp_dir, "mail")
+        )
         pid = os.fork()
         if pid == 0:  # child
             original_stderr = os.dup(sys.stderr.fileno())
@@ -651,10 +732,8 @@ class TestBuildImageSet(TestCase):
         else:  # parent
             self.wait_for_pid(pid, 0)
             with open(log_path) as log:
-                self.assertEqual(
-                    "Forced image build failure\n", log.readline())
-                self.assertEqual(
-                    "Traceback (most recent call last):\n", log.readline())
+                self.assertEqual("Forced image build failure\n", log.readline())
+                self.assertEqual("Traceback (most recent call last):\n", log.readline())
                 self.assertIn("Exception: Artificial exception", log.read())
 
     @mock.patch("cdimage.tree.DailyTreePublisher.refresh_simplestreams")
@@ -665,9 +744,15 @@ class TestBuildImageSet(TestCase):
     @mock.patch("cdimage.tree.DailyTreePublisher.publish")
     @mock.patch("cdimage.tree.DailyTreePublisher.purge")
     def test_build_image_set_locked(
-            self, mock_purge, mock_publish, mock_update_tasks,
-            mock_write_tasks, mock_tracker_set_rebuild_status,
-            mock_call, mock_simple):
+        self,
+        mock_purge,
+        mock_publish,
+        mock_update_tasks,
+        mock_write_tasks,
+        mock_tracker_set_rebuild_status,
+        mock_call,
+        mock_simple,
+    ):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "bionic"
@@ -676,15 +761,12 @@ class TestBuildImageSet(TestCase):
         self.config["CPUARCHES"] = "amd64 i386"
 
         os.makedirs(os.path.join(self.temp_dir, "etc"))
-        germinate_path = os.path.join(
-            self.temp_dir, "germinate", "bin", "germinate")
+        germinate_path = os.path.join(self.temp_dir, "germinate", "bin", "germinate")
         touch(germinate_path)
         os.chmod(germinate_path, 0o755)
-        daily_dir = os.path.join(
-            self.temp_dir, "scratch", "ubuntu", "bionic", "daily")
+        daily_dir = os.path.join(self.temp_dir, "scratch", "ubuntu", "bionic", "daily")
         germinate_output = os.path.join(daily_dir, "germinate")
-        apt_config = os.path.join(
-            daily_dir, "apt-state", "{ARCH}", "base.conf")
+        apt_config = os.path.join(daily_dir, "apt-state", "{ARCH}", "base.conf")
         log_dir = os.path.join(self.temp_dir, "log", "ubuntu", "bionic")
 
         def side_effect(command, *args, **kwargs):
@@ -703,26 +785,36 @@ class TestBuildImageSet(TestCase):
                 debian_cd_dir = os.path.join(self.temp_dir, "debian-cd")
 
                 def germinate_command(arch):
-                    return mock.call([
-                        germinate_path,
-                        "--seed-source", mock.ANY,
-                        "--seed-dist", "ubuntu.bionic",
-                        "--arch", arch,
-                        "--no-rdepends",
-                        "--apt-config", apt_config.replace("{ARCH}", arch),
-                        "--vcs=git",
-                    ], cwd=os.path.join(germinate_output, arch), env=mock.ANY)
+                    return mock.call(
+                        [
+                            germinate_path,
+                            "--seed-source",
+                            mock.ANY,
+                            "--seed-dist",
+                            "ubuntu.bionic",
+                            "--arch",
+                            arch,
+                            "--no-rdepends",
+                            "--apt-config",
+                            apt_config.replace("{ARCH}", arch),
+                            "--vcs=git",
+                        ],
+                        cwd=os.path.join(germinate_output, arch),
+                        env=mock.ANY,
+                    )
 
-                mock_call.assert_has_calls([
-                    mock.call(["apt-get", "update"], env=mock.ANY),
-                    mock.call(["apt-get", "update"], env=mock.ANY),
-                    germinate_command("amd64"),
-                    germinate_command("i386"),
-                    mock.call(
-                        ["./build_all.sh"], cwd=debian_cd_dir, env=mock.ANY),
-                ])
+                mock_call.assert_has_calls(
+                    [
+                        mock.call(["apt-get", "update"], env=mock.ANY),
+                        mock.call(["apt-get", "update"], env=mock.ANY),
+                        germinate_command("amd64"),
+                        germinate_command("i386"),
+                        mock.call(["./build_all.sh"], cwd=debian_cd_dir, env=mock.ANY),
+                    ]
+                )
                 mock_tracker_set_rebuild_status.assert_called_once_with(
-                    self.config, [0, 1], 2)
+                    self.config, [0, 1], 2
+                )
                 mock_write_tasks.assert_called_once_with()
                 mock_update_tasks.assert_called_once_with(date)
                 mock_publish.assert_called_once_with(date)
@@ -748,7 +840,9 @@ class TestBuildImageSet(TestCase):
             self.assertEqual(1, len(log_entries))
             log_path = os.path.join(log_dir, log_entries[0])
             with open(log_path) as log:
-                self.assertEqual(dedent("""\
+                self.assertEqual(
+                    dedent(
+                        """\
                     Setting up apt state for bionic/amd64 ...
                     Setting up apt state for bionic/i386 ...
                     ===== Germinating =====
@@ -771,19 +865,21 @@ class TestBuildImageSet(TestCase):
                     DATE
                     ===== Finished =====
                     DATE
-                    """.replace("DATE", self.epoch_date)), log.read())
+                    """.replace("DATE", self.epoch_date)
+                    ),
+                    log.read(),
+                )
 
-    @mock.patch(
-        "cdimage.build.build_image_set_locked", side_effect=KeyboardInterrupt)
+    @mock.patch("cdimage.build.build_image_set_locked", side_effect=KeyboardInterrupt)
     def test_build_image_set_interrupted(self, *args):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily"
+        )
         os.makedirs(os.path.dirname(lock_path))
-        self.assertRaises(
-            KeyboardInterrupt, build_image_set, self.config, None)
+        self.assertRaises(KeyboardInterrupt, build_image_set, self.config, None)
         self.assertFalse(os.path.exists(lock_path))
 
     @mock.patch("cdimage.build.build_image_set_locked")
@@ -792,7 +888,8 @@ class TestBuildImageSet(TestCase):
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily"
+        )
         os.makedirs(os.path.dirname(lock_path))
 
         def side_effect(config, options):
@@ -812,7 +909,8 @@ class TestBuildImageSet(TestCase):
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
         lock_path = os.path.join(
-            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily")
+            self.temp_dir, "etc", ".lock-build-image-set-ubuntu-bionic-daily"
+        )
         os.makedirs(os.path.dirname(lock_path))
 
         def side_effect(config, options):

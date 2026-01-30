@@ -31,13 +31,26 @@ from cdimage.osextras import mkemptydir
 def _check_installable_dirs(config):
     britney = os.path.join(config.root, "britney")
     image_top = os.path.join(
-        config.root, "scratch", config.subtree, config.project,
-        config.full_series, config.image_type, "tmp")
+        config.root,
+        "scratch",
+        config.subtree,
+        config.project,
+        config.full_series,
+        config.image_type,
+        "tmp",
+    )
     live = os.path.join(
-        config.root, "scratch", config.subtree, config.project,
-        config.full_series, config.image_type, "live")
+        config.root,
+        "scratch",
+        config.subtree,
+        config.project,
+        config.full_series,
+        config.image_type,
+        "live",
+    )
     data = os.path.join(
-        britney, "data", config.project, config.image_type, config.full_series)
+        britney, "data", config.project, config.image_type, config.full_series
+    )
     return britney, image_top, live, data
 
 
@@ -62,9 +75,15 @@ def _prepare_check_installable(config):
         with open(packages, "wb") as packages_file:
             for component in "main", "restricted", "universe", "multiverse":
                 packages_gz = os.path.join(
-                    image_top, "%s-%s" % (config.series, fullarch), "CD1",
-                    "dists", config.series, component, "binary-%s" % arch,
-                    "Packages.gz")
+                    image_top,
+                    "%s-%s" % (config.series, fullarch),
+                    "CD1",
+                    "dists",
+                    config.series,
+                    component,
+                    "binary-%s" % arch,
+                    "Packages.gz",
+                )
                 if os.path.exists(packages_gz):
                     packages_gz_file = gzip.GzipFile(packages_gz)
                     try:
@@ -74,8 +93,8 @@ def _prepare_check_installable(config):
 
         if os.stat(packages).st_size == 0:
             logger.warning(
-                "No Packages.gz for %s/%s; not checking" %
-                (config.series, arch))
+                "No Packages.gz for %s/%s; not checking" % (config.series, arch)
+            )
             os.unlink(packages)
 
     with open(os.path.join(data, "Sources"), "w"):
@@ -84,14 +103,15 @@ def _prepare_check_installable(config):
 
 def _check_installable_command(config):
     britney, _, _, data = _check_installable_dirs(config)
-    report_dir = os.path.join(
-        britney, "report", config.project, config.image_type)
+    report_dir = os.path.join(britney, "report", config.project, config.image_type)
     mkemptydir(report_dir)
     return [
         # Sometimes this inexplicably hangs on a futex.  We'll give it
         # thirty seconds and then kill it.
-        "timeout", "30",
-        os.path.join(britney, "rptprobs.sh"), data,
+        "timeout",
+        "30",
+        os.path.join(britney, "rptprobs.sh"),
+        data,
         os.path.join(report_dir, "%s_probs.html" % config.series),
         "%s %s" % (config.capproject, config.series),
     ]

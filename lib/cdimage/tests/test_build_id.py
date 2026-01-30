@@ -38,7 +38,8 @@ class TestNextBuildId(TestCase):
         config["DATE"] = "20120806"
         os.mkdir(os.path.join(self.temp_dir, "etc"))
         stamp = os.path.join(
-            config.root, "etc", ".next-build-suffix-ubuntu-warty-daily-live")
+            config.root, "etc", ".next-build-suffix-ubuntu-warty-daily-live"
+        )
         self.assertFalse(os.path.exists(stamp))
         self.assertEqual("20120806", next_build_id(config, "daily-live"))
         with open(stamp) as stamp_file:
@@ -55,7 +56,8 @@ class TestNextBuildId(TestCase):
         config["DIST"] = "warty"
         os.mkdir(os.path.join(self.temp_dir, "etc"))
         stamp = os.path.join(
-            config.root, "etc", ".next-build-suffix-ubuntu-warty-daily")
+            config.root, "etc", ".next-build-suffix-ubuntu-warty-daily"
+        )
         self.assertFalse(os.path.exists(stamp))
         self.assertEqual("20130225", next_build_id(config, ""))
         with open(stamp) as stamp_file:
@@ -70,7 +72,8 @@ class TestNextBuildId(TestCase):
         config["DATE_SUFFIX"] = "5"
         os.mkdir(os.path.join(self.temp_dir, "etc"))
         stamp = os.path.join(
-            config.root, "etc", ".next-build-suffix-ubuntu-warty-daily")
+            config.root, "etc", ".next-build-suffix-ubuntu-warty-daily"
+        )
         self.assertFalse(os.path.exists(stamp))
         self.assertEqual("20130225.5", next_build_id(config, "daily"))
         with open(stamp) as stamp_file:
@@ -85,7 +88,8 @@ class TestNextBuildId(TestCase):
         config["DATE"] = "20240101"
         os.mkdir(os.path.join(self.temp_dir, "etc"))
         regular_stamp = os.path.join(
-            config.root, "etc", ".next-build-suffix-ubuntu-noble-daily-live")
+            config.root, "etc", ".next-build-suffix-ubuntu-noble-daily-live"
+        )
         self.assertFalse(os.path.exists(regular_stamp))
         self.assertEqual("20240101", next_build_id(config, "daily-live"))
         with open(regular_stamp) as stamp_file:
@@ -96,8 +100,8 @@ class TestNextBuildId(TestCase):
         # Now check if the subtree numbering is separate
         config.subtree = "test"
         subtree_stamp = os.path.join(
-            config.root, "etc",
-            ".next-build-suffix-test-ubuntu-noble-daily-live")
+            config.root, "etc", ".next-build-suffix-test-ubuntu-noble-daily-live"
+        )
         self.assertFalse(os.path.exists(subtree_stamp))
         self.assertEqual("20240101", next_build_id(config, "daily-live"))
         with open(subtree_stamp) as stamp_file:
@@ -111,7 +115,8 @@ class TestNextBuildId(TestCase):
         config["DEBUG"] = "1"
         os.mkdir(os.path.join(self.temp_dir, "etc"))
         stamp = os.path.join(
-            config.root, "etc", ".next-build-suffix-ubuntu-warty-daily")
+            config.root, "etc", ".next-build-suffix-ubuntu-warty-daily"
+        )
         self.assertFalse(os.path.exists(stamp))
         next_build_id(config, "daily")
         self.assertFalse(os.path.exists(stamp))
