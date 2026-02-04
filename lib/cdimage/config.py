@@ -335,6 +335,7 @@ _allowed_keys = (
     "APT_PROXY",
     "LXD_METADATA",
     "LP_SIGN_CONFIG",
+    "TO_CONFIG",
 )
 
 
