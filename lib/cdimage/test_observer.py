@@ -143,7 +143,7 @@ class TestObserver:
                     "version": date,
                     "arch": arch,
                     "environment": "user manual tests",
-                    "test_plan": "Manual testing",
+                    "test_plan": "Manual Testing",
                     "initial_status": "IN_PROGRESS",
                     "relevant_links": [
                         {
