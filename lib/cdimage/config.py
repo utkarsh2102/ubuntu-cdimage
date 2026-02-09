@@ -291,7 +291,7 @@ all_series.extend(
             all_lts_projects=True,
         ),
         Series(
-            "noble", "24.04", "Noble Numbat", pointversion="24.04.3", _core_series="24"
+            "noble", "24.04", "Noble Numbat", pointversion="24.04.4", _core_series="24"
         ),
         Series("oracular", "24.10", "Oracular Oriole"),
         Series("plucky", "25.04", "Plucky Puffin"),
