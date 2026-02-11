@@ -111,7 +111,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"name": "resolute-xubuntu-amd64.iso", "version": "20260127", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://code.launchpad.net/ubuntu-manual-tests/"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "xubuntu", "release": "resolute", "sha256": "realsha256sum", "owner": "xubuntu-release", "image_url": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso"}',
+                    data='{"name": "resolute-xubuntu-amd64.iso", "version": "20260127", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "xubuntu", "release": "resolute", "sha256": "realsha256sum", "owner": "xubuntu-release", "image_url": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso"}',
                 ),
             ]
         )
@@ -162,7 +162,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"name": "resolute-ubuntu-amd64.iso", "version": "20260128", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://code.launchpad.net/ubuntu-manual-tests/"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "ubuntu-desktop", "release": "resolute", "sha256": "anotherrealsha256sum", "owner": "canonical-desktop-team", "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso"}',
+                    data='{"name": "resolute-ubuntu-amd64.iso", "version": "20260128", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "ubuntu-desktop", "release": "resolute", "sha256": "anotherrealsha256sum", "owner": "canonical-desktop-team", "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso"}',
                 ),
             ]
         )

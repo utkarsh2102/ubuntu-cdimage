@@ -177,7 +177,7 @@ class TestObserver:
                     "relevant_links": [
                         {
                             "label": "Manual test suite instructions",
-                            "url": "https://code.launchpad.net/ubuntu-manual-tests/",
+                            "url": f"https://github.com/ubuntu/ubuntu-manual-tests/tree/main/{release}/products",
                         }
                     ],
                     "needs_assignment": False,
