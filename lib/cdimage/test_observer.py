@@ -88,6 +88,15 @@ class TestObserver:
         release = full_path.stem.split("-")[0]
         sha256 = self._get_sha256(full_path)
 
+        if os in [
+            "noble",
+            "resolute",
+            "daily-live",
+            "daily-preinstalled",
+            "daily-dangerous",
+        ]:
+            os = "ubuntu-desktop"
+
         response = self._put(
             "test-executions/start-test",
             data=json.dumps(
