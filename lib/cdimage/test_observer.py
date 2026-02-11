@@ -76,6 +76,26 @@ class TestObserver:
                 return line.split(" ")[0]
         raise RuntimeError(f"Couldn't find sha256 for {path.name} in {path.parent}")
 
+    def get_owner(self, os: str):
+        OS_OWNER_MAPPING = {
+            "edubuntu": "edubuntu-release",
+            "kubuntu": "kubuntu-release",
+            "lubuntu": "lubuntu-iso-managers",
+            "ubuntu-desktop": "canonical-desktop-team",
+            "ubuntu-base": "canonical-foundations",
+            "ubuntu-budgie": "ubuntubudgie-release",
+            "ubuntu-mate": "ubuntu-mate-release",
+            "ubuntu-mini-iso": "canonical-foundations",
+            "ubuntu-server": "canonical-server",
+            "ubuntu-unity": "ubuntu-unity-devs",
+            "ubuntu-wsl": "canonical-desktop-team",
+            "ubuntucinnamon": "ubuntucinnamon-release",
+            "ubuntukylin": "ubuntukylin-members",
+            "ubuntustudio": "ubuntustudio-release",
+            "xubuntu": "xubuntu-release",
+        }
+        return OS_OWNER_MAPPING.get(os, "ubuntu-cdimage")
+
     def publish_image(self, publisher, path: str, date: str):
         logger.info("Submitting images to Test Observer")
 
@@ -115,7 +135,7 @@ class TestObserver:
                     "os": os,
                     "release": release,
                     "sha256": sha256,
-                    "owner": "ubuntu-cdimage",
+                    "owner": self.get_owner(os),
                     "image_url": full_url,
                 }
             ),
@@ -166,7 +186,7 @@ class TestObserver:
                     "os": os,
                     "release": release,
                     "sha256": sha256,
-                    "owner": "ubuntu-cdimage",
+                    "owner": self.get_owner(os),
                     "image_url": full_url,
                 }
             ),
