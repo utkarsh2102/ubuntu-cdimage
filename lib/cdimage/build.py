@@ -18,6 +18,7 @@
 from __future__ import print_function
 
 import contextlib
+import pathlib
 import os
 import shutil
 import signal
@@ -158,9 +159,12 @@ def copy_artifact(
     src = os.path.join(scratch_dir, "live", f"{arch}.{suffix}")
     if os.path.exists(src):
         osextras.ensuredir(output_dir)
-        shutil.copy2(
-            src, os.path.join(output_dir, f"{output_basename}.{target_suffix}")
-        )
+        target = os.path.join(output_dir, f"{output_basename}.{target_suffix}")
+        root = pathlib.Path(config.root)
+        src = pathlib.Path(src)
+        target = pathlib.Path(target)
+        logger.info(f"Copying {src.relative_to(root)} to {target.relative_to(root)}")
+        shutil.copy2(src, target)
     elif not missing_ok:
         raise FileNotFoundError(src)
     else:
@@ -170,6 +174,23 @@ def copy_artifact(
         with open(ftype_path, "w") as f:
             print(ftype, file=f)
     return True
+
+
+ISO_PROJECTS = set([
+    'edubuntu',
+    'kubuntu',
+    'lubuntu',
+    'ubuntu',
+    'ubuntu-budgie',
+    'ubuntu-core-desktop',
+    'ubuntu-core-installer',
+    'ubuntu-oem',
+    'ubuntu-server',
+    'ubuntu-unity',
+    'ubuntukylin',
+    'ubuntustudio',
+    'xubuntu',
+    ])
 
 
 def build_livecd_base(config, builds):
@@ -227,6 +248,20 @@ def build_livecd_base(config, builds):
             )
             # XXX: I don't think we need the manifest for a mini iso
             # copy_artifact(arch, "mini-iso", "manifest")
+
+    if config.project in ISO_PROJECTS and config.image_type == "daily-live":
+        log_marker("Copying iso to debian-cd output directory")
+        publish_type = "live-server"
+        for arch in config.arches:
+            copy_artifact(
+                config,
+                arch,
+                publish_type,
+                "iso",
+                target_suffix="raw",
+                ftype="ISO 9660 CD-ROM filesystem data",
+            )
+        copy_artifact(config, arch, publish_type, "manifest")
 
     if config.project == "ubuntu-wsl" and config.image_type == "daily-live":
         log_marker("Copying images to debian-cd output directory")
@@ -428,6 +463,9 @@ def is_live_fs_only(config):
         live_fs_only = True
     elif config.subproject == "wubi":
         live_fs_only = True
+    elif config.series >= "resolute":
+        if config.project in ISO_PROJECTS and config.image_type == "daily-live":
+            live_fs_only = True
     return live_fs_only
 
 
