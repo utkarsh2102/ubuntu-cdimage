@@ -72,18 +72,6 @@ class TestTestObserver(TestCase):
     def test_submit(self, mock_patch, mock_post, mock_put):
         config = Config(read=False)
         config.root = self.use_temp_dir()
-        date = "20260127"
-        directory = Path(config.root) / "www" / "full" / "daily" / date
-        directory.mkdir(exist_ok=True, parents=True)
-
-        tree = Tree.get_for_directory(config, str(directory), "daily")
-        publisher = Publisher.get_daily(tree, "daily")
-
-        entry_path = directory / "resolute-xubuntu-amd64.iso"
-        (directory / "SHA256SUMS").write_text(
-            "realsha256sum *resolute-xubuntu-amd64.iso"
-        )
-        entry_path.touch()
 
         with tempfile.NamedTemporaryFile() as to_conf:
             to_conf_p = Path(to_conf.name)
@@ -95,6 +83,19 @@ api_key: to_mytopsecretapikey
             config["TO_CONFIG"] = to_conf.name
             to = TestObserver(config)
 
+        date = "20260127"
+        directory = Path(config.root) / "www" / "full" / "xubuntu" / "daily" / date
+        directory.mkdir(exist_ok=True, parents=True)
+
+        tree = Tree.get_for_directory(config, str(directory), "daily")
+        publisher = Publisher.get_daily(tree, "daily")
+
+        entry_path = directory / "resolute-xubuntu-amd64.iso"
+        (directory / "SHA256SUMS").write_text(
+            "realsha256sum *resolute-xubuntu-amd64.iso"
+        )
+        entry_path.touch()
+
         to.publish_image(
             publisher,
             str(entry_path),
@@ -105,12 +106,63 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"name": "resolute-xubuntu-amd64.iso", "version": "20260127", "arch": "amd64", "environment": "cdimage.ubuntu.com", "ci_link": "https://cdimage.ubuntu.com/daily/20260127/resolute-xubuntu-amd64.iso", "test_plan": "Image build", "initial_status": "IN_PROGRESS", "relevant_links": [], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "daily", "release": "resolute", "sha256": "realsha256sum", "owner": "ubuntu-cdimage", "image_url": "https://cdimage.ubuntu.com/daily/20260127/resolute-xubuntu-amd64.iso"}',
+                    data='{"name": "resolute-xubuntu-amd64.iso", "version": "20260127", "arch": "amd64", "environment": "cdimage.ubuntu.com", "ci_link": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso", "test_plan": "Image build", "initial_status": "IN_PROGRESS", "relevant_links": [], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "xubuntu", "release": "resolute", "sha256": "realsha256sum", "owner": "xubuntu-release", "image_url": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso"}',
                 ),
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"name": "resolute-xubuntu-amd64.iso", "version": "20260127", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://code.launchpad.net/ubuntu-manual-tests/"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "daily", "release": "resolute", "sha256": "realsha256sum", "owner": "ubuntu-cdimage", "image_url": "https://cdimage.ubuntu.com/daily/20260127/resolute-xubuntu-amd64.iso"}',
+                    data='{"name": "resolute-xubuntu-amd64.iso", "version": "20260127", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "xubuntu", "release": "resolute", "sha256": "realsha256sum", "owner": "xubuntu-release", "image_url": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso"}',
+                ),
+            ]
+        )
+        mock_post.assert_has_calls(
+            [
+                mock.call(
+                    "https://tests-api.test.cdimage/v1/test-executions/4000/test-results",
+                    headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    data='[{"name": "build-image", "status": "PASSED", "comment": "Build ISO on Launchpad and cdimage", "io_log": "TODO: find a way to send out the build logs here"}]',
+                )
+            ]
+        )
+        mock_patch.assert_has_calls(
+            [
+                mock.call(
+                    "https://tests-api.test.cdimage/v1/test-executions/4000",
+                    headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    data='{"status": "COMPLETED"}',
+                )
+            ]
+        )
+
+        date = "20260128"
+        directory = Path(config.root) / "www" / "full" / "daily-live" / date
+        directory.mkdir(exist_ok=True, parents=True)
+
+        tree = Tree.get_for_directory(config, str(directory), "daily")
+        publisher = Publisher.get_daily(tree, "daily")
+
+        entry_path = directory / "resolute-ubuntu-amd64.iso"
+        (directory / "SHA256SUMS").write_text(
+            "anotherrealsha256sum *resolute-ubuntu-amd64.iso"
+        )
+        entry_path.touch()
+
+        to.publish_image(
+            publisher,
+            str(entry_path),
+            date,
+        )
+        mock_put.assert_has_calls(
+            [
+                mock.call(
+                    "https://tests-api.test.cdimage/v1/test-executions/start-test",
+                    headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    data='{"name": "resolute-ubuntu-amd64.iso", "version": "20260128", "arch": "amd64", "environment": "cdimage.ubuntu.com", "ci_link": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso", "test_plan": "Image build", "initial_status": "IN_PROGRESS", "relevant_links": [], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "ubuntu-desktop", "release": "resolute", "sha256": "anotherrealsha256sum", "owner": "canonical-desktop-team", "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso"}',
+                ),
+                mock.call(
+                    "https://tests-api.test.cdimage/v1/test-executions/start-test",
+                    headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    data='{"name": "resolute-ubuntu-amd64.iso", "version": "20260128", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "ubuntu-desktop", "release": "resolute", "sha256": "anotherrealsha256sum", "owner": "canonical-desktop-team", "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso"}',
                 ),
             ]
         )
