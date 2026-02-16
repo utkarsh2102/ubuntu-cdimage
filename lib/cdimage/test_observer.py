@@ -108,6 +108,12 @@ class TestObserver:
         release = full_path.stem.split("-")[0]
         sha256 = self._get_sha256(full_path)
 
+        # Hack around `daily-dangerous` having the exact same name as
+        # `daily-live`, thus showing only one row in TO
+        if os == "daily-dangerous":
+            artifact_name = "dangerous-" + artifact_name
+
+        # Hack around desktop images having special treatement in tree.py
         if os in [
             "noble",
             "resolute",
