@@ -123,6 +123,10 @@ class TestObserver:
         ]:
             os = "ubuntu-desktop"
 
+        # Hack around ubuntu-core images having their naming different
+        if os == "ubuntu-core":
+            release = full_path.stem.split("-")[2]
+
         response = self._put(
             "test-executions/start-test",
             data=json.dumps(
