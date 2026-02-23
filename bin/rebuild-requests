@@ -1,9 +1,10 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2021 Canonical Ltd.
+# Copyright (C) 2013-2026 Canonical Ltd.
 # Authors: Stéphane Graber <stgraber@ubuntu.com>
 #          Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>
+#          Florent 'Skia' Jacquet <skia@ubuntu.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +30,7 @@ sys.path.insert(0, os.path.join(sys.path[0], os.pardir, "lib"))
 
 
 def main():
-    from cdimage.config import Config, Series
+    from cdimage.config import Config
     from cdimage.tree import Publisher, Tree
 
     parser = OptionParser(usage="Usage: %prog [options] SERIES INSTANCE")
@@ -80,8 +81,13 @@ def main():
     tree = Tree.get_daily(config)
     publisher = Publisher.get_daily(tree, "daily")
 
+    handle_isotracker(args, options, publisher, clean_env)
+
+
+def handle_isotracker(args, options, publisher, clean_env):
     # Only import it here to avoid --help failing from the bzr branch
     from isotracker import ISOTracker
+    from cdimage.config import Series
 
     tracker = ISOTracker(target="%s-%s" % (args[1], args[0]))
 
