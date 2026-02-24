@@ -36,6 +36,8 @@ from pathlib import Path
 
 from cdimage.log import logger
 
+TO_ENVIRONMENT = "cdimage.ubuntu.com"
+
 
 class TestObserver:
     def __init__(self, cdimage_config):
@@ -57,6 +59,9 @@ class TestObserver:
             logger.info(json.dumps(response.json(), indent=2))
             raise e
         return response
+
+    def _delete(self, path, **kw):
+        return self._request(requests.delete, path, **kw)
 
     def _get(self, path, **kw):
         return self._request(requests.get, path, **kw)
@@ -134,7 +139,7 @@ class TestObserver:
                     "name": artifact_name,
                     "version": date,
                     "arch": arch,
-                    "environment": "cdimage.ubuntu.com",
+                    "environment": TO_ENVIRONMENT,
                     "ci_link": full_url,  # TODO: get a better link here (livefs build)
                     "test_plan": "Image build",
                     "initial_status": "IN_PROGRESS",
@@ -200,4 +205,27 @@ class TestObserver:
                     "image_url": full_url,
                 }
             ),
+        )
+
+    def get_reruns(self, series: str):
+        response = self._get(
+            "test-executions/reruns",
+            params={"family": "image", "environment": TO_ENVIRONMENT},
+        )
+        for rerun in response.json():
+            try:
+                if (  # Some basic sanitizing
+                    rerun["artefact"]["archived"]
+                    or rerun["artefact"]["family"] != "image"
+                    or rerun["artefact"]["release"] != series
+                ):
+                    continue
+                yield rerun
+            except KeyError:
+                continue
+
+    def delete_rerun(self, test_execution_id: int):
+        self._delete(
+            "test-executions/reruns",
+            data=json.dumps({"test_execution_ids": [test_execution_id]}),
         )
