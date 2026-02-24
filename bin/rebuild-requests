@@ -42,6 +42,12 @@ def main():
         default=False,
     )
     parser.add_option(
+        "--use-test-observer",
+        help="Watch Test Observer instead of ISOTracker",
+        action="store_true",
+        default=False,
+    )
+    parser.add_option(
         "-c",
         "--cancel",
         help="Cancel any pending/stuck build",
@@ -81,7 +87,74 @@ def main():
     tree = Tree.get_daily(config)
     publisher = Publisher.get_daily(tree, "daily")
 
-    handle_isotracker(args, options, publisher, clean_env)
+    if options.use_test_observer:
+        handle_test_observer(args, options, publisher, clean_env)
+    else:
+        handle_isotracker(args, options, publisher, clean_env)
+
+
+def handle_test_observer(args, options, publisher, clean_env):
+    from cdimage.test_observer import TestObserver
+
+    target_series = args[0]
+    processes = []
+
+    to = TestObserver(publisher.config)
+    for rerun in to.get_reruns(target_series):
+        try:
+            test_execution_id = rerun["test_execution_id"]
+            arch = rerun["artefact_build"]["architecture"]
+            os = rerun["artefact"]["os"]
+            full_path = rerun["artefact"]["image_url"].removeprefix(
+                "https://cdimage.ubuntu.com/"
+            )
+        except KeyError:
+            continue
+
+        image_type = full_path.split("/")[-3]
+        assert image_type in [
+            "daily",
+            "daily-dangerous",
+            "daily-live",
+            "daily-minimal",
+            "daily-preinstalled",
+            "dvd",
+        ], f"Could not find a valid image_type in {full_path}"
+
+        # Hack around ubuntu-base and ubuntustudio/noble
+        if image_type in ["daily", "dvd"]:
+            entry_point = "cron.daily-live"
+        else:
+            entry_point = "cron." + image_type
+
+        env = {"ARCHES": arch, "DIST": target_series}
+
+        # support xubuntu-minimal
+        if image_type == "daily-minimal":
+            env["SUBPROJECT"] = "minimal"
+
+        cmd = ["for-project", os, entry_point, "--live"]
+        if not options.quiet:
+            if options.dry_run:
+                print(f"Dry-run for {full_path}:")
+            else:
+                print(f"Running for {full_path}:")
+            print(
+                "    ",
+                " ".join({f'{k}="{v}"' for k, v in env.items()}),
+                " ".join(cmd),
+            )
+        if not options.dry_run:
+            to.delete_rerun(test_execution_id)
+            exec_env = clean_env.copy()
+            exec_env.update(env)
+            processes.append(subprocess.Popen(cmd, env=exec_env))
+
+    if processes:
+        if not options.quiet:
+            print("Waiting for %s builds to complete." % len(processes))
+        for process in processes:
+            process.wait()
 
 
 def handle_isotracker(args, options, publisher, clean_env):
