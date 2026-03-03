@@ -106,12 +106,50 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"name": "resolute-xubuntu-amd64.iso", "version": "20260127", "arch": "amd64", "environment": "cdimage.ubuntu.com", "ci_link": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso", "test_plan": "Image build", "initial_status": "IN_PROGRESS", "relevant_links": [], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "xubuntu", "release": "resolute", "sha256": "realsha256sum", "owner": "xubuntu-release", "image_url": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso"}',
+                    json={
+                        "name": "resolute-xubuntu-amd64.iso",
+                        "version": "20260127",
+                        "arch": "amd64",
+                        "environment": "cdimage.ubuntu.com",
+                        "ci_link": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso",
+                        "test_plan": "Image build",
+                        "initial_status": "IN_PROGRESS",
+                        "relevant_links": [],
+                        "needs_assignment": False,
+                        "family": "image",
+                        "execution_stage": "pending",
+                        "os": "xubuntu",
+                        "release": "resolute",
+                        "sha256": "realsha256sum",
+                        "owner": "xubuntu-release",
+                        "image_url": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso",
+                    },
                 ),
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"name": "resolute-xubuntu-amd64.iso", "version": "20260127", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "xubuntu", "release": "resolute", "sha256": "realsha256sum", "owner": "xubuntu-release", "image_url": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso"}',
+                    json={
+                        "name": "resolute-xubuntu-amd64.iso",
+                        "version": "20260127",
+                        "arch": "amd64",
+                        "environment": "user manual tests",
+                        "test_plan": "Manual Testing",
+                        "initial_status": "IN_PROGRESS",
+                        "relevant_links": [
+                            {
+                                "label": "Manual test suite instructions",
+                                "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products",
+                            }
+                        ],
+                        "needs_assignment": False,
+                        "family": "image",
+                        "execution_stage": "pending",
+                        "os": "xubuntu",
+                        "release": "resolute",
+                        "sha256": "realsha256sum",
+                        "owner": "xubuntu-release",
+                        "image_url": "https://cdimage.ubuntu.com/xubuntu/daily/20260127/resolute-xubuntu-amd64.iso",
+                    },
                 ),
             ]
         )
@@ -120,7 +158,14 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/4000/test-results",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='[{"name": "build-image", "status": "PASSED", "comment": "Build ISO on Launchpad and cdimage", "io_log": "TODO: find a way to send out the build logs here"}]',
+                    json=[
+                        {
+                            "name": "build-image",
+                            "status": "PASSED",
+                            "comment": "Build ISO on Launchpad and cdimage",
+                            "io_log": "TODO: find a way to send out the build logs here",
+                        }
+                    ],
                 )
             ]
         )
@@ -129,7 +174,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/4000",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"status": "COMPLETED"}',
+                    json={"status": "COMPLETED"},
                 )
             ]
         )
@@ -157,12 +202,50 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"name": "resolute-ubuntu-amd64.iso", "version": "20260128", "arch": "amd64", "environment": "cdimage.ubuntu.com", "ci_link": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso", "test_plan": "Image build", "initial_status": "IN_PROGRESS", "relevant_links": [], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "ubuntu-desktop", "release": "resolute", "sha256": "anotherrealsha256sum", "owner": "canonical-desktop-team", "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso"}',
+                    json={
+                        "name": "resolute-ubuntu-amd64.iso",
+                        "version": "20260128",
+                        "arch": "amd64",
+                        "environment": "cdimage.ubuntu.com",
+                        "ci_link": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                        "test_plan": "Image build",
+                        "initial_status": "IN_PROGRESS",
+                        "relevant_links": [],
+                        "needs_assignment": False,
+                        "family": "image",
+                        "execution_stage": "pending",
+                        "os": "ubuntu-desktop",
+                        "release": "resolute",
+                        "sha256": "anotherrealsha256sum",
+                        "owner": "canonical-desktop-team",
+                        "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                    },
                 ),
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"name": "resolute-ubuntu-amd64.iso", "version": "20260128", "arch": "amd64", "environment": "user manual tests", "test_plan": "Manual Testing", "initial_status": "IN_PROGRESS", "relevant_links": [{"label": "Manual test suite instructions", "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products"}], "needs_assignment": false, "family": "image", "execution_stage": "pending", "os": "ubuntu-desktop", "release": "resolute", "sha256": "anotherrealsha256sum", "owner": "canonical-desktop-team", "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso"}',
+                    json={
+                        "name": "resolute-ubuntu-amd64.iso",
+                        "version": "20260128",
+                        "arch": "amd64",
+                        "environment": "user manual tests",
+                        "test_plan": "Manual Testing",
+                        "initial_status": "IN_PROGRESS",
+                        "relevant_links": [
+                            {
+                                "label": "Manual test suite instructions",
+                                "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products",
+                            }
+                        ],
+                        "needs_assignment": False,
+                        "family": "image",
+                        "execution_stage": "pending",
+                        "os": "ubuntu-desktop",
+                        "release": "resolute",
+                        "sha256": "anotherrealsha256sum",
+                        "owner": "canonical-desktop-team",
+                        "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                    },
                 ),
             ]
         )
@@ -171,7 +254,14 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/4000/test-results",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='[{"name": "build-image", "status": "PASSED", "comment": "Build ISO on Launchpad and cdimage", "io_log": "TODO: find a way to send out the build logs here"}]',
+                    json=[
+                        {
+                            "name": "build-image",
+                            "status": "PASSED",
+                            "comment": "Build ISO on Launchpad and cdimage",
+                            "io_log": "TODO: find a way to send out the build logs here",
+                        }
+                    ],
                 )
             ]
         )
@@ -180,7 +270,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/4000",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
-                    data='{"status": "COMPLETED"}',
+                    json={"status": "COMPLETED"},
                 )
             ]
         )

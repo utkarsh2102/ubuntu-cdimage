@@ -134,77 +134,69 @@ class TestObserver:
 
         response = self._put(
             "test-executions/start-test",
-            data=json.dumps(
-                {
-                    "name": artifact_name,
-                    "version": date,
-                    "arch": arch,
-                    "environment": TO_ENVIRONMENT,
-                    "ci_link": full_url,  # TODO: get a better link here (livefs build)
-                    "test_plan": "Image build",
-                    "initial_status": "IN_PROGRESS",
-                    "relevant_links": [],
-                    "needs_assignment": False,
-                    "family": "image",
-                    "execution_stage": "pending",
-                    "os": os,
-                    "release": release,
-                    "sha256": sha256,
-                    "owner": self.get_owner(os),
-                    "image_url": full_url,
-                }
-            ),
+            json={
+                "name": artifact_name,
+                "version": date,
+                "arch": arch,
+                "environment": TO_ENVIRONMENT,
+                "ci_link": full_url,  # TODO: get a better link here (livefs build)
+                "test_plan": "Image build",
+                "initial_status": "IN_PROGRESS",
+                "relevant_links": [],
+                "needs_assignment": False,
+                "family": "image",
+                "execution_stage": "pending",
+                "os": os,
+                "release": release,
+                "sha256": sha256,
+                "owner": self.get_owner(os),
+                "image_url": full_url,
+            },
         )
         test_execution_id = response.json()["id"]
         self._post(
             f"test-executions/{test_execution_id}/test-results",
-            data=json.dumps(
-                [
-                    {
-                        "name": "build-image",
-                        "status": "PASSED",
-                        "comment": "Build ISO on Launchpad and cdimage",
-                        "io_log": "TODO: find a way to send out the build logs here",
-                    }
-                ]
-            ),
+            json=[
+                {
+                    "name": "build-image",
+                    "status": "PASSED",
+                    "comment": "Build ISO on Launchpad and cdimage",
+                    "io_log": "TODO: find a way to send out the build logs here",
+                }
+            ],
         )
         self._patch(
             f"test-executions/{test_execution_id}",
-            data=json.dumps(
-                {
-                    "status": "COMPLETED",
-                }
-            ),
+            json={
+                "status": "COMPLETED",
+            },
         )
 
         # Open a new generic text execution for manual tests reports
         response = self._put(
             "test-executions/start-test",
-            data=json.dumps(
-                {
-                    "name": artifact_name,
-                    "version": date,
-                    "arch": arch,
-                    "environment": "user manual tests",
-                    "test_plan": "Manual Testing",
-                    "initial_status": "IN_PROGRESS",
-                    "relevant_links": [
-                        {
-                            "label": "Manual test suite instructions",
-                            "url": f"https://github.com/ubuntu/ubuntu-manual-tests/tree/main/{release}/products",
-                        }
-                    ],
-                    "needs_assignment": False,
-                    "family": "image",
-                    "execution_stage": "pending",
-                    "os": os,
-                    "release": release,
-                    "sha256": sha256,
-                    "owner": self.get_owner(os),
-                    "image_url": full_url,
-                }
-            ),
+            json={
+                "name": artifact_name,
+                "version": date,
+                "arch": arch,
+                "environment": "user manual tests",
+                "test_plan": "Manual Testing",
+                "initial_status": "IN_PROGRESS",
+                "relevant_links": [
+                    {
+                        "label": "Manual test suite instructions",
+                        "url": f"https://github.com/ubuntu/ubuntu-manual-tests/tree/main/{release}/products",
+                    }
+                ],
+                "needs_assignment": False,
+                "family": "image",
+                "execution_stage": "pending",
+                "os": os,
+                "release": release,
+                "sha256": sha256,
+                "owner": self.get_owner(os),
+                "image_url": full_url,
+            },
         )
 
     def get_reruns(self, series: str):
@@ -227,5 +219,5 @@ class TestObserver:
     def delete_rerun(self, test_execution_id: int):
         self._delete(
             "test-executions/reruns",
-            data=json.dumps({"test_execution_ids": [test_execution_id]}),
+            json={"test_execution_ids": [test_execution_id]},
         )
