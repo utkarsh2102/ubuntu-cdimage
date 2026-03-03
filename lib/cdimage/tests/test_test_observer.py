@@ -106,6 +106,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    timeout=60.0,
                     json={
                         "name": "resolute-xubuntu-amd64.iso",
                         "version": "20260127",
@@ -128,6 +129,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    timeout=60.0,
                     json={
                         "name": "resolute-xubuntu-amd64.iso",
                         "version": "20260127",
@@ -158,6 +160,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/4000/test-results",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    timeout=60.0,
                     json=[
                         {
                             "name": "build-image",
@@ -174,6 +177,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/4000",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    timeout=60.0,
                     json={"status": "COMPLETED"},
                 )
             ]
@@ -202,6 +206,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    timeout=60.0,
                     json={
                         "name": "resolute-ubuntu-amd64.iso",
                         "version": "20260128",
@@ -224,6 +229,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/start-test",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    timeout=60.0,
                     json={
                         "name": "resolute-ubuntu-amd64.iso",
                         "version": "20260128",
@@ -254,6 +260,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/4000/test-results",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    timeout=60.0,
                     json=[
                         {
                             "name": "build-image",
@@ -270,6 +277,7 @@ api_key: to_mytopsecretapikey
                 mock.call(
                     "https://tests-api.test.cdimage/v1/test-executions/4000",
                     headers={"Authorization": "Bearer to_mytopsecretapikey"},
+                    timeout=60.0,
                     json={"status": "COMPLETED"},
                 )
             ]

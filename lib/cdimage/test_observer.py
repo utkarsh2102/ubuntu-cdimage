@@ -50,6 +50,7 @@ class TestObserver:
         response = _func(
             f"{self.url}{path}",
             headers={"Authorization": f"Bearer {self.api_key}"},
+            timeout=60.0,  # 60s timeout is already plenty!
             **kw,
         )
         try:
