@@ -119,6 +119,8 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 */5 * * * *	rebuild-requests -b -q resolute iso
 */5 * * * *	rebuild-requests -b -q 20 iso
 */5 * * * *	rebuild-requests -b -q 22 iso
+*/5 * * * *	rebuild-requests --use-test-observer -b -q noble iso
+*/5 * * * *	rebuild-requests --use-test-observer -b -q resolute iso
 
 # Daily simplestreams generation for releases.ubuntu.com
 42 23 * * *	regenerate-streams official
