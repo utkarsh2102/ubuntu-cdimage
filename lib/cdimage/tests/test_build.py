@@ -136,14 +136,17 @@ class TestBuildLiveCDBase(TestCase):
                 artifact_names=["manifest", "rootfs.tar.gz"],
             ),
         )
-        self.assertLogEqual(
+        self.assertEqual(
             [
                 "===== Downloading live filesystem images =====",
                 self.epoch_date,
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
-            ]
+            ],
+            self.captured_log_messages()[:4]
         )
+        for message in self.captured_log_messages()[4:]:
+            self.assertStartsWith(message, "Copying ")
         output_dir = os.path.join(
             self.temp_dir,
             "scratch",
@@ -187,14 +190,17 @@ class TestBuildLiveCDBase(TestCase):
                 ["disk1.img.xz", "manifest"],
             ),
         )
-        self.assertLogEqual(
+        self.assertEqual(
             [
                 "===== Downloading live filesystem images =====",
                 self.epoch_date,
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
-            ]
+            ],
+            self.captured_log_messages()[:4]
         )
+        for message in self.captured_log_messages()[4:]:
+            self.assertStartsWith(message, "Copying ")
         output_dir = os.path.join(
             self.temp_dir,
             "scratch",
@@ -240,14 +246,17 @@ class TestBuildLiveCDBase(TestCase):
                 ["img.xz", "model-assertion", "manifest"],
             ),
         )
-        self.assertLogEqual(
+        self.assertEqual(
             [
                 "===== Downloading live filesystem images =====",
                 self.epoch_date,
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
-            ]
+            ],
+            self.captured_log_messages()[:4]
         )
+        for message in self.captured_log_messages()[4:]:
+            self.assertStartsWith(message, "Copying ")
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-core", "bionic", "daily-live", "live"
         )
@@ -287,14 +296,17 @@ class TestBuildLiveCDBase(TestCase):
                 ["img.xz", "model-assertion", "manifest"],
             ),
         )
-        self.assertLogEqual(
+        self.assertEqual(
             [
                 "===== Downloading live filesystem images =====",
                 self.epoch_date,
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
-            ]
+            ],
+            self.captured_log_messages()[:4]
         )
+        for message in self.captured_log_messages()[4:]:
+            self.assertStartsWith(message, "Copying ")
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-appliance", "bionic", "daily-live", "live"
         )
@@ -335,14 +347,17 @@ class TestBuildLiveCDBase(TestCase):
                 ["img.xz", "model-assertion", "manifest", "qcow2"],
             ),
         )
-        self.assertLogEqual(
+        self.assertEqual(
             [
                 "===== Downloading live filesystem images =====",
                 self.epoch_date,
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
-            ]
+            ],
+            self.captured_log_messages()[:4]
         )
+        for message in self.captured_log_messages()[4:]:
+            self.assertStartsWith(message, "Copying ")
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-appliance", "bionic", "daily-live", "live"
         )
