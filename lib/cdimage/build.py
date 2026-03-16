@@ -176,21 +176,23 @@ def copy_artifact(
     return True
 
 
-ISO_PROJECTS = set([
-    'edubuntu',
-    'kubuntu',
-    'lubuntu',
-    'ubuntu',
-    'ubuntu-budgie',
-    'ubuntu-core-desktop',
-    'ubuntu-core-installer',
-    'ubuntu-oem',
-    'ubuntu-server',
-    'ubuntu-unity',
-    'ubuntukylin',
-    'ubuntustudio',
-    'xubuntu',
-    ])
+ISO_PROJECTS = set(
+    [
+        "edubuntu",
+        "kubuntu",
+        "lubuntu",
+        "ubuntu",
+        "ubuntu-budgie",
+        "ubuntu-core-desktop",
+        "ubuntu-core-installer",
+        "ubuntu-oem",
+        "ubuntu-server",
+        "ubuntu-unity",
+        "ubuntukylin",
+        "ubuntustudio",
+        "xubuntu",
+    ]
+)
 
 
 def build_livecd_base(config, builds):

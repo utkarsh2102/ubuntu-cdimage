@@ -143,7 +143,7 @@ class TestBuildLiveCDBase(TestCase):
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
             ],
-            self.captured_log_messages()[:4]
+            self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
             self.assertStartsWith(message, "Copying ")
@@ -197,7 +197,7 @@ class TestBuildLiveCDBase(TestCase):
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
             ],
-            self.captured_log_messages()[:4]
+            self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
             self.assertStartsWith(message, "Copying ")
@@ -253,7 +253,7 @@ class TestBuildLiveCDBase(TestCase):
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
             ],
-            self.captured_log_messages()[:4]
+            self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
             self.assertStartsWith(message, "Copying ")
@@ -303,7 +303,7 @@ class TestBuildLiveCDBase(TestCase):
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
             ],
-            self.captured_log_messages()[:4]
+            self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
             self.assertStartsWith(message, "Copying ")
@@ -354,7 +354,7 @@ class TestBuildLiveCDBase(TestCase):
                 "===== Copying images to debian-cd output directory =====",
                 self.epoch_date,
             ],
-            self.captured_log_messages()[:4]
+            self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
             self.assertStartsWith(message, "Copying ")
