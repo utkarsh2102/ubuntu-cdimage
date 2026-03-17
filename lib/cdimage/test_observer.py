@@ -186,7 +186,7 @@ class TestObserver:
                 "relevant_links": [
                     {
                         "label": "Manual test suite instructions",
-                        "url": f"https://github.com/ubuntu/ubuntu-manual-tests/tree/main/{release}/products",
+                        "url": f"https://github.com/ubuntu/ubuntu-manual-tests/tree/main/{release}/products/{os}",
                     }
                 ],
                 "needs_assignment": False,
