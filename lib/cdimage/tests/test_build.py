@@ -146,7 +146,7 @@ class TestBuildLiveCDBase(TestCase):
             self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
-            self.assertStartsWith(message, "Copying ")
+            self.assertTrue(message.startswith("Copying "))
         output_dir = os.path.join(
             self.temp_dir,
             "scratch",
@@ -200,7 +200,7 @@ class TestBuildLiveCDBase(TestCase):
             self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
-            self.assertStartsWith(message, "Copying ")
+            self.assertTrue(message.startswith("Copying "))
         output_dir = os.path.join(
             self.temp_dir,
             "scratch",
@@ -256,7 +256,7 @@ class TestBuildLiveCDBase(TestCase):
             self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
-            self.assertStartsWith(message, "Copying ")
+            self.assertTrue(message.startswith("Copying "))
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-core", "bionic", "daily-live", "live"
         )
@@ -306,7 +306,7 @@ class TestBuildLiveCDBase(TestCase):
             self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
-            self.assertStartsWith(message, "Copying ")
+            self.assertTrue(message.startswith("Copying "))
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-appliance", "bionic", "daily-live", "live"
         )
@@ -357,7 +357,7 @@ class TestBuildLiveCDBase(TestCase):
             self.captured_log_messages()[:4],
         )
         for message in self.captured_log_messages()[4:]:
-            self.assertStartsWith(message, "Copying ")
+            self.assertTrue(message.startswith("Copying "))
         output_dir = os.path.join(
             self.temp_dir, "scratch", "ubuntu-appliance", "bionic", "daily-live", "live"
         )
