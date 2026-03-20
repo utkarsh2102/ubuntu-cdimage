@@ -133,6 +133,9 @@ def handle_test_observer(args, options, publisher, clean_env):
         if image_type == "daily-minimal":
             env["SUBPROJECT"] = "minimal"
 
+        if image_os == "ubuntu-desktop":
+            image_os = "ubuntu"
+
         cmd = ["for-project", image_os, entry_point, "--live"]
         if not options.quiet:
             if options.dry_run:
