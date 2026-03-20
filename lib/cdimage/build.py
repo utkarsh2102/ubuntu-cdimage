@@ -251,9 +251,15 @@ def build_livecd_base(config, builds):
             # XXX: I don't think we need the manifest for a mini iso
             # copy_artifact(arch, "mini-iso", "manifest")
 
-    if config.project in ISO_PROJECTS and config.image_type == "daily-live":
+    if config.project in ISO_PROJECTS and config.image_type in [
+        "daily-live",
+        # "daily-minimal",  # XXX: xubuntu-minimal apparently isn't using this mechanism yet
+        "live-server",
+    ]:
         log_marker("Copying iso to debian-cd output directory")
-        publish_type = "live-server"
+        tree = Tree(config, "dummy_path")
+        publisher = Publisher(tree, config.image_type)
+        publish_type = publisher.publish_type
         for arch in config.arches:
             copy_artifact(
                 config,
