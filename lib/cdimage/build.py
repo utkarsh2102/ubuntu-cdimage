@@ -269,7 +269,7 @@ def build_livecd_base(config, builds):
                 target_suffix="raw",
                 ftype="ISO 9660 CD-ROM filesystem data",
             )
-        copy_artifact(config, arch, publish_type, "manifest")
+            copy_artifact(config, arch, publish_type, "manifest")
 
     if config.project == "ubuntu-wsl" and config.image_type == "daily-live":
         log_marker("Copying images to debian-cd output directory")
