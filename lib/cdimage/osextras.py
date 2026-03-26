@@ -120,8 +120,8 @@ def fetch(config, source, target):
         "-nv",
         "--retry-connrefused",  # retry in case of fatal errors
         "--waitretry=5",  # wait 5 seconds between retries
-        "--read-timeout=20",  # 20 seconds of not data received before retry
-        "--timeout=15",  # wait 15 seconds before initial connection timeout
+        "--read-timeout=120",  # 120 seconds of not data received before retry
+        "--timeout=120",  # wait 120 seconds before initial connection timeout
         "-t",
         "20",  # retry 20 times in total
         "--continue",  # pick up where the last attempt left off
