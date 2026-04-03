@@ -25,6 +25,7 @@ import signal
 import stat
 import subprocess
 import sys
+import tempfile
 import time
 import traceback
 
@@ -122,6 +123,48 @@ def log_marker(message):
 
 def want_live_builds(options):
     return options is not None and getattr(options, "live", False)
+
+
+@contextlib.contextmanager
+def mount(dev) -> str:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        subprocess.check_call(["fuseiso", dev, tmpdir])
+        try:
+            yield tmpdir
+        finally:
+            subprocess.check_call(["fusermount", "-u", tmpdir])
+
+
+def generate_list_file(
+    config,
+    arch: str,
+    publish_type: str,
+):
+    """look in output dir for iso file, generate file list for it"""
+    scratch_dir = os.path.join(
+        config.root,
+        "scratch",
+        config.subtree,
+        config.project,
+        config.full_series,
+        config.image_type,
+    )
+
+    output_dir = os.path.join(scratch_dir, "debian-cd", arch)
+    output_basename = f"{config.series}-{publish_type}-{arch}"
+    # the iso has a .raw extention at this point
+    iso = os.path.join(output_dir, f"{output_basename}.raw")
+    list_target = os.path.join(output_dir, f"{output_basename}.list")
+
+    cmd = ["find", ".", "-type", "f"]
+    with mount(iso) as mnt:
+        find_output = subprocess.check_output(cmd, cwd=mnt).decode()
+
+    # remove leading dot from find output
+    file_list = [line[1:] for line in find_output.splitlines(keepends=True)]
+
+    with open(list_target, "w") as fp:
+        fp.write("".join(file_list))
 
 
 def copy_artifact(
@@ -269,6 +312,7 @@ def build_livecd_base(config, builds):
                 target_suffix="raw",
                 ftype="ISO 9660 CD-ROM filesystem data",
             )
+            generate_list_file(config, arch, publish_type)
             copy_artifact(config, arch, publish_type, "manifest")
 
     if config.project == "ubuntu-wsl" and config.image_type == "daily-live":
