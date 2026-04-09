@@ -314,6 +314,7 @@ def build_livecd_base(config, builds):
             )
             generate_list_file(config, arch, publish_type)
             copy_artifact(config, arch, publish_type, "manifest")
+        copy_netboot_tarballs(config)
 
     if config.project == "ubuntu-wsl" and config.image_type == "daily-live":
         log_marker("Copying images to debian-cd output directory")
