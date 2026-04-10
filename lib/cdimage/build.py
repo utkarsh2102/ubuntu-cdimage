@@ -300,7 +300,7 @@ def build_livecd_base(config, builds):
         "live-server",
     ]:
         log_marker("Copying iso to debian-cd output directory")
-        tree = Tree(config, "dummy_path")
+        tree = Tree(config, "mockup_path")
         publisher = Publisher(tree, config.image_type)
         publish_type = publisher.publish_type
         for arch in config.arches:
