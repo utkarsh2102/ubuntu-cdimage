@@ -140,7 +140,7 @@ api_key: to_mytopsecretapikey
                         "relevant_links": [
                             {
                                 "label": "Manual test suite instructions",
-                                "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products",
+                                "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products/xubuntu",
                             }
                         ],
                         "needs_assignment": False,
@@ -240,7 +240,7 @@ api_key: to_mytopsecretapikey
                         "relevant_links": [
                             {
                                 "label": "Manual test suite instructions",
-                                "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products",
+                                "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products/ubuntu-desktop",
                             }
                         ],
                         "needs_assignment": False,

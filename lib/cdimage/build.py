@@ -300,7 +300,7 @@ def build_livecd_base(config, builds):
         "live-server",
     ]:
         log_marker("Copying iso to debian-cd output directory")
-        tree = Tree(config, "dummy_path")
+        tree = Tree(config, "mockup_path")
         publisher = Publisher(tree, config.image_type)
         publish_type = publisher.publish_type
         for arch in config.arches:
@@ -314,6 +314,7 @@ def build_livecd_base(config, builds):
             )
             generate_list_file(config, arch, publish_type)
             copy_artifact(config, arch, publish_type, "manifest")
+        copy_netboot_tarballs(config)
 
     if config.project == "ubuntu-wsl" and config.image_type == "daily-live":
         log_marker("Copying images to debian-cd output directory")
