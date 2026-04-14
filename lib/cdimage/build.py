@@ -283,7 +283,7 @@ def build_livecd_base(config, builds):
 
     if config.project in ISO_PROJECTS and config.image_type in [
         "daily-live",
-        # "daily-minimal",  # XXX: xubuntu-minimal apparently isn't using this mechanism yet
+        "daily-minimal",
         "live-server",
     ]:
         log_marker("Copying iso to debian-cd output directory")
@@ -504,7 +504,10 @@ def is_live_fs_only(config):
     elif config.subproject == "wubi":
         live_fs_only = True
     elif config.series >= "resolute":
-        if config.project in ISO_PROJECTS and config.image_type == "daily-live":
+        if config.project in ISO_PROJECTS and config.image_type in [
+            "daily-live",
+            "daily-minimal",  # Only for xubuntu
+        ]:
             live_fs_only = True
     return live_fs_only
 
