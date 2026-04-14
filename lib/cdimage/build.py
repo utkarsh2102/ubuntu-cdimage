@@ -232,6 +232,7 @@ ISO_PROJECTS = set(
         "ubuntu-mini-iso",
         "ubuntu-server",
         "ubuntu-unity",
+        "ubuntucinnamon",
         "ubuntukylin",
         "ubuntustudio",
         "xubuntu",
