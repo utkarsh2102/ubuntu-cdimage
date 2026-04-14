@@ -229,8 +229,10 @@ ISO_PROJECTS = set(
         "ubuntu-core-desktop",
         "ubuntu-core-installer",
         "ubuntu-oem",
+        "ubuntu-mini-iso",
         "ubuntu-server",
         "ubuntu-unity",
+        "ubuntucinnamon",
         "ubuntukylin",
         "ubuntustudio",
         "xubuntu",
@@ -279,24 +281,9 @@ def build_livecd_base(config, builds):
                 raise Exception("no rootfs found")
             copy_artifact(config, arch, publish_type, "manifest")
 
-    if config.project == "ubuntu-mini-iso" and config.image_type == "daily-live":
-        log_marker("Copying mini iso to debian-cd output directory")
-        publish_type = "mini-iso"
-        for arch in config.arches:
-            copy_artifact(
-                config,
-                arch,
-                publish_type,
-                "iso",
-                target_suffix="raw",
-                ftype="ISO 9660 CD-ROM filesystem data",
-            )
-            # XXX: I don't think we need the manifest for a mini iso
-            # copy_artifact(arch, "mini-iso", "manifest")
-
     if config.project in ISO_PROJECTS and config.image_type in [
         "daily-live",
-        # "daily-minimal",  # XXX: xubuntu-minimal apparently isn't using this mechanism yet
+        "daily-minimal",
         "live-server",
     ]:
         log_marker("Copying iso to debian-cd output directory")
@@ -517,7 +504,10 @@ def is_live_fs_only(config):
     elif config.subproject == "wubi":
         live_fs_only = True
     elif config.series >= "resolute":
-        if config.project in ISO_PROJECTS and config.image_type == "daily-live":
+        if config.project in ISO_PROJECTS and config.image_type in [
+            "daily-live",
+            "daily-minimal",  # Only for xubuntu
+        ]:
             live_fs_only = True
     return live_fs_only
 
