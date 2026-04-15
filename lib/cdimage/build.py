@@ -282,8 +282,9 @@ def build_livecd_base(config, builds):
             copy_artifact(config, arch, publish_type, "manifest")
 
     if config.project in ISO_PROJECTS and config.image_type in [
+        "daily-dangerous",  # Only for ubuntu
         "daily-live",
-        "daily-minimal",
+        "daily-minimal",  # Only for xubuntu
         "live-server",
     ]:
         log_marker("Copying iso to debian-cd output directory")
@@ -505,6 +506,7 @@ def is_live_fs_only(config):
         live_fs_only = True
     elif config.series >= "resolute":
         if config.project in ISO_PROJECTS and config.image_type in [
+            "daily-dangerous",  # Only for ubuntu
             "daily-live",
             "daily-minimal",  # Only for xubuntu
         ]:
