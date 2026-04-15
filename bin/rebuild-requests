@@ -98,8 +98,10 @@ def handle_test_observer(args, options, publisher, clean_env):
 
     target_series = args[0]
     processes = []
+    reruns = {}
 
     to = TestObserver(publisher.config)
+    # Build the list of reruns
     for rerun in to.get_reruns(target_series):
         try:
             test_execution_id = rerun["test_execution_id"]
@@ -127,28 +129,45 @@ def handle_test_observer(args, options, publisher, clean_env):
         else:
             entry_point = "cron." + image_type
 
-        env = {"ARCHES": image_arch, "DIST": target_series}
+        if image_os == "ubuntu-desktop":
+            image_os = "ubuntu"
+
+        product = reruns.setdefault(
+            (
+                image_os,
+                entry_point,
+                target_series,
+            ),
+            {"arches": [], "full_paths": []},
+        )
+        product["arches"].append(image_arch)
+        product["full_paths"].append(full_path)
+        if not options.dry_run:
+            to.delete_rerun(test_execution_id)
+
+    # Iterate over the reruns and run the commands
+    for product, details in reruns.items():
+        image_os = product[0]
+        entry_point = product[1]
+        series = product[2]
+        cmd = ["for-project", image_os, entry_point, "--live"]
+        env = {"ARCHES": " ".join(details["arches"]), "DIST": series}
 
         # support xubuntu-minimal
         if image_type == "daily-minimal":
             env["SUBPROJECT"] = "minimal"
 
-        if image_os == "ubuntu-desktop":
-            image_os = "ubuntu"
-
-        cmd = ["for-project", image_os, entry_point, "--live"]
         if not options.quiet:
             if options.dry_run:
-                print(f"Dry-run for {full_path}:")
+                print(f"Dry-run for {details['full_paths']}:")
             else:
-                print(f"Running for {full_path}:")
+                print(f"Running for {details['full_paths']}:")
             print(
                 "    ",
                 " ".join({f'{k}="{v}"' for k, v in env.items()}),
                 " ".join(cmd),
             )
         if not options.dry_run:
-            to.delete_rerun(test_execution_id)
             exec_env = clean_env.copy()
             exec_env.update(env)
             processes.append(subprocess.Popen(cmd, env=exec_env))
