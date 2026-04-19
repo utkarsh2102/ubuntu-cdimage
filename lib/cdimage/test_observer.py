@@ -96,7 +96,7 @@ class TestObserver:
             "ubuntu-unity": "ubuntu-unity-devs",
             "ubuntu-wsl": "canonical-desktop-team",
             "ubuntucinnamon": "ubuntucinnamon-release",
-            "ubuntukylin": "ubuntukylin-members",
+            "ubuntukylin": "ubuntukylin-release-team",
             "ubuntustudio": "ubuntustudio-release",
             "xubuntu": "xubuntu-release",
         }
