@@ -157,6 +157,11 @@ def handle_test_observer(args, options, publisher, clean_env):
         if image_type == "daily-minimal":
             env["SUBPROJECT"] = "minimal"
 
+        # super special case for ubuntu preinstalled desktop
+        if image_os == "ubuntu" and entry_point == "cron.daily-preinstalled":
+            env["SUBPROJECT"] = "desktop-preinstalled"
+            del env["ARCHES"]
+
         if not options.quiet:
             if options.dry_run:
                 print(f"Dry-run for {details['full_paths']}:")
