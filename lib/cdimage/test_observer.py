@@ -123,6 +123,7 @@ class TestObserver:
         if os in [
             "noble",
             "resolute",
+            "stonking",
             "daily-live",
             "daily-preinstalled",
             "daily-dangerous",
