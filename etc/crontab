@@ -71,10 +71,9 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 41 10 * * *	DIST=noble for-project ubuntu-mini-iso cron.daily-live --live
 41 6 * * *	DIST=noble PROPOSED=0 for-project ubuntu cron.daily-live --live; DIST=noble SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
 21 8 * * *	DIST=noble PROPOSED=1 for-project kubuntu cron.daily-live --live
-2 2 * * *	DIST=noble for-project xubuntu cron.daily-live --live; DIST=noble SUBPROJECT=minimal for-project xubuntu cron.daily-minimal --live
+02 2 * * *	DIST=noble for-project xubuntu cron.daily-live --live; DIST=noble SUBPROJECT=minimal for-project xubuntu cron.daily-minimal --live
 41 3 * * *	DIST=noble for-project edubuntu cron.daily-live --live; DIST=noble for-project edubuntu cron.daily-preinstalled --live
 10 4 * * *	DIST=noble for-project ubuntu-server cron.daily-preinstalled --live; DIST=noble SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
-05 7 * * *	for-project ubuntu-core-installer cron.daily-live --live; for-project ubuntu-core-desktop cron.daily-live --live
 38 17 * * *	DIST=noble for-project ubuntustudio cron.daily-live --live
 41 14 * * *	DIST=noble PROPOSED=1 for-project lubuntu cron.daily-live --live
 24 21 * * *	DIST=noble for-project ubuntukylin cron.daily-live --live
@@ -89,28 +88,53 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Tegra noble-images under the nvidia-tegra subtree
 45 2 * * *	CDIMAGE_SUBTREE=nvidia-tegra ARCHES="arm64+tegra-jetson" DIST=noble for-project ubuntu-server cron.daily-preinstalled --live
 
-## regular resolute daily builds
-#41 9 * * *	for-project ubuntu-mini-iso cron.daily-live --live
-#24 5 * * *	for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
-#41 7 * * *	for-project kubuntu cron.daily-live --live
-#40 1 * * *	for-project xubuntu cron.daily-live --live; SUBPROJECT=minimal for-project xubuntu cron.daily-minimal --live
-#41 1 * * *	for-project edubuntu cron.daily-live --live; for-project edubuntu cron.daily-preinstalled --live
-#10 3 * * *	for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
-#27 18 * * *	for-project ubuntustudio cron.daily-live --live
-#39 16 * * *	for-project lubuntu cron.daily-live --live
-#24 22 * * *	for-project ubuntukylin cron.daily-live --live
-#10 15 * * *	for-project ubuntu-budgie cron.daily-live --live
-#36 2 * * *	for-project ubuntu-mate cron.daily-live --live
-#10 13 * * *	for-project ubuntu-unity cron.daily-live --live
-#24 13 * * *	for-project ubuntucinnamon cron.daily-live --live
-#21 02 * * *	for-project ubuntu-wsl cron.daily-live --live
+# regular resolute daily builds
+41 9 * * *  DIST=resolute for-project ubuntu-mini-iso cron.daily-live --live
+24 5 * * *  DIST=resolute for-project ubuntu cron.daily-live --live; DIST=resolute SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
+41 7 * * *  DIST=resolute for-project kubuntu cron.daily-live --live
+40 1 * * *  DIST=resolute for-project xubuntu cron.daily-live --live; DIST=resolute SUBPROJECT=minimal for-project xubuntu cron.daily-minimal --live
+41 1 * * *  DIST=resolute for-project edubuntu cron.daily-live --live; DIST=resolute for-project edubuntu cron.daily-preinstalled --live
+10 3 * * *  DIST=resolute for-project ubuntu-server cron.daily-preinstalled --live; DIST=resolute SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
+27 18 * * * DIST=resolute for-project ubuntustudio cron.daily-live --live
+39 16 * * * DIST=resolute for-project lubuntu cron.daily-live --live
+24 22 * * * DIST=resolute for-project ubuntukylin cron.daily-live --live
+10 15 * * * DIST=resolute for-project ubuntu-budgie cron.daily-live --live
+36 2 * * *  DIST=resolute for-project ubuntu-mate cron.daily-live --live
+10 13 * * * DIST=resolute for-project ubuntu-unity cron.daily-live --live
+24 13 * * * DIST=resolute for-project ubuntucinnamon cron.daily-live --live
+21 02 * * * DIST=resolute for-project ubuntu-wsl cron.daily-live --live
 # The daily ubuntu-base images are used by core-next, so we can't build it
 # with proposed enabled.
-#42 4 * * *	PROPOSED=0 for-project ubuntu-base cron.daily-live --live
+42 4 * * *  PROPOSED=0 for-project ubuntu-base cron.daily-live --live
 # daily-dangerous devel desktop build
 # This is a live desktop image with all snaps from edge, for quicker testing
 # of things like snapd, prompting client, the desktop installer, etc
-#24 5 * * *	CHANNEL=edge for-project ubuntu cron.daily-dangerous --live
+24 5 * * *  CHANNEL=edge for-project ubuntu cron.daily-dangerous --live
+
+# regular stonking daily builds
+41 8 * * *  for-project ubuntu-mini-iso cron.daily-live --live
+24 4 * * *  for-project ubuntu cron.daily-live --live; SUBPROJECT=desktop-preinstalled for-project ubuntu cron.daily-preinstalled --live
+41 6 * * *  for-project kubuntu cron.daily-live --live
+40 0 * * *  for-project xubuntu cron.daily-live --live; SUBPROJECT=minimal for-project xubuntu cron.daily-minimal --live
+41 0 * * *  for-project edubuntu cron.daily-live --live; for-project edubuntu cron.daily-preinstalled --live
+10 2 * * *  for-project ubuntu-server cron.daily-preinstalled --live; SUBPROJECT=live for-project ubuntu-server cron.daily-live --live
+27 16 * * * for-project ubuntustudio cron.daily-live --live
+39 13 * * * for-project lubuntu cron.daily-live --live
+24 20 * * * for-project ubuntukylin cron.daily-live --live
+10 13 * * * for-project ubuntu-budgie cron.daily-live --live
+36 1 * * *  for-project ubuntu-mate cron.daily-live --live
+10 11 * * * for-project ubuntu-unity cron.daily-live --live
+24 11 * * * for-project ubuntucinnamon cron.daily-live --live
+21 01 * * * for-project ubuntu-wsl cron.daily-live --live
+# The daily ubuntu-base images are used by core-next, so we can't build it
+# with proposed enabled.
+42 3 * * *  PROPOSED=0 for-project ubuntu-base cron.daily-live --live
+# daily-dangerous devel desktop build
+# This is a live desktop image with all snaps from edge, for quicker testing
+# of things like snapd, prompting client, the desktop installer, etc
+24 1 * * *  CHANNEL=edge for-project ubuntu cron.daily-dangerous --live
+# we only are building core-installer and core-desktop for devel
+05 7 * * *  for-project ubuntu-core-installer cron.daily-live --live; for-project ubuntu-core-desktop cron.daily-live --live
 
 
 */15 * * * *	mirror-image-build-logs
@@ -121,10 +145,12 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 */5 * * * *	rebuild-requests -b -q jammy iso
 */5 * * * *	rebuild-requests -b -q noble iso
 */5 * * * *	rebuild-requests -b -q resolute iso
+*/5 * * * *	rebuild-requests -b -q stonking iso
 */5 * * * *	rebuild-requests -b -q 20 iso
 */5 * * * *	rebuild-requests -b -q 22 iso
 */5 * * * *	rebuild-requests --use-test-observer -b -q noble iso
 */5 * * * *	rebuild-requests --use-test-observer -b -q resolute iso
+*/5 * * * *	rebuild-requests --use-test-observer -b -q stonking iso
 
 # Daily simplestreams generation for releases.ubuntu.com
 42 23 * * *	regenerate-streams official

@@ -303,6 +303,7 @@ all_series.extend(
             all_lts_projects=True,
             _core_series="26",
         ),
+        Series("stonking", "26.10", "Stonking Stingray"),
     ]
 )
 
