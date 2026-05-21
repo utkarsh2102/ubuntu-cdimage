@@ -1189,14 +1189,22 @@ class Publisher:
                 # Wubi images are just "ARCH.tar.xz", with no prefix.
                 images.append(entry)
             elif entry.startswith("%s-" % prefix_type):
-                if (
+                if not (
                     entry.endswith(".list")
                     or entry.endswith(".img.gz")
                     or entry.endswith(".tar.gz")
                     or entry.endswith(".wsl")
                     or entry.endswith(".img.xz")
                 ):
-                    images.append(entry)
+                    continue
+                # Avoid matching entries that belong to a longer publish_type
+                # extending this one (e.g. "live" matching live-server files).
+                # Arches use "+" rather than "-" as a sub-separator, so a "-"
+                # in the part before the extension means a longer publish_type.
+                remainder = entry[len(prefix_type) + 1 :]
+                if "-" in remainder.split(".", 1)[0]:
+                    continue
+                images.append(entry)
         return images
 
     def find_source_images(self, directory, prefix):

@@ -459,6 +459,24 @@ class TestPublisherWebIndices(TestCase):
             publisher.find_images(self.directory, "bionic", "desktop"),
         )
 
+    def test_find_images_does_not_match_longer_publish_type(self):
+        # find_images for "live" must not match files that actually belong
+        # to "live-server", or the web index over-counts image types.
+        for name in (
+            "ubuntu-26.04-live-server-amd64.iso",
+            "ubuntu-26.04-live-server-amd64.list",
+        ):
+            touch(os.path.join(self.directory, name))
+        publisher = Publisher(self.tree, "daily-live")
+        self.assertEqual(
+            [],
+            publisher.find_images(self.directory, "ubuntu-26.04", "live"),
+        )
+        self.assertCountEqual(
+            ["ubuntu-26.04-live-server-amd64.list"],
+            publisher.find_images(self.directory, "ubuntu-26.04", "live-server"),
+        )
+
     def test_find_source_images(self):
         for name in (
             "SHA256SUMS",
