@@ -42,8 +42,6 @@ def timestamp(ts=None):
 class SimpleStreams:
     """Base class for simplestreams generation. Not to be used directly."""
 
-    HASH_CHUNK_SIZE = 1024 * 1024
-
     @staticmethod
     def get_simplestreams(config, publisher):
         """Static function to easily get the right simplestream handler."""
@@ -172,19 +170,6 @@ class SimpleStreams:
             return series.realversion
         return match.group(1)
 
-    def checksum_concat(self, paths):
-        """Compute a SHA256 over the bytewise concatenation of files."""
-        hasher = hashlib.sha256()
-        for path in paths:
-            try:
-                with open(path, "rb") as fp:
-                    for chunk in iter(lambda: fp.read(self.HASH_CHUNK_SIZE), b""):
-                        hasher.update(chunk)
-            except OSError:
-                return None
-
-        return hasher.hexdigest()
-
     def scan_published_item(self, publishing_dir, sha256sums, file):
         """Scan and generate simplestream data for a published file."""
         for extension in (
@@ -228,9 +213,9 @@ class SimpleStreams:
             img_file = file.replace(extension, "qcow2")
             img_path = os.path.join(publishing_dir, img_file)
             if os.path.isfile(img_path):
-                combined_sum = self.checksum_concat((full_path, img_path))
-                if combined_sum is not None:
-                    data["combined_disk1-img_sha256"] = combined_sum
+                data["combined_disk1-img_sha256"] = sha256sums.checksum(
+                    full_path, img_path
+                )
         elif extension == ".qcow2":
             # This is a special case for lxd purposes. LXD expects a qcow2
             # image as the disk1.img ftype.
