@@ -67,6 +67,11 @@ class TestSeries(TestCase):
         self.assertEqual("28", mantic.core_series)
         self.assertEqual(None, impish.core_series)
 
+    def test_build_type(self):
+        # Series in development default to "Daily", matching livecd-rootfs.
+        self.assertEqual("Daily", Series.find_by_name("stonking").build_type)
+        self.assertEqual("Release", Series.find_by_name("resolute").build_type)
+
     def test_str(self):
         series = Series.find_by_name("warty")
         self.assertEqual("warty", str(series))
@@ -427,6 +432,13 @@ class TestConfig(TestCase):
         self.assertEqual("20", config.core_series)
         config["DIST"] = "jammy"
         self.assertEqual("22", config.core_series)
+
+    def test_build_type(self):
+        config = Config(read=False)
+        config["DIST"] = "stonking"
+        self.assertEqual("Daily", config.build_type)
+        config["DIST"] = "resolute"
+        self.assertEqual("Release", config.build_type)
 
     def test_arches(self):
         config = Config(read=False)

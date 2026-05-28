@@ -43,6 +43,7 @@ from cdimage.livefs import (
     LiveBuildsFailed,
     download_live_filesystems,
     live_build_full_name,
+    live_build_lp_kwargs,
     live_build_notify_failure,
     live_output_directory,
     run_live_builds,
@@ -170,6 +171,21 @@ class TestSplitArch(TestCase):
     def test_i386(self):
         config = Config(read=False)
         self.assertEqual(("i386", ""), split_arch(config, "i386"))
+
+
+class TestLiveBuildLpKwargs(TestCase):
+    def setUp(self):
+        super(TestLiveBuildLpKwargs, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        self.lp = MockLaunchpad()
+        self.lp_livefs = mock.MagicMock(name="LiveFS")
+
+    def test_passes_build_type(self):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "resolute"
+        kwargs = live_build_lp_kwargs(self.config, self.lp, self.lp_livefs, "amd64")
+        self.assertEqual("Release", kwargs["metadata_override"]["build_type"])
 
 
 def mock_strftime(secs):

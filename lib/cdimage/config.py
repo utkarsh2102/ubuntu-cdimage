@@ -165,6 +165,14 @@ class Series(Iterable):
         return getattr(self, "pointversion", self.version)
 
     @property
+    def build_type(self):
+        # Type (e.g. "Daily" or "Release") that ends up in .disk/info. Passed
+        # to livecd-rootfs via the Launchpad build request; before resolute it
+        # was OFFICIAL in debian-cd/CONF.sh. Defaults to livecd-rootfs's own
+        # default of "Daily" (correct for series still in development).
+        return getattr(self, "_build_type", "Daily")
+
+    @property
     def core_series(self):
         core_version = getattr(self, "_core_series", None)
         if not core_version and self.is_latest:
@@ -291,7 +299,14 @@ all_series.extend(
             all_lts_projects=True,
         ),
         Series(
-            "noble", "24.04", "Noble Numbat", pointversion="24.04.4", _core_series="24"
+            "noble",
+            "24.04",
+            "Noble Numbat",
+            pointversion="24.04.4",
+            _core_series="24",
+            # build_type is only consumed for livecd-rootfs builds (resolute
+            # and up); noble builds via debian-cd, but set it for consistency.
+            _build_type="Release",
         ),
         Series("oracular", "24.10", "Oracular Oriole"),
         Series("plucky", "25.04", "Plucky Puffin"),
@@ -302,6 +317,7 @@ all_series.extend(
             "Resolute Raccoon",
             all_lts_projects=True,
             _core_series="26",
+            _build_type="Release",
         ),
         Series("stonking", "26.10", "Stonking Stingray"),
     ]
@@ -562,6 +578,10 @@ class Config(defaultdict):
     @property
     def core_series(self):
         return self["DIST"].core_series
+
+    @property
+    def build_type(self):
+        return self["DIST"].build_type
 
     def livefs_project_for_arch(self, arch):
         if arch not in self.livefs_arch_mapping:

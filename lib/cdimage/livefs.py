@@ -102,6 +102,8 @@ def live_build_lp_kwargs(config, lp, lp_livefs, arch):
 
         metadata_override["channel"] = config["CHANNEL"]
 
+    metadata_override["build_type"] = config.build_type
+
     if config["CDIMAGE_DATE"]:
         kwargs["version"] = config["CDIMAGE_DATE"]
 
