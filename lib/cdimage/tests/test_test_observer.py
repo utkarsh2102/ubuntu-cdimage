@@ -19,7 +19,7 @@ from pathlib import Path
 from unittest import mock
 import tempfile
 
-from cdimage.config import Config
+from cdimage.config import Config, Series
 from cdimage.tree import (
     Publisher,
     Tree,
@@ -184,7 +184,9 @@ api_key: to_mytopsecretapikey
         )
 
         date = "20260128"
-        directory = Path(config.root) / "www" / "full" / "daily-live" / date
+        directory = (
+            Path(config.root) / "www" / "full" / "resolute" / "daily-live" / date
+        )
         directory.mkdir(exist_ok=True, parents=True)
 
         tree = Tree.get_for_directory(config, str(directory), "daily")
@@ -212,7 +214,7 @@ api_key: to_mytopsecretapikey
                         "version": "20260128",
                         "arch": "amd64",
                         "environment": "cdimage.ubuntu.com",
-                        "ci_link": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                        "ci_link": "https://cdimage.ubuntu.com/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
                         "test_plan": "Image build",
                         "initial_status": "IN_PROGRESS",
                         "relevant_links": [],
@@ -223,7 +225,7 @@ api_key: to_mytopsecretapikey
                         "release": "resolute",
                         "sha256": "anotherrealsha256sum",
                         "owner": "canonical-desktop-team",
-                        "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                        "image_url": "https://cdimage.ubuntu.com/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
                     },
                 ),
                 mock.call(
@@ -250,7 +252,7 @@ api_key: to_mytopsecretapikey
                         "release": "resolute",
                         "sha256": "anotherrealsha256sum",
                         "owner": "canonical-desktop-team",
-                        "image_url": "https://cdimage.ubuntu.com/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                        "image_url": "https://cdimage.ubuntu.com/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
                     },
                 ),
             ]
@@ -281,4 +283,52 @@ api_key: to_mytopsecretapikey
                     json={"status": "COMPLETED"},
                 )
             ]
+        )
+
+    @mock.patch("cdimage.test_observer.requests.put", side_effect=mocked_requests_put)
+    @mock.patch("cdimage.test_observer.requests.post", side_effect=mocked_requests_post)
+    @mock.patch(
+        "cdimage.test_observer.requests.patch", side_effect=mocked_requests_patch
+    )
+    def test_devel_series_desktop_remap(self, mock_patch, mock_post, mock_put):
+        """Devel-series Ubuntu desktop paths nest under <series>/ at the
+        cdimage root. The first path component is a series name (e.g.
+        'stonking'), and TestObserver must recognise it as Ubuntu desktop
+        rather than treating the series codename as a project name.
+        """
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+
+        with tempfile.NamedTemporaryFile() as to_conf:
+            Path(to_conf.name).write_text("""
+[service]
+url: https://tests-api.test.cdimage/v1/
+api_key: to_mytopsecretapikey
+""")
+            config["TO_CONFIG"] = to_conf.name
+            to = TestObserver(config)
+
+        devel = Series.latest().name
+        date = "20260128"
+        directory = (
+            Path(config.root) / "www" / "full" / devel / "daily-live" / date
+        )
+        directory.mkdir(exist_ok=True, parents=True)
+
+        tree = Tree.get_for_directory(config, str(directory), "daily")
+        publisher = Publisher.get_daily(tree, "daily")
+
+        iso = "%s-ubuntu-amd64.iso" % devel
+        entry_path = directory / iso
+        (directory / "SHA256SUMS").write_text("develsha256 *%s" % iso)
+        entry_path.touch()
+
+        to.publish_image(publisher, str(entry_path), date)
+
+        first_put_kwargs = mock_put.call_args_list[0].kwargs
+        self.assertEqual("ubuntu-desktop", first_put_kwargs["json"]["os"])
+        self.assertEqual(devel, first_put_kwargs["json"]["release"])
+        self.assertEqual(
+            "https://cdimage.ubuntu.com/%s/daily-live/%s/%s" % (devel, date, iso),
+            first_put_kwargs["json"]["image_url"],
         )
