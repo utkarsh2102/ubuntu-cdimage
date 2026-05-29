@@ -152,9 +152,11 @@ class TestTree(TestCase):
         self, mock_polish_directory, mock_trigger_mirrors, *args
     ):
         self.config.root = self.temp_dir
-        publish_base = os.path.join(self.temp_dir, "www", "full", "daily-live")
-        target_dir = os.path.join(publish_base, "20130321")
         series = Series.latest().name
+        publish_base = os.path.join(
+            self.temp_dir, "www", "full", series, "daily-live"
+        )
+        target_dir = os.path.join(publish_base, "20130321")
         for name in (
             "%s-desktop-amd64.iso" % series,
             "%s-desktop-amd64.manifest" % series,
@@ -919,15 +921,56 @@ class TestDailyTreePublisher(TestCase):
         )
 
     def test_image_type_dir(self):
+        # Devel series and released series both nest under <series>/.
         publisher = self.make_publisher("ubuntu", "daily-live")
-        self.assertEqual("daily-live", publisher.image_type_dir)
+        latest = Series.latest().full_name
+        self.assertEqual(
+            os.path.join(latest, "daily-live"), publisher.image_type_dir
+        )
         self.config["DIST"] = "hoary"
         self.assertEqual(os.path.join("hoary", "daily-live"), publisher.image_type_dir)
 
+    def test_image_type_dir_devel_series_is_nested(self):
+        # The devel series (Series.latest()) used to publish directly into
+        # <project>/<image_type>/, skipping the series prefix. After the
+        # 2026 layout change every daily nests under <series>/, including
+        # the devel series. Verify that explicitly for a flavor (kubuntu)
+        # and for ubuntu-server (which has its own callsites in publish-
+        # release path rewriting).
+        for project, image_type in (
+            ("kubuntu", "daily-live"),
+            ("ubuntu-server", "daily-preinstalled"),
+            ("ubuntu", "daily-dangerous"),
+        ):
+            publisher = self.make_publisher(project, image_type)
+            self.assertEqual(
+                os.path.join(Series.latest().full_name, image_type),
+                publisher.image_type_dir,
+                msg="%s/%s" % (project, image_type),
+            )
+
+    def test_image_type_dir_core_channels_unchanged(self):
+        # The ubuntu-core / ubuntu-core-desktop / ubuntu-appliance
+        # channel-based layout is intentionally untouched by the nesting
+        # change; it lives under <core_series>/<channel>/.
+        for project in ("ubuntu-core", "ubuntu-core-desktop", "ubuntu-appliance"):
+            publisher = self.make_publisher(project, "daily-live")
+            self.assertEqual(
+                os.path.join(self.config.core_series, "edge"),
+                publisher.image_type_dir,
+                msg=project,
+            )
+
     def test_publish_base(self):
+        latest = Series.latest().full_name
         self.assertEqual(
             os.path.join(
-                self.config.root, "www", "full", "ubuntu-server", "daily-preinstalled"
+                self.config.root,
+                "www",
+                "full",
+                "ubuntu-server",
+                latest,
+                "daily-preinstalled",
             ),
             self.make_publisher("ubuntu-server", "daily-preinstalled").publish_base,
         )
@@ -967,12 +1010,19 @@ class TestDailyTreePublisher(TestCase):
         )
         self.assertEqual(
             os.path.join(
-                self.config.root, "www", "full", "ubuntu-core-installer", "daily-live"
+                self.config.root,
+                "www",
+                "full",
+                "ubuntu-core-installer",
+                latest,
+                "daily-live",
             ),
             self.make_publisher("ubuntu-core-installer", "daily-live").publish_base,
         )
         self.assertEqual(
-            os.path.join(self.config.root, "www", "full", "kubuntu", "daily-live"),
+            os.path.join(
+                self.config.root, "www", "full", "kubuntu", latest, "daily-live"
+            ),
             self.make_publisher("kubuntu", "daily-live").publish_base,
         )
         self.config["DIST"] = "hoary"
@@ -1145,10 +1195,11 @@ class TestDailyTreePublisher(TestCase):
             ],
             os.listdir(os.path.join(target_dir, "netboot")),
         )
+        series = Series.latest().full_name
         with open(os.path.join(target_dir, "netboot/config")) as fp:
             self.assertEqual(
-                "v=https://%s/ubuntu-server/daily-live/%s/%s"
-                % (publisher.tree.site_name, date, isoname),
+                "v=https://%s/ubuntu-server/%s/daily-live/%s/%s"
+                % (publisher.tree.site_name, series, date, isoname),
                 fp.read(),
             )
         with tarfile.open(os.path.join(target_dir, tarname), "r:gz") as tf:
@@ -1156,8 +1207,8 @@ class TestDailyTreePublisher(TestCase):
                 self.assertEqual(ti.name, "config")
                 self.assertEqual(
                     (
-                        "v=https://%s/ubuntu-server/daily-live/%s/%s"
-                        % (publisher.tree.site_name, date, isoname)
+                        "v=https://%s/ubuntu-server/%s/daily-live/%s/%s"
+                        % (publisher.tree.site_name, series, date, isoname)
                     ).encode("utf-8"),
                     tf.extractfile(ti).read(),
                 )
@@ -1417,7 +1468,7 @@ class TestDailyTreePublisher(TestCase):
             touch(os.path.join(source_dir, "i386.%s" % ext))
         self.capture_logging()
         self.assertEqual(
-            ["livecd-base/livecd-base/i386"],
+            ["livecd-base/%s/livecd-base/i386" % Series.latest().full_name],
             list(publisher.publish_livecd_base("i386", "20130318")),
         )
         self.assertLogEqual(["Publishing i386 ..."])
@@ -1893,22 +1944,12 @@ class TestDailyTreePublisher(TestCase):
 
     @mock_isotracker
     def test_post_qa(self):
+        # As of the 2026 layout change every daily nests under <series>/,
+        # so internal callers (and bin/post-qa users) must use the
+        # four-component "project/series/image_type/base" form. The legacy
+        # three-component "project/image_type/base" form is no longer
+        # supported.
         publisher = self.make_publisher("ubuntu", "daily-live")
-        os.makedirs(os.path.join(publisher.publish_base, "20130221"))
-        publisher.post_qa(
-            "20130221",
-            [
-                "ubuntu/daily-live/bionic-desktop-i386",
-                "ubuntu/daily-live/bionic-desktop-amd64",
-            ],
-        )
-        expected = [
-            ["Ubuntu Desktop i386", "20130221", ""],
-            ["Ubuntu Desktop amd64", "20130221", ""],
-        ]
-        self.assertEqual("iso-bionic", isotracker_module.tracker.target)
-        self.assertEqual(expected, isotracker_module.tracker.posted)
-
         os.makedirs(
             os.path.join(self.tree.project_base, "bionic", "daily-live", "20130221")
         )
@@ -1934,12 +1975,15 @@ class TestDailyTreePublisher(TestCase):
                 self.temp_dir,
                 "www",
                 "full",
+                "bionic",
                 "daily-live",
                 "20130315",
                 "bionic-desktop-i386.OVERSIZED",
             )
         )
-        publisher.post_qa("20130315", ["ubuntu/daily-live/bionic-desktop-i386"])
+        publisher.post_qa(
+            "20130315", ["ubuntu/bionic/daily-live/bionic-desktop-i386"]
+        )
         expected_note = (
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>"
@@ -2212,7 +2256,11 @@ class TestDailyTreePublisher(TestCase):
             os.listdir(publisher.publish_base),
         )
         mock_post_qa.assert_called_once_with(
-            "20120807", ["ubuntu/daily-live/%s-desktop-i386" % self.config.series]
+            "20120807",
+            [
+                "ubuntu/%s/daily-live/%s-desktop-i386"
+                % (self.config.series, self.config.series)
+            ],
         )
 
         # Check if the resulting .publish_info file has the right info.
@@ -2275,7 +2323,11 @@ class TestDailyTreePublisher(TestCase):
             os.listdir(publisher.publish_base),
         )
         mock_post_qa.assert_called_once_with(
-            "20120807", ["ubuntu/daily-live/%s-desktop-i386" % self.config.series]
+            "20120807",
+            [
+                "ubuntu/%s/daily-live/%s-desktop-i386"
+                % (self.config.series, self.config.series)
+            ],
         )
 
         # Check if the resulting .publish_info file has the right info.
@@ -2415,7 +2467,7 @@ class TestDailyTreePublisher(TestCase):
         self.capture_logging()
         publisher.purge()
         project = "ubuntu"
-        purge_desc = project
+        purge_desc = "%s/%s" % (project, Series.latest().full_name)
         self.assertLogEqual(
             [
                 "Purging %s/daily images older than 1 day ..." % project,
@@ -2485,7 +2537,7 @@ class TestDailyTreePublisher(TestCase):
         self.capture_logging()
         publisher.purge()
         project = "ubuntu"
-        purge_desc = project
+        purge_desc = "%s/%s" % (project, Series.latest().full_name)
         self.assertLogEqual(
             [
                 "Purging %s/daily images older than 1 day ..." % project,
@@ -2551,7 +2603,7 @@ class TestDailyTreePublisher(TestCase):
         self.capture_logging()
         publisher.purge()
         project = "ubuntu"
-        purge_desc = project
+        purge_desc = "%s/%s" % (project, Series.latest().full_name)
         self.assertLogEqual(
             [
                 "Purging %s/daily images older than 1 day ..." % project,
@@ -2570,7 +2622,7 @@ class TestDailyTreePublisher(TestCase):
         self.capture_logging()
         publisher.purge()
         project = "ubuntu"
-        purge_desc = project
+        purge_desc = "%s/%s" % (project, Series.latest().full_name)
         self.assertLogEqual(
             [
                 "Purging %s/daily images to leave only the latest 2 images "
@@ -3296,7 +3348,13 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["DIST"] = series
         self.config["ARCHES"] = "amd64 i386"
         daily_dir = os.path.join(
-            self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327"
+            self.temp_dir,
+            "www",
+            "full",
+            "kubuntu",
+            series.full_name,
+            "daily-live",
+            "20130327",
         )
         touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
         touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
@@ -3379,7 +3437,13 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["DIST"] = series
         self.config["ARCHES"] = "amd64 i386"
         daily_dir = os.path.join(
-            self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327"
+            self.temp_dir,
+            "www",
+            "full",
+            "kubuntu",
+            series.full_name,
+            "daily-live",
+            "20130327",
         )
         touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
         touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
@@ -3431,7 +3495,13 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["ARCHES"] = "amd64"
         self.config["SIMPLESTREAMS"] = "1"
         daily_dir = os.path.join(
-            self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327"
+            self.temp_dir,
+            "www",
+            "full",
+            "kubuntu",
+            series.full_name,
+            "daily-live",
+            "20130327",
         )
         touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
         touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
@@ -3780,7 +3850,13 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["DIST"] = series
         self.config["ARCHES"] = "amd64 i386"
         daily_dir = os.path.join(
-            self.temp_dir, "www", "full", "kubuntu", "daily-live", "20130327"
+            self.temp_dir,
+            "www",
+            "full",
+            "kubuntu",
+            series.full_name,
+            "daily-live",
+            "20130327",
         )
         touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
         touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
@@ -3880,7 +3956,14 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["DIST"] = series
         self.config["ARCHES"] = "amd64"
         self.config["SIMPLESTREAMS"] = "1"
-        daily_dir = os.path.join(self.temp_dir, "www", "full", "daily-live", "20130327")
+        daily_dir = os.path.join(
+            self.temp_dir,
+            "www",
+            "full",
+            series.full_name,
+            "daily-live",
+            "20130327",
+        )
         touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
         touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
         touch(os.path.join(daily_dir, "%s-desktop-amd64.iso.zsync" % series))
