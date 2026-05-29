@@ -8,7 +8,7 @@ config file and a file name on the command line and outputs a detached
 signature on stdout, for example:
 
 $ bin/lp-sign --config-file local-sign.conf \
-    www/full/ubuntu/daily-live/20250211/SHA256SUMS
+    www/full/ubuntu/stonking/daily-live/20250211/SHA256SUMS
 -----BEGIN PGP SIGNATURE-----
 
 iQIzBAABCgAdFiEEyJFm/5oC6IL/ql6hZzQiQOiSalgFAmknolUACgkQZzQiQOiS
