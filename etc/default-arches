@@ -27,8 +27,8 @@ ubuntu			daily-live		bionic			amd64
 ubuntu			daily-live		focal-jammy		amd64 arm64 amd64+intel-iot
 ubuntu			daily-live		lunar			amd64 arm64
 ubuntu			daily-live		mantic			amd64 arm64 arm64+x13s
-ubuntu			daily-live		noble			amd64 arm64
-ubuntu			daily-live		oracular-		amd64 arm64
+ubuntu			daily-live		noble-plucky	amd64 arm64
+ubuntu			daily-live		resolute-		amd64 arm64 riscv64
 ubuntu			daily-dangerous		oracular-		amd64
 
 ubuntu-desktop-preinstalled daily-preinstalled	jammy-		arm64+raspi
@@ -69,6 +69,7 @@ ubuntustudio		*			focal-			amd64
 
 xubuntu			*			bionic			amd64 i386
 xubuntu			*			focal-			amd64
+xubuntu-minimal	*			resolute-		amd64 riscv64
 
 *			dvd			bionic			amd64 i386
 *			dvd			*			amd64

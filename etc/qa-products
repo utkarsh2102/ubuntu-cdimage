@@ -36,6 +36,7 @@ Ubuntu Desktop arm64+raspi					ubuntu/desktop-preinstalled			daily-preinstalled	
 Ubuntu Desktop armhf+omap4					ubuntu			daily-live			desktop					armhf+omap4		iso
 Ubuntu Desktop i386							ubuntu			daily-live			desktop					i386			iso
 Ubuntu Desktop Preinstalled armhf+nexus7	ubuntu			daily-preinstalled	preinstalled-desktop	armhf+nexus7	iso
+Ubuntu Desktop riscv64						ubuntu			daily-live			desktop					riscv64			iso
 
 # Ubuntu GNOME
 Ubuntu GNOME Desktop amd64					ubuntu-gnome	daily-live			desktop					amd64			iso
@@ -109,6 +110,7 @@ Ubuntu Cinnamon Desktop amd64				ubuntucinnamon	daily-live			desktop					amd64		
 Xubuntu Desktop amd64						xubuntu			daily-live			desktop					amd64			iso
 Xubuntu Desktop i386						xubuntu			daily-live			desktop					i386			iso
 Xubuntu Minimal amd64						xubuntu/minimal		daily-minimal		minimal					amd64			iso
+Xubuntu Minimal riscv64						xubuntu/minimal		daily-minimal		minimal					riscv64			iso
 
 # Ubuntu Mini ISO
 Ubuntu Mini ISO amd64						ubuntu-mini-iso	daily-live			mini-iso				amd64			iso
