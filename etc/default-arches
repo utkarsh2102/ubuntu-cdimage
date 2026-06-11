@@ -21,17 +21,17 @@ ubuntu-appliance	daily-live		bionic-			amd64+appliance-adguard-home-core18-amd64
 kubuntu			daily-live		bionic			amd64 i386
 kubuntu			daily-live		focal-			amd64
 
-edubuntu    	daily-preinstalled	noble-  	arm64+raspi
+edubuntu		daily-preinstalled	noble-			arm64+raspi
 
 ubuntu			daily-live		bionic			amd64
 ubuntu			daily-live		focal-jammy		amd64 arm64 amd64+intel-iot
 ubuntu			daily-live		lunar			amd64 arm64
 ubuntu			daily-live		mantic			amd64 arm64 arm64+x13s
-ubuntu			daily-live		noble-plucky	amd64 arm64
+ubuntu			daily-live		noble-plucky		amd64 arm64
 ubuntu			daily-live		resolute-		amd64 arm64 riscv64
 ubuntu			daily-dangerous		oracular-		amd64
 
-ubuntu-desktop-preinstalled daily-preinstalled	jammy-		arm64+raspi
+ubuntu-desktop-preinstalled	daily-preinstalled	jammy-			arm64+raspi
 
 ubuntu-mini-iso		*			*			amd64
 ubuntu-wsl		*			*			amd64 arm64
@@ -58,7 +58,7 @@ ubuntu-server		*			bionic-focal		amd64 arm64 ppc64el s390x
 ubuntu-server-live	*			bionic			amd64 arm64 ppc64el
 ubuntu-server-live	*			focal			amd64 arm64 ppc64el s390x
 ubuntu-server-live	*			jammy			amd64 arm64 arm64+largemem ppc64el s390x riscv64
-ubuntu-server-live	*			lunar-mantic			amd64 arm64 ppc64el s390x riscv64
+ubuntu-server-live	*			lunar-mantic		amd64 arm64 ppc64el s390x riscv64
 ubuntu-server-live	*			noble-			amd64 arm64 arm64+largemem ppc64el s390x riscv64
 
 ubuntukylin		*			-bionic			amd64 i386
@@ -69,7 +69,7 @@ ubuntustudio		*			focal-			amd64
 
 xubuntu			*			bionic			amd64 i386
 xubuntu			*			focal-			amd64
-xubuntu-minimal	*			resolute-		amd64 riscv64
+xubuntu-minimal		*			resolute-		amd64 riscv64
 
 *			dvd			bionic			amd64 i386
 *			dvd			*			amd64
