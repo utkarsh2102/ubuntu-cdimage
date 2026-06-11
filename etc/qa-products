@@ -1,132 +1,134 @@
-# QA PRODUCT							PROJECT		IMAGE_TYPE		PUBLISH_TYPE					ARCHITECTURE	TRACKER
+# QA PRODUCT					PROJECT				IMAGE_TYPE			PUBLISH_TYPE				ARCHITECTURE		TRACKER
 
 # Edubuntu
-Edubuntu Desktop amd64						edubuntu	daily-live			desktop					amd64			iso
-Edubuntu Desktop arm64+raspi					edubuntu	daily-preinstalled		preinstalled-desktop			arm64+raspi		iso
+Edubuntu Desktop amd64				edubuntu			daily-live			desktop					amd64			iso
+Edubuntu Desktop arm64+raspi			edubuntu			daily-preinstalled		preinstalled-desktop			arm64+raspi		iso
 
 # Kubuntu
-Kubuntu Desktop amd64						kubuntu			daily-live			desktop					amd64			iso
-Kubuntu Desktop armhf+omap4					kubuntu			daily-live			desktop					armhf+omap4		iso
-Kubuntu Desktop i386						kubuntu			daily-live			desktop					i386			iso
+Kubuntu Desktop amd64				kubuntu				daily-live			desktop					amd64			iso
+Kubuntu Desktop armhf+omap4			kubuntu				daily-live			desktop					armhf+omap4		iso
+Kubuntu Desktop i386				kubuntu				daily-live			desktop					i386			iso
 
 # Lubuntu
-Lubuntu Alternate amd64						lubuntu			daily				alternate				amd64			iso
-Lubuntu Alternate i386						lubuntu			daily				alternate				i386			iso
-Lubuntu Desktop amd64						lubuntu			daily-live			desktop					amd64			iso
-Lubuntu Desktop i386						lubuntu			daily-live			desktop					i386			iso
-Lubuntu Next Desktop amd64						lubuntu-next			daily-live			desktop					amd64			iso
-Lubuntu Next Desktop i386						lubuntu-next			daily-live			desktop					i386			iso
-Lubuntu Desktop Preinstalled armhf+ac100	lubuntu			daily-preinstalled	preinstalled-desktop	armhf+ac100		iso
+Lubuntu Alternate amd64				lubuntu				daily				alternate				amd64			iso
+Lubuntu Alternate i386				lubuntu				daily				alternate				i386			iso
+Lubuntu Desktop amd64				lubuntu				daily-live			desktop					amd64			iso
+Lubuntu Desktop i386				lubuntu				daily-live			desktop					i386			iso
+Lubuntu Next Desktop amd64			lubuntu-next			daily-live			desktop					amd64			iso
+Lubuntu Next Desktop i386			lubuntu-next			daily-live			desktop					i386			iso
+Lubuntu Desktop Preinstalled armhf+ac100	lubuntu				daily-preinstalled		preinstalled-desktop			armhf+ac100		iso
 
 # Ubuntu Base
-Ubuntu Base amd64							ubuntu-base		daily				base					amd64			iso
-Ubuntu Base arm64							ubuntu-base		daily				base					arm64			iso
-Ubuntu Base armhf							ubuntu-base		daily				base					armhf			iso
-Ubuntu Base ppc64el							ubuntu-base		daily				base					ppc64el			iso
-Ubuntu Base riscv64							ubuntu-base		daily				base					riscv64			iso
-Ubuntu Base s390x							ubuntu-base		daily				base					s390x			iso
+Ubuntu Base amd64				ubuntu-base			daily				base					amd64			iso
+Ubuntu Base arm64				ubuntu-base			daily				base					arm64			iso
+Ubuntu Base armhf				ubuntu-base			daily				base					armhf			iso
+Ubuntu Base ppc64el				ubuntu-base			daily				base					ppc64el			iso
+Ubuntu Base riscv64				ubuntu-base			daily				base					riscv64			iso
+Ubuntu Base s390x				ubuntu-base			daily				base					s390x			iso
 
-# Ubuntu Desktop 
-Ubuntu Desktop amd64						ubuntu			daily-live			desktop					amd64			iso
-Ubuntu Desktop (Legacy) amd64				ubuntu/legacy	daily-legacy		desktop-legacy			amd64			iso
-Ubuntu Desktop (Canary) amd64				ubuntu/canary	daily-canary		desktop-canary			amd64			iso
-Ubuntu Desktop arm64						ubuntu			daily-live			desktop					arm64			iso
-Ubuntu Desktop arm64+x13s					ubuntu			daily-live			desktop					arm64+x13s		iso
-Ubuntu Desktop arm64+raspi					ubuntu/desktop-preinstalled			daily-preinstalled	preinstalled-desktop	arm64+raspi		iso
-Ubuntu Desktop armhf+omap4					ubuntu			daily-live			desktop					armhf+omap4		iso
-Ubuntu Desktop i386							ubuntu			daily-live			desktop					i386			iso
-Ubuntu Desktop Preinstalled armhf+nexus7	ubuntu			daily-preinstalled	preinstalled-desktop	armhf+nexus7	iso
+# Ubuntu Desktop
+Ubuntu Desktop amd64				ubuntu				daily-live			desktop					amd64			iso
+Ubuntu Desktop (Legacy) amd64			ubuntu/legacy			daily-legacy			desktop-legacy				amd64			iso
+Ubuntu Desktop (Canary) amd64			ubuntu/canary			daily-canary			desktop-canary				amd64			iso
+Ubuntu Desktop arm64				ubuntu				daily-live			desktop					arm64			iso
+Ubuntu Desktop arm64+x13s			ubuntu				daily-live			desktop					arm64+x13s		iso
+Ubuntu Desktop arm64+raspi			ubuntu/desktop-preinstalled	daily-preinstalled		preinstalled-desktop			arm64+raspi		iso
+Ubuntu Desktop armhf+omap4			ubuntu				daily-live			desktop					armhf+omap4		iso
+Ubuntu Desktop i386				ubuntu				daily-live			desktop					i386			iso
+Ubuntu Desktop Preinstalled armhf+nexus7	ubuntu				daily-preinstalled		preinstalled-desktop			armhf+nexus7		iso
+Ubuntu Desktop riscv64				ubuntu				daily-live			desktop					riscv64			iso
 
 # Ubuntu GNOME
-Ubuntu GNOME Desktop amd64					ubuntu-gnome	daily-live			desktop					amd64			iso
-Ubuntu GNOME Desktop i386					ubuntu-gnome	daily-live			desktop					i386			iso
+Ubuntu GNOME Desktop amd64			ubuntu-gnome			daily-live			desktop					amd64			iso
+Ubuntu GNOME Desktop i386			ubuntu-gnome			daily-live			desktop					i386			iso
 
 # Ubuntu Budgie
-Ubuntu Budgie Desktop amd64					ubuntu-budgie	daily-live			desktop					amd64			iso
-Ubuntu Budgie Desktop (Legacy) amd64		ubuntu-budgie/legacy	daily-legacy		desktop-legacy			amd64			iso
-Ubuntu Budgie Desktop i386					ubuntu-budgie	daily-live			desktop					i386			iso
+Ubuntu Budgie Desktop amd64			ubuntu-budgie			daily-live			desktop					amd64			iso
+Ubuntu Budgie Desktop (Legacy) amd64		ubuntu-budgie/legacy		daily-legacy			desktop-legacy				amd64			iso
+Ubuntu Budgie Desktop i386			ubuntu-budgie			daily-live			desktop					i386			iso
 
 # Ubuntu Mate
-Ubuntu MATE Desktop amd64					ubuntu-mate	daily-live			desktop					amd64			iso
-Ubuntu MATE Desktop i386					ubuntu-mate	daily-live			desktop					i386			iso
+Ubuntu MATE Desktop amd64			ubuntu-mate			daily-live			desktop					amd64			iso
+Ubuntu MATE Desktop i386			ubuntu-mate			daily-live			desktop					i386			iso
 
 # Ubuntu Server
-Ubuntu Server amd64							ubuntu-server	daily				server					amd64			iso
-Ubuntu Server arm64							ubuntu-server	daily				server					arm64			iso
-Ubuntu Server armhf+omap					ubuntu-server	daily				server					armhf+omap		iso
-Ubuntu Server armhf+omap4					ubuntu-server	daily				server					armhf+omap4		iso
-Ubuntu Server armhf+raspi					ubuntu-server	daily-preinstalled		preinstalled-server			armhf+raspi		iso
-Ubuntu Server armhf+raspi2					ubuntu-server	daily-preinstalled		preinstalled-server			armhf+raspi2		iso
-Ubuntu Server armhf+raspi3					ubuntu-server	daily-preinstalled		preinstalled-server			armhf+raspi3		iso
-Ubuntu Server arm64+raspi					ubuntu-server	daily-preinstalled		preinstalled-server			arm64+raspi		iso
-Ubuntu Server arm64+raspi3					ubuntu-server	daily-preinstalled		preinstalled-server			arm64+raspi3		iso
-Ubuntu Server riscv64						ubuntu-server	daily-preinstalled		preinstalled-server			riscv64			iso
-Ubuntu Server riscv64+unleashed					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+unleashed	iso
-Ubuntu Server riscv64+unmatched					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+unmatched	iso
-Ubuntu Server riscv64+visionfive			ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+visionfive	iso
-Ubuntu Server riscv64+visionfive2			ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+visionfive2	iso
-Ubuntu Server riscv64+milkvmars			ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+milkvmars	iso
-Ubuntu Server riscv64+jh7110				ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+jh7110	iso
-Ubuntu Server riscv64+pic64gx					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+pic64gx	iso
-Ubuntu Server riscv64+nezha					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+nezha	iso
-Ubuntu Server riscv64+licheerv					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+licheerv	iso
-Ubuntu Server riscv64+icicle					ubuntu-server	daily-preinstalled		preinstalled-server			riscv64+icicle	iso
-Ubuntu Server amd64					ubuntu-server	daily-preinstalled		preinstalled-server			amd64	iso
-Ubuntu Server arm64					ubuntu-server	daily-preinstalled		preinstalled-server			arm64	iso
-Ubuntu Server i386							ubuntu-server	daily				server					i386			iso
-Ubuntu Server ppc64el						ubuntu-server	daily				server					ppc64el			iso
-Ubuntu Server s390x						ubuntu-server	daily				server					s390x			iso
-Ubuntu Server amd64						ubuntu-server	daily				legacy-server			amd64			iso
-Ubuntu Server arm64						ubuntu-server	daily				legacy-server			arm64			iso
-Ubuntu Server ppc64el						ubuntu-server	daily				legacy-server			ppc64el			iso
-Ubuntu Server s390x						ubuntu-server	daily				legacy-server			s390x			iso
+Ubuntu Server amd64				ubuntu-server			daily				server					amd64			iso
+Ubuntu Server arm64				ubuntu-server			daily				server					arm64			iso
+Ubuntu Server armhf+omap			ubuntu-server			daily				server					armhf+omap		iso
+Ubuntu Server armhf+omap4			ubuntu-server			daily				server					armhf+omap4		iso
+Ubuntu Server armhf+raspi			ubuntu-server			daily-preinstalled		preinstalled-server			armhf+raspi		iso
+Ubuntu Server armhf+raspi2			ubuntu-server			daily-preinstalled		preinstalled-server			armhf+raspi2		iso
+Ubuntu Server armhf+raspi3			ubuntu-server			daily-preinstalled		preinstalled-server			armhf+raspi3		iso
+Ubuntu Server arm64+raspi			ubuntu-server			daily-preinstalled		preinstalled-server			arm64+raspi		iso
+Ubuntu Server arm64+raspi3			ubuntu-server			daily-preinstalled		preinstalled-server			arm64+raspi3		iso
+Ubuntu Server riscv64				ubuntu-server			daily-preinstalled		preinstalled-server			riscv64			iso
+Ubuntu Server riscv64+unleashed			ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+unleashed	iso
+Ubuntu Server riscv64+unmatched			ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+unmatched	iso
+Ubuntu Server riscv64+visionfive		ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+visionfive	iso
+Ubuntu Server riscv64+visionfive2		ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+visionfive2	iso
+Ubuntu Server riscv64+milkvmars			ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+milkvmars	iso
+Ubuntu Server riscv64+jh7110			ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+jh7110		iso
+Ubuntu Server riscv64+pic64gx			ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+pic64gx		iso
+Ubuntu Server riscv64+nezha			ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+nezha		iso
+Ubuntu Server riscv64+licheerv			ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+licheerv	iso
+Ubuntu Server riscv64+icicle			ubuntu-server			daily-preinstalled		preinstalled-server			riscv64+icicle		iso
+Ubuntu Server amd64				ubuntu-server			daily-preinstalled		preinstalled-server			amd64			iso
+Ubuntu Server arm64				ubuntu-server			daily-preinstalled		preinstalled-server			arm64			iso
+Ubuntu Server i386				ubuntu-server			daily				server					i386			iso
+Ubuntu Server ppc64el				ubuntu-server			daily				server					ppc64el			iso
+Ubuntu Server s390x				ubuntu-server			daily				server					s390x			iso
+Ubuntu Server amd64				ubuntu-server			daily				legacy-server				amd64			iso
+Ubuntu Server arm64				ubuntu-server			daily				legacy-server				arm64			iso
+Ubuntu Server ppc64el				ubuntu-server			daily				legacy-server				ppc64el			iso
+Ubuntu Server s390x				ubuntu-server			daily				legacy-server				s390x			iso
 
 # Subiquity builds
-Ubuntu Server Subiquity amd64					ubuntu-server/live	daily-live			live-server				amd64			iso
-Ubuntu Server Subiquity arm64					ubuntu-server/live	daily-live			live-server				arm64			iso
-Ubuntu Server Subiquity arm64+largemem			ubuntu-server/live	daily-live			live-server				arm64+largemem	iso
-Ubuntu Server Subiquity ppc64el					ubuntu-server/live	daily-live			live-server				ppc64el			iso
-Ubuntu Server Subiquity s390x					ubuntu-server/live	daily-live			live-server				s390x			iso
-Ubuntu Server Subiquity riscv64					ubuntu-server/live	daily-live			live-server				riscv64			iso
+Ubuntu Server Subiquity amd64			ubuntu-server/live		daily-live			live-server				amd64			iso
+Ubuntu Server Subiquity arm64			ubuntu-server/live		daily-live			live-server				arm64			iso
+Ubuntu Server Subiquity arm64+largemem		ubuntu-server/live		daily-live			live-server				arm64+largemem		iso
+Ubuntu Server Subiquity ppc64el			ubuntu-server/live		daily-live			live-server				ppc64el			iso
+Ubuntu Server Subiquity s390x			ubuntu-server/live		daily-live			live-server				s390x			iso
+Ubuntu Server Subiquity riscv64			ubuntu-server/live		daily-live			live-server				riscv64			iso
 
 # Ubuntu Studio
-Ubuntu Studio DVD amd64						ubuntustudio	dvd			dvd					amd64			iso
-Ubuntu Studio Desktop amd64					ubuntustudio	daily-live			desktop					amd64			iso
-Ubuntu Studio DVD i386						ubuntustudio	dvd					dvd						i386			iso
+Ubuntu Studio DVD amd64				ubuntustudio			dvd				dvd					amd64			iso
+Ubuntu Studio Desktop amd64			ubuntustudio			daily-live			desktop					amd64			iso
+Ubuntu Studio DVD i386				ubuntustudio			dvd				dvd					i386			iso
 
 # Ubuntu Kylin
-Ubuntu Kylin Desktop amd64					ubuntukylin		daily-live			desktop					amd64			iso
-Ubuntu Kylin Desktop i386					ubuntukylin		daily-live			desktop					i386			iso
-Ubuntu Kylin Desktop arm64					ubuntukylin		daily-live			desktop					arm64			iso
+Ubuntu Kylin Desktop amd64			ubuntukylin			daily-live			desktop					amd64			iso
+Ubuntu Kylin Desktop i386			ubuntukylin			daily-live			desktop					i386			iso
+Ubuntu Kylin Desktop arm64			ubuntukylin			daily-live			desktop					arm64			iso
 
 # Ubuntu Unity
-Ubuntu Unity Desktop amd64					ubuntu-unity	daily-live			desktop					amd64			iso
+Ubuntu Unity Desktop amd64			ubuntu-unity			daily-live			desktop					amd64			iso
 
 # Ubuntu Cinnamon
-Ubuntu Cinnamon Desktop amd64				ubuntucinnamon	daily-live			desktop					amd64			iso
+Ubuntu Cinnamon Desktop amd64			ubuntucinnamon			daily-live			desktop					amd64			iso
 
 # Xubuntu
-Xubuntu Desktop amd64						xubuntu			daily-live			desktop					amd64			iso
-Xubuntu Desktop i386						xubuntu			daily-live			desktop					i386			iso
-Xubuntu Minimal amd64						xubuntu/minimal		daily-minimal		minimal					amd64			iso
+Xubuntu Desktop amd64				xubuntu				daily-live			desktop					amd64			iso
+Xubuntu Desktop i386				xubuntu				daily-live			desktop					i386			iso
+Xubuntu Minimal amd64				xubuntu/minimal			daily-minimal			minimal					amd64			iso
+Xubuntu Minimal riscv64				xubuntu/minimal			daily-minimal			minimal					riscv64			iso
 
 # Ubuntu Mini ISO
-Ubuntu Mini ISO amd64						ubuntu-mini-iso	daily-live			mini-iso				amd64			iso
+Ubuntu Mini ISO amd64				ubuntu-mini-iso			daily-live			mini-iso				amd64			iso
 
 # Ubuntu WSL
-Ubuntu WSL amd64							ubuntu-wsl			daily-live					wsl					amd64			iso
-Ubuntu WSL arm64							ubuntu-wsl			daily-live					wsl					arm64			iso
+Ubuntu WSL amd64				ubuntu-wsl			daily-live			wsl					amd64			iso
+Ubuntu WSL arm64				ubuntu-wsl			daily-live			wsl					arm64			iso
 
 # Ubuntu Core
-Ubuntu Core amd64 stable					ubuntu-core		stable				live-core				amd64			iso
-Ubuntu Core amd64 dangerous-stable			ubuntu-core		dangerous-stable	live-core				amd64			iso
-Ubuntu Core amd64 edge						ubuntu-core		edge				live-core				amd64			iso
-Ubuntu Core amd64 dangerous-edge			ubuntu-core		dangerous-edge		live-core				amd64			iso
-Ubuntu Core Pi arm64 stable					ubuntu-core		stable				live-core				arm64+raspi		iso
-Ubuntu Core Pi arm64 dangerous-stable		ubuntu-core		dangerous-stable	live-core				arm64+raspi		iso
-Ubuntu Core Pi arm64 edge					ubuntu-core		edge				live-core				arm64+raspi		iso
-Ubuntu Core Pi arm64 dangerous-edge			ubuntu-core		dangerous-edge		live-core				arm64+raspi		iso
-Ubuntu Core Pi armhf stable					ubuntu-core		stable				live-core				armhf+raspi		iso
-Ubuntu Core Pi armhf dangerous-stable		ubuntu-core		dangerous-stable	live-core				armhf+raspi		iso
-Ubuntu Core Pi armhf edge					ubuntu-core		edge				live-core				armhf+raspi		iso
-Ubuntu Core Pi armhf dangerous-edge			ubuntu-core		dangerous-edge		live-core				armhf+raspi		iso
+Ubuntu Core amd64 stable			ubuntu-core			stable				live-core				amd64			iso
+Ubuntu Core amd64 dangerous-stable		ubuntu-core			dangerous-stable		live-core				amd64			iso
+Ubuntu Core amd64 edge				ubuntu-core			edge				live-core				amd64			iso
+Ubuntu Core amd64 dangerous-edge		ubuntu-core			dangerous-edge			live-core				amd64			iso
+Ubuntu Core Pi arm64 stable			ubuntu-core			stable				live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 dangerous-stable		ubuntu-core			dangerous-stable		live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 edge			ubuntu-core			edge				live-core				arm64+raspi		iso
+Ubuntu Core Pi arm64 dangerous-edge		ubuntu-core			dangerous-edge			live-core				arm64+raspi		iso
+Ubuntu Core Pi armhf stable			ubuntu-core			stable				live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf dangerous-stable		ubuntu-core			dangerous-stable		live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf edge			ubuntu-core			edge				live-core				armhf+raspi		iso
+Ubuntu Core Pi armhf dangerous-edge		ubuntu-core			dangerous-edge			live-core				armhf+raspi		iso
