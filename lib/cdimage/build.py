@@ -229,6 +229,7 @@ ISO_PROJECTS = set(
         "ubuntu-core-desktop",
         "ubuntu-core-installer",
         "ubuntu-oem",
+        "ubuntu-mate",
         "ubuntu-mini-iso",
         "ubuntu-server",
         "ubuntu-unity",
