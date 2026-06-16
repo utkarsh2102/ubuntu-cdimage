@@ -99,8 +99,6 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 39 16 * * * DIST=resolute for-project lubuntu cron.daily-live --live
 24 22 * * * DIST=resolute for-project ubuntukylin cron.daily-live --live
 10 15 * * * DIST=resolute for-project ubuntu-budgie cron.daily-live --live
-36 2 * * *  DIST=resolute for-project ubuntu-mate cron.daily-live --live
-10 13 * * * DIST=resolute for-project ubuntu-unity cron.daily-live --live
 24 13 * * * DIST=resolute for-project ubuntucinnamon cron.daily-live --live
 21 02 * * * DIST=resolute for-project ubuntu-wsl cron.daily-live --live
 # The daily ubuntu-base images are used by core-next, so we can't build it
