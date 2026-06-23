@@ -34,7 +34,6 @@ import json
 import requests
 from pathlib import Path
 
-from cdimage.config import Series
 from cdimage.log import logger
 
 TO_ENVIRONMENT = "cdimage.ubuntu.com"
@@ -88,7 +87,7 @@ class TestObserver:
             "edubuntu": "edubuntu-release",
             "kubuntu": "kubuntu-release",
             "lubuntu": "lubuntu-iso-managers",
-            "ubuntu-desktop": "canonical-desktop-team",
+            "ubuntu": "canonical-desktop-team",
             "ubuntu-base": "canonical-foundations",
             "ubuntu-budgie": "ubuntubudgie-release",
             "ubuntu-mate": "ubuntu-mate-release",
@@ -119,17 +118,6 @@ class TestObserver:
         # `daily-live`, thus showing only one row in TO
         if os == "daily-dangerous":
             artifact_name = "dangerous-" + artifact_name
-
-        # Ubuntu desktop images publish at the cdimage root rather than
-        # under /ubuntu/, so for those the first path component is a series
-        # name (e.g. "stonking", "resolute") rather than a project name.
-        # Remap to the canonical project name in that case.
-        try:
-            Series.find_by_name(os)
-        except ValueError:
-            pass
-        else:
-            os = "ubuntu-desktop"
 
         # Hack around ubuntu-core images having their naming different
         if os == "ubuntu-core":

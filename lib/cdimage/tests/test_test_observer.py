@@ -185,7 +185,13 @@ api_key: to_mytopsecretapikey
 
         date = "20260128"
         directory = (
-            Path(config.root) / "www" / "full" / "resolute" / "daily-live" / date
+            Path(config.root)
+            / "www"
+            / "full"
+            / "ubuntu"
+            / "resolute"
+            / "daily-live"
+            / date
         )
         directory.mkdir(exist_ok=True, parents=True)
 
@@ -214,18 +220,18 @@ api_key: to_mytopsecretapikey
                         "version": "20260128",
                         "arch": "amd64",
                         "environment": "cdimage.ubuntu.com",
-                        "ci_link": "https://cdimage.ubuntu.com/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                        "ci_link": "https://cdimage.ubuntu.com/ubuntu/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
                         "test_plan": "Image build",
                         "initial_status": "IN_PROGRESS",
                         "relevant_links": [],
                         "needs_assignment": False,
                         "family": "image",
                         "execution_stage": "pending",
-                        "os": "ubuntu-desktop",
+                        "os": "ubuntu",
                         "release": "resolute",
                         "sha256": "anotherrealsha256sum",
                         "owner": "canonical-desktop-team",
-                        "image_url": "https://cdimage.ubuntu.com/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                        "image_url": "https://cdimage.ubuntu.com/ubuntu/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
                     },
                 ),
                 mock.call(
@@ -242,17 +248,17 @@ api_key: to_mytopsecretapikey
                         "relevant_links": [
                             {
                                 "label": "Manual test suite instructions",
-                                "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products/ubuntu-desktop",
+                                "url": "https://github.com/ubuntu/ubuntu-manual-tests/tree/main/resolute/products/ubuntu",
                             }
                         ],
                         "needs_assignment": False,
                         "family": "image",
                         "execution_stage": "pending",
-                        "os": "ubuntu-desktop",
+                        "os": "ubuntu",
                         "release": "resolute",
                         "sha256": "anotherrealsha256sum",
                         "owner": "canonical-desktop-team",
-                        "image_url": "https://cdimage.ubuntu.com/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
+                        "image_url": "https://cdimage.ubuntu.com/ubuntu/resolute/daily-live/20260128/resolute-ubuntu-amd64.iso",
                     },
                 ),
             ]
@@ -290,11 +296,11 @@ api_key: to_mytopsecretapikey
     @mock.patch(
         "cdimage.test_observer.requests.patch", side_effect=mocked_requests_patch
     )
-    def test_devel_series_desktop_remap(self, mock_patch, mock_post, mock_put):
-        """Devel-series Ubuntu desktop paths nest under <series>/ at the
-        cdimage root. The first path component is a series name (e.g.
-        'stonking'), and TestObserver must recognise it as Ubuntu desktop
-        rather than treating the series codename as a project name.
+    def test_devel_series_desktop(self, mock_patch, mock_post, mock_put):
+        """Devel-series Ubuntu desktop images nest under
+        /ubuntu/<series>/daily-live/, like every other project. The first
+        path component is the project name "ubuntu", so no remapping is
+        needed.
         """
         config = Config(read=False)
         config.root = self.use_temp_dir()
@@ -311,7 +317,7 @@ api_key: to_mytopsecretapikey
         devel = Series.latest().name
         date = "20260128"
         directory = (
-            Path(config.root) / "www" / "full" / devel / "daily-live" / date
+            Path(config.root) / "www" / "full" / "ubuntu" / devel / "daily-live" / date
         )
         directory.mkdir(exist_ok=True, parents=True)
 
@@ -326,9 +332,10 @@ api_key: to_mytopsecretapikey
         to.publish_image(publisher, str(entry_path), date)
 
         first_put_kwargs = mock_put.call_args_list[0].kwargs
-        self.assertEqual("ubuntu-desktop", first_put_kwargs["json"]["os"])
+        self.assertEqual("ubuntu", first_put_kwargs["json"]["os"])
         self.assertEqual(devel, first_put_kwargs["json"]["release"])
         self.assertEqual(
-            "https://cdimage.ubuntu.com/%s/daily-live/%s/%s" % (devel, date, iso),
+            "https://cdimage.ubuntu.com/ubuntu/%s/daily-live/%s/%s"
+            % (devel, date, iso),
             first_put_kwargs["json"]["image_url"],
         )
