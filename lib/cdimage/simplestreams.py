@@ -360,16 +360,10 @@ class DailySimpleStreams(SimpleStreams):
             # Check if the given directory is a project we know.
             if project not in projects:
                 continue
-            # We also skip Ubuntu as we handle it in a separate step, as it's
-            # actually hosted in the root directory (ubuntu is just a symlink).
-            if project == "ubuntu":
-                continue
             project_dir = os.path.join(self.tree_dir, project)
             # Inside the project directory we can have either image types or
             # series.
             self.scan_daily_project(project_dir, project)
-        # Now, handle Ubuntu from the tree root directory.
-        self.scan_daily_project(self.tree_dir, "ubuntu")
 
 
 class FullReleaseSimpleStreams(SimpleStreams):
