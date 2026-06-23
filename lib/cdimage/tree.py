@@ -2089,9 +2089,7 @@ class DailyTreePublisher(Publisher):
             channel = self.config.get("CHANNEL", "edge")
             return os.path.join(self.config.core_series, channel)
         image_type_dir = self.image_type.replace("_", "/")
-        if self.config.distribution != "ubuntu" or not self.config["DIST"].is_latest:
-            image_type_dir = os.path.join(self.config.full_series, image_type_dir)
-        return image_type_dir
+        return os.path.join(self.config.full_series, image_type_dir)
 
     @property
     def publish_base(self):
@@ -3662,20 +3660,19 @@ class ReleasePublisher(Publisher):
         if source.endswith("/source"):
             source = source[: -len("/source")]
 
-        if series.distribution != "ubuntu" or not series.is_latest:
-            # TODO does this need "legacy" handling?
-            if source == "ubuntu-server/daily":
-                source = os.path.join("ubuntu-server", series.full_name, "daily")
-            elif source == "ubuntu-server/daily-live":
-                source = os.path.join("ubuntu-server", series.full_name, "daily-live")
-            elif source == "ubuntu-server/daily-preinstalled":
-                source = os.path.join(
-                    "ubuntu-server", series.full_name, "daily-preinstalled"
-                )
-            elif source == "ubuntu-wsl/daily-live":
-                source = os.path.join("ubuntu-wsl", series.full_name, "daily-live")
-            else:
-                source = os.path.join(series.full_name, source)
+        # TODO does this need "legacy" handling?
+        if source == "ubuntu-server/daily":
+            source = os.path.join("ubuntu-server", series.full_name, "daily")
+        elif source == "ubuntu-server/daily-live":
+            source = os.path.join("ubuntu-server", series.full_name, "daily-live")
+        elif source == "ubuntu-server/daily-preinstalled":
+            source = os.path.join(
+                "ubuntu-server", series.full_name, "daily-preinstalled"
+            )
+        elif source == "ubuntu-wsl/daily-live":
+            source = os.path.join("ubuntu-wsl", series.full_name, "daily-live")
+        else:
+            source = os.path.join(series.full_name, source)
 
         daily_dir = self.daily_dir(source, date, publish_type)
         target_dir = self.target_dir(source, date, publish_type)
