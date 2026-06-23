@@ -109,13 +109,13 @@ class TestTree(TestCase):
 
     def test_path_to_project(self):
         self.assertEqual("kubuntu", self.tree.path_to_project("kubuntu/foo"))
-        self.assertEqual("ubuntu", self.tree.path_to_project("foo"))
         self.assertEqual("ubuntu", self.tree.path_to_project("ubuntu/foo/bar"))
+        self.assertRaises(ValueError, self.tree.path_to_project, "foo")
 
     def test_project_base(self):
         self.config.root = self.temp_dir
         self.config["PROJECT"] = "ubuntu"
-        self.assertEqual(self.temp_dir, self.tree.project_base)
+        self.assertEqual(os.path.join(self.temp_dir, "ubuntu"), self.tree.project_base)
         self.config["PROJECT"] = "kubuntu"
         self.assertEqual(os.path.join(self.temp_dir, "kubuntu"), self.tree.project_base)
 
@@ -154,7 +154,7 @@ class TestTree(TestCase):
         self.config.root = self.temp_dir
         series = Series.latest().name
         publish_base = os.path.join(
-            self.temp_dir, "www", "full", series, "daily-live"
+            self.temp_dir, "www", "full", "ubuntu", series, "daily-live"
         )
         target_dir = os.path.join(publish_base, "20130321")
         for name in (
@@ -821,18 +821,18 @@ class TestDailyTree(TestCase):
         )
 
     def test_manifest(self):
-        daily = os.path.join(self.temp_dir, "daily")
+        daily = os.path.join(self.temp_dir, "ubuntu", "daily")
         os.makedirs(os.path.join(daily, "20120806"))
         os.symlink("20120806", os.path.join(daily, "current"))
         touch(os.path.join(daily, "20120806", "hoary-install-i386.iso"))
-        daily_live = os.path.join(self.temp_dir, "daily-live")
+        daily_live = os.path.join(self.temp_dir, "ubuntu", "daily-live")
         os.makedirs(os.path.join(daily_live, "20120806"))
         os.symlink("20120806", os.path.join(daily_live, "current"))
         touch(os.path.join(daily_live, "20120806", "hoary-live-i386.iso"))
         self.assertEqual(
             [
-                "ubuntu\thoary\t/daily-live/current/hoary-live-i386.iso\t0",
-                "ubuntu\thoary\t/daily/current/hoary-install-i386.iso\t0",
+                "ubuntu\thoary\t/ubuntu/daily-live/current/hoary-live-i386.iso\t0",
+                "ubuntu\thoary\t/ubuntu/daily/current/hoary-install-i386.iso\t0",
             ],
             self.tree.manifest(),
         )
@@ -924,9 +924,7 @@ class TestDailyTreePublisher(TestCase):
         # Devel series and released series both nest under <series>/.
         publisher = self.make_publisher("ubuntu", "daily-live")
         latest = Series.latest().full_name
-        self.assertEqual(
-            os.path.join(latest, "daily-live"), publisher.image_type_dir
-        )
+        self.assertEqual(os.path.join(latest, "daily-live"), publisher.image_type_dir)
         self.config["DIST"] = "hoary"
         self.assertEqual(os.path.join("hoary", "daily-live"), publisher.image_type_dir)
 
@@ -1975,15 +1973,14 @@ class TestDailyTreePublisher(TestCase):
                 self.temp_dir,
                 "www",
                 "full",
+                "ubuntu",
                 "bionic",
                 "daily-live",
                 "20130315",
                 "bionic-desktop-i386.OVERSIZED",
             )
         )
-        publisher.post_qa(
-            "20130315", ["ubuntu/bionic/daily-live/bionic-desktop-i386"]
-        )
+        publisher.post_qa("20130315", ["ubuntu/bionic/daily-live/bionic-desktop-i386"])
         expected_note = (
             "<strong>WARNING: This image is OVERSIZED. This should never "
             "happen during milestone testing.</strong>"
@@ -2808,7 +2805,7 @@ class TestReleasePublisherMixin:
     def test_daily_dir_normal(self):
         self.config["PROJECT"] = "ubuntu"
         publisher = self.get_publisher()
-        path = os.path.join(self.temp_dir, "www", "full", "daily", "20130327")
+        path = os.path.join(self.temp_dir, "www", "full", "ubuntu", "daily", "20130327")
         os.makedirs(path)
         self.assertEqual(path, publisher.daily_dir("daily", "20130327", "alternate"))
         self.config["PROJECT"] = "kubuntu"
@@ -2863,7 +2860,9 @@ class TestReleasePublisherMixin:
     def test_daily_dir_source(self):
         self.config["PROJECT"] = "ubuntu"
         self.assertEqual(
-            os.path.join(self.temp_dir, "www", "full", "daily", "20130327", "source"),
+            os.path.join(
+                self.temp_dir, "www", "full", "ubuntu", "daily", "20130327", "source"
+            ),
             self.get_publisher().daily_dir("daily", "20130327", "src"),
         )
 
@@ -2872,7 +2871,14 @@ class TestReleasePublisherMixin:
         self.config["DIST"] = "bionic"
         self.assertEqual(
             os.path.join(
-                self.temp_dir, "www", "full", "bionic", "daily", "20130327", "i386"
+                self.temp_dir,
+                "www",
+                "full",
+                "ubuntu",
+                "bionic",
+                "daily",
+                "20130327",
+                "i386",
             ),
             self.get_publisher().daily_base("bionic/daily", "20130327", "wubi", "i386"),
         )
@@ -2882,6 +2888,7 @@ class TestReleasePublisherMixin:
                 self.temp_dir,
                 "www",
                 "full",
+                "ubuntu",
                 "daily-live",
                 "20130327",
                 "bionic-desktop-i386",
@@ -3019,7 +3026,15 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.assertEqual(
-            os.path.join(self.temp_dir, "www", "full", "releases", "bionic", "release"),
+            os.path.join(
+                self.temp_dir,
+                "www",
+                "full",
+                "ubuntu",
+                "releases",
+                "bionic",
+                "release",
+            ),
             self.get_publisher().target_dir("daily", "20130327", "alternate"),
         )
         self.config["PROJECT"] = "kubuntu"
@@ -3041,7 +3056,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.assertEqual(
-            os.path.join(self.temp_dir, "www", "full", "releases", "13.04"),
+            os.path.join(self.temp_dir, "www", "full", "ubuntu", "releases", "13.04"),
             self.get_publisher().version_link("daily"),
         )
         self.config["PROJECT"] = "kubuntu"
@@ -3058,6 +3073,7 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
                 self.temp_dir,
                 "www",
                 "torrent",
+                "ubuntu",
                 "releases",
                 "bionic",
                 "release",
@@ -3135,15 +3151,24 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "raring"
-        daily_dir = os.path.join(self.temp_dir, "www", "full", "daily-live", "20130327")
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "ubuntu", "daily-live", "20130327"
+        )
         touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
         touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
         touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
         target_dir = os.path.join(
-            self.temp_dir, "www", "full", "releases", "raring", "rc"
+            self.temp_dir, "www", "full", "ubuntu", "releases", "raring", "rc"
         )
         torrent_dir = os.path.join(
-            self.temp_dir, "www", "torrent", "releases", "raring", "rc", "desktop"
+            self.temp_dir,
+            "www",
+            "torrent",
+            "ubuntu",
+            "releases",
+            "raring",
+            "rc",
+            "desktop",
         )
         osextras.ensuredir(target_dir)
         osextras.ensuredir(torrent_dir)
@@ -3220,15 +3245,24 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "bionic"
-        daily_dir = os.path.join(self.temp_dir, "www", "full", "daily-live", "20130327")
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "ubuntu", "daily-live", "20130327"
+        )
         touch(os.path.join(daily_dir, "bionic-desktop-i386.iso"))
         touch(os.path.join(daily_dir, "bionic-desktop-i386.manifest"))
         touch(os.path.join(daily_dir, "bionic-desktop-i386.iso.zsync"))
         target_dir = os.path.join(
-            self.temp_dir, "www", "full", "releases", "bionic", "rc"
+            self.temp_dir, "www", "full", "ubuntu", "releases", "bionic", "rc"
         )
         torrent_dir = os.path.join(
-            self.temp_dir, "www", "torrent", "releases", "bionic", "rc", "desktop"
+            self.temp_dir,
+            "www",
+            "torrent",
+            "ubuntu",
+            "releases",
+            "bionic",
+            "rc",
+            "desktop",
         )
         osextras.ensuredir(target_dir)
         osextras.ensuredir(torrent_dir)
@@ -3289,12 +3323,21 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "jammy"
         self.config["ARCHES"] = "amd64+intel-iot"
-        daily_dir = os.path.join(self.temp_dir, "www", "full", "daily-live", "20130327")
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "ubuntu", "daily-live", "20130327"
+        )
         touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.iso"))
         touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.manifest"))
         touch(os.path.join(daily_dir, "jammy-desktop-amd64+intel-iot.iso.zsync"))
         target_dir = os.path.join(
-            self.temp_dir, "www", "full", "releases", "jammy", "release", "inteliot"
+            self.temp_dir,
+            "www",
+            "full",
+            "ubuntu",
+            "releases",
+            "jammy",
+            "release",
+            "inteliot",
         )
         osextras.ensuredir(target_dir)
         self.capture_logging()
@@ -3571,7 +3614,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.assertEqual(
-            os.path.join(self.temp_dir, "www", "simple", "bionic"),
+            os.path.join(self.temp_dir, "www", "simple", "ubuntu", "bionic"),
             self.get_publisher().target_dir("daily", "20130327", "alternate"),
         )
         self.config["PROJECT"] = "kubuntu"
@@ -3584,7 +3627,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "raring"
         self.assertEqual(
-            os.path.join(self.temp_dir, "www", "simple", "13.04"),
+            os.path.join(self.temp_dir, "www", "simple", "ubuntu", "13.04"),
             self.get_publisher().version_link("daily"),
         )
         self.config["PROJECT"] = "kubuntu"
@@ -3597,7 +3640,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.assertEqual(
-            os.path.join(self.temp_dir, "www", "simple", ".pool"),
+            os.path.join(self.temp_dir, "www", "simple", "ubuntu", ".pool"),
             self.get_publisher().pool_dir("daily"),
         )
         self.config["PROJECT"] = "kubuntu"
@@ -3612,7 +3655,13 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["DIST"] = "bionic"
         self.assertEqual(
             os.path.join(
-                self.temp_dir, "www", "torrent", "simple", "bionic", "desktop"
+                self.temp_dir,
+                "www",
+                "torrent",
+                "ubuntu",
+                "simple",
+                "bionic",
+                "desktop",
             ),
             self.get_publisher().torrent_dir("daily-live", "desktop"),
         )
@@ -3685,14 +3734,16 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "raring"
-        daily_dir = os.path.join(self.temp_dir, "www", "full", "daily-live", "20130327")
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "ubuntu", "daily-live", "20130327"
+        )
         touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
         touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
         touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
-        pool_dir = os.path.join(self.temp_dir, "www", "simple", ".pool")
-        target_dir = os.path.join(self.temp_dir, "www", "simple", "raring")
+        pool_dir = os.path.join(self.temp_dir, "www", "simple", "ubuntu", ".pool")
+        target_dir = os.path.join(self.temp_dir, "www", "simple", "ubuntu", "raring")
         torrent_dir = os.path.join(
-            self.temp_dir, "www", "torrent", "simple", "raring", "desktop"
+            self.temp_dir, "www", "torrent", "ubuntu", "simple", "raring", "desktop"
         )
         osextras.ensuredir(pool_dir)
         osextras.ensuredir(target_dir)
@@ -3792,11 +3843,13 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"
         self.config["DIST"] = "raring"
-        daily_dir = os.path.join(self.temp_dir, "www", "full", "daily-live", "20130327")
+        daily_dir = os.path.join(
+            self.temp_dir, "www", "full", "ubuntu", "daily-live", "20130327"
+        )
         touch(os.path.join(daily_dir, "raring-desktop-i386.iso"))
         touch(os.path.join(daily_dir, "raring-desktop-i386.manifest"))
         touch(os.path.join(daily_dir, "raring-desktop-i386.iso.zsync"))
-        pool_dir = os.path.join(self.temp_dir, "www", "simple", ".pool")
+        pool_dir = os.path.join(self.temp_dir, "www", "simple", "ubuntu", ".pool")
         osextras.ensuredir(pool_dir)
         self.capture_logging()
         publisher = self.get_publisher(official="poolonly", status="rc")
@@ -3960,6 +4013,7 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
             self.temp_dir,
             "www",
             "full",
+            "ubuntu",
             series.full_name,
             "daily-live",
             "20130327",
@@ -3967,8 +4021,8 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         touch(os.path.join(daily_dir, "%s-desktop-amd64.iso" % series))
         touch(os.path.join(daily_dir, "%s-desktop-amd64.manifest" % series))
         touch(os.path.join(daily_dir, "%s-desktop-amd64.iso.zsync" % series))
-        pool_dir = os.path.join(self.temp_dir, "www", "simple", ".pool")
-        target_dir = os.path.join(self.temp_dir, "www", "simple", series.name)
+        pool_dir = os.path.join(self.temp_dir, "www", "simple", "ubuntu", ".pool")
+        target_dir = os.path.join(self.temp_dir, "www", "simple", "ubuntu", series.name)
         self.capture_logging()
         publisher = self.get_publisher(official="yes")
         publisher.publish_release("daily-live", "20130327", "desktop")

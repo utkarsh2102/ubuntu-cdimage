@@ -49,7 +49,7 @@ from cdimage.config import Series
 from cdimage.log import logger, reset_logging
 from cdimage.mirror import trigger_mirrors
 from cdimage import osextras
-from cdimage.project import setenv_for_project
+from cdimage.project import project_map, setenv_for_project
 from cdimage.metadata import generate_ubuntu_core_image_lxd_metadata
 from cdimage.test_observer import TestObserver
 
@@ -163,20 +163,26 @@ class Tree:
         self.directory = directory
 
     def path_to_project(self, path):
-        """Determine the project for a file based on its tree-relative path."""
+        """Determine the project for a file based on its tree-relative path.
+
+        Every project tree (including Ubuntu desktop) now nests under a
+        per-project directory, so the first path component is always a
+        project name. Raise for anything that isn't a known project rather
+        than silently mis-classifying random files as "ubuntu".
+        """
         first_dir = path.split("/")[0]
-        if first_dir in projects:
+        if first_dir in project_map:
             return first_dir
         else:
-            return "ubuntu"
+            raise ValueError(
+                "Cannot determine project for path %r: %r is not a known "
+                "project directory" % (path, first_dir)
+            )
 
     @property
     def project_base(self):
         """Return the per-project base directory within this tree."""
-        if self.config.project == "ubuntu":
-            return self.directory
-        else:
-            return os.path.join(self.directory, self.config.project)
+        return os.path.join(self.directory, self.config.project)
 
     def name_to_series(self, name):
         """Return the series for a file basename."""
