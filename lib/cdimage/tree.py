@@ -3273,7 +3273,18 @@ class ReleasePublisher(Publisher):
 
     def daily_dir(self, source, date, publish_type):
         daily_tree = Tree.get_daily(self.config)
-        daily_dir = os.path.join(daily_tree.project_base, source, date)
+        # Some sources are rooted at a sibling project directory rather than
+        # the publishing project. For example, publishing ubuntu-wsl and
+        # ubuntu-server images runs as `for-project ubuntu`, but their daily
+        # builds live at the tree root under ubuntu-wsl/ and ubuntu-server/,
+        # not under ubuntu/ (project_base). Resolve such project-rooted sources
+        # against the tree root; everything else (e.g. the series-rooted
+        # desktop source "stonking/daily-live") stays under project_base.
+        if source.split("/")[0] in project_map:
+            base = daily_tree.directory
+        else:
+            base = daily_tree.project_base
+        daily_dir = os.path.join(base, source, date)
         if not os.path.isdir(daily_dir) and "/" in date:
             daily_dir = os.path.join(daily_tree.directory, date)
         if publish_type == "src":

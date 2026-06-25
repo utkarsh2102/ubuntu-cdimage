@@ -2866,6 +2866,62 @@ class TestReleasePublisherMixin:
             self.get_publisher().daily_dir("daily", "20130327", "src"),
         )
 
+    def test_daily_dir_sibling_project_source(self):
+        # ubuntu-wsl and ubuntu-server publish as `for-project ubuntu`, but
+        # their daily builds live at the tree root (ubuntu-wsl/, ubuntu-server/),
+        # NOT under ubuntu/ (project_base). The publish_release source transform
+        # produces a project-rooted source like "ubuntu-wsl/<series>/daily-live";
+        # daily_dir must resolve that against the tree root. Regression test for
+        # the ADT-1911 project_base change that briefly rerouted these under
+        # ubuntu/.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "stonking"
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir,
+                "www",
+                "full",
+                "ubuntu-wsl",
+                "stonking",
+                "daily-live",
+                "20260625",
+            ),
+            self.get_publisher().daily_dir(
+                "ubuntu-wsl/stonking/daily-live", "20260625", "wsl"
+            ),
+        )
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir,
+                "www",
+                "full",
+                "ubuntu-server",
+                "stonking",
+                "daily-preinstalled",
+                "20260625",
+            ),
+            self.get_publisher().daily_dir(
+                "ubuntu-server/stonking/daily-preinstalled",
+                "20260625",
+                "preinstalled-server",
+            ),
+        )
+        # The series-rooted desktop source still resolves under project_base.
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir,
+                "www",
+                "full",
+                "ubuntu",
+                "stonking",
+                "daily-live",
+                "20260625",
+            ),
+            self.get_publisher().daily_dir(
+                "stonking/daily-live", "20260625", "desktop"
+            ),
+        )
+
     def test_daily_base(self):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
