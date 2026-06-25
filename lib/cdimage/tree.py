@@ -3352,10 +3352,17 @@ class ReleasePublisher(Publisher):
     def publish_release_prefixes(self):
         # "beta-2" should end up in directories named "beta-2", but with
         # filenames including "beta2" (otherwise we get hyphen overload).
-        if self.status.startswith("release"):
+        #
+        # A status may be a nested path, e.g. "release/snapshot-2", which lands
+        # the milestone under releases/<series>/release/snapshot-2/.  The file
+        # tag is taken from the leaf only ("snapshot-2" -> "snapshot2"), never
+        # the "release/" parent, so filenames don't grow a slash.  A bare
+        # "release" status (the final release) stays untagged.
+        leaf = self.status.rsplit("/", 1)[-1]
+        if leaf == "release":
             filestatus = ""
         else:
-            filestatus = self.status.replace("-", "")
+            filestatus = leaf.replace("-", "")
 
         if self.official in ("yes", "poolonly", "named", "inteliot"):
             project = self.project

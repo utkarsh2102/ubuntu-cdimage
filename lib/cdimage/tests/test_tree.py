@@ -3145,6 +3145,46 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             self.get_publisher(official="named").publish_release_prefixes(),
         )
 
+    def test_publish_release_prefixes_nested_milestone(self):
+        # A nested "release/snapshot-2" status nests the milestone under
+        # releases/<series>/release/snapshot-2/ but tags filenames from the
+        # leaf only ("snapshot2"), never the "release/" parent.
+        self.config["PROJECT"] = "kubuntu"
+        self.config["DIST"] = "stonking"
+        self.assertEqual(
+            ("kubuntu-26.10-snapshot2", "kubuntu-26.10-snapshot2"),
+            self.get_publisher(
+                official="named", status="release/snapshot-2"
+            ).publish_release_prefixes(),
+        )
+        target_dir = self.get_publisher(
+            official="named", status="release/snapshot-2"
+        ).target_dir("stonking/daily-live", "20251209", "desktop")
+        self.assertEqual(
+            os.path.join(
+                self.temp_dir,
+                "www",
+                "full",
+                "kubuntu",
+                "releases",
+                "stonking",
+                "release",
+                "snapshot-2",
+            ),
+            target_dir,
+        )
+
+    def test_publish_release_prefixes_bare_release_untagged(self):
+        # A bare "release" status stays untagged in filenames.
+        self.config["PROJECT"] = "kubuntu"
+        self.config["DIST"] = "stonking"
+        self.assertEqual(
+            ("kubuntu-26.10", "kubuntu-26.10"),
+            self.get_publisher(
+                official="named", status="release"
+            ).publish_release_prefixes(),
+        )
+
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_arch_ubuntu_desktop_named(self, mock_call, *args):
