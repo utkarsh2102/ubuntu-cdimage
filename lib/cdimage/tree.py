@@ -1025,14 +1025,10 @@ class Publisher:
                 "For RISC-V computers, with support for Microchip Polarfire Icicle Kit"
             )
         elif arch == "riscv64":
-            sentences.append(
-                "For RISC-V computers. Requires copying your own first "
-                "stage bootloader (like u-boot) and relevant DTBs onto the "
-                "image before usage on real hardware (like the SiFive HiFive "
-                "Unmatched)."
-            )
-            if publish_type.startswith("preinstalled-"):
-                sentences.append("Usable on RISC-V QEMU.")
+            if series >= "questing":
+                sentences.append("For 64-bit RISC-V RVA23 processors and above.")
+            else:
+                sentences.append("For 64-bit RISC-V processors.")
         elif arch == "s390x":
             sentences.append(
                 "For IBM System z series mainframes, such as IBM LinuxONE."
