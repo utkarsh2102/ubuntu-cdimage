@@ -28,7 +28,8 @@ ubuntu			daily-live		focal-jammy		amd64 arm64 amd64+intel-iot
 ubuntu			daily-live		lunar			amd64 arm64
 ubuntu			daily-live		mantic			amd64 arm64 arm64+x13s
 ubuntu			daily-live		noble-plucky		amd64 arm64
-ubuntu			daily-live		resolute-		amd64 arm64 riscv64
+ubuntu			daily-live		resolute-plucky		amd64 arm64 riscv64
+ubuntu			daily-live		stonking-		amd64 amd64v3 arm64 riscv64
 ubuntu			daily-dangerous		oracular-		amd64
 
 ubuntu-desktop-preinstalled	daily-preinstalled	jammy-			arm64+raspi

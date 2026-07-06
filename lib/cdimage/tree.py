@@ -873,6 +873,7 @@ class Publisher:
     arch_strings = {
         "amd64": "64-bit PC (AMD64)",
         "amd64+mac": "64-bit Mac (AMD64)",
+        "amd64v3": "64-bit PC (AMD64, x86-64-v3)",
         "arm64": "64-bit ARM (ARMv8/AArch64)",
         "arm64+x13s": "Lenovo X13s Gen 1",
         "arm64+raspi": "Raspberry Pi Generic (64-bit ARM)",
@@ -927,6 +928,11 @@ class Publisher:
                 )
             else:
                 sentences.append("Choose this if you are at all unsure.")
+        elif arch == "amd64v3":
+            sentences.append(
+                "For x86-64-v3 capable processors (requires AVX, AVX2, BMI1, "
+                "BMI2, F16C, FMA, LZCNT, MOVBE, XSAVE support)."
+            )
         elif arch == "arm64":
             sentences.append("For 64-bit ARMv8 processors and above.")
         elif arch == "arm64+x13s":
@@ -1267,6 +1273,7 @@ class Publisher:
         all_arches = (
             "amd64",
             "amd64+mac",
+            "amd64v3",
             "i386",
             "armel",
             "armel+dove",
