@@ -837,6 +837,64 @@ class TestDailyTree(TestCase):
             self.tree.manifest(),
         )
 
+    def test_path_to_project(self):
+        self.assertEqual("kubuntu", self.tree.path_to_project("kubuntu/foo"))
+        self.assertEqual("ubuntu", self.tree.path_to_project("ubuntu/foo/bar"))
+
+    def test_path_to_project_subtree(self):
+        # A CDIMAGE_SUBTREE publication roots a whole project tree one level
+        # deeper, so the project isn't the first path component.
+        self.assertEqual(
+            "ubuntu-server",
+            self.tree.path_to_project(
+                "nvidia-tegra/ubuntu-server/noble/daily-preinstalled/pending/"
+                "noble-preinstalled-server-arm64+tegra-jetson.img.xz"
+            ),
+        )
+
+    def test_path_to_project_unknown(self):
+        self.assertRaises(ValueError, self.tree.path_to_project, "foo")
+        self.assertRaises(
+            ValueError, self.tree.path_to_project, "stonking/daily-live/current/x.iso"
+        )
+
+    def test_path_to_manifest_skips_unknown_project(self):
+        # Leftovers from an older layout mustn't be able to abort the whole
+        # manifest, and hence the publication that writes it.
+        iso = "stonking/daily-live/current/hoary-install-i386.iso"
+        touch(os.path.join(self.temp_dir, iso))
+        self.capture_logging()
+        self.assertIsNone(self.tree.path_to_manifest(iso))
+        self.assertLogEqual(
+            [
+                "Skipping %s in manifest: Cannot determine project for path "
+                "%r: no component names a known project directory" % (iso, iso)
+            ]
+        )
+
+    def test_manifest_includes_subtree_publications(self):
+        daily_live = os.path.join(self.temp_dir, "ubuntu", "daily-live")
+        os.makedirs(os.path.join(daily_live, "20120806"))
+        os.symlink("20120806", os.path.join(daily_live, "current"))
+        touch(os.path.join(daily_live, "20120806", "hoary-live-i386.iso"))
+        subtree = os.path.join(
+            self.temp_dir, "nvidia-tegra", "ubuntu-server", "daily-preinstalled"
+        )
+        os.makedirs(os.path.join(subtree, "20120806"))
+        os.symlink("20120806", os.path.join(subtree, "pending"))
+        touch(
+            os.path.join(subtree, "20120806", "hoary-preinstalled-server-arm64.img.xz")
+        )
+        self.assertEqual(
+            [
+                "ubuntu\thoary\t/ubuntu/daily-live/current/hoary-live-i386.iso\t0",
+                "ubuntu-server\thoary\t/nvidia-tegra/ubuntu-server/"
+                "daily-preinstalled/pending/hoary-preinstalled-server-arm64"
+                ".img.xz\t0",
+            ],
+            self.tree.manifest(),
+        )
+
 
 # As well as simply mocking isotracker.ISOTracker, we have to go through
 # some contortions to avoid needing ubuntu-archive-tools to be on sys.path

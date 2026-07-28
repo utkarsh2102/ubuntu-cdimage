@@ -2012,6 +2012,36 @@ class DailyTree(Tree):
         dist = name.split("-")[0]
         return Series.find_by_name(dist)
 
+    def path_to_project(self, path):
+        """Determine the project for a file based on its tree-relative path.
+
+        Paths here are normally <project>/<series>/<image_type>/..., but a
+        subtree publication (CDIMAGE_SUBTREE) roots a whole project tree one
+        level deeper, e.g. nvidia-tegra/ubuntu-server/noble/... Resolve the
+        project as the first component naming a known project rather than
+        assuming that it is the first component.
+        """
+        for component in path.split("/"):
+            if component in project_map:
+                return component
+        raise ValueError(
+            "Cannot determine project for path %r: no component names a "
+            "known project directory" % path
+        )
+
+    def path_to_manifest(self, path):
+        """Return a manifest file entry for a tree-relative path.
+
+        Anything we can't attribute to a project is left out of the manifest
+        rather than aborting it; this tree contains directories that aren't
+        image publications at all.
+        """
+        try:
+            return super(DailyTree, self).path_to_manifest(path)
+        except ValueError as e:
+            logger.warning("Skipping %s in manifest: %s" % (path, e))
+            return None
+
     @property
     def site_name(self):
         return "cdimage.ubuntu.com"
