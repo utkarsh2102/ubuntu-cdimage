@@ -1,3 +1,16 @@
 # Keep up to 5 images for Ubuntu Core projects
 ubuntu-core 3
 ubuntu-appliance 2
+
+# Floor for the daily image types: never leave fewer than this many image
+# sets on the server, however old they are, so that a run of failed builds
+# can't strip a tree down to a single daily.  Combined with purge-days, which
+# still trims anything older than the cut-off once this many are kept.
+daily 2
+daily-live 2
+daily-dangerous 2
+daily-preinstalled 2
+daily-canary 2
+daily-legacy 2
+daily-minimal 2
+dvd 2

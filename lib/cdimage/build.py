@@ -569,10 +569,15 @@ def build_image_set_locked(config, options):
             log_marker("Publishing")
             tree = Tree.get_daily(config)
             publisher = Publisher.get_daily(tree, image_type)
-            publisher.publish(date)
+            published = publisher.publish(date)
 
-            log_marker("Purging old images")
-            publisher.purge()
+            # Only purge once we know we have a new image to replace what
+            # we're about to delete.
+            if published:
+                log_marker("Purging old images")
+                publisher.purge()
+            else:
+                logger.warning("No images published; not purging old images")
 
             log_marker("Handling simplestreams")
             publisher.refresh_simplestreams()

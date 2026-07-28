@@ -19,6 +19,7 @@
 
 from __future__ import print_function
 
+import contextlib
 from functools import partial
 import optparse
 import os
@@ -884,6 +885,58 @@ class TestBuildImageSet(TestCase):
                     ),
                     log.read(),
                 )
+
+    def run_build_image_set_locked_for_publishing(self, published):
+        """Drive build_image_set_locked as far as the publish/purge step."""
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["CDIMAGE_NOLOG"] = "1"
+        os.makedirs(os.path.join(self.temp_dir, "etc"))
+        with contextlib.ExitStack() as stack:
+
+            def patch(target, **kwargs):
+                return stack.enter_context(mock.patch(target, **kwargs))
+
+            mock_publish = patch(
+                "cdimage.tree.DailyTreePublisher.publish", return_value=published
+            )
+            mock_purge = patch("cdimage.tree.DailyTreePublisher.purge")
+            patch("cdimage.tree.DailyTreePublisher.refresh_simplestreams")
+            patch("cdimage.build.trigger_mirrors")
+            patch("cdimage.build.build_livecd_base")
+            patch("cdimage.build.is_live_fs_only", return_value=True)
+            patch("cdimage.build.tracker_set_rebuild_status")
+
+            self.capture_logging()
+            self.assertTrue(build_image_set_locked(self.config, None))
+            mock_publish.assert_called_once_with(self.config["CDIMAGE_DATE"])
+            return mock_purge
+
+    def test_build_image_set_locked_purges_after_publishing(self):
+        mock_purge = self.run_build_image_set_locked_for_publishing(
+            ["ubuntu/bionic/daily/bionic-install-i386"]
+        )
+        mock_purge.assert_called_once_with()
+
+    def test_build_image_set_locked_skips_purge_when_nothing_published(self):
+        # Purging is what keeps old dailies from piling up, but it must not
+        # run when there's no new image to replace what it would delete.
+        mock_purge = self.run_build_image_set_locked_for_publishing([])
+        mock_purge.assert_not_called()
+        self.assertLogEqual(
+            [
+                "===== Publishing =====",
+                mock.ANY,
+                "No images published; not purging old images",
+                "===== Handling simplestreams =====",
+                mock.ANY,
+                "===== Triggering mirrors =====",
+                mock.ANY,
+                "===== Finished =====",
+                mock.ANY,
+            ]
+        )
 
     @mock.patch("cdimage.build.build_image_set_locked", side_effect=KeyboardInterrupt)
     def test_build_image_set_interrupted(self, *args):

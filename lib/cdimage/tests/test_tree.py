@@ -2263,6 +2263,74 @@ class TestDailyTreePublisher(TestCase):
             ]
         )
 
+    def make_publishable(self, publisher):
+        """Lay out the scratch files publish() expects for one i386 image."""
+        source_dir = publisher.image_output("i386")
+        for extension in "raw", "list", "manifest":
+            touch(
+                os.path.join(
+                    source_dir, "%s-desktop-i386.%s" % (self.config.series, extension)
+                )
+            )
+        touch(
+            os.path.join(publisher.britney_report, "%s_probs.html" % self.config.series)
+        )
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
+    def test_publish_returns_published_images(self, *args):
+        self.config["ARCHES"] = "i386"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        self.make_publishable(publisher)
+        self.capture_logging()
+        self.assertEqual(
+            [
+                "ubuntu/%s/daily-live/%s-desktop-i386"
+                % (self.config.series, self.config.series)
+            ],
+            publisher.publish("20120807"),
+        )
+
+    def test_publish_returns_nothing_when_no_images_produced(self):
+        self.config["ARCHES"] = "i386"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        self.capture_logging()
+        self.assertFalse(publisher.publish("20120807"))
+
+    @mock.patch("cdimage.osextras.find_on_path", return_value=True)
+    @mock.patch("cdimage.tree.zsyncmake")
+    @mock.patch(
+        "cdimage.tree.DailyTreePublisher.write_daily_manifest",
+        side_effect=ValueError("Cannot determine project for path 'nvidia-tegra/x'"),
+    )
+    @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
+    def test_publish_survives_failing_bookkeeping(self, mock_post_qa, *args):
+        # A failure after the images are on disk must not abort publish(), or
+        # the caller never gets to purge old images.
+        self.config["ARCHES"] = "i386"
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        self.make_publishable(publisher)
+        self.capture_logging()
+
+        published = publisher.publish("20120807")
+
+        self.assertTrue(published)
+        self.assertIn(
+            "POST-PUBLICATION FAILURE (writing the daily manifest):",
+            [record.getMessage() for record in self.handler.buffer],
+        )
+        self.assertIn(
+            "ValueError: Cannot determine project for path 'nvidia-tegra/x'",
+            [record.getMessage() for record in self.handler.buffer],
+        )
+        # The steps after the failing one still ran.
+        mock_post_qa.assert_called_once_with("20120807", published)
+        self.assertCountEqual(
+            [".htaccess", "20120807", "current", "pending"],
+            os.listdir(publisher.publish_base),
+        )
+
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("cdimage.tree.zsyncmake")
     @mock.patch("cdimage.tree.DailyTreePublisher.post_qa")
@@ -2690,26 +2758,90 @@ class TestDailyTreePublisher(TestCase):
             ["20130320", "20130321"], os.listdir(publisher.publish_base)
         )
 
+    def write_purge_config(self, days=None, count=None):
+        if days is not None:
+            with mkfile(os.path.join(self.temp_dir, "etc", "purge-days")) as purge_days:
+                print("daily %d" % days, file=purge_days)
+        if count is not None:
+            with mkfile(
+                os.path.join(self.temp_dir, "etc", "purge-count")
+            ) as purge_count:
+                print("daily %d" % count, file=purge_count)
+
     @mock.patch("time.time", return_value=date_to_time("20130321"))
-    def test_purge_both_days_and_count_raises(self, *args):
+    def test_purge_count_is_a_floor_under_days(self, *args):
+        # Everything here is older than the cut-off, but purge-count means we
+        # never strip the tree below that many image sets.
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130315", "20130316", "20130317", "20130318":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        self.write_purge_config(days=1, count=2)
+        self.capture_logging()
+        publisher.purge()
+        project = "ubuntu"
+        purge_desc = "%s/%s" % (project, Series.latest().full_name)
+        self.assertLogEqual(
+            [
+                "Purging %s/daily images older than 1 day, but always keeping "
+                "the latest 2 images ..." % project,
+                "Purging %s/daily/20130316" % purge_desc,
+                "Purging %s/daily/20130315" % purge_desc,
+            ]
+        )
+        self.assertCountEqual(
+            ["20130317", "20130318"], os.listdir(publisher.publish_base)
+        )
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_floor_holds_steady_as_builds_arrive(self, *args):
+        # The third build purges the first, the fourth purges the second, and
+        # two dailies are on the server throughout.
+        publisher = self.make_publisher("ubuntu", "daily")
+        self.write_purge_config(days=1, count=2)
+        self.capture_logging()
+        for name in "20130315", "20130316":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+            publisher.purge()
+        self.assertCountEqual(
+            ["20130315", "20130316"], os.listdir(publisher.publish_base)
+        )
+        touch(os.path.join(publisher.publish_base, "20130317", "file"))
+        publisher.purge()
+        self.assertCountEqual(
+            ["20130316", "20130317"], os.listdir(publisher.publish_base)
+        )
+        touch(os.path.join(publisher.publish_base, "20130318", "file"))
+        publisher.purge()
+        self.assertCountEqual(
+            ["20130317", "20130318"], os.listdir(publisher.publish_base)
+        )
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_floor_is_not_a_cap(self, *args):
+        # Images newer than the cut-off are kept even beyond purge-count.
         publisher = self.make_publisher("ubuntu", "daily")
         for name in "20130321", "20130321.1", "20130321.2", "20130321.3":
             touch(os.path.join(publisher.publish_base, name, "file"))
-        with mkfile(os.path.join(self.temp_dir, "etc", "purge-days")) as purge_days:
-            print("daily 1", file=purge_days)
-        with mkfile(os.path.join(self.temp_dir, "etc", "purge-count")) as purge_count:
-            print("daily 3", file=purge_count)
-        project = "ubuntu"
+        self.write_purge_config(days=1, count=2)
         self.capture_logging()
-        self.assertRaisesRegex(
-            Exception,
-            r"Both purge-days and purge-count are defined for "
-            "%s/daily. Such scenario is currently "
-            "unsupported." % project,
-            publisher.purge,
-        )
+        publisher.purge()
         self.assertCountEqual(
             ["20130321", "20130321.1", "20130321.2", "20130321.3"],
+            os.listdir(publisher.publish_base),
+        )
+
+    @mock.patch("time.time", return_value=date_to_time("20130321"))
+    def test_purge_floor_still_honours_pinned_images(self, *args):
+        # A "manual" pin outside the floor is still preserved.
+        publisher = self.make_publisher("ubuntu", "daily")
+        for name in "20130315", "20130316", "20130317", "20130318":
+            touch(os.path.join(publisher.publish_base, name, "file"))
+        os.symlink("20130315", os.path.join(publisher.publish_base, "manual"))
+        self.write_purge_config(days=1, count=2)
+        self.capture_logging()
+        publisher.purge()
+        self.assertCountEqual(
+            ["20130315", "20130317", "20130318", "manual"],
             os.listdir(publisher.publish_base),
         )
 

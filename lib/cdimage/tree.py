@@ -2984,7 +2984,7 @@ class DailyTreePublisher(Publisher):
 
         if not published:
             logger.warning("No images produced!")
-            return
+            return published
 
         target_report = os.path.join(self.publish_base, date, "report.html")
         osextras.unlink_force(target_report)
@@ -2993,13 +2993,35 @@ class DailyTreePublisher(Publisher):
 
         self.polish_directory(date)
         self.link(date, "pending")
+
+        # The images are on disk and "pending" points at them, so from here on
+        # we're only doing bookkeeping.  Failing at that mustn't abort the
+        # caller, which still has to purge old images: letting it do so is how
+        # we ended up keeping weeks of dailies when a stray directory started
+        # breaking manifest generation.
         current_arches = [
             arch for arch in self.config.arches if not self.current_uses_trigger(arch)
         ]
         if current_arches:
-            self.mark_current(date, current_arches)
-        self.set_link_descriptions()
+            self.bookkeep(
+                "marking images current", self.mark_current, date, current_arches
+            )
+        self.bookkeep("setting link descriptions", self.set_link_descriptions)
+        self.bookkeep("writing the daily manifest", self.write_daily_manifest)
+        self.bookkeep("posting to the QA tracker", self.post_qa, date, published)
 
+        return published
+
+    def bookkeep(self, description, func, *args):
+        """Run a post-publication step, logging rather than raising on error."""
+        try:
+            func(*args)
+        except Exception:
+            logger.error("POST-PUBLICATION FAILURE (%s):" % description)
+            for line in traceback.format_exc().splitlines():
+                logger.error(line)
+
+    def write_daily_manifest(self):
         manifest_lock = os.path.join(self.config.root, "etc", ".lock-manifest-daily")
         try:
             subprocess.check_call(["lockfile", "-r", "4", manifest_lock])
@@ -3022,8 +3044,6 @@ class DailyTreePublisher(Publisher):
         finally:
             osextras.unlink_force(manifest_lock)
 
-        self.post_qa(date, published)
-
     def get_purge_data(self, key, purge_type):
         path = os.path.join(self.config.root, "etc", purge_type)
         try:
@@ -3041,6 +3061,39 @@ class DailyTreePublisher(Publisher):
             if e.errno != errno.ENOENT:
                 raise
         return None
+
+    def purge_pinned(self, entry):
+        """Is this published date directory pinned by a link we must keep?"""
+        publish_pending = os.path.join(self.publish_base, "pending")
+        publish_current = os.path.join(self.publish_base, "current")
+        publish_manual = os.path.join(self.publish_base, "manual")
+
+        # Pointed to by "pending" or "current" symlink?
+        if os.path.islink(publish_pending) and os.readlink(publish_pending) == entry:
+            return True
+        if os.path.islink(publish_current):
+            if os.readlink(publish_current) == entry:
+                return True
+        elif os.path.isdir(publish_current):
+            for current_entry in os.listdir(publish_current):
+                current_entry_path = os.path.join(publish_current, current_entry)
+                if os.path.islink(current_entry_path):
+                    target_bits = os.readlink(current_entry_path).split(os.sep)
+                    if (
+                        len(target_bits) == 3
+                        and target_bits[0] == os.pardir
+                        and target_bits[1] == entry
+                        and target_bits[2] == current_entry
+                    ):
+                        return True
+        # Experimentally, we also support manually 'preserving' certain
+        # images by using a 'manual' symlink to a published image set.
+        if (
+            os.path.islink(publish_manual)
+            and os.path.normpath(os.readlink(publish_manual)) == entry
+        ):
+            return True
+        return False
 
     def purge(self, days=None, count=None):
         project_image_type = "%s/%s" % (self.project, self.image_type)
@@ -3062,33 +3115,38 @@ class DailyTreePublisher(Publisher):
         if not days and not count:
             logger.info("Not purging images for %s" % project_image_type)
             return
-        elif days and count:
-            raise Exception(
-                "Both purge-days and purge-count are defined for "
-                "%s. Such scenario is currently unsupported." % project_image_type
+
+        oldest = 0
+        if days:
+            oldest = int(
+                time.strftime("%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days))
             )
 
-        image_count = 0
-        oldest = 0
-
-        if days:
+        if days and count:
+            logger.info(
+                "Purging %s images older than %d %s, but always keeping the "
+                "latest %d %s ..."
+                % (
+                    project_image_type,
+                    days,
+                    "day" if days == 1 else "days",
+                    count,
+                    "image" if count == 1 else "images",
+                )
+            )
+        elif days:
             logger.info(
                 "Purging %s images older than %d %s ..."
                 % (project_image_type, days, "day" if days == 1 else "days")
             )
-            oldest = int(
-                time.strftime("%Y%m%d", time.gmtime(time.time() - 60 * 60 * 24 * days))
-            )
-        elif count:
+        else:
             logger.info(
                 "Purging %s images to leave only the latest %d %s ..."
                 % (project_image_type, count, "image" if count == 1 else "images")
             )
 
+        kept = 0
         to_purge = []
-        publish_pending = os.path.join(self.publish_base, "pending")
-        publish_current = os.path.join(self.publish_base, "current")
-        publish_manual = os.path.join(self.publish_base, "manual")
 
         for entry in sorted(osextras.listdir_force(self.publish_base), reverse=True):
             entry_path = os.path.join(self.publish_base, entry)
@@ -3101,49 +3159,22 @@ class DailyTreePublisher(Publisher):
             if not entry[0].isdigit():
                 continue
 
-            image_count += 1
-
-            # Older than cut-off date?
-            # Did we leave enough images already?
-            # In the case where both cut-off date and image count have been
-            # defined, we purge anything that doesn't satisfy both of the above
-            # conditions at once
-            if (not days or oldest <= int(entry.split(".", 1)[0])) and (
-                not count or image_count <= count
-            ):
+            # Within the minimum number of images to keep?  We iterate newest
+            # first, so this keeps the latest `count` builds whatever their
+            # age, guaranteeing that a minimum number of images remains on the
+            # server even if builds have been failing for a while.
+            if count and kept < count:
+                kept += 1
                 continue
 
-            # Pointed to by "pending" or "current" symlink?
-            if (
-                os.path.islink(publish_pending)
-                and os.readlink(publish_pending) == entry
-            ):
+            # Newer than the cut-off date?
+            if days and oldest <= int(entry.split(".", 1)[0]):
+                kept += 1
                 continue
-            if os.path.islink(publish_current):
-                if os.readlink(publish_current) == entry:
-                    continue
-            elif os.path.isdir(publish_current):
-                found_current = False
-                for current_entry in os.listdir(publish_current):
-                    current_entry_path = os.path.join(publish_current, current_entry)
-                    if os.path.islink(current_entry_path):
-                        target_bits = os.readlink(current_entry_path).split(os.sep)
-                        if (
-                            len(target_bits) == 3
-                            and target_bits[0] == os.pardir
-                            and target_bits[1] == entry
-                            and target_bits[2] == current_entry
-                        ):
-                            found_current = True
-                            break
-                if found_current:
-                    continue
-            # Experimentally, we also support manually 'preserving' certain
-            # images by using a 'manual' symlink to a published image set.
-            if (
-                os.path.islink(publish_manual)
-                and os.path.normpath(os.readlink(publish_manual)) == entry
-            ):
+
+            # Pinned by "pending", "current" or "manual"?
+            if self.purge_pinned(entry):
+                kept += 1
                 continue
 
             to_purge.append((entry, entry_path))

@@ -33,7 +33,7 @@ def main():
     if len(args) < 1:
         parser.error("need image-type")
     image_type = args[0]
-    days = args[1] if len(args) >= 2 else None
+    days = int(args[1]) if len(args) >= 2 else None
     config = Config()
     tree = Tree.get_daily(config)
     Publisher.get_daily(tree, image_type).purge(days=days)
