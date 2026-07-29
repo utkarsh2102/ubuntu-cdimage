@@ -2316,6 +2316,10 @@ class TestDailyTreePublisher(TestCase):
         published = publisher.publish("20120807")
 
         self.assertTrue(published)
+        # ... but the caller is told, so that it can still report a failure.
+        self.assertEqual(
+            ["writing the daily manifest"], publisher.bookkeeping_failures
+        )
         self.assertIn(
             "POST-PUBLICATION FAILURE (writing the daily manifest):",
             [record.getMessage() for record in self.handler.buffer],

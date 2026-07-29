@@ -886,8 +886,13 @@ class TestBuildImageSet(TestCase):
                     log.read(),
                 )
 
-    def run_build_image_set_locked_for_publishing(self, published):
-        """Drive build_image_set_locked as far as the publish/purge step."""
+    def run_build_image_set_locked_for_publishing(
+        self, published, bookkeeping_failures=()
+    ):
+        """Drive build_image_set_locked as far as the publish/purge step.
+
+        Returns the build's result and the mock standing in for purge().
+        """
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
         self.config["IMAGE_TYPE"] = "daily"
@@ -898,8 +903,14 @@ class TestBuildImageSet(TestCase):
             def patch(target, **kwargs):
                 return stack.enter_context(mock.patch(target, **kwargs))
 
+            def publish(publisher, date):
+                publisher.bookkeeping_failures.extend(bookkeeping_failures)
+                return published
+
             mock_publish = patch(
-                "cdimage.tree.DailyTreePublisher.publish", return_value=published
+                "cdimage.tree.DailyTreePublisher.publish",
+                autospec=True,
+                side_effect=publish,
             )
             mock_purge = patch("cdimage.tree.DailyTreePublisher.purge")
             patch("cdimage.tree.DailyTreePublisher.refresh_simplestreams")
@@ -909,20 +920,40 @@ class TestBuildImageSet(TestCase):
             patch("cdimage.build.tracker_set_rebuild_status")
 
             self.capture_logging()
-            self.assertTrue(build_image_set_locked(self.config, None))
-            mock_publish.assert_called_once_with(self.config["CDIMAGE_DATE"])
-            return mock_purge
+            result = build_image_set_locked(self.config, None)
+            mock_publish.assert_called_once_with(mock.ANY, self.config["CDIMAGE_DATE"])
+            return result, mock_purge
 
     def test_build_image_set_locked_purges_after_publishing(self):
-        mock_purge = self.run_build_image_set_locked_for_publishing(
+        result, mock_purge = self.run_build_image_set_locked_for_publishing(
             ["ubuntu/bionic/daily/bionic-install-i386"]
         )
+        self.assertTrue(result)
         mock_purge.assert_called_once_with()
+
+    @mock.patch("cdimage.build.notify_failure")
+    def test_build_image_set_locked_reports_bookkeeping_failure(self, mock_notify):
+        # publish() keeps going past a post-publication failure so that we
+        # still get as far as purging, but the build must not then claim to
+        # have succeeded, or nobody ever finds out.
+        result, mock_purge = self.run_build_image_set_locked_for_publishing(
+            ["ubuntu/bionic/daily/bionic-install-i386"],
+            bookkeeping_failures=["writing the daily manifest"],
+        )
+        self.assertFalse(result)
+        mock_purge.assert_called_once_with()
+        mock_notify.assert_called_once_with(self.config, mock.ANY)
+        self.assertIn(
+            "Images were published, but writing the daily manifest failed; "
+            "see POST-PUBLICATION FAILURE above.",
+            self.captured_log_messages(),
+        )
 
     def test_build_image_set_locked_skips_purge_when_nothing_published(self):
         # Purging is what keeps old dailies from piling up, but it must not
         # run when there's no new image to replace what it would delete.
-        mock_purge = self.run_build_image_set_locked_for_publishing([])
+        result, mock_purge = self.run_build_image_set_locked_for_publishing([])
+        self.assertTrue(result)
         mock_purge.assert_not_called()
         self.assertLogEqual(
             [

@@ -2088,6 +2088,7 @@ class DailyTreePublisher(Publisher):
     def __init__(self, tree, image_type):
         super(DailyTreePublisher, self).__init__(tree, image_type)
         self.checksum_dirs = []
+        self.bookkeeping_failures = []
 
     def image_output(self, arch):
         return os.path.join(
@@ -2964,6 +2965,7 @@ class DailyTreePublisher(Publisher):
         self.new_publish_dir(date)
         published = []
         self.checksum_dirs = []
+        self.bookkeeping_failures = []
         if self.config.project == "livecd-base":
             for arch in self.config.cpuarches:
                 published.extend(list(self.publish_livecd_base(arch, date)))
@@ -3013,10 +3015,16 @@ class DailyTreePublisher(Publisher):
         return published
 
     def bookkeep(self, description, func, *args):
-        """Run a post-publication step, logging rather than raising on error."""
+        """Run a post-publication step, logging rather than raising on error.
+
+        Failures are recorded in self.bookkeeping_failures so that the caller
+        can still report the build as failed once it has finished the steps
+        that must not be skipped, such as purging old images.
+        """
         try:
             func(*args)
         except Exception:
+            self.bookkeeping_failures.append(description)
             logger.error("POST-PUBLICATION FAILURE (%s):" % description)
             for line in traceback.format_exc().splitlines():
                 logger.error(line)

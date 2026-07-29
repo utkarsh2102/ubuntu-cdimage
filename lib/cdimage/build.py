@@ -565,6 +565,7 @@ def build_image_set_locked(config, options):
             copy_netboot_tarballs(config)
             fix_permissions(config)
 
+        bookkeeping_failures = []
         if not config["CDIMAGE_NOPUBLISH"]:
             log_marker("Publishing")
             tree = Tree.get_daily(config)
@@ -585,7 +586,24 @@ def build_image_set_locked(config, options):
             log_marker("Triggering mirrors")
             trigger_mirrors(config)
 
+            bookkeeping_failures = publisher.bookkeeping_failures
+
         log_marker("Finished")
+
+        # publish() deliberately keeps going when a step after the images
+        # themselves fails, so that we still get as far as purging old images.
+        # Report the build as failed anyway, or nobody finds out that (say)
+        # the manifest stopped being written.
+        if bookkeeping_failures:
+            logger.error(
+                "Images were published, but %s failed; see POST-PUBLICATION "
+                "FAILURE above." % ", ".join(bookkeeping_failures)
+            )
+            sys.stdout.flush()
+            sys.stderr.flush()
+            notify_failure(config, log_path)
+            return False
+
         return True
     except Exception as e:
         for line in traceback.format_exc().splitlines():
