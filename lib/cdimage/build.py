@@ -451,7 +451,12 @@ def fix_permissions(config):
             fix_file(os.path.join(dirpath, filename))
 
 
-def notify_failure(config, log_path):
+def notify_failure(config, log_path, action="failed to build"):
+    """Mail the build log to whoever watches this image type.
+
+    `action` describes what went wrong, for the subject line; the default
+    suits a build that didn't get as far as producing images.
+    """
     if config["DEBUG"] or config["CDIMAGE_NOLOG"]:
         return
 
@@ -471,13 +476,14 @@ def notify_failure(config, log_path):
         else:
             body = open(log_path)
         send_mail(
-            "CD image %s%s%s/%s/%s failed to build on %s"
+            "CD image %s%s%s/%s/%s %s on %s"
             % (
                 ("(built by %s) " % config["SUDO_USER"] if config["SUDO_USER"] else ""),
                 subtree,
                 project,
                 series,
                 image_type,
+                action,
                 date,
             ),
             "build-image-set",
@@ -601,7 +607,7 @@ def build_image_set_locked(config, options):
             )
             sys.stdout.flush()
             sys.stderr.flush()
-            notify_failure(config, log_path)
+            notify_failure(config, log_path, action="failed after publication")
             return False
 
         return True

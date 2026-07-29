@@ -664,6 +664,25 @@ class TestBuildImageSet(TestCase):
         )
 
     @mock.patch("cdimage.build.send_mail")
+    def test_notify_failure_action(self, mock_send_mail):
+        # Images that were published but then broke something didn't "fail to
+        # build", and the subject line shouldn't say they did.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["CDIMAGE_DATE"] = "20130225"
+        path = os.path.join(self.temp_dir, "production", "notify-addresses")
+        with mkfile(path) as notify_addresses:
+            print("ALL\tfoo@example.org", file=notify_addresses)
+        notify_failure(self.config, None, action="failed after publication")
+        mock_send_mail.assert_called_once_with(
+            "CD image ubuntu/bionic/daily failed after publication on 20130225",
+            "build-image-set",
+            ["foo@example.org"],
+            "",
+        )
+
+    @mock.patch("cdimage.build.send_mail")
     def test_notify_failure_log(self, mock_send_mail):
         self.config["PROJECT"] = "ubuntu"
         self.config["DIST"] = "bionic"
@@ -942,7 +961,9 @@ class TestBuildImageSet(TestCase):
         )
         self.assertFalse(result)
         mock_purge.assert_called_once_with()
-        mock_notify.assert_called_once_with(self.config, mock.ANY)
+        mock_notify.assert_called_once_with(
+            self.config, mock.ANY, action="failed after publication"
+        )
         self.assertIn(
             "Images were published, but writing the daily manifest failed; "
             "see POST-PUBLICATION FAILURE above.",
