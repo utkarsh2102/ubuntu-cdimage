@@ -3062,7 +3062,7 @@ class DailyTreePublisher(Publisher):
                 raise
         return None
 
-    def purge_pinned(self, entry):
+    def is_pinned(self, entry):
         """Is this published date directory pinned by a link we must keep?"""
         publish_pending = os.path.join(self.publish_base, "pending")
         publish_current = os.path.join(self.publish_base, "current")
@@ -3169,12 +3169,10 @@ class DailyTreePublisher(Publisher):
 
             # Newer than the cut-off date?
             if days and oldest <= int(entry.split(".", 1)[0]):
-                kept += 1
                 continue
 
             # Pinned by "pending", "current" or "manual"?
-            if self.purge_pinned(entry):
-                kept += 1
+            if self.is_pinned(entry):
                 continue
 
             to_purge.append((entry, entry_path))
