@@ -315,6 +315,7 @@ all_series.extend(
             "resolute",
             "26.04",
             "Resolute Raccoon",
+            pointversion="26.04.1",
             all_lts_projects=True,
             _core_series="26",
             _build_type="Release",
