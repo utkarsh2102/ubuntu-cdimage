@@ -2887,9 +2887,16 @@ class DailyTreePublisher(Publisher):
         for image in images:
             image_bits = image.split("/")
             if len(image_bits) == 3:
-                project, image_type, base = image_bits
-                image_distribution = None
-                image_series = None
+                # The legacy "project/image_type/base" form, from when the
+                # devel series published at the project root.  Every daily
+                # now nests under <series>/, so there is no series to infer
+                # and no path to build; say so rather than dropping the
+                # project component and failing on a nonexistent directory.
+                raise ValueError(
+                    "Cannot post %r: the legacy 'project/image_type/base' "
+                    "form is no longer supported, use "
+                    "'project/series/image_type/base'" % image
+                )
             elif len(image_bits) == 4:
                 project, image_series, image_type, base = image_bits
                 image_distribution = None

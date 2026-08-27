@@ -28,7 +28,7 @@ def main():
     from cdimage.config import Config
     from cdimage.tree import Publisher, Tree
 
-    parser = OptionParser("%prog DATE PROJECT/IMAGE_TYPE/DIST-TYPE-ARCH [...]")
+    parser = OptionParser("%prog DATE PROJECT/SERIES/IMAGE_TYPE/DIST-TYPE-ARCH [...]")
     _, args = parser.parse_args()
     if len(args) < 1:
         parser.error("need date")
