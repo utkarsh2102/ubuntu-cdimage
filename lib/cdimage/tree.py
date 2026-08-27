@@ -3255,6 +3255,19 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
             self, image_type, official, status=status, dry_run=dry_run
         )
 
+    @property
+    def project_base(self):
+        """Return the per-project base directory within this tree.
+
+        Unlike the cdimage.ubuntu.com tree, releases.ubuntu.com is not nested
+        per project: Ubuntu itself sits at the top of the tree, which is what
+        url_for_path advertises (releases.ubuntu.com/<version>/<file>).  Other
+        projects keep their own subdirectory, as they always have.
+        """
+        if self.config.project == "ubuntu":
+            return self.directory
+        return os.path.join(self.directory, self.config.project)
+
     def path_to_project(self, path):
         """Determine the project for a file based on its tree-relative path.
 
