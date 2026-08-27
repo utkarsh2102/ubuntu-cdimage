@@ -2954,6 +2954,22 @@ class TestSimpleReleaseTree(TestCase):
             "kubuntu\thoary\t/%s\t0" % iso, self.tree.path_to_manifest(iso)
         )
 
+    def test_url_for_path_names_the_version_not_the_path(self):
+        # This tree deliberately does not follow the path: the release is
+        # reachable as both <series>/ and <version>/, and the version is the
+        # canonical public form.  A pool file gets the same URL, which is
+        # the point -- it has no series directory of its own.
+        self.config["DIST"] = "resolute"
+        for path in (
+            "resolute/ubuntu-26.04.1-desktop-amd64.iso",
+            ".pool/ubuntu-26.04.1-desktop-amd64.iso",
+        ):
+            self.assertEqual(
+                "https://releases.ubuntu.com/26.04.1/"
+                "ubuntu-26.04.1-desktop-amd64.iso",
+                self.tree.url_for_path(os.path.join(self.temp_dir, path)),
+            )
+
     def test_path_to_project_legacy_series_directory(self):
         # Releases published before the per-project nesting sit directly in a
         # series directory and have always counted as Ubuntu.
