@@ -684,6 +684,34 @@ class TestPublisherWebIndices(TestCase):
                 htaccess.read(),
             )
 
+    def test_make_web_indices_many_cd_types(self):
+        # The spelled-out numbers table stops at nine; a release directory
+        # with more type/prefix combinations than that must still render.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["CAPPROJECT"] = "Ubuntu"
+        self.config["DIST"] = "resolute"
+        directory = os.path.join(
+            self.config.root, "www", "full", "ubuntu", "releases", "resolute", "release"
+        )
+        os.makedirs(directory)
+        types = ("desktop", "live-server", "netboot", "mini-iso", "wsl", "server")
+        for prefix in ("ubuntu-26.04.1", "ubuntu-26.04"):
+            for publish_type in types:
+                touch(
+                    os.path.join(
+                        directory, "%s-%s-amd64.list" % (prefix, publish_type)
+                    )
+                )
+        tree = Tree.get_for_directory(self.config, directory, "daily")
+        publisher = FullReleasePublisher(tree, "daily-live", "named")
+        publisher.make_web_indices(directory, "ubuntu-26.04.1", status="release")
+
+        with open(os.path.join(directory, "HEADER.html")) as header:
+            text = header.read()
+        self.assertIn(
+            "Ubuntu is distributed on %d types of images" % (len(types) * 2), text
+        )
+
     def test_make_web_indices_for_full_release(self):
         self.config["PROJECT"] = "ubuntu"
         self.config["CAPPROJECT"] = "Ubuntu"

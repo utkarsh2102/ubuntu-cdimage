@@ -1513,9 +1513,12 @@ class Publisher:
                         cdtypecount += 1
 
             if cdtypecount > 1:
+                # Spell out small counts, but fall back to the numeral rather
+                # than blowing up once we run off the end of the table.
+                count_text = self.numbers.get(cdtypecount, str(cdtypecount))
                 print(
                     "<p>%s is distributed on %s types of images described "
-                    "below." % (self.config.capproject, self.numbers[cdtypecount]),
+                    "below." % (self.config.capproject, count_text),
                     file=header,
                 )
                 print(file=header)
