@@ -2926,6 +2926,46 @@ class TestSimpleReleaseTree(TestCase):
             "kubuntu\thoary\t/%s\t0" % iso, self.tree.path_to_manifest(iso)
         )
 
+    def test_path_to_project_legacy_series_directory(self):
+        # Releases published before the per-project nesting sit directly in a
+        # series directory and have always counted as Ubuntu.
+        self.assertEqual(
+            "ubuntu",
+            self.tree.path_to_project("questing/ubuntu-25.10-live-server-amd64.iso"),
+        )
+
+    def test_path_to_project_nested(self):
+        self.assertEqual(
+            "ubuntu",
+            self.tree.path_to_project(
+                "ubuntu/resolute/ubuntu-26.04.1-desktop-amd64.iso"
+            ),
+        )
+        self.assertEqual(
+            "kubuntu",
+            self.tree.path_to_project(
+                "kubuntu/resolute/kubuntu-26.04.1-desktop-amd64.iso"
+            ),
+        )
+
+    def test_manifest_includes_legacy_series_directory(self):
+        # Publishing a release regenerates the manifest for the whole tree, so
+        # a leftover series directory mustn't be able to abort it.
+        legacy = os.path.join(self.temp_dir, "questing")
+        os.mkdir(legacy)
+        touch(os.path.join(legacy, "ubuntu-25.10-live-server-amd64.iso"))
+        nested = os.path.join(self.temp_dir, "ubuntu", "resolute")
+        os.makedirs(nested)
+        touch(os.path.join(nested, "ubuntu-26.04.1-desktop-amd64.iso"))
+        self.assertEqual(
+            [
+                "ubuntu\tquesting\t/questing/ubuntu-25.10-live-server-amd64.iso\t0",
+                "ubuntu\tresolute\t/ubuntu/resolute/ubuntu-26.04.1-desktop-amd64"
+                ".iso\t0",
+            ],
+            self.tree.manifest(),
+        )
+
     def test_manifest_files_prefers_non_pool(self):
         pool = os.path.join(self.temp_dir, ".pool")
         touch(os.path.join(pool, "ubuntu-4.10-install-i386.iso"))

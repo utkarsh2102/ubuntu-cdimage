@@ -166,18 +166,19 @@ class Tree:
         """Determine the project for a file based on its tree-relative path.
 
         Every project tree (including Ubuntu desktop) now nests under a
-        per-project directory, so the first path component is always a
-        project name. Raise for anything that isn't a known project rather
+        per-project directory, but not necessarily as the first component: a
+        subtree publication (CDIMAGE_SUBTREE) roots one a level deeper, e.g.
+        nvidia-tegra/ubuntu-server/noble/... Take the first component naming
+        a known project, and raise for anything we can't attribute rather
         than silently mis-classifying random files as "ubuntu".
         """
-        first_dir = path.split("/")[0]
-        if first_dir in project_map:
-            return first_dir
-        else:
-            raise ValueError(
-                "Cannot determine project for path %r: %r is not a known "
-                "project directory" % (path, first_dir)
-            )
+        for component in path.split("/"):
+            if component in project_map:
+                return component
+        raise ValueError(
+            "Cannot determine project for path %r: no component names a "
+            "known project directory" % path
+        )
 
     @property
     def project_base(self):
@@ -2012,23 +2013,6 @@ class DailyTree(Tree):
         dist = name.split("-")[0]
         return Series.find_by_name(dist)
 
-    def path_to_project(self, path):
-        """Determine the project for a file based on its tree-relative path.
-
-        Paths here are normally <project>/<series>/<image_type>/..., but a
-        subtree publication (CDIMAGE_SUBTREE) roots a whole project tree one
-        level deeper, e.g. nvidia-tegra/ubuntu-server/noble/... Resolve the
-        project as the first component naming a known project rather than
-        assuming that it is the first component.
-        """
-        for component in path.split("/"):
-            if component in project_map:
-                return component
-        raise ValueError(
-            "Cannot determine project for path %r: no component names a "
-            "known project directory" % path
-        )
-
     def path_to_manifest(self, path):
         """Return a manifest file entry for a tree-relative path.
 
@@ -3267,6 +3251,19 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
         return SimpleReleasePublisher(
             self, image_type, official, status=status, dry_run=dry_run
         )
+
+    def path_to_project(self, path):
+        """Determine the project for a file based on its tree-relative path.
+
+        Releases published before the per-project nesting sit directly in a
+        series directory, e.g. questing/ubuntu-25.10-live-server-amd64.iso.
+        Everything in this tree is Ubuntu unless a component says otherwise,
+        which is how those paths were always classified.
+        """
+        try:
+            return super(SimpleReleaseTree, self).path_to_project(path)
+        except ValueError:
+            return "ubuntu"
 
     def name_to_series(self, name):
         """Return the series for a file basename."""
