@@ -3387,6 +3387,10 @@ class ReleasePublisher(Publisher):
     def torrent_dir(self, source, publish_type):
         raise NotImplementedError
 
+    def torrent_releases_dir(self, source):
+        """Return the directory holding one subdirectory per status."""
+        raise NotImplementedError
+
     def make_torrent(self, path):
         if not self.dry_run:
             logger.info("Creating torrent for %s ..." % path)
@@ -3851,10 +3855,16 @@ class ReleasePublisher(Publisher):
                 if self.want_dist:
                     self.remove_tree(torrent_dir)
                 if self.want_full:
-                    torrent_releases_dir = os.path.dirname(os.path.dirname(torrent_dir))
+                    # Drop the torrents of every other status of this
+                    # release.  A status may be a nested path
+                    # ("release/snapshot-2"), so keep its first component:
+                    # the sibling snapshots below it are meant to coexist,
+                    # and it is only the other statuses (beta, rc) that go.
+                    torrent_releases_dir = self.torrent_releases_dir(source)
+                    keep = self.status.split("/")[0]
                     for entry in osextras.listdir_force(torrent_releases_dir):
                         entry_path = os.path.join(torrent_releases_dir, entry)
-                        if entry != self.status and os.path.isdir(entry_path):
+                        if entry != keep and os.path.isdir(entry_path):
                             self.remove_tree(entry_path)
                     self.remove_tree(torrent_dir)
             os.makedirs(torrent_dir, exist_ok=True)
@@ -3994,14 +4004,17 @@ class FullReleasePublisher(ReleasePublisher):
             self.tree.publish_target(source), "releases", self.full_version
         )
 
-    def torrent_dir(self, source, publish_type):
+    def torrent_releases_dir(self, source):
         torrent_tree = TorrentTree(self.config)
         return os.path.join(
             torrent_tree.publish_target(source),
             "releases",
             self.config.full_series,
-            self.status,
-            publish_type,
+        )
+
+    def torrent_dir(self, source, publish_type):
+        return os.path.join(
+            self.torrent_releases_dir(source), self.status, publish_type
         )
 
     def want_torrent(self, publish_type):

@@ -3503,6 +3503,26 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             ).publish_release_prefixes(),
         )
 
+    def test_torrent_releases_dir_nested_milestone(self):
+        # The status directories all live directly under <series>/, whether
+        # or not the status itself is a nested path.  The publish_release
+        # cleanup walks this directory to drop the torrents of other
+        # statuses, so it must not follow the status any deeper.
+        self.config["PROJECT"] = "kubuntu"
+        self.config["DIST"] = "stonking"
+        expected = os.path.join(
+            self.temp_dir, "www", "torrent", "kubuntu", "releases", "stonking"
+        )
+        for status in "release", "release/snapshot-2", "beta-2":
+            publisher = self.get_publisher(official="named", status=status)
+            self.assertEqual(
+                expected, publisher.torrent_releases_dir("stonking/daily-live")
+            )
+            self.assertEqual(
+                os.path.join(expected, status, "desktop"),
+                publisher.torrent_dir("stonking/daily-live", "desktop"),
+            )
+
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
     def test_publish_release_arch_ubuntu_desktop_named(self, mock_call, *args):
