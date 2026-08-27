@@ -6,9 +6,9 @@ ubuntu-appliance 2
 # sets on the server, however old they are, so that a run of failed builds
 # can't strip a tree down to a single daily.  Combined with purge-days, which
 # still trims anything older than the cut-off once this many are kept.
-daily 2
-daily-live 2
-daily-dangerous 2
-daily-preinstalled 2
-daily-minimal 2
-dvd 2
+daily 5
+daily-live 5
+daily-dangerous 5
+daily-preinstalled 5
+daily-minimal 5
+dvd 5
