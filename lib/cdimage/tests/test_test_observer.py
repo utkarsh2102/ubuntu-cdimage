@@ -81,6 +81,7 @@ url: https://tests-api.test.cdimage/v1/
 api_key: to_mytopsecretapikey
 """)
             config["TO_CONFIG"] = to_conf.name
+            config["ARCHES"] = "amd64"
             to = TestObserver(config)
 
         date = "20260127"
@@ -312,6 +313,7 @@ url: https://tests-api.test.cdimage/v1/
 api_key: to_mytopsecretapikey
 """)
             config["TO_CONFIG"] = to_conf.name
+            config["ARCHES"] = "amd64"
             to = TestObserver(config)
 
         devel = Series.latest().name
