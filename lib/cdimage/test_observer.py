@@ -107,9 +107,13 @@ class TestObserver:
 
         full_path = Path(path)
         artifact_name = full_path.name
+        arch = artifact_name.split(".")[0].split("-")[-1]
+        # The image failed to build or be downloaded, nothing to publish
+        if arch not in publisher.config.arches:
+            return
+
         cdimage_rel_path = full_path.relative_to(publisher.tree.directory)
         full_url = "https://cdimage.ubuntu.com/" + str(cdimage_rel_path)
-        arch = artifact_name.split(".")[0].split("-")[-1]
         os = cdimage_rel_path.parts[0]
         release = full_path.stem.split("-")[0]
         sha256 = self._get_sha256(full_path)
