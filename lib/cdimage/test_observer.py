@@ -114,13 +114,17 @@ class TestObserver:
 
         cdimage_rel_path = full_path.relative_to(publisher.tree.directory)
         full_url = "https://cdimage.ubuntu.com/" + str(cdimage_rel_path)
-        os = cdimage_rel_path.parts[0]
+        # Take these from the publisher rather than from path components:
+        # every directory-layout change so far has moved what parts[0] means
+        # (an image type, then a series, now a project), silently breaking
+        # whatever was reading it.
+        os = publisher.project
         release = full_path.stem.split("-")[0]
         sha256 = self._get_sha256(full_path)
 
         # Hack around `daily-dangerous` having the exact same name as
         # `daily-live`, thus showing only one row in TO
-        if os == "daily-dangerous":
+        if publisher.image_type == "daily-dangerous":
             artifact_name = "dangerous-" + artifact_name
 
         # Hack around ubuntu-core images having their naming different
