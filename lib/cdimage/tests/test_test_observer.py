@@ -398,3 +398,110 @@ api_key: to_mytopsecretapikey
         first_put_kwargs = mock_put.call_args_list[0].kwargs
         self.assertEqual("dangerous-" + iso, first_put_kwargs["json"]["name"])
         self.assertEqual("ubuntu", first_put_kwargs["json"]["os"])
+
+    @mock.patch("cdimage.test_observer.requests.put", side_effect=mocked_requests_put)
+    @mock.patch("cdimage.test_observer.requests.post", side_effect=mocked_requests_post)
+    @mock.patch(
+        "cdimage.test_observer.requests.patch", side_effect=mocked_requests_patch
+    )
+    def test_subarch_containing_a_hyphen(self, mock_patch, mock_post, mock_put):
+        """A subarch may contain a "-", and that doesn't hide the arch.
+
+        arm64+tegra-jetson and amd64+intel-iot both end in a fragment of
+        their subarch, so the trailing "-"-separated component of the image
+        name is "jetson"/"iot" rather than the arch.  Those aren't in ARCHES,
+        so deriving the arch that way would skip the image entirely.
+        """
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+
+        with tempfile.NamedTemporaryFile() as to_conf:
+            Path(to_conf.name).write_text("""
+[service]
+url: https://tests-api.test.cdimage/v1/
+api_key: to_mytopsecretapikey
+""")
+            config["TO_CONFIG"] = to_conf.name
+            config["ARCHES"] = "arm64+tegra-jetson"
+            to = TestObserver(config)
+
+        date = "20260128"
+        directory = (
+            Path(config.root)
+            / "www"
+            / "full"
+            / "ubuntu-server"
+            / "resolute"
+            / "daily-preinstalled"
+            / date
+        )
+        directory.mkdir(exist_ok=True, parents=True)
+
+        config["PROJECT"] = "ubuntu-server"
+        tree = Tree.get_for_directory(config, str(directory), "daily")
+        publisher = Publisher.get_daily(tree, "daily-preinstalled")
+
+        image = "resolute-preinstalled-server-arm64+tegra-jetson.img.xz"
+        entry_path = directory / image
+        (directory / "SHA256SUMS").write_text("tegrasha256 *%s" % image)
+        entry_path.touch()
+
+        to.publish_image(publisher, str(entry_path), date)
+
+        first_put_kwargs = mock_put.call_args_list[0].kwargs
+        self.assertEqual(image, first_put_kwargs["json"]["name"])
+        self.assertEqual("arm64+tegra-jetson", first_put_kwargs["json"]["arch"])
+        self.assertEqual("ubuntu-server", first_put_kwargs["json"]["os"])
+        self.assertEqual("resolute", first_put_kwargs["json"]["release"])
+
+    @mock.patch("cdimage.test_observer.requests.put", side_effect=mocked_requests_put)
+    @mock.patch("cdimage.test_observer.requests.post", side_effect=mocked_requests_post)
+    @mock.patch(
+        "cdimage.test_observer.requests.patch", side_effect=mocked_requests_patch
+    )
+    def test_arch_we_did_not_build(self, mock_patch, mock_post, mock_put):
+        """Images for an arch outside ARCHES aren't submitted.
+
+        Only arches that built and downloaded successfully stay in ARCHES,
+        so anything else is a leftover from an earlier date and submitting it
+        would open a fresh run against a stale image.
+        """
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+
+        with tempfile.NamedTemporaryFile() as to_conf:
+            Path(to_conf.name).write_text("""
+[service]
+url: https://tests-api.test.cdimage/v1/
+api_key: to_mytopsecretapikey
+""")
+            config["TO_CONFIG"] = to_conf.name
+            config["ARCHES"] = "amd64"
+            to = TestObserver(config)
+
+        date = "20260128"
+        directory = (
+            Path(config.root)
+            / "www"
+            / "full"
+            / "ubuntu"
+            / "resolute"
+            / "daily-live"
+            / date
+        )
+        directory.mkdir(exist_ok=True, parents=True)
+
+        config["PROJECT"] = "ubuntu"
+        tree = Tree.get_for_directory(config, str(directory), "daily")
+        publisher = Publisher.get_daily(tree, "daily-live")
+
+        iso = "resolute-desktop-arm64.iso"
+        entry_path = directory / iso
+        (directory / "SHA256SUMS").write_text("stalesha256 *%s" % iso)
+        entry_path.touch()
+
+        to.publish_image(publisher, str(entry_path), date)
+
+        mock_put.assert_not_called()
+        mock_post.assert_not_called()
+        mock_patch.assert_not_called()
