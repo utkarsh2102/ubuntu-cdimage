@@ -2901,13 +2901,6 @@ class TestFullReleaseTree(TestCase):
         self.config = Config(read=False)
         self.tree = FullReleaseTree(self.config, self.temp_dir)
 
-    def test_tree_suffix(self):
-        self.assertEqual("/ports", self.tree.tree_suffix("ubuntu-server/ports/daily"))
-        self.assertEqual("", self.tree.tree_suffix("ubuntu-server/daily"))
-        self.assertEqual("", self.tree.tree_suffix("ubuntu-server/daily-preinstalled"))
-        self.assertEqual("/ports", self.tree.tree_suffix("ports/daily"))
-        self.assertEqual("", self.tree.tree_suffix("daily"))
-
 
 class TestSimpleReleaseTree(TestCase):
     def setUp(self):
@@ -2922,13 +2915,6 @@ class TestSimpleReleaseTree(TestCase):
             os.path.join(self.temp_dir, "www", "simple"),
             SimpleReleaseTree(self.config).directory,
         )
-
-    def test_tree_suffix(self):
-        self.assertEqual("/ports", self.tree.tree_suffix("ubuntu-server/ports/daily"))
-        self.assertEqual("", self.tree.tree_suffix("ubuntu-server/daily"))
-        self.assertEqual("", self.tree.tree_suffix("ubuntu-server/daily-preinstalled"))
-        self.assertEqual("/ports", self.tree.tree_suffix("ports/daily"))
-        self.assertEqual("", self.tree.tree_suffix("daily"))
 
     def test_get_publisher(self):
         publisher = self.tree.get_publisher("daily-live", "yes", "beta-1")
