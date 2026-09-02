@@ -698,9 +698,7 @@ class TestPublisherWebIndices(TestCase):
         for prefix in ("ubuntu-26.04.1", "ubuntu-26.04"):
             for publish_type in types:
                 touch(
-                    os.path.join(
-                        directory, "%s-%s-amd64.list" % (prefix, publish_type)
-                    )
+                    os.path.join(directory, "%s-%s-amd64.list" % (prefix, publish_type))
                 )
         tree = Tree.get_for_directory(self.config, directory, "daily")
         publisher = FullReleasePublisher(tree, "daily-live", "named")
@@ -2345,9 +2343,7 @@ class TestDailyTreePublisher(TestCase):
 
         self.assertTrue(published)
         # ... but the caller is told, so that it can still report a failure.
-        self.assertEqual(
-            ["writing the daily manifest"], publisher.bookkeeping_failures
-        )
+        self.assertEqual(["writing the daily manifest"], publisher.bookkeeping_failures)
         self.assertIn(
             "POST-PUBLICATION FAILURE (writing the daily manifest):",
             [record.getMessage() for record in self.handler.buffer],
