@@ -302,7 +302,7 @@ all_series.extend(
             "noble",
             "24.04",
             "Noble Numbat",
-            pointversion="24.04.4",
+            pointversion="24.04.5",
             _core_series="24",
             # build_type is only consumed for livecd-rootfs builds (resolute
             # and up); noble builds via debian-cd, but set it for consistency.
