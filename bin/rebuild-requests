@@ -137,6 +137,7 @@ def handle_test_observer(args, options, publisher, clean_env):
                 image_os,
                 entry_point,
                 target_series,
+                image_type,
             ),
             {"arches": [], "full_paths": []},
         )
@@ -150,6 +151,7 @@ def handle_test_observer(args, options, publisher, clean_env):
         image_os = product[0]
         entry_point = product[1]
         series = product[2]
+        image_type = product[3]
         cmd = ["for-project", image_os, entry_point, "--live"]
         env = {"ARCHES": " ".join(details["arches"]), "DIST": series}
 
