@@ -93,7 +93,7 @@ class TestObserver:
             "ubuntu-mate": "ubuntu-mate-release",
             "ubuntu-mini-iso": "canonical-foundations",
             "ubuntu-server": "canonical-server",
-            "ubuntu-unity": "ubuntu-unity-devs",
+            "ubuntu-unity": "ubuntu-unity-release",
             "ubuntu-wsl": "canonical-desktop-team",
             "ubuntucinnamon": "ubuntucinnamon-release",
             "ubuntukylin": "ubuntukylin-release-team",
