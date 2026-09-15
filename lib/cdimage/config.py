@@ -302,7 +302,11 @@ all_series.extend(
             "noble",
             "24.04",
             "Noble Numbat",
-            pointversion="24.04.5",
+            # 24.04.5.1 is a respin: the 24.04.5 desktop amd64 image was
+            # withdrawn from releases.ubuntu.com, and only that image is
+            # republished under the new version. Every other 24.04.5 artifact
+            # stays as published.
+            pointversion="24.04.5.1",
             _core_series="24",
             # build_type is only consumed for livecd-rootfs builds (resolute
             # and up); noble builds via debian-cd, but set it for consistency.
