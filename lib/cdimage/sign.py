@@ -22,90 +22,27 @@ from cdimage import osextras
 from cdimage.log import logger
 
 
-def _gnupg_files(config):
-    gpgdir = config["GNUPG_DIR"]
-    gpgconf = os.path.join(config["GNUPG_DIR"], "gpg.conf")
-    secring = os.path.join(config["GNUPG_DIR"], "secring.gpg")
-    privkeydir = os.path.join(config["GNUPG_DIR"], "private-keys-v1.d")
-    pubring = os.path.join(config["GNUPG_DIR"], "pubring.gpg")
-    trustdb = os.path.join(config["GNUPG_DIR"], "trustdb.gpg")
-    return gpgdir, gpgconf, secring, privkeydir, pubring, trustdb
-
-
 def can_sign(config):
-    lp_signing_conf = config.get("LP_SIGN_CONFIG")
-    if lp_signing_conf:
-        if os.path.exists(lp_signing_conf):
-            return True
-        else:
-            logger.warning("LP_SIGN_CONFIG set but not found.")
-            return False
-
-    _, _, secring, privkeydir, pubring, trustdb = _gnupg_files(config)
-    if (
-        not (os.path.exists(privkeydir) or os.path.exists(secring))
-        or not os.path.exists(pubring)
-        or not os.path.exists(trustdb)
-        or not config["SIGNING_KEYID"]
-    ):
-        logger.warning("No keys found; not signing images.")
+    lp_signing_conf = config["LP_SIGN_CONFIG"]
+    if os.path.exists(lp_signing_conf):
+        return True
+    else:
+        logger.warning("LP_SIGN_CONFIG set but not found.")
         return False
-    return True
-
-
-def _signing_command(config):
-    gpgdir, gpgconf, _, _, _, _ = _gnupg_files(config)
-    cmd = [
-        "gpg",
-        "--options",
-        gpgconf,
-        "--homedir",
-        gpgdir,
-        "--no-options",
-        "--batch",
-        "--no-tty",
-        "--armour",
-        "--detach-sign",
-        # FBB75451 and EFE21092 have different digest preferences.  GnuPG
-        # refuses to consider multiple signatures unless they use the same
-        # signature class and digest algorithm.  We must therefore force the
-        # digest algorithm to something both keys can do.  Fortunately, gpg
-        # supports SHA-512 hashes with 1024-bit DSA keys by way of taking
-        # the leftmost 160 bits of the hash; so we can use SHA-512 for both.
-        "--digest-algo",
-        "SHA512",
-    ]
-    for key_id in config["SIGNING_KEYID"].split():
-        cmd.extend(["-u", key_id])
-    return cmd
 
 
 def sign_cdimage(config, path):
     if not can_sign(config):
         return False
 
-    lp_signing_conf = config.get("LP_SIGN_CONFIG")
-    if lp_signing_conf:
-        logger.info("Signing %s using LP signing service", path)
-        with open("%s.gpg" % path, "wb") as outfile:
-            try:
-                subprocess.check_call(
-                    ["lp-sign", "--config-file", lp_signing_conf, path],
-                    stdout=outfile,
-                )
-            except subprocess.CalledProcessError:
-                osextras.unlink_force("%s.gpg" % path)
-                raise
-        return True
-
-    logger.info("Signing %s using local GPG", path)
-    with open(path, "rb") as infile:
-        with open("%s.gpg" % path, "wb") as outfile:
-            try:
-                subprocess.check_call(
-                    _signing_command(config), stdin=infile, stdout=outfile
-                )
-            except subprocess.CalledProcessError:
-                osextras.unlink_force("%s.gpg" % path)
-                raise
+    logger.info("Signing %s using LP signing service", path)
+    with open("%s.gpg" % path, "wb") as outfile:
+        try:
+            subprocess.check_call(
+                ["lp-sign", "--config-file", config["LP_SIGN_CONFIG"], path],
+                stdout=outfile,
+            )
+        except subprocess.CalledProcessError:
+            osextras.unlink_force("%s.gpg" % path)
+            raise
     return True
