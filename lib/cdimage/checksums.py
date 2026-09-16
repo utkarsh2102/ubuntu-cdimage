@@ -73,15 +73,17 @@ class ChecksumFile:
                 if len(bits) == 2:
                     self.entries[bits[1]] = bits[0]
 
-    def checksum(self, entry_path):
-        with open(entry_path, "rb") as fh:
-            hash_obj = self.hash_method()
-            while True:
-                buf = fh.read(16 * 1024)
-                if not buf:
-                    break
-                hash_obj.update(buf)
-            return hash_obj.hexdigest()
+    def checksum(self, *entry_paths):
+        """Hash one or more files, concatenating them bytewise if several."""
+        hash_obj = self.hash_method()
+        for entry_path in entry_paths:
+            with open(entry_path, "rb") as fh:
+                while True:
+                    buf = fh.read(16 * 1024)
+                    if not buf:
+                        break
+                    hash_obj.update(buf)
+        return hash_obj.hexdigest()
 
     def _entry_time(self, path, default):
         try:

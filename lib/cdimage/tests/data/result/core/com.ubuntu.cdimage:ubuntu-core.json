@@ -346,7 +346,7 @@
               "size": 34
             },
             "lxd.tar.xz": {
-              "combined_disk1-img_sha256": "29edb0303f131f3ab5387db9b909ff32a0d509084bdb93138abcabbdabfeb9c5",
+              "combined_disk1-img_sha256": "11a09ef345d42a795843db24f6299bb4d04e73355e851c7d3056b6a067a884de",
               "ftype": "lxd.tar.xz",
               "path": "24/stable/20240721/ubuntu-core-24-amd64.lxd.tar.xz",
               "sha256": "e2cec10752f9786f54a7ebfd2822fbe2a0bab075769b472c3da4c93ae54d1ef0",
