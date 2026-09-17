@@ -197,9 +197,18 @@ class Tree:
     def url_for_path(self, path):
         """Return the public URL for the file at `path`.
 
-        `path` must be under self.directory.
+        `path` must be under self.directory.  Each tree is served from the
+        root of its site, so the tree-relative path is the URL path; deriving
+        it here means a layout change moves the URLs with the files rather
+        than leaving them describing a tree that no longer exists.
         """
-        raise NotImplementedError
+        if not path.startswith(self.directory):
+            raise Exception(
+                "url_for_path(%r) did not start with self.directory (%r)"
+                % (path, self.directory)
+            )
+        url_path = path[len(self.directory) :].lstrip("/")
+        return "https://%s/%s" % (self.site_name, url_path)
 
     def path_to_manifest(self, path):
         """Return a manifest file entry for a tree-relative path.
@@ -2040,16 +2049,6 @@ class DailyTree(Tree):
     def site_name(self):
         return "cdimage.ubuntu.com"
 
-    def url_for_path(self, path):
-        logger.info("url_for_path(%s), self.directory = %s", path, self.directory)
-        if not path.startswith(self.directory):
-            raise Exception(
-                "url_for_path(%r) did not start with self.directory (%r)"
-                % (path, self.directory)
-            )
-        url_path = path[len(self.directory) :].lstrip("/")
-        return "https://%s/%s" % (self.site_name, url_path)
-
     def manifest_files(self):
         """Yield all the files to include in a manifest of this tree."""
         seen_inodes = []
@@ -3244,6 +3243,14 @@ class SimpleReleaseTree(Tree, ReleaseTreeMixin):
         super(SimpleReleaseTree, self).__init__(config, directory)
 
     def url_for_path(self, path):
+        """Return the public URL for the file at `path`.
+
+        Unlike the other trees this does not follow the path.  A release is
+        reachable both as <series>/ and as the <version>/ symlink beside it,
+        and the version is the canonical public form, so that is what goes
+        into netboot tarballs; a file in the pool has no series directory of
+        its own to name at all.
+        """
         series = self.config["DIST"]
         version = getattr(series, "pointversion", series.version)
         basename = os.path.basename(path)
