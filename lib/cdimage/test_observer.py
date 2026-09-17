@@ -82,6 +82,26 @@ class TestObserver:
                 return line.split(" ")[0]
         raise RuntimeError(f"Couldn't find sha256 for {path.name} in {path.parent}")
 
+    def _get_arch(self, publisher, name: str) -> str | None:
+        """Return the arch `name` was built for, or None if none was.
+
+        Don't take the trailing "-"-separated component: an arch keeps the
+        "+" separator in front of its subarch, but the subarch itself may
+        contain "-" (arm64+tegra-jetson, amd64+intel-iot), so for those the
+        component is a fragment of the subarch.  Match what the build
+        actually produced against the name instead, the way
+        DailyTreePublisher.mark_current does.
+
+        Returning None therefore means the name belongs to no arch we built:
+        a source image, or one whose build or download failed.
+        """
+        base = name.split(".")[0]
+        for arch in publisher.config.arches:
+            # Wubi published the bare arch as the whole name.
+            if base.endswith("-%s" % arch) or base == arch:
+                return arch
+        return None
+
     def get_owner(self, os: str):
         OS_OWNER_MAPPING = {
             "edubuntu": "edubuntu-release",
@@ -107,20 +127,27 @@ class TestObserver:
 
         full_path = Path(path)
         artifact_name = full_path.name
-        arch = artifact_name.split(".")[0].split("-")[-1]
-        # The image failed to build or be downloaded, nothing to publish
-        if arch not in publisher.config.arches:
+        arch = self._get_arch(publisher, artifact_name)
+        if arch is None:
+            # The image failed to build or be downloaded, nothing to
+            # publish.  Say so: a skip here is otherwise indistinguishable
+            # from the arch derivation having broken.
+            logger.info("No arch built matches %s, not submitting", artifact_name)
             return
 
         cdimage_rel_path = full_path.relative_to(publisher.tree.directory)
         full_url = "https://cdimage.ubuntu.com/" + str(cdimage_rel_path)
-        os = cdimage_rel_path.parts[0]
+        # Take these from the publisher rather than from path components:
+        # every directory-layout change so far has moved what parts[0] means
+        # (an image type, then a series, now a project), silently breaking
+        # whatever was reading it.
+        os = publisher.project
         release = full_path.stem.split("-")[0]
         sha256 = self._get_sha256(full_path)
 
         # Hack around `daily-dangerous` having the exact same name as
         # `daily-live`, thus showing only one row in TO
-        if os == "daily-dangerous":
+        if publisher.image_type == "daily-dangerous":
             artifact_name = "dangerous-" + artifact_name
 
         # Hack around ubuntu-core images having their naming different
