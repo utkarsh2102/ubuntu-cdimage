@@ -2103,6 +2103,20 @@ class TestDailyTreePublisher(TestCase):
             r"Cannot post images from nonexistent directory: .*",
             publisher.post_qa,
             "bad-date",
+            ["ubuntu/bionic/daily-live/bionic-desktop-i386"],
+        )
+
+    @mock_isotracker
+    def test_post_qa_rejects_legacy_source_form(self):
+        # "project/image_type/base" predates the <series>/ nesting.  It used
+        # to build a path with the project component dropped, which could
+        # only ever fail as a missing directory; reject it by name instead.
+        publisher = self.make_publisher("ubuntu", "daily-live")
+        self.assertRaisesRegex(
+            ValueError,
+            r"legacy 'project/image_type/base' form is no longer supported",
+            publisher.post_qa,
+            "20130221",
             ["ubuntu/daily-live/bionic-desktop-i386"],
         )
 
