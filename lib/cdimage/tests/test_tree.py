@@ -2961,8 +2961,7 @@ class TestSimpleReleaseTree(TestCase):
             ".pool/ubuntu-26.04.1-desktop-amd64.iso",
         ):
             self.assertEqual(
-                "https://releases.ubuntu.com/26.04.1/"
-                "ubuntu-26.04.1-desktop-amd64.iso",
+                "https://releases.ubuntu.com/26.04.1/ubuntu-26.04.1-desktop-amd64.iso",
                 self.tree.url_for_path(os.path.join(self.temp_dir, path)),
             )
 
@@ -3855,41 +3854,50 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
             os.listdir(torrent_dir),
         )
         self.assertFalse(os.path.exists(os.path.join(self.temp_dir, "www", "simple")))
-        self.assertLogEqual([
-            "Constructing release trees ...",
-            "Copying desktop-amd64 image ...",
-            "Making amd64 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
-                target_dir, version),
-            "Copying desktop-i386 image ...",
-            "Making i386 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..." % (
-                target_dir, version),
-            "Checksumming full tree ...",
-            "LP_SIGN_CONFIG set but not found.",
-            "Done!  Remember to sync-mirrors and regenerate-streams after "
-            "checking that everything is OK.",
-        ])
-        self.assertCountEqual([
-            ".htaccess", "FOOTER.html", "HEADER.html",
-            "SHA256SUMS",
-            "kubuntu-%s-desktop-amd64.iso" % version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
-            "kubuntu-%s-desktop-amd64.iso.zsync" % version,
-            "kubuntu-%s-desktop-amd64.manifest" % version,
-            "kubuntu-%s-desktop-i386.iso" % version,
-            "kubuntu-%s-desktop-i386.iso.torrent" % version,
-            "kubuntu-%s-desktop-i386.iso.zsync" % version,
-            "kubuntu-%s-desktop-i386.manifest" % version,
-        ], os.listdir(target_dir))
-        self.assertCountEqual([
-            "kubuntu-%s-desktop-amd64.iso" % version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
-            "kubuntu-%s-desktop-i386.iso" % version,
-            "kubuntu-%s-desktop-i386.iso.torrent" % version,
-        ], os.listdir(torrent_dir))
-        self.assertFalse(os.path.exists(os.path.join(
-            self.temp_dir, "www", "simple")))
+        self.assertLogEqual(
+            [
+                "Constructing release trees ...",
+                "Copying desktop-amd64 image ...",
+                "Making amd64 zsync metafile ...",
+                "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..."
+                % (target_dir, version),
+                "Copying desktop-i386 image ...",
+                "Making i386 zsync metafile ...",
+                "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..."
+                % (target_dir, version),
+                "Checksumming full tree ...",
+                "LP_SIGN_CONFIG set but not found.",
+                "Done!  Remember to sync-mirrors and regenerate-streams after "
+                "checking that everything is OK.",
+            ]
+        )
+        self.assertCountEqual(
+            [
+                ".htaccess",
+                "FOOTER.html",
+                "HEADER.html",
+                "SHA256SUMS",
+                "kubuntu-%s-desktop-amd64.iso" % version,
+                "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+                "kubuntu-%s-desktop-amd64.iso.zsync" % version,
+                "kubuntu-%s-desktop-amd64.manifest" % version,
+                "kubuntu-%s-desktop-i386.iso" % version,
+                "kubuntu-%s-desktop-i386.iso.torrent" % version,
+                "kubuntu-%s-desktop-i386.iso.zsync" % version,
+                "kubuntu-%s-desktop-i386.manifest" % version,
+            ],
+            os.listdir(target_dir),
+        )
+        self.assertCountEqual(
+            [
+                "kubuntu-%s-desktop-amd64.iso" % version,
+                "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+                "kubuntu-%s-desktop-i386.iso" % version,
+                "kubuntu-%s-desktop-i386.iso.torrent" % version,
+            ],
+            os.listdir(torrent_dir),
+        )
+        self.assertFalse(os.path.exists(os.path.join(self.temp_dir, "www", "simple")))
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
@@ -3993,17 +4001,19 @@ class TestFullReleasePublisher(TestCase, TestReleasePublisherMixin):
                 "checking that everything is OK.",
             ]
         )
-        self.assertLogEqual([
-            "Constructing release trees ...",
-            "Copying desktop-amd64 image ...",
-            "Making amd64 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
-                target_dir, version),
-            "Checksumming full tree ...",
-            "LP_SIGN_CONFIG set but not found.",
-            "Done!  Remember to sync-mirrors and regenerate-streams after "
-            "checking that everything is OK.",
-        ])
+        self.assertLogEqual(
+            [
+                "Constructing release trees ...",
+                "Copying desktop-amd64 image ...",
+                "Making amd64 zsync metafile ...",
+                "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..."
+                % (target_dir, version),
+                "Checksumming full tree ...",
+                "LP_SIGN_CONFIG set but not found.",
+                "Done!  Remember to sync-mirrors and regenerate-streams after "
+                "checking that everything is OK.",
+            ]
+        )
         # Double check if we still published everything
         self.assertCountEqual(
             [
@@ -4431,56 +4441,74 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
         self.assertTrue(
             os.path.isdir(os.path.join(self.temp_dir, "www", "simple", ".trace"))
         )
-        self.assertLogEqual([
-            "Constructing release trees ...",
-            "Copying desktop-amd64 image ...",
-            "Making amd64 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..." % (
-                target_dir, version),
-            "Copying desktop-i386 image ...",
-            "Making i386 zsync metafile ...",
-            "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..." % (
-                target_dir, version),
-            "Checksumming simple tree (pool) ...",
-            "LP_SIGN_CONFIG set but not found.",
-            "Checksumming simple tree (%s) ..." % series,
-            "LP_SIGN_CONFIG set but not found.",
-            "Done!  Remember to sync-mirrors and regenerate-streams after "
-            "checking that everything is OK.",
-        ])
-        self.assertCountEqual([
-            "SHA256SUMS",
-            "kubuntu-%s-desktop-amd64.iso" % version,
-            "kubuntu-%s-desktop-amd64.iso.zsync" % version,
-            "kubuntu-%s-desktop-amd64.manifest" % version,
-            "kubuntu-%s-desktop-i386.iso" % version,
-            "kubuntu-%s-desktop-i386.iso.zsync" % version,
-            "kubuntu-%s-desktop-i386.manifest" % version,
-        ], os.listdir(pool_dir))
-        self.assertCountEqual([
-            ".htaccess", "FOOTER.html", "HEADER.html",
-            "SHA256SUMS",
-            "kubuntu-%s-desktop-amd64.iso" % version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
-            "kubuntu-%s-desktop-amd64.iso.zsync" % version,
-            "kubuntu-%s-desktop-amd64.manifest" % version,
-            "kubuntu-%s-desktop-i386.iso" % version,
-            "kubuntu-%s-desktop-i386.iso.torrent" % version,
-            "kubuntu-%s-desktop-i386.iso.zsync" % version,
-            "kubuntu-%s-desktop-i386.manifest" % version,
-        ], os.listdir(target_dir))
-        self.assertCountEqual([
-            "kubuntu-%s-desktop-amd64.iso" % version,
-            "kubuntu-%s-desktop-amd64.iso.torrent" % version,
-            "kubuntu-%s-desktop-i386.iso" % version,
-            "kubuntu-%s-desktop-i386.iso.torrent" % version,
-        ], os.listdir(torrent_dir))
-        self.assertFalse(os.path.exists(os.path.join(
-            self.temp_dir, "www", "full", "kubuntu", "releases")))
-        self.assertTrue(os.path.exists(os.path.join(
-            self.temp_dir, "www", "simple", ".manifest")))
-        self.assertTrue(os.path.isdir(os.path.join(
-            self.temp_dir, "www", "simple", ".trace")))
+        self.assertLogEqual(
+            [
+                "Constructing release trees ...",
+                "Copying desktop-amd64 image ...",
+                "Making amd64 zsync metafile ...",
+                "Creating torrent for %s/kubuntu-%s-desktop-amd64.iso ..."
+                % (target_dir, version),
+                "Copying desktop-i386 image ...",
+                "Making i386 zsync metafile ...",
+                "Creating torrent for %s/kubuntu-%s-desktop-i386.iso ..."
+                % (target_dir, version),
+                "Checksumming simple tree (pool) ...",
+                "LP_SIGN_CONFIG set but not found.",
+                "Checksumming simple tree (%s) ..." % series,
+                "LP_SIGN_CONFIG set but not found.",
+                "Done!  Remember to sync-mirrors and regenerate-streams after "
+                "checking that everything is OK.",
+            ]
+        )
+        self.assertCountEqual(
+            [
+                "SHA256SUMS",
+                "kubuntu-%s-desktop-amd64.iso" % version,
+                "kubuntu-%s-desktop-amd64.iso.zsync" % version,
+                "kubuntu-%s-desktop-amd64.manifest" % version,
+                "kubuntu-%s-desktop-i386.iso" % version,
+                "kubuntu-%s-desktop-i386.iso.zsync" % version,
+                "kubuntu-%s-desktop-i386.manifest" % version,
+            ],
+            os.listdir(pool_dir),
+        )
+        self.assertCountEqual(
+            [
+                ".htaccess",
+                "FOOTER.html",
+                "HEADER.html",
+                "SHA256SUMS",
+                "kubuntu-%s-desktop-amd64.iso" % version,
+                "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+                "kubuntu-%s-desktop-amd64.iso.zsync" % version,
+                "kubuntu-%s-desktop-amd64.manifest" % version,
+                "kubuntu-%s-desktop-i386.iso" % version,
+                "kubuntu-%s-desktop-i386.iso.torrent" % version,
+                "kubuntu-%s-desktop-i386.iso.zsync" % version,
+                "kubuntu-%s-desktop-i386.manifest" % version,
+            ],
+            os.listdir(target_dir),
+        )
+        self.assertCountEqual(
+            [
+                "kubuntu-%s-desktop-amd64.iso" % version,
+                "kubuntu-%s-desktop-amd64.iso.torrent" % version,
+                "kubuntu-%s-desktop-i386.iso" % version,
+                "kubuntu-%s-desktop-i386.iso.torrent" % version,
+            ],
+            os.listdir(torrent_dir),
+        )
+        self.assertFalse(
+            os.path.exists(
+                os.path.join(self.temp_dir, "www", "full", "kubuntu", "releases")
+            )
+        )
+        self.assertTrue(
+            os.path.exists(os.path.join(self.temp_dir, "www", "simple", ".manifest"))
+        )
+        self.assertTrue(
+            os.path.isdir(os.path.join(self.temp_dir, "www", "simple", ".trace"))
+        )
 
     @mock.patch("cdimage.osextras.find_on_path", return_value=True)
     @mock.patch("subprocess.call", side_effect=call_mktorrent_zsyncmake)
@@ -4527,19 +4555,21 @@ class TestSimpleReleasePublisher(TestCase, TestReleasePublisherMixin):
                 "checking that everything is OK.",
             ]
         )
-        self.assertLogEqual([
-            "Constructing release trees ...",
-            "Copying desktop-amd64 image ...",
-            "Making amd64 zsync metafile ...",
-            "Creating torrent for %s/ubuntu-%s-desktop-amd64.iso ..." % (
-                target_dir, version),
-            "Checksumming simple tree (pool) ...",
-            "LP_SIGN_CONFIG set but not found.",
-            "Checksumming simple tree (%s) ..." % series,
-            "LP_SIGN_CONFIG set but not found.",
-            "Done!  Remember to sync-mirrors and regenerate-streams after "
-            "checking that everything is OK.",
-        ])
+        self.assertLogEqual(
+            [
+                "Constructing release trees ...",
+                "Copying desktop-amd64 image ...",
+                "Making amd64 zsync metafile ...",
+                "Creating torrent for %s/ubuntu-%s-desktop-amd64.iso ..."
+                % (target_dir, version),
+                "Checksumming simple tree (pool) ...",
+                "LP_SIGN_CONFIG set but not found.",
+                "Checksumming simple tree (%s) ..." % series,
+                "LP_SIGN_CONFIG set but not found.",
+                "Done!  Remember to sync-mirrors and regenerate-streams after "
+                "checking that everything is OK.",
+            ]
+        )
         # Double check if we still published everything
         self.assertCountEqual(
             [

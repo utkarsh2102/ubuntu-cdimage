@@ -76,7 +76,5 @@ class TestSign(TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             sign_cdimage(config, sign_path)
             mock_check_call.assert_called()
-        self.assertLogEqual(
-            ["Signing %s using LP signing service" % sign_path]
-            )
+        self.assertLogEqual(["Signing %s using LP signing service" % sign_path])
         self.assertFalse(os.path.exists("%s.gpg" % sign_path))
