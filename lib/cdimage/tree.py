@@ -3197,21 +3197,6 @@ class DailyTreePublisher(Publisher):
 class ReleaseTreeMixin:
     """Additional methods for trees containing released images."""
 
-    def tree_suffix(self, source):
-        # Publish ports/daily to ports/releases/..., etc.
-        ubuntu_projects = ("ubuntu-server",)
-        if "/" in source:
-            project, tail = source.split("/", 1)
-            if project in ubuntu_projects:
-                if "/" in tail:
-                    return "/%s" % tail.split("/", 1)[0]
-                else:
-                    return ""
-            else:
-                return "/%s" % source.split("/", 1)[0]
-        else:
-            return ""
-
     def publish_target(self, source):
         if self.config.image_type == "legacy-server":
             return self.project_base.replace("server", "legacy-server")
