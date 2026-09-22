@@ -679,6 +679,36 @@ class TestRunLiveBuilds(TestCase):
         mock_request_build.side_effect = socket.timeout("launchpad is unwell")
         self.assertRaises(LiveBuildsFailed, run_live_builds, self.config)
 
+    @mock.patch("time.strftime", return_value="20130315")
+    @mock.patch("cdimage.livefs.send_mail")
+    def test_live_build_notify_failure_log_fetch_fails(self, mock_send_mail, *args):
+        # A read that times out part-way raises socket.timeout, not URLError,
+        # so this used to abort the run -- losing the other arches' results --
+        # over the build log of a build that had already failed.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "i386"
+
+        path = os.path.join(self.temp_dir, "production", "notify-addresses")
+        with mkfile(path) as notify_addresses:
+            print("ALL\tfoo@example.org", file=notify_addresses)
+
+        [lp_build] = mock_builds_for_config(self.config).values()
+        lp_build.build_log_url = "http://librarian.internal/build.log.gz"
+
+        with mock.patch(
+            "cdimage.livefs.urlopen", side_effect=socket.timeout("too slow")
+        ):
+            live_build_notify_failure(self.config, "i386", lp_build)
+
+        mock_send_mail.assert_called_once_with(
+            "LiveFS ubuntu/bionic/i386 failed to build on 20130315",
+            "buildlive",
+            ["foo@example.org"],
+            b"",
+        )
+
 
 class TestDownloadLiveFilesystems(TestCase):
     def setUp(self):

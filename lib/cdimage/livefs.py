@@ -164,7 +164,14 @@ def live_build_notify_failure(config, arch, lp_build):
             with closing(io.BytesIO(comp.read())) as comp_bytes:
                 with closing(GzipFile(fileobj=comp_bytes)) as f:
                     body = f.read()
-    except URLError:
+    except Exception:
+        # A read that times out part-way raises socket.timeout rather than
+        # URLError, so this used to abort the whole run -- losing the other
+        # arches' results -- over the build log of a build that had already
+        # failed.  The mail is worth more than the attachment.
+        logger.warning("Couldn't fetch the build log for %s:", lp_build.web_link)
+        for line in traceback.format_exc().splitlines():
+            logger.warning(line)
         body = b""
     subject = "LiveFS %s%s/%s/%s failed to build on %s" % (
         "(built by %s) " % config["SUDO_USER"] if config["SUDO_USER"] else "",
@@ -426,7 +433,11 @@ An artefact failed to download with error:
 
 
 def download_livefs_artifacts(config, arch, lp_build, output_dir):
-    for uri in lp_build.getFileUrls():
+    # Ask Launchpad where the artifacts are before touching any of them.  The
+    # build has already succeeded by this point, so a blip here is never a
+    # reason to throw it away.
+    uris = retry_lp(lp_build.getFileUrls, description="getFileUrls")
+    for uri in uris:
         base = unquote(os.path.basename(uri))
         base = base.split(".", 2)[2]
         ext = base.split(".")[-1]
@@ -466,7 +477,14 @@ def download_live_filesystems(config, builds):
     for arch, build in builds.items():
         try:
             download_livefs_artifacts(config, arch, build, output_dir)
-        except osextras.FetchError as exc:
+        except Exception as exc:
+            # Whatever went wrong for this arch, the others' artifacts are
+            # still worth having, so drop only this one.  Same reasoning as
+            # Publisher.bookkeep: log it in full, carry on, and leave it to
+            # the caller to decide the run has failed.
+            logger.error("Couldn't download livefs artifacts for %s:", arch)
+            for line in traceback.format_exc().splitlines():
+                logger.error(line)
             live_build_notify_download_failure(config, arch, exc)
             continue
         successful_builds[arch] = build
