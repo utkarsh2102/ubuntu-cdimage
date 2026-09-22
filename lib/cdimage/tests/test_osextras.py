@@ -177,8 +177,9 @@ class TestOSExtras(TestCase):
         self.assertTrue(os.path.exists(target))
         self.assertEqual(os.stat(target), os.stat(source))
 
+    @mock.patch("cdimage.retry._sleep")
     @mock.patch("subprocess.call", return_value=1)
-    def test_fetch_url_removes_target_on_failure(self, *args):
+    def test_fetch_url_removes_target_on_failure(self, mock_call, mock_sleep):
         config = Config(read=False)
         target = os.path.join(self.temp_dir, "target")
         touch(target)
@@ -189,7 +190,57 @@ class TestOSExtras(TestCase):
             "http://example.org/source",
             target,
         )
+        # Every attempt is spent before the partial file is thrown away;
+        # until then --continue could still have resumed it.
+        self.assertEqual(osextras.DEFAULT_FETCH_RETRIES, mock_call.call_count)
         self.assertFalse(os.path.exists(target))
+
+    @mock.patch("cdimage.retry._sleep")
+    def test_fetch_url_retries_transient_failure(self, mock_sleep):
+        # A librarian 502 makes wget exit non-zero.  Asking again a minute
+        # later is almost always enough, and is far cheaper than discarding a
+        # livefs build that has already succeeded.
+        config = Config(read=False)
+        target = os.path.join(self.temp_dir, "target")
+        with mock.patch("subprocess.call", side_effect=[1, 0]) as mock_call:
+            osextras.fetch(config, "http://example.org/source", target)
+        self.assertEqual(2, mock_call.call_count)
+        mock_sleep.assert_called_once()
+
+    @mock.patch("cdimage.retry._sleep")
+    @mock.patch("subprocess.call", return_value=1)
+    def test_fetch_url_drops_proxy_on_last_attempt(self, mock_call, mock_sleep):
+        # The librarian failures we see are "502 Proxy Error", so the proxy
+        # itself may be the broken part.  Going around it is the last thing
+        # left to try.
+        config = Config(read=False)
+        target = os.path.join(self.temp_dir, "target")
+        self.assertRaises(
+            osextras.FetchError,
+            osextras.fetch,
+            config,
+            "http://example.org/source",
+            target,
+        )
+        commands = [call[0][0] for call in mock_call.call_args_list]
+        for command in commands[:-1]:
+            self.assertNotIn("--no-proxy", command)
+        self.assertIn("--no-proxy", commands[-1])
+
+    @mock.patch("cdimage.retry._sleep")
+    @mock.patch("subprocess.call", return_value=1)
+    def test_fetch_url_retries_are_configurable(self, mock_call, mock_sleep):
+        config = Config(read=False)
+        config["CDIMAGE_FETCH_RETRIES"] = "5"
+        target = os.path.join(self.temp_dir, "target")
+        self.assertRaises(
+            osextras.FetchError,
+            osextras.fetch,
+            config,
+            "http://example.org/source",
+            target,
+        )
+        self.assertEqual(5, mock_call.call_count)
 
     @mock.patch("subprocess.call", return_value=0)
     def test_fetch_url(self, mock_call):
@@ -202,7 +253,9 @@ class TestOSExtras(TestCase):
                 "wget",
                 "-nv",
                 "--retry-connrefused",
-                "--waitretry=5",
+                "--retry-on-http-error=429,500,502,503,504",
+                "--retry-on-host-error",
+                "--waitretry=15",
                 "--read-timeout=120",
                 "--timeout=120",
                 "-t",
