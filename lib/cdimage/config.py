@@ -324,7 +324,12 @@ all_series.extend(
             _core_series="26",
             _build_type="Release",
         ),
-        Series("stonking", "26.10", "Stonking Stingray"),
+        Series(
+            "stonking",
+            "26.10",
+            "Stonking Stingray",
+            _build_type="Beta",
+        ),
     ]
 )
 
