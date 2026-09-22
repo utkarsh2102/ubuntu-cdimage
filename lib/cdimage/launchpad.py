@@ -33,6 +33,7 @@ from cdimage import retry
 __metaclass__ = type
 
 
+DEFAULT_TIMEOUT = 120
 DEFAULT_RETRIES = 5
 DEFAULT_RETRY_DELAY = 10
 
@@ -228,17 +229,27 @@ class _CachingLiveFSes:
 
 
 def login(instance):
+    # Without a timeout, httplib2 blocks forever on a connection that never
+    # answers, and the run sits there holding the build lock for hours.  A
+    # stall we can see is a stall we can retry.
+    timeout = _setting("CDIMAGE_LP_TIMEOUT", DEFAULT_TIMEOUT)
     try:
         import launchpadlib.credentials
 
         store = launchpadlib.credentials.KeyringCredentialStore(None, fallback=True)
         lp = Launchpad.login_with(
-            "ubuntu-cdimage", instance, version="devel", credential_store=store
+            "ubuntu-cdimage",
+            instance,
+            version="devel",
+            credential_store=store,
+            timeout=timeout,
         )
     except TypeError:
         # prior to focal (1.10.13), the fallback= kwarg didn't exist and
         # Launchpadlib worked under sudo
-        lp = Launchpad.login_with("ubuntu-cdimage", instance, version="devel")
+        lp = Launchpad.login_with(
+            "ubuntu-cdimage", instance, version="devel", timeout=timeout
+        )
     return lp
 
 

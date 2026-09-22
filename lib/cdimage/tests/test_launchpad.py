@@ -161,3 +161,38 @@ class TestCachingLiveFS(TestCase):
         livefs = launchpad._CachingLiveFS(mock.Mock(), lp_livefs)
         self.assertRaises(Exception, livefs.getLatestBuild, das)
         self.assertEqual(1, lp_livefs.listings)
+
+
+class TestLogin(TestCase):
+    def setUp(self):
+        super(TestLogin, self).setUp()
+        self.addCleanup(setattr, launchpad, "_tunables", launchpad._tunables)
+        launchpad._tunables = {}
+
+    @mock.patch("cdimage.launchpad.Launchpad")
+    def test_login_passes_a_timeout(self, mock_launchpad):
+        # Without one, httplib2 blocks forever on a connection that never
+        # answers, with the build-image-set lock held throughout.
+        launchpad.login("production")
+        self.assertEqual(
+            launchpad.DEFAULT_TIMEOUT,
+            mock_launchpad.login_with.call_args[1]["timeout"],
+        )
+
+    @mock.patch("cdimage.launchpad.Launchpad")
+    def test_login_timeout_is_configurable(self, mock_launchpad):
+        launchpad._tunables = {"CDIMAGE_LP_TIMEOUT": "7"}
+        launchpad.login("production")
+        self.assertEqual(7, mock_launchpad.login_with.call_args[1]["timeout"])
+
+    @mock.patch("cdimage.launchpad.Launchpad")
+    def test_login_still_passes_a_timeout_on_the_old_api(self, mock_launchpad):
+        # Before focal the fallback= kwarg didn't exist; that path needs the
+        # timeout just as much.
+        mock_launchpad.login_with.side_effect = [TypeError, mock.sentinel.lp]
+        self.assertIs(mock.sentinel.lp, launchpad.login("production"))
+        self.assertEqual(2, mock_launchpad.login_with.call_count)
+        self.assertEqual(
+            launchpad.DEFAULT_TIMEOUT,
+            mock_launchpad.login_with.call_args[1]["timeout"],
+        )
