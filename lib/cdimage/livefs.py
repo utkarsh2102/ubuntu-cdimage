@@ -23,6 +23,7 @@ from gzip import GzipFile
 import io
 import os
 import time
+import traceback
 
 try:
     from urllib.error import URLError
@@ -31,13 +32,25 @@ try:
 except ImportError:
     from urllib2 import URLError, unquote, urlopen
 
-from cdimage import osextras
-from cdimage.launchpad import get_launchpad
+from cdimage import osextras, retry
+from cdimage.launchpad import get_launchpad, retry_lp
 from cdimage.log import logger
 from cdimage.mail import get_notify_addresses, send_mail
 from cdimage.tracker import tracker_set_rebuild_status
 
 __metaclass__ = type
+
+
+# How often to ask Launchpad how a build is getting on.  A livefs build takes
+# tens of minutes, so the first interval is only about catching the short
+# ones; after that we ease off, because every poll is a request Launchpad can
+# refuse and a chance to lose the run.
+POLL_INTERVAL = 15
+DEFAULT_POLL_INTERVAL_MAX = 60
+
+# How long a build may go without Launchpad telling us anything about it
+# before we stop waiting for it.
+DEFAULT_POLL_GRACE = 3600
 
 
 class LiveBuildsFailed(Exception):
@@ -215,7 +228,7 @@ def get_lp_livefs(config, arch):
     else:
         instance = None
         owner, name = lp_info
-    lp = get_launchpad(instance)
+    lp = get_launchpad(instance, config=config)
     lp_owner = lp.people[owner]
     lp_distribution = lp.distributions[config.distribution]
     lp_ds = lp_distribution.getSeries(name_or_version=config.series)
@@ -228,37 +241,54 @@ def get_lp_livefs(config, arch):
     return lp, livefs
 
 
+def request_live_build(config, arch, full_name):
+    """Ask Launchpad to build the live filesystem for one arch."""
+    lp, lp_livefs = get_lp_livefs(config, arch)
+    logger.info("%s on Launchpad starting at %s", full_name, time.strftime("%F %T"))
+    tracker_set_rebuild_status(config, [0, 1], 2, arch)
+    if config["CDIMAGE_REUSE_BUILD"]:
+        cpuarch, subarch = split_arch(config, arch)
+        for build in lp_livefs.builds:
+            try:
+                metadata_subarch = build.metadata_override.get("subarch", "")
+            except AttributeError:
+                metadata_subarch = ""
+            if (
+                build.distro_arch_series.architecture_tag == cpuarch
+                and metadata_subarch == subarch
+                and build.buildstate == "Successfully built"
+            ):
+                logger.info("reusing build %s", build)
+                return build
+        raise Exception("no build found to reuse for %s" % (arch,))
+    lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
+    lp_build = lp_livefs.requestBuild(**lp_kwargs)
+    logger.info("%s: %s" % (full_name, lp_build.web_link))
+    return lp_build
+
+
 def run_live_builds(config):
     lp_builds = []
+    unstarted = []
     for arch in config.arches:
         full_name = live_build_full_name(config, arch)
-        timestamp = time.strftime("%F %T")
-        lp, lp_livefs = get_lp_livefs(config, arch)
-        logger.info("%s on Launchpad starting at %s", full_name, timestamp)
-        tracker_set_rebuild_status(config, [0, 1], 2, arch)
-        lp_build = None
-        if config["CDIMAGE_REUSE_BUILD"]:
-            cpuarch, subarch = split_arch(config, arch)
-            for build in lp_livefs.builds:
-                try:
-                    metadata_subarch = build.metadata_override.get("subarch", "")
-                except AttributeError:
-                    metadata_subarch = ""
-                if (
-                    build.distro_arch_series.architecture_tag == cpuarch
-                    and metadata_subarch == subarch
-                    and build.buildstate == "Successfully built"
-                ):
-                    logger.info("reusing build %s", build)
-                    lp_build = build
-                    break
-            else:
-                raise Exception("no build found to reuse for %s" % (arch,))
-        if lp_build is None:
-            lp_kwargs = live_build_lp_kwargs(config, lp, lp_livefs, arch)
-            lp_build = lp_livefs.requestBuild(**lp_kwargs)
-            logger.info("%s: %s" % (full_name, lp_build.web_link))
+        try:
+            lp_build = request_live_build(config, arch, full_name)
+        except Exception:
+            # One arch failing to start must not strand the builds we have
+            # already asked Launchpad for, nor stop us asking for the rest.
+            unstarted.append(arch)
+            logger.error("Couldn't start the live filesystem build for %s:", arch)
+            for line in traceback.format_exc().splitlines():
+                logger.error(line)
+            tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
+            continue
         lp_builds.append((lp_build, arch, full_name, None))
+
+    if unstarted and not lp_builds:
+        raise LiveBuildsFailed(
+            "No live filesystem builds could be started (%s)." % ", ".join(unstarted)
+        )
 
     successful_builds = {}
 
@@ -276,12 +306,46 @@ def run_live_builds(config):
             tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
             live_build_notify_failure(config, arch, lp_build)
 
+    # When we last got a straight answer about each build, so that we can tell
+    # a Launchpad that is briefly unwell from one that has stopped answering.
+    last_seen = {arch: time.time() for _, arch, _, _ in lp_builds}
+    poll_grace = retry.int_setting(config, "CDIMAGE_LP_POLL_GRACE", DEFAULT_POLL_GRACE)
+    poll_interval_max = retry.int_setting(
+        config, "CDIMAGE_LP_POLL_INTERVAL_MAX", DEFAULT_POLL_INTERVAL_MAX
+    )
+    poll_interval = POLL_INTERVAL
+
     while lp_builds:
         # Check for Launchpad build results.
         pending_lp_builds = []
         for lp_item in lp_builds:
             lp_build, arch, full_name, log_timeout = lp_item
-            lp_build.lp_refresh()
+            try:
+                retry_lp(lp_build.lp_refresh, description="build status")
+            except Exception as e:
+                # The build is still running on Launchpad, so there is nothing
+                # to gain by abandoning it -- and abandoning it here used to
+                # take every other arch down with it.  Wait, within reason.
+                stalled = time.time() - last_seen[arch]
+                if stalled < poll_grace:
+                    logger.warning(
+                        "%s: couldn't read the build status (%s); still waiting, "
+                        "%ds of grace left",
+                        full_name,
+                        retry.describe(e),
+                        round(poll_grace - stalled),
+                    )
+                    pending_lp_builds.append(lp_item)
+                    continue
+                logger.error(
+                    "%s: no word from Launchpad for %ds; giving up on this arch",
+                    full_name,
+                    round(stalled),
+                )
+                tracker_set_rebuild_status(config, [0, 1, 2], 5, arch)
+                live_build_notify_failure(config, arch, lp_build)
+                continue
+            last_seen[arch] = time.time()
             if lp_build.buildstate in (
                 "Needs building",
                 "Currently building",
@@ -305,7 +369,11 @@ def run_live_builds(config):
         lp_builds = pending_lp_builds
 
         if lp_builds:
-            time.sleep(15)
+            time.sleep(poll_interval)
+            # Ease off.  A livefs build runs for tens of minutes, so polling
+            # every 15 seconds for all of it is thousands of requests per run,
+            # each one a chance for a blip to cost us the whole thing.
+            poll_interval = min(poll_interval * 1.5, poll_interval_max)
 
     if not successful_builds:
         raise LiveBuildsFailed("No live filesystem builds succeeded.")

@@ -23,6 +23,7 @@ from collections import defaultdict
 from itertools import chain, repeat
 import gzip
 import os
+import socket
 import subprocess
 import time
 
@@ -115,6 +116,21 @@ class MockLiveFSBuild(mock.MagicMock):
         return "https://launchpad.example/%s-build" % (
             self._distro_arch_series.architecture_tag
         )
+
+
+class FlakyRefreshBuild(MockLiveFSBuild):
+    """A build whose status Launchpad refuses to report a few times."""
+
+    def __init__(self, *args, **kwargs):
+        failures = kwargs.pop("refresh_failures", 2)
+        super(FlakyRefreshBuild, self).__init__(*args, **kwargs)
+        self._refresh_failures = failures
+
+    def lp_refresh(self):
+        if self._refresh_failures:
+            self._refresh_failures -= 1
+            raise socket.timeout("launchpad is unwell")
+        super(FlakyRefreshBuild, self).lp_refresh()
 
 
 class MockLiveFS(mock.MagicMock):
@@ -518,8 +534,10 @@ class TestRunLiveBuilds(TestCase):
                 mock.call(self.config, [0, 1, 2], 3, "i386"),
             ]
         )
+        # The poll interval eases off rather than sitting at 15s for the
+        # whole of a build that runs for tens of minutes.
         self.assertEqual(3, time.sleep.call_count)
-        time.sleep.assert_has_calls([mock.call(15)] * 3)
+        time.sleep.assert_has_calls([mock.call(15), mock.call(22.5), mock.call(33.75)])
         lp = get_launchpad()
         owner = lp.people["ubuntu-cdimage"]
         ubuntu = lp.distributions["ubuntu"]
@@ -534,6 +552,132 @@ class TestRunLiveBuilds(TestCase):
         self.assertEqual("Successfully built", builds[0].buildstate)
         self.assertEqual("Successfully built", builds[1].buildstate)
         self.assertEqual(0, mock_live_build_notify_failure.call_count)
+
+    @mock.patch("cdimage.retry._sleep")
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
+    @mock.patch("cdimage.livefs.live_build_notify_failure")
+    def test_run_live_builds_survives_a_status_blip(
+        self, mock_notify_failure, mock_request_build, *args
+    ):
+        # A build that Launchpad briefly won't talk about is still running on
+        # Launchpad, so there is nothing to gain by abandoning it -- and
+        # abandoning it used to take every other arch down with it.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 i386"
+
+        def requestBuild(distro_arch_series, **kw):
+            build = FlakyRefreshBuild(distro_arch_series=distro_arch_series)
+            build._buildstates = chain(
+                ["Needs building"] * 2, repeat("Successfully built")
+            )
+            return build
+
+        mock_request_build.side_effect = requestBuild
+
+        self.assertCountEqual(["amd64", "i386"], run_live_builds(self.config).keys())
+        self.assertEqual(0, mock_notify_failure.call_count)
+
+    @mock.patch("cdimage.retry._sleep")
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
+    @mock.patch("cdimage.livefs.live_build_notify_failure")
+    def test_run_live_builds_waits_out_an_exhausted_status_retry(
+        self, mock_notify_failure, mock_request_build, *args
+    ):
+        # Even when the retries themselves give up, the build is still running
+        # on Launchpad: it stays pending and we ask again next time round
+        # rather than losing it, and the other arches, along with it.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64"
+        self.config["CDIMAGE_LP_RETRIES"] = "1"  # exhaust on the first failure
+        self.capture_logging()
+
+        def requestBuild(distro_arch_series, **kw):
+            build = FlakyRefreshBuild(
+                distro_arch_series=distro_arch_series, refresh_failures=2
+            )
+            build._buildstates = repeat("Successfully built")
+            return build
+
+        mock_request_build.side_effect = requestBuild
+
+        self.assertCountEqual(["amd64"], run_live_builds(self.config).keys())
+        waiting = [m for m in self.captured_log_messages() if "still waiting" in m]
+        self.assertEqual(2, len(waiting))
+        self.assertEqual(0, mock_notify_failure.call_count)
+
+    @mock.patch("cdimage.retry._sleep")
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
+    @mock.patch("cdimage.livefs.live_build_notify_failure")
+    def test_run_live_builds_gives_up_after_the_grace_period(
+        self, mock_notify_failure, mock_request_build, *args
+    ):
+        # Waiting is not the same as waiting forever.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64"
+        self.config["CDIMAGE_LP_POLL_GRACE"] = "0"
+
+        def requestBuild(distro_arch_series, **kw):
+            return FlakyRefreshBuild(
+                distro_arch_series=distro_arch_series, refresh_failures=99
+            )
+
+        mock_request_build.side_effect = requestBuild
+
+        self.assertRaises(LiveBuildsFailed, run_live_builds, self.config)
+        self.assertEqual(1, mock_notify_failure.call_count)
+
+    @mock.patch("cdimage.retry._sleep")
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
+    @mock.patch("cdimage.livefs.live_build_notify_failure")
+    def test_run_live_builds_one_arch_fails_to_start(
+        self, mock_notify_failure, mock_request_build, *args
+    ):
+        # A 503 while asking for one arch's build must not strand the builds
+        # we already asked for, nor stop us asking for the rest.
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 i386"
+        self.capture_logging()
+
+        def requestBuild(distro_arch_series, **kw):
+            if distro_arch_series.architecture_tag == "i386":
+                raise socket.timeout("launchpad is unwell")
+            build = MockLiveFSBuild(distro_arch_series=distro_arch_series)
+            build._buildstates = chain(
+                ["Needs building"] * 2, repeat("Successfully built")
+            )
+            return build
+
+        mock_request_build.side_effect = requestBuild
+
+        self.assertCountEqual(["amd64"], run_live_builds(self.config).keys())
+        self.assertIn(
+            "Couldn't start the live filesystem build for i386:",
+            self.captured_log_messages(),
+        )
+
+    @mock.patch("cdimage.retry._sleep")
+    @mock.patch("cdimage.livefs.tracker_set_rebuild_status")
+    @mock.patch("cdimage.tests.test_livefs.MockLiveFS.requestBuild")
+    def test_run_live_builds_no_arch_starts(self, mock_request_build, *args):
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily"
+        self.config["ARCHES"] = "amd64 i386"
+        self.capture_logging()
+        mock_request_build.side_effect = socket.timeout("launchpad is unwell")
+        self.assertRaises(LiveBuildsFailed, run_live_builds, self.config)
 
 
 class TestDownloadLiveFilesystems(TestCase):
