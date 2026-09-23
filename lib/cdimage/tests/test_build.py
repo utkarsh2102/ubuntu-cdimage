@@ -970,12 +970,22 @@ class TestBuildImageSet(TestCase):
             self.captured_log_messages(),
         )
 
-    def test_build_image_set_locked_skips_purge_when_nothing_published(self):
+    @mock.patch("cdimage.build.notify_failure")
+    def test_build_image_set_locked_skips_purge_when_nothing_published(
+        self, mock_notify
+    ):
         # Purging is what keeps old dailies from piling up, but it must not
         # run when there's no new image to replace what it would delete.
+        #
+        # Publishing nothing is itself a failure, though.  An empty arch list
+        # makes every later step quietly do nothing, so a run that doesn't say
+        # so here goes on to exit 0 having built nothing at all.
         result, mock_purge = self.run_build_image_set_locked_for_publishing([])
-        self.assertTrue(result)
+        self.assertFalse(result)
         mock_purge.assert_not_called()
+        mock_notify.assert_called_once_with(
+            self.config, mock.ANY, action="produced no images"
+        )
         self.assertLogEqual(
             [
                 "===== Publishing =====",
@@ -987,6 +997,7 @@ class TestBuildImageSet(TestCase):
                 mock.ANY,
                 "===== Finished =====",
                 mock.ANY,
+                "No images were published; reporting the build as failed.",
             ]
         )
 

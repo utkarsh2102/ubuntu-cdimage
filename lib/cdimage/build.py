@@ -29,7 +29,7 @@ import tempfile
 import time
 import traceback
 
-from cdimage import osextras
+from cdimage import osextras, retry
 from cdimage.build_id import next_build_id
 from cdimage.germinate import Germination
 from cdimage.livefs import (
@@ -572,6 +572,7 @@ def build_image_set_locked(config, options):
             fix_permissions(config)
 
         bookkeeping_failures = []
+        nothing_published = False
         if not config["CDIMAGE_NOPUBLISH"]:
             log_marker("Publishing")
             tree = Tree.get_daily(config)
@@ -584,6 +585,7 @@ def build_image_set_locked(config, options):
                 log_marker("Purging old images")
                 publisher.purge()
             else:
+                nothing_published = True
                 logger.warning("No images published; not purging old images")
 
             log_marker("Handling simplestreams")
@@ -594,7 +596,18 @@ def build_image_set_locked(config, options):
 
             bookkeeping_failures = publisher.bookkeeping_failures
 
+        retry.log_stats()
         log_marker("Finished")
+
+        # A run that publishes nothing has failed, whatever the individual
+        # steps thought.  Saying so is the difference between losing a day of
+        # images and knowing it, and losing a day of images while cron exits 0.
+        if nothing_published:
+            logger.error("No images were published; reporting the build as failed.")
+            sys.stdout.flush()
+            sys.stderr.flush()
+            notify_failure(config, log_path, action="produced no images")
+            return False
 
         # publish() deliberately keeps going when a step after the images
         # themselves fails, so that we still get as far as purging old images.
@@ -614,6 +627,7 @@ def build_image_set_locked(config, options):
     except Exception as e:
         for line in traceback.format_exc().splitlines():
             logger.error(line)
+        retry.log_stats()
         sys.stdout.flush()
         sys.stderr.flush()
         if not isinstance(e, LiveBuildsFailed):
