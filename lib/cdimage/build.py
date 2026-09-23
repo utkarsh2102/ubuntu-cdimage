@@ -46,6 +46,10 @@ from cdimage.tree import Publisher, Tree
 __metaclass__ = type
 
 
+class NoLiveFilesystems(Exception):
+    """No live filesystem artifacts could be downloaded."""
+
+
 @contextlib.contextmanager
 def lock_build_image_set(config):
     if config.distribution == "ubuntu":
@@ -241,6 +245,32 @@ ISO_PROJECTS = set(
 )
 
 
+def download_live_filesystems_or_fail(config, builds):
+    """Download livefs artifacts, refusing to carry on with nothing.
+
+    download_live_filesystems() drops any arch whose artifacts would not
+    download, which is what we want while some other arch is still fine.
+    When it drops *every* arch, though, config.arches becomes empty -- and an
+    empty arch list is not an error anywhere downstream.  Every "for arch in
+    config.arches" loop simply does nothing, publish() finds no images, and
+    the run reports success having built nothing at all.  Stop here instead,
+    while we can still say which arches went missing and why.
+    """
+    log_marker("Downloading live filesystem images")
+    wanted = list(config.arches)
+    builds = download_live_filesystems(config, builds)
+    config.limit_arches_for_builds(builds)
+    for arch in wanted:
+        if arch not in config.arches:
+            logger.error("Dropping %s: livefs artifacts failed to download", arch)
+    if not config.arches:
+        raise NoLiveFilesystems(
+            "No live filesystem artifacts could be downloaded for %s."
+            % ", ".join(wanted)
+        )
+    return builds
+
+
 def build_livecd_base(config, builds):
     """Copy an artifacts from the "live" directory to the "output" directory.
 
@@ -256,9 +286,7 @@ def build_livecd_base(config, builds):
     conventions both for where the livefs artifacts get downloaded to
     and where the publication code expects to find things.
     """
-    log_marker("Downloading live filesystem images")
-    builds = download_live_filesystems(config, builds)
-    config.limit_arches_for_builds(builds)
+    builds = download_live_filesystems_or_fail(config, builds)
 
     if config.image_type == "daily-preinstalled":
         if config.project == "ubuntu-server":
@@ -561,9 +589,7 @@ def build_image_set_locked(config, options):
                 germinate_output.update_tasks(date)
 
             if config["CDIMAGE_LIVE"]:
-                log_marker("Downloading live filesystem images")
-                builds = download_live_filesystems(config, builds)
-                config.limit_arches_for_builds(builds)
+                builds = download_live_filesystems_or_fail(config, builds)
 
             configure_splash(config)
 

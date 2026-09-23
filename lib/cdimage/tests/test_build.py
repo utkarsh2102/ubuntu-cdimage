@@ -37,11 +37,13 @@ except ImportError:
 
 from cdimage import osextras
 from cdimage.build import (
+    NoLiveFilesystems,
     build_image_set,
     build_image_set_locked,
     build_livecd_base,
     configure_for_project,
     configure_splash,
+    download_live_filesystems_or_fail,
     fix_permissions,
     lock_build_image_set,
     log_marker,
@@ -1050,3 +1052,43 @@ class TestBuildImageSet(TestCase):
 
         mock_build_image_set_locked.side_effect = side_effect
         build_image_set(self.config, None)
+
+
+class TestDownloadLiveFilesystemsOrFail(TestCase):
+    def setUp(self):
+        super(TestDownloadLiveFilesystemsOrFail, self).setUp()
+        self.config = Config(read=False)
+        self.config.root = self.use_temp_dir()
+        self.config["PROJECT"] = "ubuntu"
+        self.config["DIST"] = "bionic"
+        self.config["IMAGE_TYPE"] = "daily-live"
+        self.config["ARCHES"] = "amd64 i386"
+
+    @mock.patch("cdimage.build.download_live_filesystems")
+    def test_keeps_the_arches_that_downloaded(self, mock_download):
+        mock_download.return_value = {"amd64": "build"}
+        self.capture_logging()
+        self.assertEqual(
+            {"amd64": "build"},
+            download_live_filesystems_or_fail(self.config, {"amd64": 1, "i386": 2}),
+        )
+        self.assertEqual(["amd64"], self.config.arches)
+        # Say which arch went missing; otherwise the shrinking arch list only
+        # shows up later as an unexplained "No images produced!".
+        self.assertIn(
+            "Dropping i386: livefs artifacts failed to download",
+            self.captured_log_messages(),
+        )
+
+    @mock.patch("cdimage.build.download_live_filesystems", return_value={})
+    def test_refuses_to_carry_on_with_nothing(self, mock_download):
+        # With an empty arch list every later step quietly does nothing and
+        # the run reports success having built nothing at all, which is how a
+        # librarian 502 on a .manifest cost three projects a day of images.
+        self.capture_logging()
+        self.assertRaises(
+            NoLiveFilesystems,
+            download_live_filesystems_or_fail,
+            self.config,
+            {"amd64": 1, "i386": 2},
+        )
