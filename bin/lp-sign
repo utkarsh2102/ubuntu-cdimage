@@ -49,6 +49,11 @@ from nacl.utils import random
 import requests
 
 
+# The signing service had no timeout at all, so a publish could hang on it
+# indefinitely -- and signing runs before the bookkeep() safety net.
+REQUEST_TIMEOUT = 60
+
+
 class LPSigningConnection:
     def __init__(self, url):
         self.url = url
@@ -56,12 +61,12 @@ class LPSigningConnection:
         self.private_key = None
 
     def _get(self, path):
-        response = requests.get(f"{self.url}{path}")
+        response = requests.get(f"{self.url}{path}", timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
         return response
 
     def _post(self, path, **kw):
-        response = requests.post(f"{self.url}{path}", **kw)
+        response = requests.post(f"{self.url}{path}", timeout=REQUEST_TIMEOUT, **kw)
         response.raise_for_status()
         return response
 
