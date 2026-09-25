@@ -43,7 +43,7 @@ PATH=/srv/cdimage.ubuntu.com/bin:/usr/sbin:/usr/bin:/sbin:/bin
 36 15 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=dangerous-beta for-project ubuntu-core cron.daily-live --live
 36 16 1,15 * * DIST=noble CHANNEL=stable for-project ubuntu-core cron.daily-live --live
 36 17 * * * EXTRA_PPAS=snappy-dev/image DIST=noble CHANNEL=beta for-project ubuntu-core cron.daily-live --live
-36 18 * * *	for channel in edge stable dangerous dangerous-edge; do env EXTRA_PPAS=snappy-dev/image PROPOSED=1 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-jetson DIST=noble CHANNEL=$channel for-project ubuntu-core cron.daily-live --live; done
+36 18 * * * for channel in edge stable dangerous dangerous-edge; do env EXTRA_PPAS=snappy-dev/image PROPOSED=1 CDIMAGE_SUBTREE=nvidia-tegra ARCHES=arm64+tegra-jetson DIST=noble CHANNEL=$channel for-project ubuntu-core cron.daily-live --live; done
 
 # core26 daily builds - TODO reduce cadence to bi-weekly after release
 36 14 * * * DIST=resolute CHANNEL=dangerous-stable for-project ubuntu-core cron.daily-live --live
