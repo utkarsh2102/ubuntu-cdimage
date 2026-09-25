@@ -29,7 +29,7 @@ import tempfile
 import time
 import traceback
 
-from cdimage import osextras
+from cdimage import osextras, retry
 from cdimage.build_id import next_build_id
 from cdimage.germinate import Germination
 from cdimage.livefs import (
@@ -44,6 +44,10 @@ from cdimage.tracker import tracker_set_rebuild_status
 from cdimage.tree import Publisher, Tree
 
 __metaclass__ = type
+
+
+class NoLiveFilesystems(Exception):
+    """No live filesystem artifacts could be downloaded."""
 
 
 @contextlib.contextmanager
@@ -241,6 +245,32 @@ ISO_PROJECTS = set(
 )
 
 
+def download_live_filesystems_or_fail(config, builds):
+    """Download livefs artifacts, refusing to carry on with nothing.
+
+    download_live_filesystems() drops any arch whose artifacts would not
+    download, which is what we want while some other arch is still fine.
+    When it drops *every* arch, though, config.arches becomes empty -- and an
+    empty arch list is not an error anywhere downstream.  Every "for arch in
+    config.arches" loop simply does nothing, publish() finds no images, and
+    the run reports success having built nothing at all.  Stop here instead,
+    while we can still say which arches went missing and why.
+    """
+    log_marker("Downloading live filesystem images")
+    wanted = list(config.arches)
+    builds = download_live_filesystems(config, builds)
+    config.limit_arches_for_builds(builds)
+    for arch in wanted:
+        if arch not in config.arches:
+            logger.error("Dropping %s: livefs artifacts failed to download", arch)
+    if not config.arches:
+        raise NoLiveFilesystems(
+            "No live filesystem artifacts could be downloaded for %s."
+            % ", ".join(wanted)
+        )
+    return builds
+
+
 def build_livecd_base(config, builds):
     """Copy an artifacts from the "live" directory to the "output" directory.
 
@@ -256,9 +286,7 @@ def build_livecd_base(config, builds):
     conventions both for where the livefs artifacts get downloaded to
     and where the publication code expects to find things.
     """
-    log_marker("Downloading live filesystem images")
-    builds = download_live_filesystems(config, builds)
-    config.limit_arches_for_builds(builds)
+    builds = download_live_filesystems_or_fail(config, builds)
 
     if config.image_type == "daily-preinstalled":
         if config.project == "ubuntu-server":
@@ -561,9 +589,7 @@ def build_image_set_locked(config, options):
                 germinate_output.update_tasks(date)
 
             if config["CDIMAGE_LIVE"]:
-                log_marker("Downloading live filesystem images")
-                builds = download_live_filesystems(config, builds)
-                config.limit_arches_for_builds(builds)
+                builds = download_live_filesystems_or_fail(config, builds)
 
             configure_splash(config)
 
@@ -572,6 +598,7 @@ def build_image_set_locked(config, options):
             fix_permissions(config)
 
         bookkeeping_failures = []
+        nothing_published = False
         if not config["CDIMAGE_NOPUBLISH"]:
             log_marker("Publishing")
             tree = Tree.get_daily(config)
@@ -584,6 +611,7 @@ def build_image_set_locked(config, options):
                 log_marker("Purging old images")
                 publisher.purge()
             else:
+                nothing_published = True
                 logger.warning("No images published; not purging old images")
 
             log_marker("Handling simplestreams")
@@ -594,7 +622,18 @@ def build_image_set_locked(config, options):
 
             bookkeeping_failures = publisher.bookkeeping_failures
 
+        retry.log_stats()
         log_marker("Finished")
+
+        # A run that publishes nothing has failed, whatever the individual
+        # steps thought.  Saying so is the difference between losing a day of
+        # images and knowing it, and losing a day of images while cron exits 0.
+        if nothing_published:
+            logger.error("No images were published; reporting the build as failed.")
+            sys.stdout.flush()
+            sys.stderr.flush()
+            notify_failure(config, log_path, action="produced no images")
+            return False
 
         # publish() deliberately keeps going when a step after the images
         # themselves fails, so that we still get as far as purging old images.
@@ -614,6 +653,7 @@ def build_image_set_locked(config, options):
     except Exception as e:
         for line in traceback.format_exc().splitlines():
             logger.error(line)
+        retry.log_stats()
         sys.stdout.flush()
         sys.stderr.flush()
         if not isinstance(e, LiveBuildsFailed):

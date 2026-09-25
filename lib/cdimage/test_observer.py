@@ -34,6 +34,7 @@ import json
 import requests
 from pathlib import Path
 
+from cdimage import retry
 from cdimage.log import logger
 
 TO_ENVIRONMENT = "cdimage.ubuntu.com"
@@ -47,19 +48,29 @@ class TestObserver:
         self.api_key = config["service"]["api_key"]
 
     def _request(self, _func, path, **kw):
-        response = _func(
-            f"{self.url}{path}",
-            headers={"Authorization": f"Bearer {self.api_key}"},
-            timeout=60.0,  # 60s timeout is already plenty!
-            **kw,
-        )
-        try:
+        def attempt():
+            response = _func(
+                f"{self.url}{path}",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                timeout=60.0,  # 60s timeout is already plenty!
+                **kw,
+            )
             response.raise_for_status()
+            return response
+
+        try:
+            return retry.retry_call(attempt, description="Test Observer request")
         except requests.HTTPError as e:
             logger.info(e)
-            logger.info(json.dumps(response.json(), indent=2))
+            try:
+                logger.info(json.dumps(e.response.json(), indent=2))
+            except Exception:
+                # Not everything that answers speaks JSON -- an HTML error
+                # page from a proxy in front of the API is the usual culprit,
+                # and a connection-level failure has no response at all.
+                # Whatever it is, logging it must not replace the real error.
+                logger.info(getattr(e.response, "text", "<no response body>"))
             raise e
-        return response
 
     def _delete(self, path, **kw):
         return self._request(requests.delete, path, **kw)

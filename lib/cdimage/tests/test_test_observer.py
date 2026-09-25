@@ -19,6 +19,8 @@ from pathlib import Path
 from unittest import mock
 import tempfile
 
+import requests
+
 from cdimage.config import Config, Series
 from cdimage.tree import (
     Publisher,
@@ -505,3 +507,51 @@ api_key: to_mytopsecretapikey
         mock_put.assert_not_called()
         mock_post.assert_not_called()
         mock_patch.assert_not_called()
+
+
+def http_error(status_code):
+    response = requests.Response()
+    response.status_code = status_code
+    return requests.HTTPError(response=response)
+
+
+class TestTestObserverRetries(TestCase):
+    def make_observer(self):
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        with tempfile.NamedTemporaryFile() as to_conf:
+            Path(to_conf.name).write_text("""
+[service]
+url: https://tests-api.test.cdimage/v1/
+api_key: to_mytopsecretapikey
+""")
+            config["TO_CONFIG"] = to_conf.name
+            return TestObserver(config)
+
+    @mock.patch("cdimage.retry._sleep")
+    def test_retries_a_server_error(self, mock_sleep):
+        to = self.make_observer()
+        responses = [http_error(503), http_error(503), MockResponse({"ok": 1}, 200)]
+
+        def flaky(*args, **kwargs):
+            result = responses.pop(0)
+            if isinstance(result, Exception):
+                raise result
+            return result
+
+        with mock.patch("cdimage.test_observer.requests.get", side_effect=flaky):
+            self.assertEqual({"ok": 1}, to._get("whatever").json())
+        self.assertEqual([], responses)
+        self.assertEqual(2, mock_sleep.call_count)
+
+    @mock.patch("cdimage.retry._sleep")
+    def test_does_not_retry_a_client_error(self, mock_sleep):
+        # Asking a fourth time for something that isn't there just delays the
+        # build, and the artifact submission is best-effort anyway.
+        to = self.make_observer()
+        with mock.patch(
+            "cdimage.test_observer.requests.get", side_effect=http_error(404)
+        ) as mock_get:
+            self.assertRaises(requests.HTTPError, to._get, "whatever")
+        self.assertEqual(1, mock_get.call_count)
+        mock_sleep.assert_not_called()
