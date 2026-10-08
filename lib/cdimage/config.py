@@ -328,7 +328,7 @@ all_series.extend(
             "stonking",
             "26.10",
             "Stonking Stingray",
-            _build_type="Daily",
+            _build_type="Official",
         ),
     ]
 )
