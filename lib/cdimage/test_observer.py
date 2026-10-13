@@ -113,25 +113,39 @@ class TestObserver:
                 return arch
         return None
 
-    def get_owner(self, os: str):
-        OS_OWNER_MAPPING = {
-            "edubuntu": "edubuntu-release",
-            "kubuntu": "kubuntu-release",
-            "lubuntu": "lubuntu-iso-managers",
-            "ubuntu": "canonical-desktop-team",
-            "ubuntu-base": "canonical-foundations",
-            "ubuntu-budgie": "ubuntubudgie-release",
-            "ubuntu-mate": "ubuntu-mate-release",
-            "ubuntu-mini-iso": "canonical-foundations",
-            "ubuntu-server": "canonical-server",
-            "ubuntu-unity": "ubuntu-unity-release",
-            "ubuntu-wsl": "canonical-desktop-team",
-            "ubuntucinnamon": "ubuntucinnamon-release",
-            "ubuntukylin": "ubuntukylin-release-team",
-            "ubuntustudio": "ubuntustudio-release",
-            "xubuntu": "xubuntu-release",
+    def get_owner(self, os: str, arch: str):
+        PRODUCT_ARCH_OWNER_MAPPING = {
+            "edubuntu": {"*": "edubuntu-release"},
+            "kubuntu": {"*": "kubuntu-release"},
+            "lubuntu": {"*": "lubuntu-iso-managers"},
+            "ubuntu": {
+                "*": "canonical-desktop-team",
+                "arm64": "canonical-foundations",
+                "arm64+raspi": "canonical-foundations",
+                "riscv64": "canonical-foundations",
+            },
+            "ubuntu-base": {"*": "canonical-foundations"},
+            "ubuntu-budgie": {"*": "ubuntubudgie-release"},
+            "ubuntu-mate": {"*": "ubuntu-mate-release"},
+            "ubuntu-mini-iso": {"*": "canonical-foundations"},
+            "ubuntu-server": {
+                "*": "canonical-server",
+                "arm64+raspi": "canonical-foundations",
+                "ppc64el": "ubuntu-power-triage",
+                "s390x": "ubuntu-z-triage",
+            },
+            "ubuntu-unity": {"*": "ubuntu-unity-release"},
+            "ubuntu-wsl": {"*": "canonical-desktop-team"},
+            "ubuntucinnamon": {"*": "ubuntucinnamon-release"},
+            "ubuntukylin": {"*": "ubuntukylin-release-team"},
+            "ubuntustudio": {"*": "ubuntustudio-release"},
+            "xubuntu": {
+                "*": "xubuntu-release",
+                "riscv64": "canonical-foundations",
+            },
         }
-        return OS_OWNER_MAPPING.get(os, "ubuntu-cdimage")
+        product = PRODUCT_ARCH_OWNER_MAPPING.get(os, {"*": "ubuntu-cdimage"})
+        return product.get(arch, product["*"])
 
     def publish_image(self, publisher, path: str, date: str):
         logger.info("Submitting images to Test Observer")
@@ -182,7 +196,7 @@ class TestObserver:
                 "os": os,
                 "release": release,
                 "sha256": sha256,
-                "owner": self.get_owner(os),
+                "owner": self.get_owner(os, arch),
                 "image_url": full_url,
             },
         )
@@ -227,7 +241,7 @@ class TestObserver:
                 "os": os,
                 "release": release,
                 "sha256": sha256,
-                "owner": self.get_owner(os),
+                "owner": self.get_owner(os, arch),
                 "image_url": full_url,
             },
         )

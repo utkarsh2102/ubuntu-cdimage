@@ -508,6 +508,33 @@ api_key: to_mytopsecretapikey
         mock_post.assert_not_called()
         mock_patch.assert_not_called()
 
+    def test_arch_specific_owner(self):
+        """Some arches of a product are owned by a different team.
+
+        riscv64 ubuntu images go to canonical-foundations; every other
+        arch of the product, and products without an arch mapping, keep
+        the owner they had before.
+        """
+        config = Config(read=False)
+        config.root = self.use_temp_dir()
+        with tempfile.NamedTemporaryFile() as to_conf:
+            Path(to_conf.name).write_text("""
+[service]
+url: https://tests-api.test.cdimage/v1/
+api_key: to_mytopsecretapikey
+""")
+            config["TO_CONFIG"] = to_conf.name
+            to = TestObserver(config)
+
+        # The remapped arch.
+        self.assertEqual("canonical-foundations", to.get_owner("ubuntu", "riscv64"))
+        # Other arches of the same product are unaffected.
+        self.assertEqual("canonical-desktop-team", to.get_owner("ubuntu", "amd64"))
+        # A product with no arch mapping falls back to its OS owner.
+        self.assertEqual("xubuntu-release", to.get_owner("xubuntu", "s390x"))
+        # An unknown product falls back to cdimage.
+        self.assertEqual("ubuntu-cdimage", to.get_owner("unknown", "riscv64"))
+
 
 def http_error(status_code):
     response = requests.Response()
